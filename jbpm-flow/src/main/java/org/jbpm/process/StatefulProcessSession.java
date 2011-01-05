@@ -48,7 +48,7 @@ public class StatefulProcessSession implements StatefulKnowledgeSession, Interna
 	private Environment environment;
 	private TimerService timerService;
 	protected Queue<WorkingMemoryAction> actionQueue;
-	private int id;
+	private long id;
 	
 	public StatefulProcessSession(KnowledgeBase kbase, KnowledgeSessionConfiguration sessionConfiguration, Environment environment) {
 		this.kbase = kbase;
@@ -167,11 +167,11 @@ public class StatefulProcessSession implements StatefulKnowledgeSession, Interna
 	public void dispose() {
 	}
 	
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 	

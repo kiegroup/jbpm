@@ -23,7 +23,7 @@ import org.drools.command.runtime.process.StartProcessCommand;
 import org.drools.compiler.PackageBuilder;
 import org.drools.definition.KnowledgePackage;
 import org.drools.definitions.impl.KnowledgePackageImp;
-import org.drools.persistence.session.SingleSessionCommandService;
+import org.drools.persistence.SingleSessionCommandService;
 import org.drools.process.core.Work;
 import org.drools.process.core.impl.WorkImpl;
 import org.drools.rule.Package;
@@ -139,7 +139,7 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         SingleSessionCommandService service = new SingleSessionCommandService( kbase,
                                                                                config,
                                                                                env );
-        int sessionId = service.getSessionId();
+        long sessionId = service.getSessionId();
 
         StartProcessCommand startProcessCommand = new StartProcessCommand();
         startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
@@ -255,7 +255,7 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         SingleSessionCommandService service = new SingleSessionCommandService( kbase,
                                                                                config,
                                                                                env );
-        int sessionId = service.getSessionId();
+        long sessionId = service.getSessionId();
 
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
@@ -461,7 +461,7 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         SingleSessionCommandService service = new SingleSessionCommandService( ruleBase,
                                                                                config,
                                                                                env );
-        int sessionId = service.getSessionId();
+        long sessionId = service.getSessionId();
         StartProcessCommand startProcessCommand = new StartProcessCommand();
         startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
         RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) service.execute( startProcessCommand );
@@ -635,7 +635,7 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         SingleSessionCommandService service = new SingleSessionCommandService( kbase,
                                                                                config,
                                                                                env );
-        int sessionId = service.getSessionId();
+        long sessionId = service.getSessionId();
         StartProcessCommand startProcessCommand = new StartProcessCommand();
         startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
         ProcessInstance processInstance = service.execute( startProcessCommand );
@@ -741,7 +741,7 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         SingleSessionCommandService service = new SingleSessionCommandService( kbase,
                                                                                config,
                                                                                env );
-        int sessionId = service.getSessionId();
+        long sessionId = service.getSessionId();
         StartProcessCommand startProcessCommand = new StartProcessCommand();
         startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
         ProcessInstance processInstance = service.execute( startProcessCommand );

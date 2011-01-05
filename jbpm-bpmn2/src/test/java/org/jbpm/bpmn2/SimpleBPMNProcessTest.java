@@ -1021,7 +1021,7 @@ public class SimpleBPMNProcessTest extends JbpmTestCase {
 	
 	private StatefulKnowledgeSession restoreSession(StatefulKnowledgeSession ksession) {
 //		return ksession;
-		int id = ksession.getId();
+		long id = ksession.getId();
 		KnowledgeBase kbase = ksession.getKnowledgeBase();
 		Environment env = ksession.getEnvironment();
 		KnowledgeSessionConfiguration config = ksession.getSessionConfiguration();

@@ -228,7 +228,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         ksession.insert( "TestString" );
@@ -297,7 +297,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
         
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
@@ -387,7 +387,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         System.out.println( "Started process instance " + processInstance.getId() );
@@ -421,7 +421,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
         
         ksession.insert(new ArrayList<Object>());
 
@@ -453,7 +453,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         System.out.println( "Started process instance " + processInstance.getId() );
@@ -587,7 +587,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
                  emf );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "com.sample.SuperProcess" );
         System.out.println( "Started process instance " + processInstance.getId() );
@@ -639,7 +639,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
-        int id = ksession.getId();
+        long id = ksession.getId();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("name", "John Doe");

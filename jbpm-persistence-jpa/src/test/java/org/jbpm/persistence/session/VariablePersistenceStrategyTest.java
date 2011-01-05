@@ -525,7 +525,7 @@ public class VariablePersistenceStrategyTest extends JbpmTestCase {
     }
     
     private StatefulKnowledgeSession reloadSession(StatefulKnowledgeSession ksession, KnowledgeBase kbase, Environment env){
-        int sessionId = ksession.getId();
+        long sessionId = ksession.getId();
         ksession.dispose();
         return JPAKnowledgeService.loadStatefulKnowledgeSession( sessionId, kbase, null, env);
     }
