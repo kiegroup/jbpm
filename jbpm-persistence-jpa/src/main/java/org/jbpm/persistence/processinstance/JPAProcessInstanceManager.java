@@ -9,7 +9,6 @@ import javax.persistence.EntityManager;
 
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.definition.process.Process;
-import org.drools.persistence.PersistenceContext;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.persistence.ProcessPersistenceContext;
@@ -56,9 +55,8 @@ public class JPAProcessInstanceManager
 	    	}
     	}
     	
-        EntityManager em = (EntityManager) this.kruntime.getEnvironment().get( EnvironmentName.CMD_SCOPED_ENTITY_MANAGER );
-        ProcessInstanceInfo processInstanceInfo = em.find( ProcessInstanceInfo.class,
-                                                           id );
+        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.ENTITY_MANAGER_FACTORY )).getProcessPersistenceContext();
+        ProcessInstanceInfo processInstanceInfo = context.findProcessInstanceInfo( id );
         if ( processInstanceInfo == null ) {
             return null;
         }
