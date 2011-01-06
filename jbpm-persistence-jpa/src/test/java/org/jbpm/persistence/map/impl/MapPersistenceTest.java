@@ -10,6 +10,7 @@ import org.drools.KnowledgeBaseFactory;
 import org.drools.common.AbstractRuleBase;
 import org.drools.impl.InternalKnowledgeBase;
 import org.drools.persistence.info.SessionInfo;
+import org.drools.persistence.info.WorkItemInfo;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.persistence.map.EnvironmentBuilder;
 import org.drools.process.instance.WorkItemHandler;
@@ -49,6 +50,7 @@ public class MapPersistenceTest {
 
             private Map<Long, SessionInfo> ksessions = new HashMap<Long, SessionInfo>();
             private Map<Long, ProcessInstanceInfo> processes = new HashMap<Long, ProcessInstanceInfo>();
+            private Map<Long, WorkItemInfo> workItems = new HashMap<Long, WorkItemInfo>();
 
             public void saveOrUpdate(SessionInfo ksessionInfo) {
                 ksessionInfo.update();
@@ -83,6 +85,22 @@ public class MapPersistenceTest {
                         processInstancesWaitingForEvent.add( processInstanceInfo.getId() );
                 }
                 return processInstancesWaitingForEvent;
+            }
+
+            public void saveOrUpdate(WorkItemInfo workItemInfo) {
+                workItems.put( workItemInfo.getId(), workItemInfo );
+            }
+
+            public Long getNextWorkItemId() {
+                return new Long(workItems.size() + 1);
+            }
+
+            public WorkItemInfo findWorkItemInfo(Long id) {
+                return workItems.get( id );
+            }
+
+            public void remove(WorkItemInfo workItemInfo) {
+                workItems.remove( workItemInfo.getId() );
             }
         };
     }
