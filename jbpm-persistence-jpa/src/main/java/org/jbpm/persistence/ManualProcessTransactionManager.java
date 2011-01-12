@@ -18,9 +18,9 @@ public class ManualProcessTransactionManager extends ManualTransactionManager {
     
     @Override
     public void commit() {
-        super.commit();
         for ( ProcessInstanceInfo processInstanceInfo : session.getStoredProcessInstances() ) {
             storage.saveOrUpdate( processInstanceInfo );
         }
+        super.commit();
     }
 }
