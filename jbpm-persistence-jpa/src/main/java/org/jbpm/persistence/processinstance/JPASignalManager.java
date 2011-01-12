@@ -36,7 +36,7 @@ public class JPASignalManager extends DefaultSignalManager {
 //                                               type );
 //        List<Long> list = (List<Long>) processInstancesForEvent.getResultList();
 //        return list;
-        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) getKnowledgeRuntime().getEnvironment().get( EnvironmentName.ENTITY_MANAGER_FACTORY )).getProcessPersistenceContext();
+        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) getKnowledgeRuntime().getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER )).getProcessPersistenceContext();
         return context.getProcessInstancesWaitingForEvent(type);
     }
 

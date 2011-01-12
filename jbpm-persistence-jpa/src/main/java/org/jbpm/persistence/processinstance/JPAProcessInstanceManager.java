@@ -29,7 +29,7 @@ public class JPAProcessInstanceManager
 
     public void addProcessInstance(ProcessInstance processInstance) {
         ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo( processInstance, this.kruntime.getEnvironment() );
-        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.ENTITY_MANAGER_FACTORY )).getProcessPersistenceContext();
+        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER )).getProcessPersistenceContext();
         context.persist( processInstanceInfo );
         //em.refresh( processInstanceInfo  );
 //        em.flush();
@@ -55,7 +55,7 @@ public class JPAProcessInstanceManager
 	    	}
     	}
     	
-        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.ENTITY_MANAGER_FACTORY )).getProcessPersistenceContext();
+        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER )).getProcessPersistenceContext();
         ProcessInstanceInfo processInstanceInfo = context.findProcessInstanceInfo( id );
         if ( processInstanceInfo == null ) {
             return null;
@@ -80,7 +80,7 @@ public class JPAProcessInstanceManager
     }
 
     public void removeProcessInstance(ProcessInstance processInstance) {
-        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.ENTITY_MANAGER_FACTORY )).getProcessPersistenceContext();
+        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) this.kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER )).getProcessPersistenceContext();
 //        EntityManager em = (EntityManager) this.kruntime.getEnvironment().get( EnvironmentName.CMD_SCOPED_ENTITY_MANAGER );
 //        ProcessInstanceInfo processInstanceInfo = em.find( ProcessInstanceInfo.class,
 //                                                           processInstance.getId() );
