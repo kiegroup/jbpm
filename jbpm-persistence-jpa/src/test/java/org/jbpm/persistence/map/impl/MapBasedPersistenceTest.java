@@ -77,7 +77,12 @@ public class MapBasedPersistenceTest extends MapPersistenceTest{
         }
 
         public ProcessInstanceInfo findProcessInstanceInfo(Long processInstanceId) {
-            return processes.get( processInstanceId );
+            ProcessInstanceInfo processInstanceInfo = processes.get( processInstanceId );
+            if(processInstanceInfo != null) {
+                //FIXME need a way to clone a processInstance before saving
+                processInstanceInfo.clearProcessInstance();
+            }
+            return processInstanceInfo;
         }
 
         public void saveOrUpdate(ProcessInstanceInfo processInstanceInfo) {
@@ -117,6 +122,10 @@ public class MapBasedPersistenceTest extends MapPersistenceTest{
 
         public void remove(WorkItemInfo workItemInfo) {
             workItems.remove( workItemInfo.getId() );
+        }
+
+        public Long getNextStatefulKnowledgeSessionId() {
+            return new Long( ksessions.size() + 1 );
         }
     }
 }
