@@ -21,6 +21,7 @@ public class ManualProcessTransactionManager extends ManualTransactionManager {
         for ( ProcessInstanceInfo processInstanceInfo : session.getStoredProcessInstances() ) {
             storage.saveOrUpdate( processInstanceInfo );
         }
+        session.clearStoredProcessInstances();
         super.commit();
     }
 }

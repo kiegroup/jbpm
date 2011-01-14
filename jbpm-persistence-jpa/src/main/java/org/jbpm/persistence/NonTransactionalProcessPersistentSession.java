@@ -10,5 +10,7 @@ public interface NonTransactionalProcessPersistentSession
     NonTransactionalPersistentSession {
 
     List<ProcessInstanceInfo> getStoredProcessInstances();
+
+    void clearStoredProcessInstances();
     
 }

@@ -41,7 +41,7 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
     @Override
     public void close() {
         super.close();
-        processes.clear();
+        clearStoredProcessInstances();
     }
 
     public void remove(ProcessInstanceInfo processInstanceInfo) {
@@ -50,5 +50,9 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
 
     public List<Long> getProcessInstancesWaitingForEvent(String type) {
         return storage.getProcessInstancesWaitingForEvent( type );
+    }
+
+    public void clearStoredProcessInstances() {
+        processes.clear();
     }
 }

@@ -267,4 +267,8 @@ public class ProcessInstanceInfo implements EntityInfo{
     public Set<String> getEventTypes() {
         return eventTypes;
     }
+    
+    public void clearProcessInstance(){
+        processInstance = null;
+    }
 }
