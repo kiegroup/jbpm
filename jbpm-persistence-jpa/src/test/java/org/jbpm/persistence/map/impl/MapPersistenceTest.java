@@ -87,6 +87,126 @@ public abstract class MapPersistenceTest {
 
         Assert.assertNull( processInstance );
     }
+    
+    @Test
+    public void executeMultipleProcessTest() {
+        String processId = "minimalProcess";
+        String workName = "MyWork";
+
+        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase).getRuleBase())
+                .addProcess( ProcessCreatorForHelp.newProcessWithOneWork( processId,
+                                                                          workName ) );
+
+        StatefulKnowledgeSession ksession1 = createSession(kbase);
+        StatefulKnowledgeSession ksession2 = createSession(kbase);
+
+        DummyWorkItemHandler handler1 = new DummyWorkItemHandler();
+        ksession1.getWorkItemManager()
+                .registerWorkItemHandler( workName,
+                                          handler1 );
+
+        DummyWorkItemHandler handler2 = new DummyWorkItemHandler();
+        ksession2.getWorkItemManager()
+                .registerWorkItemHandler( workName,
+                                          handler2 );
+
+        long process1Id = ksession1.startProcess( processId ).getId();
+        long workItem1Id = handler1.getLatestWorkItem().getId();
+        ksession1 = disposeAndReloadSession( ksession1,
+                                             kbase);
+        ksession1.getWorkItemManager().completeWorkItem( workItem1Id,
+                                                         null );
+        Assert.assertNull( ksession1.getProcessInstance( process1Id ) );
+
+        ksession2 = disposeAndReloadSession(ksession2, kbase);
+        Assert.assertNotNull(ksession2);
+
+        ksession2.getWorkItemManager()
+                .registerWorkItemHandler( workName,
+                                          handler2 );
+
+        long process2Id = ksession2.startProcess( processId ).getId();
+        long workItem2Id = handler2.getLatestWorkItem().getId();
+        ksession2.getWorkItemManager().completeWorkItem( workItem2Id,
+                                                         null );
+        Assert.assertNull( ksession2.getProcessInstance( process2Id ) );
+    }
+    
+    @Test
+    public void multipleKSessionDifferentIdTest() {
+        KnowledgeBase kbase1 = KnowledgeBaseFactory.newKnowledgeBase();
+        KnowledgeBase kbase2 = KnowledgeBaseFactory.newKnowledgeBase();
+
+        StatefulKnowledgeSession ksession1 = createSession(kbase1);
+        StatefulKnowledgeSession ksession2 = createSession(kbase2);
+
+        Assert.assertNotSame(ksession1.getId(), ksession2.getId());
+
+    }
+
+    @Test
+    public void multipleSessionsWithSameProcessAndDifferentIdTest() {
+        String processId = "signalProcessTest";
+        String eventType = "myEvent";
+
+        RuleFlowProcess process1 = ProcessCreatorForHelp.newSimpleEventProcess( processId,
+                eventType );
+        RuleFlowProcess process2 = ProcessCreatorForHelp.newSimpleEventProcess( processId,
+                                                                               eventType );
+
+        KnowledgeBase kbase1 = KnowledgeBaseFactory.newKnowledgeBase();
+        KnowledgeBase kbase2 = KnowledgeBaseFactory.newKnowledgeBase();
+
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase1).getRuleBase()).addProcess( process1 );
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase2).getRuleBase()).addProcess( process2 );
+
+        StatefulKnowledgeSession ksession1 = createSession(kbase1);
+        StatefulKnowledgeSession ksession2 = createSession(kbase2);
+
+        Assert.assertNotSame(ksession1.getId(), ksession2.getId());
+
+        Long processInstance1Id = ksession1.startProcess(processId).getId();
+
+        Long processInstance2Id = ksession2.startProcess(processId).getId();
+
+        Assert.assertNotSame(processInstance1Id, processInstance2Id);
+
+    }
+    
+    @Test
+    public void multipleSessionsWithSameProcessAndSameWorkItemAndDifferentIdTest() {
+        String processId = "minimalProcess";
+        String workName = "MyWork";
+
+        KnowledgeBase kbase1 = KnowledgeBaseFactory.newKnowledgeBase();
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase1).getRuleBase())
+                .addProcess( ProcessCreatorForHelp.newProcessWithOneWork( processId,
+                                                                          workName ) );
+
+        KnowledgeBase kbase2 = KnowledgeBaseFactory.newKnowledgeBase();
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase2).getRuleBase())
+                .addProcess( ProcessCreatorForHelp.newProcessWithOneWork( processId,
+                                                                          workName ) );
+
+        StatefulKnowledgeSession ksession1 = createSession(kbase1);
+        StatefulKnowledgeSession ksession2 = createSession(kbase2);
+
+        DummyWorkItemHandler handler1 = new DummyWorkItemHandler();
+        DummyWorkItemHandler handler2 = new DummyWorkItemHandler();
+
+        ksession1.getWorkItemManager().registerWorkItemHandler(workName, handler1);
+        ksession2.getWorkItemManager().registerWorkItemHandler(workName, handler2);
+
+        ksession1.startProcess(processId);
+        ksession2.startProcess(processId);
+
+        long workItem1Id = handler1.getLatestWorkItem().getId();
+        long workItem2Id = handler2.getLatestWorkItem().getId();
+        Assert.assertNotSame(workItem1Id, workItem2Id);
+    }
+
+
 
     protected abstract StatefulKnowledgeSession createSession(KnowledgeBase kbase);
     
