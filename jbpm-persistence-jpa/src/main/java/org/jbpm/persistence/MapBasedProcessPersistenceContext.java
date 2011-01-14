@@ -2,9 +2,9 @@ package org.jbpm.persistence;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.drools.persistence.map.MapBasedPersistenceContext;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
@@ -15,27 +15,31 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
     NonTransactionalProcessPersistentSession{
     
     private ProcessStorage storage;
-    private Set<ProcessInstanceInfo> processes;
+    private Map<Long, ProcessInstanceInfo> processes;
 
     public MapBasedProcessPersistenceContext(ProcessStorage storage) {
         super( storage );
         this.storage = storage;
-        this.processes = new HashSet<ProcessInstanceInfo>();
+        this.processes = new HashMap<Long, ProcessInstanceInfo>();
     }
 
     public void persist(ProcessInstanceInfo processInstanceInfo) {
-        processes.add( processInstanceInfo );
         if( processInstanceInfo.getId() == null ) {
             processInstanceInfo.setId( storage.getNextProcessInstanceId() );
         }
+        processes.put( processInstanceInfo.getId(), processInstanceInfo );
     }
 
     public ProcessInstanceInfo findProcessInstanceInfo(Long processId) {
-        return storage.findProcessInstanceInfo( processId );
+        ProcessInstanceInfo processInstanceInfo = processes.get( processId );
+        if( processInstanceInfo == null){
+            processInstanceInfo = storage.findProcessInstanceInfo( processId );
+        }
+        return processInstanceInfo;
     }
 
     public List<ProcessInstanceInfo> getStoredProcessInstances() {
-        return Collections.unmodifiableList( new ArrayList<ProcessInstanceInfo>(processes));
+        return Collections.unmodifiableList( new ArrayList<ProcessInstanceInfo>(processes.values()));
     }
 
     @Override
