@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.email;
+package org.jbpm.process.workitem.email;
 
 import org.drools.process.instance.WorkItemHandler;
 import org.drools.runtime.process.WorkItem;

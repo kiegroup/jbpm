@@ -1,4 +1,4 @@
-package org.drools.process.workitem.esb;
+package org.jbpm.process.workitem.esb;
 
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;

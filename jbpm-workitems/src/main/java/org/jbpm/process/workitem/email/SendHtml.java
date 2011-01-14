@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.email;
+package org.jbpm.process.workitem.email;
 
 import java.io.IOException;
 import java.util.Date;
@@ -33,7 +33,7 @@ import javax.mail.util.ByteArrayDataSource;
 public class SendHtml {
 
     public static void sendHtml(Email email) {
-        org.drools.process.workitem.email.Message message = email.getMessage();
+        org.jbpm.process.workitem.email.Message message = email.getMessage();
         Connection connection = email.getConnection();
 
         String subject = message.getSubject();

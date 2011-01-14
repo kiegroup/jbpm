@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.exec;
+package org.jbpm.process.workitem.exec;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;

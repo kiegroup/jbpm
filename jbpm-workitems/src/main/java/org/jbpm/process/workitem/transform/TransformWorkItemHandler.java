@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.transform;
+package org.jbpm.process.workitem.transform;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

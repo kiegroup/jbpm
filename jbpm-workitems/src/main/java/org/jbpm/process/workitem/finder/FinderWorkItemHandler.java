@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.finder;
+package org.jbpm.process.workitem.finder;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.rest;
+package org.jbpm.process.workitem.rest;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

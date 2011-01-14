@@ -1,4 +1,4 @@
-package org.drools.process.workitem.google.calendar;
+package org.jbpm.process.workitem.google.calendar;
 
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;

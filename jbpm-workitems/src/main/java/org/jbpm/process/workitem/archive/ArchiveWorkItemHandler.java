@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.archive;
+package org.jbpm.process.workitem.archive;
 
 import java.io.File;
 import java.io.FileInputStream;

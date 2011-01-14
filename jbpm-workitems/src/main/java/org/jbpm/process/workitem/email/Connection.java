@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.email;
+package org.jbpm.process.workitem.email;
 
 public class Connection {
 	

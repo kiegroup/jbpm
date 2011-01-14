@@ -1,4 +1,4 @@
-package org.drools.process.workitem.google.calendar;
+package org.jbpm.process.workitem.google.calendar;
 
 
 public final class GoogleCalendarUtils {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.jabber;
+package org.jbpm.process.workitem.jabber;
 
 import java.net.URLConnection;
 import java.util.ArrayList;

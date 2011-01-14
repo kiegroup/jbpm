@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.ftp;
+package org.jbpm.process.workitem.ftp;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,9 +27,9 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 import org.drools.process.instance.WorkItemHandler;
-import org.drools.process.workitem.email.Connection;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemManager;
+import org.jbpm.process.workitem.email.Connection;
 
 
 

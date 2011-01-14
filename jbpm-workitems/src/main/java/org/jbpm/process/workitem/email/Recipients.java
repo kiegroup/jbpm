@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.drools.process.workitem.email;
+package org.jbpm.process.workitem.email;
 
 import java.util.ArrayList;
 import java.util.List;
