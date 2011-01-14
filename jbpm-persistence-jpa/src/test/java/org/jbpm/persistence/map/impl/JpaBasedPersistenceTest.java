@@ -10,7 +10,9 @@ import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import bitronix.tm.TransactionManagerServices;
@@ -18,10 +20,11 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class JpaBasedPersistenceTest extends MapPersistenceTest {
 
-    private static PoolingDataSource ds1;
+    private PoolingDataSource ds1;
+    private EntityManagerFactory emf;
     
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         ds1 = new PoolingDataSource();
         ds1.setUniqueName( "jdbc/testDS1" );
         ds1.setClassName( "org.h2.jdbcx.JdbcDataSource" );
@@ -34,11 +37,12 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
         ds1.getDriverProperties().put( "URL",
                                        "jdbc:h2:mem:mydb" );
         ds1.init();
-
+        emf = Persistence.createEntityManagerFactory( "org.drools.persistence.jpa" );
     }
     
-    @AfterClass
-    public static void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
+        emf.close();
         ds1.close();
     }
     
@@ -56,7 +60,6 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
     }
 
     private Environment createEnvironment(){
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( "org.drools.persistence.jpa" );
         Environment env = KnowledgeBaseFactory.newEnvironment();
         env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
                  emf );
