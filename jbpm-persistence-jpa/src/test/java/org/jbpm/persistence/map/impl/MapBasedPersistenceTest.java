@@ -59,6 +59,16 @@ public class MapBasedPersistenceTest extends MapPersistenceTest{
         return JPAKnowledgeService.loadStatefulKnowledgeSession( sessionId, kbase, null, env );
     }
     
+    @Override
+    protected int getProcessInstancesCount() {
+        return storage.processes.size();
+    }
+
+    @Override
+    protected int getKnowledgeSessionsCount() {
+        return storage.ksessions.size();
+    }
+    
     private static class SimpleProcessStorage
         implements
         ProcessStorage {

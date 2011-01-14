@@ -59,6 +59,16 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
         return JPAKnowledgeService.loadStatefulKnowledgeSession( ksessionId, kbase, null, createEnvironment() );
     }
 
+    @Override
+    protected int getProcessInstancesCount() {
+        return emf.createEntityManager().createQuery( "FROM ProcessInstanceInfo" ).getResultList().size();
+    }
+
+    @Override
+    protected int getKnowledgeSessionsCount() {
+        return emf.createEntityManager().createQuery( "FROM SessionInfo" ).getResultList().size();
+    }
+
     private Environment createEnvironment(){
         Environment env = KnowledgeBaseFactory.newEnvironment();
         env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,

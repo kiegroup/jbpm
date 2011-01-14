@@ -205,14 +205,71 @@ public abstract class MapPersistenceTest {
         long workItem2Id = handler2.getLatestWorkItem().getId();
         Assert.assertNotSame(workItem1Id, workItem2Id);
     }
+    
+    @Test
+    public void crashProcessBeforePersisting() {
+        String processId = "myProcess";
+        String workName = "someWork";
 
+        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase).getRuleBase())
+                .addProcess( ProcessCreatorForHelp.newProcessWithOneWork( processId,
+                                                                          workName ) );
+
+        StatefulKnowledgeSession crmPersistentSession = createSession( kbase );
+        ChrashingWorkItemHandler handler = new ChrashingWorkItemHandler();
+        crmPersistentSession.getWorkItemManager()
+                .registerWorkItemHandler( workName,
+                                          handler );
+
+        try {
+            crmPersistentSession.startProcess( processId );
+            Assert.fail();
+        } catch ( RuntimeException re ) {
+        }
+        
+        Assert.assertEquals( 1, getKnowledgeSessionsCount() );
+        Assert.assertEquals( 0, getProcessInstancesCount() );
+    }
+    
+    @Test
+    public void processWithSubProcessThatCrashTest() {
+        String processId = "minimalProcess";
+        String subProcessId = "subProcess";
+        String workName = "MyWork";
+
+        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase).getRuleBase())
+                .addProcess( ProcessCreatorForHelp.newProcessWithOneWork(subProcessId, workName));
+
+        ((AbstractRuleBase) ((InternalKnowledgeBase) kbase).getRuleBase())
+        .addProcess( ProcessCreatorForHelp.newProcessWithOneSubProcess(processId, subProcessId));
+
+        StatefulKnowledgeSession ksession = createSession(kbase);
+
+        ChrashingWorkItemHandler handler = new ChrashingWorkItemHandler();
+
+        ksession.getWorkItemManager().registerWorkItemHandler(workName, handler);
+
+        try {
+            ksession.startProcess(processId);
+            Assert.fail();
+        } catch ( RuntimeException re ) {
+            Assert.assertEquals( 1, getKnowledgeSessionsCount() );
+            Assert.assertEquals( 0, getProcessInstancesCount() );
+        }
+    }
 
 
     protected abstract StatefulKnowledgeSession createSession(KnowledgeBase kbase);
     
     protected abstract StatefulKnowledgeSession disposeAndReloadSession(StatefulKnowledgeSession crmPersistentSession,
                                                                         KnowledgeBase kbase);
-    
+
+    protected abstract int getProcessInstancesCount();
+
+    protected abstract int getKnowledgeSessionsCount();
+
     private static class DummyWorkItemHandler
         implements
         WorkItemHandler {
@@ -234,6 +291,20 @@ public abstract class MapPersistenceTest {
 
         public WorkItem getLatestWorkItem() {
             return latestWorkItem;
+        }
+    }
+
+    private static class ChrashingWorkItemHandler
+        implements
+        WorkItemHandler {
+
+        public void executeWorkItem(WorkItem workItem,
+                                    WorkItemManager manager) {
+            throw new RuntimeException( "I die" );
+        }
+
+        public void abortWorkItem(WorkItem workItem,
+                                  WorkItemManager manager) {
         }
     }
 }
