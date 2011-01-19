@@ -19,20 +19,20 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
     }
 
     public void persist(ProcessInstanceInfo processInstanceInfo) {
-        em.persist( processInstanceInfo );
+        getEntityManager().persist( processInstanceInfo );
     }
 
     public ProcessInstanceInfo findProcessInstanceInfo(Long processId) {
-        return em.find( ProcessInstanceInfo.class, processId );
+        return getEntityManager().find( ProcessInstanceInfo.class, processId );
     }
 
     public void remove(ProcessInstanceInfo processInstanceInfo) {
-        em.remove( processInstanceInfo );
+        getEntityManager().remove( processInstanceInfo );
     }
 
     @SuppressWarnings("unchecked")
     public List<Long> getProcessInstancesWaitingForEvent(String type) {
-        Query processInstancesForEvent = em.createNamedQuery( "ProcessInstancesWaitingForEvent" );
+        Query processInstancesForEvent = getEntityManager().createNamedQuery( "ProcessInstancesWaitingForEvent" );
         processInstancesForEvent.setFlushMode(FlushModeType.COMMIT);
         processInstancesForEvent.setParameter( "type",
                                                type );
