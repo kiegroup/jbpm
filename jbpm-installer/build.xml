@@ -532,8 +532,10 @@
     </exec>
   </target>
 
-  <!-- Start Eclipse -->
+   <!-- Start Eclipse -->
   <target name="start.eclipse">
+    <chmod perm="a+x" file="./generate.mac.eclipse.preferences.sh" />
+    <exec executable="./generate.mac.eclipse.preferences.sh" os="Mac OS X"/>
     <exec executable="${eclipse.home}/eclipse.exe"
           spawn="yes"
           os="Windows 7,Windows Vista,Windows XP,Windows 2000">
@@ -550,9 +552,9 @@
     </exec>
     <exec executable="${eclipse.home}/Eclipse.app/Contents/MacOS/eclipse" spawn="yes" os="Mac OS X">
       <arg value="-data" />
-      <arg value="${eclipse.workspace.dir}" />
+      <arg value="../../../../${eclipse.workspace.dir}" />
       <arg value="-plugincustomization" />
-      <arg value="./eclipse.preferences.ini" />
+      <arg value="../../../../mac.eclipse.preferences.ini" />
     </exec>
   </target>
 
