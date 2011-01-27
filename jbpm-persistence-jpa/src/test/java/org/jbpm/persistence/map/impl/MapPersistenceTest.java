@@ -41,24 +41,24 @@ public abstract class MapPersistenceTest {
                 .addProcess( ProcessCreatorForHelp.newProcessWithOneWork( processId,
                                                                           workName ) );
 
-        StatefulKnowledgeSession crmPersistentSession = createSession(kbase);
+        StatefulKnowledgeSession ksession = createSession(kbase);
 
         DummyWorkItemHandler handler = new DummyWorkItemHandler();
-        crmPersistentSession.getWorkItemManager()
+        ksession.getWorkItemManager()
             .registerWorkItemHandler(workName, handler);
 
-        long process1Id = crmPersistentSession.startProcess(processId).getId();
+        long process1Id = ksession.startProcess(processId).getId();
 
-        crmPersistentSession = disposeAndReloadSession(crmPersistentSession, kbase);
-        crmPersistentSession.getWorkItemManager().registerWorkItemHandler(workName, handler);
+        ksession = disposeAndReloadSession(ksession, kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler(workName, handler);
 
         long workItemId = handler.getLatestWorkItem().getId();
 
-        crmPersistentSession.getWorkItemManager().completeWorkItem(workItemId, null);
+        ksession.getWorkItemManager().completeWorkItem(workItemId, null);
 
-        Assert.assertNotNull(crmPersistentSession);
+        Assert.assertNotNull(ksession);
 
-        Assert.assertNull( crmPersistentSession.getProcessInstance( process1Id ) );
+        Assert.assertNull( ksession.getProcessInstance( process1Id ) );
 
     }
     
