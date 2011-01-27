@@ -28,7 +28,6 @@ import org.drools.impl.InternalKnowledgeBase;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
-import org.drools.persistence.EntityInfo;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.hibernate.annotations.CollectionOfElements;
@@ -37,7 +36,7 @@ import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 
 @Entity
-public class ProcessInstanceInfo implements EntityInfo{
+public class ProcessInstanceInfo{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
