@@ -316,7 +316,12 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         // now pick the leaf for this operation
         if (target != null) {
             org.w3c.dom.Node parent = null;
+               if(isInput) {
                 parent = ((org.w3c.dom.Node) target).getParentNode();
+               }
+               else {
+                parent = (org.w3c.dom.Node) target;
+               }
                 
                 
             targetElem = exprTo.evaluate(parent, XPathConstants.NODE);
