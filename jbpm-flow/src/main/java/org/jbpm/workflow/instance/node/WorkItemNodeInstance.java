@@ -58,15 +58,14 @@ import org.jbpm.workflow.core.node.WorkItemNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkItemResolverFactory;
 import org.mvel2.MVEL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 
@@ -147,6 +146,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
 //        }
         WorkItemNode workItemNode = getWorkItemNode();
         createWorkItem(workItemNode);
+        workItemId = workItem.getId();
         if (workItemNode.isWaitForCompletion()) {
             addWorkItemListener();
         }
@@ -166,7 +166,6 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         if (!workItemNode.isWaitForCompletion()) {
             triggerCompleted();
         }
-        this.workItemId = workItem.getId();
     }    
 
     protected WorkItem createWorkItem(WorkItemNode workItemNode) {
@@ -254,6 +253,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 ((WorkItem) workItem).setParameter(entry.getKey(), s);
             }
         }
+        ((org.drools.process.instance.WorkItemManager) 
+                ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getWorkItemManager()).internalAddWorkItem(workItem);
         return workItem;
     }
 
