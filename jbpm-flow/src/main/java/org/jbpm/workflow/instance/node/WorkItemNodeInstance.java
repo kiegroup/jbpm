@@ -146,7 +146,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
 //        }
         WorkItemNode workItemNode = getWorkItemNode();
         createWorkItem(workItemNode);
-        workItemId = workItem.getId();
+        if(workItem.getId() > 0) {
+        	workItemId = workItem.getId(); 
+        }
         if (workItemNode.isWaitForCompletion()) {
             addWorkItemListener();
         }
