@@ -34,8 +34,8 @@ public class ProcessInstanceLog implements Serializable {
 	
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-    private long processInstanceId;
+	private Long id;
+    private Long processInstanceId;
     private String processId;
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "start_date")
@@ -47,25 +47,25 @@ public class ProcessInstanceLog implements Serializable {
     ProcessInstanceLog() {
     }
     
-    public ProcessInstanceLog(long processInstanceId, String processId) {
+    public ProcessInstanceLog(Long processInstanceId, String processId) {
         setProcessInstanceId(processInstanceId);
         setProcessId(processId);
         setStart(new Date());
     }
     
-    public long getId() {
+    public Long getId() {
     	return id;
     }
     
-    void setId(long id) {
+    void setId(Long id) {
 		this.id = id;
 	}
 
-    public long getProcessInstanceId() {
+    public Long getProcessInstanceId() {
         return processInstanceId;
     }
     
-    private void setProcessInstanceId(long processInstanceId) {
+    private void setProcessInstanceId(Long processInstanceId) {
         this.processInstanceId = processInstanceId;
     }
     
@@ -93,8 +93,64 @@ public class ProcessInstanceLog implements Serializable {
         this.end = end;
     }
     
-    public String toString() {
-        return "Process '" + processId + "' [" + processInstanceId + "]";
-    }
+	@Override
+	public String toString() {
+		return "ProcessInstanceLog [id=" + id + ", processInstanceId="
+				+ processInstanceId + ", processId=" + processId + ", start="
+				+ start + ", end=" + end + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((end == null) ? 0 : end.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result
+				+ ((processId == null) ? 0 : processId.hashCode());
+		result = prime
+				* result
+				+ ((processInstanceId == null) ? 0 : processInstanceId
+						.hashCode());
+		result = prime * result + ((start == null) ? 0 : start.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProcessInstanceLog other = (ProcessInstanceLog) obj;
+		if (end == null) {
+			if (other.end != null)
+				return false;
+		} else if (!end.equals(other.end))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (processId == null) {
+			if (other.processId != null)
+				return false;
+		} else if (!processId.equals(other.processId))
+			return false;
+		if (processInstanceId == null) {
+			if (other.processInstanceId != null)
+				return false;
+		} else if (!processInstanceId.equals(other.processInstanceId))
+			return false;
+		if (start == null) {
+			if (other.start != null)
+				return false;
+		} else if (!start.equals(other.start))
+			return false;
+		return true;
+	}
     
 }

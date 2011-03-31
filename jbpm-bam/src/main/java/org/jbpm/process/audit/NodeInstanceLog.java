@@ -37,9 +37,9 @@ public class NodeInstanceLog implements Serializable {
 	
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-    private int type;
-    private long processInstanceId;
+	private Long id;
+    private Integer type;
+    private Long processInstanceId;
     private String processId;
     private String nodeInstanceId;
     private String nodeId;
@@ -50,7 +50,7 @@ public class NodeInstanceLog implements Serializable {
     NodeInstanceLog() {
     }
     
-	public NodeInstanceLog(int type, long processInstanceId, String processId,
+	public NodeInstanceLog(Integer type, Long processInstanceId, String processId,
 			               String nodeInstanceId, String nodeId) {
 		this.type = type;
         this.processInstanceId = processInstanceId;
@@ -60,27 +60,27 @@ public class NodeInstanceLog implements Serializable {
         this.date = new Date();
     }
 	
-	public int getType() {
+	public Integer getType() {
 		return type;
 	}
 	
-	void setType(int type) {
+	void setType(Integer type) {
 		this.type = type;
 	}
     
-    public long getId() {
+    public Long getId() {
     	return id;
     }
     
-    void setId(long id) {
+    void setId(Long id) {
 		this.id = id;
 	}
 
-    public long getProcessInstanceId() {
+    public Long getProcessInstanceId() {
         return processInstanceId;
     }
     
-	void setProcessInstanceId(long processInstanceId) {
+	void setProcessInstanceId(Long processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
 
@@ -116,9 +116,78 @@ public class NodeInstanceLog implements Serializable {
 		this.date = date;
 	}
 
-    public String toString() {
-        return (type == 0 ? "Triggered " : "Left ") + "Node Instance '" + 
-        	processId + "#" + nodeId + "' [" + processInstanceId + "#" + nodeInstanceId + "]";
-    }
-    
+	@Override
+	public String toString() {
+		return "NodeInstanceLog [id=" + id + ", type=" + type
+				+ ", processInstanceId=" + processInstanceId + ", processId="
+				+ processId + ", nodeInstanceId=" + nodeInstanceId
+				+ ", nodeId=" + nodeId + ", date=" + date + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((nodeId == null) ? 0 : nodeId.hashCode());
+		result = prime * result
+				+ ((nodeInstanceId == null) ? 0 : nodeInstanceId.hashCode());
+		result = prime * result
+				+ ((processId == null) ? 0 : processId.hashCode());
+		result = prime
+				* result
+				+ ((processInstanceId == null) ? 0 : processInstanceId
+						.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NodeInstanceLog other = (NodeInstanceLog) obj;
+		if (date == null) {
+			if (other.date != null)
+				return false;
+		} else if (!date.equals(other.date))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (nodeId == null) {
+			if (other.nodeId != null)
+				return false;
+		} else if (!nodeId.equals(other.nodeId))
+			return false;
+		if (nodeInstanceId == null) {
+			if (other.nodeInstanceId != null)
+				return false;
+		} else if (!nodeInstanceId.equals(other.nodeInstanceId))
+			return false;
+		if (processId == null) {
+			if (other.processId != null)
+				return false;
+		} else if (!processId.equals(other.processId))
+			return false;
+		if (processInstanceId == null) {
+			if (other.processInstanceId != null)
+				return false;
+		} else if (!processInstanceId.equals(other.processInstanceId))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		return true;
+	}
+
 }
