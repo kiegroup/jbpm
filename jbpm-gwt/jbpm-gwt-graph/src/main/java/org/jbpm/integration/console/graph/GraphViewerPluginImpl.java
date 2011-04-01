@@ -30,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.agent.KnowledgeAgent;
@@ -45,6 +48,8 @@ import org.drools.definition.process.Process;
 import org.drools.definition.process.WorkflowProcess;
 import org.drools.io.ResourceFactory;
 import org.drools.marshalling.impl.ProcessMarshallerFactory;
+import org.drools.runtime.Environment;
+import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.process.ProcessRuntimeFactory;
 import org.jboss.bpm.console.client.model.ActiveNodeInfo;
 import org.jboss.bpm.console.client.model.DiagramInfo;
@@ -64,7 +69,14 @@ import org.jbpm.process.instance.ProcessRuntimeFactoryServiceImpl;
 public class GraphViewerPluginImpl implements GraphViewerPlugin {
 	
 	private KnowledgeBase kbase;
-	private JPAProcessInstanceDbLog log = new JPAProcessInstanceDbLog();
+	private JPAProcessInstanceDbLog log;
+	
+	public GraphViewerPluginImpl(){
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+		Environment env = KnowledgeBaseFactory.newEnvironment();
+		env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
+		log = new JPAProcessInstanceDbLog(env);
+	}
 
 	public List<ActiveNodeInfo> getActiveNodeInfo(String instanceId) {
 		ProcessInstanceLog processInstance = log.findProcessInstance(new Long(instanceId));

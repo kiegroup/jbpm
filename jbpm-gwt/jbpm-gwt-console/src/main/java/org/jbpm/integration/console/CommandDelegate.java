@@ -64,10 +64,10 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 public class CommandDelegate {
 	
 	private static StatefulKnowledgeSession ksession;
-	private static JPAProcessInstanceDbLog log = new JPAProcessInstanceDbLog();
+	private JPAProcessInstanceDbLog log;
 	
 	public CommandDelegate() {
-		getSession();
+		log = new JPAProcessInstanceDbLog( getSession().getEnvironment() );
 	}
 	
 	private StatefulKnowledgeSession newStatefulKnowledgeSession() {
