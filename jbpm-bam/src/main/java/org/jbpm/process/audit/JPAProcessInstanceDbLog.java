@@ -22,7 +22,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.NotSupportedException;
@@ -30,10 +29,17 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
+import org.drools.runtime.Environment;
+import org.drools.runtime.EnvironmentName;
+
 public class JPAProcessInstanceDbLog {
 	
-	private EntityManagerFactory emf;
-	private EntityManager em;
+	protected Environment env;
+	protected EntityManager em;
+		
+	public JPAProcessInstanceDbLog(Environment env){
+		this.env = env;
+	}
     
     @SuppressWarnings("unchecked")
 	public List<ProcessInstanceLog> findProcessInstances() {
@@ -127,19 +133,18 @@ public class JPAProcessInstanceDbLog {
 		}
     }
 	
-	private EntityManager getEntityManager() {
-		if (emf == null) {
-			emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+	protected EntityManager getEntityManager() {
+		if(em == null){
+			EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
+			em = emf.createEntityManager();
 		}
-		if (em == null) {
-		    em = emf.createEntityManager();
-		}
+		
 		return em;
 	}
 	
 	public void dispose() {
 		em.close();
-		emf.close();
+		em = null;
 	}
 
 }
