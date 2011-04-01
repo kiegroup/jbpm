@@ -56,6 +56,14 @@ public class JPAProcessInstanceDbLog {
 				.setParameter("processInstanceId", processInstanceId).getSingleResult();
 		return result;
     }
+	
+    @SuppressWarnings("unchecked")
+    public List<ProcessInstanceLog> findActiveProcessInstances(String processId) {
+    	List<ProcessInstanceLog> result = getEntityManager()
+    		.createQuery("FROM ProcessInstanceLog p WHERE p.processId = :processId AND p.end is null ")
+    			.setParameter("processId", processId).getResultList();
+    	return result;
+    }
 
     @SuppressWarnings("unchecked")
 	public List<NodeInstanceLog> findNodeInstances(long processInstanceId) {
