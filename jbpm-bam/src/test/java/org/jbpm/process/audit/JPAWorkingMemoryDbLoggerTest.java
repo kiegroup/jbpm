@@ -91,7 +91,7 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
         session.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
 
         // start process instance
-        long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
+        Long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
         
         System.out.println("Checking process instances for process 'com.sample.ruleflow'");
         List<ProcessInstanceLog> processInstances =
@@ -179,7 +179,7 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
         session.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
 
         // start process instance
-        long processInstanceId = session.startProcess("com.sample.ruleflow2").getId();
+        Long processInstanceId = session.startProcess("com.sample.ruleflow2").getId();
         
         System.out.println("Checking process instances for process 'com.sample.ruleflow2'");
         List<ProcessInstanceLog> processInstances =
@@ -239,7 +239,7 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
 		list.add("Two");
 		list.add("Three");
 		params.put("list", list);
-		long processInstanceId = session.startProcess("com.sample.ruleflow3", params).getId();
+		Long processInstanceId = session.startProcess("com.sample.ruleflow3", params).getId();
         
         System.out.println("Checking process instances for process 'com.sample.ruleflow3'");
         List<ProcessInstanceLog> processInstances =
