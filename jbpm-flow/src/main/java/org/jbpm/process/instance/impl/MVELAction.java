@@ -21,19 +21,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.Serializable;
-import java.util.List;
 
 import org.drools.base.mvel.MVELCompilationUnit;
 import org.drools.base.mvel.MVELCompileable;
-import org.drools.common.InternalWorkingMemory;
-import org.drools.definition.KnowledgePackage;
-import org.drools.definitions.impl.KnowledgePackageImp;
 import org.drools.rule.MVELDialectRuntimeData;
 import org.drools.runtime.process.ProcessContext;
 import org.drools.spi.GlobalResolver;
 import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
-import org.mvel2.integration.impl.SimpleValueResolver;
 
 public class MVELAction
     implements
@@ -67,7 +62,7 @@ public class MVELAction
     }
     
     public void compile(MVELDialectRuntimeData data) {
-        expr = unit.getCompiledExpression( data );
+        expr = unit.getCompiledExpression(data);
     } 
 
     public String getDialect() {
