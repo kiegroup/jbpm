@@ -8,13 +8,13 @@
   <artifactId>jbpm</artifactId>
   <packaging>pom</packaging>
   <name>jBPM</name>
-  <version>5.0-SNAPSHOT</version>
+  <version>5.1-SNAPSHOT</version>
   <description>jBPM: a Business Process Management (BPM) Suite</description>
   <url>http://www.jboss.org/jbpm/</url>
   <properties>
     <drools.version>5.2.0.M1</drools.version>
     <drools.osgi.version>5.2.0</drools.osgi.version>
-    <jbpm.osgi.version>5.0.0.SNAPSHOT</jbpm.osgi.version>
+    <jbpm.osgi.version>5.1.0.SNAPSHOT</jbpm.osgi.version>
   </properties>
   <prerequisites>
     <maven>2.2.1</maven>
@@ -186,6 +186,18 @@
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <version>2.1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>2.3.1</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>test-jar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
