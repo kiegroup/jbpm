@@ -343,8 +343,10 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             temp.appendChild(doc.createTextNode((String) source));
             nl = temp.getChildNodes();
         } else if (source == null) {
-            // don't throw errors yet ?
-            throw new RuntimeException("Source value was null for source " + sourceExpr);
+            if (_assignmentsLogger.isDebugEnabled()) {
+                _assignmentsLogger.debug("==========SOURCE IS NULL============");
+            }
+            return;
         }
         
         if (nl.getLength() == 0) {
