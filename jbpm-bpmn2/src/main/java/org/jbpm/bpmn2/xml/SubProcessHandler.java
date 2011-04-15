@@ -25,11 +25,22 @@ import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.ItemDefinition;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.process.builder.ProcessNodeBuilder;
+import org.jbpm.process.builder.ProcessNodeBuilderRegistry;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.workflow.core.Connection;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
+import org.jbpm.workflow.core.impl.ConnectionImpl;
+import org.jbpm.workflow.core.impl.ConnectionRef;
+import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.node.CompositeContextNode;
+import org.jbpm.workflow.core.node.CompositeNode;
+import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.ForEachNode;
+import org.jbpm.workflow.core.node.Join;
+import org.jbpm.workflow.core.node.Split;
+import org.jbpm.workflow.core.node.StartNode;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -71,6 +82,75 @@ public class SubProcessHandler extends AbstractNodeHandler {
 				forEachNode.setMetaData(ProcessHandler.CONNECTIONS, ((CompositeContextNode) node).getMetaData(ProcessHandler.CONNECTIONS));
 				node = forEachNode;
 				handleForEachNode(node, element, uri, localName, parser);
+				found = true;
+				break;
+			}
+			if ("standardLoopCharacteristics".equals(nodeName)) {
+				CompositeNode composite = new CompositeNode();
+				composite.setId(node.getId());
+				composite.setName(node.getName());
+				composite.setMetaData("UniqueId", ((CompositeContextNode) node).getMetaData("UniqueId"));
+
+				StartNode start = new StartNode();
+				composite.addNode(start);
+				
+				Join join = new Join();
+				join.setType(Join.TYPE_XOR);
+				composite.addNode(join);
+				
+				Split split = new Split(Split.TYPE_XOR);
+				composite.addNode(split);
+				
+				node.setId(4);
+				composite.addNode(node);
+				
+				EndNode end = new EndNode();
+				composite.addNode(end);
+				
+		        new ConnectionImpl(
+		                composite.getNode(1), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+		                composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		            );
+		        new ConnectionImpl(
+		                composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+		                composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		            );
+		        Connection c1 = new ConnectionImpl(
+		                composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+		                composite.getNode(4), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		            );
+		        new ConnectionImpl(
+		                composite.getNode(4), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+		                composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		            );
+		        Connection c2 = new ConnectionImpl(
+		                composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+		                composite.getNode(5), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		            );
+		        
+		        start.setMetaData("hidden", true);
+		        join.setMetaData("hidden", true);
+		        split.setMetaData("hidden", true);
+		        end.setMetaData("hidden", true);
+		        
+		        ConstraintImpl cons1 = new ConstraintImpl();
+		        cons1.setDialect("XPath");
+		        cons1.setConstraint(xmlNode.getFirstChild().getTextContent());
+		        cons1.setType("code");
+		        split.setConstraint(c1, cons1);
+
+		        ConstraintImpl cons2 = new ConstraintImpl();
+		        cons2.setDialect("XPath");
+		        cons2.setConstraint("");
+		        cons2.setType("code");
+		        cons2.setDefault(true);
+		        split.setConstraint(c2, cons2);		        
+
+		        super.handleNode(node, element, uri, localName, parser);
+		    	ProcessHandler.linkConnections((CompositeContextNode) node, (List<SequenceFlow>)
+		    			node.getMetaData(ProcessHandler.CONNECTIONS));
+		    	ProcessHandler.linkBoundaryEvents((CompositeContextNode) node);
+		        node = composite;
 				found = true;
 				break;
 			}
