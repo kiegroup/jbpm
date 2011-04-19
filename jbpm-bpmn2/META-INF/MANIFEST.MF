@@ -9,12 +9,12 @@ Export-Package: org.jbpm.bpmn2.xml;uses:="org.jbpm.bpmn2.core,org.w3c.
  jbpm.bpmn2.core";version="5.1.0.SNAPSHOT"
 Tool: Bnd-0.0.357
 Bundle-Name: jBPM :: BPMN2
-Created-By: 1.6.0_22 (Sun Microsystems Inc.)
+Created-By: 1.6.0_24 (Sun Microsystems Inc.)
 Require-Bundle: org.jbpm.flow.builder;bundle-version="5.1.0.SNAPSHOT"
 Bundle-Vendor: JBoss Inc.
 DynamicImport-Package: *
 Bundle-Version: 5.1.0.SNAPSHOT
-Bnd-LastModified: 1301712886443
+Bnd-LastModified: 1303206499704
 Bundle-Activator: org.jbpm.osgi.bpmn2.Activator
 Bundle-ManifestVersion: 2
 Bundle-Description: jBPM: a Business Process Management (BPM) Suite

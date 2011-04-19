@@ -1,7 +1,6 @@
 Manifest-Version: 1.0
 Export-Package: org.jbpm.compiler.xml;uses:="org.jbpm.compiler.xml.pro
  cesses,javax.xml.parsers,org.xml.sax";version="5.1.0.SNAPSHOT",org.jb
- pm.process.workitem;uses:="org.mvel2";version="5.1.0.SNAPSHOT",org.jb
  pm.process.builder.dialect.xpath;uses:="org.jbpm.process.builder,org.
  jbpm.process.builder.dialect";version="5.1.0.SNAPSHOT",org.jbpm.proce
  ss.builder.dialect.java;uses:="org.mvel2.templates,org.mvel2.integrat
@@ -22,13 +21,13 @@ Export-Package: org.jbpm.compiler.xml;uses:="org.jbpm.compiler.xml.pro
  ess.builder,org.osgi.framework";version="5.1.0.SNAPSHOT"
 Tool: Bnd-0.0.357
 Bundle-Name: jBPM :: Flow Builder
-Created-By: 1.6.0_22 (Sun Microsystems Inc.)
+Created-By: 1.6.0_24 (Sun Microsystems Inc.)
 Require-Bundle: org.jbpm.flow.core;bundle-version="5.1.0.SNAPSHOT", or
- g.drools.compiler;bundle-version="5.2.0"
+ g.drools.compiler;bundle-version="5.2.0.M2"
 Bundle-Vendor: JBoss Inc.
 DynamicImport-Package: *
 Bundle-Version: 5.1.0.SNAPSHOT
-Bnd-LastModified: 1301712884405
+Bnd-LastModified: 1303206492945
 Bundle-Activator: org.jbpm.osgi.flow.compiler.Activator
 Bundle-ManifestVersion: 2
 Bundle-Description: jBPM: a Business Process Management (BPM) Suite

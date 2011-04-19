@@ -12,7 +12,7 @@ Bundle-Vendor: JBoss Inc.
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.drools.flow-persistence-jpa
 Tool: Bnd-0.0.357
-Require-Bundle: org.drools.core;bundle-version="5.2.0.SNAPSHOT", org.d
- rools.compiler;bundle-version="5.2.0.SNAPSHOT"
+Require-Bundle: org.drools.core;bundle-version="5.2.0.M2", org.d
+ rools.compiler;bundle-version="5.2.0.M2"
 DynamicImport-Package: *
 
