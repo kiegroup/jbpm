@@ -36,32 +36,13 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
-public class ForEachNode extends CompositeContextNode {
+public class ForEachNode extends CompositeNode {
     
     private static final long serialVersionUID = 510l;
     
     private String variableName;
     private String collectionExpression;
     private boolean waitForCompletion = true;
-
-	private List<DataAssociation> inMapping = new LinkedList<DataAssociation>();
-	private List<DataAssociation> outMapping = new LinkedList<DataAssociation>();
-
-    public List<DataAssociation> getInMapping() {
-		return inMapping;
-	}
-
-	public void setInMapping(List<DataAssociation> inMapping) {
-		this.inMapping = inMapping;
-	}
-
-	public List<DataAssociation> getOutMapping() {
-		return outMapping;
-	}
-
-	public void setOutMapping(List<DataAssociation> outMapping) {
-		this.outMapping = outMapping;
-	}
 
     public ForEachNode() {
         // Split
@@ -108,18 +89,35 @@ public class ForEachNode extends CompositeContextNode {
             org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, 
             new CompositeNode.NodeAndType(split, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE));
         // Composite node
-//        CompositeContextNode compositeNode = new CompositeContextNode();
-//        compositeNode.setName("ForEachComposite");
-//        compositeNode.setMetaData("hidden", true);
-//        super.addNode(compositeNode);
-//        VariableScope variableScope = new VariableScope();
-//        compositeNode.addContext(variableScope);
-//        compositeNode.setDefaultContext(variableScope);
+        CompositeContextNode compositeNode = new CompositeContextNode();
+        compositeNode.setName("ForEachComposite");
+        compositeNode.setMetaData("hidden", true);
+        super.addNode(compositeNode);
+        VariableScope variableScope = new VariableScope();
+        compositeNode.addContext(variableScope);
+        compositeNode.setDefaultContext(variableScope);
+
+		StartNode start = new StartNode();
+		compositeNode.addNode(start);
+
         ((org.jbpm.workflow.core.Node) node).setId(2);
-        super.addNode(node);
-      VariableScope variableScope = new VariableScope();
-      addContext(variableScope);
-      setDefaultContext(variableScope);
+        compositeNode.addNode(node);
+
+		EndNode end = new EndNode();
+		compositeNode.addNode(end);
+		end.setTerminate(false);
+
+		start.setMetaData("hidden", true);
+		end.setMetaData("hidden", true);
+		
+		new ConnectionImpl(
+				compositeNode.getNode(1), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+				compositeNode.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		);
+		new ConnectionImpl(
+				compositeNode.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+				compositeNode.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		);
 
         // Join
         ForEachJoinNode join = new ForEachJoinNode();
@@ -184,12 +182,7 @@ public class ForEachNode extends CompositeContextNode {
     }
     
     public Node[] getNodes() {
-    	if(super.getNode(2) instanceof CompositeContextNode) {
-    		return getCompositeNode().getNodes();
-    	}
-    	else {
-    		return new Node[] {super.getNode(2)};
-    	}
+    	return getCompositeNode().getNodes();
     }
     
     public Node[] internalGetNodes() {
@@ -235,12 +228,7 @@ public class ForEachNode extends CompositeContextNode {
         variable.setName(variableName);
         variable.setType(type);
         variables.add(variable);
-        if(super.getNode(2) instanceof CompositeContextNode) {
-        	((VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE)).setVariables(variables);
-        }
-        else {
-        	((VariableScope) getDefaultContext(VariableScope.VARIABLE_SCOPE)).setVariables(variables);
-        }
+        ((VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE)).setVariables(variables);
     }
 
     public String getCollectionExpression() {

@@ -55,7 +55,7 @@ import org.w3c.dom.NodeList;
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
-public class ForEachNodeInstance extends CompositeContextNodeInstance {
+public class ForEachNodeInstance extends CompositeNodeInstance {
 
     private static final long serialVersionUID = 510l;
     
@@ -171,14 +171,17 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             if (collection.isEmpty()) {
             	ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
             } else {
+            	List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();
             	for (Object o: collection) {
             		String variableName = getForEachNode().getVariableName();
-            		NodeInstance nodeInstance = (NodeInstance)
+            		CompositeNodeInstance nodeInstance = (CompositeNodeInstance)
             		((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstance(getForEachSplitNode().getTo().getTo());
-            		VariableScopeInstance variableScopeInstance = null;
-            		variableScopeInstance = (VariableScopeInstance)
+            		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
             		nodeInstance.resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
             		variableScopeInstance.setVariable(variableName, o);
+            		nodeInstances.add(nodeInstance);
+            	}
+            	for (NodeInstance nodeInstance: nodeInstances) {
             		((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(this, getForEachSplitNode().getTo().getToType());
             	}
 	            if (!getForEachNode().isWaitForCompletion()) {

@@ -33,12 +33,22 @@ import org.drools.process.core.datatype.impl.type.ObjectDataType;
 import org.drools.process.core.impl.WorkImpl;
 import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.workflow.core.Connection;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
+import org.jbpm.workflow.core.impl.ConnectionImpl;
+import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.node.Assignment;
+import org.jbpm.workflow.core.node.CompositeContextNode;
+import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.DataAssociation;
+import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.ForEachNode;
+import org.jbpm.workflow.core.node.Join;
+import org.jbpm.workflow.core.node.Split;
+import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -200,9 +210,7 @@ public class TaskHandler extends AbstractNodeHandler {
 				ForEachNode forEachNode = new ForEachNode(node);
 				forEachNode.setId(id);
 				forEachNode.setName(node.getName());
-//				forEachNode.addNode(node);
 				forEachNode.setMetaData("UniqueId", ((WorkItemNode) node).getMetaData("UniqueId"));
-//				forEachNode.setMetaData(ProcessHandler.CONNECTIONS, ((WorkItemNode) node).getMetaData(ProcessHandler.CONNECTIONS));
 				forEachNode.setInMapping(((WorkItemNode) node).getInAssociations());
 				forEachNode.setOutMapping(((WorkItemNode) node).getOutAssociations());
 				node = forEachNode;
@@ -210,6 +218,74 @@ public class TaskHandler extends AbstractNodeHandler {
 				found = true;
 				break;
 			}
+			if ("standardLoopCharacteristics".equals(nodeName)) {
+				CompositeNode composite = new CompositeNode();
+				composite.setId(node.getId());
+				composite.setName(node.getName());
+				composite.setMetaData("UniqueId", node.getMetaData("UniqueId"));
+
+				StartNode start = new StartNode();
+				composite.addNode(start);
+
+				Join join = new Join();
+				join.setType(Join.TYPE_XOR);
+				composite.addNode(join);
+
+				Split split = new Split(Split.TYPE_XOR);
+				composite.addNode(split);
+
+				node.setId(4);
+				composite.addNode(node);
+
+				EndNode end = new EndNode();
+				composite.addNode(end);
+				end.setTerminate(false);
+
+				new ConnectionImpl(
+						composite.getNode(1), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				new ConnectionImpl(
+						composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				Connection c1 = new ConnectionImpl(
+						composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(4), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				new ConnectionImpl(
+						composite.getNode(4), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				Connection c2 = new ConnectionImpl(
+						composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(5), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+
+				start.setMetaData("hidden", true);
+				join.setMetaData("hidden", true);
+				split.setMetaData("hidden", true);
+				end.setMetaData("hidden", true);
+
+				ConstraintImpl cons1 = new ConstraintImpl();
+				cons1.setDialect("XPath");
+				cons1.setConstraint(xmlNode.getFirstChild().getTextContent());
+				cons1.setType("code");
+				split.setConstraint(c1, cons1);
+
+				ConstraintImpl cons2 = new ConstraintImpl();
+				cons2.setDialect("XPath");
+				cons2.setConstraint("");
+				cons2.setType("code");
+				cons2.setDefault(true);
+				split.setConstraint(c2, cons2);		        
+
+				super.handleNode(node, element, uri, localName, parser);
+				node = composite;
+				found = true;
+				break;
+			}
+
 			xmlNode = xmlNode.getNextSibling();
 		}
 		
@@ -229,10 +305,6 @@ public class TaskHandler extends AbstractNodeHandler {
             }
             xmlNode = xmlNode.getNextSibling();
         }
-//        List<SequenceFlow> connections = (List<SequenceFlow>)
-//        forEachNode.getMetaData(ProcessHandler.CONNECTIONS);
-//        ProcessHandler.linkConnections(forEachNode, connections);
-//        ProcessHandler.linkBoundaryEvents(forEachNode);
     }
 
 	protected void readMultiInstanceLoopCharacteristics(org.w3c.dom.Node xmlNode, ForEachNode forEachNode, ExtensibleXmlParser parser) {

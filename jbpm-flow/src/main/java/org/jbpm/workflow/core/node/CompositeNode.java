@@ -19,6 +19,7 @@ package org.jbpm.workflow.core.node;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,30 @@ public class CompositeNode extends StateBasedNode implements NodeContainer, Even
     private Map<String, CompositeNode.NodeAndType> inConnectionMap = new HashMap<String, CompositeNode.NodeAndType>();
     private Map<String, CompositeNode.NodeAndType> outConnectionMap = new HashMap<String, CompositeNode.NodeAndType>();
 	private boolean cancelRemainingInstances = true;
+
+	private List<DataAssociation> inMapping = new LinkedList<DataAssociation>();
+	private List<DataAssociation> outMapping = new LinkedList<DataAssociation>();
+
+    public List<DataAssociation> getInMapping() {
+		return inMapping;
+	}
+
+	public void setInMapping(List<DataAssociation> inMapping) {
+		this.inMapping = inMapping;
+	}
+
+	public List<DataAssociation> getOutMapping() {
+		return outMapping;
+	}
+
+	public void setOutMapping(List<DataAssociation> outMapping) {
+		this.outMapping = outMapping;
+	}
 	
+    public void addInAssociation(DataAssociation dataAssociation) {
+        inMapping.add(dataAssociation);
+    }
+
     public CompositeNode() {
         this.nodeContainer = new NodeContainerImpl();
     }
