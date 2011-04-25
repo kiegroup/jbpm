@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
@@ -49,9 +49,13 @@ import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.io.ResourceFactory;
 import org.drools.process.core.datatype.impl.type.ObjectDataType;
+import org.drools.process.instance.WorkItemHandler;
+import org.drools.runtime.Environment;
+import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItem;
+import org.drools.runtime.process.WorkItemManager;
 import org.drools.runtime.process.WorkflowProcessInstance;
 import org.jbpm.JbpmJUnitTestCase;
 import org.jbpm.bpmn2.core.Association;
@@ -72,39 +76,13 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+import org.h2.tools.DeleteDbFiles;
+import org.h2.tools.Server;
 
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
-
-	private PoolingDataSource ds1;
-	private EntityManagerFactory emf;
-	private static Server h2Server;
-    
-    static {
-    	try {
-			DeleteDbFiles.execute("", "JPADroolsFlow", true);
-			h2Server = Server.createTcpServer(new String[0]);
-			h2Server.start();
-		} catch (SQLException e) {
-			throw new RuntimeException("can't start h2 server db",e);
-		}
-    }
-    
-    protected void setUp() {
-    	ds1 = new PoolingDataSource();
-        ds1.setClassName("bitronix.tm.resource.jdbc.lrc.LrcXADataSource");
-    	ds1.setUniqueName("jdbc/testDS1");
-    	ds1.setMaxPoolSize(5);
-    	ds1.setAllowLocalTransactions(true);
-    	ds1.getDriverProperties().setProperty("driverClassName", "org.h2.Driver");
-    	ds1.getDriverProperties().setProperty("url", "jdbc:h2:tcp://localhost/JPADroolsFlow");
-    	ds1.getDriverProperties().setProperty("user", "sa");
-    	ds1.getDriverProperties().setProperty("password", "");
-        ds1.init();
-        emf = Persistence.createEntityManagerFactory( "org.jbpm.persistence.jpa" );
-    }
 
     public SimpleBPMNProcessTest() {
     	super(true);
@@ -1361,58 +1339,4 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
         return kbase;
     }
-	
-	private StatefulKnowledgeSession createKnowledgeSession(KnowledgeBase kbase) {
-//	    Environment env = KnowledgeBaseFactory.newEnvironment();
-//		Properties properties = new Properties();
-//		properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
-//		properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
-//		KnowledgeSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
-//		return kbase.newStatefulKnowledgeSession(config, env);
-	    Environment env = KnowledgeBaseFactory.newEnvironment();
-	    env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
-	    env.set(EnvironmentName.TRANSACTION_MANAGER,
-	        TransactionManagerServices.getTransactionManager());
-		Properties properties = new Properties();
-		properties.put("drools.processInstanceManagerFactory", "org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory");
-		properties.put("drools.processSignalManagerFactory", "org.jbpm.persistence.processinstance.JPASignalManagerFactory");
-		KnowledgeSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
-		return JPAKnowledgeService.newStatefulKnowledgeSession(kbase, config, env);
-	}
-	
-	private StatefulKnowledgeSession restoreSession(StatefulKnowledgeSession ksession) {
-//		return ksession;
-		int id = ksession.getId();
-		KnowledgeBase kbase = ksession.getKnowledgeBase();
-		Environment env = ksession.getEnvironment();
-		KnowledgeSessionConfiguration config = ksession.getSessionConfiguration();
-		return JPAKnowledgeService.loadStatefulKnowledgeSession(id, kbase, config, env);
-	}
-	
-	private void assertProcessInstanceCompleted(long processInstanceId, StatefulKnowledgeSession ksession) {
-		assertNull(ksession.getProcessInstance(processInstanceId));
-	}
-	
-	private void assertProcessInstanceAborted(long processInstanceId, StatefulKnowledgeSession ksession) {
-		assertNull(ksession.getProcessInstance(processInstanceId));
-	}
-	
-	private void assertProcessInstanceActive(long processInstanceId, StatefulKnowledgeSession ksession) {
-		assertNotNull(ksession.getProcessInstance(processInstanceId));
-	}
-	
-	private static class TestWorkItemHandler implements WorkItemHandler {
-	    private WorkItem workItem;
-        public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-            this.workItem = workItem;
-        }
-        public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-        }
-        public WorkItem getWorkItem() {
-            WorkItem result = this.workItem;
-            this.workItem = null;
-            return result;
-        }
-        
-	}
 }
