@@ -76,17 +76,17 @@ import org.w3c.dom.Text;
  */
 public class WorkItemNodeInstance extends StateBasedNodeInstance implements EventListener {
     
-    private static final Logger _logger = LoggerFactory.getLogger(WorkItemNodeInstance.class);
+	protected static final Logger _logger = LoggerFactory.getLogger(WorkItemNodeInstance.class);
     
-    private static final Logger _assignmentsLogger = LoggerFactory.getLogger("org.jbpm.xpath");
+    protected static final Logger _assignmentsLogger = LoggerFactory.getLogger("org.jbpm.xpath");
 
     private static final long serialVersionUID = 510l;
     private static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{(\\S+)\\}", Pattern.DOTALL);
     
     private long workItemId = -1;
-    private transient WorkItem workItem;
+    protected transient WorkItem workItem;
     
-    private static String serializeXML(org.w3c.dom.Node node) {
+    protected static String serializeXML(org.w3c.dom.Node node) {
         if (node == null) {
             return null;
         }
@@ -260,7 +260,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         return workItem;
     }
 
-    private void handleAssignment(Assignment assignment, String sourceExpr, String targetExpr, boolean isInput) throws XPathExpressionException, DOMException, TransformerException, ParserConfigurationException {
+    protected void handleAssignment(Assignment assignment, String sourceExpr, String targetExpr, boolean isInput) throws XPathExpressionException, DOMException, TransformerException, ParserConfigurationException {
         String from = assignment.getFrom();
         String to = assignment.getTo();
 
