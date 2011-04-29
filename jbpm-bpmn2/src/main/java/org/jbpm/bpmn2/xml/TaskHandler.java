@@ -170,6 +170,7 @@ public class TaskHandler extends AbstractNodeHandler {
     protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode, WorkItemNode workItemNode, Map<String, String> dataOutputs) {
 		// sourceRef
 		org.w3c.dom.Node subNode = xmlNode.getFirstChild();
+		if ("sourceRef".equals(subNode.getNodeName())) {
 		String source = subNode.getTextContent();
 		// targetRef
 		subNode = subNode.getNextSibling();
@@ -185,6 +186,24 @@ public class TaskHandler extends AbstractNodeHandler {
     		subNode = subNode.getNextSibling();
 		}
 		workItemNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, assignments, null));
+		} else {
+			// targetRef
+			String target = subNode.getTextContent();
+			subNode = subNode.getNextSibling();
+			List<Assignment> assignments = new LinkedList<Assignment>();
+			while(subNode != null){
+				org.w3c.dom.Node ssubNode = subNode.getFirstChild();
+				String from = ssubNode.getTextContent();
+				String to = ssubNode.getNextSibling().getTextContent();
+    		    if (from.startsWith("\"") && from.endsWith("\"")) {
+                    from = from.substring(1, from.length() -1);
+    		    }
+				assignments.add(new Assignment(null, from, to));
+
+	    		subNode = subNode.getNextSibling();
+			}
+			workItemNode.addOutAssociation(new DataAssociation(new LinkedList<String>(), target, assignments, null));			
+		}
     }
 
     @Override

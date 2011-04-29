@@ -411,7 +411,10 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                         }
                     }
                 } else {
-                    String source = association.getSources().get(0);
+                    String source = null;
+                    if(association.getSources().size() > 0) {
+                    	source = association.getSources().get(0);
+                    }
                     String target = association.getTarget();
                     try {
                         for (Iterator<Assignment> it = association.getAssignments().iterator(); it.hasNext(); ) {
