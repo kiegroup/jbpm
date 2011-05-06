@@ -156,7 +156,8 @@ public class XPATHExpressionModifier {
 					                getQualifiedName(childName));
 					        Document currentDoc = (Document) (contextNode instanceof Document ? contextNode : contextNode.getOwnerDocument());
 					        
-					        contextNode.appendChild(currentDoc.importNode(child, true));
+					        child = currentDoc.importNode(child, true);
+					        contextNode.appendChild(child);
 					        contextNode = child;
 					    } else if (children.getLength() == 1) {
 					        contextNode = children.item(0);
