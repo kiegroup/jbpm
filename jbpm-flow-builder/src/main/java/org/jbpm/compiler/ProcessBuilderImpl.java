@@ -420,7 +420,7 @@ public class ProcessBuilderImpl implements ProcessBuilder {
         return result;
     }
 
-    private String createStartConstraintRule(Process process,
+    protected String createStartConstraintRule(Process process,
                                              ConstraintTrigger trigger) {
         String result = 
         	"rule \"RuleFlow-Start-" + process.getId() + "\" \n" + 
