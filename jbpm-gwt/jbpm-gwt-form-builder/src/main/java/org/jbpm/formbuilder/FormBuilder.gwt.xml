@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+
+  <!-- Inherit the core Web Toolkit stuff. -->
+
+  <inherits name="com.google.gwt.i18n.I18N" />
+  <inherits name="com.google.gwt.user.User" />
+  <inherits name="com.google.gwt.user.theme.chrome.Chrome" />
+  <inherits name="com.google.gwt.resources.Resources" />
+  <inherits name="pl.balon.gwt.diagrams.Diagrams" />
+  <inherits name="org.cobogw.gwt.user.User" />
+  <inherits name="org.drools.ide.common.Common" />
+  <inherits name="com.google.gwt.activity.Activity" />
+
+  <!-- Here we put different locales (translations) There are of the form 
+    values="xx_YY" - which match to Constants_xx_YY.properties which contain 
+    the content. You then access then in the timetime app via &locale=xx_YY at 
+    the end of the URL. <extend-property name="locale" values="fr"/> -->
+
+  <extend-property name="locale" values="es_ES" />
+  <extend-property name="locale" values="zh_CN" />
+  <extend-property name="locale" values="ja_JP" />
+  <extend-property name="locale" values="pt_BR" />
+  <extend-property name="locale" values="fr_FR" />
+
+  <!-- Specify the app entry point class. -->
+  <!-- <entry-point class="org.drools.guvnor.client.JBRMS"/> -->
+  <entry-point class="org.jbpm.formbuilder.client.FormBuilderEntryPoint" />
+
+  <servlet path="/formBuilder" class="org.jbpm.formbuilder.server.FormBuilderServlet" />
+  <servlet path="/api" class="org.jbpm.formbuilder.server.RestAPIServlet" />
+
+  <!-- <replace-with class="org.drools.guvnor.client.explorer.ClientFactoryImpl">
+    <when-type-is class="org.drools.guvnor.client.explorer.ClientFactory" />
+  </replace-with> -->
+
+  <!-- Deferred binding to handle the calculation of cell heights in a VerticalMergedGrid -->
+  <!-- replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImpl">
+    <when-type-is class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImpl" />
+  </replace-with>
+  <replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImplIE">
+    <when-type-is class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImpl" />
+    <any>
+      <when-property-is name="user.agent" value="ie6" />
+      <when-property-is name="user.agent" value="ie8" />
+    </any>
+  </replace-with> -->
+
+  <!-- Deferred binding to handle different check-box behaviours -->
+  <!-- <replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CheckboxCellImpl">
+    <when-type-is class="org.drools.guvnor.client.widgets.decoratedgrid.CheckboxCellImpl" />
+  </replace-with>
+  <replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CheckboxCellImplIE">
+    <when-type-is class="org.drools.guvnor.client.widgets.decoratedgrid.CheckboxCellImpl" />
+    <any>
+      <when-property-is name="user.agent" value="ie6" />
+      <when-property-is name="user.agent" value="ie8" />
+    </any>
+  </replace-with> -->
+
+</module>

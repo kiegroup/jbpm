@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>jbpm-gwt</artifactId>
+    <groupId>org.jbpm</groupId>
+    <version>5.2.0-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>jbpm-gwt-form-builder</artifactId>
+  <packaging>war</packaging>
+  <name>jBPM :: GWT Form Builder</name>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <!--use -Dgwt.compiler.skip=true to skip GWT compiler-->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>gwt-maven-plugin</artifactId>
+        <version>2.2.0</version>
+        <configuration>
+          <module>org.jbpm.formbuilder.FormBuilder</module>
+          <runTarget>org.jbpm.formbuilder.FormBuilder/FormBuilder.html</runTarget>
+          <compileSourcesArtifacts>
+            <compileSourcesArtifact>org.drools:droolsjbpm-ide-common</compileSourcesArtifact>
+          </compileSourcesArtifacts>
+          <gwtSdkFirstInClasspath>true</gwtSdkFirstInClasspath><!-- The GWT compiler must the correct JDT version -->
+          <localWorkers>2</localWorkers><!-- Using all workers can temporarily hang the mouse and isn't much faster -->
+          <extraJvmArgs>-Xmx512m</extraJvmArgs>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <dependencies>
+    
+  </dependencies>
+  
+</project>
