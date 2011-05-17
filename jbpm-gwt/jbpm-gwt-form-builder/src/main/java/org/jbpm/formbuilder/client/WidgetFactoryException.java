@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.Widget;
+public class WidgetFactoryException extends Exception {
 
-public class TextFieldWidget implements ControlWidget {
+    private static final long serialVersionUID = 5823556294632110975L;
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
+    public WidgetFactoryException() {
+        super();
     }
 
+    public WidgetFactoryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public WidgetFactoryException(String message) {
+        super(message);
+    }
+
+    public WidgetFactoryException(Throwable cause) {
+        super(cause);
+    }
 }

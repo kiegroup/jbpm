@@ -15,9 +15,21 @@
  */
 package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.IsWidget;
+import java.util.ArrayList;
+import java.util.List;
 
-public interface FormBuilderWidget extends IsWidget {
-    
-    
+import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.FormBuilderMenuItem;
+import org.jbpm.formbuilder.client.menu.LabelMenuItem;
+import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
+
+public class MenuModel {
+
+    public List<FormBuilderMenuItem> getMenuItems() {
+        List<FormBuilderMenuItem> list = new ArrayList<FormBuilderMenuItem>();
+        list.add(new TextFieldMenuItem());
+        list.add(new LabelMenuItem());
+        list.add(new CompleteButtonMenuItem());
+        return list;
+    }
 }

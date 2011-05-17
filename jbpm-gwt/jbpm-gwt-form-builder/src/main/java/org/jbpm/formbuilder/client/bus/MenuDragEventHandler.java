@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client.bus;
 
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.event.shared.EventHandler;
 
-public class TextFieldWidget implements ControlWidget {
+public interface MenuDragEventHandler extends EventHandler {
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    void onEvent(MenuDragEvent event);
 
 }

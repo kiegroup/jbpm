@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class TextFieldWidget implements ControlWidget {
+public class MenuView extends AbsolutePanel {
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
+    public MenuView() {
+        
     }
-
+    
+    public void addItem(Widget widget) {
+        super.add(widget); //TODO
+    }
 }

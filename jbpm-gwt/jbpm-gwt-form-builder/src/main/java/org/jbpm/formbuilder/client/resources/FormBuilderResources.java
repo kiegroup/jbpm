@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client.resources;
 
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ImageResource;
 
-public class TextFieldWidget implements ControlWidget {
+public interface FormBuilderResources extends ClientBundle {
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
+    FormBuilderResources INSTANCE = GWT.create( FormBuilderResources.class );
+    
+    @Source("images/completeButton.gif")
+    ImageResource completeButton();
+    
+    @Source("images/textField.gif")
+    ImageResource textField();
+    
+    @Source("images/label.gif")
+    ImageResource label();
 }

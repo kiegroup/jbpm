@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.SimplePanel;
 
-public class TextFieldWidget implements ControlWidget {
+public class LayoutHolder extends SimplePanel {
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
+    public LayoutHolder() {
+        // TODO must have resizing and other floating functions, like edit/delete buttons and so on
     }
-
 }

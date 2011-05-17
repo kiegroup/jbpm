@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client.menu;
 
-import com.google.gwt.user.client.ui.Widget;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
-public class TextFieldWidget implements ControlWidget {
+import com.google.gwt.resources.client.ImageResource;
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
+public class TextFieldMenuItem extends FormBuilderMenuItem {
+
+    @Override
+    protected String getDescription() {
+        return "Complete Button";
     }
-
+    
+    @Override
+    protected ImageResource getIconUrl() {
+        return FormBuilderResources.INSTANCE.textField();
+    }
 }

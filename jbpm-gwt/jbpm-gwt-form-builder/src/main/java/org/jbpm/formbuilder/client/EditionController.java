@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.controls;
+package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.event.shared.EventBus;
 
-public class TextFieldWidget implements ControlWidget {
+public class EditionController {
 
-    public Widget asWidget() {
-        // TODO Auto-generated method stub
-        return null;
+    private final EditionModel propsModel;
+    private final EditionView propsView;
+    private final EventBus bus;
+    
+    public EditionController(EditionModel propsModel,
+            EditionView propsView, EventBus bus) {
+        super();
+        this.propsModel = propsModel;
+        this.propsView = propsView;
+        this.bus = bus;
     }
-
 }
