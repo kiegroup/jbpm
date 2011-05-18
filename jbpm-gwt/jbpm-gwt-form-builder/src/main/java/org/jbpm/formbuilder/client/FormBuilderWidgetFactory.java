@@ -15,23 +15,29 @@
  */
 package org.jbpm.formbuilder.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.controls.TextFieldWidget;
+import org.jbpm.formbuilder.client.eventlisteners.CompleteButtonWidget;
+import org.jbpm.formbuilder.client.eventlisteners.LabelWidget;
+import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.LabelMenuItem;
+import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
+
 public class FormBuilderWidgetFactory {
 
+    private final Map<String, FormBuilderWidget> map = new HashMap<String, FormBuilderWidget>();
+    public static final FormBuilderWidgetFactory INSTANCE = new FormBuilderWidgetFactory();
+    
+    private FormBuilderWidgetFactory() {
+        //TODO make this get populated from a configuration file (maybe an MVEL file?)
+        map.put(LabelMenuItem.class.getName(), new LabelWidget());
+        map.put(TextFieldMenuItem.class.getName(), new TextFieldWidget());
+        map.put(CompleteButtonMenuItem.class.getName(), new CompleteButtonWidget());
+    }
+    
     public static FormBuilderWidget getInstance(String itemId) throws WidgetFactoryException {
-        String widgetClassName = itemId.replace("menu", "widget").replace("MenuItem", "Widget");
-        try {
-            Class<?> widgetClass = Class.forName(widgetClassName);
-            Object widgetObj = widgetClass.newInstance();
-            return (FormBuilderWidget) widgetObj;
-        } catch (ClassNotFoundException e) {
-            throw new WidgetFactoryException("widget class " + widgetClassName 
-                    + " not found for menu item " + itemId, e);
-        } catch (IllegalAccessException e) {
-            throw new WidgetFactoryException("widget class " + widgetClassName 
-                    + " inaccessible constructor", e);
-        } catch (InstantiationException e) {
-            throw new WidgetFactoryException("widget class " + widgetClassName 
-                    + " constructor threw error", e);
-        }
+        return INSTANCE.map.get(itemId);
     }
 }
