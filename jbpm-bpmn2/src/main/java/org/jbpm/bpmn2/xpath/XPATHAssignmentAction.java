@@ -23,7 +23,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
-	
+
+	private static final long serialVersionUID = 5L;
+
 	private String sourceExpr;
 	private String targetExpr;
 	private Assignment assignment;
@@ -54,6 +56,9 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
 		out.writeObject(targetExpr);
 		out.writeObject(assignment);
 		out.writeBoolean(isInput);
+	}
+
+	public XPATHAssignmentAction() {
 	}
 
 	public XPATHAssignmentAction(Assignment assignment, String sourceExpr, String targetExpr, boolean isInput) {
