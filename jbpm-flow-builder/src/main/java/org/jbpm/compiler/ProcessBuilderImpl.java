@@ -233,7 +233,7 @@ public class ProcessBuilderImpl implements ProcessBuilder {
     public List<DroolsError> addProcessFromXml(final Resource resource) throws IOException {
     	Reader reader = resource.getReader();
         PackageBuilderConfiguration configuration = packageBuilder.getPackageBuilderConfiguration();
-        XmlProcessReader xmlReader = new XmlProcessReader( configuration.getSemanticModules() );
+        XmlProcessReader xmlReader = new XmlProcessReader( configuration.getSemanticModules(), packageBuilder.getRootClassLoader() );
         
         final ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
         final ClassLoader newLoader = this.getClass().getClassLoader();
@@ -420,7 +420,7 @@ public class ProcessBuilderImpl implements ProcessBuilder {
         return result;
     }
 
-    private String createStartConstraintRule(Process process,
+    protected String createStartConstraintRule(Process process,
                                              ConstraintTrigger trigger) {
         String result = 
         	"rule \"RuleFlow-Start-" + process.getId() + "\" \n" + 

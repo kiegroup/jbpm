@@ -1,3 +1,14 @@
+/target
+/local
+
+# Eclipse, Netbeans and IntelliJ files
+/.*
+!.gitignore
+/nbproject
+/*.ipr
+/*.iws
+/*.iml
+
 eclipse/
 jboss-*/
 repository/

@@ -1,35 +1,35 @@
 Manifest-Version: 1.0
 Export-Package: org.jbpm.persistence.processinstance;uses:="org.drools
- .common,org.jbpm.process.instance.impl,org.drools.runtime,org.drools.
+ .common,org.drools.runtime,org.jbpm.process.instance.impl,org.drools.
  runtime.process,org.drools,org.drools.definition.process,org.jbpm.pro
  cess.instance,org.jbpm.persistence,org.jbpm.process.instance.event,ja
  vax.persistence,org.drools.impl,org.drools.marshalling.impl,org.hiber
- nate.annotations,org.jbpm.marshalling.impl";version="5.1.0.SNAPSHOT",
+ nate.annotations,org.jbpm.marshalling.impl";version="5.2.0.SNAPSHOT",
  org.jbpm.persistence;uses:="org.jbpm.persistence.processinstance,java
  x.persistence,org.drools.persistence.jpa,org.drools.runtime,org.drool
- s.persistence.map,org.drools.persistence";version="5.1.0.SNAPSHOT"
+ s.persistence.map,org.drools.persistence";version="5.2.0.SNAPSHOT"
 Tool: Bnd-0.0.357
 Bundle-Name: jBPM :: JPA Persistence
-Created-By: 1.6.0_24 (Apple Inc.)
-Require-Bundle: org.drools.core;bundle-version="5.2.0",org.drools.comp
- iler;bundle-version="5.2.0"
+Created-By: 1.6.0_20 (Apple Inc.)
+Require-Bundle: org.drools.core;bundle-version="5.3.0.SNAPSHOT",org.dr
+ ools.compiler;bundle-version="5.3.0.SNAPSHOT"
 Bundle-Vendor: JBoss Inc.
 DynamicImport-Package: *
-Bundle-Version: 5.1.0.SNAPSHOT
-Bnd-LastModified: 1304482082312
+Bundle-Version: 5.2.0.SNAPSHOT
+Bnd-LastModified: 1305719959043
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Bundle-Description: jBPM: a Business Process Management (BPM) Suite
-Import-Package: javax.persistence,org.drools;version="5.2",org.drools.
- common;version="5.2",org.drools.definition.process;version="5.2",org.
- drools.impl;version="5.2",org.drools.marshalling.impl;version="5.2",o
- rg.drools.persistence;version="5.2",org.drools.persistence.jpa;versio
- n="5.2",org.drools.persistence.map;version="5.2",org.drools.runtime;v
- ersion="5.2",org.drools.runtime.process;version="5.2",org.hibernate.a
- nnotations,org.jbpm.marshalling.impl;version="5.1",org.jbpm.persisten
- ce;version="5.1",org.jbpm.persistence.processinstance;version="5.1",o
- rg.jbpm.process.instance;version="5.1",org.jbpm.process.instance.even
- t;version="5.1",org.jbpm.process.instance.impl;version="5.1"
+Import-Package: javax.persistence,org.drools;version="5.3",org.drools.
+ common;version="5.3",org.drools.definition.process;version="5.3",org.
+ drools.impl;version="5.3",org.drools.marshalling.impl;version="5.3",o
+ rg.drools.persistence;version="5.3",org.drools.persistence.jpa;versio
+ n="5.3",org.drools.persistence.map;version="5.3",org.drools.runtime;v
+ ersion="5.3",org.drools.runtime.process;version="5.3",org.hibernate.a
+ nnotations,org.jbpm.marshalling.impl;version="5.2",org.jbpm.persisten
+ ce;version="5.2",org.jbpm.persistence.processinstance;version="5.2",o
+ rg.jbpm.process.instance;version="5.2",org.jbpm.process.instance.even
+ t;version="5.2",org.jbpm.process.instance.impl;version="5.2"
 Bundle-SymbolicName: org.jbpm.flow-persistence-jpa;singleton:=true
 Bundle-DocURL: http://www.jboss.org/
 
