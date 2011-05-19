@@ -18,13 +18,13 @@ package org.jbpm.formbuilder.client;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.bus.MenuDragEvent;
-import org.jbpm.formbuilder.client.menu.FormBuilderMenuItem;
+import org.jbpm.formbuilder.client.menu.MenuItem;
+import org.jbpm.formbuilder.client.menu.MenuPanel;
 
 import com.allen_sauer.gwt.dnd.client.DragEndEvent;
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MenuController {
@@ -32,28 +32,42 @@ public class MenuController {
     private final MenuModel model;
     private final MenuView view;
     private final EventBus bus;
+    private final PickupDragController dragController;
     
-    public MenuController(MenuModel menuModel, MenuView menuView, EventBus bus) {
+    public MenuController(PickupDragController dragController, MenuModel menuModel, MenuView menuView, EventBus bus) {
         super();
         this.model = menuModel;
         this.view = menuView;
         this.bus = bus;
-        List<FormBuilderMenuItem> items = model.getMenuItems();
-        PickupDragController dragController = new PickupDragController(menuView, false);
+        this.dragController = dragController;
+        List<MenuItem> items = model.getMenuItems();
+        MenuPanel menuPanel = new MenuPanel(dragController);
+        
         dragController.setBehaviorMultipleSelection(false);
+        dragController.setConstrainWidgetToBoundaryPanel(false);
         dragController.addDragHandler(new DragHandlerAdapter() {
             @Override
             public void onDragEnd(DragEndEvent event) {
-                Widget source = event.getContext().draggable;
-                String itemId = ((FormBuilderMenuItem) source).getItemId();
-                int x = event.getContext().desiredDraggableX;
-                int y = event.getContext().desiredDraggableY;
-                MenuController.this.bus.fireEvent(new MenuDragEvent(itemId, x, y));
+                Widget w = event.getContext().draggable;
+                if (w != null && w instanceof MenuItem) {
+                    String itemId = ((MenuItem) w).getItemId();
+                    int x = event.getContext().desiredDraggableX;
+                    int y = event.getContext().desiredDraggableY;
+                    MenuController.this.bus.fireEvent(new MenuDragEvent(itemId, x, y));
+                }
             }
         });
-        for (FormBuilderMenuItem item : items) {
-            dragController.makeDraggable(item);
-            view.addItem(item);
+        for (MenuItem item : items) {
+            menuPanel.add(item);
         }
+        this.view.setPanel(menuPanel);
+    }
+
+    public Widget getView() {
+        return view;
+    }
+
+    public PickupDragController getDragController() {
+        return dragController;
     }
 }

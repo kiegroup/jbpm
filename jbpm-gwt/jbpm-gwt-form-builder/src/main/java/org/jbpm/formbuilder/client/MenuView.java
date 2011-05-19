@@ -15,16 +15,35 @@
  */
 package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.AbsolutePanel;
+import org.jbpm.formbuilder.client.menu.MenuPanel;
+
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class MenuView extends AbsolutePanel {
+public class MenuView extends SimplePanel {
 
+    private ScrollPanel panel = new ScrollPanel();
+    
     public MenuView() {
-        
+        setSize("200px", "250px");
+        Grid grid = new Grid(1,1);
+        grid.setWidget(0, 0, panel);
+        grid.setSize("100%", "100%");
+        grid.setBorderWidth(2);
+        add(grid);
     }
     
-    public void addItem(Widget widget) {
-        super.add(widget); //TODO
+    public void setPanel(MenuPanel panel) {
+        this.panel.add(panel);
+    }
+    
+    public void addItem(Widget widget, String group) {
+        panel.add(widget); //TODO
+    }
+    
+    public void addItemGroup(Widget widget) {
+        
     }
 }

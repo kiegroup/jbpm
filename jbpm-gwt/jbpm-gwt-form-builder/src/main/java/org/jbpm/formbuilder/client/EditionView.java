@@ -15,16 +15,16 @@
  */
 package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.SimplePanel;
 
-public class EditionView implements IsWidget {
+public class EditionView extends SimplePanel {
 
     public EditionView() {
-    }
-
-    public Widget asWidget() {
-        return new Label("EDITION");
+        setSize("200px", "250px");
+        Grid grid = new Grid(1,1);
+        grid.setSize("100%", "100%");
+        grid.setBorderWidth(2);
+        add(grid);
     }
 }

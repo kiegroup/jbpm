@@ -15,9 +15,11 @@
  */
 package org.jbpm.formbuilder.client;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -26,16 +28,22 @@ public class FormBuilderEntryPoint implements EntryPoint {
     public void onModuleLoad() {
         EventBus bus = new SimpleEventBus();
         
+        AbsolutePanel panel = new AbsolutePanel();
+        
         Grid mainGrid = new Grid(1, 2);
         Grid editGrid = new Grid(2, 1);
         
-        editGrid.add(createMenu(bus));
-        editGrid.add(createEdition(bus));
+        MenuController menuController = createMenu(bus, panel);
         
-        mainGrid.add(editGrid);
-        mainGrid.add(createLayout(bus));
+        editGrid.setWidget(0, 0, menuController.getView());
+        editGrid.setWidget(1, 0, createEdition(bus).asWidget());
         
-        RootPanel.get("formBuilder").add(mainGrid);
+        mainGrid.setWidget(0, 0, editGrid);
+        mainGrid.setWidget(0, 1, createLayout(bus, menuController.getDragController()).asWidget());
+        
+        panel.add(mainGrid);
+        
+        RootPanel.get("formBuilder").add(panel);
     }
 
     private EditionView createEdition(EventBus bus) {
@@ -45,17 +53,16 @@ public class FormBuilderEntryPoint implements EntryPoint {
         return editionView;
     }
 
-    private MenuView createMenu(EventBus bus) {
+    private MenuController createMenu(EventBus bus, AbsolutePanel dropPanel) {
         MenuModel menuModel = new MenuModel();
         MenuView menuView = new MenuView();
-        new MenuController(menuModel, menuView, bus);
-        return menuView;
+        return new MenuController(new PickupDragController(dropPanel, false), menuModel, menuView, bus);
     }
 
-    private LayoutView createLayout(EventBus bus) {
+    private LayoutView createLayout(EventBus bus, PickupDragController dragController) {
         LayoutModel layoutModel = new LayoutModel();
         LayoutView layoutView = new LayoutView();
-        new LayoutController(layoutModel, layoutView, bus);
+        new LayoutController(dragController, layoutModel, layoutView, bus);
         return layoutView;
     }
 }

@@ -18,18 +18,29 @@ package org.jbpm.formbuilder.client.menu;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.ui.Label;
 
 
-public class CompleteButtonMenuItem extends FormBuilderMenuItem {
+public class CompleteButtonMenuItem extends MenuItem {
 
 
     @Override
-    protected String getDescription() {
-        return "Complete Button";
+    protected Label getDescription() {
+        return new Label("Complete Button");
     }
     
     @Override
     protected ImageResource getIconUrl() {
         return FormBuilderResources.INSTANCE.completeButton();
+    }
+
+    @Override
+    public MenuItem cloneWidget() {
+        return new CompleteButtonMenuItem();
+    }
+
+    @Override
+    public FormItem buildWidget() {
+        return new CompleteButtonFormItem();
     }
 }

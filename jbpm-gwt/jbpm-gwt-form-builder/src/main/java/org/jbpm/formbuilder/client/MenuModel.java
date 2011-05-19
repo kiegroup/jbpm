@@ -19,14 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
-import org.jbpm.formbuilder.client.menu.FormBuilderMenuItem;
+import org.jbpm.formbuilder.client.menu.MenuItem;
 import org.jbpm.formbuilder.client.menu.LabelMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
 
 public class MenuModel {
 
-    public List<FormBuilderMenuItem> getMenuItems() {
-        List<FormBuilderMenuItem> list = new ArrayList<FormBuilderMenuItem>();
+    public List<MenuItem> getMenuItems() {
+        List<MenuItem> list = new ArrayList<MenuItem>();
         list.add(new TextFieldMenuItem());
         list.add(new LabelMenuItem());
         list.add(new CompleteButtonMenuItem());

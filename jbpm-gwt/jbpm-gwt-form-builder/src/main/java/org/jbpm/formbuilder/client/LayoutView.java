@@ -15,18 +15,25 @@
  */
 package org.jbpm.formbuilder.client;
 
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.SimplePanel;
 
-public class LayoutView implements IsWidget {
+public class LayoutView extends SimplePanel {
 
+    AbsolutePanel layout = new AbsolutePanel();
     
     public LayoutView() {
-        
+        setSize("500px", "500px");
+        Grid grid = new Grid(1,1);
+        grid.setSize("100%", "100%");
+        grid.setBorderWidth(2);
+        grid.setWidget(0, 0, layout);
+        add(grid);
     }
-    
-    public Widget asWidget() {
-        return new Label("LAYOUT");
+
+    public Panel getUnderlyingLayout(int x, int y) {
+        return layout; // TODO Implement a way to see what's in that position
     }
 }

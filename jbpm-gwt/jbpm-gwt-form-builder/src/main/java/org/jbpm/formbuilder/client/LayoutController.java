@@ -17,7 +17,12 @@ package org.jbpm.formbuilder.client;
 
 import org.jbpm.formbuilder.client.bus.MenuDragEvent;
 import org.jbpm.formbuilder.client.bus.MenuDragEventHandler;
+import org.jbpm.formbuilder.client.menu.FormItem;
+import org.jbpm.formbuilder.client.menu.MenuItem;
 
+import com.allen_sauer.gwt.dnd.client.DragContext;
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;
 import com.google.gwt.event.shared.EventBus;
 
 public class LayoutController {
@@ -26,11 +31,27 @@ public class LayoutController {
     private final LayoutView layoutView;
     private final EventBus bus;
     
-    public LayoutController(LayoutModel layoutModel, LayoutView layoutView, EventBus bus) {
+    public LayoutController(PickupDragController dragController, LayoutModel layoutModel, LayoutView layoutView, EventBus bus) {
         this.layoutModel = layoutModel;
         this.layoutView = layoutView;
         this.bus = bus;
         
+        dragController.registerDropController(new SimpleDropController(layoutView) {
+            @Override
+            public void onDrop(DragContext context) {
+                if (context.draggable != null && context.draggable instanceof MenuItem) {
+                    MenuItem menuItem = (MenuItem) context.draggable;
+                    FormItem formItem = menuItem.buildWidget();
+                    int x = context.desiredDraggableX;
+                    int y = context.desiredDraggableY;
+                    LayoutController.this.layoutView.getUnderlyingLayout(x, y).add(formItem);
+                    LayoutController.this.layoutView.remove(menuItem);
+                }
+                
+                super.onDrop(context);
+            }
+        });
+
         this.bus.addHandler(MenuDragEvent.TYPE, new MenuDragEventHandler() {
             public void onEvent(MenuDragEvent event) {
                 String itemId = event.getItemId();

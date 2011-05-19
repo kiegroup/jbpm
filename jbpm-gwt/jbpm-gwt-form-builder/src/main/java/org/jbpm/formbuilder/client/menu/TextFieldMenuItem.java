@@ -18,16 +18,28 @@ package org.jbpm.formbuilder.client.menu;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Label;
 
-public class TextFieldMenuItem extends FormBuilderMenuItem {
+public class TextFieldMenuItem extends MenuItem {
 
     @Override
-    protected String getDescription() {
-        return "Complete Button";
+    protected Label getDescription() {
+        return new HTML("<strong>TextField</strong>");
     }
     
     @Override
     protected ImageResource getIconUrl() {
         return FormBuilderResources.INSTANCE.textField();
+    }
+
+    @Override
+    public MenuItem cloneWidget() {
+        return new TextFieldMenuItem();
+    }
+    
+    @Override
+    public FormItem buildWidget() {
+        return new TextFieldFormItem();
     }
 }

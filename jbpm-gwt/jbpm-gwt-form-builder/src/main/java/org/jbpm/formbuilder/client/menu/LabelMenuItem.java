@@ -18,13 +18,14 @@ package org.jbpm.formbuilder.client.menu;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.ui.Label;
 
 
-public class LabelMenuItem extends FormBuilderMenuItem {
+public class LabelMenuItem extends MenuItem {
 
     @Override
-    protected String getDescription() {
-        return "Label";
+    protected Label getDescription() {
+        return new Label("Label");
     }
     
     @Override
@@ -32,4 +33,13 @@ public class LabelMenuItem extends FormBuilderMenuItem {
         return FormBuilderResources.INSTANCE.label();
     };
 
+    @Override
+    public MenuItem cloneWidget() {
+        return new LabelMenuItem();
+    }
+
+    @Override
+    public FormItem buildWidget() {
+        return new LabelFormItem();
+    }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<module rename-to='formbuilder'>
+<module>
 
   <!-- Inherit the core Web Toolkit stuff. -->
 
@@ -9,11 +9,15 @@
   <inherits name="com.google.gwt.resources.Resources" />
   <inherits name="com.google.gwt.activity.Activity" />
   <inherits name="org.drools.ide.common.Common" />
-  <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd"/>
-  <set-property name="user.agent" value="ie6" />
+  <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
+  <set-property name="user.agent" value="gecko1_8" />
 
   <entry-point class="org.jbpm.formbuilder.client.FormBuilderEntryPoint" />
 
+  <!-- Specify the paths for translatable code                    -->
+  <source path='client'/>
+  <source path='shared'/>
+  
 </module>
 
   <!-- inherits name="pl.balon.gwt.diagrams.Diagrams" / -->
@@ -30,27 +34,8 @@
   <extend-property name="locale" values="pt_BR" />
   <extend-property name="locale" values="fr_FR" / -->
 
-  <!-- Specify the app entry point class. -->
-  <!-- <entry-point class="org.drools.guvnor.client.JBRMS"/> -->
-
   <!-- servlet path="/formBuilder" class="org.jbpm.formbuilder.server.FormBuilderServlet" />
   <servlet path="/api" class="org.jbpm.formbuilder.server.RestAPIServlet" / -->
-
-  <!-- <replace-with class="org.drools.guvnor.client.explorer.ClientFactoryImpl">
-    <when-type-is class="org.drools.guvnor.client.explorer.ClientFactory" />
-  </replace-with> -->
-
-  <!-- Deferred binding to handle the calculation of cell heights in a VerticalMergedGrid -->
-  <!-- replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImpl">
-    <when-type-is class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImpl" />
-  </replace-with>
-  <replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImplIE">
-    <when-type-is class="org.drools.guvnor.client.widgets.decoratedgrid.CellHeightCalculatorImpl" />
-    <any>
-      <when-property-is name="user.agent" value="ie6" />
-      <when-property-is name="user.agent" value="ie8" />
-    </any>
-  </replace-with> -->
 
   <!-- Deferred binding to handle different check-box behaviours -->
   <!-- <replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CheckboxCellImpl">
