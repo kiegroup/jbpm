@@ -27,7 +27,7 @@ public class MenuView extends SimplePanel {
     private ScrollPanel panel = new ScrollPanel();
     
     public MenuView() {
-        setSize("200px", "250px");
+        setSize("270px", "245px");
         Grid grid = new Grid(1,1);
         grid.setWidget(0, 0, panel);
         grid.setSize("100%", "100%");

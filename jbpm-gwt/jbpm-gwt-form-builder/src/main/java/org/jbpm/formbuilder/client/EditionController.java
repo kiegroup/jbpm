@@ -15,19 +15,36 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.bus.FormItemDeselectedEvent;
+import org.jbpm.formbuilder.client.bus.FormItemDeselectedEventHandler;
+import org.jbpm.formbuilder.client.bus.FormItemSelectedEvent;
+import org.jbpm.formbuilder.client.bus.FormItemSelectedEventHandler;
+
 import com.google.gwt.event.shared.EventBus;
 
 public class EditionController {
 
-    private final EditionModel propsModel;
-    private final EditionView propsView;
+    private final EditionModel editModel;
+    private final EditionView editView;
     private final EventBus bus;
     
-    public EditionController(EditionModel propsModel,
-            EditionView propsView, EventBus bus) {
+    public EditionController(EditionModel editModel,
+            EditionView editView, EventBus bus) {
         super();
-        this.propsModel = propsModel;
-        this.propsView = propsView;
+        this.editModel = editModel;
+        this.editView = editView;
         this.bus = bus;
+        
+        bus.addHandler(FormItemSelectedEvent.TYPE, new FormItemSelectedEventHandler() {
+            public void onEvent(FormItemSelectedEvent event) {
+                EditionController.this.editView.populate(event.getFormItemSelected());
+            }
+        });
+        
+        bus.addHandler(FormItemDeselectedEvent.TYPE, new FormItemDeselectedEventHandler() {
+            public void onEvent(FormItemDeselectedEvent event) {
+                EditionController.this.editView.clear();
+            }
+        });
     }
 }

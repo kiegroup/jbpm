@@ -15,10 +15,11 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -26,7 +27,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class FormBuilderEntryPoint implements EntryPoint {
 
     public void onModuleLoad() {
-        EventBus bus = new SimpleEventBus();
+        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         
         AbsolutePanel panel = new AbsolutePanel();
         

@@ -31,4 +31,10 @@ public interface FormBuilderResources extends ClientBundle {
     
     @Source("images/label.gif")
     ImageResource label();
+
+    @Source("images/done_icon.gif")
+    ImageResource doneIcon();
+    
+    @Source("images/remove_icon.gif")
+    ImageResource removeIcon();
 }
