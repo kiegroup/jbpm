@@ -13,18 +13,18 @@ public class Activator
     implements
     BundleActivator {
 
-    private ServiceRegistration processBuilderReg;
+//    private ServiceRegistration processBuilderReg;
 
     public void start(BundleContext bc) throws Exception {
         System.out.println( "registering flow compiler services" );
-        this.processBuilderReg = bc.registerService( new String[]{ ProcessBuilderFactoryService.class.getName(), Service.class.getName()},
-                                                                   new ProcessBuilderFactoryServiceImpl(),
-                                                                   new Hashtable() );
+//        this.processBuilderReg = bc.registerService( new String[]{ ProcessBuilderFactoryService.class.getName(), Service.class.getName()},
+//                                                                   new ProcessBuilderFactoryServiceImpl(),
+//                                                                   new Hashtable() );
         System.out.println( "flow compiler services registered" );
     }
 
     public void stop(BundleContext bc) throws Exception {
-        this.processBuilderReg.unregister();
+//       this.processBuilderReg.unregister();
     }
 
 }
