@@ -43,7 +43,15 @@ public class DataAssociation implements Serializable {
 	@SuppressWarnings("serial")
 	public DataAssociation(final String source, String target,
 			List<Assignment> assignments, Transformation transformation) {
-		this(new LinkedList<String>(){{add(source);}}, target, assignments, transformation);
+		LinkedList<String> srcList = new LinkedList<String>();
+		srcList.add(source);
+		if(transformation != null) {
+			throw new UnsupportedOperationException("Transformations are not supported");
+		}
+		this.sources = srcList;
+		this.target = target;
+		this.assignments = assignments;
+		this.transformation = transformation;
 	}
 
 	public List<String> getSources() {
