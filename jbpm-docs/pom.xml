@@ -12,6 +12,7 @@
   <packaging>jdocbook</packaging>
   
   <name>jBPM Documentation</name>
+  <description>jBPM Documentation</description>
 
   <build>
     <plugins>
