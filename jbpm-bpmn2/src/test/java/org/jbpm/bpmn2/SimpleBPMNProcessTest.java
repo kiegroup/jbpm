@@ -1350,6 +1350,16 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
         ProcessInstance processInstance = ksession.startProcess("process", null);
     }
 	
+    public void testStandardLoop() throws Exception {
+		KnowledgeBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-StandardLoop.bpmn2");
+		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "1");
+		ProcessInstance processInstance = ksession.startProcess("std_loop", params);
+		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+	}
+
+	
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
 		KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();

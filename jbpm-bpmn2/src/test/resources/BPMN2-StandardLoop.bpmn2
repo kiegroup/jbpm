@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions id="Definition"
+             targetNamespace="http://www.example.org/MinimalExample"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:tns="http://www.jboss.org/drools">
+  <itemDefinition id='_2465E01D-1F93-43CE-BD19-80E0EC3D01A3item' structureRef='java.lang.Object'/>
+  <process id='std_loop'>
+    <property id='x' name='x' itemSubjectRef='_2465E01D-1F93-43CE-BD19-80E0EC3D01A3item'/>
+    <startEvent id='_BD9C4976-A529-49C3-9C22-A7BCDF96A78C' name=''/>
+    <sequenceFlow id='_F5B871AE-0E6E-4767-989A-AEA0F52A82D6' sourceRef='_BD9C4976-A529-49C3-9C22-A7BCDF96A78C' targetRef='_BAB6A96F-7069-4444-B360-BD0426CFA82B'/>
+    <endEvent id='_33C9E7B4-42FE-48D5-A038-B7C887147573' name=''/>
+    <sequenceFlow id='_B2571712-DB79-46C9-9343-23AB7A556A08' sourceRef='_BAB6A96F-7069-4444-B360-BD0426CFA82B' targetRef='_33C9E7B4-42FE-48D5-A038-B7C887147573'/>
+    <scriptTask id='_BAB6A96F-7069-4444-B360-BD0426CFA82B' name='' scriptFormat='java'>
+      <script>System.out.println("subX for task=" + x); kcontext.setVariable("x", x+ "1");</script>
+      <standardLoopCharacteristics>
+        <loopCondition>$x != "11111"</loopCondition>
+      </standardLoopCharacteristics>
+    </scriptTask>
+  </process>
+</definitions>
