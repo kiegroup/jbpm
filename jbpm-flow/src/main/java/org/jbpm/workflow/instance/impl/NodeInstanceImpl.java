@@ -46,244 +46,272 @@ import org.jbpm.workflow.instance.node.CompositeNodeInstance;
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
-public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.NodeInstance, Serializable {
+public abstract class NodeInstanceImpl implements
+		org.jbpm.workflow.instance.NodeInstance, Serializable {
 
 	private static final long serialVersionUID = 510l;
-	
+
 	private long id;
-    private long nodeId;
-    private WorkflowProcessInstance processInstance;
-    private org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer;
-    private Map<String, Object> metaData = new HashMap<String, Object>();
+	private long nodeId;
+	private WorkflowProcessInstance processInstance;
+	private org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer;
+	private Map<String, Object> metaData = new HashMap<String, Object>();
 
-    public void setId(final long id) {
-        this.id = id;
-    }
+	public void setId(final long id) {
+		this.id = id;
+	}
 
-    public long getId() {
-        return this.id;
-    }
+	public long getId() {
+		return this.id;
+	}
 
-    public void setNodeId(final long nodeId) {
-        this.nodeId = nodeId;
-    }
+	public void setNodeId(final long nodeId) {
+		this.nodeId = nodeId;
+	}
 
-    public long getNodeId() {
-        return this.nodeId;
-    }
-    
-    public String getNodeName() {
-    	Node node = getNode();
-    	return node == null ? "" : node.getName();
-    }
+	public long getNodeId() {
+		return this.nodeId;
+	}
 
-    public void setProcessInstance(final WorkflowProcessInstance processInstance) {
-        this.processInstance = processInstance;
-    }
+	public String getNodeName() {
+		Node node = getNode();
+		return node == null ? "" : node.getName();
+	}
 
-    public WorkflowProcessInstance getProcessInstance() {
-        return this.processInstance;
-    }
+	public void setProcessInstance(final WorkflowProcessInstance processInstance) {
+		this.processInstance = processInstance;
+	}
 
-    public NodeInstanceContainer getNodeInstanceContainer() {
-        return this.nodeInstanceContainer;
-    }
-    
-    public void setNodeInstanceContainer(NodeInstanceContainer nodeInstanceContainer) {
-        this.nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstanceContainer;
-        if (nodeInstanceContainer != null) {
-            this.nodeInstanceContainer.addNodeInstance(this);
-        }
-    }
+	public WorkflowProcessInstance getProcessInstance() {
+		return this.processInstance;
+	}
 
-    public Node getNode() {
-        return ((org.jbpm.workflow.core.NodeContainer)
-    		this.nodeInstanceContainer.getNodeContainer()).internalGetNode( this.nodeId );
-    }
-    
-    public boolean isInversionOfControl() {
-        return false;
-    }
-    
-    public void cancel() {
-        nodeInstanceContainer.removeNodeInstance(this);
-    }
-    
-    public final void trigger(NodeInstance from, String type) {
-    	boolean hidden = false;
-    	if (getNode().getMetaData().get("hidden") != null) {
-    		hidden = true;
-    	}
-    	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
-    	if (!hidden) {
-    		((InternalProcessRuntime) kruntime.getProcessRuntime())
-    			.getProcessEventSupport().fireBeforeNodeTriggered(this, kruntime);
-    	}
-        internalTrigger(from, type);
-        if (!hidden) {
-        	((InternalProcessRuntime) kruntime.getProcessRuntime())
-        		.getProcessEventSupport().fireAfterNodeTriggered(this, kruntime);
-        }
-    }
-    
-    public abstract void internalTrigger(NodeInstance from, String type);
-    
-    protected void triggerCompleted(String type, boolean remove) {
-        if (remove) {
-            ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
-            	.removeNodeInstance(this);
-        }
-        Node node = getNode();
-        List<Connection> connections = null;
-        if (node != null) {
-        	connections = node.getOutgoingConnections(type);
-        }
-        if (connections == null || connections.isEmpty()) {
-        	((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
-        		.nodeInstanceCompleted(this, type);
-        } else {
-	        for (Connection connection: connections) {
-	        	// stop if this process instance has been aborted / completed
-	        	if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {
-	        		return;
-	        	}
-	    		triggerConnection(connection);
-	        }
-        }
-    }
-    
-    protected void triggerConnection(Connection connection) {
-    	boolean hidden = false;
-    	if (getNode().getMetaData().get("hidden") != null) {
-    		hidden = true;
-    	}
-    	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
-    	if (!hidden) {
-    		((InternalProcessRuntime) kruntime.getProcessRuntime())
-    			.getProcessEventSupport().fireBeforeNodeLeft(this, kruntime);
-    	}
-    	// check for exclusive group first
-    	NodeInstanceContainer parent = getNodeInstanceContainer();
-    	if (parent instanceof ContextInstanceContainer) {
-    		List<ContextInstance> contextInstances = ((ContextInstanceContainer) parent).getContextInstances(ExclusiveGroup.EXCLUSIVE_GROUP);
-    		if (contextInstances != null) {
-    			for (ContextInstance contextInstance: new ArrayList<ContextInstance>(contextInstances)) {
-    				ExclusiveGroupInstance groupInstance = (ExclusiveGroupInstance) contextInstance;
-    				if (groupInstance.containsNodeInstance(this)) {
-    					for (NodeInstance nodeInstance: groupInstance.getNodeInstances()) {
-    						if (nodeInstance != this) {
-    							((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
-    						}
-    					}
-    					((ContextInstanceContainer) parent).removeContextInstance(ExclusiveGroup.EXCLUSIVE_GROUP, contextInstance);
-    				}
-    				
-    			}
-    		}
-    	}
-    	// trigger next node
-        ((org.jbpm.workflow.instance.NodeInstance) ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
-        	.getNodeInstance(connection.getTo())).trigger(this, connection.getToType());
-        if (!hidden) {
-        	((InternalProcessRuntime) kruntime.getProcessRuntime())
-        		.getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
-        }
-    }
-    
-    public Context resolveContext(String contextId, Object param) {
-        return ((NodeImpl) getNode()).resolveContext(contextId, param);
-    }
-    
-    public ContextInstance resolveContextInstance(String contextId, Object param) {
-        Context context = resolveContext(contextId, param);
-        if (context == null) {
-            return null;
-        }
-        ContextInstanceContainer contextInstanceContainer
-        	= getContextInstanceContainer(context.getContextContainer());
-        if (contextInstanceContainer == null) {
-        	throw new IllegalArgumentException(
-    			"Could not find context instance container for context");
-        }
-        return contextInstanceContainer.getContextInstance(context);
-    }
-    
-    private ContextInstanceContainer getContextInstanceContainer(ContextContainer contextContainer) {
-    	ContextInstanceContainer contextInstanceContainer = null; 
+	public NodeInstanceContainer getNodeInstanceContainer() {
+		return this.nodeInstanceContainer;
+	}
+
+	public void setNodeInstanceContainer(
+			NodeInstanceContainer nodeInstanceContainer) {
+		this.nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstanceContainer;
+		if (nodeInstanceContainer != null) {
+			this.nodeInstanceContainer.addNodeInstance(this);
+		}
+	}
+
+	public Node getNode() {
+		return ((org.jbpm.workflow.core.NodeContainer) this.nodeInstanceContainer
+				.getNodeContainer()).internalGetNode(this.nodeId);
+	}
+
+	public boolean isInversionOfControl() {
+		return false;
+	}
+
+	public void cancel() {
+		nodeInstanceContainer.removeNodeInstance(this);
+	}
+
+	public final void trigger(NodeInstance from, String type) {
+		boolean hidden = false;
+		if (getNode().getMetaData().get("hidden") != null) {
+			hidden = true;
+		}
+		InternalKnowledgeRuntime kruntime = getProcessInstance()
+				.getKnowledgeRuntime();
+		if (!hidden) {
+			((InternalProcessRuntime) kruntime.getProcessRuntime())
+					.getProcessEventSupport().fireBeforeNodeTriggered(this,
+							kruntime);
+		}
+		internalTrigger(from, type);
+		if (!hidden) {
+			((InternalProcessRuntime) kruntime.getProcessRuntime())
+					.getProcessEventSupport().fireAfterNodeTriggered(this,
+							kruntime);
+		}
+	}
+
+	public abstract void internalTrigger(NodeInstance from, String type);
+
+	protected void triggerCompleted(String type, boolean remove) {
+		if (remove) {
+			((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
+					.removeNodeInstance(this);
+		}
+		Node node = getNode();
+		List<Connection> connections = null;
+		if (node != null) {
+			connections = node.getOutgoingConnections(type);
+		}
+		if (connections == null || connections.isEmpty()) {
+			((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
+					.nodeInstanceCompleted(this, type);
+		} else {
+			for (Connection connection : connections) {
+				// stop if this process instance has been aborted / completed
+				if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {
+					return;
+				}
+				triggerConnection(connection);
+			}
+		}
+	}
+
+	protected void triggerConnection(Connection connection) {
+		boolean hidden = false;
+		if (getNode().getMetaData().get("hidden") != null) {
+			hidden = true;
+		}
+		InternalKnowledgeRuntime kruntime = getProcessInstance()
+				.getKnowledgeRuntime();
+		InternalProcessRuntime processRuntime = (InternalProcessRuntime) kruntime.getProcessRuntime();
+		if (!hidden) {
+			processRuntime
+					.getProcessEventSupport()
+					.fireBeforeNodeLeft(this, kruntime);
+		}
+		// check for exclusive group first
+		NodeInstanceContainer parent = getNodeInstanceContainer();
+		if (parent instanceof ContextInstanceContainer) {
+			List<ContextInstance> contextInstances = ((ContextInstanceContainer) parent)
+					.getContextInstances(ExclusiveGroup.EXCLUSIVE_GROUP);
+			if (contextInstances != null) {
+				for (ContextInstance contextInstance : new ArrayList<ContextInstance>(
+						contextInstances)) {
+					ExclusiveGroupInstance groupInstance = (ExclusiveGroupInstance) contextInstance;
+					if (groupInstance.containsNodeInstance(this)) {
+						for (NodeInstance nodeInstance : groupInstance
+								.getNodeInstances()) {
+							if (nodeInstance != this) {
+								((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
+										.cancel();
+							}
+						}
+						((ContextInstanceContainer) parent)
+								.removeContextInstance(
+										ExclusiveGroup.EXCLUSIVE_GROUP,
+										contextInstance);
+					}
+
+				}
+			}
+		}
+		// here it triggers next node. inside connection is the from and to
+		// node.
+		this.triggerNextNode(connection);
+
+		if (!hidden) {
+			processRuntime.getProcessEventSupport().fireAfterNodeLeft(this,
+					kruntime);
+		}
+	}
+
+	private void triggerNextNode(Connection connection) {
+		org.jbpm.workflow.instance.NodeInstanceContainer nodeContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer();
+		Node goToNode = connection.getTo();
+		org.jbpm.workflow.instance.NodeInstance goToNodeInstance = nodeContainer
+				.getNodeInstance(goToNode);
+		goToNodeInstance.trigger(this, connection.getToType());
+	}
+
+	public Context resolveContext(String contextId, Object param) {
+		return ((NodeImpl) getNode()).resolveContext(contextId, param);
+	}
+
+	public ContextInstance resolveContextInstance(String contextId, Object param) {
+		Context context = resolveContext(contextId, param);
+		if (context == null) {
+			return null;
+		}
+		ContextInstanceContainer contextInstanceContainer = getContextInstanceContainer(context
+				.getContextContainer());
+		if (contextInstanceContainer == null) {
+			throw new IllegalArgumentException(
+					"Could not find context instance container for context");
+		}
+		return contextInstanceContainer.getContextInstance(context);
+	}
+
+	private ContextInstanceContainer getContextInstanceContainer(
+			ContextContainer contextContainer) {
+		ContextInstanceContainer contextInstanceContainer = null;
 		if (this instanceof ContextInstanceContainer) {
-        	contextInstanceContainer = (ContextInstanceContainer) this;
-        } else {
-        	contextInstanceContainer = getEnclosingContextInstanceContainer(this);
-        }
-        while (contextInstanceContainer != null) {
-    		if (contextInstanceContainer.getContextContainer() == contextContainer) {
-    			return contextInstanceContainer;
-    		}
-    		contextInstanceContainer = getEnclosingContextInstanceContainer(
-				(NodeInstance) contextInstanceContainer);
-    	}
-        return null;
-    }
-    
-    private ContextInstanceContainer getEnclosingContextInstanceContainer(NodeInstance nodeInstance) {
-    	NodeInstanceContainer nodeInstanceContainer = nodeInstance.getNodeInstanceContainer();
-    	while (true) {
-    		if (nodeInstanceContainer instanceof ContextInstanceContainer) {
-    			return (ContextInstanceContainer) nodeInstanceContainer;
-    		}
-    		if (nodeInstanceContainer instanceof NodeInstance) {
-    			nodeInstanceContainer = ((NodeInstance) nodeInstanceContainer).getNodeInstanceContainer();
-    		} else {
-    			return null;
-    		}
-    	}
-    }
-    
-    public Object getVariable(String variableName) {
-    	VariableScopeInstance variableScope = (VariableScopeInstance)
-    		resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
-    	if (variableScope == null) {
-    		variableScope = (VariableScopeInstance) ((ProcessInstance) 
-    			getProcessInstance()).getContextInstance(VariableScope.VARIABLE_SCOPE);
-    	}
-    	return variableScope.getVariable(variableName);
-    }
-    
-    public void setVariable(String variableName, Object value) {
-    	VariableScopeInstance variableScope = (VariableScopeInstance)
-    		resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
-    	if (variableScope == null) {
-    		variableScope = (VariableScopeInstance) getProcessInstance().getContextInstance(VariableScope.VARIABLE_SCOPE);
-    		if (variableScope.getVariableScope().findVariable(variableName) == null) {
-    			variableScope = null;
-    		}
-    	}
-    	if (variableScope == null) {
-    		System.err.println("Could not find variable " + variableName);
-    		System.err.println("Using process-level scope");
-    		variableScope = (VariableScopeInstance) ((ProcessInstance) 
-    			getProcessInstance()).getContextInstance(VariableScope.VARIABLE_SCOPE);
-    	}
-    	variableScope.setVariable(variableName, value);
-    }
+			contextInstanceContainer = (ContextInstanceContainer) this;
+		} else {
+			contextInstanceContainer = getEnclosingContextInstanceContainer(this);
+		}
+		while (contextInstanceContainer != null) {
+			if (contextInstanceContainer.getContextContainer() == contextContainer) {
+				return contextInstanceContainer;
+			}
+			contextInstanceContainer = getEnclosingContextInstanceContainer((NodeInstance) contextInstanceContainer);
+		}
+		return null;
+	}
 
-    public String getUniqueId() {
-    	String result = "" + getId();
-    	NodeInstanceContainer parent = getNodeInstanceContainer();
-    	while (parent instanceof CompositeNodeInstance) {
-    		CompositeNodeInstance nodeInstance = (CompositeNodeInstance) parent;
-    		result = nodeInstance.getId() + ":" + result;
-    		parent = nodeInstance.getNodeInstanceContainer();
-    	}
-    	return result;
-    }
-    
+	private ContextInstanceContainer getEnclosingContextInstanceContainer(
+			NodeInstance nodeInstance) {
+		NodeInstanceContainer nodeInstanceContainer = nodeInstance
+				.getNodeInstanceContainer();
+		while (true) {
+			if (nodeInstanceContainer instanceof ContextInstanceContainer) {
+				return (ContextInstanceContainer) nodeInstanceContainer;
+			}
+			if (nodeInstanceContainer instanceof NodeInstance) {
+				nodeInstanceContainer = ((NodeInstance) nodeInstanceContainer)
+						.getNodeInstanceContainer();
+			} else {
+				return null;
+			}
+		}
+	}
+
+	public Object getVariable(String variableName) {
+		VariableScopeInstance variableScope = (VariableScopeInstance) resolveContextInstance(
+				VariableScope.VARIABLE_SCOPE, variableName);
+		if (variableScope == null) {
+			variableScope = (VariableScopeInstance) ((ProcessInstance) getProcessInstance())
+					.getContextInstance(VariableScope.VARIABLE_SCOPE);
+		}
+		return variableScope.getVariable(variableName);
+	}
+
+	public void setVariable(String variableName, Object value) {
+		VariableScopeInstance variableScope = (VariableScopeInstance) resolveContextInstance(
+				VariableScope.VARIABLE_SCOPE, variableName);
+		if (variableScope == null) {
+			variableScope = (VariableScopeInstance) getProcessInstance()
+					.getContextInstance(VariableScope.VARIABLE_SCOPE);
+			if (variableScope.getVariableScope().findVariable(variableName) == null) {
+				variableScope = null;
+			}
+		}
+		if (variableScope == null) {
+			System.err.println("Could not find variable " + variableName);
+			System.err.println("Using process-level scope");
+			variableScope = (VariableScopeInstance) ((ProcessInstance) getProcessInstance())
+					.getContextInstance(VariableScope.VARIABLE_SCOPE);
+		}
+		variableScope.setVariable(variableName, value);
+	}
+
+	public String getUniqueId() {
+		String result = "" + getId();
+		NodeInstanceContainer parent = getNodeInstanceContainer();
+		while (parent instanceof CompositeNodeInstance) {
+			CompositeNodeInstance nodeInstance = (CompositeNodeInstance) parent;
+			result = nodeInstance.getId() + ":" + result;
+			parent = nodeInstance.getNodeInstanceContainer();
+		}
+		return result;
+	}
+
 	public Map<String, Object> getMetaData() {
 		return this.metaData;
 	}
 
-    public void setMetaData(String name, Object data) {
-        this.metaData.put(name, data);
-    }
-    
+	public void setMetaData(String name, Object data) {
+		this.metaData.put(name, data);
+	}
+
 }
