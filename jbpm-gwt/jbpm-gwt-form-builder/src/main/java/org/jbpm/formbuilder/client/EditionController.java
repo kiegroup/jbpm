@@ -15,35 +15,34 @@
  */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.bus.FormItemDeselectedEvent;
-import org.jbpm.formbuilder.client.bus.FormItemDeselectedEventHandler;
-import org.jbpm.formbuilder.client.bus.FormItemSelectedEvent;
-import org.jbpm.formbuilder.client.bus.FormItemSelectedEventHandler;
+import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
+import org.jbpm.formbuilder.client.bus.FormItemSelectionEventHandler;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
 
 public class EditionController {
 
-    private final EditionModel editModel;
+    private final FormBuilderModel model;
     private final EditionView editView;
     private final EventBus bus;
     
-    public EditionController(EditionModel editModel,
-            EditionView editView, EventBus bus) {
+    public EditionController(FormBuilderModel model, EditionView editView) {
         super();
-        this.editModel = editModel;
+        this.model = model;
         this.editView = editView;
-        this.bus = bus;
+        this.bus = FormBuilderGlobals.getInstance().getEventBus();
+        PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
+        dragController.registerDropController(new DisposeDropController(this.editView));
         
-        bus.addHandler(FormItemSelectedEvent.TYPE, new FormItemSelectedEventHandler() {
-            public void onEvent(FormItemSelectedEvent event) {
-                EditionController.this.editView.populate(event.getFormItemSelected());
-            }
-        });
-        
-        bus.addHandler(FormItemDeselectedEvent.TYPE, new FormItemDeselectedEventHandler() {
-            public void onEvent(FormItemDeselectedEvent event) {
-                EditionController.this.editView.clear();
+        bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionEventHandler() {
+            public void onEvent(FormItemSelectionEvent event) {
+                if (event.isSelected()) {
+                    EditionController.this.editView.populate(event.getFormItemSelected());
+                } else {
+                    EditionController.this.editView.clear();
+                }
             }
         });
     }

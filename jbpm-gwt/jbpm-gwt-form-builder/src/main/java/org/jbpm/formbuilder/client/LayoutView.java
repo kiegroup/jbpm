@@ -15,10 +15,13 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.form.LayoutFormItem;
+
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class LayoutView extends SimplePanel {
 
@@ -34,6 +37,15 @@ public class LayoutView extends SimplePanel {
     }
 
     public Panel getUnderlyingLayout(int x, int y) {
+        for (Widget widget : layout) {
+            if (widget instanceof LayoutFormItem) {
+                LayoutFormItem item = (LayoutFormItem) widget;
+                Panel newLayout = item.getUnderlyingLayout(x, y);
+                if (newLayout != null) {
+                    return newLayout;
+                }
+            }
+        }
         return layout; // TODO Implement a way to see what's in that position
     }
 }

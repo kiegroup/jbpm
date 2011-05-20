@@ -19,7 +19,6 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -27,43 +26,44 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class FormBuilderEntryPoint implements EntryPoint {
 
     public void onModuleLoad() {
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+        FormBuilderModel model = new FormBuilderModel();
         
         AbsolutePanel panel = new AbsolutePanel();
+        PickupDragController dragController = new PickupDragController(panel, false);
+        FormBuilderGlobals.getInstance().registerDragController(dragController);
+        dragController.registerDropController(new DisposeDropController(panel));
         
         Grid mainGrid = new Grid(1, 2);
         Grid editGrid = new Grid(2, 1);
         
-        MenuController menuController = createMenu(bus, panel);
+        MenuController menuController = createMenu(model);
         
         editGrid.setWidget(0, 0, menuController.getView());
-        editGrid.setWidget(1, 0, createEdition(bus).asWidget());
+        editGrid.setWidget(1, 0, createEdition(model).asWidget());
         
         mainGrid.setWidget(0, 0, editGrid);
-        mainGrid.setWidget(0, 1, createLayout(bus, menuController.getDragController()).asWidget());
+        mainGrid.setWidget(0, 1, createLayout(model).asWidget());
         
         panel.add(mainGrid);
         
         RootPanel.get("formBuilder").add(panel);
     }
 
-    private EditionView createEdition(EventBus bus) {
-        EditionModel editionModel = new EditionModel();
+    private EditionView createEdition(FormBuilderModel model) {
         EditionView editionView = new EditionView();
-        new EditionController(editionModel, editionView, bus);
+        new EditionController(model, editionView);
         return editionView;
     }
 
-    private MenuController createMenu(EventBus bus, AbsolutePanel dropPanel) {
-        MenuModel menuModel = new MenuModel();
+    private MenuController createMenu(FormBuilderModel model) {
+        FormBuilderModel menuModel = new FormBuilderModel();
         MenuView menuView = new MenuView();
-        return new MenuController(new PickupDragController(dropPanel, false), menuModel, menuView, bus);
+        return new MenuController(model, menuView);
     }
 
-    private LayoutView createLayout(EventBus bus, PickupDragController dragController) {
-        LayoutModel layoutModel = new LayoutModel();
+    private LayoutView createLayout(FormBuilderModel model) {
         LayoutView layoutView = new LayoutView();
-        new LayoutController(dragController, layoutModel, layoutView, bus);
+        new LayoutController(model, layoutView);
         return layoutView;
     }
 }

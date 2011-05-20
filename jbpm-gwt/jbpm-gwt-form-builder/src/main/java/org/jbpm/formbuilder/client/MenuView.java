@@ -15,17 +15,17 @@
  */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.menu.MenuPanel;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.menu.FBMenuPanel;
 
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MenuView extends SimplePanel {
 
-    private ScrollPanel panel = new ScrollPanel();
-    
+    private FBMenuPanel panel; 
+
     public MenuView() {
         setSize("270px", "245px");
         Grid grid = new Grid(1,1);
@@ -35,12 +35,13 @@ public class MenuView extends SimplePanel {
         add(grid);
     }
     
-    public void setPanel(MenuPanel panel) {
-        this.panel.add(panel);
+    public void setPanel(FBMenuPanel panel) {
+        this.panel = panel;
+        ((Grid) getWidget()).setWidget(0, 0, this.panel);
     }
     
-    public void addItem(Widget widget, String group) {
-        panel.add(widget); //TODO
+    public void addItem(FBMenuItem item, String group) {
+        panel.add(item); //TODO
     }
     
     public void addItemGroup(Widget widget) {

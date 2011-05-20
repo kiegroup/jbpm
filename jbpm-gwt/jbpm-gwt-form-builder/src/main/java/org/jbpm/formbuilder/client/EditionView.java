@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.client;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.menu.FormItem;
+import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -42,7 +42,7 @@ public class EditionView extends SimplePanel {
         add(grid);
     }
     
-    public void populate(final FormItem itemSelected) {
+    public void populate(final FBFormItem itemSelected) {
         Map<String, Object> map = itemSelected.getFormItemPropertiesMap();
         final Grid grid = new Grid(map.size() + 2, 2);
         grid.setWidget(0, 0, new HTML("<strong>Property Name</strong>"));

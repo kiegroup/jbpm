@@ -15,10 +15,9 @@
  */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.bus.MenuDragEvent;
-import org.jbpm.formbuilder.client.bus.MenuDragEventHandler;
-import org.jbpm.formbuilder.client.menu.FormItem;
-import org.jbpm.formbuilder.client.menu.MenuItem;
+import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
@@ -27,21 +26,21 @@ import com.google.gwt.event.shared.EventBus;
 
 public class LayoutController {
 
-    private final LayoutModel layoutModel;
+    private final FormBuilderModel model;
     private final LayoutView layoutView;
     private final EventBus bus;
     
-    public LayoutController(PickupDragController dragController, LayoutModel layoutModel, LayoutView layoutView, EventBus bus) {
-        this.layoutModel = layoutModel;
+    public LayoutController(FormBuilderModel model, LayoutView layoutView) {
+        this.model = model;
         this.layoutView = layoutView;
-        this.bus = bus;
-        
+        this.bus = FormBuilderGlobals.getInstance().getEventBus();
+        PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
         dragController.registerDropController(new SimpleDropController(layoutView) {
             @Override
             public void onDrop(DragContext context) {
-                if (context.draggable != null && context.draggable instanceof MenuItem) {
-                    MenuItem menuItem = (MenuItem) context.draggable;
-                    FormItem formItem = menuItem.buildWidget();
+                if (context.draggable != null && context.draggable instanceof FBMenuItem) {
+                    FBMenuItem menuItem = (FBMenuItem) context.draggable;
+                    FBFormItem formItem = menuItem.buildWidget();
                     int x = context.desiredDraggableX;
                     int y = context.desiredDraggableY;
                     LayoutController.this.layoutView.getUnderlyingLayout(x, y).add(formItem);
@@ -49,19 +48,6 @@ public class LayoutController {
                 }
                 
                 super.onDrop(context);
-            }
-        });
-
-        this.bus.addHandler(MenuDragEvent.TYPE, new MenuDragEventHandler() {
-            public void onEvent(MenuDragEvent event) {
-                String itemId = event.getItemId();
-                try {
-                    FormBuilderWidget widget = FormBuilderWidgetFactory.getInstance(itemId);
-                    LayoutHolder holder = createLayoutHolder(event.getX(), event.getY());
-                    holder.add(widget);
-                } catch (WidgetFactoryException e) {
-                    //TODO here be dragons
-                }
             }
         });
     }

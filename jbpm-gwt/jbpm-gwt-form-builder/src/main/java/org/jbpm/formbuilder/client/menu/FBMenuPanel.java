@@ -1,15 +1,15 @@
 package org.jbpm.formbuilder.client.menu;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.DragController;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class MenuPanel extends VerticalPanel {
+public class FBMenuPanel extends VerticalPanel {
 
-    private final PickupDragController dragController;
+    private DragController dragController;
 
-    public MenuPanel(PickupDragController dragController) {
+    public FBMenuPanel(DragController dragController) {
         this.dragController = dragController;
         setSpacing(2);
         setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -21,8 +21,8 @@ public class MenuPanel extends VerticalPanel {
      * @param w
      *            the widget to be added are made draggable
      */
-    public void add(MenuItem menuItem) {
-        dragController.makeDraggable(menuItem);
+    public void add(FBMenuItem menuItem) {
+        this.dragController.makeDraggable(menuItem);
         super.add(menuItem);
     }
 
@@ -37,8 +37,8 @@ public class MenuPanel extends VerticalPanel {
     @Override
     public boolean remove(Widget w) {
         int index = getWidgetIndex(w);
-        if (index != -1 && w instanceof MenuItem) {
-            MenuItem clone = ((MenuItem) w).cloneWidget();
+        if (index != -1 && w instanceof FBMenuItem) {
+            FBMenuItem clone = ((FBMenuItem) w).cloneWidget();
             dragController.makeDraggable(clone);
             insert(clone, index);
         }

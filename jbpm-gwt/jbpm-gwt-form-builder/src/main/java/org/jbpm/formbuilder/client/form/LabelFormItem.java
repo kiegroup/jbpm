@@ -1,8 +1,6 @@
-package org.jbpm.formbuilder.client.menu;
+package org.jbpm.formbuilder.client.form;
 
 import java.util.Map;
-
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -14,7 +12,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class LabelFormItem extends FormItem {
+public class LabelFormItem extends FBFormItem {
 
     private final Label label = new Label("Label");
     
@@ -22,10 +20,10 @@ public class LabelFormItem extends FormItem {
     private String name;
     private String width;
     private String height;
-    private String cssClassType;
+    private String cssClassName;
     
     public LabelFormItem() {
-        getPanel().add(label);
+        add(label);
     }
     
     @Override
@@ -41,7 +39,7 @@ public class LabelFormItem extends FormItem {
         formItemPropertiesMap.put("name", name);
         formItemPropertiesMap.put("width", width);
         formItemPropertiesMap.put("height", height);
-        formItemPropertiesMap.put("cssClassType", cssClassType);
+        formItemPropertiesMap.put("cssClassName", cssClassName);
         return formItemPropertiesMap;
     }
 
@@ -57,20 +55,13 @@ public class LabelFormItem extends FormItem {
                 reset();
             }
         });
-        final Image done = new Image(FormBuilderResources.INSTANCE.doneIcon());
-        done.addClickHandler(new ClickHandler() {
+        final Image done = createDoneImage(new ClickHandler(){
             public void onClick(ClickEvent event) {
                 label.setText(textBox.getValue());
                 reset();
-            } 
+            }
         });
-        final Image remove = new Image(FormBuilderResources.INSTANCE.removeIcon());
-        remove.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                reset();
-                getPanel().removeFromParent();
-            } 
-        });
+        final Image remove = createRemoveImage();
         
         editPanel.add(textBox);
         editPanel.add(done);
@@ -84,7 +75,9 @@ public class LabelFormItem extends FormItem {
         this.name = propertiesMap.get("name").toString();
         this.width = propertiesMap.get("width").toString();
         this.height = propertiesMap.get("height").toString();
-        this.cssClassType = propertiesMap.get("cssClassType").toString();
-        
+        this.cssClassName = propertiesMap.get("cssClassName").toString();
+        label.setWidth(this.width);
+        label.setHeight(this.height);
+        label.setStyleName(this.cssClassName);
     }
 }

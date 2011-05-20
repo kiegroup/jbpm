@@ -1,17 +1,15 @@
-package org.jbpm.formbuilder.client.menu;
+package org.jbpm.formbuilder.client.form;
 
 import java.util.Map;
 
-import com.google.gwt.user.client.ui.TextBox;
+
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;
 
-public class TextFieldFormItem extends FormItem {
+public class CompleteButtonFormItem extends FBFormItem {
 
-    private final TextBox textBox = new TextBox();
-    
-    public TextFieldFormItem() {
-        super();
-        getPanel().add(textBox);
+    public CompleteButtonFormItem() {
+        add(new Button("Complete"));
     }
     
     @Override

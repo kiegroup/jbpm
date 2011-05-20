@@ -15,13 +15,15 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import org.jbpm.formbuilder.client.form.CompleteButtonFormItem;
+import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
 
-public class CompleteButtonMenuItem extends MenuItem {
+public class CompleteButtonMenuItem extends FBMenuItem {
 
 
     @Override
@@ -35,12 +37,12 @@ public class CompleteButtonMenuItem extends MenuItem {
     }
 
     @Override
-    public MenuItem cloneWidget() {
+    public FBMenuItem cloneWidget() {
         return new CompleteButtonMenuItem();
     }
 
     @Override
-    public FormItem buildWidget() {
+    public FBFormItem buildWidget() {
         return new CompleteButtonFormItem();
     }
 }

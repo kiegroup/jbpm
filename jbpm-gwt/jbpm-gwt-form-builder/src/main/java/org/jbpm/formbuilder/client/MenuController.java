@@ -17,11 +17,10 @@ package org.jbpm.formbuilder.client;
 
 import java.util.List;
 
-import org.jbpm.formbuilder.client.bus.MenuDragEvent;
-import org.jbpm.formbuilder.client.menu.MenuItem;
-import org.jbpm.formbuilder.client.menu.MenuPanel;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.menu.FBMenuPanel;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
-import com.allen_sauer.gwt.dnd.client.DragEndEvent;
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
@@ -29,45 +28,31 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class MenuController {
 
-    private final MenuModel model;
+    private final FormBuilderModel model;
     private final MenuView view;
     private final EventBus bus;
     private final PickupDragController dragController;
     
-    public MenuController(PickupDragController dragController, MenuModel menuModel, MenuView menuView, EventBus bus) {
+    public MenuController(FormBuilderModel menuModel, MenuView menuView) {
         super();
         this.model = menuModel;
         this.view = menuView;
-        this.bus = bus;
-        this.dragController = dragController;
-        List<MenuItem> items = model.getMenuItems();
-        MenuPanel menuPanel = new MenuPanel(dragController);
+        this.bus = FormBuilderGlobals.getInstance().getEventBus();
+        this.dragController = FormBuilderGlobals.getInstance().getDragController();
+        List<FBMenuItem> items = model.getMenuItems();
+        FBMenuPanel menuPanel = new FBMenuPanel(this.dragController);
+        this.dragController.registerDropController(new DisposeDropController(this.view.asWidget()));
+        this.view.setPanel(menuPanel);
         
         dragController.setBehaviorMultipleSelection(false);
         dragController.setConstrainWidgetToBoundaryPanel(false);
-        dragController.addDragHandler(new DragHandlerAdapter() {
-            @Override
-            public void onDragEnd(DragEndEvent event) {
-                Widget w = event.getContext().draggable;
-                if (w != null && w instanceof MenuItem) {
-                    String itemId = ((MenuItem) w).getItemId();
-                    int x = event.getContext().desiredDraggableX;
-                    int y = event.getContext().desiredDraggableY;
-                    MenuController.this.bus.fireEvent(new MenuDragEvent(itemId, x, y));
-                }
-            }
-        });
-        for (MenuItem item : items) {
-            menuPanel.add(item);
+        dragController.addDragHandler(new DragHandlerAdapter());
+        for (FBMenuItem item : items) {
+            this.view.addItem(item, "");
         }
-        this.view.setPanel(menuPanel);
     }
 
     public Widget getView() {
-        return view;
-    }
-
-    public PickupDragController getDragController() {
-        return dragController;
+        return view.asWidget();
     }
 }

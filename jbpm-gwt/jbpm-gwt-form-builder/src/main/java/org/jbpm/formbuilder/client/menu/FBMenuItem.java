@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import org.jbpm.formbuilder.client.form.FBFormItem;
+
 import com.allen_sauer.gwt.dnd.client.HasDragHandle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -25,24 +27,24 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class MenuItem extends AbsolutePanel implements HasDragHandle {
+public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle {
     
     private FocusPanel shim = new FocusPanel();
     
-    public MenuItem() {
+    public FBMenuItem() {
         Panel panel = new HorizontalPanel();
         panel.add(new Image(getIconUrl().getURL()));
         panel.add(getDescription());
         add(panel);
     }
     
-    public abstract MenuItem cloneWidget();
+    public abstract FBMenuItem cloneWidget();
     
     protected abstract ImageResource getIconUrl();
     
     protected abstract Label getDescription();
 
-    public abstract FormItem buildWidget();
+    public abstract FBFormItem buildWidget();
 
     public String getItemId() {
         return getClass().getName();
