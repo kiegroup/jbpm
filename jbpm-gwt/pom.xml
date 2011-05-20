@@ -9,8 +9,10 @@
   </parent>
   <artifactId>jbpm-gwt</artifactId>
   <packaging>pom</packaging>
-  <name>jBPM :: GWT</name>
-  
+
+  <name>jBPM GWT multiproject</name>
+  <description>jBPM GWT multiproject</description>
+
   <modules>
       <module>jbpm-gwt-console</module>
       <module>jbpm-gwt-form</module>
