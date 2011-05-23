@@ -13,6 +13,7 @@ import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -60,7 +61,17 @@ public abstract class FBFormItem extends FocusPanel {
 
     public abstract String asCode(String type);
     
-    public abstract Widget createInplaceEditor();
+    public Widget createInplaceEditor() {
+        HorizontalPanel editPanel = new HorizontalPanel();
+        editPanel.add(getWidget());
+        editPanel.add(createDoneImage(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                reset();
+            }
+        }));
+        editPanel.add(createRemoveImage());
+        return editPanel;
+    }
     
     public Map<String, Object> getFormItemPropertiesMap() {
         return new HashMap<String, Object>();

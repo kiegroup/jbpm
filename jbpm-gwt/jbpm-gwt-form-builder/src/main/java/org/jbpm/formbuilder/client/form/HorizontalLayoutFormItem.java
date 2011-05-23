@@ -3,7 +3,7 @@ package org.jbpm.formbuilder.client.form;
 import java.util.Map;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.Panel;
 
 public class HorizontalLayoutFormItem extends LayoutFormItem {
 
@@ -11,6 +11,8 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     
     public HorizontalLayoutFormItem() {
         panel.setBorderWidth(1);
+        panel.setSize("90px", "30px");
+        add(panel);
     }
     
     private Integer borderWidth;
@@ -28,12 +30,6 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         
         //panel.setCellHeight(w, height);
         //panel.setCellWidth(w, width);
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Widget createInplaceEditor() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -67,13 +63,22 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         this.title = asPropertiesMap.get("title").toString();
         this.id = asPropertiesMap.get("id").toString();
         
-        panel.setBorderWidth(this.borderWidth);
+        if (this.borderWidth != null) {
+            panel.setBorderWidth(this.borderWidth);
+        }
         panel.setHeight(this.height);
-        panel.setWidth(this.width);
+        if (this.width != null && !"".equals(this.width)) {
+            panel.setWidth(this.width);
+        }
         panel.setSpacing(this.spacing);
         panel.setStyleName(this.cssClassName);
         //panel.setHorizontalAlignment(HorizontalAlignmentConstant.startOf(Direction.valueOf(horizontalAlignment))); TODO
         panel.setTitle(this.title);
+    }
+    
+    @Override
+    public Panel getPanel() {
+        return panel;
     }
 
     

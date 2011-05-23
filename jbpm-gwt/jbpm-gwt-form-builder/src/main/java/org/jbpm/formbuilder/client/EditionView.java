@@ -26,15 +26,17 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 
-public class EditionView extends SimplePanel {
+public class EditionView extends ScrollPanel {
 
     private SimplePanel panel = new SimplePanel();
     
     public EditionView() {
         setSize("270px", "245px");
+        setAlwaysShowScrollBars(false);
         Grid grid = new Grid(1,1);
         grid.setWidget(0, 0, panel);
         grid.setSize("100%", "100%");
@@ -43,7 +45,7 @@ public class EditionView extends SimplePanel {
     }
     
     public void populate(final FBFormItem itemSelected) {
-        Map<String, Object> map = itemSelected.getFormItemPropertiesMap();
+        final Map<String, Object> map = itemSelected.getFormItemPropertiesMap();
         final Grid grid = new Grid(map.size() + 2, 2);
         grid.setWidget(0, 0, new HTML("<strong>Property Name</strong>"));
         grid.setWidget(0, 1, new HTML("<strong>Property Value</strong>"));
@@ -74,6 +76,7 @@ public class EditionView extends SimplePanel {
         
         panel.clear();
         panel.add(grid);
+        setScrollPosition(0);
     }
 
     @Override
@@ -84,7 +87,7 @@ public class EditionView extends SimplePanel {
     private Map<String, Object> asPropertiesMap(Grid grid) {
         Map<String, Object> map = new HashMap<String, Object>();
         for (int row = 1; row < grid.getRowCount() - 1; row++) {
-            map.put(grid.getHTML(row, 0), grid.getHTML(row, 1));
+            map.put(((Label) grid.getWidget(row, 0)).getText(), ((TextBox) grid.getWidget(row, 1)).getValue());
         }
         return map;
     }

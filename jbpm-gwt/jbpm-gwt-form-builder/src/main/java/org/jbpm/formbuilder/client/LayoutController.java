@@ -15,14 +15,19 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
+import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.LayoutFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;
+import com.allen_sauer.gwt.dnd.client.drop.AbstractDropController;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class LayoutController {
 
@@ -34,24 +39,39 @@ public class LayoutController {
         this.model = model;
         this.layoutView = layoutView;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
-        PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
-        dragController.registerDropController(new SimpleDropController(layoutView) {
-            @Override
-            public void onDrop(DragContext context) {
-                if (context.draggable != null && context.draggable instanceof FBMenuItem) {
-                    FBMenuItem menuItem = (FBMenuItem) context.draggable;
-                    FBFormItem formItem = menuItem.buildWidget();
-                    int x = context.desiredDraggableX;
-                    int y = context.desiredDraggableY;
-                    LayoutController.this.layoutView.getUnderlyingLayout(x, y).add(formItem);
-                    LayoutController.this.layoutView.remove(menuItem);
-                }
-                
-                super.onDrop(context);
+        final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
+        dragController.registerDropController(new MyDropController(layoutView));
+        
+        this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutEventHandler() {
+            public void onEvent(RegisterLayoutEvent event) {
+                LayoutFormItem item = event.getLayout();
+                dragController.registerDropController(new MyDropController(item));
             }
         });
     }
 
+    
+    protected class MyDropController extends AbstractDropController {
+        
+        public MyDropController(Widget dropTarget) {
+            super(dropTarget);
+        }
+        
+        @Override
+        public void onDrop(DragContext context) {
+            if (context.draggable != null && context.draggable instanceof FBMenuItem) {
+                FBMenuItem menuItem = (FBMenuItem) context.draggable;
+                FBFormItem formItem = menuItem.buildWidget();
+                int x = context.desiredDraggableX;
+                int y = context.desiredDraggableY;
+                Panel panel = LayoutController.this.layoutView.getUnderlyingLayout(x, y);
+                panel.add(formItem);
+                panel.remove(menuItem);
+            }
+        }
+    }
+    
+    
     /*
      * if at the given position, a layout exists, then add the 
      * LayoutHolder component to that layout position. If it doesn't, 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
 
 public abstract class LayoutFormItem extends FBFormItem {
 
@@ -48,6 +47,8 @@ public abstract class LayoutFormItem extends FBFormItem {
         return items.add(item);
     }
 
+    public abstract Panel getPanel();
+    
     public Panel getUnderlyingLayout(int x, int y) {
         for (FBFormItem item : items) {
             if (item instanceof LayoutFormItem) {
@@ -59,7 +60,7 @@ public abstract class LayoutFormItem extends FBFormItem {
         }
         if (x > getAbsoluteLeft() && x < getAbsoluteLeft() + getOffsetWidth() &&
             y > getAbsoluteTop() && y < getAbsoluteTop() + getOffsetHeight()) {
-            return this;
+            return getPanel();
         }
         return null;
     }
