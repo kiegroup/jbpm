@@ -22,6 +22,7 @@ import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.HorizontalLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.LabelMenuItem;
+import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
 
 public class FormBuilderModel {
@@ -67,6 +68,7 @@ public class FormBuilderModel {
         list.add(new CompleteButtonMenuItem());
         list.add(new LabelMenuItem());
         list.add(new HorizontalLayoutMenuItem());
+        list.add(new TableLayoutMenuItem());
         return list;
     }
 }

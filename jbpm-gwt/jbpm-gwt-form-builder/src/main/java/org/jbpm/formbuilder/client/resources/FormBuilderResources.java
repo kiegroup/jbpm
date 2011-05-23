@@ -43,4 +43,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/horizontal_layout_icon.gif")
     ImageResource horizontalLayoutIcon();
+    
+    @Source("images/table_layout_icon.gif")
+    ImageResource tableLayoutIcon();
 }

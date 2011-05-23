@@ -65,5 +65,9 @@ public abstract class LayoutFormItem extends FBFormItem {
         return null;
     }
     
+    protected Integer extractInt(Object obj) {
+        String s = obj.toString();
+        return s.equals("") ? null : Integer.valueOf(s);
+    }
     
 }

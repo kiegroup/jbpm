@@ -51,12 +51,10 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        String s = asPropertiesMap.get("borderWidth").toString();
-        this.borderWidth = s.equals("") ? null : Integer.valueOf(s);
+        this.borderWidth = extractInt(asPropertiesMap.get("borderWidth"));
         this.height = asPropertiesMap.get("height").toString();
         this.width = asPropertiesMap.get("width").toString();
-        s = asPropertiesMap.get("spacing").toString();
-        this.spacing = s.equals("") ? null : Integer.valueOf(s);
+        this.spacing = extractInt(asPropertiesMap.get("spacing"));
         this.cssClassName = asPropertiesMap.get("cssClassName").toString();
         this.horizontalAlignment = asPropertiesMap.get("horizontalAlignment").toString();
         this.verticalAlignment = asPropertiesMap.get("verticalAlignment").toString();
@@ -75,6 +73,8 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         //panel.setHorizontalAlignment(HorizontalAlignmentConstant.startOf(Direction.valueOf(horizontalAlignment))); TODO
         panel.setTitle(this.title);
     }
+
+   
     
     @Override
     public Panel getPanel() {
