@@ -29,6 +29,9 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/textField.gif")
     ImageResource textField();
     
+    @Source("images/passwordField.gif")
+    ImageResource passwordField();
+    
     @Source("images/label.gif")
     ImageResource label();
 
@@ -46,4 +49,7 @@ public interface FormBuilderResources extends ClientBundle {
     
     @Source("images/table_layout_icon.gif")
     ImageResource tableLayoutIcon();
+
+    @Source("images/header.gif")
+    ImageResource header();
 }

@@ -12,12 +12,11 @@ public class TableLayoutFormItem extends LayoutFormItem {
         @Override
         public void add(Widget child) {
             if (child instanceof FBFormItem) {
-                int widgetCount = size();
+                int widgetCount = TableLayoutFormItem.this.size();
                 FBFormItem item = (FBFormItem) child;
                 TableLayoutFormItem.this.add(item);
-                widgetCount++;
-                int row = (widgetCount -1) / getRowCount();
-                int col = (widgetCount - 1) % getRowCount();
+                int row = widgetCount / getColumnCount();
+                int col = widgetCount % getColumnCount();
                 setWidget(row, col, child);
             }
         }

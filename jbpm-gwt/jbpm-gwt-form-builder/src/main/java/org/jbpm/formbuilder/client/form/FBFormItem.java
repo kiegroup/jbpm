@@ -13,7 +13,6 @@ import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
@@ -40,13 +39,13 @@ public abstract class FBFormItem extends FocusPanel {
             public void onFocus(FocusEvent event) {
                 if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
                     fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
-                    Widget w = createInplaceEditor();
-                    if (w != null && !isAlreadyEditing()) {
-                        auxiliarWidget = getWidget();
-                        clear();
-                        add(w);
-                        setAlreadyEditing(true);
-                    }
+                }
+                Widget w = createInplaceEditor();
+                if (w != null && !isAlreadyEditing()) {
+                    auxiliarWidget = getWidget();
+                    clear();
+                    add(w);
+                    setAlreadyEditing(true);
                 }
             }
         });

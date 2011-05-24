@@ -20,8 +20,10 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.menu.HeaderMenuItem;
 import org.jbpm.formbuilder.client.menu.HorizontalLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.LabelMenuItem;
+import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
 import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
 
@@ -64,9 +66,11 @@ public class FormBuilderModel {
                 //TODO Auto-generated method stub
             }
         }*/
-        list.add(new TextFieldMenuItem());
-        list.add(new CompleteButtonMenuItem());
+        list.add(new HeaderMenuItem());
         list.add(new LabelMenuItem());
+        list.add(new TextFieldMenuItem());
+        list.add(new PasswordFieldMenuItem());
+        list.add(new CompleteButtonMenuItem());
         list.add(new HorizontalLayoutMenuItem());
         list.add(new TableLayoutMenuItem());
         return list;

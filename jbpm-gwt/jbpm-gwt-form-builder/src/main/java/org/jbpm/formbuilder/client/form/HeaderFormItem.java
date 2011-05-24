@@ -4,14 +4,15 @@ import java.util.Map;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class LabelFormItem extends FBFormItem {
+public class HeaderFormItem extends FBFormItem {
 
-    private final Label label = new Label("Label");
+
+    private final HTML header = new HTML("<h1>Header</h1>");
     
     private String id;
     private String name;
@@ -19,8 +20,8 @@ public class LabelFormItem extends FBFormItem {
     private String height;
     private String cssClassName;
     
-    public LabelFormItem() {
-        add(getLabel());
+    public HeaderFormItem() {
+        add(getHeader());
     }
     
     @Override
@@ -45,10 +46,10 @@ public class LabelFormItem extends FBFormItem {
         final HorizontalPanel editPanel = new HorizontalPanel();
         editPanel.setBorderWidth(1);
         final TextBox textBox = new TextBox();
-        textBox.setValue(getLabel().getText());
+        textBox.setValue(getHeader().getText());
         textBox.addChangeHandler(new ChangeHandler() {
             public void onChange(ChangeEvent event) {
-                getLabel().setText(textBox.getValue());
+                getHeader().setHTML("<h1>" + textBox.getValue() + "</h1>");
                 reset();
             }
         });
@@ -63,12 +64,12 @@ public class LabelFormItem extends FBFormItem {
         this.width = propertiesMap.get("width").toString();
         this.height = propertiesMap.get("height").toString();
         this.cssClassName = propertiesMap.get("cssClassName").toString();
-        getLabel().setWidth(this.width);
-        getLabel().setHeight(this.height);
-        getLabel().setStyleName(this.cssClassName);
+        getHeader().setWidth(this.width);
+        getHeader().setHeight(this.height);
+        getHeader().setStyleName(this.cssClassName);
     }
     
-    protected Label getLabel() {
-        return this.label;
+    protected HTML getHeader() {
+        return this.header;
     }
 }
