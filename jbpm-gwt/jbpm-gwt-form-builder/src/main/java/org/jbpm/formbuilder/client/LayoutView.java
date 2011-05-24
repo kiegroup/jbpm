@@ -17,17 +17,19 @@ package org.jbpm.formbuilder.client;
 
 import org.jbpm.formbuilder.client.form.LayoutFormItem;
 
-import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class LayoutView extends SimplePanel {
 
-    AbsolutePanel layout = new AbsolutePanel();
+    VerticalPanel layout = new VerticalPanel();
     
     public LayoutView() {
+        layout.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
         setSize("500px", "500px");
         Grid grid = new Grid(1,1);
         grid.setSize("100%", "100%");

@@ -46,7 +46,7 @@ public abstract class LayoutFormItem extends FBFormItem {
     public boolean add(FBFormItem item) {
         return items.add(item);
     }
-
+    
     public abstract Panel getPanel();
     
     public Panel getUnderlyingLayout(int x, int y) {

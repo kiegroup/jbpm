@@ -4,10 +4,7 @@ import java.util.Map;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -55,17 +52,7 @@ public class LabelFormItem extends FBFormItem {
                 reset();
             }
         });
-        final Image done = createDoneImage(new ClickHandler(){
-            public void onClick(ClickEvent event) {
-                label.setText(textBox.getValue());
-                reset();
-            }
-        });
-        final Image remove = createRemoveImage();
-        
         editPanel.add(textBox);
-        editPanel.add(done);
-        editPanel.add(remove);
         return editPanel;
     }
 

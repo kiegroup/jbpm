@@ -4,10 +4,24 @@ import java.util.Map;
 
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class TableLayoutFormItem extends LayoutFormItem {
 
-    private Grid grid = new Grid(1, 1);
+    private Grid grid = new Grid(1, 1) {
+        @Override
+        public void add(Widget child) {
+            if (child instanceof FBFormItem) {
+                int widgetCount = size();
+                FBFormItem item = (FBFormItem) child;
+                TableLayoutFormItem.this.add(item);
+                widgetCount++;
+                int row = (widgetCount -1) / getRowCount();
+                int col = (widgetCount - 1) % getRowCount();
+                setWidget(row, col, child);
+            }
+        }
+    };
     
     private Integer borderWidth = null;
     private Integer cellpadding = null;
