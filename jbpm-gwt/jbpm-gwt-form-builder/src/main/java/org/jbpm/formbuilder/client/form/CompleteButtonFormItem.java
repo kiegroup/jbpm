@@ -2,6 +2,8 @@ package org.jbpm.formbuilder.client.form;
 
 import java.util.Map; 
 
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+
 import com.google.gwt.user.client.ui.Button;
 
 public class CompleteButtonFormItem extends FBFormItem {
@@ -45,5 +47,11 @@ public class CompleteButtonFormItem extends FBFormItem {
         map.put("innerText", this.innerText);
         map.put("cssStyleName", this.cssStyleName);
         return map;
+    }
+    
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

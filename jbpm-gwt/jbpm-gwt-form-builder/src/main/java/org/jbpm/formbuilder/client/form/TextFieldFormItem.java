@@ -2,6 +2,8 @@ package org.jbpm.formbuilder.client.form;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+
 import com.google.gwt.user.client.ui.TextBox;
 
 public class TextFieldFormItem extends FBFormItem {
@@ -23,6 +25,12 @@ public class TextFieldFormItem extends FBFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         // TODO Auto-generated method stub
         
+    }
+    
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

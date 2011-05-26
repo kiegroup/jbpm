@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
@@ -46,6 +47,11 @@ public class ErrorMenuItem extends FBMenuItem {
             
             @Override
             public String asCode(String type) {
+                return null;
+            }
+            
+            @Override
+            public FormItemRepresentation getRepresentation() {
                 return null;
             }
         };

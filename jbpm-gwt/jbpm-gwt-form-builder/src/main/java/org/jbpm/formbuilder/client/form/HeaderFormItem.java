@@ -2,6 +2,10 @@ package org.jbpm.formbuilder.client.form;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
+
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -71,5 +75,23 @@ public class HeaderFormItem extends FBFormItem {
     
     protected HTML getHeader() {
         return this.header;
+    }
+    
+    @Override
+    public void addEffect(FBFormEffect effect) {
+        super.addEffect(effect);
+        effect.setWidget(this.header);
+    }
+    
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        HeaderRepresentation rep = new HeaderRepresentation();
+        rep.setValue(this.header.getText());
+        rep.setStyleClass(this.cssClassName);
+        rep.setCssId(this.id);
+        rep.setCssName(this.name);
+        rep.setWidth(this.width);
+        rep.setHeight(this.height);
+        return rep;
     }
 }

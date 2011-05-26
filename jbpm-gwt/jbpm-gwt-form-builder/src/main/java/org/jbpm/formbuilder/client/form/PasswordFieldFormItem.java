@@ -2,6 +2,8 @@ package org.jbpm.formbuilder.client.form;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+
 import com.google.gwt.user.client.ui.PasswordTextBox;
 
 public class PasswordFieldFormItem extends FBFormItem {
@@ -23,5 +25,11 @@ public class PasswordFieldFormItem extends FBFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         // TODO Auto-generated method stub
         
+    }
+    
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

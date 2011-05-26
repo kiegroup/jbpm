@@ -2,6 +2,8 @@ package org.jbpm.formbuilder.client.form;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -92,5 +94,11 @@ public class TableLayoutFormItem extends LayoutFormItem {
         map.put("columns", this.columns);
         map.put("rows", this.rows);
         return map;
+    }
+
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

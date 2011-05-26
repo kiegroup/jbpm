@@ -52,4 +52,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/header.gif")
     ImageResource header();
+
+    @Source("images/alignment_effect.gif")
+    ImageResource alignmentEffect();
 }

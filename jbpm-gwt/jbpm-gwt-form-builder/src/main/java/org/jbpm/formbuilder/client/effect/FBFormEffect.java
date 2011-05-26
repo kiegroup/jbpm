@@ -3,10 +3,13 @@ package org.jbpm.formbuilder.client.effect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public abstract class FBFormEffect {
 
     private FBFormItem item;
+    private Widget widget;
     
     private final Image image;
     
@@ -30,7 +33,17 @@ public abstract class FBFormEffect {
     
     protected abstract void createStyles();
     
+    public abstract PopupPanel createPanel();
+    
     protected FBFormItem getItem() {
         return this.item;
+    }
+    
+    public void setWidget(Widget widget) {
+        this.widget = widget;
+    }
+    
+    public Widget getWidget() {
+        return widget;
     }
 }

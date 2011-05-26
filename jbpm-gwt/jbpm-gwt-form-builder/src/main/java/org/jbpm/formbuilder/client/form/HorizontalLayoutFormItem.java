@@ -2,6 +2,8 @@ package org.jbpm.formbuilder.client.form;
  
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 
@@ -83,5 +85,9 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         return panel;
     }
 
-    
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

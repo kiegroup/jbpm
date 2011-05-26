@@ -12,6 +12,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -189,4 +190,6 @@ public abstract class FBFormItem extends FocusPanel {
     public void removeEffect(FBFormEffect effect) {
         effects.remove(effect);
     }
+    
+    public abstract FormItemRepresentation getRepresentation();
 }
