@@ -5,7 +5,7 @@
   <parent>
     <artifactId>jbpm</artifactId>
     <groupId>org.jbpm</groupId>
-    <version>5.1-SNAPSHOT</version>
+    <version>5.1.0.CR1</version>
   </parent>
   <artifactId>jbpm-flow-builder</artifactId>
   <packaging>jar</packaging>
@@ -59,7 +59,8 @@
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-compiler</artifactId>
-    </dependency>    <dependency>
+    </dependency>
+    <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
       <scope>test</scope>
