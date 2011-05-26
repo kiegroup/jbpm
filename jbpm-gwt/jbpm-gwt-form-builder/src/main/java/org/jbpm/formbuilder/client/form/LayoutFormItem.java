@@ -38,7 +38,7 @@ public abstract class LayoutFormItem extends FBFormItem {
     public FBFormItem remove(int index) {
         return items.remove(index);
     }
-
+    
     public ListIterator<FBFormItem> formItemListIterator() {
         return items.listIterator();
     }
@@ -46,7 +46,11 @@ public abstract class LayoutFormItem extends FBFormItem {
     public boolean add(FBFormItem item) {
         return items.add(item);
     }
-    
+
+    public FBFormItem set(int index, FBFormItem element) {
+        return items.set(index, element);
+    }
+
     public abstract Panel getPanel();
     
     public Panel getUnderlyingLayout(int x, int y) {

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -13,14 +14,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Grid grid = new Grid(1, 1) {
         @Override
         public void add(Widget child) {
-            if (child instanceof FBFormItem) {
-                int widgetCount = TableLayoutFormItem.this.size();
-                FBFormItem item = (FBFormItem) child;
-                TableLayoutFormItem.this.add(item);
-                int row = widgetCount / getColumnCount();
-                int col = widgetCount % getColumnCount();
-                setWidget(row, col, child);
-            }
+            tableAdd(child);
         }
     };
     
@@ -96,6 +90,39 @@ public class TableLayoutFormItem extends LayoutFormItem {
         return map;
     }
 
+    protected void tableAdd(Widget child) {
+        if (child instanceof FBFormItem) {
+            int widgetCount = super.size();
+            if (widgetCount >= grid.getColumnCount() * grid.getRowCount()) {
+                boolean added = false;
+                for (int i = 0; i < grid.getRowCount(); i++) {
+                    for (int j = 0; j < grid.getColumnCount(); j++) {
+                        if (grid.getWidget(i, j) == null) {
+                            added = true;
+                            FBFormItem item = (FBFormItem) child;
+                            super.set(((i+1)*(j+1))-1, item);
+                            grid.setWidget(i, j, child);
+                            break;
+                        }
+                    }
+                }
+                if (!added) {
+                    Window.alert("Table full! Use different layouts in each cell or add more rows or columns");
+                }
+            } else {
+                FBFormItem item = (FBFormItem) child;
+                super.add(item);
+                int row = widgetCount / grid.getColumnCount();
+                int col = widgetCount % grid.getColumnCount();
+                if (grid.getWidget(row, col) == null) {
+                    grid.setWidget(row, col, child);
+                } else {
+                    Window.alert("Table full! Use different layouts in each cell or add more rows or columns");
+                }
+            }
+        }
+    }
+    
     @Override
     public FormItemRepresentation getRepresentation() {
         // TODO Auto-generated method stub
