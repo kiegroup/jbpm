@@ -18,6 +18,7 @@ package org.jbpm.formbuilder.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.menu.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.HeaderMenuItem;
@@ -68,6 +69,7 @@ public class FormBuilderModel {
         }*/
         list.add(new HeaderMenuItem());
         list.add(new LabelMenuItem());
+        list.add(new ComboBoxMenuItem());
         list.add(new TextFieldMenuItem());
         list.add(new PasswordFieldMenuItem());
         list.add(new CompleteButtonMenuItem());

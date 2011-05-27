@@ -3,12 +3,12 @@ package org.jbpm.formbuilder.shared.rep.items;
 import java.util.List;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.Script;
+import org.jbpm.formbuilder.shared.rep.FBScript;
 
 public class ComboBoxRepresentation extends FormItemRepresentation {
 
     private List<OptionRepresentation> elements;
-    private Script elementsPopulationScript;
+    private FBScript elementsPopulationScript;
     private String name;
     private String id;
 
@@ -20,11 +20,11 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
         this.elements = elements;
     }
 
-    public Script getElementsPopulationScript() {
+    public FBScript getElementsPopulationScript() {
         return elementsPopulationScript;
     }
 
-    public void setElementsPopulationScript(Script elementsPopulationScript) {
+    public void setElementsPopulationScript(FBScript elementsPopulationScript) {
         this.elementsPopulationScript = elementsPopulationScript;
     }
 

@@ -35,6 +35,9 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/label.gif")
     ImageResource label();
 
+    @Source("images/comboBox.gif")
+    ImageResource comboBox();
+    
     @Source("images/done_icon.gif")
     ImageResource doneIcon();
     
@@ -55,4 +58,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/alignment_effect.gif")
     ImageResource alignmentEffect();
+
+    @Source("images/addItem_effect.gif")
+    ImageResource addItemIcon();
 }

@@ -7,20 +7,41 @@ import java.util.Map;
 
 public class FormRepresentation {
 
+    private String name;
+    private String taskId;
     private List<FBValidation> formValidations = new ArrayList<FBValidation>();
     private List<FormItemRepresentation> formItems = new ArrayList<FormItemRepresentation>();
     private Map<String, OutputData> outputs = new HashMap<String, OutputData>();
     private Map<String, InputData> inputs = new HashMap<String, InputData>();
-    private Script onLoadScript;
-    private Script onSubmitScript;
+    private FBScript onLoadScript;
+    private FBScript onSubmitScript;
     
-    
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     public List<FBValidation> getFormValidations() {
         return formValidations;
     }
 
     public void setFormValidations(List<FBValidation> formValidations) {
         this.formValidations = formValidations;
+    }
+    
+    public void addFormValidation(FBValidation formValidation) {
+        this.formValidations.add(formValidation);
     }
 
     public Map<String, InputData> getInputs() {
@@ -47,19 +68,23 @@ public class FormRepresentation {
         this.formItems = formItems;
     }
     
-    public Script getOnLoadScript() {
+    public void addFormItem(FormItemRepresentation formItem) {
+        this.formItems.add(formItem);
+    }
+    
+    public FBScript getOnLoadScript() {
         return onLoadScript;
     }
     
-    public void setOnLoadScript(Script onLoadScript) {
+    public void setOnLoadScript(FBScript onLoadScript) {
         this.onLoadScript = onLoadScript;
     }
     
-    public Script getOnSubmitScript() {
+    public FBScript getOnSubmitScript() {
         return onSubmitScript;
     }
     
-    public void setOnSubmitScript(Script onSubmitScript) {
+    public void setOnSubmitScript(FBScript onSubmitScript) {
         this.onSubmitScript = onSubmitScript;
     }
 }

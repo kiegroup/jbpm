@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.shared.rep;
 
-public class Script {
+public class FBScript {
 
     private String documentation;
     private String id;

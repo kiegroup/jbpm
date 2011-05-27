@@ -191,5 +191,10 @@ public abstract class FBFormItem extends FocusPanel {
         effects.remove(effect);
     }
     
+    protected Integer extractInt(Object obj) {
+        String s = obj.toString();
+        return s.equals("") ? null : Integer.valueOf(s);
+    }
+    
     public abstract FormItemRepresentation getRepresentation();
 }
