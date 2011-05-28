@@ -93,23 +93,34 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
         }
         
         Object targetElem = null;
-        
-        XPATHExpressionModifier modifier = new XPATHExpressionModifier();
-        // modify the tree, returning the root node
-        target = modifier.insertMissingData(to, (org.w3c.dom.Node) target);
 
-        // now pick the leaf for this operation
-        if (target != null) {
-            org.w3c.dom.Node parent = null;
+        if (target instanceof org.w3c.dom.Node) {
+            XPATHExpressionModifier modifier = new XPATHExpressionModifier();
+            // modify the tree, returning the root node
+            target = modifier.insertMissingData(to, (org.w3c.dom.Node) target);
+
+            // now pick the leaf for this operation
+            if (target != null) {
+                org.w3c.dom.Node parent = null;
+//               if(isInput) {
                 parent = ((org.w3c.dom.Node) target).getParentNode();
-                
-                
-            targetElem = exprTo.evaluate(parent, XPathConstants.NODE);
-            
-            if (targetElem == null) {
-                throw new RuntimeException("Nothing was selected by the to expression " + to + " on " + targetExpr);
+//               }
+//               else {
+//                parent = (org.w3c.dom.Node) target;
+//               }
+
+                targetElem = exprTo.evaluate(parent, XPathConstants.NODE);
+
+                if (targetElem == null) {
+                    throw new RuntimeException(
+                            "Nothing was selected by the to expression " + to
+                                    + " on " + targetExpr);
+                }
             }
+        } else {
+            targetElem = target;
         }
+        
         NodeList nl = null;
         if (source instanceof org.w3c.dom.Node) {
              nl = (NodeList) exprFrom.evaluate(source, XPathConstants.NODESET);
