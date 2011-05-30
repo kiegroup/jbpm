@@ -5,12 +5,21 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 
 import com.google.gwt.user.client.ui.PasswordTextBox;
 
 public class PasswordFieldFormItem extends FBFormItem {
 
     private final PasswordTextBox textBox = new PasswordTextBox();
+    
+    private String defaultContent = null;
+    private String name = null;
+    private String id = null;
+    private String height = null;
+    private String width = null;
+    private String title = null;
+    private Integer maxlength = null;
     
     public PasswordFieldFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
@@ -22,16 +31,47 @@ public class PasswordFieldFormItem extends FBFormItem {
         // TODO Auto-generated method stub
         return null;
     }
+    
+    @Override
+    public Map<String, Object> getFormItemPropertiesMap() {
+        Map<String, Object> map = super.getFormItemPropertiesMap();
+        map.put("inputDefaultContent", this.defaultContent);
+        map.put("name", this.name);
+        map.put("id", this.id);
+        map.put("height", this.height);
+        map.put("width", this.width);
+        map.put("maxlength", this.maxlength);
+        map.put("title", this.title);
+        return map;
+    }
 
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        // TODO Auto-generated method stub
+        this.defaultContent = asPropertiesMap.get("defaultContent").toString();
+        this.name = asPropertiesMap.get("name").toString();
+        this.id = asPropertiesMap.get("id").toString();
+        this.height = asPropertiesMap.get("height").toString();
+        this.width = asPropertiesMap.get("width").toString();
+        this.title = asPropertiesMap.get("title").toString();
+        this.maxlength = extractInt(asPropertiesMap.get("maxlength"));
         
+        textBox.setValue(this.defaultContent);
+        textBox.setName(this.name);
+        textBox.setHeight(this.height);
+        textBox.setWidth(this.width);
+        textBox.setTitle(this.title);
+        if (this.maxlength != null) {
+            textBox.setMaxLength(this.maxlength);
+        }
     }
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        // TODO Auto-generated method stub
-        return null;
+        PasswordFieldRepresentation rep = new PasswordFieldRepresentation();
+        rep.setDefaultValue(this.defaultContent);
+        rep.setName(this.name);
+        rep.setId(this.id);
+        rep.setMaxLength(this.maxlength);
+        return rep;
     }
 }

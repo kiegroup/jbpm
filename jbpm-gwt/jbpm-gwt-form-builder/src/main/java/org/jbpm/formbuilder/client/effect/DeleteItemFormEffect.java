@@ -4,6 +4,8 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -14,35 +16,26 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class AddItemFormEffect extends FBFormEffect {
+public class DeleteItemFormEffect extends FBFormEffect {
 
-    private String newLabel;
-    private String newValue;
-    
-    public AddItemFormEffect() {
+    private String dropItemLabel;
+
+    public DeleteItemFormEffect() {
         super(createImage(), true);
-    }
-    
-    public String getNewLabel() {
-        return newLabel;
-    }
-
-    public void setNewLabel(String newLabel) {
-        this.newLabel = newLabel;
-    }
-
-    public String getNewValue() {
-        return newValue;
-    }
-
-    public void setNewValue(String newValue) {
-        this.newValue = newValue;
     }
 
     private static Image createImage() {
-        Image img = new Image(FormBuilderResources.INSTANCE.addItemIcon());
-        img.setAltText("Add item");
-        return img;
+        Image image = new Image(FormBuilderResources.INSTANCE.deleteItemIcon());
+        image.setAltText("Delete Item");
+        return image;
+    }
+
+    public void setDropItemLabel(String dropItemLabel) {
+        this.dropItemLabel = dropItemLabel;
+    }
+    
+    public String getDropItemLabel() {
+        return this.dropItemLabel;
     }
     
     @Override
@@ -50,34 +43,35 @@ public class AddItemFormEffect extends FBFormEffect {
         FBFormItem item = super.getItem();
         if (item instanceof OptionsFormItem) {
             OptionsFormItem opt = (OptionsFormItem) item;
-            opt.addItem(getNewLabel(), getNewValue());
+            opt.deleteItem(getDropItemLabel());
         }
     }
-
+    
     @Override
     public PopupPanel createPanel() {
         final PopupPanel panel = new PopupPanel();
-        panel.setSize("150px", "100px");
+        panel.setSize("150px", "66px");
         VerticalPanel vPanel = new VerticalPanel();
         HorizontalPanel hPanel1 = new HorizontalPanel();
-        hPanel1.add(new Label("New Item Label:"));
+        hPanel1.add(new Label("Label to delete:"));
         final TextBox labelBox = new TextBox();
+        labelBox.addChangeHandler(new ChangeHandler() {
+            public void onChange(ChangeEvent event) {
+                DeleteItemFormEffect.this.setDropItemLabel(labelBox.getValue());
+                createStyles();
+                panel.hide();
+            }
+        });
         hPanel1.add(labelBox);
-        HorizontalPanel hPanel2 = new HorizontalPanel();
-        hPanel2.add(new Label("New Item Value:"));
-        final TextBox valueBox = new TextBox();
-        hPanel2.add(valueBox);
         Button applyButton = new Button("Apply");
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                AddItemFormEffect.this.setNewLabel(labelBox.getValue());
-                AddItemFormEffect.this.setNewValue(valueBox.getValue());
+                DeleteItemFormEffect.this.setDropItemLabel(labelBox.getValue());
                 createStyles();
                 panel.hide();
             }
         });        
         vPanel.add(hPanel1);
-        vPanel.add(hPanel2);
         vPanel.add(applyButton);
         panel.add(vPanel);
         return panel;

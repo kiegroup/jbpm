@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Grid;
@@ -128,7 +129,16 @@ public class TableLayoutFormItem extends LayoutFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        // TODO Auto-generated method stub
-        return null;
+        TableRepresentation rep = new TableRepresentation(this.rows, this.columns);
+        rep.setBorderWidth(this.borderWidth);
+        rep.setCellPadding(this.cellpadding);
+        rep.setCellSpacing(this.cellspacing);
+        List<FBFormItem> items = getItems();
+        for (int index = 0; index < items.size(); index++) {
+            FBFormItem item = items.get(index);
+            FormItemRepresentation subRep = item.getRepresentation();
+            rep.setElement((index+1)/this.columns,(index+1)%this.columns, subRep);
+        }
+        return rep;
     }
 }

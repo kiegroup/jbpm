@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
 
 import com.google.gwt.user.client.ui.Button;
 
@@ -15,6 +16,8 @@ public class CompleteButtonFormItem extends FBFormItem {
     private String height;
     private String width;
     private String innerText;
+    private String name;
+    private String id;
     private String cssStyleName;
     
     public CompleteButtonFormItem(List<FBFormEffect> formEffects) {
@@ -32,6 +35,8 @@ public class CompleteButtonFormItem extends FBFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.height = asPropertiesMap.get("height").toString();
         this.width = asPropertiesMap.get("width").toString();
+        this.name = asPropertiesMap.get("name").toString();
+        this.id = asPropertiesMap.get("id").toString();
         this.innerText = asPropertiesMap.get("innerText").toString();
         this.cssStyleName = asPropertiesMap.get("cssStyleName").toString();
         
@@ -48,12 +53,17 @@ public class CompleteButtonFormItem extends FBFormItem {
         map.put("width", this.width);
         map.put("innerText", this.innerText);
         map.put("cssStyleName", this.cssStyleName);
+        map.put("name", this.name);
+        map.put("id", this.id);
         return map;
     }
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        // TODO Auto-generated method stub
-        return null;
+        CompleteButtonRepresentation rep = new CompleteButtonRepresentation();
+        rep.setText(this.innerText);
+        rep.setName(this.name);
+        rep.setId(this.id);
+        return rep;
     }
 }

@@ -16,6 +16,10 @@ public class FBForm extends VerticalPanel implements FBCompositeItem {
     private List<FBFormItem> formItems = new ArrayList<FBFormItem>();
     private List<FBValidationItem> validationItems = new ArrayList<FBValidationItem>();
     
+    public FBForm() {
+        super();
+    }
+
     public String getName() {
         return name;
     }

@@ -61,4 +61,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/addItem_effect.gif")
     ImageResource addItemIcon();
+
+    @Source("images/deleteItem_effect.gif")
+    ImageResource deleteItemIcon();
 }

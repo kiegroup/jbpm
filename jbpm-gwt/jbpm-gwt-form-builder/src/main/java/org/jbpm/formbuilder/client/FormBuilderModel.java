@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
+import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
@@ -82,6 +83,7 @@ public class FormBuilderModel {
         effectsOptions.add(new RemoveEffect());
         effectsOptions.add(new DoneEffect());
         effectsOptions.add(new AddItemFormEffect());
+        effectsOptions.add(new DeleteItemFormEffect());
         
         list.add(new HeaderMenuItem(effects));
         list.add(new LabelMenuItem(effects));
