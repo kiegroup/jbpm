@@ -15,6 +15,9 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.allen_sauer.gwt.dnd.client.HasDragHandle;
@@ -30,12 +33,18 @@ import com.google.gwt.user.client.ui.Widget;
 public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle {
     
     private FocusPanel shim = new FocusPanel();
+    private final List<FBFormEffect> formEffects;
     
-    public FBMenuItem() {
+    public FBMenuItem(List<FBFormEffect> formEffects) {
+        this.formEffects = formEffects;
         Panel panel = new HorizontalPanel();
         panel.add(new Image(getIconUrl().getURL()));
         panel.add(getDescription());
         add(panel);
+    }
+    
+    public List<FBFormEffect> getFormEffects() {
+        return formEffects;
     }
     
     public abstract FBMenuItem cloneWidget();

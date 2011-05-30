@@ -5,11 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
+
 import com.google.gwt.user.client.ui.Panel;
 
-public abstract class LayoutFormItem extends FBFormItem {
+public abstract class LayoutFormItem extends FBFormItem implements FBCompositeItem {
 
     private List<FBFormItem> items = new ArrayList<FBFormItem>();
+    
+    public LayoutFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
     
     public List<FBFormItem> getItems() {
         return items;

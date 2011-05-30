@@ -1,7 +1,9 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.user.client.Window;
@@ -27,7 +29,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private String height = null;
     private String width = null;
     
-    public TableLayoutFormItem() {
+    public TableLayoutFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
         grid.setBorderWidth(1);
         grid.setSize("90px", "90px");
         add(grid);

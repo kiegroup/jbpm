@@ -15,31 +15,31 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.LayoutFormItem;
 
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class LayoutView extends SimplePanel {
 
-    VerticalPanel layout = new VerticalPanel();
+    private FBForm formDisplay = new FBForm();
     
     public LayoutView() {
-        layout.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+        formDisplay.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
         setSize("500px", "500px");
         Grid grid = new Grid(1,1);
         grid.setSize("100%", "100%");
         grid.setBorderWidth(2);
-        grid.setWidget(0, 0, layout);
+        grid.setWidget(0, 0, formDisplay);
         add(grid);
     }
 
     public Panel getUnderlyingLayout(int x, int y) {
-        for (Widget widget : layout) {
+        for (Widget widget : formDisplay) {
             if (widget instanceof LayoutFormItem) {
                 LayoutFormItem item = (LayoutFormItem) widget;
                 Panel newLayout = item.getUnderlyingLayout(x, y);
@@ -48,6 +48,6 @@ public class LayoutView extends SimplePanel {
                 }
             }
         }
-        return layout; // TODO Implement a way to see what's in that position
+        return formDisplay; // TODO Implement a way to see what's in that position
     }
 }

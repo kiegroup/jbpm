@@ -1,7 +1,9 @@
 package org.jbpm.formbuilder.client.form;
  
+import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -11,7 +13,8 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     private HorizontalPanel panel = new HorizontalPanel();
     
-    public HorizontalLayoutFormItem() {
+    public HorizontalLayoutFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
         panel.setBorderWidth(1);
         panel.setSize("90px", "30px");
         add(panel);

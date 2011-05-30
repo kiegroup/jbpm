@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
@@ -23,7 +24,8 @@ public class LabelFormItem extends FBFormItem {
     private String height;
     private String cssClassName;
     
-    public LabelFormItem() {
+    public LabelFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
         add(getLabel());
     }
     

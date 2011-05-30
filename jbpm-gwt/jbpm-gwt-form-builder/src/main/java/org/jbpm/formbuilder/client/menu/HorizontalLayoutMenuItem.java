@@ -1,5 +1,8 @@
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.HorizontalLayoutFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -9,9 +12,13 @@ import com.google.gwt.user.client.ui.Label;
 
 public class HorizontalLayoutMenuItem extends FBMenuItem {
 
+    public HorizontalLayoutMenuItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
+
     @Override
     public FBMenuItem cloneWidget() {
-        return new HorizontalLayoutMenuItem();
+        return new HorizontalLayoutMenuItem(super.getFormEffects());
     }
 
     @Override
@@ -26,7 +33,7 @@ public class HorizontalLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new HorizontalLayoutFormItem();
+        return new HorizontalLayoutFormItem(super.getFormEffects());
     }
 
 }

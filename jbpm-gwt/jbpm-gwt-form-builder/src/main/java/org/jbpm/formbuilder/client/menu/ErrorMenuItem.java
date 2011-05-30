@@ -1,7 +1,9 @@
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.ArrayList; 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -15,6 +17,7 @@ public class ErrorMenuItem extends FBMenuItem {
     private final String errMsg;
     
     public ErrorMenuItem(String errMsg) {
+        super(new ArrayList<FBFormEffect>());
         this.errMsg = errMsg;
     }
     
@@ -35,7 +38,7 @@ public class ErrorMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new FBFormItem() {
+        return new FBFormItem(new ArrayList<FBFormEffect>()) {
             @Override
             public void saveValues(Map<String, Object> asPropertiesMap) {
             }

@@ -15,6 +15,9 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.CompleteButtonFormItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -25,6 +28,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class CompleteButtonMenuItem extends FBMenuItem {
 
+
+    public CompleteButtonMenuItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
 
     @Override
     protected Label getDescription() {
@@ -38,11 +45,11 @@ public class CompleteButtonMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new CompleteButtonMenuItem();
+        return new CompleteButtonMenuItem(super.getFormEffects());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        return new CompleteButtonFormItem();
+        return new CompleteButtonFormItem(super.getFormEffects());
     }
 }

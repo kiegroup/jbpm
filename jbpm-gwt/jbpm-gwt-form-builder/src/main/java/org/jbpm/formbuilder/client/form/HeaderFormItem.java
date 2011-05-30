@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
@@ -24,7 +25,8 @@ public class HeaderFormItem extends FBFormItem {
     private String height;
     private String cssClassName;
     
-    public HeaderFormItem() {
+    public HeaderFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
         add(getHeader());
     }
     

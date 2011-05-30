@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
@@ -17,6 +18,11 @@ public class ComboBoxFormItem extends OptionsFormItem {
     private String width;
     private String height;
     
+    public ComboBoxFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+        add(listBox);
+    }
+
     @Override
     public String asCode(String type) {
         return null;

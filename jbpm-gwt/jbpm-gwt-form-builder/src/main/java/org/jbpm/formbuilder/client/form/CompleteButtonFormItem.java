@@ -1,7 +1,9 @@
 package org.jbpm.formbuilder.client.form;
 
-import java.util.Map; 
+import java.util.List;
+import java.util.Map;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.user.client.ui.Button;
@@ -15,8 +17,8 @@ public class CompleteButtonFormItem extends FBFormItem {
     private String innerText;
     private String cssStyleName;
     
-    public CompleteButtonFormItem() {
-        super();
+    public CompleteButtonFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
         add(button);
     }
     

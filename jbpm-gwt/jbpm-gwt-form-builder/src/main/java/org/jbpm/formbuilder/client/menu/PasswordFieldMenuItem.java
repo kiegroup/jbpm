@@ -15,6 +15,9 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.PasswordFieldFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -24,6 +27,10 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 
 public class PasswordFieldMenuItem extends FBMenuItem {
+
+    public PasswordFieldMenuItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
 
     @Override
     protected Label getDescription() {
@@ -37,11 +44,11 @@ public class PasswordFieldMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new PasswordFieldMenuItem();
+        return new PasswordFieldMenuItem(super.getFormEffects());
     }
     
     @Override
     public FBFormItem buildWidget() {
-        return new PasswordFieldFormItem();
+        return new PasswordFieldFormItem(super.getFormEffects());
     }
 }

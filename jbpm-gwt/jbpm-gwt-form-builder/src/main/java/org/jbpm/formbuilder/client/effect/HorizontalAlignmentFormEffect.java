@@ -22,7 +22,7 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
     private ListBox alignmentBox = new ListBox();
     
     public HorizontalAlignmentFormEffect() {
-        super(createImage());
+        super(createImage(), true);
     }
     
     private static Image createImage() {

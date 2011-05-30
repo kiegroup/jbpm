@@ -6,7 +6,10 @@ import java.util.List;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
-public class FBForm {
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+
+public class FBForm extends VerticalPanel implements FBCompositeItem {
 
     private String name;
     private String taskId;
@@ -29,12 +32,12 @@ public class FBForm {
         this.taskId = taskId;
     }
 
-    public List<FBFormItem> getFormItems() {
+    public List<FBFormItem> getItems() {
         return formItems;
     }
 
-    public void setFormItems(List<FBFormItem> formItems) {
-        this.formItems = formItems;
+    public void setItems(List<FBFormItem> items) {
+        this.formItems = items;
     }
 
     public List<FBValidationItem> getValidationItems() {
@@ -44,12 +47,24 @@ public class FBForm {
     public void setValidationItems(List<FBValidationItem> validationItems) {
         this.validationItems = validationItems;
     }
+    
+    @Override
+    public void add(Widget w) {
+        super.add(w);
+        if (w instanceof FBFormItem) {
+            this.formItems.add((FBFormItem) w);
+        }
+    }
+    
+    public void addValidation(FBValidationItem item) {
+        this.validationItems.add(item);
+    }
 
-    public void onLoad() {
+    public void onFormLoad() {
         
     }
     
-    public void onSubmit() {
+    public void onFormSubmit() {
         
     }
     

@@ -4,8 +4,6 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -22,7 +20,7 @@ public class AddItemFormEffect extends FBFormEffect {
     private String newValue;
     
     public AddItemFormEffect() {
-        super(createImage());
+        super(createImage(), true);
     }
     
     public String getNewLabel() {
@@ -64,26 +62,17 @@ public class AddItemFormEffect extends FBFormEffect {
         HorizontalPanel hPanel1 = new HorizontalPanel();
         hPanel1.add(new Label("New Item Label:"));
         final TextBox labelBox = new TextBox();
-        labelBox.addChangeHandler(new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                AddItemFormEffect.this.setNewLabel(labelBox.getValue());
-            };
-        });
         hPanel1.add(labelBox);
         HorizontalPanel hPanel2 = new HorizontalPanel();
         hPanel2.add(new Label("New Item Value:"));
         final TextBox valueBox = new TextBox();
-        valueBox.addChangeHandler(new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                AddItemFormEffect.this.setNewValue(valueBox.getValue());
-            }
-        });
         hPanel2.add(valueBox);
         Button applyButton = new Button("Apply");
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 AddItemFormEffect.this.setNewLabel(labelBox.getValue());
                 AddItemFormEffect.this.setNewValue(valueBox.getValue());
+                createStyles();
                 panel.hide();
             }
         });        

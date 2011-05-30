@@ -12,9 +12,11 @@ public abstract class FBFormEffect {
     private Widget widget;
     
     private final Image image;
+    private final boolean hasSubMenu;
     
-    public FBFormEffect(Image image) {
+    public FBFormEffect(Image image, boolean hasSubMenu) {
         this.image = image;
+        this.hasSubMenu = hasSubMenu;
     }
 
     public Image getImage() {
@@ -24,7 +26,9 @@ public abstract class FBFormEffect {
     public void apply(FBFormItem item) {
         item.addEffect(this);
         this.item = item;
-        createStyles();
+        if (!hasSubMenu) {
+            createStyles();
+        }
     }
     
     public void remove(FBFormItem item) {
@@ -33,7 +37,9 @@ public abstract class FBFormEffect {
     
     protected abstract void createStyles();
     
-    public abstract PopupPanel createPanel();
+    public PopupPanel createPanel() {
+        return null;
+    }
     
     protected FBFormItem getItem() {
         return this.item;

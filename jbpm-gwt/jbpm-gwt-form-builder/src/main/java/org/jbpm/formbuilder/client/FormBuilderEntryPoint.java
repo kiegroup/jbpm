@@ -29,20 +29,23 @@ public class FormBuilderEntryPoint implements EntryPoint {
         FormBuilderModel model = new FormBuilderModel();
         
         AbsolutePanel panel = new AbsolutePanel();
-        PickupDragController dragController = new PickupDragController(panel, false);
+        PickupDragController dragController = new PickupDragController(panel, true);
         FormBuilderGlobals.getInstance().registerDragController(dragController);
         dragController.registerDropController(new DisposeDropController(panel));
         
-        Grid mainGrid = new Grid(1, 2);
+        Grid mainGrid = new Grid(2, 1);
+        
+        Grid toolGrid = new Grid(1, 2);
         Grid editGrid = new Grid(2, 1);
         
-        MenuController menuController = createMenu(model);
+        editGrid.setWidget(0, 0, createMenu(model));
+        editGrid.setWidget(1, 0, createEdition(model));
         
-        editGrid.setWidget(0, 0, menuController.getView());
-        editGrid.setWidget(1, 0, createEdition(model).asWidget());
+        toolGrid.setWidget(0, 0, editGrid);
+        toolGrid.setWidget(0, 1, createLayout(model));
         
-        mainGrid.setWidget(0, 0, editGrid);
-        mainGrid.setWidget(0, 1, createLayout(model).asWidget());
+        mainGrid.setWidget(0, 0, createOptions(model));
+        mainGrid.setWidget(1, 0, toolGrid);
         
         panel.add(mainGrid);
         
@@ -50,20 +53,26 @@ public class FormBuilderEntryPoint implements EntryPoint {
     }
 
     private EditionView createEdition(FormBuilderModel model) {
-        EditionView editionView = new EditionView();
-        new EditionController(model, editionView);
-        return editionView;
+        EditionView view = new EditionView();
+        new EditionController(model, view);
+        return view;
     }
 
-    private MenuController createMenu(FormBuilderModel model) {
-        FormBuilderModel menuModel = new FormBuilderModel();
-        MenuView menuView = new MenuView();
-        return new MenuController(model, menuView);
+    private MenuView createMenu(FormBuilderModel model) {
+        MenuView view = new MenuView();
+        new MenuController(model, view);
+        return view;
     }
 
     private LayoutView createLayout(FormBuilderModel model) {
-        LayoutView layoutView = new LayoutView();
-        new LayoutController(model, layoutView);
-        return layoutView;
+        LayoutView view = new LayoutView();
+        new LayoutController(model, view);
+        return view;
+    }
+    
+    private OptionsView createOptions(FormBuilderModel model) {
+        OptionsView view = new OptionsView();
+        new OptionsPresenter(model, view);
+        return view;
     }
 }

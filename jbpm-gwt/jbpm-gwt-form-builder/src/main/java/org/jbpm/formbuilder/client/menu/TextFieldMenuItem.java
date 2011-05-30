@@ -15,6 +15,9 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.TextFieldFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -24,6 +27,10 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 
 public class TextFieldMenuItem extends FBMenuItem {
+
+    public TextFieldMenuItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
 
     @Override
     protected Label getDescription() {
@@ -37,11 +44,11 @@ public class TextFieldMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new TextFieldMenuItem();
+        return new TextFieldMenuItem(super.getFormEffects());
     }
     
     @Override
     public FBFormItem buildWidget() {
-        return new TextFieldFormItem();
+        return new TextFieldFormItem(super.getFormEffects());
     }
 }

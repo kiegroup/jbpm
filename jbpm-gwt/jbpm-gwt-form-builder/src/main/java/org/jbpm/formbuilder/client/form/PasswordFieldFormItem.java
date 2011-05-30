@@ -1,7 +1,9 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.user.client.ui.PasswordTextBox;
@@ -10,8 +12,8 @@ public class PasswordFieldFormItem extends FBFormItem {
 
     private final PasswordTextBox textBox = new PasswordTextBox();
     
-    public PasswordFieldFormItem() {
-        super();
+    public PasswordFieldFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
         add(textBox);
     }
     

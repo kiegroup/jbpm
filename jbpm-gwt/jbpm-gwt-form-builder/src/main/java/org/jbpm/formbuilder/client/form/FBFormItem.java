@@ -35,7 +35,8 @@ public abstract class FBFormItem extends FocusPanel {
     private boolean alreadyEditing = false;
     private Widget auxiliarWidget = null;
     
-    public FBFormItem() {
+    public FBFormItem(List<FBFormEffect> formEffects) {
+        this.effects.addAll(formEffects);
         addFocusHandler(new FocusHandler() {
             public void onFocus(FocusEvent event) {
                 if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
@@ -184,16 +185,24 @@ public abstract class FBFormItem extends FocusPanel {
     }
     
     public void addEffect(FBFormEffect effect) {
-        effects.add(effect);
+        if (!effects.contains(effect)) {
+            effects.add(effect);
+        }
     }
     
     public void removeEffect(FBFormEffect effect) {
-        effects.remove(effect);
+        if (effects.contains(effect)) {
+            effects.remove(effect);
+        }
     }
     
     protected Integer extractInt(Object obj) {
         String s = obj.toString();
         return s.equals("") ? null : Integer.valueOf(s);
+    }
+
+    public List<FBFormEffect> getFormEffects() {
+        return this.effects;
     }
     
     public abstract FormItemRepresentation getRepresentation();

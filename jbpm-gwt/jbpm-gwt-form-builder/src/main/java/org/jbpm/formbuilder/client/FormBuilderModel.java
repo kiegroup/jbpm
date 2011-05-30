@@ -18,6 +18,10 @@ package org.jbpm.formbuilder.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
+import org.jbpm.formbuilder.client.effect.DoneEffect;
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.menu.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
@@ -27,6 +31,9 @@ import org.jbpm.formbuilder.client.menu.LabelMenuItem;
 import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
 import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
+
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 
 public class FormBuilderModel {
 
@@ -67,14 +74,38 @@ public class FormBuilderModel {
                 //TODO Auto-generated method stub
             }
         }*/
-        list.add(new HeaderMenuItem());
-        list.add(new LabelMenuItem());
-        list.add(new ComboBoxMenuItem());
-        list.add(new TextFieldMenuItem());
-        list.add(new PasswordFieldMenuItem());
-        list.add(new CompleteButtonMenuItem());
-        list.add(new HorizontalLayoutMenuItem());
-        list.add(new TableLayoutMenuItem());
+        List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
+        effects.add(new RemoveEffect());
+        effects.add(new DoneEffect());
+        
+        List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
+        effectsOptions.add(new RemoveEffect());
+        effectsOptions.add(new DoneEffect());
+        effectsOptions.add(new AddItemFormEffect());
+        
+        list.add(new HeaderMenuItem(effects));
+        list.add(new LabelMenuItem(effects));
+        list.add(new ComboBoxMenuItem(effectsOptions));
+        list.add(new TextFieldMenuItem(effects));
+        list.add(new PasswordFieldMenuItem(effects));
+        list.add(new CompleteButtonMenuItem(effects));
+        list.add(new HorizontalLayoutMenuItem(effects));
+        list.add(new TableLayoutMenuItem(effects));
+        
         return list;
+    }
+
+    public List<MainMenuOption> getCurrentOptions() {
+        // TODO Auto-generated method stub
+        List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
+        MainMenuOption saveOption = new MainMenuOption();
+        saveOption.setHtml("Save");
+        saveOption.setCommand(new Command() {
+            public void execute() {
+                Window.alert("HERE BE DRAGONS");
+            }
+        });
+        retval.add(saveOption);
+        return retval;
     }
 }
