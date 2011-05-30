@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
@@ -81,7 +82,16 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        // TODO Auto-generated method stub
-        return null;
+        HorizontalPanelRepresentation rep = new HorizontalPanelRepresentation();
+        rep.setBorderWidth(this.borderWidth);
+        rep.setCssClassName(this.cssClassName);
+        rep.setHeight(this.height);
+        rep.setHorizontalAlignment(this.horizontalAlignment);
+        rep.setId(this.id);
+        rep.setSpacing(this.spacing);
+        rep.setTitle(this.title);
+        rep.setVerticalAlignment(this.verticalAlignment);
+        rep.setWidth(this.width);
+        return rep;
     }
 }

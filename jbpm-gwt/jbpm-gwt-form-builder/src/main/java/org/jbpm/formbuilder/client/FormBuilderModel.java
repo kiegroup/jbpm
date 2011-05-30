@@ -98,12 +98,12 @@ public class FormBuilderModel {
     }
 
     public List<MainMenuOption> getCurrentOptions() {
-        // TODO Auto-generated method stub
         List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
         MainMenuOption saveOption = new MainMenuOption();
         saveOption.setHtml("Save");
         saveOption.setCommand(new Command() {
             public void execute() {
+                // TODO Needs to be implemented yet
                 Window.alert("HERE BE DRAGONS");
             }
         });
