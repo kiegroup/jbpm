@@ -238,7 +238,7 @@ public class TaskHandler extends AbstractNodeHandler {
 				break;
 			}
 			if ("standardLoopCharacteristics".equals(nodeName)) {
-				CompositeNode composite = new CompositeNode();
+				CompositeNode composite = new CompositeContextNode();
 				composite.setId(node.getId());
 				composite.setName(node.getName());
 				composite.setMetaData("UniqueId", node.getMetaData("UniqueId"));
@@ -290,6 +290,7 @@ public class TaskHandler extends AbstractNodeHandler {
 				cons1.setDialect("XPath");
 				cons1.setConstraint(xmlNode.getFirstChild().getTextContent());
 				cons1.setType("code");
+				cons1.setName("");
 				split.setConstraint(c1, cons1);
 
 				ConstraintImpl cons2 = new ConstraintImpl();
@@ -297,6 +298,7 @@ public class TaskHandler extends AbstractNodeHandler {
 				cons2.setConstraint("");
 				cons2.setType("code");
 				cons2.setDefault(true);
+				cons2.setName("");
 				split.setConstraint(c2, cons2);		        
 
 				super.handleNode(node, element, uri, localName, parser);
