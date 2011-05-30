@@ -30,12 +30,6 @@ public class LabelFormItem extends FBFormItem {
     }
     
     @Override
-    public String asCode(String type) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> formItemPropertiesMap = super.getFormItemPropertiesMap();
         formItemPropertiesMap.put("id", id);

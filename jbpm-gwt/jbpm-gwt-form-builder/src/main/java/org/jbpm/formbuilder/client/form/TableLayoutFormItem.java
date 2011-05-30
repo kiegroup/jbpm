@@ -43,12 +43,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
     }
 
     @Override
-    public String asCode(String type) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         
         this.borderWidth = extractInt(asPropertiesMap.get("borderWidth"));

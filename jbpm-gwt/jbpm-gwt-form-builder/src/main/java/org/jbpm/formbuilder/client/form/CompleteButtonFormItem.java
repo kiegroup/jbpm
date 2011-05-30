@@ -26,12 +26,6 @@ public class CompleteButtonFormItem extends FBFormItem {
     }
     
     @Override
-    public String asCode(String type) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.height = asPropertiesMap.get("height").toString();
         this.width = asPropertiesMap.get("width").toString();

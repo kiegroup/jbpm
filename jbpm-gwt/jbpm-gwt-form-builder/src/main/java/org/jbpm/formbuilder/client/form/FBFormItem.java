@@ -97,8 +97,6 @@ public abstract class FBFormItem extends FocusPanel {
         bus.fireEvent(event);
     }
 
-    public abstract String asCode(String type);
-    
     public Widget createInplaceEditor() {
         return null;
     }

@@ -31,15 +31,6 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     private String id;
     
     @Override
-    public String asCode(String type) {
-        
-        //panel.setCellHeight(w, height);
-        //panel.setCellWidth(w, width);
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> formItemPropertiesMap = super.getFormItemPropertiesMap();
         formItemPropertiesMap.put("borderWidth", borderWidth);

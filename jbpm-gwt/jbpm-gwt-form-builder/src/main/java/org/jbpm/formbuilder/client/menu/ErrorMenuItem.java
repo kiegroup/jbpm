@@ -49,11 +49,6 @@ public class ErrorMenuItem extends FBMenuItem {
             }
             
             @Override
-            public String asCode(String type) {
-                return null;
-            }
-            
-            @Override
             public FormItemRepresentation getRepresentation() {
                 return null;
             }

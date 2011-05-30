@@ -32,11 +32,6 @@ public class ComboBoxFormItem extends OptionsFormItem {
     }
 
     @Override
-    public String asCode(String type) {
-        return null;
-    }
-
-    @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         String s = (String) asPropertiesMap.get("multipleSelect");
         this.multiple = s == null ? null : Boolean.valueOf(s); 
