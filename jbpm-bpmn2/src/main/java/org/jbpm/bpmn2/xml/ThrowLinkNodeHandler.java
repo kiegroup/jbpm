@@ -6,43 +6,42 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.ThrowLinkNode;
 import org.xml.sax.Attributes;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 public class ThrowLinkNodeHandler extends AbstractNodeHandler {
 
-	public Class<?> generateNodeFor() {
-		return ThrowLinkNode.class;
-	}
+    public Class<?> generateNodeFor() {
+        return ThrowLinkNode.class;
+    }
 
-	@Override
-	protected Node createNode(Attributes attrs) {
-		throw new NotImplementedException();
-	}
+    @Override
+    protected Node createNode(Attributes attrs) {
+        throw new IllegalArgumentException("Reading in should be handled by intermediate event handler");
 
-	@Override
-	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
+    }
 
-		ThrowLinkNode linkNode = (ThrowLinkNode) node;
+    @Override
+    public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
 
-		writeNode("intermediateThrowEvent", linkNode, xmlDump, metaDataType);
-		xmlDump.append(">" + EOL);
+        ThrowLinkNode linkNode = (ThrowLinkNode) node;
 
-		String name = (String) node.getMetaData().get(
-				IntermediateThrowEventHandler.LINK_NAME);
+        writeNode("intermediateThrowEvent", linkNode, xmlDump, metaDataType);
+        xmlDump.append(">" + EOL);
 
-		xmlDump.append("<linkEventDefinition name=\"" + name + "\" >" + EOL);
+        String name = (String) node.getMetaData().get(
+                IntermediateThrowEventHandler.LINK_NAME);
 
-		List<String> sources = (List<String>) linkNode
-				.getMetaData(IntermediateThrowEventHandler.LINK_SOURCE);
+        xmlDump.append("<linkEventDefinition name=\"" + name + "\" >" + EOL);
 
-		if (null != sources) {
-			for (String s : sources) {
-				xmlDump.append(String.format("<source>%s</source>", s) + EOL);
-			}
-		}
-		xmlDump.append("</linkEventDefinition>" + EOL);
+        List<String> sources = (List<String>) linkNode
+                .getMetaData(IntermediateThrowEventHandler.LINK_SOURCE);
 
-		endNode("intermediateThrowEvent", xmlDump);
+        if (null != sources) {
+            for (String s : sources) {
+                xmlDump.append(String.format("<source>%s</source>", s) + EOL);
+            }
+        }
+        xmlDump.append("</linkEventDefinition>" + EOL);
 
-	}
+        endNode("intermediateThrowEvent", xmlDump);
+
+    }
 }
