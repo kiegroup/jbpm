@@ -15,11 +15,16 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
+import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
+import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.LayoutFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
@@ -43,6 +48,15 @@ public class LayoutController {
                 dragController.registerDropController(new DropFormItemController(item, LayoutController.this.layoutView));
             }
         });
+        
+        this.bus.addHandler(GetFormRepresentationEvent.TYPE, new GetFormRepresentationEventHandler() {
+            public void onEvent(GetFormRepresentationEvent event) {
+                FBForm formDisplay = LayoutController.this.layoutView.getFormDisplay();
+                FormRepresentation rep = formDisplay.createRepresentation();
+                bus.fireEvent(new SaveFormRepresentationEvent(rep, event.getSaveType()));
+            }
+        });
+
     }
 
     /*

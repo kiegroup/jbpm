@@ -50,4 +50,8 @@ public class LayoutView extends SimplePanel {
         }
         return formDisplay; // TODO Implement a way to see what's in that position
     }
+    
+    public FBForm getFormDisplay() {
+        return formDisplay;
+    }
 }

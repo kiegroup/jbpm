@@ -18,6 +18,8 @@ package org.jbpm.formbuilder.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand;
+import org.jbpm.formbuilder.client.command.SaveFormAsXslCommand;
 import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
@@ -33,14 +35,16 @@ import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
 import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
 
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
-
 public class FormBuilderModel {
 
     public List<FBMenuItem> getMenuItems() {
         List<FBMenuItem> list = new ArrayList<FBMenuItem>();
-        /*final List<String> classNames = new ArrayList<String>();
+        /* TODO The whole idea is to get menu items definitions from a server
+         * so that anyone can configure it to return the JSON they desire
+         * and reconfigure it to have as many permissions to do things as
+         * they may want.
+         
+        final List<String> classNames = new ArrayList<String>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
@@ -58,7 +62,7 @@ public class FormBuilderModel {
             }
             
             public void onError(Request request, Throwable exception) {
-                // TODO Auto-generated method stub
+                Window.alert("Couldn't find menu items");
             }
         });
         for (String className : classNames) {
@@ -71,10 +75,10 @@ public class FormBuilderModel {
                     list.add(new ErrorMenuItem(className + " not of type FBMenuItem"));
                 }
             } catch (Exception e) {
-                
-                //TODO Auto-generated method stub
+                list.add(new ErrorMenuItem("Couldn't instantiate " + className);
             }
-        }*/
+        }
+        */
         List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
         effects.add(new RemoveEffect());
         effects.add(new DoneEffect());
@@ -101,12 +105,21 @@ public class FormBuilderModel {
         List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
         MainMenuOption saveOption = new MainMenuOption();
         saveOption.setHtml("Save");
-        saveOption.setCommand(new Command() {
-            public void execute() {
-                // TODO Needs to be implemented yet
-                Window.alert("HERE BE DRAGONS");
-            }
-        });
+        
+        List<MainMenuOption> saveMenu = new ArrayList<MainMenuOption>();
+
+        MainMenuOption saveFtl = new MainMenuOption();
+        saveFtl.setHtml("As FTL");
+        saveFtl.setCommand(new SaveFormAsFtlCommand());
+        
+        MainMenuOption saveXsl = new MainMenuOption();
+        saveXsl.setHtml("As XSL");
+        saveXsl.setCommand(new SaveFormAsXslCommand());
+        
+        saveMenu.add(saveFtl);
+        saveMenu.add(saveXsl);
+        
+        saveOption.setSubMenu(saveMenu);
         retval.add(saveOption);
         return retval;
     }
