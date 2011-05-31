@@ -19,7 +19,6 @@ public class LabelFormItem extends FBFormItem {
     private final Label label = new Label("Label");
     
     private String id;
-    private String name;
     private String width;
     private String height;
     private String cssClassName;
@@ -33,7 +32,6 @@ public class LabelFormItem extends FBFormItem {
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> formItemPropertiesMap = super.getFormItemPropertiesMap();
         formItemPropertiesMap.put("id", id);
-        formItemPropertiesMap.put("name", name);
         formItemPropertiesMap.put("width", width);
         formItemPropertiesMap.put("height", height);
         formItemPropertiesMap.put("cssClassName", cssClassName);
@@ -59,7 +57,6 @@ public class LabelFormItem extends FBFormItem {
     @Override
     public void saveValues(Map<String, Object> propertiesMap) {
         this.id = propertiesMap.get("id").toString();
-        this.name = propertiesMap.get("name").toString();
         this.width = propertiesMap.get("width").toString();
         this.height = propertiesMap.get("height").toString();
         this.cssClassName = propertiesMap.get("cssClassName").toString();
@@ -82,9 +79,8 @@ public class LabelFormItem extends FBFormItem {
     public FormItemRepresentation getRepresentation() {
         LabelRepresentation rep = new LabelRepresentation();
         rep.setValue(this.label.getText());
-        rep.setStyleClass(this.cssClassName);
-        rep.setCssId(this.id);
-        rep.setCssName(this.name);
+        rep.setCssName(this.cssClassName);
+        rep.setId(this.id);
         rep.setWidth(this.width);
         rep.setHeight(this.height);
         return rep;

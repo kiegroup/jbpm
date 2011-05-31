@@ -2,6 +2,8 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class CompleteButtonRepresentation extends FormItemRepresentation {
 
@@ -46,5 +48,10 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
 
     public void setOnClickScript(FBScript onClickScript) {
         this.onClickScript = onClickScript;
+    }
+    
+    @Override
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).completeButton(this);
     }
 }

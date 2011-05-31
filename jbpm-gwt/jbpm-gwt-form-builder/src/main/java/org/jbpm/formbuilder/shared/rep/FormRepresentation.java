@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
+
 public class FormRepresentation {
 
     private String name;
@@ -13,8 +16,8 @@ public class FormRepresentation {
     private List<FormItemRepresentation> formItems = new ArrayList<FormItemRepresentation>();
     private Map<String, OutputData> outputs = new HashMap<String, OutputData>();
     private Map<String, InputData> inputs = new HashMap<String, InputData>();
-    private FBScript onLoadScript;
-    private FBScript onSubmitScript;
+    private List<FBScript> onLoadScripts;
+    private List<FBScript> onSubmitScripts;
     
     public String getName() {
         return name;
@@ -72,19 +75,23 @@ public class FormRepresentation {
         this.formItems.add(formItem);
     }
     
-    public FBScript getOnLoadScript() {
-        return onLoadScript;
+    public List<FBScript> getOnLoadScripts() {
+        return onLoadScripts;
     }
     
-    public void setOnLoadScript(FBScript onLoadScript) {
-        this.onLoadScript = onLoadScript;
+    public void setOnLoadScripts(List<FBScript> onLoadScripts) {
+        this.onLoadScripts = onLoadScripts;
     }
     
-    public FBScript getOnSubmitScript() {
-        return onSubmitScript;
+    public List<FBScript> getOnSubmitScripts() {
+        return onSubmitScripts;
     }
     
-    public void setOnSubmitScript(FBScript onSubmitScript) {
-        this.onSubmitScript = onSubmitScript;
+    public void setOnSubmitScripts(List<FBScript> onSubmitScripts) {
+        this.onSubmitScripts = onSubmitScripts;
+    }
+    
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).form(this);
     }
 }

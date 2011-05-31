@@ -41,7 +41,7 @@ public class PasswordFieldFormItem extends FBFormItem {
 
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.defaultContent = asPropertiesMap.get("defaultContent").toString();
+        this.defaultContent = asPropertiesMap.get("inputDefaultContent").toString();
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();
         this.height = asPropertiesMap.get("height").toString();

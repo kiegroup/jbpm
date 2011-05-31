@@ -1,12 +1,13 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class LabelRepresentation extends FormItemRepresentation {
 
     private String value;
-    private String styleClass;
-    private String cssId;
+    private String id;
     private String cssName;
     private String width;
     private String height;
@@ -19,20 +20,12 @@ public class LabelRepresentation extends FormItemRepresentation {
         this.value = value;
     }
 
-    public String getStyleClass() {
-        return styleClass;
+    public String getId() {
+        return id;
     }
 
-    public void setStyleClass(String styleClass) {
-        this.styleClass = styleClass;
-    }
-
-    public String getCssId() {
-        return cssId;
-    }
-
-    public void setCssId(String cssId) {
-        this.cssId = cssId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getCssName() {
@@ -57,5 +50,10 @@ public class LabelRepresentation extends FormItemRepresentation {
 
     public void setHeight(String height) {
         this.height = height;
+    }
+    
+    @Override
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).label(this);
     }
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class TableRepresentation extends FormItemRepresentation {
 
@@ -18,12 +20,17 @@ public class TableRepresentation extends FormItemRepresentation {
     
     public TableRepresentation(Integer rows, Integer columns) {
         super();
-        this.elements = new ArrayList<List<FormItemRepresentation>>(this.rows);
-        for (int index = 0; index < this.rows; index++) {
-            this.elements.add(new ArrayList<FormItemRepresentation>(this.columns));
-        }
         this.rows = rows;
         this.columns = columns;
+        this.elements = new ArrayList<List<FormItemRepresentation>>(this.rows);
+        for (int index = 0; index < this.rows; index++) {
+            List<FormItemRepresentation> row = new ArrayList<FormItemRepresentation>(this.columns);
+            for (int subIndex = 0; subIndex < this.columns; subIndex++) {
+                row.add(null);
+            }
+            this.elements.add(row);
+            
+        }
     }
 
     public Integer getBorderWidth() {
@@ -66,5 +73,10 @@ public class TableRepresentation extends FormItemRepresentation {
 
     public Integer getColumns() {
         return columns;
+    }
+    
+    @Override
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).table(this);
     }
 }

@@ -92,6 +92,9 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         rep.setTitle(this.title);
         rep.setVerticalAlignment(this.verticalAlignment);
         rep.setWidth(this.width);
+        for (FBFormItem item : getItems()) {
+            rep.addItem(item.getRepresentation());
+        }
         return rep;
     }
 }

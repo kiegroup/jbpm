@@ -3,7 +3,9 @@ package org.jbpm.formbuilder.shared.rep;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormItemRepresentation {
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+
+public abstract class FormItemRepresentation {
     
     private List<FBValidation> itemValidations = new ArrayList<FBValidation>();
     private OutputData output;
@@ -32,4 +34,6 @@ public class FormItemRepresentation {
     public void setInput(InputData input) {
         this.input = input;
     }
+    
+    public abstract String translate(String language) throws LanguageException;
 }

@@ -127,11 +127,14 @@ public class TableLayoutFormItem extends LayoutFormItem {
         rep.setBorderWidth(this.borderWidth);
         rep.setCellPadding(this.cellpadding);
         rep.setCellSpacing(this.cellspacing);
-        List<FBFormItem> items = getItems();
-        for (int index = 0; index < items.size(); index++) {
-            FBFormItem item = items.get(index);
-            FormItemRepresentation subRep = item.getRepresentation();
-            rep.setElement((index+1)/this.columns,(index+1)%this.columns, subRep);
+        for (int index = 0; index < this.columns * this.rows; index++) {
+            int column = index%this.columns;
+            int row = index/this.columns;
+            FBFormItem item = (FBFormItem) grid.getWidget(row, column);
+            if (item != null) {
+                FormItemRepresentation subRep = item.getRepresentation();
+                rep.setElement(row, column, subRep);
+            }
         }
         return rep;
     }

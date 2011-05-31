@@ -53,6 +53,14 @@ public class FBForm extends VerticalPanel implements FBCompositeItem {
     }
     
     @Override
+    public boolean remove(Widget w) {
+        if (w instanceof FBFormItem) {
+            this.formItems.remove((FBFormItem) w);
+        }
+        return super.remove(w);
+    }
+    
+    @Override
     public void add(Widget w) {
         super.add(w);
         if (w instanceof FBFormItem) {

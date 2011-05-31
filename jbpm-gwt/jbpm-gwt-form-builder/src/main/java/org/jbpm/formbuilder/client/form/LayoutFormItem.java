@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 
 public abstract class LayoutFormItem extends FBFormItem implements FBCompositeItem {
 
@@ -33,6 +34,14 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         return items.iterator();
     }
 
+    @Override
+    public boolean remove(Widget w) {
+        if (w instanceof FBFormItem) {
+            this.items.remove((FBFormItem) w);
+        }
+        return super.remove(w);
+    }
+    
     public boolean remove(Object o) {
         return items.remove(o);
     }

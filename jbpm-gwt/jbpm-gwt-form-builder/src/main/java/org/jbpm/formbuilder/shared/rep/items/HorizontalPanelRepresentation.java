@@ -1,6 +1,11 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class HorizontalPanelRepresentation extends FormItemRepresentation {
 
@@ -13,6 +18,7 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
     private String verticalAlignment;
     private String title;
     private String id;
+    private List<FormItemRepresentation> items = new ArrayList<FormItemRepresentation>();
     
     public HorizontalPanelRepresentation() {
         super();
@@ -88,5 +94,22 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public List<FormItemRepresentation> getItems() {
+        return items;
+    }
+    
+    public void addItem(FormItemRepresentation item) {
+        items.add(item);
+    }
+    
+    public void setItems(List<FormItemRepresentation> items) {
+        this.items = items;
+    }
+    
+    @Override
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).horizontalPanel(this);
     }
 }

@@ -11,7 +11,7 @@ import com.google.gwt.user.client.Command;
 
 public abstract class SaveFormCommand implements Command {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    protected final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final String saveType;
     
     public SaveFormCommand(final String saveType) {

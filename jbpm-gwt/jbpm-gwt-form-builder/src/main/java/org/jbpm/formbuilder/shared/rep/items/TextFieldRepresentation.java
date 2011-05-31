@@ -1,6 +1,8 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class TextFieldRepresentation extends FormItemRepresentation {
 
@@ -43,5 +45,10 @@ public class TextFieldRepresentation extends FormItemRepresentation {
     
     public void setId(String id) {
         this.id = id;
+    }
+    
+    @Override
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).textField(this);
     }
 }

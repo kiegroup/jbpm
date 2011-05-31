@@ -41,7 +41,7 @@ public class TextFieldFormItem extends FBFormItem {
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.defaultContent = asPropertiesMap.get("defaultContent").toString();
+        this.defaultContent = asPropertiesMap.get("inputDefaultContent").toString();
         this.name = asPropertiesMap.get("name").toString();
         this.height = asPropertiesMap.get("height").toString();
         this.width = asPropertiesMap.get("width").toString();

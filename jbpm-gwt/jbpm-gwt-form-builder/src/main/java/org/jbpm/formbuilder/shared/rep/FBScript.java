@@ -8,6 +8,7 @@ public class FBScript {
     private String type;
     private String src;
     private String content;
+    private String invokeFunction;
 
     public String getDocumentation() {
         return documentation;
@@ -48,5 +49,12 @@ public class FBScript {
     public void setContent(String content) {
         this.content = content;
     }
-    
+
+    public String getInvokeFunction() {
+        return invokeFunction;
+    }
+
+    public void setInvokeFunction(String invokeFunction) {
+        this.invokeFunction = invokeFunction;
+    }
 }
