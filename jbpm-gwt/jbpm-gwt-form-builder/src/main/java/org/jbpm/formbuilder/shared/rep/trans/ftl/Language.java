@@ -7,14 +7,18 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
+import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
@@ -98,14 +102,14 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         String name = textField.getName();
         OutputData output = textField.getOutput();
         if (name == null || "".equals(name)) {
-            name = output.getName();
+            if (output != null) {
+                name = output.getName();
+            }
         }
-        builder.append("<input type=\"text\" name=\"").append(name).append("\" ");
-        
-        Integer maxLength = textField.getMaxLength();
-        if (maxLength != null && maxLength > 0) {
-            builder.append("maxlength=\"").append(maxLength).append("\" ");
-        }
+        builder.append("<input ");
+        addParam(builder, "type", "text");
+        addParam(builder, "name", name);
+        addParam(builder, "maxlength", textField.getMaxLength());
         
         String defaultValue = textField.getDefaultValue();
         InputData input = textField.getInput();
@@ -132,10 +136,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         }
         builder.append("<input type=\"password\" name=\"").append(name).append("\" ");
         
-        Integer maxLength = passwordField.getMaxLength();
-        if (maxLength != null && maxLength > 0) {
-            builder.append("maxlength=\"").append(maxLength).append("\" ");
-        }
+        addParam(builder, "maxlength", passwordField.getMaxLength());
         
         String defaultValue = passwordField.getDefaultValue();
         InputData input = passwordField.getInput();
@@ -150,9 +151,15 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         return builder.toString();
     }
     
-    private void addParam(StringBuilder builder, String paramName, String id) {
-        if (id != null && !"".equals(id)) {
-            builder.append(paramName).append("=\"").append(id).append("\" ");
+    private void addParam(StringBuilder builder, String paramName, String paramValue) {
+        if (paramValue != null && !"".equals(paramValue)) {
+            builder.append(paramName).append("=\"").append(paramValue).append("\" ");
+        }
+    }
+    
+    private void addParam(StringBuilder builder, String paramName, Integer paramValue) {
+        if (paramValue != null && paramValue > 0) {
+            builder.append(paramName).append("=\"").append(paramValue).append("\" ");
         }
     }
 
@@ -336,4 +343,69 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         return builder.toString();
     }
 
+    public String textArea(TextAreaRepresentation textArea) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("<textarea ");
+        addParam(builder, "rows", textArea.getRows());
+        addParam(builder, "cols", textArea.getCols());
+        addParam(builder, "id", textArea.getId());
+        addParam(builder, "name", textArea.getName());
+        builder.append(">");
+        String value = textArea.getValue();
+        if (value != null && !"".equals(value)) {
+            builder.append(value);
+        }
+        builder.append("</textarea>");
+        return builder.toString();
+    }
+
+    public String hidden(HiddenRepresentation hidden) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("<input ");
+        addParam(builder, "type", "hidden");
+        addParam(builder, "id", hidden.getId());
+        addParam(builder, "name", hidden.getName());
+        addParam(builder, "value", hidden.getValue()); //TODO getInput();
+        builder.append("/>");
+        return builder.toString();
+    }
+    
+    public String checkBox(CheckBoxRepresentation checkBox) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("<input ");
+        addParam(builder, "type", "checkbox");
+        addParam(builder, "id", checkBox.getId());
+        addParam(builder, "name", checkBox.getName());
+        if (checkBox.getChecked()) {
+            addParam(builder, "checked", "true");
+        }
+        addParam(builder, "value", checkBox.getFormValue()); //TODO getInput();
+        builder.append("/>");
+        return builder.toString();
+    }
+    
+    public String fileInput(FileInputRepresentation fileInput) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("<input ");
+        addParam(builder, "type", "file");
+        addParam(builder, "id", fileInput.getId());
+        addParam(builder, "name", fileInput.getName());
+        addParam(builder, "accept", fileInput.getAccept());
+        StringBuilder cssStyle = new StringBuilder();
+        String width = fileInput.getWidth();
+        String height = fileInput.getHeight();
+        if (width != null && !"".equals(width)) {
+            cssStyle.append("width: ").append(width).append("; ");
+        } 
+        if (height != null && !"".equals(height)) {
+            cssStyle.append("height: ").append(height).append("; ");
+        }
+        addParam(builder, "style", cssStyle.toString()); //TODO getInput();
+        builder.append("/>");
+        return builder.toString();
+    }
 }

@@ -1,14 +1,18 @@
 package org.jbpm.formbuilder.shared.rep.trans;
 
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 
 public interface Language {
@@ -32,4 +36,12 @@ public interface Language {
     String passwordField(PasswordFieldRepresentation passwordField) throws LanguageException;
 
     String horizontalPanel(HorizontalPanelRepresentation horizontalPanel) throws LanguageException;
+
+    String textArea(TextAreaRepresentation textArea) throws LanguageException;
+
+    String hidden(HiddenRepresentation hidden) throws LanguageException;
+
+    String checkBox(CheckBoxRepresentation checkBox) throws LanguageException;
+
+    String fileInput(FileInputRepresentation fileInput) throws LanguageException;
 }

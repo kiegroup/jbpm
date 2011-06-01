@@ -24,6 +24,7 @@ import com.allen_sauer.gwt.dnd.client.HasDragHandle;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -39,6 +40,7 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
         this.formEffects = formEffects;
         Panel panel = new HorizontalPanel();
         panel.add(new Image(getIconUrl().getURL()));
+        panel.add(new HTML("&nbsp;"));
         panel.add(getDescription());
         add(panel);
     }

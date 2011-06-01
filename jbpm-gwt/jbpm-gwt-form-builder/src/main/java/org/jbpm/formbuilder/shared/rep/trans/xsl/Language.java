@@ -1,14 +1,18 @@
 package org.jbpm.formbuilder.shared.rep.trans.xsl;
 
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 
@@ -52,6 +56,22 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     }
 
     public String horizontalPanel(HorizontalPanelRepresentation horizontalPanel) throws LanguageException {
+        return "<!-- TODO -->"; //TODO
+    }
+
+    public String textArea(TextAreaRepresentation textArea) throws LanguageException {
+        return "<!-- TODO -->"; //TODO
+    }
+
+    public String hidden(HiddenRepresentation hidden) throws LanguageException {
+        return "<!-- TODO -->"; //TODO
+    }
+
+    public String checkBox(CheckBoxRepresentation checkBox) throws LanguageException {
+        return "<!-- TODO -->"; //TODO
+    }
+
+    public String fileInput(FileInputRepresentation fileInput) throws LanguageException {
         return "<!-- TODO -->"; //TODO
     }
 }

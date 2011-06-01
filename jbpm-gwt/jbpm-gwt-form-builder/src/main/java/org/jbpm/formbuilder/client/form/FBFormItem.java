@@ -198,6 +198,14 @@ public abstract class FBFormItem extends FocusPanel {
         String s = obj.toString();
         return s.equals("") ? null : Integer.valueOf(s);
     }
+    
+    protected Boolean extractBoolean(Object obj) {
+        if (obj != null && obj instanceof Boolean) {
+            return (Boolean) obj;
+        }
+        String s = obj.toString();
+        return s.equals("") ? Boolean.FALSE : Boolean.valueOf(s);
+    }
 
     public List<FBFormEffect> getFormEffects() {
         return this.effects;

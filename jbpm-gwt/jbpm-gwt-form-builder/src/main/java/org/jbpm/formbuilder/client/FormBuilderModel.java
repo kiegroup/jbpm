@@ -25,14 +25,18 @@ import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
+import org.jbpm.formbuilder.client.menu.CheckBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.menu.FileInputMenuItem;
 import org.jbpm.formbuilder.client.menu.HeaderMenuItem;
+import org.jbpm.formbuilder.client.menu.HiddenMenuItem;
 import org.jbpm.formbuilder.client.menu.HorizontalLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.LabelMenuItem;
 import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
 import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
+import org.jbpm.formbuilder.client.menu.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
 
 public class FormBuilderModel {
@@ -97,7 +101,10 @@ public class FormBuilderModel {
         list.add(new CompleteButtonMenuItem(effects));
         list.add(new HorizontalLayoutMenuItem(effects));
         list.add(new TableLayoutMenuItem(effects));
-        
+        list.add(new TextAreaMenuItem(effects));
+        list.add(new HiddenMenuItem(effects));
+        list.add(new FileInputMenuItem(effects));
+        list.add(new CheckBoxMenuItem(effects));
         return list;
     }
 

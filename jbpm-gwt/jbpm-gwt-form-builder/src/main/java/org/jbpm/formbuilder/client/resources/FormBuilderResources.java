@@ -64,4 +64,16 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/deleteItem_effect.gif")
     ImageResource deleteItemIcon();
+
+    @Source("images/textArea.gif")
+    ImageResource textArea();
+
+    @Source("images/hidden.gif")
+    ImageResource hidden();
+
+    @Source("images/checkBox.gif")
+    ImageResource checkBox();
+
+    @Source("images/fileInput.gif")
+    ImageResource fileInput();
 }
