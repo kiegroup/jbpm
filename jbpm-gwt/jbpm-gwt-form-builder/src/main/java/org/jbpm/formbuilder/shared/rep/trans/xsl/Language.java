@@ -8,6 +8,7 @@ import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
@@ -72,6 +73,10 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     }
 
     public String fileInput(FileInputRepresentation fileInput) throws LanguageException {
+        return "<!-- TODO -->"; //TODO
+    }
+
+    public String image(ImageRepresentation image) throws LanguageException {
         return "<!-- TODO -->"; //TODO
     }
 }

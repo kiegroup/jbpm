@@ -76,4 +76,10 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/fileInput.gif")
     ImageResource fileInput();
+
+    @Source("images/image.gif")
+    ImageResource image();
+
+    @Source("images/default_image_en.jpg")
+    ImageResource defaultImage();
 }

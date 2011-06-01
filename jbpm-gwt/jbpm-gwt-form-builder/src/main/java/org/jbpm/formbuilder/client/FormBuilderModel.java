@@ -33,6 +33,7 @@ import org.jbpm.formbuilder.client.menu.FileInputMenuItem;
 import org.jbpm.formbuilder.client.menu.HeaderMenuItem;
 import org.jbpm.formbuilder.client.menu.HiddenMenuItem;
 import org.jbpm.formbuilder.client.menu.HorizontalLayoutMenuItem;
+import org.jbpm.formbuilder.client.menu.ImageMenuItem;
 import org.jbpm.formbuilder.client.menu.LabelMenuItem;
 import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
 import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
@@ -105,6 +106,7 @@ public class FormBuilderModel {
         list.add(new HiddenMenuItem(effects));
         list.add(new FileInputMenuItem(effects));
         list.add(new CheckBoxMenuItem(effects));
+        list.add(new ImageMenuItem(effects));
         return list;
     }
 

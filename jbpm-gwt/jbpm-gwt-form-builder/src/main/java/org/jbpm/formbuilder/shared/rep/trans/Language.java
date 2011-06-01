@@ -8,6 +8,7 @@ import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
@@ -44,4 +45,6 @@ public interface Language {
     String checkBox(CheckBoxRepresentation checkBox) throws LanguageException;
 
     String fileInput(FileInputRepresentation fileInput) throws LanguageException;
+
+    String image(ImageRepresentation image) throws LanguageException;
 }

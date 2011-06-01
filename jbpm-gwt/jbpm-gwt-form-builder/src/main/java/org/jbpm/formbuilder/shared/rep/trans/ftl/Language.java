@@ -14,6 +14,7 @@ import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
@@ -405,6 +406,21 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
             cssStyle.append("height: ").append(height).append("; ");
         }
         addParam(builder, "style", cssStyle.toString()); //TODO getInput();
+        builder.append("/>");
+        return builder.toString();
+    }
+    
+    public String image(ImageRepresentation image) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("<img ");
+        
+        addParam(builder, "alt", image.getAltText());
+        addParam(builder, "title", image.getAltText());
+        addParam(builder, "id", image.getId());
+        addParam(builder, "height", image.getHeight());
+        addParam(builder, "width", image.getWidth()); //TODO getInput();
+        addParam(builder, "src", image.getUrl());
         builder.append("/>");
         return builder.toString();
     }
