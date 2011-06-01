@@ -46,7 +46,7 @@ public class ComboBoxFormItem extends OptionsFormItem {
         this.listBox.setTitle(title);
         this.width = asPropertiesMap.get("width").toString();
         this.listBox.setWidth(width);
-        this.width = asPropertiesMap.get("height").toString();
+        this.height = asPropertiesMap.get("height").toString();
         this.listBox.setHeight(height);
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();

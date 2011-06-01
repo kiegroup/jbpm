@@ -73,9 +73,9 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
             addParam(builder, "onload", invokeOnLoad.toString());
         }
         addParam(builder, "name", form.getName());
-        addParam(builder, "action", "complete");
-        addParam(builder, "method", "POST");
-        addParam(builder, "enctype", "multipart/form-data");
+        addParam(builder, "action", form.getAction());
+        addParam(builder, "method", form.getMethod());
+        addParam(builder, "enctype", form.getEnctype());
         builder.append(">\n");
         String taskId = form.getTaskId();
         builder.append("<#-- taskId: ").append(taskId).append(" -->");

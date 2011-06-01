@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
+import org.jbpm.formbuilder.client.bus.FormDataPopulatedEventHandler;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
@@ -54,6 +56,26 @@ public class LayoutController {
                 FBForm formDisplay = LayoutController.this.layoutView.getFormDisplay();
                 FormRepresentation rep = formDisplay.createRepresentation();
                 bus.fireEvent(new SaveFormRepresentationEvent(rep, event.getSaveType()));
+            }
+        });
+        
+        this.bus.addHandler(FormDataPopulatedEvent.TYPE, new FormDataPopulatedEventHandler() {
+            public void onEvent(FormDataPopulatedEvent event) {
+                String action = event.getAction();
+                String taskId = event.getTaskId();
+                String name = event.getName();
+                if (action != null && !"".equals(action)) {
+                    LayoutController.this.layoutView.getFormDisplay().setAction(action);
+                }
+                if (taskId != null && !"".equals(taskId)) {
+                    LayoutController.this.layoutView.getFormDisplay().setTaskId(taskId);
+                }
+                if (name != null && !"".equals(name)) {
+                    LayoutController.this.layoutView.getFormDisplay().setName(name);
+                }
+                LayoutController.this.layoutView.getFormDisplay().setMethod(event.getMethod());
+                LayoutController.this.layoutView.getFormDisplay().setEnctype(event.getEnctype());
+                
             }
         });
 

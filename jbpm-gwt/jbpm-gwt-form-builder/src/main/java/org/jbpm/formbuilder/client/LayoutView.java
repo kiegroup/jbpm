@@ -30,6 +30,7 @@ public class LayoutView extends SimplePanel {
     
     public LayoutView() {
         formDisplay.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+        formDisplay.setSize("100%", "100%");
         setSize("500px", "500px");
         Grid grid = new Grid(1,1);
         grid.setSize("100%", "100%");

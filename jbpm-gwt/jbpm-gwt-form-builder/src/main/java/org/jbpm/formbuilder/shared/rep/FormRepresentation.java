@@ -12,6 +12,9 @@ public class FormRepresentation {
 
     private String name;
     private String taskId;
+    private String action;
+    private String method;
+    private String enctype;
     private List<FBValidation> formValidations = new ArrayList<FBValidation>();
     private List<FormItemRepresentation> formItems = new ArrayList<FormItemRepresentation>();
     private Map<String, OutputData> outputs = new HashMap<String, OutputData>();
@@ -53,6 +56,39 @@ public class FormRepresentation {
 
     public void setInputs(Map<String, InputData> inputs) {
         this.inputs = inputs;
+    }
+    
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        if (action == null) {
+            action = "complete";
+        }
+        this.action = action;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        if (method == null) {
+            method = "POST";
+        }
+        this.method = method;
+    }
+
+    public String getEnctype() {
+        return enctype;
+    }
+
+    public void setEnctype(String enctype) {
+        if (enctype == null) {
+            enctype = "multipart/form-data";
+        }
+        this.enctype = enctype;
     }
 
     public Map<String, OutputData> getOutputs() {
