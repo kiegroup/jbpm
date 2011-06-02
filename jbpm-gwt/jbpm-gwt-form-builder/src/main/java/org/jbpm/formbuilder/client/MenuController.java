@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuPanel;
@@ -39,16 +40,19 @@ public class MenuController {
         this.view = menuView;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
         this.dragController = FormBuilderGlobals.getInstance().getDragController();
-        List<FBMenuItem> items = model.getMenuItems();
-        FBMenuPanel menuPanel = new FBMenuPanel(this.dragController);
+        Map<String, List<FBMenuItem>> itemsMap = model.getMenuItems();
         this.dragController.registerDropController(new DisposeDropController(this.view.asWidget()));
-        this.view.setPanel(menuPanel);
+        this.view.setDragController(this.dragController);
         
         dragController.setBehaviorMultipleSelection(false);
         dragController.setConstrainWidgetToBoundaryPanel(false);
         dragController.addDragHandler(new DragHandlerAdapter());
-        for (FBMenuItem item : items) {
-            this.view.addItem(item, "");
+        for (String key : itemsMap.keySet()) {
+            String accordionName = key;
+            List<FBMenuItem> items = itemsMap.get(key);
+            for (FBMenuItem item : items) {
+                this.view.addItem(accordionName, item);
+            }
         }
     }
 

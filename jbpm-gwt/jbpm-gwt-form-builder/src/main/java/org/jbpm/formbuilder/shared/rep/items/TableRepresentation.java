@@ -20,8 +20,8 @@ public class TableRepresentation extends FormItemRepresentation {
     
     public TableRepresentation(Integer rows, Integer columns) {
         super();
-        this.rows = rows;
-        this.columns = columns;
+        this.rows = rows == null ? 1 : rows;
+        this.columns = columns == null ? 1 : columns;
         this.elements = new ArrayList<List<FormItemRepresentation>>(this.rows);
         for (int index = 0; index < this.rows; index++) {
             List<FormItemRepresentation> row = new ArrayList<FormItemRepresentation>(this.columns);

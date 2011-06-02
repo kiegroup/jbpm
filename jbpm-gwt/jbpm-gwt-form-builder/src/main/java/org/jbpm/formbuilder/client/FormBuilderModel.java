@@ -16,7 +16,9 @@
 package org.jbpm.formbuilder.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand;
 import org.jbpm.formbuilder.client.command.SaveFormAsXslCommand;
@@ -44,8 +46,7 @@ import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
 
 public class FormBuilderModel {
 
-    public List<FBMenuItem> getMenuItems() {
-        List<FBMenuItem> list = new ArrayList<FBMenuItem>();
+    public Map<String, List<FBMenuItem>> getMenuItems() {
         /* TODO The whole idea is to get menu items definitions from a server
          * so that anyone can configure it to return the JSON they desire
          * and reconfigure it to have as many permissions to do things as
@@ -86,6 +87,11 @@ public class FormBuilderModel {
             }
         }
         */
+        Map<String, List<FBMenuItem>> map = new HashMap<String, List<FBMenuItem>>();
+        List<FBMenuItem> controls = new ArrayList<FBMenuItem>();
+        List<FBMenuItem> visuals = new ArrayList<FBMenuItem>();
+        List<FBMenuItem> layouts = new ArrayList<FBMenuItem>();
+
         List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
         effects.add(new RemoveEffect());
         effects.add(new DoneEffect());
@@ -96,22 +102,28 @@ public class FormBuilderModel {
         effectsOptions.add(new AddItemFormEffect());
         effectsOptions.add(new DeleteItemFormEffect());
         
-        list.add(new HeaderMenuItem(effects));
-        list.add(new LabelMenuItem(effects));
-        list.add(new ComboBoxMenuItem(effectsOptions));
-        list.add(new TextFieldMenuItem(effects));
-        list.add(new PasswordFieldMenuItem(effects));
-        list.add(new CompleteButtonMenuItem(effects));
-        list.add(new HorizontalLayoutMenuItem(effects));
-        list.add(new TableLayoutMenuItem(effects));
-        list.add(new TextAreaMenuItem(effects));
-        list.add(new HiddenMenuItem(effects));
-        list.add(new FileInputMenuItem(effects));
-        list.add(new CheckBoxMenuItem(effects));
-        list.add(new ImageMenuItem(effects));
-        list.add(new HTMLMenuItem(effects));
-        list.add(new RadioButtonMenuItem(effects));
-        return list;
+        visuals.add(new HeaderMenuItem(effects));
+        visuals.add(new LabelMenuItem(effects));
+        visuals.add(new ImageMenuItem(effects));
+        visuals.add(new HTMLMenuItem(effects));
+        map.put("Visual Components", visuals);
+        
+        controls.add(new ComboBoxMenuItem(effectsOptions));
+        controls.add(new TextFieldMenuItem(effects));
+        controls.add(new PasswordFieldMenuItem(effects));
+        controls.add(new CompleteButtonMenuItem(effects));
+        controls.add(new TextAreaMenuItem(effects));
+        controls.add(new HiddenMenuItem(effects));
+        controls.add(new FileInputMenuItem(effects));
+        controls.add(new CheckBoxMenuItem(effects));
+        controls.add(new RadioButtonMenuItem(effects));
+        map.put("Control Components", controls);
+        
+        layouts.add(new HorizontalLayoutMenuItem(effects));
+        layouts.add(new TableLayoutMenuItem(effects));
+        map.put("Layout Components", layouts);
+        
+        return map;
     }
 
     public List<MainMenuOption> getCurrentOptions() {

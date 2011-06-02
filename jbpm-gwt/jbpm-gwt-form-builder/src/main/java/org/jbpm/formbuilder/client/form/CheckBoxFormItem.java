@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 
 public class CheckBoxFormItem extends FBFormItem {
 
-    private CheckBox checkBox;
+    private CheckBox checkBox = new CheckBox();
     
     private String formValue;
     private Boolean checked;

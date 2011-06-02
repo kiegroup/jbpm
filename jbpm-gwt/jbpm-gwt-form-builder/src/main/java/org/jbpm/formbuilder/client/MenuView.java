@@ -15,36 +15,47 @@
  */
 package org.jbpm.formbuilder.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuPanel;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class MenuView extends SimplePanel {
+public class MenuView extends ScrollPanel {
 
-    private FBMenuPanel panel; 
-
+    private Map<String, FBMenuGroupPanel> accordion = new HashMap<String, FBMenuGroupPanel>();
+    
+    private VerticalPanel panel = new VerticalPanel();
+    private PickupDragController dragController;
+    
     public MenuView() {
         setSize("270px", "245px");
+        setAlwaysShowScrollBars(false);
         Grid grid = new Grid(1,1);
+        panel.setWidth("100%");
         grid.setWidget(0, 0, panel);
         grid.setSize("100%", "100%");
         grid.setBorderWidth(2);
         add(grid);
     }
     
-    public void setPanel(FBMenuPanel panel) {
-        this.panel = panel;
-        ((Grid) getWidget()).setWidget(0, 0, this.panel);
+    public void setDragController(PickupDragController dragController) {
+        this.dragController = dragController;
+        //((Grid) getWidget()).setWidget(0, 0, this.panel);
     }
     
-    public void addItem(FBMenuItem item, String group) {
-        panel.add(item); //TODO
-    }
-    
-    public void addItemGroup(Widget widget) {
-        
+    public void addItem(String group, FBMenuItem item) {
+        if (accordion.get(group) == null) {
+            FBMenuPanel menuPanel = new FBMenuPanel(this.dragController);
+            FBMenuGroupPanel wrapper = new FBMenuGroupPanel(group, menuPanel);
+            accordion.put(group, wrapper);
+            panel.add(wrapper);
+        }
+        accordion.get(group).add(item);
     }
 }

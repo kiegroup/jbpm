@@ -38,6 +38,7 @@ public class EditionView extends ScrollPanel {
         setSize("270px", "245px");
         setAlwaysShowScrollBars(false);
         Grid grid = new Grid(1,1);
+        panel.setWidth("100%");
         grid.setWidget(0, 0, panel);
         grid.setSize("100%", "100%");
         grid.setBorderWidth(2);

@@ -44,5 +44,4 @@ public class FBMenuPanel extends VerticalPanel {
         }
         return super.remove(w);
     }
-
 }
