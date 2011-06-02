@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.client.form;
+package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.FBCompositeItem;
+import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;

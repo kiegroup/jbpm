@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.LabelFormItem;
+import org.jbpm.formbuilder.client.form.items.LabelFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 

@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.client.form;
+package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;

@@ -24,7 +24,7 @@ import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
 import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 

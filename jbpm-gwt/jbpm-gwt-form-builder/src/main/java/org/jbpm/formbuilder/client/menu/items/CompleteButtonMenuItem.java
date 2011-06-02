@@ -18,8 +18,8 @@ package org.jbpm.formbuilder.client.menu.items;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.CompleteButtonFormItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.CompleteButtonFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 

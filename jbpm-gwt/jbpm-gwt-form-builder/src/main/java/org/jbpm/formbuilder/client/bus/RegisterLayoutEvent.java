@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.client.bus;
 
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 
 import com.google.gwt.event.shared.GwtEvent;
 

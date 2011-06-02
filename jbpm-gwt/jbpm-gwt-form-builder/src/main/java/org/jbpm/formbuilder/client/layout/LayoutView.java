@@ -16,7 +16,7 @@
 package org.jbpm.formbuilder.client.layout;
 
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
