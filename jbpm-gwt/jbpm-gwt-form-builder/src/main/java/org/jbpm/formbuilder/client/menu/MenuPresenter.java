@@ -18,21 +18,26 @@ package org.jbpm.formbuilder.client.menu;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
+import org.jbpm.formbuilder.client.bus.MenuOptionAddedEventHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Widget;
 
 public class MenuPresenter {
 
+    private final EventBus bus;
     private final MenuView view;
     private final PickupDragController dragController;
     
     public MenuPresenter(Map<String, List<FBMenuItem>> itemsMap, MenuView menuView) {
         super();
         this.view = menuView;
+        this.bus = FormBuilderGlobals.getInstance().getEventBus();
         this.dragController = FormBuilderGlobals.getInstance().getDragController();
         this.dragController.registerDropController(new DisposeDropController(this.view.asWidget()));
         this.view.setDragController(this.dragController);
@@ -47,6 +52,14 @@ public class MenuPresenter {
                 this.view.addItem(accordionName, item);
             }
         }
+        
+        this.bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedEventHandler() {
+            public void onEvent(MenuOptionAddedEvent event) {
+                String group = event.getGroupName();
+                FBMenuItem item = event.getMenuItem();
+                view.addItem(group, item);
+            }
+        });
     }
 
     public Widget getView() {

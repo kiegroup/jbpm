@@ -24,8 +24,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Integer borderWidth = null;
     private Integer cellpadding = null;
     private Integer cellspacing = null;
-    private Integer columns = null;
-    private Integer rows = null;
+    private Integer columns = 1;
+    private Integer rows = 1;
     private String title = null;
     private String height = null;
     private String width = null;
@@ -54,6 +54,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
         this.columns = extractInt(asPropertiesMap.get("columns"));
         this.rows = extractInt(asPropertiesMap.get("rows"));
         
+        populate();
+    }
+
+    private void populate() {
         if (this.borderWidth != null && this.borderWidth > 0) {
             grid.setBorderWidth(this.borderWidth);
         }
@@ -137,5 +141,28 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        TableLayoutFormItem clone = new TableLayoutFormItem(getFormEffects());
+        clone.borderWidth = this.borderWidth;
+        clone.cellpadding = this.cellpadding;
+        clone.cellspacing = this.cellspacing;
+        clone.columns = this.columns;
+        clone.height = this.height;
+        clone.rows = this.rows;
+        clone.title = this.title;
+        clone.width = this.width;
+        clone.populate();
+        for (int index = 0; index < clone.columns * clone.rows; index++) {
+            int column = index%clone.columns;
+            int row = index/clone.columns;
+            FBFormItem item = (FBFormItem) this.grid.getWidget(row, column);
+            if (item != null) {
+                clone.grid.setWidget(row, column, item.cloneItem());
+            }
+        }
+        return clone;
     }
 }

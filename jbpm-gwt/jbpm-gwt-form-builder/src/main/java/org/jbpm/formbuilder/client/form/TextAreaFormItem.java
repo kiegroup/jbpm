@@ -42,15 +42,21 @@ public class TextAreaFormItem extends FBFormItem {
         Integer rows = extractInt(asPropertiesMap.get("rows"));
         Integer cols = extractInt(asPropertiesMap.get("cols"));
         this.defaultValue = asPropertiesMap.get("defaultValue").toString();
+        this.name = asPropertiesMap.get("name").toString();
         if (rows != null && rows > 0) {
             this.rows = rows;
-            area.setVisibleLines(rows);
         }
         if (cols != null && cols > 0) {
             this.cols = cols;
-            area.setCharacterWidth(cols);
         }
+        populate();
+    }
+
+    private void populate() {
+        area.setVisibleLines(this.rows);
+        area.setCharacterWidth(this.cols);
         area.setValue(defaultValue);
+        area.setName(this.name);
     }
 
     @Override
@@ -62,6 +68,18 @@ public class TextAreaFormItem extends FBFormItem {
         rep.setRows(this.rows);
         rep.setValue(this.defaultValue);
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        TextAreaFormItem clone = new TextAreaFormItem(getFormEffects());
+        clone.cols = this.cols;
+        clone.defaultValue = this.defaultValue;
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.rows = this.rows;
+        clone.populate();
+        return clone;
     }
 
 }

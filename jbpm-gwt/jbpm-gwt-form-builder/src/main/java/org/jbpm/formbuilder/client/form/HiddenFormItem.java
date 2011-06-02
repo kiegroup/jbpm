@@ -41,6 +41,10 @@ public class HiddenFormItem extends FBFormItem {
         this.value = asPropertiesMap.get("value").toString();
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();
+        populate();
+    }
+
+    private void populate() {
         hidden.setID(id);
         hidden.setName(name);
         hidden.setValue(value);
@@ -55,4 +59,13 @@ public class HiddenFormItem extends FBFormItem {
         return rep;
     }
 
+    @Override
+    public FBFormItem cloneItem() {
+        HiddenFormItem clone = new HiddenFormItem(getFormEffects());
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.value = this.value;
+        clone.populate();
+        return clone;
+    }
 }

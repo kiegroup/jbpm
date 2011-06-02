@@ -16,7 +16,7 @@ public class RadioButtonFormItem extends FBFormItem {
     private String name;
     private String id;
     private String value;
-    private Boolean selected;
+    private Boolean selected = Boolean.FALSE;
     
     public RadioButtonFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
@@ -40,6 +40,10 @@ public class RadioButtonFormItem extends FBFormItem {
         this.value = asPropertiesMap.get("value").toString();
         this.selected = extractBoolean(asPropertiesMap.get("selected"));
 
+        populate();
+    }
+
+    private void populate() {
         button.setName(this.name);
         button.setFormValue(this.value);
         button.setValue(this.selected);
@@ -53,5 +57,16 @@ public class RadioButtonFormItem extends FBFormItem {
         rep.setSelected(this.selected);
         rep.setValue(this.value); //TODO setInput
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        RadioButtonFormItem clone = new RadioButtonFormItem(getFormEffects());
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.selected = this.selected;
+        clone.value = this.value;
+        clone.populate();
+        return clone;
     }
 }

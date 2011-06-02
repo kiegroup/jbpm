@@ -65,6 +65,9 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/deleteItem_effect.gif")
     ImageResource deleteItemIcon();
 
+    @Source("images/saveAsMenuOption_effect.gif")
+    ImageResource saveAsMenuOptionEffect();
+
     @Source("images/textArea.gif")
     ImageResource textArea();
 
@@ -88,4 +91,8 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/radioButton.gif")
     ImageResource radioButton();
+
+    @Source("images/question.gif")
+    ImageResource questionIcon();
+
 }

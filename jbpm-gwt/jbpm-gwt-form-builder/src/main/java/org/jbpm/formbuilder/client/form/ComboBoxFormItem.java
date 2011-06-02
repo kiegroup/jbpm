@@ -35,21 +35,25 @@ public class ComboBoxFormItem extends OptionsFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         String s = (String) asPropertiesMap.get("multipleSelect");
         this.multiple = s == null ? null : Boolean.valueOf(s); 
+        this.visibleItems = extractInt(asPropertiesMap.get("verticalSize"));
+        this.title = asPropertiesMap.get("title").toString();
+        this.width = asPropertiesMap.get("width").toString();
+        this.height = asPropertiesMap.get("height").toString();
+        this.name = asPropertiesMap.get("name").toString();
+        this.id = asPropertiesMap.get("id").toString();
+        populate();
+    }
+
+    private void populate() {
         if (this.multiple != null) {
             this.listBox.setMultipleSelect(this.multiple);
         }
-        this.visibleItems = extractInt(asPropertiesMap.get("verticalSize"));
         if (this.visibleItems != null && this.visibleItems > 0) {
             this.listBox.setVisibleItemCount(this.visibleItems);
         }
-        this.title = asPropertiesMap.get("title").toString();
         this.listBox.setTitle(title);
-        this.width = asPropertiesMap.get("width").toString();
         this.listBox.setWidth(width);
-        this.height = asPropertiesMap.get("height").toString();
         this.listBox.setHeight(height);
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
     }
     
     @Override
@@ -112,5 +116,35 @@ public class ComboBoxFormItem extends OptionsFormItem {
     public void addEffect(FBFormEffect effect) {
         super.addEffect(effect);
         effect.setWidget(this.listBox);
+    }
+    
+    @Override
+    public Map<String, String> getItems() {
+        Map<String, String> items = new HashMap<String, String>();
+        for (int index = 0; index < listBox.getItemCount(); index++) {
+            items.put(listBox.getItemText(index), listBox.getValue(index));
+        }
+        return items;
+    }
+    
+    public void addItems(Map<String, String> items) {
+        for (Map.Entry<String, String> entry : items.entrySet()) {
+            this.listBox.addItem(entry.getKey(), entry.getValue());
+        }
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        ComboBoxFormItem clone = new ComboBoxFormItem(getFormEffects());
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.multiple = this.multiple;
+        clone.name = this.name;
+        clone.title = this.title;
+        clone.visibleItems = this.visibleItems;
+        clone.width = this.width;
+        clone.populate();
+        clone.addItems(this.getItems());
+        return clone;
     }
 }

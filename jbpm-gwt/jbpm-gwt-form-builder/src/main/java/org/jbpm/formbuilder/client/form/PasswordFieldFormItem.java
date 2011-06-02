@@ -49,6 +49,10 @@ public class PasswordFieldFormItem extends FBFormItem {
         this.title = asPropertiesMap.get("title").toString();
         this.maxlength = extractInt(asPropertiesMap.get("maxlength"));
         
+        populate();
+    }
+
+    private void populate() {
         textBox.setValue(this.defaultContent);
         textBox.setName(this.name);
         textBox.setHeight(this.height);
@@ -67,5 +71,19 @@ public class PasswordFieldFormItem extends FBFormItem {
         rep.setId(this.id);
         rep.setMaxLength(this.maxlength);
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        PasswordFieldFormItem clone = new PasswordFieldFormItem(getFormEffects());
+        clone.defaultContent = this.defaultContent;
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.maxlength = this.maxlength;
+        clone.name = this.name;
+        clone.title = this.title;
+        clone.width = this.width;
+        clone.populate();
+        return clone;
     }
 }

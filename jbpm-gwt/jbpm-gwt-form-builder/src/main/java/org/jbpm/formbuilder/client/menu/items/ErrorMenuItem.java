@@ -53,6 +53,11 @@ public class ErrorMenuItem extends FBMenuItem {
             public FormItemRepresentation getRepresentation() {
                 return null;
             }
+            
+            @Override
+            public FBFormItem cloneItem() {
+                return null;
+            }
         };
     }
 

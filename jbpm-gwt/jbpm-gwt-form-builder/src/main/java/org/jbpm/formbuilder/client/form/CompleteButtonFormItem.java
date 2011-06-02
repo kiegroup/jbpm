@@ -34,6 +34,10 @@ public class CompleteButtonFormItem extends FBFormItem {
         this.innerText = asPropertiesMap.get("innerText").toString();
         this.cssStyleName = asPropertiesMap.get("cssStyleName").toString();
         
+        populate();
+    }
+
+    private void populate() {
         button.setHeight(this.height);
         button.setWidth(this.width);
         button.setText(this.innerText);
@@ -59,5 +63,18 @@ public class CompleteButtonFormItem extends FBFormItem {
         rep.setName(this.name);
         rep.setId(this.id);
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        CompleteButtonFormItem clone = new CompleteButtonFormItem(getFormEffects());
+        clone.cssStyleName = this.cssStyleName;
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.innerText = this.innerText;
+        clone.name = this.name;
+        clone.width = this.width;
+        clone.populate();
+        return clone;
     }
 }

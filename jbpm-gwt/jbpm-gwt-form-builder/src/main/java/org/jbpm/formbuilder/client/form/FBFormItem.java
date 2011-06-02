@@ -212,4 +212,6 @@ public abstract class FBFormItem extends FocusPanel {
     }
     
     public abstract FormItemRepresentation getRepresentation();
+    
+    public abstract FBFormItem cloneItem();
 }

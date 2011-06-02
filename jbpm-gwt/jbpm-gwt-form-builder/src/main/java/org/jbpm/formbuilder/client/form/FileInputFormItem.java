@@ -43,6 +43,10 @@ public class FileInputFormItem extends FBFormItem {
         this.id = asPropertiesMap.get("id").toString();
         this.accept = asPropertiesMap.get("accept").toString();
 
+        populate();
+    }
+
+    private void populate() {
         fileUpload.setName(this.name);
         fileUpload.setWidth(this.width);
         fileUpload.setHeight(this.height);
@@ -59,4 +63,15 @@ public class FileInputFormItem extends FBFormItem {
         return rep;
     }
 
+    @Override
+    public FBFormItem cloneItem() {
+        FileInputFormItem clone = new FileInputFormItem(getFormEffects());
+        clone.accept = this.accept;
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.width = this.width;
+        clone.populate();
+        return clone;
+    }
 }

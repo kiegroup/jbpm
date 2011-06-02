@@ -88,10 +88,18 @@ public class HTMLFormItem extends FBFormItem {
         this.width = asPropertiesMap.get("width").toString();
         this.height = asPropertiesMap.get("height").toString();
         
+        populate();
+    }
+
+    private void populate() {
         html.setWidth(this.width);
         html.setHeight(this.height);
     }
 
+    public void setContent(String html) {
+        this.html.setHTML(html);
+    }
+    
     @Override
     public FormItemRepresentation getRepresentation() {
         HTMLRepresentation rep = new HTMLRepresentation();
@@ -99,6 +107,16 @@ public class HTMLFormItem extends FBFormItem {
         rep.setHeight(height);
         rep.setContent(html.getHTML());
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        HTMLFormItem clone = new HTMLFormItem(getFormEffects());
+        clone.height = this.height;
+        clone.width = this.width;
+        clone.setContent(this.html.getHTML());
+        clone.populate();
+        return clone;
     }
 
 }

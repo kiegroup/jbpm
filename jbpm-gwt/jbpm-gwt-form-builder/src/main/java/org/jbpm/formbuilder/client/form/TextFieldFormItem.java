@@ -49,6 +49,10 @@ public class TextFieldFormItem extends FBFormItem {
         this.maxlength = extractInt(asPropertiesMap.get("maxlength"));
         this.id = asPropertiesMap.get("id").toString();
         
+        populate();
+    }
+
+    private void populate() {
         textBox.setValue(this.defaultContent);
         textBox.setName(this.name);
         textBox.setHeight(this.height);
@@ -69,4 +73,17 @@ public class TextFieldFormItem extends FBFormItem {
         return rep;
     }
 
+    @Override
+    public FBFormItem cloneItem() {
+        TextFieldFormItem clone = new TextFieldFormItem(getFormEffects());
+        clone.defaultContent = this.defaultContent;
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.maxlength = this.maxlength;
+        clone.name = this.name;
+        clone.title = this.title;
+        clone.width = this.width;
+        clone.populate();
+        return clone;
+    }
 }

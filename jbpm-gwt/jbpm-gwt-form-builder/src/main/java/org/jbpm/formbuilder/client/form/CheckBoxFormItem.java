@@ -40,6 +40,10 @@ public class CheckBoxFormItem extends FBFormItem {
         this.id = asPropertiesMap.get("id").toString();
         this.checked = extractBoolean(asPropertiesMap.get("checked"));
         
+        populate();
+    }
+
+    private void populate() {
         checkBox.setFormValue(formValue);
         checkBox.setName(name);
         checkBox.setValue(checked);
@@ -55,4 +59,14 @@ public class CheckBoxFormItem extends FBFormItem {
         return rep;
     }
 
+    @Override
+    public FBFormItem cloneItem() {
+        CheckBoxFormItem clone = new CheckBoxFormItem(getFormEffects());
+        clone.checked = this.checked;
+        clone.formValue = this.formValue;
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.populate();
+        return clone;
+    }
 }

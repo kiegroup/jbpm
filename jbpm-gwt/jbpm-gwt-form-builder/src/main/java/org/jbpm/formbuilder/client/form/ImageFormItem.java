@@ -45,10 +45,16 @@ public class ImageFormItem extends FBFormItem {
         this.url = asPropertiesMap.get("url").toString();
         this.id = asPropertiesMap.get("id").toString();
         
+        populate();
+    }
+
+    private void populate() {
         image.setAltText(this.altText);
         image.setHeight(this.height);
         image.setWidth(this.width);
-        image.setUrl(this.url);
+        if (this.url != null && !"".equals(this.url)) {
+            image.setUrl(this.url);
+        }
         image.setTitle(this.altText);
     }
 
@@ -63,4 +69,15 @@ public class ImageFormItem extends FBFormItem {
         return rep;
     }
 
+    @Override
+    public FBFormItem cloneItem() {
+        ImageFormItem clone = new ImageFormItem(getFormEffects());
+        clone.altText = this.altText;
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.url = this.url;
+        clone.width = this.width;
+        clone.populate();
+        return clone;
+    }
 }

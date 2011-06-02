@@ -58,10 +58,16 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         this.title = asPropertiesMap.get("title").toString();
         this.id = asPropertiesMap.get("id").toString();
         
+        populate();
+    }
+
+    private void populate() {
         if (this.borderWidth != null) {
             panel.setBorderWidth(this.borderWidth);
         }
-        panel.setHeight(this.height);
+        if (this.height != null && !"".equals(this.height)) {
+            panel.setHeight(this.height);
+        }
         if (this.width != null && !"".equals(this.width)) {
             panel.setWidth(this.width);
         }
@@ -96,5 +102,24 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
             rep.addItem(item.getRepresentation());
         }
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        HorizontalLayoutFormItem clone = new HorizontalLayoutFormItem(getFormEffects());
+        clone.borderWidth = this.borderWidth;
+        clone.cssClassName = this.cssClassName;
+        clone.height = this.height;
+        clone.horizontalAlignment = this.horizontalAlignment;
+        clone.id = this.id;
+        clone.spacing = this.spacing;
+        clone.title = this.title;
+        clone.verticalAlignment = this.verticalAlignment;
+        clone.width = this.width;
+        clone.populate();
+        for (FBFormItem item : getItems()) {
+            clone.add(item.cloneItem());
+        }
+        return clone;
     }
 }

@@ -49,7 +49,7 @@ public class HeaderFormItem extends FBFormItem {
         textBox.setValue(getHeader().getText());
         textBox.addChangeHandler(new ChangeHandler() {
             public void onChange(ChangeEvent event) {
-                getHeader().setHTML("<h1>" + textBox.getValue() + "</h1>");
+                setContent("<h1>" + textBox.getValue() + "</h1>");
                 reset();
             }
         });
@@ -64,6 +64,10 @@ public class HeaderFormItem extends FBFormItem {
         this.width = propertiesMap.get("width").toString();
         this.height = propertiesMap.get("height").toString();
         this.cssClassName = propertiesMap.get("cssClassName").toString();
+        populate();
+    }
+
+    private void populate() {
         getHeader().setWidth(this.width);
         getHeader().setHeight(this.height);
         getHeader().setStyleName(this.cssClassName);
@@ -71,6 +75,10 @@ public class HeaderFormItem extends FBFormItem {
     
     protected HTML getHeader() {
         return this.header;
+    }
+    
+    protected void setContent(String html) {
+        getHeader().setHTML(html);
     }
     
     @Override
@@ -89,5 +97,18 @@ public class HeaderFormItem extends FBFormItem {
         rep.setWidth(this.width);
         rep.setHeight(this.height);
         return rep;
+    }
+    
+    @Override
+    public FBFormItem cloneItem() {
+        HeaderFormItem clone = new HeaderFormItem(getFormEffects());
+        clone.cssClassName = this.cssClassName;
+        clone.height = this.height;
+        clone.id = this.id;
+        clone.name = this.name;
+        clone.width = this.width;
+        clone.setContent(this.header.getHTML());
+        clone.populate();
+        return clone;
     }
 }

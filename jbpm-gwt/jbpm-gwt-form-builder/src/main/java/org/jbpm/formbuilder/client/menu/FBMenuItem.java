@@ -38,6 +38,13 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     
     public FBMenuItem(List<FBFormEffect> formEffects) {
         this.formEffects = formEffects;
+        repaint();
+    }
+    
+    public void repaint() {
+        if (getWidgetCount() > 0) {
+            remove(0);
+        }
         Panel panel = new HorizontalPanel();
         panel.add(new Image(getIconUrl().getURL()));
         panel.add(new HTML("&nbsp;"));
