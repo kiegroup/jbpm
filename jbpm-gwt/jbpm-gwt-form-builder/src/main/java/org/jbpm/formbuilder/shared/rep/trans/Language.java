@@ -5,6 +5,7 @@ import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
@@ -12,6 +13,7 @@ import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
@@ -47,4 +49,8 @@ public interface Language {
     String fileInput(FileInputRepresentation fileInput) throws LanguageException;
 
     String image(ImageRepresentation image) throws LanguageException;
+
+    String html(HTMLRepresentation html) throws LanguageException;
+
+    String radioButton(RadioButtonRepresentation radioButton) throws LanguageException;
 }

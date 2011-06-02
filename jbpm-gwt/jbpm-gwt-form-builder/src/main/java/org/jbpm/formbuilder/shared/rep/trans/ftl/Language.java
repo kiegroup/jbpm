@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
@@ -18,6 +19,7 @@ import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
@@ -421,6 +423,40 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         addParam(builder, "height", image.getHeight());
         addParam(builder, "width", image.getWidth()); //TODO getInput();
         addParam(builder, "src", image.getUrl());
+        builder.append("/>");
+        return builder.toString();
+    }
+    
+    public String html(HTMLRepresentation html) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<div ");
+        StringBuilder cssStyle = new StringBuilder();
+        String width = html.getWidth();
+        if (width != null && !"".equals(width)) {
+            cssStyle.append("width: ").append(width).append("; ");
+        }
+        String height = html.getHeight();
+        if (height != null && !"".equals(height)) {
+            cssStyle.append("height: ").append(height).append("; ");
+        }
+        addParam(builder, "style", cssStyle.toString());
+        builder.append(">").append(html.getContent()).append("</div>");
+        return builder.toString();
+    }
+    
+    public String radioButton(RadioButtonRepresentation radioButton)
+            throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("<input ");
+        addParam(builder, "type", "radio");
+        addParam(builder, "id", radioButton.getId());
+        addParam(builder, "name", radioButton.getName());
+        addParam(builder, "value", radioButton.getValue());
+        if (radioButton.getSelected()) {
+            addParam(builder, "selected", "true");
+        }
+        //TODO getInput();
         builder.append("/>");
         return builder.toString();
     }

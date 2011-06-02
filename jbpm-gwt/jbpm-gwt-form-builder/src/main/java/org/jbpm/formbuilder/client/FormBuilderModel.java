@@ -30,12 +30,14 @@ import org.jbpm.formbuilder.client.menu.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.FileInputMenuItem;
+import org.jbpm.formbuilder.client.menu.HTMLMenuItem;
 import org.jbpm.formbuilder.client.menu.HeaderMenuItem;
 import org.jbpm.formbuilder.client.menu.HiddenMenuItem;
 import org.jbpm.formbuilder.client.menu.HorizontalLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.ImageMenuItem;
 import org.jbpm.formbuilder.client.menu.LabelMenuItem;
 import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
+import org.jbpm.formbuilder.client.menu.RadioButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
@@ -107,6 +109,8 @@ public class FormBuilderModel {
         list.add(new FileInputMenuItem(effects));
         list.add(new CheckBoxMenuItem(effects));
         list.add(new ImageMenuItem(effects));
+        list.add(new HTMLMenuItem(effects));
+        list.add(new RadioButtonMenuItem(effects));
         return list;
     }
 

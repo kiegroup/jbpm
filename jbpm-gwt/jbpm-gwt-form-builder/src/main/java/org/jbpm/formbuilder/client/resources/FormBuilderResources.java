@@ -80,6 +80,12 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/image.gif")
     ImageResource image();
 
+    @Source("images/html.gif")
+    ImageResource html();
+
     @Source("images/default_image_en.jpg")
     ImageResource defaultImage();
+
+    @Source("images/radioButton.gif")
+    ImageResource radioButton();
 }

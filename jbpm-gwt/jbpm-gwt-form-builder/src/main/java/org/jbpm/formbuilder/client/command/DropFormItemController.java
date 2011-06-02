@@ -26,9 +26,11 @@ public class DropFormItemController extends AbstractDropController {
         if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
             FBMenuItem menuItem = (FBMenuItem) drag;
             FBFormItem formItem = menuItem.buildWidget();
-            Panel panel = layoutView.getUnderlyingLayout(x, y);
-            panel.remove(menuItem);
-            panel.add(formItem);
+            if (formItem != null) {
+                Panel panel = layoutView.getUnderlyingLayout(x, y);
+                panel.remove(menuItem);
+                panel.add(formItem);
+            }
         }
     }
 }
