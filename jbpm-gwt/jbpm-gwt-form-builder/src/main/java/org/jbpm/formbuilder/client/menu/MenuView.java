@@ -13,14 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client;
+package org.jbpm.formbuilder.client.menu;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.menu.FBMenuGroupPanel;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.FBMenuPanel;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.Grid;

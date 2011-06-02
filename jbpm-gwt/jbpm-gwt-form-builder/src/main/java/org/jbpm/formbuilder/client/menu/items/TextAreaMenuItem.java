@@ -1,40 +1,40 @@
-package org.jbpm.formbuilder.client.menu;
+package org.jbpm.formbuilder.client.menu.items;
 
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.FileInputFormItem;
+import org.jbpm.formbuilder.client.form.TextAreaFormItem;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
-public class FileInputMenuItem extends FBMenuItem {
+public class TextAreaMenuItem extends FBMenuItem {
 
-    public FileInputMenuItem(List<FBFormEffect> formEffects) {
+    public TextAreaMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }
 
     @Override
     protected ImageResource getIconUrl() {
-        return FormBuilderResources.INSTANCE.fileInput();
+        return FormBuilderResources.INSTANCE.textArea();
     }
 
     @Override
     protected Label getDescription() {
-        return new Label("File Input");
+        return new Label("Text Area");
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new FileInputMenuItem(super.getFormEffects());
+        return new TextAreaMenuItem(super.getFormEffects());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        return new FileInputFormItem(super.getFormEffects());
+        return new TextAreaFormItem(super.getFormEffects());
     }
 
-    
-} 
+}

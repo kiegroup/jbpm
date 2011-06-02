@@ -1,4 +1,6 @@
-package org.jbpm.formbuilder.client;
+package org.jbpm.formbuilder.client.options;
+
+import org.jbpm.formbuilder.client.FormBuilderModel;
 
 
 public class OptionsPresenter {

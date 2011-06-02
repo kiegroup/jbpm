@@ -27,22 +27,23 @@ import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
-import org.jbpm.formbuilder.client.menu.CheckBoxMenuItem;
-import org.jbpm.formbuilder.client.menu.ComboBoxMenuItem;
-import org.jbpm.formbuilder.client.menu.CompleteButtonMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.FileInputMenuItem;
-import org.jbpm.formbuilder.client.menu.HTMLMenuItem;
-import org.jbpm.formbuilder.client.menu.HeaderMenuItem;
-import org.jbpm.formbuilder.client.menu.HiddenMenuItem;
-import org.jbpm.formbuilder.client.menu.HorizontalLayoutMenuItem;
-import org.jbpm.formbuilder.client.menu.ImageMenuItem;
-import org.jbpm.formbuilder.client.menu.LabelMenuItem;
-import org.jbpm.formbuilder.client.menu.PasswordFieldMenuItem;
-import org.jbpm.formbuilder.client.menu.RadioButtonMenuItem;
-import org.jbpm.formbuilder.client.menu.TableLayoutMenuItem;
-import org.jbpm.formbuilder.client.menu.TextAreaMenuItem;
-import org.jbpm.formbuilder.client.menu.TextFieldMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
+import org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.items.FileInputMenuItem;
+import org.jbpm.formbuilder.client.menu.items.HTMLMenuItem;
+import org.jbpm.formbuilder.client.menu.items.HeaderMenuItem;
+import org.jbpm.formbuilder.client.menu.items.HiddenMenuItem;
+import org.jbpm.formbuilder.client.menu.items.HorizontalLayoutMenuItem;
+import org.jbpm.formbuilder.client.menu.items.ImageMenuItem;
+import org.jbpm.formbuilder.client.menu.items.LabelMenuItem;
+import org.jbpm.formbuilder.client.menu.items.PasswordFieldMenuItem;
+import org.jbpm.formbuilder.client.menu.items.RadioButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem;
+import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
+import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
+import org.jbpm.formbuilder.client.options.MainMenuOption;
 
 public class FormBuilderModel {
 

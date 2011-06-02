@@ -1,6 +1,14 @@
 package org.jbpm.formbuilder.client;
 
 import org.jbpm.formbuilder.client.command.DisposeDropController;
+import org.jbpm.formbuilder.client.edition.EditionPresenter;
+import org.jbpm.formbuilder.client.edition.EditionView;
+import org.jbpm.formbuilder.client.layout.LayoutPresenter;
+import org.jbpm.formbuilder.client.layout.LayoutView;
+import org.jbpm.formbuilder.client.menu.MenuPresenter;
+import org.jbpm.formbuilder.client.menu.MenuView;
+import org.jbpm.formbuilder.client.options.OptionsPresenter;
+import org.jbpm.formbuilder.client.options.OptionsView;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;

@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client;
+package org.jbpm.formbuilder.client.menu;
 
 import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.command.DisposeDropController;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;

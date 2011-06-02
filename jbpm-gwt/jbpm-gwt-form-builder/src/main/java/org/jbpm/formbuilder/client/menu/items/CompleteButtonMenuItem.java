@@ -13,42 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.menu;
+package org.jbpm.formbuilder.client.menu.items;
 
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.CompleteButtonFormItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.PasswordFieldFormItem;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 
-public class PasswordFieldMenuItem extends FBMenuItem {
 
-    public PasswordFieldMenuItem(List<FBFormEffect> formEffects) {
+public class CompleteButtonMenuItem extends FBMenuItem {
+
+
+    public CompleteButtonMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }
 
     @Override
     protected Label getDescription() {
-        return new HTML("Password Field");
+        return new Label("Complete Button");
     }
     
     @Override
     protected ImageResource getIconUrl() {
-        return FormBuilderResources.INSTANCE.passwordField();
+        return FormBuilderResources.INSTANCE.completeButton();
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new PasswordFieldMenuItem(super.getFormEffects());
+        return new CompleteButtonMenuItem(super.getFormEffects());
     }
-    
+
     @Override
     public FBFormItem buildWidget() {
-        return new PasswordFieldFormItem(super.getFormEffects());
+        return new CompleteButtonFormItem(super.getFormEffects());
     }
 }

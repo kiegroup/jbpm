@@ -1,7 +1,7 @@
 package org.jbpm.formbuilder.client.command;
 
-import org.jbpm.formbuilder.client.LayoutView;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;

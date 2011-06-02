@@ -1,10 +1,11 @@
-package org.jbpm.formbuilder.client.menu;
+package org.jbpm.formbuilder.client.menu.items;
 
 import java.util.ArrayList; 
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 

@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.client;
+package org.jbpm.formbuilder.client.options;
 
 import java.util.List;
 

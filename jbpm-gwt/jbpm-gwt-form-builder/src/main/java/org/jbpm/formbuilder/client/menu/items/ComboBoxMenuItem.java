@@ -1,39 +1,40 @@
-package org.jbpm.formbuilder.client.menu;
+package org.jbpm.formbuilder.client.menu.items;
 
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.ComboBoxFormItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.HeaderFormItem;
+import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
-public class HeaderMenuItem extends FBMenuItem {
+public class ComboBoxMenuItem extends FBMenuItem {
 
-    public HeaderMenuItem(List<FBFormEffect> formEffects) {
+    public ComboBoxMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new HeaderMenuItem(super.getFormEffects());
+        return new ComboBoxMenuItem(super.getFormEffects());
     }
 
     @Override
     protected ImageResource getIconUrl() {
-        return FormBuilderResources.INSTANCE.header();
+        return FormBuilderResources.INSTANCE.comboBox();
     }
 
     @Override
     protected Label getDescription() {
-        return new Label("Header");
+        return new Label("Combo Box");
     }
 
     @Override
     public FBFormItem buildWidget() {
-        return new HeaderFormItem(super.getFormEffects());
+        return new ComboBoxFormItem(super.getFormEffects());
     }
 
 }
