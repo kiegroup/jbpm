@@ -57,12 +57,9 @@ public class FormDataPopupPanel extends PopupPanel {
         vPanel.add(grid);
         vPanel.add(new Button("Apply", new ClickHandler() {
             public void onClick(ClickEvent event) {
-                FormDataPopulatedEvent formEvent = new FormDataPopulatedEvent();
-                formEvent.setAction(action.getValue());
-                formEvent.setMethod(method.getValue(method.getSelectedIndex()));
-                formEvent.setEnctype(enctype.getValue(enctype.getSelectedIndex()));
-                formEvent.setTaskId(taskId.getValue());
-                formEvent.setName(name.getValue());
+                FormDataPopulatedEvent formEvent = new FormDataPopulatedEvent(action.getValue(), 
+                        method.getValue(method.getSelectedIndex()), taskId.getValue(), 
+                        enctype.getValue(enctype.getSelectedIndex()), name.getValue());
                 bus.fireEvent(formEvent);
                 hide();
             }

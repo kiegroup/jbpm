@@ -31,15 +31,13 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
 
-public class LayoutController {
+public class LayoutPresenter {
 
-    private final FormBuilderModel model;
     private final LayoutView layoutView;
     private final EventBus bus;
     
-    public LayoutController(FormBuilderModel model, LayoutView layoutView) {
-        this.model = model;
-        this.layoutView = layoutView;
+    public LayoutPresenter(LayoutView view) {
+        this.layoutView = view;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
         final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
         dragController.registerDropController(new DropFormItemController(layoutView, layoutView));
@@ -47,13 +45,13 @@ public class LayoutController {
         this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutEventHandler() {
             public void onEvent(RegisterLayoutEvent event) {
                 LayoutFormItem item = event.getLayout();
-                dragController.registerDropController(new DropFormItemController(item, LayoutController.this.layoutView));
+                dragController.registerDropController(new DropFormItemController(item, layoutView));
             }
         });
         
         this.bus.addHandler(GetFormRepresentationEvent.TYPE, new GetFormRepresentationEventHandler() {
             public void onEvent(GetFormRepresentationEvent event) {
-                FBForm formDisplay = LayoutController.this.layoutView.getFormDisplay();
+                FBForm formDisplay = layoutView.getFormDisplay();
                 FormRepresentation rep = formDisplay.createRepresentation();
                 bus.fireEvent(new SaveFormRepresentationEvent(rep, event.getSaveType()));
             }
@@ -65,17 +63,16 @@ public class LayoutController {
                 String taskId = event.getTaskId();
                 String name = event.getName();
                 if (action != null && !"".equals(action)) {
-                    LayoutController.this.layoutView.getFormDisplay().setAction(action);
+                    layoutView.getFormDisplay().setAction(action);
                 }
                 if (taskId != null && !"".equals(taskId)) {
-                    LayoutController.this.layoutView.getFormDisplay().setTaskId(taskId);
+                    layoutView.getFormDisplay().setTaskId(taskId);
                 }
                 if (name != null && !"".equals(name)) {
-                    LayoutController.this.layoutView.getFormDisplay().setName(name);
+                    layoutView.getFormDisplay().setName(name);
                 }
-                LayoutController.this.layoutView.getFormDisplay().setMethod(event.getMethod());
-                LayoutController.this.layoutView.getFormDisplay().setEnctype(event.getEnctype());
-                
+                layoutView.getFormDisplay().setMethod(event.getMethod());
+                layoutView.getFormDisplay().setEnctype(event.getEnctype());
             }
         });
 

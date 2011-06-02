@@ -18,29 +18,23 @@ package org.jbpm.formbuilder.client;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.FBMenuPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class MenuController {
+public class MenuPresenter {
 
-    private final FormBuilderModel model;
     private final MenuView view;
-    private final EventBus bus;
     private final PickupDragController dragController;
     
-    public MenuController(FormBuilderModel menuModel, MenuView menuView) {
+    public MenuPresenter(Map<String, List<FBMenuItem>> itemsMap, MenuView menuView) {
         super();
-        this.model = menuModel;
         this.view = menuView;
-        this.bus = FormBuilderGlobals.getInstance().getEventBus();
         this.dragController = FormBuilderGlobals.getInstance().getDragController();
-        Map<String, List<FBMenuItem>> itemsMap = model.getMenuItems();
         this.dragController.registerDropController(new DisposeDropController(this.view.asWidget()));
         this.view.setDragController(this.dragController);
         

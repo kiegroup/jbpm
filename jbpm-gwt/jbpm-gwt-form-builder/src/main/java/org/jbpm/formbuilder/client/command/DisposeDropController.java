@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.client;
+package org.jbpm.formbuilder.client.command;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;

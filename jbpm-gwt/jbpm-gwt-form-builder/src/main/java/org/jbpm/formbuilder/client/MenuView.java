@@ -18,11 +18,13 @@ package org.jbpm.formbuilder.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.menu.FBMenuGroupPanel;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.FBMenuPanel;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -35,9 +37,9 @@ public class MenuView extends ScrollPanel {
     
     public MenuView() {
         setSize("270px", "245px");
-        setAlwaysShowScrollBars(false);
         Grid grid = new Grid(1,1);
         panel.setWidth("100%");
+        panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
         grid.setWidget(0, 0, panel);
         grid.setSize("100%", "100%");
         grid.setBorderWidth(2);
@@ -46,7 +48,6 @@ public class MenuView extends ScrollPanel {
     
     public void setDragController(PickupDragController dragController) {
         this.dragController = dragController;
-        //((Grid) getWidget()).setWidget(0, 0, this.panel);
     }
     
     public void addItem(String group, FBMenuItem item) {

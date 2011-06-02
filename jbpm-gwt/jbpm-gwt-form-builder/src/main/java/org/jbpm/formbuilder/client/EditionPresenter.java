@@ -19,29 +19,24 @@ import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEventHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
 
-public class EditionController {
+public class EditionPresenter {
 
-    private final FormBuilderModel model;
     private final EditionView editView;
     private final EventBus bus;
     
-    public EditionController(FormBuilderModel model, EditionView editView) {
+    public EditionPresenter(EditionView view) {
         super();
-        this.model = model;
-        this.editView = editView;
+        this.editView = view;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
-        PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
-        dragController.registerDropController(new DisposeDropController(this.editView));
         
-        bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionEventHandler() {
+        this.bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionEventHandler() {
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
-                    EditionController.this.editView.populate(event.getFormItemSelected());
+                    editView.populate(event.getFormItemSelected());
                 } else {
-                    EditionController.this.editView.clear();
+                    editView.clear();
                 }
             }
         });

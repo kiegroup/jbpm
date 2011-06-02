@@ -1,7 +1,5 @@
-package org.jbpm.formbuilder.client;
+package org.jbpm.formbuilder.client.menu;
 
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.FBMenuPanel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

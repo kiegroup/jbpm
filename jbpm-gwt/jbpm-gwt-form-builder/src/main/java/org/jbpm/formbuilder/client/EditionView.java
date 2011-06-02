@@ -18,8 +18,11 @@ package org.jbpm.formbuilder.client;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -43,6 +46,9 @@ public class EditionView extends ScrollPanel {
         grid.setSize("100%", "100%");
         grid.setBorderWidth(2);
         add(grid);
+        
+        PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
+        dragController.registerDropController(new DisposeDropController(this));
     }
     
     public void populate(final FBFormItem itemSelected) {
