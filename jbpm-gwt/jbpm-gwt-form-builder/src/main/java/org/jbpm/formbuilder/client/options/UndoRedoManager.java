@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.client.options;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -14,15 +14,15 @@ public class UndoRedoManager {
     /* static methods */
     
     private static final UndoRedoManager INSTANCE = new UndoRedoManager();
-    
+
     public static UndoRedoManager getInstance() {
         return INSTANCE;
     }
     
     /* instance methods */
     
-    private List<UndoableEvent> undoRedoWindow = new ArrayList<UndoableEvent>();
-    private int index = 0;
+    private List<UndoableEvent> undoRedoWindow = new LinkedList<UndoableEvent>();
+    private int index = -1;
     
     private UndoRedoManager() {
         EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
@@ -36,29 +36,35 @@ public class UndoRedoManager {
     }
     
     protected synchronized void syncAdd(UndoableEvent event) {
-        undoRedoWindow.add(event);
+        this.index++;
+        while (this.index < this.undoRedoWindow.size()) { //delete all posterior actions when a new action happens
+            this.undoRedoWindow.remove(this.index);
+        }
+        this.undoRedoWindow.add(event);
     }
     
     public synchronized void undo() {
-        UndoableEvent event = undoRedoWindow.get(index);
-        event.getRollbackHandler().undoAction(event);
-        index--;
-    }
-    
-    public boolean canUndo() {
-        return undoRedoWindow.size() > 0;
-    }
-    
-    public synchronized void redo() {
-        UndoableEvent event = undoRedoWindow.get(index);
-        event.getRollbackHandler().doAction(event);
-        index++;
-        while (undoRedoWindow.size() > index) {
-            undoRedoWindow.remove(index);
+        if (canUndo()) {
+            UndoableEvent event = undoRedoWindow.get(index);
+            index--;
+            event.getRollbackHandler().undoAction(event);
         }
     }
     
+    public synchronized void redo() {
+        if (canRedo()) {
+            UndoableEvent event = undoRedoWindow.get(index);
+            index++;
+            event.getRollbackHandler().doAction(event);
+        }
+    }
+    
+    public boolean canUndo() {
+        return undoRedoWindow.size() > 0 && index >= 0;
+    }
+    
     public boolean canRedo() {
-        return undoRedoWindow.size() > 0 && index < undoRedoWindow.size();
+        System.out.println("undoRedoWindow.size = " + undoRedoWindow.size() + " && index = " + index);
+        return undoRedoWindow.size() > 0 && index < (undoRedoWindow.size() - 1);
     }
 }

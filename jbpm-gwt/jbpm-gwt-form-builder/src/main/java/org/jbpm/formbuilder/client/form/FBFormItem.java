@@ -195,7 +195,7 @@ public abstract class FBFormItem extends FocusPanel {
     }
     
     protected Integer extractInt(Object obj) {
-        String s = obj.toString();
+        String s = extractString(obj);
         return s.equals("") ? null : Integer.valueOf(s);
     }
     
@@ -203,8 +203,12 @@ public abstract class FBFormItem extends FocusPanel {
         if (obj != null && obj instanceof Boolean) {
             return (Boolean) obj;
         }
-        String s = obj.toString();
+        String s = extractString(obj);
         return s.equals("") ? Boolean.FALSE : Boolean.valueOf(s);
+    }
+    
+    protected String extractString(Object obj) {
+        return obj == null ? "" : obj.toString();
     }
 
     public List<FBFormEffect> getFormEffects() {

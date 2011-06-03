@@ -49,9 +49,9 @@ public class TableLayoutFormItem extends LayoutFormItem {
         this.borderWidth = extractInt(asPropertiesMap.get("borderWidth"));
         this.cellpadding = extractInt(asPropertiesMap.get("cellpadding"));
         this.cellspacing = extractInt(asPropertiesMap.get("cellspacing"));
-        this.height = asPropertiesMap.get("height").toString();
-        this.width = asPropertiesMap.get("width").toString();
-        this.title = asPropertiesMap.get("title").toString();
+        this.height = extractString(asPropertiesMap.get("height"));
+        this.width = extractString(asPropertiesMap.get("width"));
+        this.title = extractString(asPropertiesMap.get("title"));
         this.columns = extractInt(asPropertiesMap.get("columns"));
         this.rows = extractInt(asPropertiesMap.get("rows"));
         

@@ -37,8 +37,8 @@ public class EditFormRedoCommand implements BaseCommand {
     }
 
     private void checkEnabled() {
-        if (!mgr.canRedo() && this.item != null) {
-            this.item.setEnabled(false);
+        if (this.item != null) {
+            this.item.setEnabled(mgr.canRedo());
         }
     }
 }

@@ -25,9 +25,7 @@ public class EditFormUndoCommand implements BaseCommand {
     }
     
     public void execute() {
-        if (mgr.canUndo()) {
-            mgr.undo();
-        }
+        mgr.undo();
         checkEnabled();
     }
 
@@ -37,10 +35,8 @@ public class EditFormUndoCommand implements BaseCommand {
     }
 
     private void checkEnabled() {
-        if (!mgr.canUndo() && this.item != null) {
-            this.item.setEnabled(false);
-        } else if (this.item != null) {
-            this.item.setEnabled(true);
+        if (this.item != null) {
+            this.item.setEnabled(mgr.canUndo());
         }
     }
 
