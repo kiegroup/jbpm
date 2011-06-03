@@ -32,6 +32,9 @@ public abstract class FBFormItem extends FocusPanel {
     private List<ClickHandler> clickHandlers = new ArrayList<ClickHandler>();
     private List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
     
+    private int desiredX;
+    private int desiredY;
+    
     private boolean alreadyEditing = false;
     private Widget auxiliarWidget = null;
     
@@ -213,6 +216,27 @@ public abstract class FBFormItem extends FocusPanel {
 
     public List<FBFormEffect> getFormEffects() {
         return this.effects;
+    }
+    
+    public int getDesiredX() {
+        return desiredX;
+    }
+
+    public void setDesiredX(int desiredX) {
+        this.desiredX = desiredX;
+    }
+
+    public int getDesiredY() {
+        return desiredY;
+    }
+
+    public void setDesiredY(int desiredY) {
+        this.desiredY = desiredY;
+    }
+
+    public void setDesiredPosition(int desiredX, int desiredY) {
+        this.desiredX = desiredX;
+        this.desiredY = desiredY;
     }
     
     public abstract FormItemRepresentation getRepresentation();

@@ -35,6 +35,7 @@ public class DropFormItemController extends AbstractDropController {
         if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
             FBMenuItem menuItem = (FBMenuItem) drag;
             FBFormItem formItem = menuItem.buildWidget();
+            formItem.setDesiredPosition(x, y);
             Map<String, Object> dataSnapshot = new HashMap<String, Object>();
             dataSnapshot.put("layoutView", layoutView);
             dataSnapshot.put("formItem", formItem);

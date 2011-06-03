@@ -95,4 +95,7 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/question.gif")
     ImageResource questionIcon();
 
+    @Source("images/absolute_layout_icon.gif")
+    ImageResource absoluteLayoutIcon();
+
 }

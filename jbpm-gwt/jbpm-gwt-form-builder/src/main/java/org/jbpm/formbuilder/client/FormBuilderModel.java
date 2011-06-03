@@ -31,6 +31,7 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem;
@@ -127,6 +128,7 @@ public class FormBuilderModel {
         
         layouts.add(new HorizontalLayoutMenuItem(effects));
         layouts.add(new TableLayoutMenuItem(effects));
+        layouts.add(new AbsoluteLayoutMenuItem(effects));
         map.put("Layout Components", layouts);
         
         return map;

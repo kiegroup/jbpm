@@ -7,6 +7,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
+import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
@@ -157,6 +158,12 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     private void addParam(StringBuilder builder, String paramName, String paramValue) {
         if (paramValue != null && !"".equals(paramValue)) {
             builder.append(paramName).append("=\"").append(paramValue).append("\" ");
+        }
+    }
+    
+    private void addStyleParam(StringBuilder builder, String paramName, String paramValue) {
+        if (paramValue != null && !"".equals(paramValue)) {
+            builder.append(paramName).append(": ").append(paramValue).append("; ");
         }
     }
     
@@ -458,6 +465,29 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         }
         //TODO getInput();
         builder.append("/>");
+        return builder.toString();
+    }
+    
+    public String absolutePanel(AbsolutePanelRepresentation absolutePanel) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<div ");
+        addParam(builder, "id", absolutePanel.getId());
+        StringBuilder cssStyle = new StringBuilder();
+        addStyleParam(cssStyle, "width", absolutePanel.getWidth());
+        addStyleParam(cssStyle, "height", absolutePanel.getHeight());
+        addParam(builder, "style", cssStyle.toString());
+        builder.append(">");
+        for (AbsolutePanelRepresentation.Position position : absolutePanel.getItems().keySet()) {
+            StringBuilder css = new StringBuilder();
+            addStyleParam(css, "left", "" + position.getX());
+            addStyleParam(css, "top", "" + position.getY());
+            builder.append("\n<div ");
+            addParam(builder, "style", css.toString());
+            builder.append(">");
+            builder.append(absolutePanel.getItems().get(position).translate("ftl"));
+            builder.append("</div>");
+        }
+        builder.append("\n</div>\n");
         return builder.toString();
     }
 }

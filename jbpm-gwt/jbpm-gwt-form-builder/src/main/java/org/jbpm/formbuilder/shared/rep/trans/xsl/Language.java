@@ -1,6 +1,7 @@
 package org.jbpm.formbuilder.shared.rep.trans.xsl;
 
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
@@ -87,6 +88,10 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     }
 
     public String radioButton(RadioButtonRepresentation radioButton) throws LanguageException {
+        return "<!-- TODO -->"; //TODO
+    }
+
+    public String absolutePanel(AbsolutePanelRepresentation absolutePanel) throws LanguageException {
         return "<!-- TODO -->"; //TODO
     }
 }
