@@ -18,7 +18,6 @@ package org.jbpm.formbuilder.client.menu;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -50,10 +49,17 @@ public class MenuView extends ScrollPanel {
     public void addItem(String group, FBMenuItem item) {
         if (accordion.get(group) == null) {
             FBMenuPanel menuPanel = new FBMenuPanel(this.dragController);
-            FBMenuGroupPanel wrapper = new FBMenuGroupPanel(group, menuPanel);
-            accordion.put(group, wrapper);
-            panel.add(wrapper);
+            FBMenuGroupPanel groupPanel = new FBMenuGroupPanel(group, menuPanel);
+            accordion.put(group, groupPanel);
+            panel.add(groupPanel);
         }
         accordion.get(group).add(item);
+    }
+
+    public void removeItem(String group, FBMenuItem item) {
+        if (accordion.get(group) != null) {
+            FBMenuGroupPanel groupPanel = accordion.get(group);
+            groupPanel.remove(item);
+        }
     }
 }

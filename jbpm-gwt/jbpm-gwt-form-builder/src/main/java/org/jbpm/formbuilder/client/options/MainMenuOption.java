@@ -2,12 +2,12 @@ package org.jbpm.formbuilder.client.options;
 
 import java.util.List;
 
-import com.google.gwt.user.client.Command;
+import org.jbpm.formbuilder.client.command.BaseCommand;
 
 public class MainMenuOption {
 
     private String html;
-    private Command command;
+    private BaseCommand command;
     private List<MainMenuOption> subMenu;
 
     public String getHtml() {
@@ -18,11 +18,11 @@ public class MainMenuOption {
         this.html = html;
     }
     
-    public Command getCommand() {
+    public BaseCommand getCommand() {
         return command;
     }
     
-    public void setCommand(Command command) {
+    public void setCommand(BaseCommand command) {
         this.command = command;
     }
     

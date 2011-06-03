@@ -2,10 +2,12 @@ package org.jbpm.formbuilder.client.options;
 
 import java.util.List;
 
+import org.jbpm.formbuilder.client.command.BaseCommand;
+
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.SimplePanel;
 
 public class OptionsView extends SimplePanel {
@@ -29,12 +31,13 @@ public class OptionsView extends SimplePanel {
     protected MenuBar toMenuBar(MenuBar popup, List<MainMenuOption> menu) {
         for (MainMenuOption option : menu) {
             String html = option.getHtml();
-            Command cmd = option.getCommand();
+            BaseCommand cmd = option.getCommand();
             List<MainMenuOption> subMenu = option.getSubMenu();
             if (cmd == null && subMenu != null && !subMenu.isEmpty()) {
                 popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), toMenuBar(new MenuBar(true), subMenu));
             } else if (cmd != null && (subMenu == null || subMenu.isEmpty())) {
-                popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
+                MenuItem item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
+                cmd.setItem(item);
             }
         }
         return popup;

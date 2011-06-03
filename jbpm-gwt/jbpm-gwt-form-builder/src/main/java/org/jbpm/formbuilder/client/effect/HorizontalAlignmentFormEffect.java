@@ -1,14 +1,22 @@
 package org.jbpm.formbuilder.client.effect;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -20,6 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class HorizontalAlignmentFormEffect extends FBFormEffect {
 
     private ListBox alignmentBox = new ListBox();
+    private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public HorizontalAlignmentFormEffect() {
         super(createImage(), true);
@@ -36,29 +45,36 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
         int index = this.alignmentBox.getSelectedIndex();
         String value = this.alignmentBox.getValue(index);
         Widget widget = getWidget();
-        if (value == "left") {
-            if (widget instanceof HasHorizontalAlignment) {
-                HasHorizontalAlignment hw = (HasHorizontalAlignment) widget;
-                hw.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        if (widget instanceof HasHorizontalAlignment) {
+            HasHorizontalAlignment hw = (HasHorizontalAlignment) widget;
+            HorizontalAlignmentConstant align = null;
+            if ("left".equals(value)) {
+                align = HasHorizontalAlignment.ALIGN_LEFT;
+            } else if ("right".equals(value)) {
+                align = HasHorizontalAlignment.ALIGN_RIGHT;
+            } else if ("center".equals(value)) {
+                align = HasHorizontalAlignment.ALIGN_CENTER;
+            } else if ("justify".equals(value)) {
+                align = HasHorizontalAlignment.ALIGN_JUSTIFY;
             }
-        }
-        if (value == "right") {
-            if (widget instanceof HasHorizontalAlignment) {
-                HasHorizontalAlignment hw = (HasHorizontalAlignment) widget;
-                hw.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-            }
-        }
-        if (value == "center") {
-            if (widget instanceof HasHorizontalAlignment) {
-                HasHorizontalAlignment hw = (HasHorizontalAlignment) widget;
-                hw.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-            }
-        }
-        if (value == "justify") {
-            if (widget instanceof HasHorizontalAlignment) {
-                HasHorizontalAlignment hw = (HasHorizontalAlignment) widget;
-                hw.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_JUSTIFY);
-            }
+            Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+            dataSnapshot.put("oldAlignment", hw.getHorizontalAlignment());
+            dataSnapshot.put("newAlignment", align);
+            dataSnapshot.put("hwidget", hw);
+            bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                public void onEvent(UndoableEvent event) {  }
+                public void undoAction(UndoableEvent event) {
+                    HorizontalAlignmentConstant oldAlignment = (HorizontalAlignmentConstant) event.getData("oldAlignment");
+                    HasHorizontalAlignment hwidget = (HasHorizontalAlignment) event.getData("hwidget");
+                    hwidget.setHorizontalAlignment(oldAlignment);
+                }
+                
+                public void doAction(UndoableEvent event) {
+                    HorizontalAlignmentConstant newAlignment = (HorizontalAlignmentConstant) event.getData("newAlignment");
+                    HasHorizontalAlignment hwidget = (HasHorizontalAlignment) event.getData("hwidget");
+                    hwidget.setHorizontalAlignment(newAlignment);
+                }
+            }));
         }
     }
     

@@ -1,6 +1,12 @@
 package org.jbpm.formbuilder.client.effect;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
+import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
@@ -9,6 +15,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -20,6 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class SaveAsMenuOptionFormEffect extends FBFormEffect {
 
     private String newMenuOptionName;
+    private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public SaveAsMenuOptionFormEffect() {
         super(createImage(), true);
@@ -40,8 +48,24 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
     protected void createStyles() {
         final FBFormItem formItem = super.getItem();
         FBMenuItem menuItem = new CustomOptionMenuItem(formItem, newMenuOptionName, formItem.getFormEffects());
-        MenuOptionAddedEvent event = new MenuOptionAddedEvent(menuItem, "Custom");
-        FormBuilderGlobals.getInstance().getEventBus().fireEvent(event);
+        //TODO fire UndoableEvent
+        Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+        dataSnapshot.put("menuItem", menuItem);
+        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+            public void onEvent(UndoableEvent event) {  }
+            public void undoAction(UndoableEvent event) {
+                FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
+                MenuOptionRemoveEvent mevent = new MenuOptionRemoveEvent(menuItem, "Custom");
+                FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
+            }
+            public void doAction(UndoableEvent event) {
+                FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
+                MenuOptionAddedEvent mevent = new MenuOptionAddedEvent(menuItem, "Custom");
+                FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
+            }
+        }));
+        
+        //END  fire UndoableEvent
     }
 
     @Override

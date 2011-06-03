@@ -18,6 +18,8 @@ package org.jbpm.formbuilder.client.edition;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -25,6 +27,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -52,6 +55,7 @@ public class EditionView extends ScrollPanel {
     }
     
     public void populate(final FBFormItem itemSelected) {
+        final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         final Map<String, Object> map = itemSelected.getFormItemPropertiesMap();
         final Grid grid = new Grid(map.size() + 2, 2);
         grid.setWidget(0, 0, new HTML("<strong>Property Name</strong>"));
@@ -67,14 +71,46 @@ public class EditionView extends ScrollPanel {
         Button saveButton = new Button("Save changes");
         saveButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                itemSelected.saveValues(asPropertiesMap(grid));
+                Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+                Map<String, Object> newItems = asPropertiesMap(grid);
+                dataSnapshot.put("oldItems", map);
+                dataSnapshot.put("newItems", newItems);
+                dataSnapshot.put("itemSelected", itemSelected);
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                    public void onEvent(UndoableEvent event) {  }
+                    @SuppressWarnings("unchecked")
+                    public void undoAction(UndoableEvent event) {
+                        FBFormItem itemSelected = (FBFormItem) event.getData("itemSelected");
+                        itemSelected.saveValues((Map<String, Object>) event.getData("oldItems"));
+                    }
+                    @SuppressWarnings("unchecked")
+                    public void doAction(UndoableEvent event) {
+                        FBFormItem itemSelected = (FBFormItem) event.getData("itemSelected");
+                        itemSelected.saveValues((Map<String, Object>) event.getData("newItems"));
+                    }
+                }));
             }
         });
         
         Button resetButton = new Button("Reset changes");
         resetButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                populate(itemSelected);
+                Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+                dataSnapshot.put("newItems", asPropertiesMap(grid));
+                dataSnapshot.put("fakeItemSelected", itemSelected.cloneItem());
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                    public void onEvent(UndoableEvent event) {  }
+                    @SuppressWarnings("unchecked")
+                    public void undoAction(UndoableEvent event) {
+                        FBFormItem itemSelected = (FBFormItem) event.getData("fakeItemSelected");
+                        itemSelected.saveValues((Map<String, Object>) event.getData("newItems"));
+                        populate(itemSelected);
+                    }
+                    public void doAction(UndoableEvent event) {
+                        FBFormItem itemSelected = (FBFormItem) event.getData("fakeItemSelected");
+                        populate(itemSelected);
+                    }
+                }));
             }
         });
         

@@ -1,11 +1,18 @@
 package org.jbpm.formbuilder.client.effect;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -70,10 +77,29 @@ public class AddItemFormEffect extends FBFormEffect {
         Button applyButton = new Button("Apply");
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                AddItemFormEffect.this.setNewLabel(labelBox.getValue());
-                AddItemFormEffect.this.setNewValue(valueBox.getValue());
-                createStyles();
-                panel.hide();
+                Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+                dataSnapshot.put("labelBoxValue", labelBox.getValue());
+                dataSnapshot.put("valueBoxValue", valueBox.getValue());
+                dataSnapshot.put("item", getItem());
+                EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                    public void onEvent(UndoableEvent event) {  }
+                    public void undoAction(UndoableEvent event) {
+                        String key = (String) event.getData("labelBoxValue");
+                        FBFormItem item = (FBFormItem) event.getData("item");
+                        if (item instanceof OptionsFormItem) {
+                            OptionsFormItem opt = (OptionsFormItem) item;
+                            opt.deleteItem(key);
+                        }
+                    }
+                    public void doAction(UndoableEvent event) {
+                        String newLabel = (String) event.getData("labelBoxValue");
+                        String newValue = (String) event.getData("valueBoxValue");
+                        setNewLabel(newLabel);
+                        setNewValue(newValue);
+                        createStyles();
+                    }
+                }));
             }
         });        
         vPanel.add(hPanel1);

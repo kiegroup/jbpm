@@ -27,7 +27,7 @@ public class FBMenuPanel extends VerticalPanel {
     }
 
     /**
-     * Removed widgets that are instances of {@link PaletteWidget} are
+     * Removed widgets that are instances of {@link FBMenuItem} are
      * immediately replaced with a cloned copy of the original.
      * 
      * @param w
@@ -43,5 +43,9 @@ public class FBMenuPanel extends VerticalPanel {
             insert(clone, index);
         }
         return super.remove(w);
+    }
+    
+    public boolean fullRemove(FBMenuItem item) {
+        return super.remove(item);
     }
 }

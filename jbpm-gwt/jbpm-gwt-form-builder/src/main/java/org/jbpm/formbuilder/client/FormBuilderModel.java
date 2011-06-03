@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
+import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
 import org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand;
 import org.jbpm.formbuilder.client.command.SaveFormAsXslCommand;
 import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
@@ -149,7 +151,27 @@ public class FormBuilderModel {
         saveMenu.add(saveXsl);
         
         saveOption.setSubMenu(saveMenu);
+        
+        MainMenuOption editOption = new MainMenuOption();
+        editOption.setHtml("Edit");
+        
+        List<MainMenuOption> editMenu = new ArrayList<MainMenuOption>();
+        
+        MainMenuOption editUndo = new MainMenuOption();
+        editUndo.setHtml("Undo");
+        editUndo.setCommand(new EditFormUndoCommand());
+        
+        MainMenuOption editRedo = new MainMenuOption();
+        editRedo.setHtml("Redo");
+        editRedo.setCommand(new EditFormRedoCommand());
+
+        editMenu.add(editUndo);
+        editMenu.add(editRedo);
+        
+        editOption.setSubMenu(editMenu);
+        
         retval.add(saveOption);
+        retval.add(editOption);
         return retval;
     }
 }

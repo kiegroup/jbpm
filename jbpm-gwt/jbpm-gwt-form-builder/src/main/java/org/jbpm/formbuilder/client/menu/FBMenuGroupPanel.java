@@ -49,5 +49,8 @@ public class FBMenuGroupPanel extends SimplePanel {
         menuPanel.add(menuItem);
     }
     
+    public void remove(FBMenuItem menuItem) {
+        menuPanel.fullRemove(menuItem);
+    }
     
 }

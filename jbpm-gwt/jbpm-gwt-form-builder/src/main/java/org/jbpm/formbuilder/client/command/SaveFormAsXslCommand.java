@@ -22,5 +22,4 @@ public class SaveFormAsXslCommand extends SaveFormCommand {
             Window.alert("Was not expecting this: " + e.getLocalizedMessage());
         }
     }
-
 }

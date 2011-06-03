@@ -7,9 +7,9 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.MenuItem;
 
-public abstract class SaveFormCommand implements Command {
+public abstract class SaveFormCommand implements BaseCommand {
 
     protected final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final String saveType;
@@ -24,6 +24,10 @@ public abstract class SaveFormCommand implements Command {
                 }
             }
         });
+    }
+    
+    public void setItem(MenuItem item) {
+        /* not implemented */
     }
     
     public void execute() {
