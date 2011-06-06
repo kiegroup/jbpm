@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class HiddenFormItem extends FBFormItem {
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> map = super.getFormItemPropertiesMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("value", this.value);
         map.put("name", this.name);
         map.put("id", this.id);

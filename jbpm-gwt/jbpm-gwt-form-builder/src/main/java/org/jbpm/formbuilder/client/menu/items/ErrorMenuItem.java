@@ -1,6 +1,7 @@
 package org.jbpm.formbuilder.client.menu.items;
 
-import java.util.ArrayList; 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
@@ -47,6 +48,11 @@ public class ErrorMenuItem extends FBMenuItem {
             @Override
             public Widget createInplaceEditor() {
                 return null;
+            }
+            
+            @Override
+            public Map<String, Object> getFormItemPropertiesMap() {
+                return new HashMap<String, Object>();
             }
             
             @Override

@@ -60,7 +60,7 @@ public class ComboBoxFormItem extends OptionsFormItem {
     
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> itemPropertiesMap = super.getFormItemPropertiesMap();
+        Map<String, Object> itemPropertiesMap = new HashMap<String, Object>();
         itemPropertiesMap.put("multipleSelect", this.multiple);
         itemPropertiesMap.put("verticalSize", this.visibleItems);
         itemPropertiesMap.put("title", this.title);

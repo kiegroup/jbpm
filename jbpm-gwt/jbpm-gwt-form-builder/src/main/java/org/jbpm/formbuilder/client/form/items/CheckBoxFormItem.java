@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class CheckBoxFormItem extends FBFormItem {
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> map = super.getFormItemPropertiesMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("formValue", this.formValue);
         map.put("checked", this.checked);
         map.put("name", this.name);

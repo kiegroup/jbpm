@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
  
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> formItemPropertiesMap = super.getFormItemPropertiesMap();
+        Map<String, Object> formItemPropertiesMap = new HashMap<String, Object>();
         formItemPropertiesMap.put("borderWidth", borderWidth);
         formItemPropertiesMap.put("height", height);
         formItemPropertiesMap.put("width", width);

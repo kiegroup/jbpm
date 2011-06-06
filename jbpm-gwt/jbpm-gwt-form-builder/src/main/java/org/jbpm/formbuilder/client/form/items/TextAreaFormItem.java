@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class TextAreaFormItem extends FBFormItem {
     
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> map = super.getFormItemPropertiesMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("defaultValue", this.defaultValue);
         map.put("rows", this.rows);
         map.put("cols", this.cols);

@@ -1,7 +1,6 @@
 package org.jbpm.formbuilder.client.form;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,9 +103,7 @@ public abstract class FBFormItem extends FocusPanel {
         return null;
     }
     
-    public Map<String, Object> getFormItemPropertiesMap() {
-        return new HashMap<String, Object>();
-    }
+    public abstract Map<String, Object> getFormItemPropertiesMap();
     
     protected Image createDoneImage(ClickHandler handler) {
         final Image done = new Image(FormBuilderResources.INSTANCE.doneIcon());

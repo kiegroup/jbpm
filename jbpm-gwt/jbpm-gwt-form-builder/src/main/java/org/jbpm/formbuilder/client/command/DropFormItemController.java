@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
+import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -55,12 +57,19 @@ public class DropFormItemController extends AbstractDropController {
                 public void doAction(UndoableEvent event) {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
                     FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
+                    LayoutView layoutView = (LayoutView) event.getData("layoutView");
                     Integer x = (Integer) event.getData("x");
                     Integer y = (Integer) event.getData("y");
                     if (formItem != null) {
                         Panel panel = layoutView.getUnderlyingLayout(x, y);
-                        panel.remove(menuItem);
-                        panel.add(formItem);
+                        if (panel instanceof FBForm) {
+                            panel.remove(menuItem);
+                            panel.add(formItem);
+                        } else {
+                            LayoutFormItem layoutItem = (LayoutFormItem) panel.getParent();
+                            panel.remove(menuItem);
+                            layoutItem.add(formItem);
+                        }
                     }
                 }
             }));

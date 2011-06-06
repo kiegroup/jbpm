@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> map = super.getFormItemPropertiesMap();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("id", this.id);
         map.put("height", this.height);
         map.put("width", this.width);
@@ -54,7 +55,9 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
         rep.setHeight(this.height);
         rep.setId(this.id);
         for (FBFormItem item : getItems()) {
-            rep.addItem(item.getRepresentation(), item.getDesiredX(), item.getDesiredY());
+            rep.addItem(item.getRepresentation(), 
+                    item.getDesiredX() - panel.getAbsoluteLeft(), 
+                    item.getDesiredY() - panel.getAbsoluteTop());
         }
         return rep;
     }
@@ -76,7 +79,7 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     public boolean add(FBFormItem item) {
         int left = item.getDesiredX();
         int top = item.getDesiredY();
-        panel.add(item, left, top);
+        panel.add(item, left - panel.getAbsoluteLeft(), top - panel.getAbsoluteTop());
         return super.add(item);
     }
     

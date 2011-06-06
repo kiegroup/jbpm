@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class HeaderFormItem extends FBFormItem {
     
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> formItemPropertiesMap = super.getFormItemPropertiesMap();
+        Map<String, Object> formItemPropertiesMap = new HashMap<String, Object>();
         formItemPropertiesMap.put("id", id);
         formItemPropertiesMap.put("name", name);
         formItemPropertiesMap.put("width", width);
