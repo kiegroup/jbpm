@@ -56,10 +56,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
         this.columns = extractInt(asPropertiesMap.get("columns"));
         this.rows = extractInt(asPropertiesMap.get("rows"));
         
-        populate();
+        populate(this.grid);
     }
 
-    private void populate() {
+    private void populate(Grid grid) {
         if (this.borderWidth != null && this.borderWidth > 0) {
             grid.setBorderWidth(this.borderWidth);
         }
@@ -174,7 +174,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
         clone.rows = this.rows;
         clone.title = this.title;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.grid);
         for (int index = 0; index < clone.columns * clone.rows; index++) {
             int column = index%clone.columns;
             int row = index/clone.columns;
@@ -184,5 +184,20 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        Grid g = new Grid(this.rows, this.columns);
+        populate(g);
+        for (int index = 0; index < this.columns * this.rows; index++) {
+            int column = index%this.columns;
+            int row = index/this.columns;
+            FBFormItem item = (FBFormItem) this.grid.getWidget(row, column);
+            if (item != null) {
+                g.setWidget(row, column, item.cloneDisplay());
+            }
+        }
+        return g;
     }
 }

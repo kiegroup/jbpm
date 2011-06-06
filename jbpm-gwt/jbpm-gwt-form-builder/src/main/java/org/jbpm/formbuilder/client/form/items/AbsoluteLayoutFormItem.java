@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class AbsoluteLayoutFormItem extends LayoutFormItem {
 
@@ -40,10 +41,10 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
         this.id = extractString(asPropertiesMap.get("id"));
         this.height = extractString(asPropertiesMap.get("height"));
         this.width = extractString(asPropertiesMap.get("width"));
-        populate();
+        populate(this.panel);
     }
 
-    private void populate() {
+    private void populate(AbsolutePanel panel) {
         if (this.height != null) {
             panel.setHeight(this.height);
         } 
@@ -72,7 +73,7 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
         clone.height = this.height;
         clone.id = this.id;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.panel);
         for (FBFormItem item : getItems()) {
             clone.add(item.cloneItem());
         }
@@ -92,4 +93,13 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
         return this.panel;
     }
 
+    @Override
+    public Widget cloneDisplay() {
+        AbsolutePanel ap = new AbsolutePanel();
+        populate(ap);
+        for (FBFormItem item : getItems()) {
+            ap.add(item.cloneDisplay(), this.getAbsoluteLeft() - item.getDesiredX(), this.getAbsoluteTop() - item.getDesiredY());
+        }
+        return ap;
+    }
 }

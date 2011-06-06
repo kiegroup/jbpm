@@ -44,10 +44,10 @@ public class HTMLFormItem extends FBFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.width = asPropertiesMap.get("width").toString();
         this.height = asPropertiesMap.get("height").toString();
-        populate();
+        populate(this.html);
     }
 
-    private void populate() {
+    private void populate(HTML html) {
         if (this.width != null) {
             html.setWidth(this.width);
         }
@@ -75,7 +75,7 @@ public class HTMLFormItem extends FBFormItem {
         clone.height = this.height;
         clone.width = this.width;
         clone.setContent(this.html.getHTML());
-        clone.populate();
+        clone.populate(clone.html);
         return clone;
     }
 
@@ -93,5 +93,13 @@ public class HTMLFormItem extends FBFormItem {
     
     public void setHtmlContent(String htmlContent) {
         this.html.setHTML(htmlContent);
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        HTML html = new HTML();
+        html.setHTML(this.html.getHTML());
+        populate(html);
+        return html;
     }
 }

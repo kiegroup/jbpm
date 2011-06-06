@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class HorizontalLayoutFormItem extends LayoutFormItem {
 
@@ -60,10 +61,10 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         this.title = asPropertiesMap.get("title").toString();
         this.id = asPropertiesMap.get("id").toString();
         
-        populate();
+        populate(this.panel);
     }
 
-    private void populate() {
+    private void populate(HorizontalPanel panel) {
         if (this.borderWidth != null) {
             panel.setBorderWidth(this.borderWidth);
         }
@@ -122,10 +123,20 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         clone.title = this.title;
         clone.verticalAlignment = this.verticalAlignment;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.panel);
         for (FBFormItem item : getItems()) {
             clone.add(item.cloneItem());
         }
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        HorizontalPanel hp = new HorizontalPanel();
+        populate(hp);
+        for (FBFormItem item : getItems()) {
+            hp.add(item.cloneDisplay());
+        }
+        return hp;
     }
 }

@@ -66,18 +66,18 @@ public class HeaderFormItem extends FBFormItem {
         this.width = propertiesMap.get("width").toString();
         this.height = propertiesMap.get("height").toString();
         this.cssClassName = propertiesMap.get("cssClassName").toString();
-        populate();
+        populate(getHeader());
     }
 
-    private void populate() {
+    private void populate(HTML html) {
         if (this.width != null) {
-            getHeader().setWidth(this.width);
+            html.setWidth(this.width);
         }
         if (this.height != null) {
-            getHeader().setHeight(this.height);
+            html.setHeight(this.height);
         }
         if (this.cssClassName != null) {
-            getHeader().setStyleName(this.cssClassName);
+            html.setStyleName(this.cssClassName);
         }
     }
     
@@ -116,7 +116,14 @@ public class HeaderFormItem extends FBFormItem {
         clone.name = this.name;
         clone.width = this.width;
         clone.setContent(this.header.getHTML());
-        clone.populate();
+        clone.populate(this.header);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        HTML html = new HTML(this.header.getHTML());
+        populate(html);
+        return html;
     }
 }

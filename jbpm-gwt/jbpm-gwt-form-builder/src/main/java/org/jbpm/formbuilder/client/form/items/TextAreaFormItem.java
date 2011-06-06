@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.Widget;
 
 public class TextAreaFormItem extends FBFormItem {
 
@@ -51,10 +52,10 @@ public class TextAreaFormItem extends FBFormItem {
         if (cols != null && cols > 0) {
             this.cols = cols;
         }
-        populate();
+        populate(this.area);
     }
 
-    private void populate() {
+    private void populate(TextArea area) {
         if (this.rows != null) {
             area.setVisibleLines(this.rows);
         }
@@ -88,8 +89,14 @@ public class TextAreaFormItem extends FBFormItem {
         clone.id = this.id;
         clone.name = this.name;
         clone.rows = this.rows;
-        clone.populate();
+        clone.populate(clone.area);
         return clone;
     }
 
+    @Override
+    public Widget cloneDisplay() {
+        TextArea ta = new TextArea();
+        populate(ta);
+        return ta;
+    }
 }

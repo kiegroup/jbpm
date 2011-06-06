@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ImageFormItem extends FBFormItem {
 
@@ -47,10 +48,10 @@ public class ImageFormItem extends FBFormItem {
         this.url = asPropertiesMap.get("url").toString();
         this.id = asPropertiesMap.get("id").toString();
         
-        populate();
+        populate(this.image);
     }
 
-    private void populate() {
+    private void populate(Image image) {
         if (this.altText != null) {
             image.setAltText(this.altText);
             image.setTitle(this.altText);
@@ -85,7 +86,14 @@ public class ImageFormItem extends FBFormItem {
         clone.id = this.id;
         clone.url = this.url;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.image);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        Image im = new Image();
+        populate(im);
+        return im;
     }
 }

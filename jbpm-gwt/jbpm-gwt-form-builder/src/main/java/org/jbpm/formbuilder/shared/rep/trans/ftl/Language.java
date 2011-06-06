@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.shared.rep.trans.ftl;
 
-import java.util.List;
+import java.util.List; 
 
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -29,6 +29,8 @@ import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language {
 
+    private static final String LANG = "ftl";
+    
     /*
      * ftl implementation
      */
@@ -40,7 +42,8 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         if (onLoadScripts != null && !onLoadScripts.isEmpty()) {
             for (FBScript loadScript : onLoadScripts) {
                 if (LanguageFactory.getInstance().isClientSide(loadScript.getType())) {
-                    builder.append("<script type=\"").append(loadScript.getType()).append("\" ");
+                    builder.append("<script ");
+                    addParam(builder, "type", loadScript.getType());
                     addParam(builder, "src", loadScript.getSrc());
                     builder.append(">\n");
                     if (loadScript.getContent() != null) {
@@ -58,7 +61,8 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         StringBuilder invokeOnSubmit = new StringBuilder();
         if (onSubmitScripts != null && !onSubmitScripts.isEmpty()) {
             for (FBScript submitScript : onSubmitScripts) {
-                builder.append("<script type=\"").append(submitScript.getType()).append("\" ");
+                builder.append("<script ");
+                addParam(builder, "type", submitScript.getType());
                 addParam(builder, "src", submitScript.getSrc());
                 builder.append(">\n");
                 if (submitScript.getContent() != null) {
@@ -90,7 +94,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         
         List<FormItemRepresentation> items = form.getFormItems();
         for (FormItemRepresentation item : items) {
-            builder.append(item.translate("ftl"));
+            builder.append(item.translate(LANG));
         }
         
         builder.append("</form>\n");
@@ -135,11 +139,12 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
 
         String name = passwordField.getName();
         OutputData output = passwordField.getOutput();
-        if (name == null || "".equals(name)) {
+        if ((name == null || "".equals(name)) && output != null) {
             name = output.getName();
         }
-        builder.append("<input type=\"password\" name=\"").append(name).append("\" ");
-        
+        builder.append("<input ");
+        addParam(builder, "type", "password");
+        addParam(builder, "name", name);
         addParam(builder, "maxlength", passwordField.getMaxLength());
         
         String defaultValue = passwordField.getDefaultValue();
@@ -252,7 +257,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
             }
         } else if (comboBox.getElements() != null && !comboBox.getElements().isEmpty()) {
             for (OptionRepresentation option : comboBox.getElements()) {
-                builder.append(option.translate("ftl"));
+                builder.append(option.translate(LANG));
             }
         }
         builder.append("</select>\n");
@@ -264,7 +269,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     }
 
     private boolean isValidScript(FBScript script) {
-        return script.getType().contains("ftl") || script.getType().contains("freemarker");
+        return script.getType().contains(LANG) || script.getType().contains("freemarker");
     }
     
     private String asFtlScript(FBScript script) {
@@ -299,7 +304,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
                 builder.append("<td>");
                 if (row.get(index) != null) {
                     FormItemRepresentation item = row.get(index);
-                    builder.append(item.translate("ftl"));
+                    builder.append(item.translate(LANG));
                 }
                 builder.append("</td>");
             }
@@ -330,7 +335,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         //TODO table.getInput(); may be used to iterate contents, but not yet
         List<FormItemRepresentation> items = horizontalPanel.getItems();
         for (FormItemRepresentation item : items) {
-            builder.append(item.translate("ftl"));
+            builder.append(item.translate(LANG));
         }
         builder.append("</td></tr></table>");
         return builder.toString();
@@ -484,7 +489,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
             builder.append("\n<div ");
             addParam(builder, "style", css.toString());
             builder.append(">");
-            builder.append(absolutePanel.getItems().get(position).translate("ftl"));
+            builder.append(absolutePanel.getItems().get(position).translate(LANG));
             builder.append("</div>");
         }
         builder.append("\n</div>\n");

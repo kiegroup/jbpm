@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Widget;
 
 public class CheckBoxFormItem extends FBFormItem {
 
@@ -42,10 +43,10 @@ public class CheckBoxFormItem extends FBFormItem {
         this.id = asPropertiesMap.get("id").toString();
         this.checked = extractBoolean(asPropertiesMap.get("checked"));
         
-        populate();
+        populate(this.checkBox);
     }
 
-    private void populate() {
+    private void populate(CheckBox checkBox) {
         if (this.formValue != null) {
             checkBox.setFormValue(formValue);
         }
@@ -74,7 +75,14 @@ public class CheckBoxFormItem extends FBFormItem {
         clone.formValue = this.formValue;
         clone.id = this.id;
         clone.name = this.name;
-        clone.populate();
+        clone.populate(clone.checkBox);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        CheckBox cb = new CheckBox();
+        populate(cb);
+        return cb;
     }
 }

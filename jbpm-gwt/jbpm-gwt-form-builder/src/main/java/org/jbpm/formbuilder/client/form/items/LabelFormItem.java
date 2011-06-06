@@ -62,18 +62,18 @@ public class LabelFormItem extends FBFormItem {
         this.width = propertiesMap.get("width").toString();
         this.height = propertiesMap.get("height").toString();
         this.cssClassName = propertiesMap.get("cssClassName").toString();
-        populate();
+        populate(getLabel());
     }
 
-    private void populate() {
+    private void populate(Label label) {
         if (this.width != null) {
-            getLabel().setWidth(this.width);
+            label.setWidth(this.width);
         }
         if (this.height != null) {
-            getLabel().setHeight(this.height);
+            label.setHeight(this.height);
         }
         if (this.cssClassName != null) {
-            getLabel().setStyleName(this.cssClassName);
+            label.setStyleName(this.cssClassName);
         }
     }
     
@@ -106,7 +106,14 @@ public class LabelFormItem extends FBFormItem {
         clone.id = this.id;
         clone.width = this.width;
         clone.getLabel().setText(this.label.getText());
-        clone.populate();
+        clone.populate(clone.label);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        Label lb = new Label();
+        populate(lb);
+        return lb;
     }
 }

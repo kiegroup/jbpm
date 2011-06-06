@@ -64,7 +64,11 @@ public class ErrorMenuItem extends FBMenuItem {
             public FBFormItem cloneItem() {
                 return null;
             }
+            
+            @Override
+            public Widget cloneDisplay() {
+                return null;
+            }
         };
     }
-
 }

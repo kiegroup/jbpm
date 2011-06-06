@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 
 import com.google.gwt.user.client.ui.FileUpload;
+import com.google.gwt.user.client.ui.Widget;
 
 public class FileInputFormItem extends FBFormItem {
 
@@ -45,10 +46,10 @@ public class FileInputFormItem extends FBFormItem {
         this.id = asPropertiesMap.get("id").toString();
         this.accept = asPropertiesMap.get("accept").toString();
 
-        populate();
+        populate(this.fileUpload);
     }
 
-    private void populate() {
+    private void populate(FileUpload fileUpload) {
         if (this.name != null) {
             fileUpload.setName(this.name);
         }
@@ -79,7 +80,14 @@ public class FileInputFormItem extends FBFormItem {
         clone.id = this.id;
         clone.name = this.name;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.fileUpload);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        FileUpload fu = new FileUpload();
+        populate(fu);
+        return fu;
     }
 }

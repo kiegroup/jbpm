@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
 
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Widget;
 
 public class CompleteButtonFormItem extends FBFormItem {
 
@@ -36,10 +37,10 @@ public class CompleteButtonFormItem extends FBFormItem {
         this.innerText = asPropertiesMap.get("innerText").toString();
         this.cssStyleName = asPropertiesMap.get("cssStyleName").toString();
         
-        populate();
+        populate(this.button);
     }
 
-    private void populate() {
+    private void populate(Button button) {
         if (this.height != null) {
             button.setHeight(this.height);
         }
@@ -84,7 +85,14 @@ public class CompleteButtonFormItem extends FBFormItem {
         clone.innerText = this.innerText;
         clone.name = this.name;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.button);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        Button bt = new Button();
+        populate(bt);
+        return bt;
     }
 }

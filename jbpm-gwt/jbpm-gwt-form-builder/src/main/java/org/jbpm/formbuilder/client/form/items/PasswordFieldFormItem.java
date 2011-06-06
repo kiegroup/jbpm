@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 
 import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.Widget;
 
 public class PasswordFieldFormItem extends FBFormItem {
 
@@ -51,10 +52,10 @@ public class PasswordFieldFormItem extends FBFormItem {
         this.title = asPropertiesMap.get("title").toString();
         this.maxlength = extractInt(asPropertiesMap.get("maxlength"));
         
-        populate();
+        populate(this.textBox);
     }
 
-    private void populate() {
+    private void populate(PasswordTextBox textBox) {
         if (this.defaultContent != null) {
             textBox.setValue(this.defaultContent);
         }
@@ -95,7 +96,14 @@ public class PasswordFieldFormItem extends FBFormItem {
         clone.name = this.name;
         clone.title = this.title;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.textBox);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        PasswordTextBox pb = new PasswordTextBox();
+        populate(pb);
+        return pb;
     }
 }

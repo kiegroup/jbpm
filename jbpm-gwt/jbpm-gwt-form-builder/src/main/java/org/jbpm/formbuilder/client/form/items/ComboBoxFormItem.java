@@ -13,6 +13,7 @@ import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Widget;
 
 public class ComboBoxFormItem extends OptionsFormItem {
 
@@ -43,10 +44,10 @@ public class ComboBoxFormItem extends OptionsFormItem {
         this.height = asPropertiesMap.get("height").toString();
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();
-        populate();
+        populate(this.listBox);
     }
 
-    private void populate() {
+    private void populate(ListBox listBox) {
         if (this.multiple != null) {
             this.listBox.setMultipleSelect(this.multiple);
         }
@@ -135,9 +136,9 @@ public class ComboBoxFormItem extends OptionsFormItem {
         return items;
     }
     
-    public void addItems(Map<String, String> items) {
+    public void addItems(Map<String, String> items, ListBox listBox) {
         for (Map.Entry<String, String> entry : items.entrySet()) {
-            this.listBox.addItem(entry.getKey(), entry.getValue());
+            listBox.addItem(entry.getKey(), entry.getValue());
         }
     }
     
@@ -151,8 +152,16 @@ public class ComboBoxFormItem extends OptionsFormItem {
         clone.title = this.title;
         clone.visibleItems = this.visibleItems;
         clone.width = this.width;
-        clone.populate();
-        clone.addItems(this.getItems());
+        clone.populate(clone.listBox);
+        clone.addItems(this.getItems(), clone.listBox);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        ListBox lb = new ListBox();
+        populate(lb);
+        addItems(getItems(), lb);
+        return lb;
     }
 }

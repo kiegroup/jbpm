@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.common.panels.ResizablePanel;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -21,6 +22,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
@@ -41,31 +43,13 @@ public abstract class FBFormItem extends FocusPanel {
         this.effects.addAll(formEffects);
         addFocusHandler(new FocusHandler() {
             public void onFocus(FocusEvent event) {
-                if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
-                    fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
-                }
-                Widget w = createInplaceEditor();
-                if (w != null && !isAlreadyEditing()) {
-                    auxiliarWidget = getWidget();
-                    clear();
-                    add(w);
-                    setAlreadyEditing(true);
-                }
+                makeEditor();
             }
         });
         sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
-                    fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
-                }
-                Widget w = createInplaceEditor();
-                if (w != null && !isAlreadyEditing()) {
-                    auxiliarWidget = getWidget();
-                    clear();
-                    add(w);
-                    setAlreadyEditing(true);
-                }
+                makeEditor();
             }
         });
         addRightClickHandler(new RightClickHandler() {
@@ -76,6 +60,20 @@ public abstract class FBFormItem extends FocusPanel {
             }
         });
     } 
+    
+    private void makeEditor() {
+        if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
+            fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
+        }
+        if (!isAlreadyEditing()) {
+            Widget inplaceEditor = createInplaceEditor();
+            auxiliarWidget = cloneDisplay();
+            Window.alert("Pre ResizablePanel");
+            setWidget(new ResizablePanel(inplaceEditor == null ? auxiliarWidget : inplaceEditor));
+            Window.alert("Pos ResizablePanel");
+            setAlreadyEditing(true);
+        }
+    }
     
     public boolean isAlreadyEditing() {
         return alreadyEditing;
@@ -239,4 +237,6 @@ public abstract class FBFormItem extends FocusPanel {
     public abstract FormItemRepresentation getRepresentation();
     
     public abstract FBFormItem cloneItem();
+    
+    public abstract Widget cloneDisplay();
 }

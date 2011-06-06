@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation;
 
 import com.google.gwt.user.client.ui.RadioButton;
+import com.google.gwt.user.client.ui.Widget;
 
 public class RadioButtonFormItem extends FBFormItem {
 
@@ -42,10 +43,10 @@ public class RadioButtonFormItem extends FBFormItem {
         this.value = asPropertiesMap.get("value").toString();
         this.selected = extractBoolean(asPropertiesMap.get("selected"));
 
-        populate();
+        populate(this.button);
     }
 
-    private void populate() {
+    private void populate(RadioButton button) {
         if (this.name != null) {
             button.setName(this.name);
         }
@@ -74,7 +75,14 @@ public class RadioButtonFormItem extends FBFormItem {
         clone.name = this.name;
         clone.selected = this.selected;
         clone.value = this.value;
-        clone.populate();
+        clone.populate(clone.button);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        RadioButton rb = new RadioButton("");
+        populate(rb);
+        return rb;
     }
 }

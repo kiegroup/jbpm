@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 
 public class TextFieldFormItem extends FBFormItem {
 
@@ -51,10 +52,10 @@ public class TextFieldFormItem extends FBFormItem {
         this.maxlength = extractInt(asPropertiesMap.get("maxlength"));
         this.id = asPropertiesMap.get("id").toString();
         
-        populate();
+        populate(this.textBox);
     }
 
-    private void populate() {
+    private void populate(TextBox textBox) {
         if (this.defaultContent != null) {
             textBox.setValue(this.defaultContent);
         }
@@ -95,7 +96,14 @@ public class TextFieldFormItem extends FBFormItem {
         clone.name = this.name;
         clone.title = this.title;
         clone.width = this.width;
-        clone.populate();
+        clone.populate(clone.textBox);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        TextBox tb = new TextBox();
+        populate(tb);
+        return tb;
     }
 }

@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.Widget;
 
 public class HiddenFormItem extends FBFormItem {
 
@@ -43,10 +44,10 @@ public class HiddenFormItem extends FBFormItem {
         this.value = asPropertiesMap.get("value").toString();
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();
-        populate();
+        populate(this.hidden);
     }
 
-    private void populate() {
+    private void populate(Hidden hidden) {
         if (this.id != null) {
             hidden.setID(id);
         }
@@ -73,7 +74,14 @@ public class HiddenFormItem extends FBFormItem {
         clone.id = this.id;
         clone.name = this.name;
         clone.value = this.value;
-        clone.populate();
+        clone.populate(clone.hidden);
         return clone;
+    }
+    
+    @Override
+    public Widget cloneDisplay() {
+        Hidden hi = new Hidden();
+        populate(hi);
+        return hi;
     }
 }
