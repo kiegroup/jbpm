@@ -53,9 +53,15 @@ public class ComboBoxFormItem extends OptionsFormItem {
         if (this.visibleItems != null && this.visibleItems > 0) {
             this.listBox.setVisibleItemCount(this.visibleItems);
         }
-        this.listBox.setTitle(title);
-        this.listBox.setWidth(width);
-        this.listBox.setHeight(height);
+        if (title != null) {
+            this.listBox.setTitle(title);
+        }
+        if (width != null) {
+            this.listBox.setWidth(width);
+        }
+        if (height != null) {
+            this.listBox.setHeight(height);
+        }
     }
     
     @Override

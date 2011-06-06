@@ -46,9 +46,15 @@ public class RadioButtonFormItem extends FBFormItem {
     }
 
     private void populate() {
-        button.setName(this.name);
-        button.setFormValue(this.value);
-        button.setValue(this.selected);
+        if (this.name != null) {
+            button.setName(this.name);
+        }
+        if (this.value != null) {
+            button.setFormValue(this.value);
+        }
+        if (this.selected != null) {
+            button.setValue(this.selected);
+        }
     }
 
     @Override

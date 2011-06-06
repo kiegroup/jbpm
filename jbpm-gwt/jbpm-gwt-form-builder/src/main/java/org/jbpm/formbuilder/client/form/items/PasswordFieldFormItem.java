@@ -55,11 +55,21 @@ public class PasswordFieldFormItem extends FBFormItem {
     }
 
     private void populate() {
-        textBox.setValue(this.defaultContent);
-        textBox.setName(this.name);
-        textBox.setHeight(this.height);
-        textBox.setWidth(this.width);
-        textBox.setTitle(this.title);
+        if (this.defaultContent != null) {
+            textBox.setValue(this.defaultContent);
+        }
+        if (this.name != null) {
+            textBox.setName(this.name);
+        }
+        if (this.height != null) {
+            textBox.setHeight(this.height);
+        }
+        if (this.width != null) {
+            textBox.setWidth(this.width);
+        }
+        if (this.title != null) {
+            textBox.setTitle(this.title);
+        }
         if (this.maxlength != null) {
             textBox.setMaxLength(this.maxlength);
         }

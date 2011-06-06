@@ -49,9 +49,15 @@ public class FileInputFormItem extends FBFormItem {
     }
 
     private void populate() {
-        fileUpload.setName(this.name);
-        fileUpload.setWidth(this.width);
-        fileUpload.setHeight(this.height);
+        if (this.name != null) {
+            fileUpload.setName(this.name);
+        }
+        if (this.width != null) {
+            fileUpload.setWidth(this.width);
+        }
+        if (this.height != null) {
+            fileUpload.setHeight(this.height);
+        }
     }
 
     @Override

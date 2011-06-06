@@ -51,13 +51,19 @@ public class ImageFormItem extends FBFormItem {
     }
 
     private void populate() {
-        image.setAltText(this.altText);
-        image.setHeight(this.height);
-        image.setWidth(this.width);
+        if (this.altText != null) {
+            image.setAltText(this.altText);
+            image.setTitle(this.altText);
+        }
+        if (this.height != null) {
+            image.setHeight(this.height);
+        }
+        if (this.width != null) {
+            image.setWidth(this.width);
+        }
         if (this.url != null && !"".equals(this.url)) {
             image.setUrl(this.url);
         }
-        image.setTitle(this.altText);
     }
 
     @Override

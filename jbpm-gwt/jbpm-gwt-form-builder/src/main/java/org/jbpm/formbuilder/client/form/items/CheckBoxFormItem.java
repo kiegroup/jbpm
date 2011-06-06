@@ -46,9 +46,15 @@ public class CheckBoxFormItem extends FBFormItem {
     }
 
     private void populate() {
-        checkBox.setFormValue(formValue);
-        checkBox.setName(name);
-        checkBox.setValue(checked);
+        if (this.formValue != null) {
+            checkBox.setFormValue(formValue);
+        }
+        if (this.name != null) {
+            checkBox.setName(name);
+        }
+        if (this.checked != null) {
+            checkBox.setValue(checked);
+        }
     }
 
     @Override

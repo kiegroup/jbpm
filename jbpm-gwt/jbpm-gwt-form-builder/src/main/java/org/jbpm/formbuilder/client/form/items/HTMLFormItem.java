@@ -94,8 +94,12 @@ public class HTMLFormItem extends FBFormItem {
     }
 
     private void populate() {
-        html.setWidth(this.width);
-        html.setHeight(this.height);
+        if (this.width != null) {
+            html.setWidth(this.width);
+        }
+        if (this.height != null) {
+            html.setHeight(this.height);
+        }
     }
 
     public void setContent(String html) {

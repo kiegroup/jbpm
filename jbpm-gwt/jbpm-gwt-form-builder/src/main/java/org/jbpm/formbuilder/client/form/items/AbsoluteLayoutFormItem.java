@@ -44,8 +44,12 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     }
 
     private void populate() {
-        panel.setHeight(this.height);
-        panel.setWidth(this.width);
+        if (this.height != null) {
+            panel.setHeight(this.height);
+        } 
+        if (this.width != null) {
+            panel.setWidth(this.width);
+        }
     }
 
     @Override

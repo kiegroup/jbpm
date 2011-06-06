@@ -47,9 +47,15 @@ public class HiddenFormItem extends FBFormItem {
     }
 
     private void populate() {
-        hidden.setID(id);
-        hidden.setName(name);
-        hidden.setValue(value);
+        if (this.id != null) {
+            hidden.setID(id);
+        }
+        if (this.name != null) {
+            hidden.setName(name);
+        }
+        if (this.value != null) {
+            hidden.setValue(value);
+        }
     }
 
     @Override

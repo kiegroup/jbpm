@@ -76,9 +76,13 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         if (this.spacing != null) {
             panel.setSpacing(this.spacing);
         }
-        panel.setStyleName(this.cssClassName);
+        if (this.cssClassName != null) {
+            panel.setStyleName(this.cssClassName);
+        }
         //panel.setHorizontalAlignment(HorizontalAlignmentConstant.startOf(Direction.valueOf(horizontalAlignment))); TODO
-        panel.setTitle(this.title);
+        if (this.title != null) {
+            panel.setTitle(this.title);
+        }
     }
 
    

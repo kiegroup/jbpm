@@ -40,10 +40,18 @@ public class CompleteButtonFormItem extends FBFormItem {
     }
 
     private void populate() {
-        button.setHeight(this.height);
-        button.setWidth(this.width);
-        button.setText(this.innerText);
-        button.setStyleName(this.cssStyleName);
+        if (this.height != null) {
+            button.setHeight(this.height);
+        }
+        if (this.width != null) {
+            button.setWidth(this.width);
+        }
+        if (this.innerText != null) {
+            button.setText(this.innerText);
+        }
+        if (this.cssStyleName != null) {
+            button.setStyleName(this.cssStyleName);
+        }
     }
 
     @Override

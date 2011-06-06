@@ -70,9 +70,15 @@ public class HeaderFormItem extends FBFormItem {
     }
 
     private void populate() {
-        getHeader().setWidth(this.width);
-        getHeader().setHeight(this.height);
-        getHeader().setStyleName(this.cssClassName);
+        if (this.width != null) {
+            getHeader().setWidth(this.width);
+        }
+        if (this.height != null) {
+            getHeader().setHeight(this.height);
+        }
+        if (this.cssClassName != null) {
+            getHeader().setStyleName(this.cssClassName);
+        }
     }
     
     protected HTML getHeader() {

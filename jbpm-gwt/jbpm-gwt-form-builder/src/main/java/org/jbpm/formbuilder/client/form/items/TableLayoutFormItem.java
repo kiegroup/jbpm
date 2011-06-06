@@ -15,11 +15,11 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class TableLayoutFormItem extends LayoutFormItem {
-
+    
     private Grid grid = new Grid(1, 1) {
         @Override
-        public void add(Widget child) {
-            tableAdd(child);
+        public boolean remove(Widget widget) {
+            return TableLayoutFormItem.this.remove(widget);
         }
     };
     
@@ -43,7 +43,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     public Panel getPanel() {
         return grid;
     }
-
+    
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         
@@ -69,9 +69,15 @@ public class TableLayoutFormItem extends LayoutFormItem {
         if (this.cellspacing != null && this.cellspacing >= 0) {
             grid.setCellSpacing(this.cellspacing);
         }
-        grid.setHeight(this.height);
-        grid.setWidth(this.width);
-        grid.setTitle(this.title);
+        if (this.height != null) {
+            grid.setHeight(this.height);
+        }
+        if (this.width != null) {
+            grid.setWidth(this.width);
+        }
+        if (this.title != null) {
+            grid.setTitle(this.title);
+        }
         if (this.columns != null && this.columns > 0) {
             grid.resizeColumns(this.columns);
         }
@@ -94,37 +100,51 @@ public class TableLayoutFormItem extends LayoutFormItem {
         return map;
     }
 
-    protected void tableAdd(Widget child) {
-        if (child instanceof FBFormItem) {
-            int widgetCount = super.size();
-            if (widgetCount >= grid.getColumnCount() * grid.getRowCount()) {
-                boolean added = false;
-                for (int i = 0; i < grid.getRowCount(); i++) {
-                    for (int j = 0; j < grid.getColumnCount(); j++) {
-                        if (grid.getWidget(i, j) == null) {
-                            added = true;
-                            FBFormItem item = (FBFormItem) child;
-                            super.set(((i+1)*(j+1))-1, item);
-                            grid.setWidget(i, j, child);
-                            break;
-                        }
+    @Override
+    public boolean add(FBFormItem child) {
+        boolean added = false;
+        for (int i = 0; i < grid.getRowCount() && !added; i++) {
+            for (int j = 0; j < grid.getColumnCount() && !added; j++) {
+                //WARN dom used: seems the only way of fixing deleted cell bug
+                if (grid.getWidget(i, j) == null || grid.getWidget(i, j).getElement().getParentElement().getInnerHTML().equals("&nbsp;")) {
+                    System.out.println("widget == " + grid.getWidget(i, j));
+                    added = true;
+                    FBFormItem item = (FBFormItem) child;
+                    int index = (i+1)*(j+1);
+                    if (super.size() > index) { 
+                        super.set(index-1, item);
+                    } else {
+                        super.add(item);
                     }
-                }
-                if (!added) {
-                    Window.alert("Table full! Use different layouts in each cell or add more rows or columns");
-                }
-            } else {
-                FBFormItem item = (FBFormItem) child;
-                super.add(item);
-                int row = widgetCount / grid.getColumnCount();
-                int col = widgetCount % grid.getColumnCount();
-                if (grid.getWidget(row, col) == null) {
-                    grid.setWidget(row, col, child);
-                } else {
-                    Window.alert("Table full! Use different layouts in each cell or add more rows or columns");
+                    grid.setWidget(i, j, child);
+                    break;
                 }
             }
         }
+        if (!added) {
+            Window.alert("Table full! Use different layouts in each cell or add more rows or columns");
+            return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public boolean remove(Widget child) {
+        System.out.println("Control de recursividad (remove)");
+        boolean removed = false;
+        if (child instanceof FBFormItem) {
+            for (int i = 0; i < grid.getRowCount(); i++) {
+                for (int j = 0; j < grid.getColumnCount(); j++) {
+                    if (grid.getWidget(i, j) != null && grid.getWidget(i, j).equals(child)) {
+                        removed = super.remove(child);
+                        ////WARN dom used: seems the only way of fixing deleted cell bug
+                        grid.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");
+                        break;
+                    }
+                }
+            }
+        }
+        return removed;
     }
     
     @Override

@@ -55,10 +55,18 @@ public class TextAreaFormItem extends FBFormItem {
     }
 
     private void populate() {
-        area.setVisibleLines(this.rows);
-        area.setCharacterWidth(this.cols);
-        area.setValue(defaultValue);
-        area.setName(this.name);
+        if (this.rows != null) {
+            area.setVisibleLines(this.rows);
+        }
+        if (this.cols != null) {
+            area.setCharacterWidth(this.cols);
+        }
+        if (this.defaultValue != null) {
+            area.setValue(this.defaultValue);
+        }
+        if (this.name != null) {
+            area.setName(this.name);
+        }
     }
 
     @Override
