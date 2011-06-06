@@ -85,7 +85,7 @@ public abstract class FBFormItem extends FocusPanel {
         this.alreadyEditing = alreadyEditing;
     }
 
-    protected void reset() {
+    public void reset() {
         if (auxiliarWidget != null) {
             clear();
             add(auxiliarWidget);

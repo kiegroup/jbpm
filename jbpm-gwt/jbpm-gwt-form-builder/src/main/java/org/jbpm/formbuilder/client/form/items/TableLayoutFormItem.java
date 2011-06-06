@@ -107,7 +107,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
             for (int j = 0; j < grid.getColumnCount() && !added; j++) {
                 //WARN dom used: seems the only way of fixing deleted cell bug
                 if (grid.getWidget(i, j) == null || grid.getWidget(i, j).getElement().getParentElement().getInnerHTML().equals("&nbsp;")) {
-                    System.out.println("widget == " + grid.getWidget(i, j));
                     added = true;
                     FBFormItem item = (FBFormItem) child;
                     int index = (i+1)*(j+1);
@@ -130,7 +129,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
     
     @Override
     public boolean remove(Widget child) {
-        System.out.println("Control de recursividad (remove)");
         boolean removed = false;
         if (child instanceof FBFormItem) {
             for (int i = 0; i < grid.getRowCount(); i++) {

@@ -6,24 +6,16 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.editors.HTMLFormItemEditor;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class HTMLFormItem extends FBFormItem {
 
     private HTML html = new HTML();
-    private Button htmlButton = new Button("HTML");
-    private Button textButton = new Button("Text");
     
     private String width;
     private String height;
@@ -45,51 +37,13 @@ public class HTMLFormItem extends FBFormItem {
     
     @Override
     public Widget createInplaceEditor() {
-        PopupPanel popup = new PopupPanel();
-        VerticalPanel vPanel = new VerticalPanel();
-        HorizontalPanel buttonPanel = new HorizontalPanel();
-        TextArea editorArea = new TextArea();
-        editorArea.setValue(html.getText());
-        this.textButton.setEnabled(false);
-        buttonPanel.add(createTextButton(editorArea));
-        buttonPanel.add(createHtmlButton(editorArea));
-        editorArea.setCharacterWidth(50);
-        editorArea.setVisibleLines(5);
-        vPanel.add(buttonPanel);
-        vPanel.add(editorArea);
-        popup.add(vPanel);
-        return popup;
+        return new HTMLFormItemEditor(this);
     }
     
-    private Button createHtmlButton(final TextArea editorArea) {
-        this.htmlButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                html.setText(editorArea.getValue());
-                editorArea.setValue(html.getHTML());
-                htmlButton.setEnabled(false);
-                textButton.setEnabled(true);
-            }
-        });
-        return this.htmlButton;
-    }
-
-    private Button createTextButton(final TextArea editorArea) {
-        this.textButton.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                html.setHTML(editorArea.getValue());
-                editorArea.setValue(html.getText());
-                textButton.setEnabled(false);
-                htmlButton.setEnabled(true);
-            }
-        });
-        return this.textButton;
-    }
-
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.width = asPropertiesMap.get("width").toString();
         this.height = asPropertiesMap.get("height").toString();
-        
         populate();
     }
 
@@ -125,4 +79,19 @@ public class HTMLFormItem extends FBFormItem {
         return clone;
     }
 
+    public String getTextContent() {
+        return this.html.getText();
+    }
+    
+    public String getHtmlContent() {
+        return this.html.getHTML();
+    }
+    
+    public void setTextContent(String textContent) {
+        this.html.setText(textContent);
+    }
+    
+    public void setHtmlContent(String htmlContent) {
+        this.html.setHTML(htmlContent);
+    }
 }

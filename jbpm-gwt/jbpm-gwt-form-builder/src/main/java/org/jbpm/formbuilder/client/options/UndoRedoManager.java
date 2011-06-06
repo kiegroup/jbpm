@@ -64,7 +64,7 @@ public class UndoRedoManager {
     }
     
     public boolean canRedo() {
-        System.out.println("undoRedoWindow.size = " + undoRedoWindow.size() + " && index = " + index);
+        //System.out.println("undoRedoWindow.size = " + undoRedoWindow.size() + " && index = " + index);
         return undoRedoWindow.size() > 0 && index < (undoRedoWindow.size() - 1);
     }
 }
