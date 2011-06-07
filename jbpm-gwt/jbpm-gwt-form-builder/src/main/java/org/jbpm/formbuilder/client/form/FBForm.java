@@ -14,16 +14,17 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class FBForm extends VerticalPanel implements FBCompositeItem {
+public class FBForm extends FlowPanel implements FBCompositeItem {
 
     private String name;
     private String taskId;
     private String method;
     private String enctype;
     private String action;
+    
     private List<FBFormItem> formItems = new ArrayList<FBFormItem>();
     private List<FBValidationItem> validationItems = new ArrayList<FBValidationItem>();
     

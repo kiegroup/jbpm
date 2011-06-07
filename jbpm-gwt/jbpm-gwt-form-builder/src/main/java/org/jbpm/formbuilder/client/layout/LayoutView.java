@@ -15,11 +15,10 @@
  */
 package org.jbpm.formbuilder.client.layout;
 
-import org.jbpm.formbuilder.client.form.FBForm;
+import org.jbpm.formbuilder.client.form.FBForm; 
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,7 +28,7 @@ public class LayoutView extends SimplePanel {
     private FBForm formDisplay = new FBForm();
     
     public LayoutView() {
-        formDisplay.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+        formDisplay.setStyleName("formDisplay");
         formDisplay.setSize("100%", "100%");
         setSize("500px", "500px");
         Grid grid = new Grid(1,1);
