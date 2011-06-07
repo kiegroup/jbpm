@@ -18,46 +18,45 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     private AbsolutePanel panel = new AbsolutePanel();
     
     private String id;
-    private String height;
-    private String width;
     
     public AbsoluteLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        panel.setSize("90px", "90px");
         add(panel);
+        setSize("90px", "90px");
+        panel.setSize(getWidth(), getHeight());
     }
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("id", this.id);
-        map.put("height", this.height);
-        map.put("width", this.width);
+        map.put("height", getHeight());
+        map.put("width", getWidth());
         return map;
     }
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.id = extractString(asPropertiesMap.get("id"));
-        this.height = extractString(asPropertiesMap.get("height"));
-        this.width = extractString(asPropertiesMap.get("width"));
+        this.setHeight(extractString(asPropertiesMap.get("height")));
+        this.setWidth(extractString(asPropertiesMap.get("width")));
         populate(this.panel);
     }
 
     private void populate(AbsolutePanel panel) {
-        if (this.height != null) {
-            panel.setHeight(this.height);
+        if (this.getHeight() != null) {
+            panel.setHeight(this.getHeight());
         } 
-        if (this.width != null) {
-            panel.setWidth(this.width);
+        if (this.getWidth() != null) {
+            panel.setWidth(this.getWidth());
         }
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
         AbsolutePanelRepresentation rep = new AbsolutePanelRepresentation();
-        rep.setWidth(this.width);
-        rep.setHeight(this.height);
+        rep.setWidth(this.getWidth());
+        rep.setHeight(this.getHeight());
         rep.setId(this.id);
         for (FBFormItem item : getItems()) {
             rep.addItem(item.getRepresentation(), 
@@ -70,9 +69,9 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     @Override
     public FBFormItem cloneItem() {
         AbsoluteLayoutFormItem clone = new AbsoluteLayoutFormItem(getFormEffects());
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.populate(clone.panel);
         for (FBFormItem item : getItems()) {
             clone.add(item.cloneItem());

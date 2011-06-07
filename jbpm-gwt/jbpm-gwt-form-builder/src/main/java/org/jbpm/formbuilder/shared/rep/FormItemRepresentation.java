@@ -10,6 +10,9 @@ public abstract class FormItemRepresentation {
     private List<FBValidation> itemValidations = new ArrayList<FBValidation>();
     private OutputData output;
     private InputData input;
+    
+    private String width;
+    private String height;
 
     public List<FBValidation> getItemValidations() {
         return itemValidations;
@@ -35,5 +38,21 @@ public abstract class FormItemRepresentation {
         this.input = input;
     }
     
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
     public abstract String translate(String language) throws LanguageException;
 }

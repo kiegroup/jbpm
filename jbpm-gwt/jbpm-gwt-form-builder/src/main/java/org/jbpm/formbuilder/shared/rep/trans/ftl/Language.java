@@ -349,10 +349,16 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         builder.append("<input type=\"submit\" ");
         addParam(builder, "id", completeButton.getId());
         //TODO completeButton.getItemValidations();
+        StringBuilder css = new StringBuilder();
+        addStyleParam(css, "width", completeButton.getWidth());
+        addStyleParam(css, "height", completeButton.getHeight());
+        addParam(builder, "style", css.toString());
+        
         String name = completeButton.getName();
-        if (name == null && "".equals(name)) {
+        if (completeButton.getOutput() != null && (name == null || "".equals(name))) {
             name = completeButton.getOutput().getName();
         }
+        addParam(builder, "name", name);
         addParam(builder, "value", completeButton.getText());
         builder.append("/>");
         return builder.toString();
@@ -394,6 +400,12 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
         addParam(builder, "type", "checkbox");
         addParam(builder, "id", checkBox.getId());
         addParam(builder, "name", checkBox.getName());
+        
+        StringBuilder css = new StringBuilder();
+        addStyleParam(css, "width", checkBox.getWidth());
+        addStyleParam(css, "height", checkBox.getHeight());
+        addParam(builder, "style", css.toString());
+        
         if (checkBox.getChecked()) {
             addParam(builder, "checked", "true");
         }

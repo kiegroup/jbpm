@@ -24,6 +24,9 @@ public class CheckBoxFormItem extends FBFormItem {
     public CheckBoxFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(checkBox);
+        setWidth("30px");
+        setHeight("15px");
+        checkBox.setSize(getWidth(), getHeight());
     }
 
     @Override
@@ -33,6 +36,8 @@ public class CheckBoxFormItem extends FBFormItem {
         map.put("checked", this.checked);
         map.put("name", this.name);
         map.put("id", this.id);
+        map.put("height", getHeight());
+        map.put("width", getWidth());
         return map;
     }
     
@@ -42,7 +47,8 @@ public class CheckBoxFormItem extends FBFormItem {
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();
         this.checked = extractBoolean(asPropertiesMap.get("checked"));
-        
+        setHeight(extractString(asPropertiesMap.get("height")));
+        setWidth(extractString(asPropertiesMap.get("width")));
         populate(this.checkBox);
     }
 
@@ -56,11 +62,19 @@ public class CheckBoxFormItem extends FBFormItem {
         if (this.checked != null) {
             checkBox.setValue(checked);
         }
+        if (getWidth() != null) {
+            checkBox.setWidth(getWidth());
+        }
+        if (getHeight() != null) {
+            checkBox.setHeight(getHeight());
+        }
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
         CheckBoxRepresentation rep = new CheckBoxRepresentation();
+        rep.setWidth(getWidth());
+        rep.setHeight(getHeight());
         rep.setFormValue(formValue);
         rep.setName(name);
         rep.setId(id);
@@ -71,6 +85,8 @@ public class CheckBoxFormItem extends FBFormItem {
     @Override
     public FBFormItem cloneItem() {
         CheckBoxFormItem clone = new CheckBoxFormItem(getFormEffects());
+        clone.setWidth(getWidth());
+        clone.setHeight(getHeight());
         clone.checked = this.checked;
         clone.formValue = this.formValue;
         clone.id = this.id;

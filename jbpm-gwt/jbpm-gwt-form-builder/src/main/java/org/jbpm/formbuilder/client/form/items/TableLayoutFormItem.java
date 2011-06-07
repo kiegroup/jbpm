@@ -19,24 +19,27 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Grid grid = new Grid(1, 1) {
         @Override
         public boolean remove(Widget widget) {
-            return TableLayoutFormItem.this.remove(widget);
+            if (widget instanceof FBFormItem) {
+                return TableLayoutFormItem.this.remove(widget);
+            } else {
+                return super.remove(widget);
+            }
         }
     };
     
-    private Integer borderWidth = null;
+    private Integer borderWidth = 1;
     private Integer cellpadding = null;
     private Integer cellspacing = null;
     private Integer columns = 1;
     private Integer rows = 1;
     private String title = null;
-    private String height = null;
-    private String width = null;
     
     public TableLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        grid.setBorderWidth(1);
-        grid.setSize("90px", "90px");
+        grid.setBorderWidth(this.borderWidth);
         add(grid);
+        setSize("90px", "90px");
+        grid.setSize(getWidth(), getHeight());
     }
     
     @Override
@@ -50,8 +53,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
         this.borderWidth = extractInt(asPropertiesMap.get("borderWidth"));
         this.cellpadding = extractInt(asPropertiesMap.get("cellpadding"));
         this.cellspacing = extractInt(asPropertiesMap.get("cellspacing"));
-        this.height = extractString(asPropertiesMap.get("height"));
-        this.width = extractString(asPropertiesMap.get("width"));
+        this.setHeight(extractString(asPropertiesMap.get("height")));
+        this.setWidth(extractString(asPropertiesMap.get("width")));
         this.title = extractString(asPropertiesMap.get("title"));
         this.columns = extractInt(asPropertiesMap.get("columns"));
         this.rows = extractInt(asPropertiesMap.get("rows"));
@@ -69,11 +72,11 @@ public class TableLayoutFormItem extends LayoutFormItem {
         if (this.cellspacing != null && this.cellspacing >= 0) {
             grid.setCellSpacing(this.cellspacing);
         }
-        if (this.height != null) {
-            grid.setHeight(this.height);
+        if (getHeight() != null) {
+            grid.setHeight(getHeight());
         }
-        if (this.width != null) {
-            grid.setWidth(this.width);
+        if (getWidth() != null) {
+            grid.setWidth(getWidth());
         }
         if (this.title != null) {
             grid.setTitle(this.title);
@@ -92,8 +95,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
         map.put("borderWidth", this.borderWidth);
         map.put("cellpadding", this.cellpadding);
         map.put("cellspacing", this.cellspacing);
-        map.put("height", this.height);
-        map.put("width", this.width);
+        map.put("height", getHeight());
+        map.put("width", getWidth());
         map.put("title", this.title);
         map.put("columns", this.columns);
         map.put("rows", this.rows);
@@ -141,6 +144,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
                     }
                 }
             }
+        } else {
+            removed = super.remove(child);
         }
         return removed;
     }
@@ -170,10 +175,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
         clone.cellpadding = this.cellpadding;
         clone.cellspacing = this.cellspacing;
         clone.columns = this.columns;
-        clone.height = this.height;
+        clone.setHeight(getHeight());
         clone.rows = this.rows;
         clone.title = this.title;
-        clone.width = this.width;
+        clone.setWidth(getWidth());
         clone.populate(clone.grid);
         for (int index = 0; index < clone.columns * clone.rows; index++) {
             int column = index%clone.columns;

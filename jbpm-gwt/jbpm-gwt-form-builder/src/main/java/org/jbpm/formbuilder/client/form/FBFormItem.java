@@ -22,7 +22,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
@@ -35,6 +34,9 @@ public abstract class FBFormItem extends FocusPanel {
     
     private int desiredX;
     private int desiredY;
+    
+    private String widgetWidth;
+    private String widgetHeight;
     
     private boolean alreadyEditing = false;
     private Widget auxiliarWidget = null;
@@ -63,14 +65,16 @@ public abstract class FBFormItem extends FocusPanel {
     
     private void makeEditor() {
         if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
-            fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
+            fireSelectionEvent(new FormItemSelectionEvent(this, true));
         }
         if (!isAlreadyEditing()) {
             Widget inplaceEditor = createInplaceEditor();
-            auxiliarWidget = cloneDisplay();
-            Window.alert("Pre ResizablePanel");
-            setWidget(new ResizablePanel(inplaceEditor == null ? auxiliarWidget : inplaceEditor));
-            Window.alert("Pos ResizablePanel");
+            auxiliarWidget = getWidget();
+            int h = auxiliarWidget.getOffsetHeight() + 20;
+            int w = auxiliarWidget.getOffsetWidth() + 20;
+            clear();
+            setWidget(new ResizablePanel(inplaceEditor == null ? auxiliarWidget : inplaceEditor, w, h));
+            setSize("" + w + "px", "" + h + "px");
             setAlreadyEditing(true);
         }
     }
@@ -232,6 +236,26 @@ public abstract class FBFormItem extends FocusPanel {
     public void setDesiredPosition(int desiredX, int desiredY) {
         this.desiredX = desiredX;
         this.desiredY = desiredY;
+    }
+
+    public String getHeight() {
+        return widgetHeight;
+    }
+    
+    public String getWidth() {
+        return widgetWidth;
+    }
+
+    @Override
+    public void setWidth(String width) {
+        super.setWidth(width);
+        this.widgetWidth = width;
+    }
+    
+    @Override
+    public void setHeight(String height) {
+        super.setHeight(height);
+        this.widgetHeight = height;
     }
     
     public abstract FormItemRepresentation getRepresentation();

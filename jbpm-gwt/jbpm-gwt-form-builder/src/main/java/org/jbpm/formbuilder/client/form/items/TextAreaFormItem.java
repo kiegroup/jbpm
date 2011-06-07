@@ -37,6 +37,8 @@ public class TextAreaFormItem extends FBFormItem {
         map.put("cols", this.cols);
         map.put("name", this.name);
         map.put("id", this.id);
+        map.put("width", this.getWidth());
+        map.put("height", this.getHeight());
         return map;
     }
 
@@ -44,8 +46,10 @@ public class TextAreaFormItem extends FBFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         Integer rows = extractInt(asPropertiesMap.get("rows"));
         Integer cols = extractInt(asPropertiesMap.get("cols"));
-        this.defaultValue = asPropertiesMap.get("defaultValue").toString();
-        this.name = asPropertiesMap.get("name").toString();
+        this.defaultValue = extractString(asPropertiesMap.get("defaultValue"));
+        this.name = extractString(asPropertiesMap.get("name"));
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
         if (rows != null && rows > 0) {
             this.rows = rows;
         }
@@ -67,6 +71,12 @@ public class TextAreaFormItem extends FBFormItem {
         }
         if (this.name != null) {
             area.setName(this.name);
+        }
+        if (getWidth() != null) {
+            area.setWidth(getWidth());
+        }
+        if (getHeight() != null) {
+            area.setHeight(getHeight());
         }
     }
 

@@ -21,8 +21,6 @@ public class LabelFormItem extends FBFormItem {
     private final Label label = new Label("Label");
     
     private String id;
-    private String width;
-    private String height;
     private String cssClassName;
     
     public LabelFormItem(List<FBFormEffect> formEffects) {
@@ -34,8 +32,8 @@ public class LabelFormItem extends FBFormItem {
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> formItemPropertiesMap = new HashMap<String, Object>();
         formItemPropertiesMap.put("id", id);
-        formItemPropertiesMap.put("width", width);
-        formItemPropertiesMap.put("height", height);
+        formItemPropertiesMap.put("width", getWidth());
+        formItemPropertiesMap.put("height", getHeight());
         formItemPropertiesMap.put("cssClassName", cssClassName);
         return formItemPropertiesMap;
     }
@@ -58,19 +56,19 @@ public class LabelFormItem extends FBFormItem {
 
     @Override
     public void saveValues(Map<String, Object> propertiesMap) {
-        this.id = propertiesMap.get("id").toString();
-        this.width = propertiesMap.get("width").toString();
-        this.height = propertiesMap.get("height").toString();
-        this.cssClassName = propertiesMap.get("cssClassName").toString();
+        this.id = extractString(propertiesMap.get("id"));
+        this.setWidth(extractString(propertiesMap.get("width")));
+        this.setHeight(extractString(propertiesMap.get("height")));
+        this.cssClassName = extractString(propertiesMap.get("cssClassName"));
         populate(getLabel());
     }
 
     private void populate(Label label) {
-        if (this.width != null) {
-            label.setWidth(this.width);
+        if (this.getWidth() != null) {
+            label.setWidth(this.getWidth());
         }
-        if (this.height != null) {
-            label.setHeight(this.height);
+        if (this.getHeight() != null) {
+            label.setHeight(this.getHeight());
         }
         if (this.cssClassName != null) {
             label.setStyleName(this.cssClassName);
@@ -93,8 +91,8 @@ public class LabelFormItem extends FBFormItem {
         rep.setValue(this.label.getText());
         rep.setCssName(this.cssClassName);
         rep.setId(this.id);
-        rep.setWidth(this.width);
-        rep.setHeight(this.height);
+        rep.setWidth(this.getWidth());
+        rep.setHeight(this.getHeight());
         return rep;
     }
     
@@ -102,9 +100,9 @@ public class LabelFormItem extends FBFormItem {
     public FBFormItem cloneItem() {
         LabelFormItem clone = new LabelFormItem(getFormEffects());
         clone.cssClassName = this.cssClassName;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.getLabel().setText(this.label.getText());
         clone.populate(clone.label);
         return clone;

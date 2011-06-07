@@ -24,24 +24,24 @@ public class ComboBoxFormItem extends OptionsFormItem {
     private Boolean multiple = null;
     private Integer visibleItems = null;
     private String title;
-    private String width;
-    private String height;
     private String name;
     private String id;
     
     public ComboBoxFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(listBox);
+        setWidth("30px");
+        setHeight("15px");
+        listBox.setSize(getWidth(), getHeight());
     }
 
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        String s = (String) asPropertiesMap.get("multipleSelect");
-        this.multiple = s == null ? null : Boolean.valueOf(s); 
+        this.multiple = extractBoolean(asPropertiesMap.get("multipleSelect")); 
         this.visibleItems = extractInt(asPropertiesMap.get("verticalSize"));
-        this.title = asPropertiesMap.get("title").toString();
-        this.width = asPropertiesMap.get("width").toString();
-        this.height = asPropertiesMap.get("height").toString();
+        this.title = extractString(asPropertiesMap.get("title"));
+        this.setWidth(extractString(asPropertiesMap.get("width")));
+        this.setHeight(extractString(asPropertiesMap.get("height")));
         this.name = asPropertiesMap.get("name").toString();
         this.id = asPropertiesMap.get("id").toString();
         populate(this.listBox);
@@ -57,11 +57,11 @@ public class ComboBoxFormItem extends OptionsFormItem {
         if (title != null) {
             this.listBox.setTitle(title);
         }
-        if (width != null) {
-            this.listBox.setWidth(width);
+        if (getWidth() != null) {
+            this.listBox.setWidth(getWidth());
         }
-        if (height != null) {
-            this.listBox.setHeight(height);
+        if (getHeight() != null) {
+            this.listBox.setHeight(getHeight());
         }
     }
     
@@ -71,8 +71,8 @@ public class ComboBoxFormItem extends OptionsFormItem {
         itemPropertiesMap.put("multipleSelect", this.multiple);
         itemPropertiesMap.put("verticalSize", this.visibleItems);
         itemPropertiesMap.put("title", this.title);
-        itemPropertiesMap.put("width", this.width);
-        itemPropertiesMap.put("height", this.height);
+        itemPropertiesMap.put("width", this.getWidth());
+        itemPropertiesMap.put("height", this.getHeight());
         itemPropertiesMap.put("name", this.name);
         itemPropertiesMap.put("id", this.id);
         return itemPropertiesMap;
@@ -145,13 +145,13 @@ public class ComboBoxFormItem extends OptionsFormItem {
     @Override
     public FBFormItem cloneItem() {
         ComboBoxFormItem clone = new ComboBoxFormItem(getFormEffects());
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.multiple = this.multiple;
         clone.name = this.name;
         clone.title = this.title;
         clone.visibleItems = this.visibleItems;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.populate(clone.listBox);
         clone.addItems(this.getItems(), clone.listBox);
         return clone;

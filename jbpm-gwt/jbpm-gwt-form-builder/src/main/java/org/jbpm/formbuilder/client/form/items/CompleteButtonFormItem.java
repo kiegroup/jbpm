@@ -16,8 +16,6 @@ public class CompleteButtonFormItem extends FBFormItem {
 
     private Button button = new Button("Complete");
 
-    private String height;
-    private String width;
     private String innerText;
     private String name;
     private String id;
@@ -26,26 +24,29 @@ public class CompleteButtonFormItem extends FBFormItem {
     public CompleteButtonFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(button);
+        setHeight("20px");
+        setWidth("40px");
+        button.setSize(getWidth(), getHeight());
     }
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.height = asPropertiesMap.get("height").toString();
-        this.width = asPropertiesMap.get("width").toString();
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
-        this.innerText = asPropertiesMap.get("innerText").toString();
-        this.cssStyleName = asPropertiesMap.get("cssStyleName").toString();
+        setHeight(extractString(asPropertiesMap.get("height")));
+        setWidth(extractString(asPropertiesMap.get("width")));
+        this.name = extractString(asPropertiesMap.get("name"));
+        this.id = extractString(asPropertiesMap.get("id"));
+        this.innerText = extractString(asPropertiesMap.get("innerText"));
+        this.cssStyleName = extractString(asPropertiesMap.get("cssStyleName"));
         
         populate(this.button);
     }
 
     private void populate(Button button) {
-        if (this.height != null) {
-            button.setHeight(this.height);
+        if (getHeight() != null) {
+            button.setHeight(getHeight());
         }
-        if (this.width != null) {
-            button.setWidth(this.width);
+        if (getWidth() != null) {
+            button.setWidth(getWidth());
         }
         if (this.innerText != null) {
             button.setText(this.innerText);
@@ -58,8 +59,8 @@ public class CompleteButtonFormItem extends FBFormItem {
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("height", this.height);
-        map.put("width", this.width);
+        map.put("height", getHeight());
+        map.put("width", getWidth());
         map.put("innerText", this.innerText);
         map.put("cssStyleName", this.cssStyleName);
         map.put("name", this.name);
@@ -73,6 +74,8 @@ public class CompleteButtonFormItem extends FBFormItem {
         rep.setText(this.innerText);
         rep.setName(this.name);
         rep.setId(this.id);
+        rep.setWidth(getWidth());
+        rep.setHeight(getHeight());
         return rep;
     }
     
@@ -80,11 +83,11 @@ public class CompleteButtonFormItem extends FBFormItem {
     public FBFormItem cloneItem() {
         CompleteButtonFormItem clone = new CompleteButtonFormItem(getFormEffects());
         clone.cssStyleName = this.cssStyleName;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
+        clone.setWidth(this.getWidth());
         clone.id = this.id;
         clone.innerText = this.innerText;
         clone.name = this.name;
-        clone.width = this.width;
         clone.populate(clone.button);
         return clone;
     }

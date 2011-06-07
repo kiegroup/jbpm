@@ -18,13 +18,14 @@ public class FileInputFormItem extends FBFormItem {
     
     private String name;
     private String id;
-    private String width;
-    private String height;
     private String accept;
     
     public FileInputFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(fileUpload);
+        setHeight("15px");
+        setWidth("100px");
+        fileUpload.setSize(getWidth(), getHeight());
     }
 
     @Override
@@ -32,19 +33,19 @@ public class FileInputFormItem extends FBFormItem {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("name", this.name);
         map.put("id", this.id);
-        map.put("width", this.width);
-        map.put("height", this.height);
+        map.put("width", getWidth());
+        map.put("height", getHeight());
         map.put("accept", this.accept);
         return map;
     }
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.name = asPropertiesMap.get("name").toString();
-        this.width = asPropertiesMap.get("width").toString();
-        this.height = asPropertiesMap.get("height").toString();
-        this.id = asPropertiesMap.get("id").toString();
-        this.accept = asPropertiesMap.get("accept").toString();
+        this.name = extractString(asPropertiesMap.get("name"));
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
+        this.id = extractString(asPropertiesMap.get("id"));
+        this.accept = extractString(asPropertiesMap.get("accept"));
 
         populate(this.fileUpload);
     }
@@ -53,21 +54,21 @@ public class FileInputFormItem extends FBFormItem {
         if (this.name != null) {
             fileUpload.setName(this.name);
         }
-        if (this.width != null) {
-            fileUpload.setWidth(this.width);
+        if (getWidth() != null) {
+            fileUpload.setWidth(getWidth());
         }
-        if (this.height != null) {
-            fileUpload.setHeight(this.height);
+        if (getHeight() != null) {
+            fileUpload.setHeight(getHeight());
         }
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
         FileInputRepresentation rep = new FileInputRepresentation();
-        rep.setHeight(this.height);
+        rep.setHeight(getHeight());
         rep.setId(this.id);
         rep.setName(this.name);
-        rep.setWidth(this.width);
+        rep.setWidth(getWidth());
         rep.setAccept(this.accept);
         return rep;
     }
@@ -76,10 +77,10 @@ public class FileInputFormItem extends FBFormItem {
     public FBFormItem cloneItem() {
         FileInputFormItem clone = new FileInputFormItem(getFormEffects());
         clone.accept = this.accept;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.name = this.name;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.populate(clone.fileUpload);
         return clone;
     }

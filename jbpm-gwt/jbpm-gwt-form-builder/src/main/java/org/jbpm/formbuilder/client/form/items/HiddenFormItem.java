@@ -28,6 +28,7 @@ public class HiddenFormItem extends FBFormItem {
         border.setBorderWidth(1);
         border.setWidget(0, 0, hidden);
         add(border);
+        setSize("100px", "20px");
     }
 
     @Override

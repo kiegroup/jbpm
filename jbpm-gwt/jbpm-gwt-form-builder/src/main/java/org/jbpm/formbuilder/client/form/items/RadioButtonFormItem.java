@@ -24,6 +24,9 @@ public class RadioButtonFormItem extends FBFormItem {
     public RadioButtonFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(button);
+        setHeight("15px");
+        setWidth("15px");
+        button.setSize(getWidth(), getHeight());
     }
 
     @Override
@@ -33,16 +36,19 @@ public class RadioButtonFormItem extends FBFormItem {
         map.put("id", this.id);
         map.put("value", this.value);
         map.put("selected", this.selected);
+        map.put("width", this.getWidth());
+        map.put("height", this.getHeight());
         return map;
     }
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
-        this.value = asPropertiesMap.get("value").toString();
+        this.name = extractString(asPropertiesMap.get("name"));
+        this.id = extractString(asPropertiesMap.get("id"));
+        this.value = extractString(asPropertiesMap.get("value"));
         this.selected = extractBoolean(asPropertiesMap.get("selected"));
-
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
         populate(this.button);
     }
 
@@ -56,6 +62,12 @@ public class RadioButtonFormItem extends FBFormItem {
         if (this.selected != null) {
             button.setValue(this.selected);
         }
+        if (this.getWidth() != null) {
+            button.setWidth(this.getWidth());
+        }
+        if (this.getHeight() != null) {
+            button.setHeight(this.getHeight());
+        }
     }
 
     @Override
@@ -65,6 +77,8 @@ public class RadioButtonFormItem extends FBFormItem {
         rep.setName(this.name);
         rep.setSelected(this.selected);
         rep.setValue(this.value); //TODO setInput
+        rep.setWidth(this.getWidth());
+        rep.setHeight(this.getHeight());
         return rep;
     }
     
@@ -75,6 +89,8 @@ public class RadioButtonFormItem extends FBFormItem {
         clone.name = this.name;
         clone.selected = this.selected;
         clone.value = this.value;
+        clone.setHeight(this.getHeight());
+        clone.setWidth(this.getWidth());
         clone.populate(clone.button);
         return clone;
     }

@@ -1,27 +1,25 @@
 package org.jbpm.formbuilder.common.panels;
 
-import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasOneWidget;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ResizablePanel extends SimplePanel {
 
     private boolean dragAndDropBegin = false;
-    private final UIObject uiObject;
+    private final Widget widget;
     private final Grid grid = new Grid(3, 3);
     
-    public ResizablePanel(Widget widget) {
+    public ResizablePanel(Widget widget, int initialWidth, int initialHeight) {
         super();
-        this.uiObject = widget;
+        this.widget = widget;
         grid.setBorderWidth(0);
         grid.setCellPadding(0);
         grid.setCellSpacing(0);
@@ -36,7 +34,7 @@ public class ResizablePanel extends SimplePanel {
         grid.getCellFormatter().addStyleName(0, 2, "smallButton");
         grid.setWidget(1, 0, vline);
         grid.getCellFormatter().addStyleName(1, 0, "verticalLine");
-        grid.setWidget(1, 1, widget);
+        grid.setWidget(1, 1, widget.asWidget());
         grid.setWidget(1, 2, vline);
         grid.getCellFormatter().addStyleName(1, 2, "verticalLine");
         grid.setWidget(2, 0, button);
@@ -46,9 +44,10 @@ public class ResizablePanel extends SimplePanel {
         grid.setWidget(2, 2, button);
         grid.getCellFormatter().addStyleName(2, 2, "smallButton");
         setWidget(grid);
+        setSize("" + initialWidth + "px", "" + initialHeight + "px");
         sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOVER);
     }
-    
+
     @Override
     public void onBrowserEvent(Event event) {
         event.stopPropagation();
@@ -88,7 +87,7 @@ public class ResizablePanel extends SimplePanel {
                 if(absY>originalY && absX>originalX){
                     Integer height = absY-originalY+2;
                     Integer width = absX-originalX+2;
-                    this.setSize(width + "px", height + "px");
+                    this.setSize(width, height);
                 }
             }
             break;
@@ -98,8 +97,14 @@ public class ResizablePanel extends SimplePanel {
                 dragAndDropBegin = false;
                 DOM.releaseCapture(this.getElement());
             }
-            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-            bus.fireEvent(new FormItemSelectionEvent(null, false));
+            //delete this panel
+            clear();
+            if (getParent() instanceof HasOneWidget) {
+                ((HasOneWidget) getParent()).setWidget(this.widget);
+            } else if (getParent() instanceof HasWidgets) {
+                ((HasWidgets) getParent()).remove(this);
+                ((HasWidgets) getParent()).add(this.widget.asWidget());
+            }
             break;
         };
     }
@@ -126,9 +131,8 @@ public class ResizablePanel extends SimplePanel {
             return false;
     }
     
-    @Override
-    public void setSize(String width, String height) {
-        super.setWidth(width);
-        uiObject.setSize(width, height);
+    public void setSize(int width, int height) {
+        super.setSize("" + width + "px", "" + height + "px");
+        widget.setSize("" + (width - 20) + "px", "" + (height - 20) + "px");
     }
 }

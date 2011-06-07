@@ -20,13 +20,12 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     public HorizontalLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         panel.setBorderWidth(1);
-        panel.setSize("90px", "30px");
         add(panel);
+        setSize("90px", "30px");
+        panel.setSize(getWidth(), getHeight());
     }
     
     private Integer borderWidth;
-    private String height;
-    private String width;
     private Integer spacing;
     private String cssClassName;
     private String horizontalAlignment;
@@ -38,8 +37,8 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> formItemPropertiesMap = new HashMap<String, Object>();
         formItemPropertiesMap.put("borderWidth", borderWidth);
-        formItemPropertiesMap.put("height", height);
-        formItemPropertiesMap.put("width", width);
+        formItemPropertiesMap.put("height", getHeight());
+        formItemPropertiesMap.put("width", getWidth());
         formItemPropertiesMap.put("spacing", spacing);
         formItemPropertiesMap.put("cssClassName", cssClassName);
         formItemPropertiesMap.put("horizontalAlignment", horizontalAlignment);
@@ -52,14 +51,14 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.borderWidth = extractInt(asPropertiesMap.get("borderWidth"));
-        this.height = asPropertiesMap.get("height").toString();
-        this.width = asPropertiesMap.get("width").toString();
+        this.setHeight(extractString(asPropertiesMap.get("height")));
+        this.setWidth(extractString(asPropertiesMap.get("width")));
         this.spacing = extractInt(asPropertiesMap.get("spacing"));
-        this.cssClassName = asPropertiesMap.get("cssClassName").toString();
-        this.horizontalAlignment = asPropertiesMap.get("horizontalAlignment").toString();
-        this.verticalAlignment = asPropertiesMap.get("verticalAlignment").toString();
-        this.title = asPropertiesMap.get("title").toString();
-        this.id = asPropertiesMap.get("id").toString();
+        this.cssClassName = extractString(asPropertiesMap.get("cssClassName"));
+        this.horizontalAlignment = extractString(asPropertiesMap.get("horizontalAlignment"));
+        this.verticalAlignment = extractString(asPropertiesMap.get("verticalAlignment"));
+        this.title = extractString(asPropertiesMap.get("title"));
+        this.id = extractString(asPropertiesMap.get("id"));
         
         populate(this.panel);
     }
@@ -68,11 +67,11 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         if (this.borderWidth != null) {
             panel.setBorderWidth(this.borderWidth);
         }
-        if (this.height != null && !"".equals(this.height)) {
-            panel.setHeight(this.height);
+        if (this.getHeight() != null && !"".equals(this.getHeight())) {
+            panel.setHeight(this.getHeight());
         }
-        if (this.width != null && !"".equals(this.width)) {
-            panel.setWidth(this.width);
+        if (this.getWidth() != null && !"".equals(this.getWidth())) {
+            panel.setWidth(this.getWidth());
         }
         if (this.spacing != null) {
             panel.setSpacing(this.spacing);
@@ -85,8 +84,6 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
             panel.setTitle(this.title);
         }
     }
-
-   
     
     @Override
     public Panel getPanel() {
@@ -98,13 +95,13 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         HorizontalPanelRepresentation rep = new HorizontalPanelRepresentation();
         rep.setBorderWidth(this.borderWidth);
         rep.setCssClassName(this.cssClassName);
-        rep.setHeight(this.height);
+        rep.setHeight(this.getHeight());
         rep.setHorizontalAlignment(this.horizontalAlignment);
         rep.setId(this.id);
         rep.setSpacing(this.spacing);
         rep.setTitle(this.title);
         rep.setVerticalAlignment(this.verticalAlignment);
-        rep.setWidth(this.width);
+        rep.setWidth(this.getWidth());
         for (FBFormItem item : getItems()) {
             rep.addItem(item.getRepresentation());
         }
@@ -116,13 +113,13 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         HorizontalLayoutFormItem clone = new HorizontalLayoutFormItem(getFormEffects());
         clone.borderWidth = this.borderWidth;
         clone.cssClassName = this.cssClassName;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.horizontalAlignment = this.horizontalAlignment;
         clone.id = this.id;
         clone.spacing = this.spacing;
         clone.title = this.title;
         clone.verticalAlignment = this.verticalAlignment;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.populate(clone.panel);
         for (FBFormItem item : getItems()) {
             clone.add(item.cloneItem());

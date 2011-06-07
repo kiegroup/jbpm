@@ -10,6 +10,8 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     private Boolean checked;
     private String name;
     private String id;
+    private String height;
+    private String width;
     
     public String getFormValue() {
         return formValue;
@@ -41,6 +43,22 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
     }
 
     @Override

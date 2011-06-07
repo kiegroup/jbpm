@@ -17,21 +17,20 @@ public class HTMLFormItem extends FBFormItem {
 
     private HTML html = new HTML();
     
-    private String width;
-    private String height;
-    
     public HTMLFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        html.setSize("200px", "100px");
         html.setHTML("<div style=\"background-color: #DDDDDD; \">HTML: Click to edit</div>");
         add(html);
+        setWidth("200px");
+        setHeight("100px");
+        setSize(getWidth(),getHeight());
     }
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("width", this.width);
-        map.put("height", this.height);
+        map.put("width", getWidth());
+        map.put("height", getHeight());
         return map;
     }
     
@@ -42,17 +41,17 @@ public class HTMLFormItem extends FBFormItem {
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.width = asPropertiesMap.get("width").toString();
-        this.height = asPropertiesMap.get("height").toString();
+        this.setWidth(extractString(asPropertiesMap.get("width")));
+        this.setHeight(extractString(asPropertiesMap.get("height")));
         populate(this.html);
     }
 
     private void populate(HTML html) {
-        if (this.width != null) {
-            html.setWidth(this.width);
+        if (getWidth() != null) {
+            html.setWidth(getWidth());
         }
-        if (this.height != null) {
-            html.setHeight(this.height);
+        if (getHeight() != null) {
+            html.setHeight(getHeight());
         }
     }
 
@@ -63,8 +62,8 @@ public class HTMLFormItem extends FBFormItem {
     @Override
     public FormItemRepresentation getRepresentation() {
         HTMLRepresentation rep = new HTMLRepresentation();
-        rep.setWidth(width);
-        rep.setHeight(height);
+        rep.setWidth(getWidth());
+        rep.setHeight(getHeight());
         rep.setContent(html.getHTML());
         return rep;
     }
@@ -72,8 +71,8 @@ public class HTMLFormItem extends FBFormItem {
     @Override
     public FBFormItem cloneItem() {
         HTMLFormItem clone = new HTMLFormItem(getFormEffects());
-        clone.height = this.height;
-        clone.width = this.width;
+        clone.setHeight(getHeight());
+        clone.setWidth(getWidth());
         clone.setContent(this.html.getHTML());
         clone.populate(clone.html);
         return clone;

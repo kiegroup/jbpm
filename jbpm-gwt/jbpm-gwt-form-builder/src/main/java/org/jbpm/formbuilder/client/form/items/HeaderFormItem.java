@@ -23,13 +23,14 @@ public class HeaderFormItem extends FBFormItem {
     
     private String id;
     private String name;
-    private String width;
-    private String height;
     private String cssClassName;
     
     public HeaderFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(getHeader());
+        setWidth("100%");
+        setHeight("30px");
+        getHeader().setSize(getWidth(), getHeight());
     }
     
     @Override
@@ -37,8 +38,8 @@ public class HeaderFormItem extends FBFormItem {
         Map<String, Object> formItemPropertiesMap = new HashMap<String, Object>();
         formItemPropertiesMap.put("id", id);
         formItemPropertiesMap.put("name", name);
-        formItemPropertiesMap.put("width", width);
-        formItemPropertiesMap.put("height", height);
+        formItemPropertiesMap.put("width", getWidth());
+        formItemPropertiesMap.put("height", getHeight());
         formItemPropertiesMap.put("cssClassName", cssClassName);
         return formItemPropertiesMap;
     }
@@ -61,20 +62,20 @@ public class HeaderFormItem extends FBFormItem {
 
     @Override
     public void saveValues(Map<String, Object> propertiesMap) {
-        this.id = propertiesMap.get("id").toString();
-        this.name = propertiesMap.get("name").toString();
-        this.width = propertiesMap.get("width").toString();
-        this.height = propertiesMap.get("height").toString();
-        this.cssClassName = propertiesMap.get("cssClassName").toString();
+        this.id = extractString(propertiesMap.get("id"));
+        this.name = extractString(propertiesMap.get("name"));
+        setWidth(extractString(propertiesMap.get("width")));
+        setHeight(extractString(propertiesMap.get("height")));
+        this.cssClassName = extractString(propertiesMap.get("cssClassName"));
         populate(getHeader());
     }
 
     private void populate(HTML html) {
-        if (this.width != null) {
-            html.setWidth(this.width);
+        if (getWidth() != null) {
+            html.setWidth(getWidth());
         }
-        if (this.height != null) {
-            html.setHeight(this.height);
+        if (this.getHeight() != null) {
+            html.setHeight(getHeight());
         }
         if (this.cssClassName != null) {
             html.setStyleName(this.cssClassName);
@@ -102,8 +103,8 @@ public class HeaderFormItem extends FBFormItem {
         rep.setStyleClass(this.cssClassName);
         rep.setCssId(this.id);
         rep.setCssName(this.name);
-        rep.setWidth(this.width);
-        rep.setHeight(this.height);
+        rep.setWidth(this.getWidth());
+        rep.setHeight(this.getHeight());
         return rep;
     }
     
@@ -111,10 +112,10 @@ public class HeaderFormItem extends FBFormItem {
     public FBFormItem cloneItem() {
         HeaderFormItem clone = new HeaderFormItem(getFormEffects());
         clone.cssClassName = this.cssClassName;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.name = this.name;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.setContent(this.header.getHTML());
         clone.populate(this.header);
         return clone;

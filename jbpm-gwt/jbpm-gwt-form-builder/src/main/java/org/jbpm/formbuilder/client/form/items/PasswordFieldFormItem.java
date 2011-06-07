@@ -19,14 +19,15 @@ public class PasswordFieldFormItem extends FBFormItem {
     private String defaultContent = null;
     private String name = null;
     private String id = null;
-    private String height = null;
-    private String width = null;
     private String title = null;
     private Integer maxlength = null;
     
     public PasswordFieldFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(textBox);
+        setWidth("60px");
+        setHeight("15px");
+        textBox.setSize(getWidth(), getHeight());
     }
     
     @Override
@@ -35,8 +36,8 @@ public class PasswordFieldFormItem extends FBFormItem {
         map.put("inputDefaultContent", this.defaultContent);
         map.put("name", this.name);
         map.put("id", this.id);
-        map.put("height", this.height);
-        map.put("width", this.width);
+        map.put("height", getHeight());
+        map.put("width", getWidth());
         map.put("maxlength", this.maxlength);
         map.put("title", this.title);
         return map;
@@ -44,12 +45,12 @@ public class PasswordFieldFormItem extends FBFormItem {
 
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.defaultContent = asPropertiesMap.get("inputDefaultContent").toString();
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
-        this.height = asPropertiesMap.get("height").toString();
-        this.width = asPropertiesMap.get("width").toString();
-        this.title = asPropertiesMap.get("title").toString();
+        this.defaultContent = extractString(asPropertiesMap.get("inputDefaultContent"));
+        this.name = extractString(asPropertiesMap.get("name"));
+        this.id = extractString(asPropertiesMap.get("id"));
+        this.setHeight(extractString(asPropertiesMap.get("height")));
+        this.setWidth(extractString(asPropertiesMap.get("width")));
+        this.title = extractString(asPropertiesMap.get("title"));
         this.maxlength = extractInt(asPropertiesMap.get("maxlength"));
         
         populate(this.textBox);
@@ -62,11 +63,11 @@ public class PasswordFieldFormItem extends FBFormItem {
         if (this.name != null) {
             textBox.setName(this.name);
         }
-        if (this.height != null) {
-            textBox.setHeight(this.height);
+        if (getHeight() != null) {
+            textBox.setHeight(getHeight());
         }
-        if (this.width != null) {
-            textBox.setWidth(this.width);
+        if (getWidth() != null) {
+            textBox.setWidth(getWidth());
         }
         if (this.title != null) {
             textBox.setTitle(this.title);
@@ -83,6 +84,8 @@ public class PasswordFieldFormItem extends FBFormItem {
         rep.setName(this.name);
         rep.setId(this.id);
         rep.setMaxLength(this.maxlength);
+        rep.setWidth(this.getWidth());
+        rep.setHeight(this.getHeight());
         return rep;
     }
     
@@ -90,12 +93,12 @@ public class PasswordFieldFormItem extends FBFormItem {
     public FBFormItem cloneItem() {
         PasswordFieldFormItem clone = new PasswordFieldFormItem(getFormEffects());
         clone.defaultContent = this.defaultContent;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.maxlength = this.maxlength;
         clone.name = this.name;
         clone.title = this.title;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.populate(clone.textBox);
         return clone;
     }

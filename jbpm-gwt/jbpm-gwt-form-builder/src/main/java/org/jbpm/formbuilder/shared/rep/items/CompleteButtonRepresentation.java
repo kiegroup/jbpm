@@ -7,6 +7,8 @@ import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class CompleteButtonRepresentation extends FormItemRepresentation {
 
+    private String height;
+    private String width;
     private String text;
     private String name;
     private String id;
@@ -49,7 +51,23 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
     public void setOnClickScript(FBScript onClickScript) {
         this.onClickScript = onClickScript;
     }
-    
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
     @Override
     public String translate(String language) throws LanguageException {
         return LanguageFactory.getInstance().getLanguage(language).completeButton(this);

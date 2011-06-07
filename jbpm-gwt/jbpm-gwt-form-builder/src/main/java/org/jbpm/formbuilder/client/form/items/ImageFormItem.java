@@ -18,8 +18,6 @@ public class ImageFormItem extends FBFormItem {
     private Image image = new Image();
     
     private String altText;
-    private String height;
-    private String width;
     private String url;
     private String id;
     
@@ -27,14 +25,16 @@ public class ImageFormItem extends FBFormItem {
         super(formEffects);
         image.setResource(FormBuilderResources.INSTANCE.defaultImage());
         add(image);
+        setWidth("200px");
+        setHeight("150px");
     }
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("altText", this.altText);
-        map.put("height", this.height);
-        map.put("width", this.width);
+        map.put("height", this.getHeight());
+        map.put("width", this.getWidth());
         map.put("url", this.url);
         map.put("id", this.id);
         return map;
@@ -42,11 +42,11 @@ public class ImageFormItem extends FBFormItem {
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.altText = asPropertiesMap.get("altText").toString();
-        this.height = asPropertiesMap.get("height").toString();
-        this.width = asPropertiesMap.get("width").toString();
-        this.url = asPropertiesMap.get("url").toString();
-        this.id = asPropertiesMap.get("id").toString();
+        this.altText = extractString(asPropertiesMap.get("altText"));
+        this.setHeight(extractString(asPropertiesMap.get("height")));
+        this.setWidth(extractString(asPropertiesMap.get("width")));
+        this.url = extractString(asPropertiesMap.get("url"));
+        this.id = extractString(asPropertiesMap.get("id"));
         
         populate(this.image);
     }
@@ -56,11 +56,11 @@ public class ImageFormItem extends FBFormItem {
             image.setAltText(this.altText);
             image.setTitle(this.altText);
         }
-        if (this.height != null) {
-            image.setHeight(this.height);
+        if (this.getHeight() != null) {
+            image.setHeight(this.getHeight());
         }
-        if (this.width != null) {
-            image.setWidth(this.width);
+        if (this.getWidth() != null) {
+            image.setWidth(this.getWidth());
         }
         if (this.url != null && !"".equals(this.url)) {
             image.setUrl(this.url);
@@ -71,8 +71,8 @@ public class ImageFormItem extends FBFormItem {
     public FormItemRepresentation getRepresentation() {
         ImageRepresentation rep = new ImageRepresentation();
         rep.setAltText(this.altText);
-        rep.setHeight(this.height);
-        rep.setWidth(this.width);
+        rep.setHeight(this.getHeight());
+        rep.setWidth(this.getWidth());
         rep.setUrl(this.url);
         rep.setId(this.id);
         return rep;
@@ -82,10 +82,10 @@ public class ImageFormItem extends FBFormItem {
     public FBFormItem cloneItem() {
         ImageFormItem clone = new ImageFormItem(getFormEffects());
         clone.altText = this.altText;
-        clone.height = this.height;
+        clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.url = this.url;
-        clone.width = this.width;
+        clone.setWidth(this.getWidth());
         clone.populate(clone.image);
         return clone;
     }
