@@ -1,14 +1,16 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class HiddenRepresentation extends FormItemRepresentation {
 
     private String id;
     private String name;
     private String value;
+    
+    public HiddenRepresentation() {
+        super("hidden");
+    }
     
     public String getId() {
         return id;
@@ -33,10 +35,4 @@ public class HiddenRepresentation extends FormItemRepresentation {
     public void setValue(String value) {
         this.value = value;
     }
-
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).hidden(this);
-    }
-
 }

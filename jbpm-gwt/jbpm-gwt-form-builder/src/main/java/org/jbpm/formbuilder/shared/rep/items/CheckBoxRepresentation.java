@@ -1,8 +1,6 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class CheckBoxRepresentation extends FormItemRepresentation {
 
@@ -10,8 +8,10 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     private Boolean checked;
     private String name;
     private String id;
-    private String height;
-    private String width;
+
+    public CheckBoxRepresentation() {
+        super("checkBox");
+    }
     
     public String getFormValue() {
         return formValue;
@@ -44,26 +44,4 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     public void setId(String id) {
         this.id = id;
     }
-
-    public String getHeight() {
-        return height;
-    }
-
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
-    public String getWidth() {
-        return width;
-    }
-
-    public void setWidth(String width) {
-        this.width = width;
-    }
-
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).checkBox(this);
-    }
-
 }

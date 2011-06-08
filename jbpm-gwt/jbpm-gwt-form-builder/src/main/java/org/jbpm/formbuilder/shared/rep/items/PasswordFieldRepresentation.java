@@ -1,8 +1,6 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class PasswordFieldRepresentation extends FormItemRepresentation {
     
@@ -12,7 +10,7 @@ public class PasswordFieldRepresentation extends FormItemRepresentation {
     private Integer maxLength;
     
     public PasswordFieldRepresentation() {
-        super();
+        super("passwordField");
     }
 
     public String getDefaultValue() {
@@ -45,10 +43,5 @@ public class PasswordFieldRepresentation extends FormItemRepresentation {
 
     public void setMaxLength(Integer maxLength) {
         this.maxLength = maxLength;
-    }
-
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).passwordField(this);
     }
 }

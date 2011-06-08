@@ -4,14 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class HorizontalPanelRepresentation extends FormItemRepresentation {
 
     private Integer borderWidth;
-    private String height;
-    private String width;
     private Integer spacing;
     private String cssClassName;
     private String horizontalAlignment;
@@ -21,7 +17,7 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
     private List<FormItemRepresentation> items = new ArrayList<FormItemRepresentation>();
     
     public HorizontalPanelRepresentation() {
-        super();
+        super("horizontalPanel");
     }
 
     public Integer getBorderWidth() {
@@ -30,22 +26,6 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
 
     public void setBorderWidth(Integer borderWidth) {
         this.borderWidth = borderWidth;
-    }
-
-    public String getHeight() {
-        return height;
-    }
-
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
-    public String getWidth() {
-        return width;
-    }
-
-    public void setWidth(String width) {
-        this.width = width;
     }
 
     public Integer getSpacing() {
@@ -106,10 +86,5 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
     
     public void setItems(List<FormItemRepresentation> items) {
         this.items = items;
-    }
-    
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).horizontalPanel(this);
     }
 }

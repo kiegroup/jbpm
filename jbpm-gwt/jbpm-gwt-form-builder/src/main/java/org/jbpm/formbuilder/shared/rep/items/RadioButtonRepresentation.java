@@ -1,8 +1,6 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class RadioButtonRepresentation extends FormItemRepresentation {
 
@@ -11,6 +9,10 @@ public class RadioButtonRepresentation extends FormItemRepresentation {
     private String value;
     private Boolean selected = Boolean.FALSE;
        
+    public RadioButtonRepresentation() {
+        super("radioButton");
+    }
+    
     public String getName() {
         return name;
     }
@@ -42,10 +44,4 @@ public class RadioButtonRepresentation extends FormItemRepresentation {
     public void setSelected(Boolean selected) {
         this.selected = selected;
     }
-
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).radioButton(this);
-    }
-
 }

@@ -1,8 +1,6 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class TextAreaRepresentation extends FormItemRepresentation {
 
@@ -11,6 +9,10 @@ public class TextAreaRepresentation extends FormItemRepresentation {
     private int cols;
     private String value;
     private String id;
+
+    public TextAreaRepresentation() {
+        super("textArea");
+    }
     
     public String getName() {
         return name;
@@ -50,10 +52,5 @@ public class TextAreaRepresentation extends FormItemRepresentation {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).textArea(this);
     }
 }

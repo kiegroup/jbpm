@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class TableRepresentation extends FormItemRepresentation {
 
@@ -19,7 +17,7 @@ public class TableRepresentation extends FormItemRepresentation {
     private Integer cellSpacing;
     
     public TableRepresentation(Integer rows, Integer columns) {
-        super();
+        super("table");
         this.rows = rows == null ? 1 : rows;
         this.columns = columns == null ? 1 : columns;
         this.elements = new ArrayList<List<FormItemRepresentation>>(this.rows);
@@ -73,10 +71,5 @@ public class TableRepresentation extends FormItemRepresentation {
 
     public Integer getColumns() {
         return columns;
-    }
-    
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).table(this);
     }
 }

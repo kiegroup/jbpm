@@ -30,11 +30,58 @@ import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language {
 
     private static final String LANG = "ftl";
+
+    public String getLanguage() {
+        return LANG;
+    }
+    
+    /*
+     * just a mockup implementation 
+     */
+    public String translateItem(FormItemRepresentation item) throws LanguageException {
+        if ("textField".equals(item.getTypeId())) {
+            return textField((TextFieldRepresentation) item);
+        } else if ("label".equals(item.getTypeId())) {
+            return label((LabelRepresentation) item);
+        } else if ("table".equals(item.getTypeId())) {
+            return table((TableRepresentation) item);
+        } else if ("comboBox".equals(item.getTypeId())) {
+            return comboBox((ComboBoxRepresentation) item);
+        } else if ("completeButton".equals(item.getTypeId())) {
+            return completeButton((CompleteButtonRepresentation) item);
+        } else if ("header".equals(item.getTypeId())) {
+            return header((HeaderRepresentation) item);
+        } else if ("option".equals(item.getTypeId())) {
+            return option((OptionRepresentation) item);
+        } else if ("passwordField".equals(item.getTypeId())) {
+            return passwordField((PasswordFieldRepresentation) item);
+        } else if ("horizontalPanel".equals(item.getTypeId())) {
+            return horizontalPanel((HorizontalPanelRepresentation) item);
+        } else if ("textArea".equals(item.getTypeId())) {
+            return textArea((TextAreaRepresentation) item);
+        } else if ("hidden".equals(item.getTypeId())) {
+            return hidden((HiddenRepresentation) item);
+        } else if ("checkBox".equals(item.getTypeId())) {
+            return checkBox((CheckBoxRepresentation) item);
+        } else if ("fileInput".equals(item.getTypeId())) {
+            return fileInput((FileInputRepresentation) item);
+        } else if ("image".equals(item.getTypeId())) {
+            return image((ImageRepresentation) item);
+        } else if ("html".equals(item.getTypeId())) {
+            return html((HTMLRepresentation) item);
+        } else if ("radioButton".equals(item.getTypeId())) {
+            return radioButton((RadioButtonRepresentation) item);
+        } else if ("absolutePanel".equals(item.getTypeId())) {
+            return absolutePanel((AbsolutePanelRepresentation) item);
+        } else {
+            throw new LanguageException("Unknown typeId: " + item.getTypeId());
+        }
+    }
     
     /*
      * ftl implementation
      */
-    public String form(FormRepresentation form) throws LanguageException {
+    public String translateForm(FormRepresentation form) throws LanguageException {
         StringBuilder builder = new StringBuilder();
         
         StringBuilder invokeOnLoad = new StringBuilder();

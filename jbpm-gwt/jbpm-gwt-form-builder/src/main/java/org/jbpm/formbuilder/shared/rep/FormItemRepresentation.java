@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public abstract class FormItemRepresentation {
     
@@ -13,6 +14,12 @@ public abstract class FormItemRepresentation {
     
     private String width;
     private String height;
+    
+    private final String typeId;
+    
+    public FormItemRepresentation(String typeId) {
+        this.typeId = typeId;
+    }
 
     public List<FBValidation> getItemValidations() {
         return itemValidations;
@@ -54,5 +61,11 @@ public abstract class FormItemRepresentation {
         this.height = height;
     }
 
-    public abstract String translate(String language) throws LanguageException;
+    public String getTypeId() {
+        return typeId;
+    }
+    
+    public String translate(String language) throws LanguageException {
+        return LanguageFactory.getInstance().getLanguage(language).translateItem(this);
+    }
 }

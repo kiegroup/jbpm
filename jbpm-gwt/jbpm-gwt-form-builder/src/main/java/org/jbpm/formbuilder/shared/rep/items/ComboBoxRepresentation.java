@@ -2,10 +2,8 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.List;
 
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FBScript;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class ComboBoxRepresentation extends FormItemRepresentation {
 
@@ -14,6 +12,10 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
     private String name;
     private String id;
 
+    public ComboBoxRepresentation() {
+        super("comboBox");
+    }
+    
     public List<OptionRepresentation> getElements() {
         return elements;
     }
@@ -44,10 +46,5 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
 
     public void setId(String id) {
         this.id = id;
-    }
-    
-    @Override
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).comboBox(this);
     }
 }

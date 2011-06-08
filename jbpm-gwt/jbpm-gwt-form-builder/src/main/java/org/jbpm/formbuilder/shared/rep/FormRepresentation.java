@@ -128,6 +128,6 @@ public class FormRepresentation {
     }
     
     public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).form(this);
+        return LanguageFactory.getInstance().getLanguage(language).translateForm(this);
     }
 }

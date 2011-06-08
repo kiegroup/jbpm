@@ -1,26 +1,17 @@
 package org.jbpm.formbuilder.shared.rep.trans;
 
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 
 public interface Language {
 
+    String getLanguage();
+    
+    String translateForm(FormRepresentation form) throws LanguageException;
+    
+    String translateItem(FormItemRepresentation item) throws LanguageException;
+    
+    /*
     String form(FormRepresentation form) throws LanguageException;
 
     String textField(TextFieldRepresentation textField) throws LanguageException;
@@ -55,5 +46,5 @@ public interface Language {
 
     String radioButton(RadioButtonRepresentation radioButton) throws LanguageException;
 
-    String absolutePanel(AbsolutePanelRepresentation absolutePanel) throws LanguageException;
+    String absolutePanel(AbsolutePanelRepresentation absolutePanel) throws LanguageException;*/
 }
