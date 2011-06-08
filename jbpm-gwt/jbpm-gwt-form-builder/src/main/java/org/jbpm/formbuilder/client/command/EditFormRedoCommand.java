@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.client.command;
 
+import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
+import org.jbpm.formbuilder.client.bus.UndoRedoEventHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.options.UndoRedoManager;
@@ -22,6 +24,11 @@ public class EditFormRedoCommand implements BaseCommand {
             public void doAction(UndoableEvent event) {  }
             public void undoAction(UndoableEvent event) {  }
         });
+        bus.addHandler(UndoRedoEvent.TYPE, new UndoRedoEventHandler() {
+            public void onEvent(UndoRedoEvent event) {
+                checkEnabled();
+            }
+         });
     }
     
     public void execute() {

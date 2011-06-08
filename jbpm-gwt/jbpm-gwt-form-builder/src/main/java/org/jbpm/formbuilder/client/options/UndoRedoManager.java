@@ -3,6 +3,7 @@ package org.jbpm.formbuilder.client.options;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -15,6 +16,8 @@ public class UndoRedoManager {
     
     private static final UndoRedoManager INSTANCE = new UndoRedoManager();
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
     public static UndoRedoManager getInstance() {
         return INSTANCE;
     }
@@ -25,7 +28,6 @@ public class UndoRedoManager {
     private int index = -1;
     
     private UndoRedoManager() {
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         bus.addHandler(UndoableEvent.TYPE, new UndoableEventHandler() {
             public void onEvent(UndoableEvent event) {
                 syncAdd(event);
@@ -48,14 +50,16 @@ public class UndoRedoManager {
             UndoableEvent event = undoRedoWindow.get(index);
             index--;
             event.getRollbackHandler().undoAction(event);
+            bus.fireEvent(new UndoRedoEvent());
         }
     }
     
     public synchronized void redo() {
         if (canRedo()) {
-            UndoableEvent event = undoRedoWindow.get(index);
             index++;
+            UndoableEvent event = undoRedoWindow.get(index);
             event.getRollbackHandler().doAction(event);
+            bus.fireEvent(new UndoRedoEvent());
         }
     }
     
@@ -64,7 +68,6 @@ public class UndoRedoManager {
     }
     
     public boolean canRedo() {
-        //System.out.println("undoRedoWindow.size = " + undoRedoWindow.size() + " && index = " + index);
         return undoRedoWindow.size() > 0 && index < (undoRedoWindow.size() - 1);
     }
 }

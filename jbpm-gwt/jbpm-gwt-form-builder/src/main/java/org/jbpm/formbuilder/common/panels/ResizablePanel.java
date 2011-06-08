@@ -122,7 +122,6 @@ public class ResizablePanel extends SimplePanel {
         int north = south - 10;
         boolean isInWidth = xCursor > west && xCursor < east;
         boolean isInHeight = yCursor > north && yCursor < south;
-        System.out.println("isInWidth: " + isInWidth + "; isInHeight: " + isInHeight);
         return isInWidth && isInHeight;
     }
     
