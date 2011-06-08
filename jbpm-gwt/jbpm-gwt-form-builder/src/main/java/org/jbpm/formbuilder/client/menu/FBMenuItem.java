@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
@@ -35,6 +36,10 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     
     private FocusPanel shim = new FocusPanel();
     private final List<FBFormEffect> formEffects;
+    
+    public FBMenuItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public FBMenuItem(List<FBFormEffect> formEffects) {
         this.formEffects = formEffects;
@@ -113,6 +118,10 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     protected void onUnload() {
       super.onUnload();
       shim.removeFromParent();
+    }
+
+    public void addEffect(FBFormEffect effect) {
+        this.formEffects.add(effect);
     }
 
 }

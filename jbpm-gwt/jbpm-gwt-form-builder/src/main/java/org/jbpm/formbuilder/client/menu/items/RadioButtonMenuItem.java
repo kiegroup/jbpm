@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class RadioButtonMenuItem extends FBMenuItem {
 
+    public RadioButtonMenuItem() {
+        super();
+    }
+    
     public RadioButtonMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

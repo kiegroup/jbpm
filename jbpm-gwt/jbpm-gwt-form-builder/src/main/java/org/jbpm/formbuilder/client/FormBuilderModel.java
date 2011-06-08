@@ -36,6 +36,7 @@ import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.menu.items.FileInputMenuItem;
 import org.jbpm.formbuilder.client.menu.items.HTMLMenuItem;
 import org.jbpm.formbuilder.client.menu.items.HeaderMenuItem;
@@ -50,28 +51,75 @@ import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
+
 public class FormBuilderModel {
 
     public Map<String, List<FBMenuItem>> getMenuItems() {
+        
+        
+        
         /* TODO The whole idea is to get menu items definitions from a server
          * so that anyone can configure it to return the JSON they desire
          * and reconfigure it to have as many permissions to do things as
-         * they may want.
-         
-        final List<String> classNames = new ArrayList<String>();
+         * they may want.*/
+        /*
+        final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
-                String json = response.getText();
-                JSONValue value = JSONParser.parseLenient(json);
-                if (value.isArray() != null) {
-                    JSONArray array = value.isArray();
-                    int size = array.size();
-                    for (int i = 0; i < size; i++) {
-                        classNames.add(array.get(i).isString().stringValue());
+                Document xml = XMLParser.parse(response.getText());
+                NodeList list = xml.getElementsByTagName("menuItem");
+                for (int index = 0; index < list.getLength(); index ++) {
+                    Node itemNode = list.item(index);
+                    String itemClassName = ((Element) itemNode).getAttribute("className");
+                    String itemGroupName = ((Element) itemNode).getAttribute("groupName");
+                    try {
+                        Class<?> klass = ReflectionHelper.loadClass(itemClassName);
+                        Object obj = ReflectionHelper.newInstance(klass);
+                        FBMenuItem menuItem = null;
+                        if (obj instanceof FBMenuItem) {
+                            menuItem = (FBMenuItem) obj;
+                        } else {
+                            throw new Exception(itemClassName + " not of type FBMenuItem");
+                        }
+                        NodeList effects = itemNode.getChildNodes();
+                        for (int i = 0; i < effects.getLength(); i++) {
+                            Node effectNode = effects.item(i);
+                            String effectClassName = ((Element) effectNode).getAttribute("className");
+                            Class<?> clazz = ReflectionHelper.loadClass(effectClassName);
+                            Object efobj = ReflectionHelper.newInstance(clazz);
+                            if (efobj instanceof FBFormEffect) {
+                                menuItem.addEffect((FBFormEffect) efobj);
+                            } else {
+                                throw new Exception(effectClassName + " not a valid FBFormEffect type");
+                            }
+                        }
+                        List<FBMenuItem> listItems = menuItems.get(itemGroupName);
+                        if (listItems == null) {
+                            listItems = new ArrayList<FBMenuItem>();
+                        }
+                        listItems.add(menuItem);
+                        menuItems.put(itemGroupName, listItems);
+                    } catch (Exception e) {
+                        List<FBMenuItem> listItems = menuItems.get("Errors");
+                        if (listItems == null) {
+                            listItems = new ArrayList<FBMenuItem>();
+                        }
+                        listItems.add(new ErrorMenuItem(e.getLocalizedMessage()));
+                        menuItems.put("Errors", listItems);
                     }
-                } else {
-                    classNames.add(value.isString().stringValue());
                 }
             }
             
@@ -79,19 +127,6 @@ public class FormBuilderModel {
                 Window.alert("Couldn't find menu items");
             }
         });
-        for (String className : classNames) {
-            try {
-                Class<?> kclass = ReflectionHelper.loadClass(className);
-                Object obj = ReflectionHelper.newInstance(kclass);
-                if (obj instanceof FBMenuItem) {
-                    list.add((FBMenuItem) obj);
-                } else {
-                    list.add(new ErrorMenuItem(className + " not of type FBMenuItem"));
-                }
-            } catch (Exception e) {
-                list.add(new ErrorMenuItem("Couldn't instantiate " + className);
-            }
-        }
         */
         Map<String, List<FBMenuItem>> map = new HashMap<String, List<FBMenuItem>>();
         List<FBMenuItem> controls = new ArrayList<FBMenuItem>();

@@ -14,6 +14,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class CheckBoxMenuItem extends FBMenuItem {
 
+    public CheckBoxMenuItem() {
+        super();
+    }
+    
     public CheckBoxMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

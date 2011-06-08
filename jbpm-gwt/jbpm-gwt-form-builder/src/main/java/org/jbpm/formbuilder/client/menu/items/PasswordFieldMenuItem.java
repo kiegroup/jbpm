@@ -29,6 +29,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class PasswordFieldMenuItem extends FBMenuItem {
 
+    public PasswordFieldMenuItem() {
+        super();
+    }
+    
     public PasswordFieldMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

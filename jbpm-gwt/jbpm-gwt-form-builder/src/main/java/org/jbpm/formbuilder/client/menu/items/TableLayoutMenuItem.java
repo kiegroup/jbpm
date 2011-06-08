@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class TableLayoutMenuItem extends FBMenuItem {
 
+    public TableLayoutMenuItem() {
+        super();
+    }
+    
     public TableLayoutMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class HorizontalLayoutMenuItem extends FBMenuItem {
 
+    public HorizontalLayoutMenuItem() {
+        super();
+    }
+    
     public HorizontalLayoutMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

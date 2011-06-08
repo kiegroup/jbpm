@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class AbsoluteLayoutMenuItem extends FBMenuItem {
 
+    public AbsoluteLayoutMenuItem() {
+        super();
+    }
+    
     public AbsoluteLayoutMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

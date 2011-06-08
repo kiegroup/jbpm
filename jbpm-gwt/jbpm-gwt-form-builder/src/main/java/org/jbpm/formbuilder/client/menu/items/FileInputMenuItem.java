@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class FileInputMenuItem extends FBMenuItem {
 
+    public FileInputMenuItem() {
+        super();
+    }
+    
     public FileInputMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

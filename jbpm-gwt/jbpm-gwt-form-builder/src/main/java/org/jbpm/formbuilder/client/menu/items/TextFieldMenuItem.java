@@ -29,6 +29,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class TextFieldMenuItem extends FBMenuItem {
 
+    public TextFieldMenuItem() {
+        super();
+    }
+    
     public TextFieldMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

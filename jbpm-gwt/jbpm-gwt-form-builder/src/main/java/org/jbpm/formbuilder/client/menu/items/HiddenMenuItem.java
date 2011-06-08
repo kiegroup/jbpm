@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class HiddenMenuItem extends FBMenuItem {
 
+    public HiddenMenuItem() {
+        super();
+    }
+    
     public HiddenMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

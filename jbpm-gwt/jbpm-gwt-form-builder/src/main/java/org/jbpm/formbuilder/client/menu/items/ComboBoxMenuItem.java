@@ -13,6 +13,10 @@ import com.google.gwt.user.client.ui.Label;
 
 public class ComboBoxMenuItem extends FBMenuItem {
 
+    public ComboBoxMenuItem() {
+        super();
+    }
+    
     public ComboBoxMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }

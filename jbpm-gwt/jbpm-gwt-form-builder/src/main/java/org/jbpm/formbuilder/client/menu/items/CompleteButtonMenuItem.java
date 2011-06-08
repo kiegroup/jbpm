@@ -29,6 +29,9 @@ import com.google.gwt.user.client.ui.Label;
 
 public class CompleteButtonMenuItem extends FBMenuItem {
 
+    public CompleteButtonMenuItem() {
+        super();
+    }
 
     public CompleteButtonMenuItem(List<FBFormEffect> formEffects) {
         super(formEffects);

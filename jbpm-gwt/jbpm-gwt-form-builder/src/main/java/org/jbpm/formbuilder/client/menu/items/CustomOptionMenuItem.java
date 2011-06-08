@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.client.menu.items;
 
-import java.util.List; 
+import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
@@ -14,6 +14,8 @@ public class CustomOptionMenuItem extends FBMenuItem {
 
     private final String newMenuOptionName;
     private final FBFormItem cloneableItem;
+
+    //TODO might need a default constructor strategy some at point in the future
     
     public CustomOptionMenuItem(FBFormItem cloneableItem, String newMenuOptionName, List<FBFormEffect> formEffects) {
         super(formEffects);
