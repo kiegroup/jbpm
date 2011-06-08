@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.client.form;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
@@ -153,10 +154,36 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     @Override
     public void add(Widget w) {
-        super.add(w);
         if (w instanceof FBFormItem) {
-            this.formItems.add((FBFormItem) w);
+            FBFormItem formItem = (FBFormItem) w;
+            int index = getItemPosition(formItem);
+            if (index == getWidgetCount()) {
+                this.formItems.add(formItem);
+                super.add(w);
+            } else {
+                this.formItems.set(index, formItem);
+                super.insert(w, index);
+            }
+        } else {
+            super.add(w);
         }
+    }
+    
+    protected int getItemPosition(FBFormItem newItem) {
+        int index = getWidgetCount();
+        if (index == 0) {
+            return index;
+        }
+        ListIterator<FBFormItem> it = this.formItems.listIterator(index - 1);
+        while (it.hasPrevious() && index > 0) {
+            FBFormItem item = it.previous();
+            boolean leftOfItem = item.getAbsoluteLeft() > newItem.getDesiredX();
+            boolean aboveItem = item.getAbsoluteTop() > newItem.getDesiredY();
+            if (aboveItem || leftOfItem) {
+                index--;
+            }
+        }
+        return index;
     }
     
     public void addValidation(FBValidationItem item) {

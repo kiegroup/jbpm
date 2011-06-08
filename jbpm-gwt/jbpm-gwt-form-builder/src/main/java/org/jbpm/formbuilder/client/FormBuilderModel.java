@@ -29,6 +29,7 @@ import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
+import org.jbpm.formbuilder.client.effect.ResizeEffect;
 import org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
@@ -100,11 +101,13 @@ public class FormBuilderModel {
         List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
         effects.add(new RemoveEffect());
         effects.add(new DoneEffect());
+        effects.add(new ResizeEffect());
         effects.add(new SaveAsMenuOptionFormEffect());
         
         List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
         effectsOptions.add(new RemoveEffect());
         effectsOptions.add(new DoneEffect());
+        effectsOptions.add(new ResizeEffect());
         effectsOptions.add(new SaveAsMenuOptionFormEffect());
         effectsOptions.add(new AddItemFormEffect());
         effectsOptions.add(new DeleteItemFormEffect());

@@ -1,18 +1,23 @@
 package org.jbpm.formbuilder.common.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.common.handler.ResizeEvent;
+import org.jbpm.formbuilder.common.handler.ResizeEventHandler;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HasOneWidget;
-import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ResizablePanel extends SimplePanel {
 
+    private List<ResizeEventHandler> resizeHandlers = new ArrayList<ResizeEventHandler>();
+    
     private boolean dragAndDropBegin = false;
     private final Widget widget;
     private final Grid grid = new Grid(3, 3);
@@ -24,28 +29,42 @@ public class ResizablePanel extends SimplePanel {
         grid.setCellPadding(0);
         grid.setCellSpacing(0);
         Image button = new Image(FormBuilderResources.INSTANCE.resizeButton());
-        Image hline = new Image(FormBuilderResources.INSTANCE.horizontalLine());
-        Image vline = new Image(FormBuilderResources.INSTANCE.verticalLine());
-        grid.setWidget(0, 0, button);
-        grid.getCellFormatter().addStyleName(0, 0, "smallButton");
-        grid.setWidget(0, 1, hline);
-        grid.getCellFormatter().addStyleName(0, 1, "horizontalLine");
-        grid.setWidget(0, 2, button);
-        grid.getCellFormatter().addStyleName(0, 2, "smallButton");
-        grid.setWidget(1, 0, vline);
-        grid.getCellFormatter().addStyleName(1, 0, "verticalLine");
-        grid.setWidget(1, 1, widget.asWidget());
-        grid.setWidget(1, 2, vline);
-        grid.getCellFormatter().addStyleName(1, 2, "verticalLine");
-        grid.setWidget(2, 0, button);
-        grid.getCellFormatter().addStyleName(2, 0, "smallButton");
-        grid.setWidget(2, 1, hline);
-        grid.getCellFormatter().addStyleName(2, 1, "horizontalLine");
-        grid.setWidget(2, 2, button);
-        grid.getCellFormatter().addStyleName(2, 2, "smallButton");
+        sinkEvents(Event.ONMOUSEOUT | Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOVER);
+        makeGrid(button);
         setWidget(grid);
         setSize("" + initialWidth + "px", "" + initialHeight + "px");
-        sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOVER);
+    }
+
+    private void makeGrid(Image button) {
+        grid.getCellFormatter().addStyleName(0, 0, "northwestCorner");
+        grid.getCellFormatter().setHeight(0, 0, "10px");
+        grid.getCellFormatter().setWidth(0, 0, "10px");
+        grid.setHTML(0, 0, "");
+        grid.getCellFormatter().addStyleName(0, 1, "horizontalLine");
+        grid.getCellFormatter().setHeight(0, 1, "10px");
+        grid.setHTML(0, 1, "");
+        grid.getCellFormatter().addStyleName(0, 2, "northeastCorner");
+        grid.getCellFormatter().setHeight(0, 2, "10px");
+        grid.getCellFormatter().setWidth(0, 2, "10px");
+        grid.setHTML(0, 2, "");
+        grid.getCellFormatter().addStyleName(1, 0, "verticalLine");
+        grid.getCellFormatter().setWidth(1, 0, "10px");
+        grid.setHTML(1, 0, "");
+        grid.setWidget(1, 1, widget);
+        grid.getCellFormatter().addStyleName(1, 2, "verticalLine");
+        grid.getCellFormatter().setWidth(1, 2, "10px");
+        grid.setHTML(1, 2, "");
+        grid.getCellFormatter().addStyleName(2, 0, "southwestCorner");
+        grid.getCellFormatter().setWidth(2, 0, "10px");
+        grid.getCellFormatter().setHeight(2, 0, "10px");
+        grid.setHTML(2, 0, "");
+        grid.getCellFormatter().addStyleName(2, 1, "horizontalLine");
+        grid.getCellFormatter().setWidth(2, 1, "10px");
+        grid.setHTML(2, 1, "");
+        grid.setWidget(2, 2, button);
+        grid.getCellFormatter().addStyleName(2, 2, "smallButton");
+        grid.getCellFormatter().setWidth(2, 2, "10px");
+        grid.getCellFormatter().setHeight(2, 2, "10px");
     }
 
     @Override
@@ -56,26 +75,19 @@ public class ResizablePanel extends SimplePanel {
         switch (DOM.eventGetType(event)) {
         case Event.ONMOUSEOVER:
             //show different cursors
-            if (isCursorOnResizePosition(event)) {
-                DOM.setStyleAttribute(getElement(), "cursor", "se-resize");
-            } else {
-                DOM.setStyleAttribute(getElement(), "cursor", "default");
-            }
+            DOM.setStyleAttribute(this.getElement(), "cursor", isInPosition(event) ? "se-resize" : "default");
+            break;
+        case Event.ONMOUSEOUT:
+            DOM.setStyleAttribute(this.getElement(), "cursor", "default");
             break;
         case Event.ONMOUSEDOWN:
             //enable/disable resize
-            if (isCursorOnResizePosition(event)) {
-                if (dragAndDropBegin == false) {
-                    dragAndDropBegin = true;
-                    DOM.setCapture(this.getElement());
-                }
+            if (dragAndDropBegin == false) {
+                dragAndDropBegin = true;
+                DOM.setCapture(this.getElement());
             }
             break;
         case Event.ONMOUSEMOVE:
-            //reset cursor-type
-            if(!isCursorOnResizePosition(event)){
-                DOM.setStyleAttribute(this.getElement(), "cursor", "default");
-            }
             //calculate and set the new size
             if (dragAndDropBegin == true) {
                 int absX = DOM.eventGetClientX(event);
@@ -96,43 +108,44 @@ public class ResizablePanel extends SimplePanel {
             if (dragAndDropBegin == true) {
                 dragAndDropBegin = false;
                 DOM.releaseCapture(this.getElement());
+                notifyResize();
             }
-            //delete this panel
-            clear();
-            if (getParent() instanceof HasOneWidget) {
-                ((HasOneWidget) getParent()).setWidget(this.widget);
-            } else if (getParent() instanceof HasWidgets) {
-                ((HasWidgets) getParent()).remove(this);
-                ((HasWidgets) getParent()).add(this.widget.asWidget());
-            }
-            break;
         };
     }
     
-    /**
-     * returns if mousepointer is in region to show cursor-resize
-     * @param event
-     * @return true if in region
-     */
-    protected boolean isCursorOnResizePosition(Event event) {
-        int vCursor = DOM.eventGetClientY(event);
-        int top = this.getAbsoluteTop();
-        int height = this.getOffsetHeight();
-        
-        int hCursor = DOM.eventGetClientX(event);
-        int left = this.getAbsoluteLeft();
-        int width = this.getOffsetWidth();
-
-        //only in bottom right corner (area of 10 pixels in square) 
-        if (((left + width - 10) < hCursor && hCursor <= (left + width)) &&
-            ((top + height - 10) < vCursor && vCursor <= (top + height)))
-            return true;
-        else
-            return false;
+    public boolean isInPosition(Event event) {
+        int xCursor = DOM.eventGetClientX(event);
+        int yCursor = DOM.eventGetClientY(event);
+        int east = getAbsoluteLeft() + getOffsetWidth();
+        int west = east - 10;
+        int south = getAbsoluteTop() + getOffsetHeight();
+        int north = south - 10;
+        boolean isInWidth = xCursor > west && xCursor < east;
+        boolean isInHeight = yCursor > north && yCursor < south;
+        System.out.println("isInWidth: " + isInWidth + "; isInHeight: " + isInHeight);
+        return isInWidth && isInHeight;
     }
     
     public void setSize(int width, int height) {
+        int realHeight = height - 20;
+        int realWidth = width - 20;
+        widget.setSize("" + realWidth + "px", "" + realHeight + "px");
         super.setSize("" + width + "px", "" + height + "px");
-        widget.setSize("" + (width - 20) + "px", "" + (height - 20) + "px");
+    }
+    
+    protected void notifyResize() {
+        int width = widget.getOffsetWidth();
+        int height = widget.getOffsetHeight();
+        ResizeEvent event = new ResizeEvent(widget, width, height);
+        for (ResizeEventHandler handler : resizeHandlers) {
+            handler.onResize(event);
+        }
+    }
+
+    public void addResizeHandler(ResizeEventHandler resizeHandler) {
+        if (!this.resizeHandlers.contains(resizeHandler)) {
+            this.resizeHandlers.add(resizeHandler);
+        }
+        
     }
 }

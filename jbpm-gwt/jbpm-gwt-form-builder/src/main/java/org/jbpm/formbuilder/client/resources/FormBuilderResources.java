@@ -106,4 +106,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/resizablePanel/verticalLine.gif")
     ImageResource verticalLine();
+
+    @Source("images/resizeItem_effect.gif")
+    ImageResource resizeItemEffect();
 }

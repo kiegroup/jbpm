@@ -11,7 +11,6 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
-import org.jbpm.formbuilder.common.panels.ResizablePanel;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -67,14 +66,11 @@ public abstract class FBFormItem extends FocusPanel {
         if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
             fireSelectionEvent(new FormItemSelectionEvent(this, true));
         }
-        if (!isAlreadyEditing()) {
-            Widget inplaceEditor = createInplaceEditor();
+        Widget inplaceEditor = createInplaceEditor();
+        if (inplaceEditor != null && !isAlreadyEditing()) {
             auxiliarWidget = getWidget();
-            int h = auxiliarWidget.getOffsetHeight() + 20;
-            int w = auxiliarWidget.getOffsetWidth() + 20;
             clear();
-            setWidget(new ResizablePanel(inplaceEditor == null ? auxiliarWidget : inplaceEditor, w, h));
-            setSize("" + w + "px", "" + h + "px");
+            setWidget(inplaceEditor);
             setAlreadyEditing(true);
         }
     }
