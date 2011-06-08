@@ -67,62 +67,19 @@ import com.google.gwt.xml.client.XMLParser;
 public class FormBuilderModel {
 
     public Map<String, List<FBMenuItem>> getMenuItems() {
-        
-        
-        
         /* TODO The whole idea is to get menu items definitions from a server
          * so that anyone can configure it to return the JSON they desire
          * and reconfigure it to have as many permissions to do things as
-         * they may want.*/
-        /*
+         * they may want.
+        
         final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
-                NodeList list = xml.getElementsByTagName("menuItem");
-                for (int index = 0; index < list.getLength(); index ++) {
-                    Node itemNode = list.item(index);
-                    String itemClassName = ((Element) itemNode).getAttribute("className");
-                    String itemGroupName = ((Element) itemNode).getAttribute("groupName");
-                    try {
-                        Class<?> klass = ReflectionHelper.loadClass(itemClassName);
-                        Object obj = ReflectionHelper.newInstance(klass);
-                        FBMenuItem menuItem = null;
-                        if (obj instanceof FBMenuItem) {
-                            menuItem = (FBMenuItem) obj;
-                        } else {
-                            throw new Exception(itemClassName + " not of type FBMenuItem");
-                        }
-                        NodeList effects = itemNode.getChildNodes();
-                        for (int i = 0; i < effects.getLength(); i++) {
-                            Node effectNode = effects.item(i);
-                            String effectClassName = ((Element) effectNode).getAttribute("className");
-                            Class<?> clazz = ReflectionHelper.loadClass(effectClassName);
-                            Object efobj = ReflectionHelper.newInstance(clazz);
-                            if (efobj instanceof FBFormEffect) {
-                                menuItem.addEffect((FBFormEffect) efobj);
-                            } else {
-                                throw new Exception(effectClassName + " not a valid FBFormEffect type");
-                            }
-                        }
-                        List<FBMenuItem> listItems = menuItems.get(itemGroupName);
-                        if (listItems == null) {
-                            listItems = new ArrayList<FBMenuItem>();
-                        }
-                        listItems.add(menuItem);
-                        menuItems.put(itemGroupName, listItems);
-                    } catch (Exception e) {
-                        List<FBMenuItem> listItems = menuItems.get("Errors");
-                        if (listItems == null) {
-                            listItems = new ArrayList<FBMenuItem>();
-                        }
-                        listItems.add(new ErrorMenuItem(e.getLocalizedMessage()));
-                        menuItems.put("Errors", listItems);
-                    }
-                }
+                menuItems.putAll(readMenuMap(xml));
             }
-            
+
             public void onError(Request request, Throwable exception) {
                 Window.alert("Couldn't find menu items");
             }
@@ -171,6 +128,61 @@ public class FormBuilderModel {
         
         return map;
     }
+
+    private Map<String, List<FBMenuItem>> readMenuMap(Document xml) {
+        Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
+        NodeList groups = xml.getElementsByTagName("menuGroup");
+        for (int jindex = 0; jindex < groups.getLength(); jindex++) {
+            Node groupNode = groups.item(jindex);
+            String groupName = ((Element) groupNode).getAttribute("name");
+            NodeList items = ((Element) groupNode).getElementsByTagName("menuItem");
+            menuItems.put(groupName, readMenuItems(items));
+        }
+        return menuItems;
+    }
+    
+    private List<FBMenuItem> readMenuItems(NodeList items) {
+        List<FBMenuItem> menuItems = new ArrayList<FBMenuItem>();
+        for (int index = 0; index < items.getLength(); index ++) {
+            Node itemNode = items.item(index);
+            String itemClassName = ((Element) itemNode).getAttribute("className");
+            try {
+                Class<?> klass = ReflectionHelper.loadClass(itemClassName);
+                Object obj = ReflectionHelper.newInstance(klass);
+                FBMenuItem menuItem = null;
+                if (obj instanceof FBMenuItem) {
+                    menuItem = (FBMenuItem) obj;
+                } else {
+                    throw new Exception(itemClassName + " not of type FBMenuItem");
+                }
+                NodeList effects = ((Element) itemNode).getElementsByTagName("effect");
+                for (FBFormEffect effect : readItemEffects(effects)) {
+                    menuItem.addEffect(effect);
+                }
+                menuItems.add(menuItem);
+            } catch (Exception e) {
+                menuItems.add(new ErrorMenuItem(e.getLocalizedMessage()));
+            }
+        }
+        return menuItems;
+    }
+    
+    private List<FBFormEffect> readItemEffects(NodeList effects) throws Exception {
+        List<FBFormEffect> itemEffects = new ArrayList<FBFormEffect>();
+        for (int i = 0; i < effects.getLength(); i++) {
+            Node effectNode = effects.item(i);
+            String effectClassName = ((Element) effectNode).getAttribute("className");
+            Class<?> clazz = ReflectionHelper.loadClass(effectClassName);
+            Object efobj = ReflectionHelper.newInstance(clazz);
+            if (efobj instanceof FBFormEffect) {
+                itemEffects.add((FBFormEffect) efobj);
+            } else {
+                throw new Exception(effectClassName + " not a valid FBFormEffect type");
+            }
+        }
+        return itemEffects;
+    }
+
 
     public List<MainMenuOption> getCurrentOptions() {
         List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
