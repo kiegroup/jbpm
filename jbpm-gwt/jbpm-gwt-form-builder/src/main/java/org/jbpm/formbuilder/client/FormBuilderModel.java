@@ -60,6 +60,7 @@ import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
+import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
@@ -389,5 +390,23 @@ public class FormBuilderModel implements FormBuilderService {
         }
         builder.append("</menuItem>");
         return builder.toString();
+    }
+    
+    public List<TaskRef> getExistingTasks(String filter) { //TODO actual implementation not done
+        List<TaskRef> retval = new ArrayList<TaskRef>();
+        TaskRef task1 = new TaskRef();
+        task1.setTaskId("task1");
+        task1.addInput("input1", "${hey}");
+        task1.addInput("input2", "${why}");
+        task1.addOutput("output1", "");
+        task1.addOutput("output2", "");
+        retval.add(task1);
+        TaskRef task2 = new TaskRef();
+        task2.addInput("input3", "${hey}");
+        task2.addInput("input4", "${why}");
+        task2.addOutput("output3", "");
+        task2.addOutput("output4", "");
+        retval.add(task2);
+        return retval;
     }
 }

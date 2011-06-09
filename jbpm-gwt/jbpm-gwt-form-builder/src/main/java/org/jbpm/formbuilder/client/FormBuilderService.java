@@ -6,6 +6,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public interface FormBuilderService {
 
@@ -18,4 +19,7 @@ public interface FormBuilderService {
     void saveMenuItem(String groupName, FBMenuItem item);
     
     void deleteMenuItem(String groupName, FBMenuItem item);
+    
+    List<TaskRef> getExistingTasks(String filter);
+    
 }
