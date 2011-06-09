@@ -63,7 +63,7 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     
     protected abstract ImageResource getIconUrl();
     
-    protected abstract Label getDescription();
+    public abstract Label getDescription();
 
     public abstract FBMenuItem cloneWidget();
     
@@ -122,6 +122,10 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
 
     public void addEffect(FBFormEffect effect) {
         this.formEffects.add(effect);
+    }
+
+    public void setItemId(String itemId) {
+        // TODO implement where needed
     }
 
 }

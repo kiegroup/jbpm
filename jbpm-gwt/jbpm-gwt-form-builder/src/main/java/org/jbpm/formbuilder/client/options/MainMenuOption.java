@@ -9,7 +9,7 @@ public class MainMenuOption {
     private String html;
     private BaseCommand command;
     private List<MainMenuOption> subMenu;
-    private boolean enabled;
+    private boolean enabled = true;
 
     public String getHtml() {
         return html;

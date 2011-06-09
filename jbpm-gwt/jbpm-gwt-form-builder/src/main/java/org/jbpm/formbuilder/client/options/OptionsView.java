@@ -16,7 +16,8 @@ public class OptionsView extends SimplePanel {
     
     public OptionsView() {
         super();
-        setSize("778px", "30px");
+        setSize("1000px", "30px");
+        setStyleName("claseCSSDeMariela");
         Grid grid = new Grid(1,1);
         grid.setSize("100%", "100%");
         grid.setBorderWidth(2);

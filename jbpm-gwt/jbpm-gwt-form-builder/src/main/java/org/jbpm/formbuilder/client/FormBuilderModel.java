@@ -15,11 +15,17 @@
  */
 package org.jbpm.formbuilder.client;
 
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
+import org.jbpm.formbuilder.client.bus.MenuOptionAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
+import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEventHandler;
+import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
@@ -51,15 +57,46 @@ import org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
-public class FormBuilderModel {
+public class FormBuilderModel implements FormBuilderService {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
+    public FormBuilderModel() {
+        bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedEventHandler() {
+            public void onEvent(MenuOptionAddedEvent event) {
+                saveMenuItem(event.getGroupName(), event.getMenuItem());
+            }
+        });
+        bus.addHandler(MenuOptionRemoveEvent.TYPE, new MenuOptionRemoveEventHandler() {
+            public void onEvent(MenuOptionRemoveEvent event) {
+                deleteMenuItem(event.getGroupName(), event.getMenuItem());
+            }
+        });
+        bus.addHandler(SaveFormRepresentationEvent.TYPE, new SaveFormRepresentationEventHandler() {
+            public void onEvent(SaveFormRepresentationEvent event) {
+                saveForm(event.getRepresentation());
+            }
+        });
+    }
+    
     public Map<String, List<FBMenuItem>> getMenuItems() {
         /* TODO The whole idea is to get menu items definitions from a server
          * so that anyone can configure it to return the JSON they desire
@@ -78,6 +115,7 @@ public class FormBuilderModel {
                 Window.alert("Couldn't find menu items");
             }
         });
+        request.send();
         */
         Map<String, List<FBMenuItem>> map = new HashMap<String, List<FBMenuItem>>();
         List<FBMenuItem> controls = new ArrayList<FBMenuItem>();
@@ -178,7 +216,7 @@ public class FormBuilderModel {
     }
 
 
-    public List<MainMenuOption> getCurrentOptions() {
+    public List<MainMenuOption> getMenuOptions() {
         /* TODO
         final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuOptions");
@@ -191,7 +229,8 @@ public class FormBuilderModel {
             public void onError(Request request, Throwable exception) {
                 Window.alert("Couldn't find menu options");
             }
-        });*/
+        });
+        request.send();*/
         
         List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
         MainMenuOption saveOption = new MainMenuOption();
@@ -264,5 +303,91 @@ public class FormBuilderModel {
             options.add(option);
         }
         return options;
+    }
+    
+    public void saveForm(FormRepresentation form) {
+        /*RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + "api/menuItems");
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                Document xml = XMLParser.parse(response.getText());
+                //TODO parse the form id and set it for future updating
+            }
+
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Couldn't find menu options");
+            }
+        });        
+        try {
+            request.setRequestData(form.translate("xml"));
+            request.send();
+        } catch (LanguageException e) {
+            //TODO
+        } catch (RequestException e) {
+            //TODO
+        }*/
+    }
+    
+    public void saveMenuItem(String groupName, final FBMenuItem item) {
+        /* TODO*/
+        /*RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + "api/menuItems");
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                int code = response.getStatusCode();
+                if (code == Response.SC_CREATED) {
+                    Document xml = XMLParser.parse(response.getText());
+                    NodeList xmlItems = xml.getElementsByTagName("menuItem");
+                    List<FBMenuItem> myItems = readMenuItems(xmlItems);
+                    FBMenuItem myItem = myItems.get(0);
+                    item.setItemId(myItem.getItemId());
+                }
+            }
+
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Couldn't find menu options");
+            }
+        });
+        try {
+            request.setRequestData(asXml(item));
+            request.send();
+        } catch (RequestException e) {
+            Window.alert("Couldn't save menuItem: error = " + e.getLocalizedMessage());
+        }*/
+    }
+    
+    public void deleteMenuItem(String groupName, FBMenuItem item) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, GWT.getModuleBaseURL() + "api/menuItems/" + item.getItemId());
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                int code = response.getStatusCode();
+                if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
+                    Window.alert("Error deleting menu item on server (code = " + code + ")");
+                }
+            }
+
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Couldn't find menu options");
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            Window.alert("Error deleting menu item on server (error = " + e.getLocalizedMessage() + ")");
+        }
+    }
+    
+    private String asXml(FBMenuItem item) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<menuItem>");
+        builder.append("<itemId>").append(item.getItemId()).append("</itemId>");
+        builder.append("<name>").append(item.getDescription().getText()).append("</name>");
+        try {
+            builder.append("<clone>").
+                append(item.buildWidget().getRepresentation().translate("xml")).
+                append("</clone>");
+        } catch (LanguageException e) {
+            builder.append("<clone>Exception:").append(e.getMessage()).append("</clone>");
+        }
+        builder.append("</menuItem>");
+        return builder.toString();
     }
 }

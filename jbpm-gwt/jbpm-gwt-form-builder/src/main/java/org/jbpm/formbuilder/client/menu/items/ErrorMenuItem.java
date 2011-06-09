@@ -34,7 +34,7 @@ public class ErrorMenuItem extends FBMenuItem {
     }
 
     @Override
-    protected Label getDescription() {
+    public Label getDescription() {
         return new Label("Error: " + errMsg);
     }
 

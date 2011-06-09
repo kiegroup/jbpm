@@ -27,7 +27,7 @@ public class HiddenMenuItem extends FBMenuItem {
     }
 
     @Override
-    protected Label getDescription() {
+    public Label getDescription() {
         return new Label("Hidden Field");
     }
     

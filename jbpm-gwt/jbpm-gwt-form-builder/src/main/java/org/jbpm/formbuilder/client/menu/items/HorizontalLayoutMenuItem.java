@@ -32,7 +32,7 @@ public class HorizontalLayoutMenuItem extends FBMenuItem {
     }
 
     @Override
-    protected Label getDescription() {
+    public Label getDescription() {
         return new Label("Horizontal layout");
     }
 

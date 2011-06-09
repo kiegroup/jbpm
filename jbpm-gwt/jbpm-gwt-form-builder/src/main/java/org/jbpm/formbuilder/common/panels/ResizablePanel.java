@@ -113,8 +113,10 @@ public class ResizablePanel extends SimplePanel {
     public void setSize(int width, int height) {
         int realHeight = height - 20;
         int realWidth = width - 20;
-        widget.setSize("" + realWidth + "px", "" + realHeight + "px");
-        super.setSize("" + width + "px", "" + height + "px");
+        if (realHeight > 0 && realWidth > 0) {
+            widget.setSize("" + realWidth + "px", "" + realHeight + "px");
+            super.setSize("" + width + "px", "" + height + "px");
+        }
     }
     
     protected void notifyResize() {

@@ -38,7 +38,7 @@ public class TextFieldMenuItem extends FBMenuItem {
     }
 
     @Override
-    protected Label getDescription() {
+    public Label getDescription() {
         return new HTML("<strong>TextField</strong>");
     }
     

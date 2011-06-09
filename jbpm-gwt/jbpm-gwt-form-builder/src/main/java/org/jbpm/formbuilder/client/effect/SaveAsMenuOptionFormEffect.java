@@ -64,7 +64,6 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
                 FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
         }));
-        
         //END  fire UndoableEvent
     }
 

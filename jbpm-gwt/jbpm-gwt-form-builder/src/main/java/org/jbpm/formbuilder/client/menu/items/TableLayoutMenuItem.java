@@ -32,7 +32,7 @@ public class TableLayoutMenuItem extends FBMenuItem {
     }
 
     @Override
-    protected Label getDescription() {
+    public Label getDescription() {
         return new Label("Table layout");
     }
 
