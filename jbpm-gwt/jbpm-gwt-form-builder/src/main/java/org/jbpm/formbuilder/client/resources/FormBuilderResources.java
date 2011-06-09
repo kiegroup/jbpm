@@ -98,15 +98,6 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/absolute_layout_icon.gif")
     ImageResource absoluteLayoutIcon();
 
-    @Source("images/resizablePanel/resizeButton.gif")
-    ImageResource resizeButton();
-
-    @Source("images/resizablePanel/horizontalLine.gif")
-    ImageResource horizontalLine();
-
-    @Source("images/resizablePanel/verticalLine.gif")
-    ImageResource verticalLine();
-
     @Source("images/resizeItem_effect.gif")
     ImageResource resizeItemEffect();
 }

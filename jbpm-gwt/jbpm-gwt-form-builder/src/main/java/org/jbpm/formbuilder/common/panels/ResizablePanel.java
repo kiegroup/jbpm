@@ -3,14 +3,12 @@ package org.jbpm.formbuilder.common.panels;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.ResizeEvent;
 import org.jbpm.formbuilder.common.handler.ResizeEventHandler;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -28,43 +26,30 @@ public class ResizablePanel extends SimplePanel {
         grid.setBorderWidth(0);
         grid.setCellPadding(0);
         grid.setCellSpacing(0);
-        Image button = new Image(FormBuilderResources.INSTANCE.resizeButton());
         sinkEvents(Event.ONMOUSEOUT | Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOVER);
-        makeGrid(button);
+        makeGrid();
         setWidget(grid);
         setSize("" + initialWidth + "px", "" + initialHeight + "px");
     }
 
-    private void makeGrid(Image button) {
+    private void makeGrid() {
         grid.getCellFormatter().addStyleName(0, 0, "northwestCorner");
-        grid.getCellFormatter().setHeight(0, 0, "10px");
-        grid.getCellFormatter().setWidth(0, 0, "10px");
         grid.setHTML(0, 0, "");
         grid.getCellFormatter().addStyleName(0, 1, "horizontalLine");
-        grid.getCellFormatter().setHeight(0, 1, "10px");
         grid.setHTML(0, 1, "");
         grid.getCellFormatter().addStyleName(0, 2, "northeastCorner");
-        grid.getCellFormatter().setHeight(0, 2, "10px");
-        grid.getCellFormatter().setWidth(0, 2, "10px");
         grid.setHTML(0, 2, "");
         grid.getCellFormatter().addStyleName(1, 0, "verticalLine");
-        grid.getCellFormatter().setWidth(1, 0, "10px");
         grid.setHTML(1, 0, "");
         grid.setWidget(1, 1, widget);
         grid.getCellFormatter().addStyleName(1, 2, "verticalLine");
-        grid.getCellFormatter().setWidth(1, 2, "10px");
         grid.setHTML(1, 2, "");
         grid.getCellFormatter().addStyleName(2, 0, "southwestCorner");
-        grid.getCellFormatter().setWidth(2, 0, "10px");
-        grid.getCellFormatter().setHeight(2, 0, "10px");
         grid.setHTML(2, 0, "");
         grid.getCellFormatter().addStyleName(2, 1, "horizontalLine");
-        grid.getCellFormatter().setWidth(2, 1, "10px");
         grid.setHTML(2, 1, "");
-        grid.setWidget(2, 2, button);
         grid.getCellFormatter().addStyleName(2, 2, "smallButton");
-        grid.getCellFormatter().setWidth(2, 2, "10px");
-        grid.getCellFormatter().setHeight(2, 2, "10px");
+        grid.setHTML(2, 2, "");
     }
 
     @Override

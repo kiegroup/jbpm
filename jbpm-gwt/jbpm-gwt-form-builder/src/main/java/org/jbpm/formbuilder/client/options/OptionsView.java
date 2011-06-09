@@ -33,11 +33,15 @@ public class OptionsView extends SimplePanel {
             String html = option.getHtml();
             BaseCommand cmd = option.getCommand();
             List<MainMenuOption> subMenu = option.getSubMenu();
+            MenuItem item = null;
             if (cmd == null && subMenu != null && !subMenu.isEmpty()) {
-                popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), toMenuBar(new MenuBar(true), subMenu));
+                item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), toMenuBar(new MenuBar(true), subMenu));
             } else if (cmd != null && (subMenu == null || subMenu.isEmpty())) {
-                MenuItem item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
+                item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
                 cmd.setItem(item);
+            }
+            if (item != null && !option.isEnabled()) {
+                item.setEnabled(false);
             }
         }
         return popup;

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
 import org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand;
@@ -51,18 +52,11 @@ import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
-import com.google.gwt.xml.client.XMLParser;
 
 public class FormBuilderModel {
 
@@ -185,6 +179,20 @@ public class FormBuilderModel {
 
 
     public List<MainMenuOption> getCurrentOptions() {
+        /* TODO
+        final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuOptions");
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                Document xml = XMLParser.parse(response.getText());
+                currentOptions.addAll(readMenuOptions(xml.getElementsByTagName("menuOption")));
+            }
+
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Couldn't find menu options");
+            }
+        });*/
+        
         List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
         MainMenuOption saveOption = new MainMenuOption();
         saveOption.setHtml("Save");
@@ -225,5 +233,36 @@ public class FormBuilderModel {
         retval.add(saveOption);
         retval.add(editOption);
         return retval;
+    }
+    
+    private List<MainMenuOption> readMenuOptions(NodeList menuOptions) {
+        List<MainMenuOption> options = new ArrayList<MainMenuOption>();
+        for (int index = 0; index < menuOptions.getLength(); index++) {
+            Node menuNode = menuOptions.item(index);
+            Element menuElement = (Element) menuNode;
+            String name = menuElement.getAttribute("name");
+            MainMenuOption option = new MainMenuOption();
+            option.setHtml(name);
+            if (menuElement.hasAttribute("commandClass")) {
+                String className = menuElement.getAttribute("commandClass");
+                try {
+                    Class<?> klass = ReflectionHelper.loadClass(className);
+                    Object obj = ReflectionHelper.newInstance(klass);
+                    if (obj instanceof BaseCommand) {
+                        option.setCommand((BaseCommand) obj);
+                    } else {
+                        option.setHtml(option.getHtml()+ "(typeError: " + className + " is invalid)");
+                        option.setEnabled(false);
+                    }
+                } catch (Exception e) {
+                    option.setHtml(option.getHtml() + "(error: " + e.getLocalizedMessage() + ")");
+                    option.setEnabled(false);
+                }
+            } else {
+                option.setSubMenu(readMenuOptions(menuElement.getElementsByTagName("menuOption")));
+            }
+            options.add(option);
+        }
+        return options;
     }
 }

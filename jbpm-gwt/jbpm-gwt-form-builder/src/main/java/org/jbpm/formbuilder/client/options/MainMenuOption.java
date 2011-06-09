@@ -9,6 +9,7 @@ public class MainMenuOption {
     private String html;
     private BaseCommand command;
     private List<MainMenuOption> subMenu;
+    private boolean enabled;
 
     public String getHtml() {
         return html;
@@ -32,5 +33,13 @@ public class MainMenuOption {
     
     public void setSubMenu(List<MainMenuOption> subMenu) {
         this.subMenu = subMenu;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }
