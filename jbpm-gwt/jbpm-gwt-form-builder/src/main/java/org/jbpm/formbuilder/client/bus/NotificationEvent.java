@@ -14,6 +14,14 @@ public class NotificationEvent extends GwtEvent<NotificationEventHandler> {
     private final String message;
     private final Throwable error;
     
+    public NotificationEvent(String message) {
+        this(Level.INFO, message, null);
+    }
+    
+    public NotificationEvent(Level level, String message) {
+        this(level, message, null);
+    }
+    
     public NotificationEvent(Level level, String message, Throwable error) {
         super();
         this.level = level;

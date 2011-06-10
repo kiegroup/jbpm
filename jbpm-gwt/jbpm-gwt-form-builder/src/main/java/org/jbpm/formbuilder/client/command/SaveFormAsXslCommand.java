@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.client.command;
 
+import org.jbpm.formbuilder.client.bus.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 
@@ -19,7 +21,8 @@ public class SaveFormAsXslCommand extends SaveFormCommand {
             Window.alert("FILE: "+ fileName + "\n" + xslContent);
             //TODO super.bus.fireEvent(new CreateFileEvent(xslContent, fileName));
         } catch (LanguageException e) {
-            Window.alert("Was not expecting this: " + e.getLocalizedMessage());
+            bus.fireEvent(new NotificationEvent(Level.ERROR, 
+                    "Unexpected error while saving xsl form", e));
         }
     }
 }

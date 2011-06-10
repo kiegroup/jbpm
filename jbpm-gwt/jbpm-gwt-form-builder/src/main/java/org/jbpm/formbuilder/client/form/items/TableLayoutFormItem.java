@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 
-import com.google.gwt.user.client.Window;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,6 +28,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
     };
+    
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private Integer borderWidth = 1;
     private Integer cellpadding = null;
@@ -124,7 +128,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
         if (!added) {
-            Window.alert("Table full! Use different layouts in each cell or add more rows or columns");
+            bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, 
+                    "Table full! Use different layouts in each cell or add more rows or columns"));
             return false;
         }
         return true;

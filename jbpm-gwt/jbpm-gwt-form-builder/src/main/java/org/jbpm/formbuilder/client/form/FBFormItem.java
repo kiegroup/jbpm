@@ -244,14 +244,18 @@ public abstract class FBFormItem extends FocusPanel {
 
     @Override
     public void setWidth(String width) {
-        super.setWidth(width);
-        this.widgetWidth = width;
+        if (width != null) {
+            super.setWidth(width);
+            this.widgetWidth = width;
+        }
     }
     
     @Override
     public void setHeight(String height) {
-        super.setHeight(height);
-        this.widgetHeight = height;
+        if (height != null) {
+            super.setHeight(height);
+            this.widgetHeight = height;
+        }
     }
     
     public abstract FormItemRepresentation getRepresentation();

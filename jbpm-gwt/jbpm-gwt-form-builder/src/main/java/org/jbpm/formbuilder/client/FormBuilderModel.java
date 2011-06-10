@@ -24,8 +24,10 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEventHandler;
+import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
@@ -113,7 +115,9 @@ public class FormBuilderModel implements FormBuilderService {
             }
 
             public void onError(Request request, Throwable exception) {
-                Window.alert("Couldn't find menu items");
+                
+                bus.fireEvent(new NotificationEvent(Level.ERROR, 
+                    "Couldn't find menu items", exception));
             }
         });
         request.send();
@@ -228,7 +232,8 @@ public class FormBuilderModel implements FormBuilderService {
             }
 
             public void onError(Request request, Throwable exception) {
-                Window.alert("Couldn't find menu options");
+                bus.fireEvent(new NotificationEvent(Level.ERROR, 
+                    "Couldn't find menu options", exception));
             }
         });
         request.send();*/
@@ -315,16 +320,17 @@ public class FormBuilderModel implements FormBuilderService {
             }
 
             public void onError(Request request, Throwable exception) {
-                Window.alert("Couldn't find menu options");
+                bus.fireEvent(new NotificationEvent(Level.ERROR, 
+                    "Couldn't save form", exception));
             }
         });        
         try {
             request.setRequestData(form.translate("xml"));
             request.send();
         } catch (LanguageException e) {
-            //TODO
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't generate form", e));
         } catch (RequestException e) {
-            //TODO
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
         }*/
     }
     
@@ -344,14 +350,14 @@ public class FormBuilderModel implements FormBuilderService {
             }
 
             public void onError(Request request, Throwable exception) {
-                Window.alert("Couldn't find menu options");
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't generate menu item", exception));
             }
         });
         try {
             request.setRequestData(asXml(item));
             request.send();
         } catch (RequestException e) {
-            Window.alert("Couldn't save menuItem: error = " + e.getLocalizedMessage());
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save menu item", e));
         }*/
     }
     
@@ -361,18 +367,18 @@ public class FormBuilderModel implements FormBuilderService {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
                 if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    Window.alert("Error deleting menu item on server (code = " + code + ")");
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "Error deleting menu item on server (code = " + code + ")"));
                 }
             }
 
             public void onError(Request request, Throwable exception) {
-                Window.alert("Couldn't find menu options");
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting menu item on server", exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            Window.alert("Error deleting menu item on server (error = " + e.getLocalizedMessage() + ")");
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting menu item on server", e));
         }
     }
     

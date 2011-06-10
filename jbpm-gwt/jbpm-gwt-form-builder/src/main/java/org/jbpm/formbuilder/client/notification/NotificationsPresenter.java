@@ -25,17 +25,17 @@ public class NotificationsPresenter {
                 view.append(colorCss, message, error);
             }
         });
-        view.addHandler(new FocusHandler() {
+        view.addFocusHandler(new FocusHandler() {
             public void onFocus(FocusEvent event) {
                 view.saveHeight();
-                view.setHeight("50%");
+                view.setHeight("300px");
             }
-        }, FocusEvent.getType());
-        view.addHandler(new BlurHandler() {
+        });
+        view.addBlurHandler(new BlurHandler() {
             public void onBlur(BlurEvent event) {
                 view.setHeight(view.getSavedHeight());
             }
-        }, BlurEvent.getType());
+        });
     }
     
 }
