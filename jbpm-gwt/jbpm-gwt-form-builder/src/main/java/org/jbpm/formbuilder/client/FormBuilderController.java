@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.bus.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionPresenter;
 import org.jbpm.formbuilder.client.edition.EditionView;
@@ -18,21 +20,24 @@ import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.event.shared.EventBus;
 
 public class FormBuilderController {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
     public FormBuilderController(FormBuilderService model, FormBuilderView view) {
         super();
         PickupDragController dragController = new PickupDragController(view, true);
         FormBuilderGlobals.getInstance().registerDragController(dragController);
         dragController.registerDropController(new DisposeDropController(view));
+        view.setNotificationsView(createNotifications());
         view.setMenuView(createMenu(model));
         view.setEditionView(createEdition());
         view.setLayoutView(createLayout());
         view.setOptionsView(createOptions(model));
         view.setTasksView(createTasks());
         view.setToolBarView(createToolBar());
-        view.setNotificationsView(createNotifications());
     }
 
     private EditionView createEdition() {
@@ -43,7 +48,11 @@ public class FormBuilderController {
 
     private MenuView createMenu(FormBuilderService model) {
         MenuView view = new MenuView();
-        new MenuPresenter(model.getMenuItems(), view);
+        try {
+            new MenuPresenter(model.getMenuItems(), view);
+        } catch (FormBuilderException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem creating menu items", e));
+        }
         return view;
     }
 
@@ -55,7 +64,11 @@ public class FormBuilderController {
     
     private OptionsView createOptions(FormBuilderService model) {
         OptionsView view = new OptionsView();
-        new OptionsPresenter(model.getMenuOptions(), view);
+        try {
+            new OptionsPresenter(model.getMenuOptions(), view);
+        } catch (FormBuilderException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem creating menu options", e));
+        }
         return view;
     }
     

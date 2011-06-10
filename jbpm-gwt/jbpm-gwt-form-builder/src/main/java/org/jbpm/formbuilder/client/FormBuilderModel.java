@@ -415,4 +415,8 @@ public class FormBuilderModel implements FormBuilderService {
         retval.add(task2);
         return retval;
     }
+
+    public void updateTask(TaskRef task) throws FormBuilderException {
+        //TODO implement
+    }
 }

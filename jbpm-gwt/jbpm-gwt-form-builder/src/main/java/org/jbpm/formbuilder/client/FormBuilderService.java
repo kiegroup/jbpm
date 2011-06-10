@@ -10,16 +10,18 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public interface FormBuilderService {
 
-    Map<String, List<FBMenuItem>> getMenuItems();
+    Map<String, List<FBMenuItem>> getMenuItems() throws FormBuilderException;
     
-    List<MainMenuOption> getMenuOptions();
+    List<MainMenuOption> getMenuOptions() throws FormBuilderException;
     
-    void saveForm(FormRepresentation form);
+    void saveForm(FormRepresentation form) throws FormBuilderException;
     
-    void saveMenuItem(String groupName, FBMenuItem item);
+    void saveMenuItem(String groupName, FBMenuItem item) throws FormBuilderException;
     
-    void deleteMenuItem(String groupName, FBMenuItem item);
+    void deleteMenuItem(String groupName, FBMenuItem item) throws FormBuilderException;
     
-    List<TaskRef> getExistingTasks(String filter);
+    List<TaskRef> getExistingTasks(String filter) throws FormBuilderException;
+    
+    void updateTask(TaskRef task) throws FormBuilderException;
     
 }
