@@ -36,7 +36,7 @@ public abstract class FBFormEffect {
     }
     
     protected abstract void createStyles();
-    
+
     public PopupPanel createPanel() {
         return null;
     }
@@ -51,5 +51,9 @@ public abstract class FBFormEffect {
     
     public Widget getWidget() {
         return widget;
+    }
+    
+    public boolean isValidForItem(FBFormItem item) {
+        return true;
     }
 }

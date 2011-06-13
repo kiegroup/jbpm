@@ -98,13 +98,11 @@ public class HeaderFormItem extends FBFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        HeaderRepresentation rep = new HeaderRepresentation();
+        HeaderRepresentation rep = super.getRepresentation(new HeaderRepresentation());
         rep.setValue(this.header.getText());
         rep.setStyleClass(this.cssClassName);
         rep.setCssId(this.id);
         rep.setCssName(this.name);
-        rep.setWidth(this.getWidth());
-        rep.setHeight(this.getHeight());
         return rep;
     }
     

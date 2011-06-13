@@ -62,7 +62,7 @@ public class HiddenFormItem extends FBFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        HiddenRepresentation rep = new HiddenRepresentation();
+        HiddenRepresentation rep = super.getRepresentation(new HiddenRepresentation());
         rep.setId(id);
         rep.setName(name);
         rep.setValue(value);

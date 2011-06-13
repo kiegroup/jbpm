@@ -54,9 +54,7 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        AbsolutePanelRepresentation rep = new AbsolutePanelRepresentation();
-        rep.setWidth(this.getWidth());
-        rep.setHeight(this.getHeight());
+        AbsolutePanelRepresentation rep = super.getRepresentation(new AbsolutePanelRepresentation());
         rep.setId(this.id);
         for (FBFormItem item : getItems()) {
             rep.addItem(item.getRepresentation(), 

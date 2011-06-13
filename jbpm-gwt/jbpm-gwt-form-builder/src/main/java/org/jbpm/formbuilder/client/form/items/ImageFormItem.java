@@ -69,10 +69,8 @@ public class ImageFormItem extends FBFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        ImageRepresentation rep = new ImageRepresentation();
+        ImageRepresentation rep = super.getRepresentation(new ImageRepresentation());
         rep.setAltText(this.altText);
-        rep.setHeight(this.getHeight());
-        rep.setWidth(this.getWidth());
         rep.setUrl(this.url);
         rep.setId(this.id);
         return rep;

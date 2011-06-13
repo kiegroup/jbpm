@@ -21,23 +21,23 @@ public class EffectsPopupPanel extends PopupPanel {
         MenuBar bar = new MenuBar(false);
         this.effects = item.getFormEffects();
         for (final FBFormEffect effect : effects) {
-            bar.addItem(new MenuItem(
-                new SafeHtmlBuilder().appendHtmlConstant(effect.getImage().toString()).toSafeHtml(), 
-                new Command() {
-                    public void execute() {
-                        PopupPanel popup = effect.createPanel();
-                        if (popup != null) {
-                            popup.setPopupPosition(
-                                    EffectsPopupPanel.this.getPopupLeft(), 
-                                    EffectsPopupPanel.this.getPopupTop() + 30);
-                            popup.show();
-                        } else {
-                            hide();
+            if (effect.isValidForItem(item)) {
+                bar.addItem(new MenuItem(
+                    new SafeHtmlBuilder().appendHtmlConstant(effect.getImage().toString()).toSafeHtml(), 
+                    new Command() {
+                        public void execute() {
+                            PopupPanel popup = effect.createPanel();
+                            if (popup != null) {
+                                popup.setPopupPosition(getPopupLeft(), getPopupTop() + 30);
+                                popup.show();
+                            } else {
+                                hide();
+                            }
+                            effect.apply(item);
                         }
-                        effect.apply(item);
-                    }
-                })
-            );
+                    })
+                );
+            }
         }
         add(bar);
     }

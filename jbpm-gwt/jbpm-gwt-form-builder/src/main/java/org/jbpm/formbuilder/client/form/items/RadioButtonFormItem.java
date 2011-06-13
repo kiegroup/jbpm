@@ -72,13 +72,11 @@ public class RadioButtonFormItem extends FBFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        RadioButtonRepresentation rep = new RadioButtonRepresentation();
+        RadioButtonRepresentation rep = super.getRepresentation(new RadioButtonRepresentation());
         rep.setId(this.id);
         rep.setName(this.name);
         rep.setSelected(this.selected);
-        rep.setValue(this.value); //TODO setInput
-        rep.setWidth(this.getWidth());
-        rep.setHeight(this.getHeight());
+        rep.setValue(this.value);
         return rep;
     }
     

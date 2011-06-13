@@ -64,11 +64,9 @@ public class FileInputFormItem extends FBFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        FileInputRepresentation rep = new FileInputRepresentation();
-        rep.setHeight(getHeight());
+        FileInputRepresentation rep = super.getRepresentation(new FileInputRepresentation());
         rep.setId(this.id);
         rep.setName(this.name);
-        rep.setWidth(getWidth());
         rep.setAccept(this.accept);
         return rep;
     }

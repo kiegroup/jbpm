@@ -100,4 +100,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/resizeItem_effect.gif")
     ImageResource resizeItemEffect();
+
+    @Source("images/taskRelated_effect.gif")
+    ImageResource taskRelatedEffect();
 }

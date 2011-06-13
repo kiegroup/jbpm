@@ -70,12 +70,10 @@ public class CompleteButtonFormItem extends FBFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        CompleteButtonRepresentation rep = new CompleteButtonRepresentation();
+        CompleteButtonRepresentation rep = super.getRepresentation(new CompleteButtonRepresentation());
         rep.setText(this.innerText);
         rep.setName(this.name);
         rep.setId(this.id);
-        rep.setWidth(getWidth());
-        rep.setHeight(getHeight());
         return rep;
     }
     

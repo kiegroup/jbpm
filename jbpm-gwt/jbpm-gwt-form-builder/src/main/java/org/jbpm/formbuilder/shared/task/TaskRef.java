@@ -46,7 +46,7 @@ public class TaskRef {
     
     public TaskPropertyRef getInput(String key) {
         for (TaskPropertyRef ref : inputs) {
-            if (key.equals(ref.getName())) {
+            if (key != null && key.equals(ref.getName())) {
                 return ref;
             }
         }
@@ -66,7 +66,7 @@ public class TaskRef {
     
     public TaskPropertyRef getOutput(String key) {
         for (TaskPropertyRef ref : outputs) {
-            if (key.equals(ref.getName())) {
+            if (key != null && key.equals(ref.getName())) {
                 return ref;
             }
         }

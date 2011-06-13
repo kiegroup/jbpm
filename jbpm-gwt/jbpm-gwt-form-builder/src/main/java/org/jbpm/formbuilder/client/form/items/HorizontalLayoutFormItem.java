@@ -92,16 +92,14 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        HorizontalPanelRepresentation rep = new HorizontalPanelRepresentation();
+        HorizontalPanelRepresentation rep = super.getRepresentation(new HorizontalPanelRepresentation());
         rep.setBorderWidth(this.borderWidth);
         rep.setCssClassName(this.cssClassName);
-        rep.setHeight(this.getHeight());
         rep.setHorizontalAlignment(this.horizontalAlignment);
         rep.setId(this.id);
         rep.setSpacing(this.spacing);
         rep.setTitle(this.title);
         rep.setVerticalAlignment(this.verticalAlignment);
-        rep.setWidth(this.getWidth());
         for (FBFormItem item : getItems()) {
             rep.addItem(item.getRepresentation());
         }

@@ -12,6 +12,8 @@ import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.InputData;
+import org.jbpm.formbuilder.shared.rep.OutputData;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -39,6 +41,9 @@ public abstract class FBFormItem extends FocusPanel {
     
     private boolean alreadyEditing = false;
     private Widget auxiliarWidget = null;
+    
+    private InputData input = null;
+    private OutputData output = null;
     
     public FBFormItem(List<FBFormEffect> formEffects) {
         this.effects.addAll(formEffects);
@@ -258,9 +263,33 @@ public abstract class FBFormItem extends FocusPanel {
         }
     }
     
+    public void setInput(InputData input) {
+        this.input = input;
+    }
+    
+    public void setOutput(OutputData output) {
+        this.output = output;
+    }
+    
+    public OutputData getOutput() {
+        return output;
+    }
+    
+    public InputData getInput() {
+        return input;
+    }
+    
     public abstract FormItemRepresentation getRepresentation();
     
     public abstract FBFormItem cloneItem();
     
     public abstract Widget cloneDisplay();
+
+    public <T extends FormItemRepresentation> T getRepresentation(T rep) {
+        rep.setInput(getInput());
+        rep.setOutput(getOutput());
+        rep.setHeight(getHeight());
+        rep.setWidth(getWidth());
+        return rep;
+    }
 }

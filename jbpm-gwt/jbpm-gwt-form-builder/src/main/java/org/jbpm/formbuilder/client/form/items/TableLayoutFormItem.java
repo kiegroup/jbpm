@@ -157,7 +157,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        TableRepresentation rep = new TableRepresentation(this.rows, this.columns);
+        TableRepresentation rep = super.getRepresentation(new TableRepresentation(this.rows, this.columns));
         rep.setBorderWidth(this.borderWidth);
         rep.setCellPadding(this.cellpadding);
         rep.setCellSpacing(this.cellspacing);

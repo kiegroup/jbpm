@@ -108,7 +108,7 @@ public class ComboBoxFormItem extends OptionsFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        ComboBoxRepresentation rep = new ComboBoxRepresentation();
+        ComboBoxRepresentation rep = super.getRepresentation(new ComboBoxRepresentation());
         List<OptionRepresentation> elements = new ArrayList<OptionRepresentation>();
         for (String label : this.items.keySet()) {
             OptionRepresentation opt = new OptionRepresentation();

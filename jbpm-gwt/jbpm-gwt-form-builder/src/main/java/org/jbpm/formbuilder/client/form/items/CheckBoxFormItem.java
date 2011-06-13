@@ -72,9 +72,7 @@ public class CheckBoxFormItem extends FBFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        CheckBoxRepresentation rep = new CheckBoxRepresentation();
-        rep.setWidth(getWidth());
-        rep.setHeight(getHeight());
+        CheckBoxRepresentation rep = super.getRepresentation(new CheckBoxRepresentation());
         rep.setFormValue(formValue);
         rep.setName(name);
         rep.setId(id);

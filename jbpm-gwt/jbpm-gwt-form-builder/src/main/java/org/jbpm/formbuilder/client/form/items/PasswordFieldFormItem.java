@@ -79,13 +79,11 @@ public class PasswordFieldFormItem extends FBFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        PasswordFieldRepresentation rep = new PasswordFieldRepresentation();
+        PasswordFieldRepresentation rep = super.getRepresentation(new PasswordFieldRepresentation());
         rep.setDefaultValue(this.defaultContent);
         rep.setName(this.name);
         rep.setId(this.id);
         rep.setMaxLength(this.maxlength);
-        rep.setWidth(this.getWidth());
-        rep.setHeight(this.getHeight());
         return rep;
     }
     

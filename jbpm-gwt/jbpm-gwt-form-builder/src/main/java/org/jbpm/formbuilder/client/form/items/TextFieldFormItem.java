@@ -80,13 +80,11 @@ public class TextFieldFormItem extends FBFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        TextFieldRepresentation rep = new TextFieldRepresentation();
+        TextFieldRepresentation rep = super.getRepresentation(new TextFieldRepresentation());
         rep.setDefaultValue(this.defaultContent);
         rep.setName(this.name);
         rep.setId(this.id);
         rep.setMaxLength(this.maxlength);
-        rep.setWidth(this.getWidth());
-        rep.setHeight(this.getHeight());
         return rep;
     }
 

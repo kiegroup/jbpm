@@ -87,12 +87,10 @@ public class LabelFormItem extends FBFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        LabelRepresentation rep = new LabelRepresentation();
+        LabelRepresentation rep = super.getRepresentation(new LabelRepresentation());
         rep.setValue(this.label.getText());
         rep.setCssName(this.cssClassName);
         rep.setId(this.id);
-        rep.setWidth(this.getWidth());
-        rep.setHeight(this.getHeight());
         return rep;
     }
     

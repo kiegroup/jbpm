@@ -61,9 +61,7 @@ public class HTMLFormItem extends FBFormItem {
     
     @Override
     public FormItemRepresentation getRepresentation() {
-        HTMLRepresentation rep = new HTMLRepresentation();
-        rep.setWidth(getWidth());
-        rep.setHeight(getHeight());
+        HTMLRepresentation rep = super.getRepresentation(new HTMLRepresentation());
         rep.setContent(html.getHTML());
         return rep;
     }

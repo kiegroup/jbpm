@@ -82,7 +82,7 @@ public class TextAreaFormItem extends FBFormItem {
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        TextAreaRepresentation rep = new TextAreaRepresentation();
+        TextAreaRepresentation rep = super.getRepresentation(new TextAreaRepresentation());
         rep.setCols(this.cols);
         rep.setId(this.id);
         rep.setName(this.name);
