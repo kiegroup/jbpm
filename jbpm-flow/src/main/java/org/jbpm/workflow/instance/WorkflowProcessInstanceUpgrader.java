@@ -23,6 +23,7 @@ import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.definition.process.WorkflowProcess;
 import org.drools.runtime.KnowledgeRuntime;
 import org.drools.runtime.process.NodeInstance;
+import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
@@ -41,6 +42,9 @@ public class WorkflowProcessInstanceUpgrader {
             kruntime.getProcessInstance(processInstanceId);
         if (processInstance == null) {
             throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
+        }
+        if (processInstance.getState() == ProcessInstance.STATE_COMPLETED || processInstance.getState() == ProcessInstance.STATE_ABORTED) {
+            throw new IllegalArgumentException("Can not migrate process instance " + processInstanceId + ". Ths instance is already completed or aborted.");
         }
         if (processId == null) {
             throw new IllegalArgumentException("Null process id");
