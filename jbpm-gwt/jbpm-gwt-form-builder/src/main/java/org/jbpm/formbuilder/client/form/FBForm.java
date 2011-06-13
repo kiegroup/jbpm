@@ -94,6 +94,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
 
     public void setName(String name) {
         this.name = name;
+        this.popup.setName(name);
     }
 
     public String getTaskId() {
@@ -102,6 +103,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+        this.popup.setTaskId(taskId);
     }
     
     public String getAction() {
@@ -110,6 +112,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     public void setAction(String action) {
         this.action = action;
+        this.popup.setAction(action);
     }
     
     public String getEnctype() {
@@ -118,6 +121,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     public void setEnctype(String enctype) {
         this.enctype = enctype;
+        this.popup.setEnctype(enctype);
     }
     
     public String getMethod() {
@@ -126,6 +130,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     public void setMethod(String method) {
         this.method = method;
+        this.popup.setMethod(method);
     }
     
     public List<FBFormItem> getItems() {

@@ -1,14 +1,13 @@
 package org.jbpm.formbuilder.client.resources;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.allen_sauer.gwt.dnd.client.PickupDragController; 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 
 public class FormBuilderGlobals {
 
     private static final FormBuilderGlobals INSTANCE = new FormBuilderGlobals();
     
-    private EventBus eventBus = new SimpleEventBus();
+    private EventBus eventBus;
     
     private PickupDragController dragController;
 
@@ -17,6 +16,10 @@ public class FormBuilderGlobals {
     
     public static FormBuilderGlobals getInstance() {
         return INSTANCE;
+    }
+    
+    public void registerEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
     
     public EventBus getEventBus() {

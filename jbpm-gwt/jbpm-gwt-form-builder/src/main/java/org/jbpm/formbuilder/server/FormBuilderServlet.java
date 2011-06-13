@@ -15,6 +15,31 @@
  */
 package org.jbpm.formbuilder.server;
 
-public class FormBuilderServlet {
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+public class FormBuilderServlet extends HttpServlet {
+
+    private static final long serialVersionUID = -5961620265453738055L;
+    
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        // TODO Auto-generated method stub
+    }
+    
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        // TODO Auto-generated method stub
+    }
+    
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        // TODO Auto-generated method stub
+    }
 }

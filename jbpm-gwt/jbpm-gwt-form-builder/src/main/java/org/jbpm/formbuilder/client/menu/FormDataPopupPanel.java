@@ -68,4 +68,35 @@ public class FormDataPopupPanel extends PopupPanel {
         add(vPanel);
         
     }
+    
+    public void setTaskId(String taskId) {
+        this.taskId.setValue(taskId);
+    }
+
+    public void setEnctype(String enctype) {
+        for (int index = 0; index < this.enctype.getItemCount(); index++) {
+            if (this.enctype.getValue(index).equals(enctype)) {
+                this.enctype.setSelectedIndex(index);
+                break;
+            }
+            
+        }
+    }
+
+    public void setMethod(String method) {
+        for (int index = 0; index < this.method.getItemCount(); index++) {
+            if (this.method.getValue(index).equals(method)) {
+                this.method.setSelectedIndex(index);
+                break;
+            }
+        }
+    }
+
+    public void setAction(String action) {
+        this.action.setValue(action);
+    }
+
+    public void setName(String name) {
+        this.name.setValue(name);
+    }
 }

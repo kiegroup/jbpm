@@ -15,12 +15,20 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderEntryPoint implements EntryPoint {
 
     public void onModuleLoad() {
+        //register event bus
+        EventBus eventBus = new SimpleEventBus();
+        FormBuilderGlobals.getInstance().registerEventBus(eventBus);
+        //start app
         FormBuilderModel model = new FormBuilderModel();
         FormBuilderView view = new FormBuilderView();
         new FormBuilderController(model, view);

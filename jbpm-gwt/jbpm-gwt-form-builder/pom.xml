@@ -75,7 +75,15 @@
       <artifactId>gwt-dnd</artifactId>
       <version>3.0.1</version>
     </dependency>
-    
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>guvnor-repository</artifactId>
+    </dependency>    
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>1.4</version>
+    </dependency>
   </dependencies>
   
 </project>

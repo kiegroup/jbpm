@@ -1,13 +1,17 @@
 package org.jbpm.formbuilder.shared.task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TaskRef {
 
+    private String processId;
     private String taskId;
     private List<TaskPropertyRef> inputs = new ArrayList<TaskPropertyRef>();
     private List<TaskPropertyRef> outputs = new ArrayList<TaskPropertyRef>();
+    private Map<String, String> metaData = new HashMap<String, String>();
     
     public List<TaskPropertyRef> getInputs() {
         return inputs;
@@ -71,5 +75,25 @@ public class TaskRef {
     
     public Object removeOutput(String key) {
         return this.outputs.remove(getOutput(key));
+    }
+
+    public String getTaskName() {
+        return this.taskId;
+    }
+    
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
+    
+    public String getProcessId() {
+        return processId;
+    }
+    
+    public void setMetaData(Map<String, String> metaData) {
+        this.metaData = metaData;
+    }
+    
+    public Map<String, String> getMetaData() {
+        return metaData;
     }
 }

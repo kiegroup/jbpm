@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.layout;
 
-import java.util.HashMap;
+import java.util.HashMap; 
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
@@ -25,6 +25,8 @@ import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
 import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
+import org.jbpm.formbuilder.client.bus.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
@@ -96,6 +98,25 @@ public class LayoutPresenter {
                 }));
             }
         });
+        this.bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            public void onSelectedTask(TaskSelectedEvent event) {
+                Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+                dataSnapshot.put("oldTaskID", layoutView.getFormDisplay().getTaskId());
+                dataSnapshot.put("newTaskID", event.getSelectedTask().getTaskId());
+                System.out.println("selected task on LayoutPresenter");
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                    public void onEvent(UndoableEvent event) { }
+                    public void doAction(UndoableEvent event) {
+                        String value = (String) event.getData("newTaskID");
+                        layoutView.getFormDisplay().setTaskId(value);
+                    }
+                    public void undoAction(UndoableEvent event) {
+                        String value = (String) event.getData("oldTaskID");
+                        layoutView.getFormDisplay().setTaskId(value);
+                    }
+                }));
+            }
+        });
     }
 
     private void populateFormData(String action, String taskId,
@@ -112,14 +133,4 @@ public class LayoutPresenter {
         layoutView.getFormDisplay().setMethod(method);
         layoutView.getFormDisplay().setEnctype(enctype);
     }
-    
-    /*
-     * if at the given position, a layout exists, then add the 
-     * LayoutHolder component to that layout position. If it doesn't, 
-     * then wherever it fits
-     */
-    private LayoutHolder createLayoutHolder(int x, int y) {
-        return new LayoutHolder(); // TODO wherever it fits on current version
-    }
-
 }

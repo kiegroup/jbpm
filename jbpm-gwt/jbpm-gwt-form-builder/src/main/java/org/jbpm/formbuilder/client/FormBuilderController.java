@@ -36,7 +36,7 @@ public class FormBuilderController {
         view.setEditionView(createEdition());
         view.setLayoutView(createLayout());
         view.setOptionsView(createOptions(model));
-        view.setTasksView(createTasks());
+        view.setTasksView(createTasks(model));
         view.setToolBarView(createToolBar());
     }
 
@@ -72,9 +72,9 @@ public class FormBuilderController {
         return view;
     }
     
-    private TasksView createTasks() {
+    private TasksView createTasks(FormBuilderService model) {
         TasksView view = new TasksView();
-        new TasksPresenter(view);
+        new TasksPresenter(model, view);
         return view;
     }
     
