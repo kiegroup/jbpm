@@ -133,7 +133,8 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
             nl = temp.getChildNodes();
         } else if (source == null) {
             // don't throw errors yet ?
-            throw new RuntimeException("Source value was null for source " + sourceExpr);
+            //throw new RuntimeException("Source value was null for source " + sourceExpr);
+            return;
         }
         
         if (nl.getLength() == 0) {
