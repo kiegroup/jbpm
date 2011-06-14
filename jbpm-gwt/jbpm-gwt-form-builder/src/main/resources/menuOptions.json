@@ -1,39 +1,28 @@
-
-        MainMenuOption saveOption = new MainMenuOption();
-        saveOption.setHtml("Save");
-        
-        List<MainMenuOption> saveMenu = new ArrayList<MainMenuOption>();
-
-        MainMenuOption saveFtl = new MainMenuOption();
-        saveFtl.setHtml("As FTL");
-        saveFtl.setCommand(new SaveFormAsFtlCommand());
-        
-        MainMenuOption saveXsl = new MainMenuOption();
-        saveXsl.setHtml("As XSL");
-        saveXsl.setCommand(new SaveFormAsXslCommand());
-        
-        saveMenu.add(saveFtl);
-        saveMenu.add(saveXsl);
-        
-        saveOption.setSubMenu(saveMenu);
-        
-        MainMenuOption editOption = new MainMenuOption();
-        editOption.setHtml("Edit");
-        
-        List<MainMenuOption> editMenu = new ArrayList<MainMenuOption>();
-        
-        MainMenuOption editUndo = new MainMenuOption();
-        editUndo.setHtml("Undo");
-        editUndo.setCommand(new EditFormUndoCommand());
-        
-        MainMenuOption editRedo = new MainMenuOption();
-        editRedo.setHtml("Redo");
-        editRedo.setCommand(new EditFormRedoCommand());
-
-        editMenu.add(editUndo);
-        editMenu.add(editRedo);
-        
-        editOption.setSubMenu(editMenu);
-        
-        options.add(saveOption);
-        options.add(editOption);
+[
+ {
+     "html": "Save",
+     "subMenu": [
+         {
+            "html": "As FTL",
+            "command": SaveFormAsFtlCommand
+         },
+         {
+            "html": "As XSL",
+            "command": SaveFormAsXslCommand
+         }
+     ]
+ },
+ {
+     "html": "Edit",
+     "subMenu": [
+         {
+            "html": "Undo",
+            "command": EditFormUndoCommand
+         },
+         {
+            "html": "Redo",
+            "command": EditFormRedoCommand
+         }
+     ]
+ }
+]        

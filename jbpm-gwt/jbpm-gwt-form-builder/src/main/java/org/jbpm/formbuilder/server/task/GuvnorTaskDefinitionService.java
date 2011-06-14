@@ -23,7 +23,7 @@ import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-public class GuvnorTaskService implements TaskDefinitionService {
+public class GuvnorTaskDefinitionService implements TaskDefinitionService {
 
     RulesRepository repo = null;
     
@@ -31,8 +31,8 @@ public class GuvnorTaskService implements TaskDefinitionService {
     private final Map<String /*itemName*/, Collection<Process>> processIndex = new HashMap<String, Collection<Process>>();
     private final Map<Process, List<TaskRef>> processTasks = new HashMap<Process, List<TaskRef>>();
     
-    public List<TaskRef> query(String filter) {
-        PackageItem pkg = repo.loadPackage("");
+    public List<TaskRef> query(String pkgName, String filter) {
+        PackageItem pkg = repo.loadPackage(pkgName);
         AssetItemIterator items = pkg.listAssetsByFormat(ResourceType.BPMN2.getName(), ResourceType.DRF.getName());
         validateProcessTasks(items);
         return queryProcessTasks(filter);

@@ -25,7 +25,7 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
         tasks.add(task2);
     }
     
-    public List<TaskRef> query(String filter) {
+    public List<TaskRef> query(String pkgName, String filter) {
         return new ArrayList<TaskRef>(tasks);
     }
 

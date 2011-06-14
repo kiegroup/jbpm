@@ -6,7 +6,7 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 public interface TaskDefinitionService {
 
-    List<TaskRef> query(String filter);
+    List<TaskRef> query(String pkgName, String filter);
     
     void update(TaskRef task);
     
