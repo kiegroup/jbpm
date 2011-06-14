@@ -15,7 +15,15 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class AbsoluteLayoutFormItem extends LayoutFormItem {
 
-    private AbsolutePanel panel = new AbsolutePanel();
+    private AbsolutePanel panel = new AbsolutePanel() {
+        @Override
+        public boolean remove(Widget widget) {
+            if (widget instanceof FBFormItem) {
+                AbsoluteLayoutFormItem.this.remove(widget);
+            }
+            return super.remove(widget);
+        }
+    };
     
     private String id;
     
@@ -83,6 +91,11 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
         int top = item.getDesiredY();
         panel.add(item, left - panel.getAbsoluteLeft(), top - panel.getAbsoluteTop());
         return super.add(item);
+    }
+    
+    @Override
+    public boolean remove(Widget child) {
+        return super.remove(child);
     }
     
     @Override

@@ -1,0 +1,155 @@
+[
+ {
+     "key": "Layout Components",
+     "value": [
+        HorizontalLayoutMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+         },
+         TableLayoutMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+         },
+         AbsoluteLayoutMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+         }
+     ]
+ },
+ {
+     "key": "Control Components",
+     "value": [
+          ComboBoxMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                AddItemFormEffect,
+                DeleteItemFormEffect,
+                TaskRelationEffect
+            ]
+          },
+          TextFieldMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          },
+          PasswordFieldMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          },
+          CompleteButtonMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+          },
+          TextAreaMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          },
+          HiddenMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          },
+          FileInputMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          },
+          CheckBoxMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          },
+          RadioButtonMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect,
+                TaskRelationEffect
+            ]
+          }
+     ]
+ },
+ {
+     "key": "Visual Components",
+     "value": [
+          HeaderMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+          },
+          LabelMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+          },
+          ImageMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+          },
+          HTMLMenuItem {
+            "effects": [
+                RemoveEffect,
+                DoneEffect,
+                ResizeEffect,
+                SaveAsMenuOptionEffect
+            ]
+        }
+     ]
+ },
+]

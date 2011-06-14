@@ -1,12 +1,19 @@
 package org.jbpm.formbuilder.server.form;
 
-import javax.jcr.Repository; 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import org.apache.jackrabbit.core.RepositoryFactoryImpl;
+import org.drools.repository.AssetItem;
+import org.drools.repository.AssetItemIterator;
+import org.drools.repository.PackageItem;
 import org.drools.repository.RulesRepository;
-import org.drools.repository.remoteapi.RestAPI;
+import org.drools.repository.VersionableItem;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.Language;
@@ -15,33 +22,75 @@ import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
 public class GuvnorFormDefinitionService implements FormDefinitionService {
 
-    private final RestAPI api;
+    public static final String XFORM_TYPE = "XFORM";
     
-    public GuvnorFormDefinitionService() {
+    private final RulesRepository repo;
+    
+    public GuvnorFormDefinitionService(RulesRepository repo) {
         super();
-        try {
-            Repository repository = new RepositoryFactoryImpl().getRepository(null);
-            Session session = repository.login();
-            RulesRepository repo = new RulesRepository(session);
-            this.api = new RestAPI(repo);
-        } catch (RepositoryException e) {
-            throw new RuntimeException(e);
-        }
+        this.repo = repo;
     }
     
-    public String generateForm(String language, FormRepresentation form) {
+    public String generateForm(String pkgName, String language, FormRepresentation form) {
         try {
             Language lang = LanguageFactory.getInstance().getLanguage(language);
             String retval = lang.translateForm(form);
+            PackageItem pkg = repo.loadPackage(pkgName);
+            AssetItem item = pkg.loadAsset(xformName(form) + "_" + language);
+            if (item == null) {
+                item = pkg.addAsset(xformName(form), language + " representation for xform " + form.getDocumentation());
+            }
+            item.updateContent(retval);
+            item.checkin("Auto-Save " + new Date());
             return retval;
         } catch (LanguageException e) {
-            String error = ""; //TODO
-            return error;
+            throw new RuntimeException("problem generating form", e); //TODO
         }
     }
 
-    public void saveForm(String url, FormRepresentation form) {
-        //TODO see how to save something: api.post(url, asInputStream(form), form.getComments());
+    public void saveForm(String pkgName, String comment, FormRepresentation form) {
+        PackageItem pkg = repo.loadPackage(pkgName);
+        String assetName = xformName(form);
+        AssetItem item = pkg.loadAsset(assetName);
+        if (item == null) {
+            item = pkg.addAsset(assetName, form.getDocumentation());
+            item.updateType(XFORM_TYPE);
+        } else if (item.getLastModified().getTime().getTime() > form.getLastModified()) {
+            throw new RuntimeException("form already changed"); //TODO
+        }
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oout = new ObjectOutputStream(bout);
+            oout.writeObject(form);
+            item.updateBinaryContentAttachment(new ByteArrayInputStream(bout.toByteArray()));
+            item.checkin(comment);
+            //TODO should generate actual forms and save them.
+        } catch (IOException e) {
+            throw new RuntimeException("problem saving form"); //TODO
+        }
     }
 
+    private String xformName(FormRepresentation form) {
+        String assetName = "form_" + form.getTaskId() + "_" + form.getName();
+        return assetName;
+    }
+
+    public List<FormRepresentation> getForms(String pkgName) {
+        PackageItem pkg = repo.loadPackage(pkgName);
+        AssetItemIterator items = pkg.queryAssets(VersionableItem.TYPE_PROPERTY_NAME + "=" + XFORM_TYPE);
+        List<FormRepresentation> retval = new ArrayList<FormRepresentation>((int) items.getSize());
+        while (items.hasNext()) {
+            AssetItem item = items.next();
+            try {
+                ObjectInputStream oin = new ObjectInputStream(item.getBinaryContentAttachment());
+                FormRepresentation xform = (FormRepresentation) oin.readObject();
+                retval.add(xform);
+            } catch (IOException e) {
+                throw new RuntimeException("problem loading forms", e); //TODO
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("problem loading forms", e); //TODO
+            }
+        }
+        return retval;
+    }
 }

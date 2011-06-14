@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client;
 
-import java.util.ArrayList; 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +40,7 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.effect.ResizeEffect;
 import org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect;
+import org.jbpm.formbuilder.client.effect.TaskRelationEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
@@ -71,7 +72,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -132,6 +132,7 @@ public class FormBuilderModel implements FormBuilderService {
         effects.add(new DoneEffect());
         effects.add(new ResizeEffect());
         effects.add(new SaveAsMenuOptionFormEffect());
+        effects.add(new TaskRelationEffect());
         
         List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
         effectsOptions.add(new RemoveEffect());
@@ -140,6 +141,7 @@ public class FormBuilderModel implements FormBuilderService {
         effectsOptions.add(new SaveAsMenuOptionFormEffect());
         effectsOptions.add(new AddItemFormEffect());
         effectsOptions.add(new DeleteItemFormEffect());
+        effectsOptions.add(new TaskRelationEffect());
         
         visuals.add(new HeaderMenuItem(effects));
         visuals.add(new LabelMenuItem(effects));

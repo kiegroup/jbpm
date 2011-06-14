@@ -102,8 +102,7 @@ public class LayoutPresenter {
             public void onSelectedTask(TaskSelectedEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldTaskID", layoutView.getFormDisplay().getTaskId());
-                dataSnapshot.put("newTaskID", event.getSelectedTask().getTaskId());
-                System.out.println("selected task on LayoutPresenter");
+                dataSnapshot.put("newTaskID", event.getSelectedTask() == null ? null : event.getSelectedTask().getTaskId());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
                     public void onEvent(UndoableEvent event) { }
                     public void doAction(UndoableEvent event) {

@@ -1,10 +1,14 @@
 package org.jbpm.formbuilder.shared.form;
 
+import java.util.List;
+
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 public interface FormDefinitionService {
 
-    String generateForm(String language, FormRepresentation form);
+    String generateForm(String pkgName, String language, FormRepresentation form);
     
-    void saveForm(String reference, FormRepresentation form);
+    void saveForm(String pkgName, String comment, FormRepresentation form);
+    
+    List<FormRepresentation> getForms(String pkgName);
 }

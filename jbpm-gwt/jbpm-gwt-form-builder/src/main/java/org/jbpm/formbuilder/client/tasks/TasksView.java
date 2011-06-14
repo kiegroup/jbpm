@@ -12,8 +12,8 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
@@ -61,11 +61,19 @@ public class TasksView extends AbsolutePanel {
     private HorizontalPanel taskName() {
         HorizontalPanel hPanel = new HorizontalPanel();
         hPanel.add(new Label("Task Name:"));
-        taskName.addValueChangeHandler(new ValueChangeHandler<String>() {
-            public void onValueChange(ValueChangeEvent<String> event) {
-                String newValue = event.getValue();
+        taskName.addKeyPressHandler(new KeyPressHandler() {
+            public void onKeyPress(KeyPressEvent event) {
+                String newValue = taskName.getValue();
                 System.out.println("Value changed to " + newValue);
                 bus.fireEvent(new TaskNameFilterEvent(newValue));
+            }
+        });
+        taskName.addChangeHandler(new ChangeHandler() {
+            public void onChange(ChangeEvent event) {
+                String newValue = taskName.getValue();
+                TaskRef selectedTask = possibleTasks.get(newValue);
+                bus.fireEvent(new TaskSelectedEvent(selectedTask));
+                taskOptionsPanel.hide();
             }
         });
         hPanel.add(taskName);
@@ -85,27 +93,31 @@ public class TasksView extends AbsolutePanel {
     }
 
     public void setTaskCombo(List<TaskRef> tasks) {
-        final ListBox taskSuggestions = new ListBox();
-        taskSuggestions.addChangeHandler(new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                int index = taskSuggestions.getSelectedIndex();
-                String value = taskSuggestions.getItemText(index);
-                taskName.setValue(value, true);
-                taskOptionsPanel.hide();
-                TaskRef selectedTask = possibleTasks.get(value);
-                bus.fireEvent(new TaskSelectedEvent(selectedTask));
+        if (tasks == null || tasks.isEmpty()) {
+            taskOptionsPanel.hide();
+        } else {
+            final ListBox taskSuggestions = new ListBox();
+            taskSuggestions.addChangeHandler(new ChangeHandler() {
+                public void onChange(ChangeEvent event) {
+                    int index = taskSuggestions.getSelectedIndex();
+                    String value = taskSuggestions.getItemText(index);
+                    taskName.setValue(value, true);
+                    taskOptionsPanel.hide();
+                    TaskRef selectedTask = possibleTasks.get(value);
+                    bus.fireEvent(new TaskSelectedEvent(selectedTask));
+                }
+            });
+            taskSuggestions.clear();
+            taskSuggestions.setVisibleItemCount(tasks.size() > 20 ? 20 : tasks.size());
+            for (TaskRef task : tasks) {
+                possibleTasks.put(task.getTaskId(), task);
+                taskSuggestions.addItem(task.getTaskId(), task.getTaskId() + " (from " + task.getProcessId() + ")");
             }
-        });
-        taskSuggestions.clear();
-        taskSuggestions.setVisibleItemCount(tasks.size() > 20 ? 20 : tasks.size());
-        for (TaskRef task : tasks) {
-            possibleTasks.put(task.getTaskId(), task);
-            taskSuggestions.addItem(task.getTaskId(), task.getTaskId() + " (from " + task.getProcessId() + ")");
+            taskOptionsPanel.setPopupPosition(taskName.getAbsoluteLeft(), taskName.getAbsoluteTop() + taskName.getOffsetHeight());
+            taskOptionsPanel.setPixelSize(taskName.getOffsetWidth(), tasks.size() * taskName.getOffsetHeight());
+            taskOptionsPanel.setWidget(taskSuggestions);
+            taskOptionsPanel.show();
         }
-        taskOptionsPanel.setPopupPosition(taskName.getAbsoluteLeft(), taskName.getAbsoluteTop() + taskName.getOffsetHeight());
-        taskOptionsPanel.setPixelSize(taskName.getOffsetWidth(), tasks.size() * taskName.getOffsetHeight());
-        taskOptionsPanel.setWidget(taskSuggestions);
-        taskOptionsPanel.show();
     }
 
     public void setTaskInputs(List<TaskPropertyRef> inputs) {

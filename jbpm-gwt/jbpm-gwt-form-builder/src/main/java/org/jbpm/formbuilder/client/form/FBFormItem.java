@@ -47,6 +47,7 @@ public abstract class FBFormItem extends FocusPanel {
     
     public FBFormItem(List<FBFormEffect> formEffects) {
         this.effects.addAll(formEffects);
+        addStyleName("fbFormItemThinBorder");
         addFocusHandler(new FocusHandler() {
             public void onFocus(FocusEvent event) {
                 makeEditor();

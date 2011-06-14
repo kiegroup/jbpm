@@ -58,25 +58,31 @@ public class TaskRelationEffect extends FBFormEffect {
     @Override
     protected void createStyles() {
         FBFormItem item = getItem();
-        InputData in = new InputData();
-        in.setName(this.input.getName());
-        in.setValue(this.input.getSourceExpresion());
-        in.setMimeType("multipart/form-data");
-        in.setFormatter(new Formatter() {
-            public Object format(Object object) {
-                return object;
-            }
-        });
+        InputData in = null;
+        if (this.input != null) {
+            in = new InputData();
+            in.setName(this.input.getName());
+            in.setValue(this.input.getSourceExpresion());
+            in.setMimeType("multipart/form-data");
+            in.setFormatter(new Formatter() {
+                public Object format(Object object) {
+                    return object;
+                }
+            });
+        }
         item.setInput(in);
-        OutputData out = new OutputData();
-        out.setName(this.output.getName());
-        out.setValue(this.output.getSourceExpresion());
-        out.setMimeType("multipart/form-data");
-        out.setFormatter(new Formatter() {
-            public Object format(Object object) {
-                return object;
-            }
-        });
+        OutputData out = null;
+        if (this.output != null) {
+            out = new OutputData();
+            out.setName(this.output.getName());
+            out.setValue(this.output.getSourceExpresion());
+            out.setMimeType("multipart/form-data");
+            out.setFormatter(new Formatter() {
+                public Object format(Object object) {
+                    return object;
+                }
+            });
+        }
         item.setOutput(out);
     }
 
@@ -86,14 +92,25 @@ public class TaskRelationEffect extends FBFormEffect {
 
         HTML title = new HTML("<strong>Item references to selected task</strong>");
         title.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        String selectedInputName = getItem().getInput() == null ? null : getItem().getInput().getName();
         final ListBox inputList = new ListBox();
+        inputList.addItem("", "");
         for (TaskPropertyRef input : selectedTask.getInputs()) {
             inputList.addItem(input.getName() + " (" + input.getSourceExpresion() + ")", input.getName());
+            if (selectedInputName != null && input.getName().equals(selectedInputName)) {
+                inputList.setSelectedIndex(inputList.getItemCount() - 1);
+            }
         }
+        String selectedOutputName = getItem().getOutput() == null ? null : getItem().getOutput().getName();
         final ListBox outputList = new ListBox();
+        outputList.addItem("", "");
         for (TaskPropertyRef output : selectedTask.getOutputs()) {
             outputList.addItem(output.getName() + " (" + output.getSourceExpresion() + ")", output.getName());
+            if (selectedOutputName != null && output.getName().equals(selectedOutputName)) {
+                outputList.setSelectedIndex(outputList.getItemCount() - 1);
+            }
         }
+        
 
         Grid grid = new Grid(2,2);
         grid.setWidget(0, 0, new Label("Input:"));
@@ -105,9 +122,19 @@ public class TaskRelationEffect extends FBFormEffect {
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
-                dataSnapshot.put("newInput", selectedTask.getInput(inputList.getValue(inputList.getSelectedIndex())));
+                String selectedInput = inputList.getValue(inputList.getSelectedIndex());
+                if (selectedInput != null && !"".equals(selectedInput)) {
+                    dataSnapshot.put("newInput", selectedTask.getInput(selectedInput));
+                } else {
+                    dataSnapshot.put("newInput", null);
+                }
                 dataSnapshot.put("oldInput", input);
-                dataSnapshot.put("newOutput", selectedTask.getOutput(outputList.getValue(outputList.getSelectedIndex())));
+                String selectedOutput = outputList.getValue(outputList.getSelectedIndex());
+                if (selectedOutput != null && !"".equals(selectedOutput)) {
+                    dataSnapshot.put("newOutput", selectedTask.getOutput(selectedOutput));
+                } else {
+                    dataSnapshot.put("newOutput", null);
+                }
                 dataSnapshot.put("oldOutput", output);
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
                     public void onEvent(UndoableEvent event) { }

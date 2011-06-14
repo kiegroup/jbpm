@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.shared.rep;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,8 +9,10 @@ import java.util.Map;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
 
-public class FormRepresentation {
+public class FormRepresentation implements Serializable {
 
+    private static final long serialVersionUID = 6207901499318773670L;
+    
     private String name;
     private String taskId;
     private String action;
@@ -21,6 +24,9 @@ public class FormRepresentation {
     private Map<String, InputData> inputs = new HashMap<String, InputData>();
     private List<FBScript> onLoadScripts;
     private List<FBScript> onSubmitScripts;
+    
+    private long lastModified = Long.MAX_VALUE; //TODO set timestamp
+    private String documentation; //TODO set comments
     
     public String getName() {
         return name;
@@ -129,5 +135,21 @@ public class FormRepresentation {
     
     public String translate(String language) throws LanguageException {
         return LanguageFactory.getInstance().getLanguage(language).translateForm(this);
+    }
+    
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+    
+    public long getLastModified() {
+        return lastModified;
+    }
+    
+    public void setDocumentation(String documentation) {
+        this.documentation = documentation;
+    }
+    
+    public String getDocumentation() {
+        return documentation;
     }
 }
