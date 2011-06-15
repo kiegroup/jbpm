@@ -25,9 +25,9 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEventHandler;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEventHandler;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
@@ -72,17 +72,22 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.XMLParser;
 
 public class FormBuilderModel implements FormBuilderService {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
-    public FormBuilderModel() {
+    private final String contextPath;
+    
+    public FormBuilderModel(String contextPath) {
+        this.contextPath = contextPath;
         bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedEventHandler() {
             public void onEvent(MenuOptionAddedEvent event) {
                 saveMenuItem(event.getGroupName(), event.getMenuItem());
@@ -107,7 +112,7 @@ public class FormBuilderModel implements FormBuilderService {
          * they may want.
         
         final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
-        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuItems");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
@@ -226,7 +231,7 @@ public class FormBuilderModel implements FormBuilderService {
     public List<MainMenuOption> getMenuOptions() {
         /* TODO
         final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
-        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + "api/menuOptions");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuOptions");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
@@ -314,7 +319,7 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void saveForm(FormRepresentation form) {
-        /*RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + "api/menuItems");
+        /*RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
@@ -337,8 +342,7 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void saveMenuItem(String groupName, final FBMenuItem item) {
-        /* TODO*/
-        /*RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + "api/menuItems");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
@@ -360,11 +364,12 @@ public class FormBuilderModel implements FormBuilderService {
             request.send();
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save menu item", e));
-        }*/
+        }
     }
     
     public void deleteMenuItem(String groupName, FBMenuItem item) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, GWT.getModuleBaseURL() + "api/menuItems/" + item.getItemId());
+        //TODO this method should send a body
+        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, GWT.getModuleBaseURL() + this.contextPath + "/menuItems/" + item.getItemId());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
