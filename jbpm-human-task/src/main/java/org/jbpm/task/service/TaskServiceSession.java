@@ -513,215 +513,397 @@ public class TaskServiceSession {
         return (Task) task.getSingleResult();
     }
 
-    public List<TaskSummary> getTasksOwned(final String userId, final String language) {
-        final Query tasksOwned = em.createNamedQuery("TasksOwned");
-        tasksOwned.setParameter("userId", userId);
-        tasksOwned.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksOwned(final String userId,
+            final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksOwned.getResultList();
+            public void doOperation() {
+                final Query tasksOwned = em.createNamedQuery("TasksOwned");
+                tasksOwned.setParameter("userId", userId);
+                tasksOwned.setParameter("language", language);
+                result = tasksOwned.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
-    public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(final String userId,
-                                                                     final String language) {
-        final Query tasksAssignedAsBusinessAdministrator = em.createNamedQuery("TasksAssignedAsBusinessAdministrator");
-        tasksAssignedAsBusinessAdministrator.setParameter("userId", userId);
-        tasksAssignedAsBusinessAdministrator.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(
+            final String userId, final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsBusinessAdministrator.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsBusinessAdministrator = em
+                        .createNamedQuery("TasksAssignedAsBusinessAdministrator");
+                tasksAssignedAsBusinessAdministrator.setParameter("userId",
+                        userId);
+                tasksAssignedAsBusinessAdministrator.setParameter("language",
+                        language);
+                result = tasksAssignedAsBusinessAdministrator.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
-    public List<TaskSummary> getTasksAssignedAsExcludedOwner(final String userId,
-                                                             final String language) {
-        final Query tasksAssignedAsExcludedOwner = em.createNamedQuery("TasksAssignedAsExcludedOwner");
-        tasksAssignedAsExcludedOwner.setParameter("userId", userId);
-        tasksAssignedAsExcludedOwner.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsExcludedOwner(
+            final String userId, final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsExcludedOwner.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsExcludedOwner = em
+                        .createNamedQuery("TasksAssignedAsExcludedOwner");
+                tasksAssignedAsExcludedOwner.setParameter("userId", userId);
+                tasksAssignedAsExcludedOwner.setParameter("language", language);
+
+                result = tasksAssignedAsExcludedOwner.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
+
     }
 
-    public List<TaskSummary> getTasksAssignedAsPotentialOwner(final String userId,
-                                                              final String language) {
-        final Query tasksAssignedAsPotentialOwner = em.createNamedQuery("TasksAssignedAsPotentialOwner");
-        tasksAssignedAsPotentialOwner.setParameter("userId", userId);
-        tasksAssignedAsPotentialOwner.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(
+            final String userId, final String language) {
 
-        return (List<TaskSummary>) tasksAssignedAsPotentialOwner.getResultList();
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
+
+            public void doOperation() {
+                final Query tasksAssignedAsPotentialOwner = em
+                        .createNamedQuery("TasksAssignedAsPotentialOwner");
+                tasksAssignedAsPotentialOwner.setParameter("userId", userId);
+                tasksAssignedAsPotentialOwner
+                        .setParameter("language", language);
+                result = tasksAssignedAsPotentialOwner.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
-    public List<TaskSummary> getTasksAssignedAsPotentialOwner(final String userId, final List<String> groupIds,
-                                                              final String language) {
-        final Query tasksAssignedAsPotentialOwner = em.createNamedQuery("TasksAssignedAsPotentialOwnerWithGroups");
-        tasksAssignedAsPotentialOwner.setParameter("userId", userId);
-        tasksAssignedAsPotentialOwner.setParameter("groupIds", groupIds);
-        tasksAssignedAsPotentialOwner.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(
+            final String userId, final List<String> groupIds,
+            final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsPotentialOwner.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsPotentialOwner = em
+                        .createNamedQuery("TasksAssignedAsPotentialOwnerWithGroups");
+                tasksAssignedAsPotentialOwner.setParameter("userId", userId);
+                tasksAssignedAsPotentialOwner
+                        .setParameter("groupIds", groupIds);
+                tasksAssignedAsPotentialOwner
+                        .setParameter("language", language);
+                result = tasksAssignedAsPotentialOwner.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getSubTasksAssignedAsPotentialOwner(
+            final long parentId, final String userId, final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-    public List<TaskSummary> getSubTasksAssignedAsPotentialOwner(final long parentId, final String userId,
-                                                                 final String language) {
-        final Query tasksAssignedAsPotentialOwner = em.createNamedQuery("SubTasksAssignedAsPotentialOwner");
-        tasksAssignedAsPotentialOwner.setParameter("parentId", parentId);
-        tasksAssignedAsPotentialOwner.setParameter("userId", userId);
-        tasksAssignedAsPotentialOwner.setParameter("language", language);
+            public void doOperation() {
+                final Query tasksAssignedAsPotentialOwner = em
+                        .createNamedQuery("SubTasksAssignedAsPotentialOwner");
+                tasksAssignedAsPotentialOwner
+                        .setParameter("parentId", parentId);
+                tasksAssignedAsPotentialOwner.setParameter("userId", userId);
+                tasksAssignedAsPotentialOwner
+                        .setParameter("language", language);
 
-        return (List<TaskSummary>) tasksAssignedAsPotentialOwner.getResultList();
+                result = tasksAssignedAsPotentialOwner.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
-    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByGroup(final String groupId,
-                                                                     final String language) {
-        final Query tasksAssignedAsPotentialOwnerByGroup = em.createNamedQuery("TasksAssignedAsPotentialOwnerByGroup");
-        tasksAssignedAsPotentialOwnerByGroup.setParameter("groupId", groupId);
-        tasksAssignedAsPotentialOwnerByGroup.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByGroup(
+            final String groupId, final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsPotentialOwnerByGroup.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsPotentialOwnerByGroup = em
+                        .createNamedQuery("TasksAssignedAsPotentialOwnerByGroup");
+                tasksAssignedAsPotentialOwnerByGroup.setParameter("groupId",
+                        groupId);
+                tasksAssignedAsPotentialOwnerByGroup.setParameter("language",
+                        language);
+
+                result = tasksAssignedAsPotentialOwnerByGroup.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
+
     }
 
-    public List<TaskSummary> getSubTasksByParent(final long parentId, final String language) {
-        final Query subTaskByParent = em.createNamedQuery("GetSubTasksByParentTaskId");
-        subTaskByParent.setParameter("parentId", parentId);
-        subTaskByParent.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getSubTasksByParent(final long parentId,
+            final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) subTaskByParent.getResultList();
+            public void doOperation() {
+                final Query subTaskByParent = em
+                        .createNamedQuery("GetSubTasksByParentTaskId");
+                subTaskByParent.setParameter("parentId", parentId);
+                subTaskByParent.setParameter("language", language);
+
+                result = subTaskByParent.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
+    @SuppressWarnings("unchecked")
     public List<TaskSummary> getTasksAssignedAsRecipient(final String userId,
-                                                         final String language) {
-        final Query tasksAssignedAsRecipient = em.createNamedQuery("TasksAssignedAsRecipient");
-        tasksAssignedAsRecipient.setParameter("userId", userId);
-        tasksAssignedAsRecipient.setParameter("language", language);
+            final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsRecipient.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsRecipient = em
+                        .createNamedQuery("TasksAssignedAsRecipient");
+                tasksAssignedAsRecipient.setParameter("userId", userId);
+                tasksAssignedAsRecipient.setParameter("language", language);
+
+                result = tasksAssignedAsRecipient.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
-    public List<TaskSummary> getTasksAssignedAsTaskInitiator(final String userId,
-                                                             final String language) {
-        final Query tasksAssignedAsTaskInitiator = em.createNamedQuery("TasksAssignedAsTaskInitiator");
-        tasksAssignedAsTaskInitiator.setParameter("userId", userId);
-        tasksAssignedAsTaskInitiator.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsTaskInitiator(
+            final String userId, final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsTaskInitiator.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsTaskInitiator = em
+                        .createNamedQuery("TasksAssignedAsTaskInitiator");
+                tasksAssignedAsTaskInitiator.setParameter("userId", userId);
+                tasksAssignedAsTaskInitiator.setParameter("language", language);
+
+                result = tasksAssignedAsTaskInitiator.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
 
-    public List<TaskSummary> getTasksAssignedAsTaskStakeholder(final String userId,
-                                                               final String language) {
-        final Query tasksAssignedAsTaskStakeholder = em.createNamedQuery("TasksAssignedAsTaskStakeholder");
-        tasksAssignedAsTaskStakeholder.setParameter("userId", userId);
-        tasksAssignedAsTaskStakeholder.setParameter("language", language);
+    @SuppressWarnings("unchecked")
+    public List<TaskSummary> getTasksAssignedAsTaskStakeholder(
+            final String userId, final String language) {
+        TransactedOperationWithResult operation = new TransactedOperationWithResult() {
+            List<TaskSummary> result;
 
-        return (List<TaskSummary>) tasksAssignedAsTaskStakeholder.getResultList();
+            public void doOperation() {
+                final Query tasksAssignedAsTaskStakeholder = em
+                        .createNamedQuery("TasksAssignedAsTaskStakeholder");
+                tasksAssignedAsTaskStakeholder.setParameter("userId", userId);
+                tasksAssignedAsTaskStakeholder.setParameter("language",
+                        language);
+
+                result = tasksAssignedAsTaskStakeholder.getResultList();
+            }
+
+            public Object getResult() {
+                return result;
+            }
+        };
+        doOperationInTransaction(operation);
+        return (List<TaskSummary>) operation.getResult();
     }
-    
-    public List<?> query(final String qlString, final Integer size, final Integer offset) {
-    	final Query genericQuery = em.createQuery(qlString);
-    	genericQuery.setMaxResults(size);
-    	genericQuery.setFirstResult(offset);
-    	return genericQuery.getResultList();
+
+    public List<?> query(final String qlString, final Integer size,
+            final Integer offset) {
+        final Query genericQuery = em.createQuery(qlString);
+        genericQuery.setMaxResults(size);
+        genericQuery.setFirstResult(offset);
+        return genericQuery.getResultList();
     }
-    
+
     private void taskRemoveOperation(final Task task, final User user) {
-		if (task.getPeopleAssignments().getRecipients().contains(user)) {
-			task.getPeopleAssignments().getRecipients().remove(user);
-		} else {
-			throw new RuntimeException("Couldn't remove user " + user.getId() + " since it isn't a notification recipient");
-		}
+        if (task.getPeopleAssignments().getRecipients().contains(user)) {
+            task.getPeopleAssignments().getRecipients().remove(user);
+        } else {
+            throw new RuntimeException("Couldn't remove user " + user.getId()
+                    + " since it isn't a notification recipient");
+        }
     }
-    
+
     private void taskRegisterOperation(final Task task, final User user) {
-		if (!task.getPeopleAssignments().getRecipients().contains(user)) {
-			task.getPeopleAssignments().getRecipients().add(user);
-		}
+        if (!task.getPeopleAssignments().getRecipients().contains(user)) {
+            task.getPeopleAssignments().getRecipients().add(user);
+        }
     }
-    
-    public void nominateTask(final long taskId, String userId, final List<OrganizationalEntity> potentialOwners) {
-    	final Task task = getEntity(Task.class, taskId);
-    	final User user = getEntity(User.class, userId);
-    	if (isAllowed(user, null, task.getPeopleAssignments().getBusinessAdministrators())) {
-	    	doOperationInTransaction(new TransactedOperation() {
-				public void doOperation() {
-					task.getTaskData().assignOwnerAndStatus(potentialOwners);
-					if (task.getTaskData().getStatus() == Status.Ready) {
-						task.getPeopleAssignments().setPotentialOwners(potentialOwners);
-					}
-				}
-	    	});
-    	} else {
-    		throw new PermissionDeniedException("User " + userId + " is not allowed to perform Nominate on Task " + taskId);
-    	}
+
+    public void nominateTask(final long taskId, String userId,
+            final List<OrganizationalEntity> potentialOwners) {
+        final Task task = getEntity(Task.class, taskId);
+        final User user = getEntity(User.class, userId);
+        if (isAllowed(user, null, task.getPeopleAssignments()
+                .getBusinessAdministrators())) {
+            doOperationInTransaction(new TransactedOperation() {
+                public void doOperation() {
+                    task.getTaskData().assignOwnerAndStatus(potentialOwners);
+                    if (task.getTaskData().getStatus() == Status.Ready) {
+                        task.getPeopleAssignments().setPotentialOwners(
+                                potentialOwners);
+                    }
+                }
+            });
+        } else {
+            throw new PermissionDeniedException("User " + userId
+                    + " is not allowed to perform Nominate on Task " + taskId);
+        }
     }
-    
-    public void setOutput(final long taskId, final String userId, final ContentData outputContentData) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform setOutput");
-    			}
-    			Content content = new Content();
-    			content.setContent(outputContentData.getContent());
-    			em.persist(content);
-    			task.getTaskData().setOutput(content.getId(), outputContentData);
-    		}
-    	});
+
+    public void setOutput(final long taskId, final String userId,
+            final ContentData outputContentData) {
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId
+                            + " is not the actual owner of the task " + taskId
+                            + " and can't perform setOutput");
+                }
+                Content content = new Content();
+                content.setContent(outputContentData.getContent());
+                em.persist(content);
+                task.getTaskData()
+                        .setOutput(content.getId(), outputContentData);
+            }
+        });
     }
-    
-    public void setFault(final long taskId, final String userId, final FaultData faultContentData) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform setFault");
-    			}
-    			Content content = new Content();
-    			content.setContent(faultContentData.getContent());
-    			em.persist(content);
-    			task.getTaskData().setFault(content.getId(), faultContentData);
-    		}
-    	});
+
+    public void setFault(final long taskId, final String userId,
+            final FaultData faultContentData) {
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId
+                            + " is not the actual owner of the task " + taskId
+                            + " and can't perform setFault");
+                }
+                Content content = new Content();
+                content.setContent(faultContentData.getContent());
+                em.persist(content);
+                task.getTaskData().setFault(content.getId(), faultContentData);
+            }
+        });
     }
-    
-    public void setPriority(final long taskId, final String userId, final int priority) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			task.setPriority(priority);
-    		}
-    	});
+
+    public void setPriority(final long taskId, final String userId,
+            final int priority) {
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                task.setPriority(priority);
+            }
+        });
     }
-    
+
     public void deleteOutput(final long taskId, final String userId) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform deleteOutput");
-    			}
-    			long contentId = task.getTaskData().getOutputContentId();
-    			Content content = getEntity(Content.class, contentId);
-    			ContentData data = new ContentData();
-    			em.remove(content);
-    			task.getTaskData().setOutput(0, data);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId
+                            + " is not the actual owner of the task " + taskId
+                            + " and can't perform deleteOutput");
+                }
+                long contentId = task.getTaskData().getOutputContentId();
+                Content content = getEntity(Content.class, contentId);
+                ContentData data = new ContentData();
+                em.remove(content);
+                task.getTaskData().setOutput(0, data);
+            }
+        });
     }
-    
+
     public void deleteFault(final long taskId, final String userId) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform deleteFault");
-    			}
-    			long contentId = task.getTaskData().getFaultContentId();
-    			Content content = getEntity(Content.class, contentId);
-    			FaultData data = new FaultData();
-    			em.remove(content);
-    			task.getTaskData().setFault(0, data);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId
+                            + " is not the actual owner of the task " + taskId
+                            + " and can't perform deleteFault");
+                }
+                long contentId = task.getTaskData().getFaultContentId();
+                Content content = getEntity(Content.class, contentId);
+                FaultData data = new FaultData();
+                em.remove(content);
+                task.getTaskData().setFault(0, data);
+            }
+        });
     }
-    
+
     public static boolean isAllowed(final User user, final List<OrganizationalEntity>[] people) {
         for (List<OrganizationalEntity> list : people) {
             if (isAllowed(user, null, list)) {
@@ -828,4 +1010,9 @@ public class TaskServiceSession {
     private interface TransactedOperation {
         void doOperation();
     }
+    
+    private interface TransactedOperationWithResult extends TransactedOperation {
+        Object getResult();
+    }
+
 }
