@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.shared.rep.trans;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 
@@ -13,6 +14,12 @@ public class LanguageFactory {
     private static final Map<String, Language> CACHE = new HashMap<String, Language>();
 
     private LanguageFactory() {
+        try {
+            getLanguage("ftl");
+            getLanguage("xsl");
+        } catch (LanguageException e) {
+            //TODO this should be in an initializer somewhere else
+        }
     }
     
     public static LanguageFactory getInstance() {
@@ -39,5 +46,9 @@ public class LanguageFactory {
 
     public boolean isClientSide(String type) {
         return "text/javascript".equals(type) || "text/vbscript".equals(type);
+    }
+
+    public Set<String> getLanguages() {
+        return CACHE.keySet();
     }
 }

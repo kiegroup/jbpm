@@ -1,28 +1,22 @@
 [
- {
-     "html": "Save",
-     "subMenu": [
-         {
-            "html": "As FTL",
-            "command": SaveFormAsFtlCommand
-         },
-         {
-            "html": "As XSL",
-            "command": SaveFormAsXslCommand
-         }
-     ]
- },
- {
-     "html": "Edit",
-     "subMenu": [
-         {
-            "html": "Undo",
-            "command": EditFormUndoCommand
-         },
-         {
-            "html": "Redo",
-            "command": EditFormRedoCommand
-         }
-     ]
- }
-]        
+    {   "html": "Save",
+        "subMenu": [
+            {   "html": "As FTL",
+                "commandClass": "org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand"
+            },
+            {   "html": "As XSL",
+                "commandClass": "org.jbpm.formbuilder.client.command.SaveFormAsXslCommand"
+            }
+        ]
+    },
+    {   "html": "Edit",
+        "subMenu": [
+            {   "html": "Undo",
+                "commandClass": "org.jbpm.formbuilder.client.command.EditFormUndoCommand"
+            },
+            {   "html": "Redo",
+                "commandClass": "org.jbpm.formbuilder.client.command.EditFormRedoCommand"
+            }
+        ]
+    }
+]

@@ -64,7 +64,10 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             oout.writeObject(form);
             item.updateBinaryContentAttachment(new ByteArrayInputStream(bout.toByteArray()));
             item.checkin(comment);
-            //TODO should generate actual forms and save them.
+            //should generate actual forms and save them.
+            for (String language : LanguageFactory.getInstance().getLanguages()) {
+                generateForm(pkgName, language, form);
+            }
         } catch (IOException e) {
             throw new RuntimeException("problem saving form"); //TODO
         }
