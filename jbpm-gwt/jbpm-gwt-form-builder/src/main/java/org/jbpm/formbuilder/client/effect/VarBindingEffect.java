@@ -29,7 +29,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class TaskRelationEffect extends FBFormEffect {
+public class VarBindingEffect extends FBFormEffect {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
@@ -37,7 +37,7 @@ public class TaskRelationEffect extends FBFormEffect {
     private TaskPropertyRef input = null;
     private TaskPropertyRef output = null;
     
-    public TaskRelationEffect() {
+    public VarBindingEffect() {
         super(createImage(), true);
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             public void onSelectedTask(TaskSelectedEvent event) {
@@ -50,8 +50,8 @@ public class TaskRelationEffect extends FBFormEffect {
 
     public static Image createImage() {
         Image img = new Image(FormBuilderResources.INSTANCE.taskRelatedEffect());
-        img.setAltText("Edit Task information associated with this item");
-        img.setTitle("Edit Task information associated with this item");
+        img.setAltText("Edit variables associated with this item");
+        img.setTitle("Edit variables associated with this item");
         return img;
     }
     
@@ -90,7 +90,7 @@ public class TaskRelationEffect extends FBFormEffect {
     public PopupPanel createPanel() {
         final PopupPanel panel = new PopupPanel();
 
-        HTML title = new HTML("<strong>Item references to selected task</strong>");
+        HTML title = new HTML("<strong>Variables of selected task</strong>");
         title.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         String selectedInputName = getItem().getInput() == null ? null : getItem().getInput().getName();
         final ListBox inputList = new ListBox();

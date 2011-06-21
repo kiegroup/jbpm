@@ -15,12 +15,11 @@
  */
 package org.jbpm.formbuilder.server;
 
-import java.io.IOException;
+import java.io.IOException; 
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,9 +39,6 @@ import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 public class FormBuilderServlet extends HttpServlet {
 
@@ -79,91 +75,100 @@ public class FormBuilderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String uri = req.getRequestURI();
-        Document document = new Document();
+        StringBuilder xml = new StringBuilder();
         if (uri.contains("menuItems")) {
-            listMenuItems(document);
+            xml.append(listMenuItems());
         } else if (uri.contains("menuOptions")) {
-            listOptions(document);
+            xml.append(listOptions());
         } else if (uri.contains("listTasks")) {
-            listTasks(document, extractPackageName(uri, "listTasks"), req.getParameter("q"));
-        } else if (uri.contains(""))
-        new XMLOutputter().output(document, resp.getOutputStream());
+            xml.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
+        } 
+        resp.setContentType("text/xml");
+        resp.getWriter().println(xml.toString());
     }
 
-    private void listTasks(Document document, String filter, String pkgName) {
+    private String listTasks(String filter, String pkgName) {
         List<TaskRef> tasks = taskService.query(pkgName, filter);
-        Element tasksElement = new Element("tasks");
-        document.setRootElement(tasksElement);
+        StringBuilder builder = new StringBuilder();
+        builder.append("<tasks>\n");
         for (TaskRef task : tasks) {
-            Element eTask = new Element("task");
-            eTask.setAttribute("processId", task.getProcessId());
-            eTask.setAttribute("taskName", task.getTaskName());
-            eTask.setAttribute("taskId", task.getTaskId());
+            builder.append("<task ");
+            builder.append("processId=\"").append(task.getProcessId()).append("\" ");
+            builder.append("taskName=\"").append(task.getTaskName()).append("\" ");
+            builder.append("taskId=\"").append(task.getTaskId()).append("\">\n");
             for (TaskPropertyRef input : task.getInputs()) {
-                Element eInput = new Element("input");
-                eInput.setAttribute("name", input.getName());
-                eInput.setAttribute("source", input.getSourceExpresion());
-                eTask.addContent(eInput);
+                builder.append("<input ");
+                builder.append("name=\"").append(input.getName()).append("\" ");
+                builder.append("source=\"").append(input.getSourceExpresion()).append("\"/>\n");
             }
             for (TaskPropertyRef output : task.getOutputs()) {
-                Element eOutput = new Element("output");
-                eOutput.setAttribute("name", output.getName());
-                eOutput.setAttribute("source", output.getSourceExpresion());
-                eTask.addContent(eOutput);
+                builder.append("<output ");
+                builder.append("name=\"").append(output.getName()).append("\" ");
+                builder.append("source=\"").append(output.getSourceExpresion()).append("\"/>\n");
             }
             for (Map.Entry<String, String> metaData : task.getMetaData().entrySet()) {
-                Element eMetaData = new Element("metaData");
-                eMetaData.setAttribute("key", metaData.getKey());
-                eMetaData.setAttribute("value", metaData.getValue());
+                builder.append("<metaData ");
+                builder.append("key=\"").append(metaData.getKey()).append("\" ");
+                builder.append("value=\"").append(metaData.getValue()).append("\"/>\n");
             }
-            tasksElement.addContent(eTask);
+            builder.append("</task>\n");
         }
+        builder.append("</tasks>\n");
+        return builder.toString();
     }
     
-    private void listMenuItems(Document document) {
+    private String listMenuItems() {
+        StringBuilder builder = new StringBuilder();
         Map<String, List<FBMenuItem>> items = menuService.listItems();
-        Element itemsElement = new Element("menuGroups");
-        document.setRootElement(itemsElement);
+        builder.append("<menuGroups>\n");
         for (Map.Entry<String, List<FBMenuItem>> item : items.entrySet()) {
-            Element group = new Element("menuGroup");
-            group.setAttribute("name", item.getKey());
+            builder.append("<menuGroup ");
+            builder.append("name=\"").append(item.getKey()).append("\">\n");
             List<FBMenuItem> groupItems = item.getValue();
             for (FBMenuItem menuItem : groupItems) {
-                Element mItem = new Element("menuItem");
-                mItem.setAttribute("className", menuItem.getClass().getName());
+                builder.append("<menuItem ");
+                builder.append("className=\"").append(menuItem.getClass().getName()).append("\">\n");
                 List<FBFormEffect> effects = menuItem.getFormEffects();
                 for (FBFormEffect effect : effects) {
-                    Element eff = new Element("effect");
-                    eff.setAttribute("className", effect.getClass().getName());
-                    mItem.addContent(eff);
+                    builder.append("<effect ");
+                    builder.append("className=\"").append(effect.getClass().getName()).append("\"/>\n");
                 }
-                group.addContent(mItem);
+                builder.append("</menuItem>\n");
             }
-            itemsElement.addContent(group);
+            builder.append("</menuGroup>\n");
         }
+        builder.append("</menuGroups>\n");
+        return builder.toString();
     }
 
-    private void listOptions(Document document) {
+    private String listOptions() {
         List<MainMenuOption> options = menuService.listOptions();
-        Element optionsElement = new Element("menuOptions");
-        document.setRootElement(optionsElement);
+        StringBuilder builder = new StringBuilder();
+        builder.append("<menuOptions>\n");
         for (MainMenuOption option : options) {
-            optionsElement.addContent(optionToXml(option));
+            builder.append(optionToXml(option));
         }
+        builder.append("</menuOptions>\n");
+        return builder.toString();
     }
 
-    private Element optionToXml(MainMenuOption option) {
-        Element eOption = new Element("menuOption");
-        eOption.setAttribute("name", option.getHtml());
-        if (option.getSubMenu() != null && !option.getSubMenu().isEmpty()) {
-            for (MainMenuOption subOption : option.getSubMenu()) {
-                eOption.addContent(optionToXml(subOption));
-            }
-        } 
+    private String optionToXml(MainMenuOption option) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<menuOption ");
+        builder.append("name=\"").append(option.getHtml()).append("\" ");
         if (option.getCommand() != null) {
-            eOption.setAttribute("commandClass", option.getCommand().getClass().getName());
+            builder.append("commandClass=\"").append(option.getCommand().getClass().getName()).append("\" ");
         }
-        return eOption;
+        if (option.getSubMenu() != null && !option.getSubMenu().isEmpty()) {
+            builder.append(">\n");
+            for (MainMenuOption subOption : option.getSubMenu()) {
+                builder.append(optionToXml(subOption));
+            }
+            builder.append("</menuOption>\n");
+        } else {
+            builder.append("/>\n");
+        }
+        return builder.toString();
     }
 
     @Override

@@ -103,4 +103,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/taskRelated_effect.gif")
     ImageResource taskRelatedEffect();
+
+    @Source("images/validations_effect.gif")
+    ImageResource validationsIcon();
 }

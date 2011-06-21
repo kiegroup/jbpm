@@ -26,13 +26,14 @@ import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEventHandler;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
-import org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand;
-import org.jbpm.formbuilder.client.command.SaveFormAsXslCommand;
+import org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand;
+import org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand;
+import org.jbpm.formbuilder.client.command.SaveFormCommand;
 import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
@@ -40,7 +41,7 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.effect.ResizeEffect;
 import org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect;
-import org.jbpm.formbuilder.client.effect.TaskRelationEffect;
+import org.jbpm.formbuilder.client.effect.VarBindingEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
@@ -61,6 +62,7 @@ import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 import org.jbpm.formbuilder.shared.task.TaskRef;
@@ -72,7 +74,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Timer;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -98,8 +101,8 @@ public class FormBuilderModel implements FormBuilderService {
                 deleteMenuItem(event.getGroupName(), event.getMenuItem());
             }
         });
-        bus.addHandler(SaveFormRepresentationEvent.TYPE, new SaveFormRepresentationEventHandler() {
-            public void onEvent(SaveFormRepresentationEvent event) {
+        bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
+            public void onEvent(PreviewFormRepresentationEvent event) {
                 saveForm(event.getRepresentation());
             }
         });
@@ -137,7 +140,7 @@ public class FormBuilderModel implements FormBuilderService {
         effects.add(new DoneEffect());
         effects.add(new ResizeEffect());
         effects.add(new SaveAsMenuOptionFormEffect());
-        effects.add(new TaskRelationEffect());
+        effects.add(new VarBindingEffect());
         
         List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
         effectsOptions.add(new RemoveEffect());
@@ -146,7 +149,7 @@ public class FormBuilderModel implements FormBuilderService {
         effectsOptions.add(new SaveAsMenuOptionFormEffect());
         effectsOptions.add(new AddItemFormEffect());
         effectsOptions.add(new DeleteItemFormEffect());
-        effectsOptions.add(new TaskRelationEffect());
+        effectsOptions.add(new VarBindingEffect());
         
         visuals.add(new HeaderMenuItem(effects));
         visuals.add(new LabelMenuItem(effects));
@@ -246,23 +249,23 @@ public class FormBuilderModel implements FormBuilderService {
         request.send();*/
         
         List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
-        MainMenuOption saveOption = new MainMenuOption();
-        saveOption.setHtml("Save");
+        MainMenuOption previewOption = new MainMenuOption();
+        previewOption.setHtml("Preview");
         
-        List<MainMenuOption> saveMenu = new ArrayList<MainMenuOption>();
+        List<MainMenuOption> previewMenu = new ArrayList<MainMenuOption>();
 
-        MainMenuOption saveFtl = new MainMenuOption();
-        saveFtl.setHtml("As FTL");
-        saveFtl.setCommand(new SaveFormAsFtlCommand());
+        MainMenuOption previewFtl = new MainMenuOption();
+        previewFtl.setHtml("As FTL");
+        previewFtl.setCommand(new PreviewFormAsFtlCommand());
         
-        MainMenuOption saveXsl = new MainMenuOption();
-        saveXsl.setHtml("As XSL");
-        saveXsl.setCommand(new SaveFormAsXslCommand());
+        MainMenuOption previewXsl = new MainMenuOption();
+        previewXsl.setHtml("As XSL");
+        previewXsl.setCommand(new PreviewFormAsXslCommand());
         
-        saveMenu.add(saveFtl);
-        saveMenu.add(saveXsl);
+        previewMenu.add(previewFtl);
+        previewMenu.add(previewXsl);
         
-        saveOption.setSubMenu(saveMenu);
+        previewOption.setSubMenu(previewMenu);
         
         MainMenuOption editOption = new MainMenuOption();
         editOption.setHtml("Edit");
@@ -282,8 +285,13 @@ public class FormBuilderModel implements FormBuilderService {
         
         editOption.setSubMenu(editMenu);
         
-        retval.add(saveOption);
+        MainMenuOption saveOption = new MainMenuOption();
+        saveOption.setHtml("Save");
+        saveOption.setCommand(new SaveFormCommand());
+        
+        retval.add(previewOption);
         retval.add(editOption);
+        retval.add(saveOption);
         return retval;
     }
     
@@ -339,6 +347,12 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
         }*/
+    }
+    
+    public String generateForm(FormRepresentation form, String language) {
+        //TODO send request and wait for publishing
+        String url = GWT.getModuleBaseURL() + this.contextPath + "/formPreview/" + form.getTaskId() + "/" + form.getLastModified();
+        return url;
     }
     
     public void saveMenuItem(String groupName, final FBMenuItem item) {
@@ -421,6 +435,11 @@ public class FormBuilderModel implements FormBuilderService {
         task2.addOutput("output4", "");
         retval.add(task2);
         return retval;
+    }
+    
+    public List<FBValidation> getExistingValidations() throws FormBuilderException {
+        // TODO implement
+        return null;
     }
 
     public void updateTask(TaskRef task) throws FormBuilderException {

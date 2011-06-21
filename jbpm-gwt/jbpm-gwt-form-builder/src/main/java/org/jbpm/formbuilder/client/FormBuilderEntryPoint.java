@@ -28,10 +28,12 @@ public class FormBuilderEntryPoint implements EntryPoint {
         //register event bus
         EventBus eventBus = new SimpleEventBus();
         FormBuilderGlobals.getInstance().registerEventBus(eventBus);
-        //start app
-        FormBuilderModel model = new FormBuilderModel("fbapi");
+        //start model
+        FormBuilderService server = new FormBuilderModel("fbapi");
+        FormBuilderGlobals.getInstance().registerService(server);
+        //start view and controller
         FormBuilderView view = new FormBuilderView();
-        new FormBuilderController(model, view);
+        new FormBuilderController(server, view);
         RootPanel.get("formBuilder").add(view);
     }
 }

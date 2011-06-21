@@ -1,11 +1,11 @@
 [
-    {   "html": "Save",
+    {   "html": "Preview",
         "subMenu": [
             {   "html": "As FTL",
-                "commandClass": "org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand"
+                "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand"
             },
             {   "html": "As XSL",
-                "commandClass": "org.jbpm.formbuilder.client.command.SaveFormAsXslCommand"
+                "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand"
             }
         ]
     },
@@ -18,5 +18,8 @@
                 "commandClass": "org.jbpm.formbuilder.client.command.EditFormRedoCommand"
             }
         ]
+    },
+    {   "html": "Save",
+        "commandClass": "org.jbpm.formbuilder.client.command.SaveFormCommand"
     }
 ]

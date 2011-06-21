@@ -1,39 +1,36 @@
 package org.jbpm.formbuilder.client.command;
 
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MenuItem;
 
-public abstract class SaveFormCommand implements BaseCommand {
+public class SaveFormCommand implements BaseCommand {
 
-    protected final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-    private final String saveType;
+    private static final String SAVE_TYPE = SaveFormCommand.class.getName();
     
-    public SaveFormCommand(final String saveType) {
-        this.saveType = saveType;
-        this.bus.addHandler(SaveFormRepresentationEvent.TYPE, new SaveFormRepresentationEventHandler() {
-            public void onEvent(SaveFormRepresentationEvent event) {
-                FormRepresentation form = event.getRepresentation();
-                if (saveType.equals(event.getSaveType())) {
-                    saveForm(form);
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
+    public SaveFormCommand() {
+        bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
+            public void onEvent(PreviewFormRepresentationEvent event) {
+                if (SAVE_TYPE.equals(event.getSaveType())) {
+                    Window.alert("MUST SHOW FLOATING PANEL WITH REPRESENTATION " + event.getRepresentation()); //TODO implement
                 }
             }
         });
     }
     
+    public void execute() {
+        bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
+    }
+
     public void setItem(MenuItem item) {
         /* not implemented */
     }
-    
-    public void execute() {
-        this.bus.fireEvent(new GetFormRepresentationEvent(this.saveType));
-    }
-    
-    public abstract void saveForm(FormRepresentation form);
 
 }

@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
-import org.jbpm.formbuilder.client.command.SaveFormAsFtlCommand;
-import org.jbpm.formbuilder.client.command.SaveFormAsXslCommand;
+import org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand;
+import org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand;
 import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
@@ -88,11 +88,11 @@ public class MockMenuService implements MenuService {
 
         MainMenuOption saveFtl = new MainMenuOption();
         saveFtl.setHtml("As FTL");
-        saveFtl.setCommand(new SaveFormAsFtlCommand());
+        saveFtl.setCommand(new PreviewFormAsFtlCommand());
         
         MainMenuOption saveXsl = new MainMenuOption();
         saveXsl.setHtml("As XSL");
-        saveXsl.setCommand(new SaveFormAsXslCommand());
+        saveXsl.setCommand(new PreviewFormAsXslCommand());
         
         saveMenu.add(saveFtl);
         saveMenu.add(saveXsl);

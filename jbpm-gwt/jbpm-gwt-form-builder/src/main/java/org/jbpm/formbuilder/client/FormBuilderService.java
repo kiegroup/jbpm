@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
+import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -16,6 +17,8 @@ public interface FormBuilderService {
     
     void saveForm(FormRepresentation form) throws FormBuilderException;
     
+    String /* URL */ generateForm(FormRepresentation form, String language) throws FormBuilderException;
+    
     void saveMenuItem(String groupName, FBMenuItem item) throws FormBuilderException;
     
     void deleteMenuItem(String groupName, FBMenuItem item) throws FormBuilderException;
@@ -23,5 +26,7 @@ public interface FormBuilderService {
     List<TaskRef> getExistingTasks(String filter) throws FormBuilderException;
     
     void updateTask(TaskRef task) throws FormBuilderException;
+
+    List<FBValidation> getExistingValidations() throws FormBuilderException;
     
 }

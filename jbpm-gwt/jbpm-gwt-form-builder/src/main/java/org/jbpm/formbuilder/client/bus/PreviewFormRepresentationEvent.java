@@ -4,15 +4,15 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class SaveFormRepresentationEvent extends
-        GwtEvent<SaveFormRepresentationEventHandler> {
+public class PreviewFormRepresentationEvent extends
+        GwtEvent<PreviewFormRepresentationEventHandler> {
 
-    public static final Type<SaveFormRepresentationEventHandler> TYPE = new Type<SaveFormRepresentationEventHandler>();
+    public static final Type<PreviewFormRepresentationEventHandler> TYPE = new Type<PreviewFormRepresentationEventHandler>();
     
     private final FormRepresentation representation;
     private final String saveType;
     
-    public SaveFormRepresentationEvent(FormRepresentation representation, String saveType) {
+    public PreviewFormRepresentationEvent(FormRepresentation representation, String saveType) {
         super();
         this.representation = representation;
         this.saveType = saveType;
@@ -27,12 +27,12 @@ public class SaveFormRepresentationEvent extends
     }
 
     @Override
-    public Type<SaveFormRepresentationEventHandler> getAssociatedType() {
+    public Type<PreviewFormRepresentationEventHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(SaveFormRepresentationEventHandler handler) {
+    protected void dispatch(PreviewFormRepresentationEventHandler handler) {
         handler.onEvent(this);
     }
 

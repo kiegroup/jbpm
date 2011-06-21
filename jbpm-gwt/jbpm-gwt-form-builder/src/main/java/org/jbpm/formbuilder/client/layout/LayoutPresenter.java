@@ -24,7 +24,7 @@ import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
-import org.jbpm.formbuilder.client.bus.SaveFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -60,7 +60,7 @@ public class LayoutPresenter {
             public void onEvent(GetFormRepresentationEvent event) {
                 FBForm formDisplay = layoutView.getFormDisplay();
                 FormRepresentation rep = formDisplay.createRepresentation();
-                bus.fireEvent(new SaveFormRepresentationEvent(rep, event.getSaveType()));
+                bus.fireEvent(new PreviewFormRepresentationEvent(rep, event.getSaveType()));
             }
         });
         
