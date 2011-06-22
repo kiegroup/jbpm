@@ -11,16 +11,16 @@ public abstract class FBFormEffect {
     private FBFormItem item;
     private Widget widget;
     
-    private final Image image;
+    private final String name;
     private final boolean hasSubMenu;
     
-    public FBFormEffect(Image image, boolean hasSubMenu) {
-        this.image = image;
+    public FBFormEffect(String name, boolean hasSubMenu) {
+        this.name = name;
         this.hasSubMenu = hasSubMenu;
     }
 
-    public Image getImage() {
-        return image;
+    public String getName() {
+        return name;
     }
     
     public void apply(FBFormItem item) {

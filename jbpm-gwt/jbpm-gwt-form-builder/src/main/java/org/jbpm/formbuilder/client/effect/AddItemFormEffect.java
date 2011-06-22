@@ -8,14 +8,12 @@ import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -27,7 +25,7 @@ public class AddItemFormEffect extends FBFormEffect {
     private String newValue;
     
     public AddItemFormEffect() {
-        super(createImage(), true);
+        super("Add item to list", true);
     }
     
     public String getNewLabel() {
@@ -46,12 +44,6 @@ public class AddItemFormEffect extends FBFormEffect {
         this.newValue = newValue;
     }
 
-    private static Image createImage() {
-        Image img = new Image(FormBuilderResources.INSTANCE.addItemIcon());
-        img.setAltText("Add item");
-        return img;
-    }
-    
     @Override
     protected void createStyles() {
         FBFormItem item = super.getItem();

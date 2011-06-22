@@ -6,7 +6,6 @@ import java.util.List;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -18,12 +17,12 @@ public class EffectsPopupPanel extends PopupPanel {
     
     public EffectsPopupPanel(final FBFormItem item, boolean autoHide) {
         super(autoHide);
-        MenuBar bar = new MenuBar(false);
+        MenuBar bar = new MenuBar(true);
         this.effects = item.getFormEffects();
         for (final FBFormEffect effect : effects) {
             if (effect.isValidForItem(item)) {
                 bar.addItem(new MenuItem(
-                    new SafeHtmlBuilder().appendHtmlConstant(effect.getImage().toString()).toSafeHtml(), 
+                    effect.getName(), 
                     new Command() {
                         public void execute() {
                             PopupPanel popup = effect.createPanel();

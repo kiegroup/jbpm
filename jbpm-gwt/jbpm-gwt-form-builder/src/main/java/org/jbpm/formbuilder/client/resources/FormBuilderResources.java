@@ -56,18 +56,6 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/header.gif")
     ImageResource header();
 
-    @Source("images/alignment_effect.gif")
-    ImageResource alignmentEffect();
-
-    @Source("images/addItem_effect.gif")
-    ImageResource addItemIcon();
-
-    @Source("images/deleteItem_effect.gif")
-    ImageResource deleteItemIcon();
-
-    @Source("images/saveAsMenuOption_effect.gif")
-    ImageResource saveAsMenuOptionEffect();
-
     @Source("images/textArea.gif")
     ImageResource textArea();
 
@@ -98,12 +86,12 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/absolute_layout_icon.gif")
     ImageResource absoluteLayoutIcon();
 
-    @Source("images/resizeItem_effect.gif")
-    ImageResource resizeItemEffect();
-
-    @Source("images/taskRelated_effect.gif")
-    ImageResource taskRelatedEffect();
-
-    @Source("images/validations_effect.gif")
-    ImageResource validationsIcon();
+    @Source("images/conditional_block.gif")
+    ImageResource conditionalBlock();
+    
+    @Source("images/loop_block.gif")
+    ImageResource loopBlock();
+    
+    @Source("images/transformation_block.gif")
+    ImageResource transformationBlock();
 }

@@ -8,7 +8,6 @@ import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -17,7 +16,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -29,13 +27,7 @@ public class DeleteItemFormEffect extends FBFormEffect {
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public DeleteItemFormEffect() {
-        super(createImage(), true);
-    }
-
-    private static Image createImage() {
-        Image image = new Image(FormBuilderResources.INSTANCE.deleteItemIcon());
-        image.setAltText("Delete Item");
-        return image;
+        super("Delete item from list", true);
     }
 
     public void setDropItemLabel(String dropItemLabel) {

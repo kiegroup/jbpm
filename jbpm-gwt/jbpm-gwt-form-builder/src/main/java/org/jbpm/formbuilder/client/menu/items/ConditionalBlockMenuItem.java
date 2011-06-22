@@ -4,40 +4,37 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.items.TextAreaFormItem;
+import org.jbpm.formbuilder.client.form.items.ConditionalBlockFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
-public class TextAreaMenuItem extends FBMenuItem {
+public class ConditionalBlockMenuItem extends FBMenuItem {
 
-    public TextAreaMenuItem() {
-        super();
+    public ConditionalBlockMenuItem(List<FBFormEffect> effects) {
+        super(effects);
     }
     
-    public TextAreaMenuItem(List<FBFormEffect> formEffects) {
-        super(formEffects);
-    }
-
     @Override
     protected ImageResource getIconUrl() {
-        return FormBuilderResources.INSTANCE.textArea();
+        return FormBuilderResources.INSTANCE.conditionalBlock();
     }
 
     @Override
     public Label getDescription() {
-        return new Label("Text Area");
+        return new Label("Conditional Block");
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new TextAreaMenuItem(super.getFormEffects());
+        return new ConditionalBlockMenuItem(getFormEffects());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        return new TextAreaFormItem(super.getFormEffects());
+        return new ConditionalBlockFormItem(getFormEffects());
     }
+
 }

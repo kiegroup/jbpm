@@ -11,14 +11,12 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -30,18 +28,11 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
     private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public SaveAsMenuOptionFormEffect() {
-        super(createImage(), true);
+        super("Save as menu option", true);
     }
 
     public void setNewMenuOptionName(String newMenuOptionName) {
         this.newMenuOptionName = newMenuOptionName;
-    }
-    
-    public static Image createImage() {
-        Image img = new Image(FormBuilderResources.INSTANCE.saveAsMenuOptionEffect());
-        img.setAltText("Save as menu option");
-        img.setTitle("Save as menu option");
-        return img;
     }
     
     @Override

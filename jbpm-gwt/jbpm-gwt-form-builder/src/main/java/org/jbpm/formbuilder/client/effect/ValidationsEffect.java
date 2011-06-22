@@ -11,11 +11,9 @@ import org.jbpm.formbuilder.client.bus.ui.ValidationSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedHandler;
 import org.jbpm.formbuilder.client.effect.view.ValidationsEffectView;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
+import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 public class ValidationsEffect extends FBFormEffect {
@@ -23,13 +21,13 @@ public class ValidationsEffect extends FBFormEffect {
     private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     
-    private List<FBValidation> availableValidations = new ArrayList<FBValidation>();
-    private List<FBValidation> currentValidations = new ArrayList<FBValidation>();
+    private List<FBValidationItem> availableValidations = new ArrayList<FBValidationItem>();
+    private List<FBValidationItem> currentValidations = new ArrayList<FBValidationItem>();
     
     private final ValidationsEffectView effectView = new ValidationsEffectView();
     
     public ValidationsEffect() {
-        super(createImage(), true);
+        super("Edit validations", true);
         bus.addHandler(ValidationSavedEvent.TYPE, new ValidationSavedHandler() {
             public void onEvent(ValidationSavedEvent event) {
                 currentValidations.clear();
@@ -37,21 +35,8 @@ public class ValidationsEffect extends FBFormEffect {
                 createStyles();
             }
         });
-        try {
-            this.availableValidations = server.getExistingValidations();
-            this.effectView.setAvailableValidations(this.availableValidations);
-        } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.WARN, "Couldn't communicate with server", e));
-        }
     }
 
-    public static Image createImage() {
-        Image img = new Image(FormBuilderResources.INSTANCE.validationsIcon());
-        img.setAltText("Edit validations");
-        img.setTitle("Edit validations");
-        return img;
-    }
-    
     @Override
     protected void createStyles() {
         getItem().setValidations(currentValidations);
@@ -60,8 +45,14 @@ public class ValidationsEffect extends FBFormEffect {
     @Override
     public PopupPanel createPanel() {
         PopupPanel popup = new PopupPanel();
-        popup.setWidget(effectView);
-        effectView.setParentPopup(popup);
+        popup.setWidget(this.effectView);
+        this.effectView.setParentPopup(popup);
+        try {
+            this.availableValidations = server.getExistingValidations();
+            this.effectView.setAvailableValidations(this.availableValidations);
+        } catch (FormBuilderException e) {
+            bus.fireEvent(new NotificationEvent(Level.WARN, "Couldn't communicate with server", e));
+        }
         return popup;
     }
 }

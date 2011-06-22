@@ -9,7 +9,6 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.rep.Formatter;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
@@ -23,7 +22,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -38,7 +36,7 @@ public class VarBindingEffect extends FBFormEffect {
     private TaskPropertyRef output = null;
     
     public VarBindingEffect() {
-        super(createImage(), true);
+        super("Edit variables associated with this item", true);
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             public void onSelectedTask(TaskSelectedEvent event) {
                 if (event.getSelectedTask() != null) {
@@ -48,13 +46,6 @@ public class VarBindingEffect extends FBFormEffect {
         });
     }
 
-    public static Image createImage() {
-        Image img = new Image(FormBuilderResources.INSTANCE.taskRelatedEffect());
-        img.setAltText("Edit variables associated with this item");
-        img.setTitle("Edit variables associated with this item");
-        return img;
-    }
-    
     @Override
     protected void createStyles() {
         FBFormItem item = getItem();

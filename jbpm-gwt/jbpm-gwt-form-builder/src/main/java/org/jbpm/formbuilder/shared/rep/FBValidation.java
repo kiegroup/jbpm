@@ -4,11 +4,11 @@ import java.util.Map;
 
 public interface FBValidation {
 
-    boolean isValid();
+    boolean isValid(FormItemRepresentation item);
     
-    FBValidation clone();
+    FBValidation cloneValidation();
     
-    String getName();
+    String getValidationId();
     
     Map<String, String> getPropertiesMap();
     

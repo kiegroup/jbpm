@@ -7,13 +7,11 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.ResizeEvent;
 import org.jbpm.formbuilder.common.handler.ResizeEventHandler;
 import org.jbpm.formbuilder.common.panels.ResizablePanel;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 public class ResizeEffect extends FBFormEffect {
@@ -22,14 +20,7 @@ public class ResizeEffect extends FBFormEffect {
     private int widgetHeight;
     
     public ResizeEffect() {
-        super(createImage(), false);
-    }
-    
-    public static Image createImage() {
-        Image img = new Image(FormBuilderResources.INSTANCE.resizeItemEffect());
-        img.setAltText("Resize");
-        img.setTitle("Resize");
-        return img;
+        super("Resize", false);
     }
     
     @Override

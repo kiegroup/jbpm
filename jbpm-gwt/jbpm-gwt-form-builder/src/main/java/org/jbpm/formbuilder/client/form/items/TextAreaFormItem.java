@@ -109,4 +109,8 @@ public class TextAreaFormItem extends FBFormItem {
         populate(ta);
         return ta;
     }
+
+    public String getInputValue() {
+        return area.getValue();
+    }
 }

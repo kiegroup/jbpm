@@ -41,12 +41,14 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.effect.ResizeEffect;
 import org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect;
+import org.jbpm.formbuilder.client.effect.ValidationsEffect;
 import org.jbpm.formbuilder.client.effect.VarBindingEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.items.ConditionalBlockMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.menu.items.FileInputMenuItem;
 import org.jbpm.formbuilder.client.menu.items.HTMLMenuItem;
@@ -62,7 +64,8 @@ import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
+import org.jbpm.formbuilder.client.validation.FBValidationItem;
+import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 import org.jbpm.formbuilder.shared.task.TaskRef;
@@ -74,8 +77,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.http.client.URL;
-import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -134,6 +135,7 @@ public class FormBuilderModel implements FormBuilderService {
         List<FBMenuItem> controls = new ArrayList<FBMenuItem>();
         List<FBMenuItem> visuals = new ArrayList<FBMenuItem>();
         List<FBMenuItem> layouts = new ArrayList<FBMenuItem>();
+        List<FBMenuItem> server = new ArrayList<FBMenuItem>();
 
         List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
         effects.add(new RemoveEffect());
@@ -141,6 +143,13 @@ public class FormBuilderModel implements FormBuilderService {
         effects.add(new ResizeEffect());
         effects.add(new SaveAsMenuOptionFormEffect());
         effects.add(new VarBindingEffect());
+        
+        List<FBFormEffect> effectsValidation = new ArrayList<FBFormEffect>(effects);
+        effectsValidation.add(new ValidationsEffect());
+        
+        List<FBFormEffect> effectsServer = new ArrayList<FBFormEffect>();
+        //effectsServer.add(new ScriptConditionEffect()); TODO maybe create it later?
+        //effectsServer.add(new VarBindingEffect()); TODO see if this makes sense in a server code block
         
         List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
         effectsOptions.add(new RemoveEffect());
@@ -161,7 +170,7 @@ public class FormBuilderModel implements FormBuilderService {
         controls.add(new TextFieldMenuItem(effects));
         controls.add(new PasswordFieldMenuItem(effects));
         controls.add(new CompleteButtonMenuItem(effects));
-        controls.add(new TextAreaMenuItem(effects));
+        controls.add(new TextAreaMenuItem(effectsValidation));
         controls.add(new HiddenMenuItem(effects));
         controls.add(new FileInputMenuItem(effects));
         controls.add(new CheckBoxMenuItem(effects));
@@ -172,6 +181,11 @@ public class FormBuilderModel implements FormBuilderService {
         layouts.add(new TableLayoutMenuItem(effects));
         layouts.add(new AbsoluteLayoutMenuItem(effects));
         map.put("Layout Components", layouts);
+        
+        server.add(new ConditionalBlockMenuItem(effectsServer));
+        /*server.add(new LoopBlockMenuItem(effectsServer));
+        server.add(new ServerTransformationMenuItem(effectsServer)); TODO finish these two*/
+        map.put("Server Components", server);
         
         return map;
     }
@@ -437,9 +451,11 @@ public class FormBuilderModel implements FormBuilderService {
         return retval;
     }
     
-    public List<FBValidation> getExistingValidations() throws FormBuilderException {
-        // TODO implement
-        return null;
+    public List<FBValidationItem> getExistingValidations() throws FormBuilderException {
+        // TODO actual implementation not done 
+        List<FBValidationItem> retval = new ArrayList<FBValidationItem>();
+        retval.add(new NotEmptyValidationItem());
+        return retval;
     }
 
     public void updateTask(TaskRef task) throws FormBuilderException {

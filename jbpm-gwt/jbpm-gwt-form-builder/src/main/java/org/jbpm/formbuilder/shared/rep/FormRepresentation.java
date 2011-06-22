@@ -25,7 +25,7 @@ public class FormRepresentation implements Serializable {
     private List<FBScript> onLoadScripts;
     private List<FBScript> onSubmitScripts;
     
-    private long lastModified = Long.MAX_VALUE; //TODO set timestamp
+    private long lastModified = System.currentTimeMillis();
     private String documentation; //TODO set comments
     
     public String getName() {

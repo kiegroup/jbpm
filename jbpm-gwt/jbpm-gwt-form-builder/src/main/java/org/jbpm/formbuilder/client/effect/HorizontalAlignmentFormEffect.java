@@ -7,7 +7,6 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -18,7 +17,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -31,13 +29,7 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
     private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public HorizontalAlignmentFormEffect() {
-        super(createImage(), true);
-    }
-    
-    private static Image createImage() {
-        Image image = new Image(FormBuilderResources.INSTANCE.alignmentEffect());
-        image.setAltText("alignment");
-        return image;
+        super("Horizontal Alignment", true);
     }
     
     @Override

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
+import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -27,6 +27,6 @@ public interface FormBuilderService {
     
     void updateTask(TaskRef task) throws FormBuilderException;
 
-    List<FBValidation> getExistingValidations() throws FormBuilderException;
+    List<FBValidationItem> getExistingValidations() throws FormBuilderException;
     
 }

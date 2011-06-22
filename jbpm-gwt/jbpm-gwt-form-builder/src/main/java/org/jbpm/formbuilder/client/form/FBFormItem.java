@@ -9,6 +9,7 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.EffectsPopupPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
@@ -30,7 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public abstract class FBFormItem extends FocusPanel {
 
-    private List<FBValidation> validations = new ArrayList<FBValidation>();
+    private List<FBValidationItem> validations = new ArrayList<FBValidationItem>();
     
     private List<RightClickHandler> rclickHandlers = new ArrayList<RightClickHandler>();
     private List<ClickHandler> clickHandlers = new ArrayList<ClickHandler>();
@@ -294,15 +295,19 @@ public abstract class FBFormItem extends FocusPanel {
         rep.setOutput(getOutput());
         rep.setHeight(getHeight());
         rep.setWidth(getWidth());
-        rep.setItemValidations(getValidations());
+        List<FBValidation> repValidations = new ArrayList<FBValidation>();
+        for (FBValidationItem item : getValidations()) {
+            repValidations.add(item.createValidation());
+        }
+        rep.setItemValidations(repValidations);
         return rep;
     }
     
-    public void setValidations(List<FBValidation> validations) {
+    public void setValidations(List<FBValidationItem> validations) {
         this.validations = validations;
     }
     
-    public List<FBValidation> getValidations() {
+    public List<FBValidationItem> getValidations() {
         return validations;
     }
 }

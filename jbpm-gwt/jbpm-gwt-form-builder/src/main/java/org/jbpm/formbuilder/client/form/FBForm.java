@@ -214,7 +214,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
             rep.addFormItem(item.getRepresentation());
         }
         for (FBValidationItem item : validationItems) {
-            rep.addFormValidation(item.getRepresentation());
+            rep.addFormValidation(item.createValidation());
         }
         /* TODO rep.setInputs(inputs);
         rep.setOutputs(outputs);

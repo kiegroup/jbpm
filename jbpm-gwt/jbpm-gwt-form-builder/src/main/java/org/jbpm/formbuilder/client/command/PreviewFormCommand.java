@@ -41,13 +41,13 @@ public abstract class PreviewFormCommand implements BaseCommand {
         // TODO This needs to have a control to edit input values, and even to check for expected outputs 
         PopupPanel panel = new PopupPanel(true);
         Frame frame = new Frame(url);
-        int height = RootPanel.getBodyElement().getOffsetHeight();
-        int width = RootPanel.getBodyElement().getOffsetWidth();
+        int height = RootPanel.getBodyElement().getClientHeight();
+        int width = RootPanel.getBodyElement().getClientWidth();
         int left = RootPanel.getBodyElement().getAbsoluteLeft();
         int top = RootPanel.getBodyElement().getAbsoluteTop();
         panel.setPixelSize(width - 200, height - 200);
         frame.setPixelSize(width - 200, height - 200);
-        panel.setPopupPosition(left - 100, top - 100);
+        panel.setPopupPosition(left + 100, top + 100);
         panel.setWidget(frame);
         panel.show();
     }
