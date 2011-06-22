@@ -7,6 +7,8 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.ValidationSavedEvent;
+import org.jbpm.formbuilder.client.bus.ui.ValidationSavedHandler;
 import org.jbpm.formbuilder.client.effect.view.ValidationsEffectView;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -28,6 +30,13 @@ public class ValidationsEffect extends FBFormEffect {
     
     public ValidationsEffect() {
         super(createImage(), true);
+        bus.addHandler(ValidationSavedEvent.TYPE, new ValidationSavedHandler() {
+            public void onEvent(ValidationSavedEvent event) {
+                currentValidations.clear();
+                currentValidations.addAll(event.getValidations());
+                createStyles();
+            }
+        });
         try {
             this.availableValidations = server.getExistingValidations();
             this.effectView.setAvailableValidations(this.availableValidations);
@@ -45,13 +54,14 @@ public class ValidationsEffect extends FBFormEffect {
     
     @Override
     protected void createStyles() {
-        // TODO implement
+        getItem().setValidations(currentValidations);
     }
     
     @Override
     public PopupPanel createPanel() {
         PopupPanel popup = new PopupPanel();
         popup.setWidget(effectView);
+        effectView.setParentPopup(popup);
         return popup;
     }
 }

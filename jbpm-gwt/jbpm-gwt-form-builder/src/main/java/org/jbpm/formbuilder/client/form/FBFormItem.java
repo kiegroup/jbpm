@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
@@ -29,6 +30,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public abstract class FBFormItem extends FocusPanel {
 
+    private List<FBValidation> validations = new ArrayList<FBValidation>();
+    
     private List<RightClickHandler> rclickHandlers = new ArrayList<RightClickHandler>();
     private List<ClickHandler> clickHandlers = new ArrayList<ClickHandler>();
     private List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
@@ -291,6 +294,15 @@ public abstract class FBFormItem extends FocusPanel {
         rep.setOutput(getOutput());
         rep.setHeight(getHeight());
         rep.setWidth(getWidth());
+        rep.setItemValidations(getValidations());
         return rep;
+    }
+    
+    public void setValidations(List<FBValidation> validations) {
+        this.validations = validations;
+    }
+    
+    public List<FBValidation> getValidations() {
+        return validations;
     }
 }
