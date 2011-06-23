@@ -22,6 +22,7 @@ public class ServerScriptEditor extends VerticalPanel {
         this.item = item;
         this.editionArea.setCharacterWidth(50);
         this.editionArea.setVisibleLines(10);
+        this.editionArea.setValue(item.getScriptContent());
         add(this.editionArea);
         add(createButtonsPanel());
     }
@@ -31,12 +32,12 @@ public class ServerScriptEditor extends VerticalPanel {
         panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         okButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
+                item.setScriptContent(editionArea.getValue());
                 item.reset();
             }
         });
         cancelButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                item.setScriptContent(editionArea.getValue());
                 item.reset();
             }
         });

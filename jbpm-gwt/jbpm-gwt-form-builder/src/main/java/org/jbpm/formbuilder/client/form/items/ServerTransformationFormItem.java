@@ -50,7 +50,7 @@ public class ServerTransformationFormItem extends FBFormItem {
     @Override
     public FBFormItem cloneItem() {
         ServerTransformationFormItem clone = cloneItem(new ServerTransformationFormItem(getFormEffects()));
-        clone.script.setValue(this.script.getValue());
+        clone.setScriptContent(this.getScriptContent());
         clone.language = this.language;
         return clone;
     }
@@ -71,5 +71,9 @@ public class ServerTransformationFormItem extends FBFormItem {
 
     public void setScriptContent(String value) {
         script.setValue(value);
+    }
+    
+    public String getScriptContent() {
+        return script.getValue();
     }
 }
