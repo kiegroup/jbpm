@@ -10,14 +10,16 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class NotificationsView extends FocusPanel {
 
     private VerticalPanel panel = new VerticalPanel();
+    private ScrollPanel scroll = new ScrollPanel(panel);
     
     private String currentHeight;
     private String savedHeight;
     
     public NotificationsView() {
-        setSize("100%", "100%");
+        setSize("100%", "60px");
+        scroll.setSize("100%", "60px");
         Grid grid = new Grid(1, 1);
-        grid.setWidget(0, 0, new ScrollPanel(panel));
+        grid.setWidget(0, 0, scroll);
         grid.setBorderWidth(2);
         grid.setSize("100%", "100%");
         add(grid);
@@ -41,7 +43,8 @@ public class NotificationsView extends FocusPanel {
             html.setStyleName(colorCss);
         }
         StringBuilder msg = new StringBuilder(message).append("<br/>");
-        if (error != null) {
+        while (error != null) {
+            msg.append(error.getClass().getName()).append(": ").append(error.getLocalizedMessage()).append("<br/>");
             StackTraceElement[] trace = error.getStackTrace();
             for (int index = 0; trace != null && index < trace.length; index++) {
                 msg.append("&nbsp;&nbsp;&nbsp;&nbsp;").
@@ -49,6 +52,12 @@ public class NotificationsView extends FocusPanel {
                     append(".").append(trace[index].getMethodName()).
                     append("(").append(trace[index].getFileName()).
                     append(":").append(trace[index].getLineNumber()).append(")<br/>");
+            }
+            if (error.getCause() != null && !error.equals(error.getCause())) {
+                error = error.getCause();
+                msg.append("Caused by: ");
+            } else {
+                error = null;
             }
         }
         html.setHTML(msg.toString());
@@ -62,6 +71,7 @@ public class NotificationsView extends FocusPanel {
     @Override
     public void setHeight(String height) {
         super.setHeight(height);
+        scroll.setHeight(height);
         this.currentHeight = height;
     }
     

@@ -288,9 +288,19 @@ public abstract class FBFormItem extends FocusPanel {
     
     public abstract FBFormItem cloneItem();
     
+    protected <T extends FBFormItem> T cloneItem(T clone) {
+        clone.validations = this.validations;
+        clone.widgetHeight = this.widgetHeight;
+        clone.widgetWidth = this.widgetWidth;
+        clone.effects = this.effects;
+        clone.input = this.input;
+        clone.output = this.output;
+        return clone;
+    }
+    
     public abstract Widget cloneDisplay();
 
-    public <T extends FormItemRepresentation> T getRepresentation(T rep) {
+    protected <T extends FormItemRepresentation> T getRepresentation(T rep) {
         rep.setInput(getInput());
         rep.setOutput(getOutput());
         rep.setHeight(getHeight());

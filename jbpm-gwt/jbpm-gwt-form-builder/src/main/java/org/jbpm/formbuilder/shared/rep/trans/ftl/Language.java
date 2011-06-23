@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.shared.rep.trans.ftl;
 
-import java.util.List; 
+import java.util.List;
 
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -11,6 +11,7 @@ import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.ConditionalBlockRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
@@ -18,9 +19,11 @@ import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.LoopBlockRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.ServerTransformationRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
@@ -73,6 +76,12 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
             return radioButton((RadioButtonRepresentation) item);
         } else if ("absolutePanel".equals(item.getTypeId())) {
             return absolutePanel((AbsolutePanelRepresentation) item);
+        } else if ("conditionalBlock".equals(item.getTypeId())) {
+            return conditionalBlock((ConditionalBlockRepresentation) item);
+        } else if ("loopBlock".equals(item.getTypeId())) {
+            return loopBlock((LoopBlockRepresentation) item);
+        } else if ("serverTransformation".equals(item.getTypeId())) {
+            return transformationBlock((ServerTransformationRepresentation) item);
         } else {
             throw new LanguageException("Unknown typeId: " + item.getTypeId());
         }
@@ -81,6 +90,42 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     /*
      * ftl implementation
      */
+    public String transformationBlock(ServerTransformationRepresentation trans) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        FBScript script = new FBScript();
+        script.setContent(trans.getScript());
+        script.setType(trans.getLanguage());
+        if (isValidScript(script)) {
+            builder.append(asFtlScript(script));
+        } else {
+            throw new LanguageException("Can't translate to Freemarker. " + trans.getLanguage() + " is incompatible with Freemarker");
+        }
+        return builder.toString();
+    }
+
+    public String loopBlock(LoopBlockRepresentation loop) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<#list ").append(loop.getInputName());
+        builder.append(" as ").append(loop.getVariableName()).append(">");
+        builder.append(translateItem(loop.getLoopBlock()));
+        builder.append("</#list>");
+        return builder.toString();
+    }
+
+    public String conditionalBlock(ConditionalBlockRepresentation condition) throws LanguageException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<#if ").append(condition.getCondition()).append(">");
+        if (condition.getIfBlock() != null) {
+            builder.append(translateItem(condition.getIfBlock()));
+        }
+        if (condition.getElseBlock() != null) {
+            builder.append("<#else>");
+            builder.append(translateItem(condition.getElseBlock()));
+        }
+        builder.append("</#if>");
+        return builder.toString();
+    }
+
     public String translateForm(FormRepresentation form) throws LanguageException {
         StringBuilder builder = new StringBuilder();
         
@@ -92,7 +137,7 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
                     builder.append("<script ");
                     addParam(builder, "type", loadScript.getType());
                     addParam(builder, "src", loadScript.getSrc());
-                    builder.append(">\n");
+                    builder.append(">\n");  
                     if (loadScript.getContent() != null) {
                         builder.append(loadScript.getContent()).append("\n");
                     }
@@ -316,7 +361,8 @@ public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language 
     }
 
     private boolean isValidScript(FBScript script) {
-        return script.getType().contains(LANG) || script.getType().contains("freemarker");
+        return script != null && script.getType() != null && 
+                (script.getType().contains(LANG) || script.getType().contains("freemarker"));
     }
     
     private String asFtlScript(FBScript script) {

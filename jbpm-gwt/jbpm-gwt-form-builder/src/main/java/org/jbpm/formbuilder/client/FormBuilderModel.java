@@ -57,8 +57,10 @@ import org.jbpm.formbuilder.client.menu.items.HiddenMenuItem;
 import org.jbpm.formbuilder.client.menu.items.HorizontalLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ImageMenuItem;
 import org.jbpm.formbuilder.client.menu.items.LabelMenuItem;
+import org.jbpm.formbuilder.client.menu.items.LoopBlockMenuItem;
 import org.jbpm.formbuilder.client.menu.items.PasswordFieldMenuItem;
 import org.jbpm.formbuilder.client.menu.items.RadioButtonMenuItem;
+import org.jbpm.formbuilder.client.menu.items.ServerTransformationMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
@@ -183,8 +185,8 @@ public class FormBuilderModel implements FormBuilderService {
         map.put("Layout Components", layouts);
         
         server.add(new ConditionalBlockMenuItem(effectsServer));
-        /*server.add(new LoopBlockMenuItem(effectsServer));
-        server.add(new ServerTransformationMenuItem(effectsServer)); TODO finish these two*/
+        server.add(new LoopBlockMenuItem(effectsServer));
+        server.add(new ServerTransformationMenuItem(effectsServer));
         map.put("Server Components", server);
         
         return map;

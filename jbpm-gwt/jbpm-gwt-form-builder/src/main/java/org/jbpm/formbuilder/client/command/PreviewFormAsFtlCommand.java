@@ -12,23 +12,30 @@ import com.google.gwt.user.client.Window;
 
 public class PreviewFormAsFtlCommand extends PreviewFormCommand {
 
+    private static final String LANG = "ftl";
+    
     private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     
     public PreviewFormAsFtlCommand() {
-        super("ftl");
+        super(LANG);
     }
 
     @Override
     public void saveForm(FormRepresentation form) {
         try {
-            String url = server.generateForm(form, "xsl");
-            /*String ftlContent = form.translate("ftl");
+            String ftlContent = form.translate(LANG);
             String fileName = form.getTaskId() + ".ftl";
-            Window.alert("FILE: "+ fileName + "\n" + ftlContent);*/
+            Window.alert("FILE: "+ fileName + "\n" + ftlContent);
+        } catch (LanguageException e) {
+            Window.alert("Problem with ftl: " + e.getLocalizedMessage());
+        }
+        
+        try {
+            String url = server.generateForm(form, LANG);
             refreshPopupForURL(url);
         } catch (FormBuilderException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, 
                     "Unexpected error while previewing ftl form", e));
-        }
+        } 
     }
 }

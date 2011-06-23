@@ -22,7 +22,8 @@ public abstract class PreviewFormCommand implements BaseCommand {
         this.bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
             public void onEvent(PreviewFormRepresentationEvent event) {
                 FormRepresentation form = event.getRepresentation();
-                if (saveType.equals(event.getSaveType())) {
+                String type = event.getSaveType();
+                if (saveType.equals(type)) {
                     saveForm(form);
                 }
             }

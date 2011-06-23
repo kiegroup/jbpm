@@ -7,20 +7,19 @@ import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
-import com.google.gwt.user.client.Window;
-
 public class PreviewFormAsXslCommand extends PreviewFormCommand {
 
+    private static final String LANG = "xsl";
     private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     
     public PreviewFormAsXslCommand() {
-        super("xsl");
+        super(LANG);
     }
 
     @Override
     public void saveForm(FormRepresentation form) {
         try {
-            String url = server.generateForm(form, "xsl");
+            String url = server.generateForm(form, LANG);
             refreshPopupForURL(url);
         } catch (FormBuilderException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, 

@@ -11,9 +11,10 @@ public class LanguageFactory {
 
     private static final LanguageFactory INSTANCE = new LanguageFactory();
     
-    private static final Map<String, Language> CACHE = new HashMap<String, Language>();
+    private final Map<String, Language> cache;
 
     private LanguageFactory() {
+        cache = new HashMap<String, Language>();
         try {
             getLanguage("ftl");
             getLanguage("xsl");
@@ -28,7 +29,7 @@ public class LanguageFactory {
     
     public Language getLanguage(String language) throws LanguageException {
         synchronized(this) {
-            if (!CACHE.containsKey(language)) {
+            if (!cache.containsKey(language)) {
                 String pkgName = "org.jbpm.formbuilder.shared.rep.trans";
                 String kclass = pkgName + "." + language + ".Language";
                 Object obj = null;
@@ -38,10 +39,10 @@ public class LanguageFactory {
                 } catch (Exception e) {
                     throw new LanguageException(e);
                 }
-                CACHE.put(language, (Language) obj);
+                cache.put(language, (Language) obj);
             }
         }
-        return CACHE.get(language);
+        return cache.get(language);
     }
 
     public boolean isClientSide(String type) {
@@ -49,6 +50,6 @@ public class LanguageFactory {
     }
 
     public Set<String> getLanguages() {
-        return CACHE.keySet();
+        return cache.keySet();
     }
 }

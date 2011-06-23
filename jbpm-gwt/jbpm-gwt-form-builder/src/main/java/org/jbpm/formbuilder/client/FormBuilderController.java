@@ -20,6 +20,8 @@ import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.event.shared.EventBus;
 
 public class FormBuilderController {
@@ -28,6 +30,11 @@ public class FormBuilderController {
     
     public FormBuilderController(FormBuilderService model, FormBuilderView view) {
         super();
+        GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+            public void onUncaughtException(Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "An error ocurred in the UI", exception));
+            }
+        });
         PickupDragController dragController = new PickupDragController(view, true);
         FormBuilderGlobals.getInstance().registerDragController(dragController);
         dragController.registerDropController(new DisposeDropController(view));
