@@ -15,7 +15,8 @@
  */
 package org.jbpm.formbuilder.server;
 
-import java.io.IOException; 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -24,27 +25,37 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.drools.repository.RulesRepository;
 import org.jboss.seam.Component;
 import org.jboss.seam.contexts.Contexts;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
+import org.jbpm.formbuilder.server.xml.FormEffectDTO;
+import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
+import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
+import org.jbpm.formbuilder.server.xml.ListTasksDTO;
+import org.jbpm.formbuilder.server.xml.MenuGroupDTO;
+import org.jbpm.formbuilder.server.xml.MenuItemDTO;
+import org.jbpm.formbuilder.server.xml.MenuOptionDTO;
+import org.jbpm.formbuilder.server.xml.MetaDataDTO;
+import org.jbpm.formbuilder.server.xml.PropertyDTO;
+import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
-import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public class FormBuilderServlet extends HttpServlet {
 
     private static final long serialVersionUID = -5961620265453738055L;
 
-    private RulesRepository repo;
     private MenuService menuService;
     private TaskDefinitionService taskService;
     private FormDefinitionService formService;
@@ -54,9 +65,9 @@ public class FormBuilderServlet extends HttpServlet {
         this.menuService = new GuvnorMenuService();
         this.taskService = new GuvnorTaskDefinitionService();
         if ( Contexts.isApplicationContextActive() ) {
-            this.repo = (RulesRepository) Component.getInstance( "repository" );
+            RulesRepository repo = (RulesRepository) Component.getInstance( "repository" );
+            this.formService = new GuvnorFormDefinitionService(repo);
         }
-        this.formService = new GuvnorFormDefinitionService(this.repo);
     }
     
     /*
@@ -74,103 +85,49 @@ public class FormBuilderServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String uri = req.getRequestURI();
-        StringBuilder xml = new StringBuilder();
-        if (uri.contains("menuItems")) {
-            xml.append(listMenuItems());
-        } else if (uri.contains("menuOptions")) {
-            xml.append(listOptions());
-        } else if (uri.contains("listTasks")) {
-            xml.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
-        } else if (uri.contains("listValidations")) {
-            //TODO implement
+        try {
+            String uri = req.getRequestURI();
+            StringBuilder xml = new StringBuilder();
+            if (uri.contains("menuItems")) {
+                xml.append(listMenuItems());
+            } else if (uri.contains("menuOptions")) {
+                xml.append(listOptions());
+            } else if (uri.contains("listTasks")) {
+                xml.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
+            } else if (uri.contains("listValidations")) {
+                //TODO implement
+            }
+            resp.setContentType("text/xml");
+            resp.getWriter().println(xml.toString());
+        } catch (JAXBException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
-        resp.setContentType("text/xml");
-        resp.getWriter().println(xml.toString());
     }
 
-    private String listTasks(String filter, String pkgName) {
+    private String listTasks(String filter, String pkgName) throws JAXBException {
         List<TaskRef> tasks = taskService.query(pkgName, filter);
-        StringBuilder builder = new StringBuilder();
-        builder.append("<tasks>\n");
-        for (TaskRef task : tasks) {
-            builder.append("<task ");
-            builder.append("processId=\"").append(task.getProcessId()).append("\" ");
-            builder.append("taskName=\"").append(task.getTaskName()).append("\" ");
-            builder.append("taskId=\"").append(task.getTaskId()).append("\">\n");
-            for (TaskPropertyRef input : task.getInputs()) {
-                builder.append("<input ");
-                builder.append("name=\"").append(input.getName()).append("\" ");
-                builder.append("source=\"").append(input.getSourceExpresion()).append("\"/>\n");
-            }
-            for (TaskPropertyRef output : task.getOutputs()) {
-                builder.append("<output ");
-                builder.append("name=\"").append(output.getName()).append("\" ");
-                builder.append("source=\"").append(output.getSourceExpresion()).append("\"/>\n");
-            }
-            for (Map.Entry<String, String> metaData : task.getMetaData().entrySet()) {
-                builder.append("<metaData ");
-                builder.append("key=\"").append(metaData.getKey()).append("\" ");
-                builder.append("value=\"").append(metaData.getValue()).append("\"/>\n");
-            }
-            builder.append("</task>\n");
-        }
-        builder.append("</tasks>\n");
-        return builder.toString();
+        ListTasksDTO dto = new ListTasksDTO(tasks);
+        return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
     }
     
-    private String listMenuItems() {
-        StringBuilder builder = new StringBuilder();
+    private String listMenuItems() throws JAXBException {
         Map<String, List<FBMenuItem>> items = menuService.listItems();
-        builder.append("<menuGroups>\n");
-        for (Map.Entry<String, List<FBMenuItem>> item : items.entrySet()) {
-            builder.append("<menuGroup ");
-            builder.append("name=\"").append(item.getKey()).append("\">\n");
-            List<FBMenuItem> groupItems = item.getValue();
-            for (FBMenuItem menuItem : groupItems) {
-                builder.append("<menuItem ");
-                builder.append("className=\"").append(menuItem.getClass().getName()).append("\">\n");
-                List<FBFormEffect> effects = menuItem.getFormEffects();
-                for (FBFormEffect effect : effects) {
-                    builder.append("<effect ");
-                    builder.append("className=\"").append(effect.getClass().getName()).append("\"/>\n");
-                }
-                builder.append("</menuItem>\n");
-            }
-            builder.append("</menuGroup>\n");
-        }
-        builder.append("</menuGroups>\n");
-        return builder.toString();
+        ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
+        return jaxbTransformation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
     }
 
-    private String listOptions() {
+    private String listOptions() throws JAXBException {
         List<MainMenuOption> options = menuService.listOptions();
-        StringBuilder builder = new StringBuilder();
-        builder.append("<menuOptions>\n");
-        for (MainMenuOption option : options) {
-            builder.append(optionToXml(option));
-        }
-        builder.append("</menuOptions>\n");
-        return builder.toString();
+        ListOptionsDTO dto = new ListOptionsDTO(options);
+        return jaxbTransformation(dto, ListOptionsDTO.class, MenuOptionDTO.class);
     }
 
-    private String optionToXml(MainMenuOption option) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("<menuOption ");
-        builder.append("name=\"").append(option.getHtml()).append("\" ");
-        if (option.getCommand() != null) {
-            builder.append("commandClass=\"").append(option.getCommand().getClass().getName()).append("\" ");
-        }
-        if (option.getSubMenu() != null && !option.getSubMenu().isEmpty()) {
-            builder.append(">\n");
-            for (MainMenuOption subOption : option.getSubMenu()) {
-                builder.append(optionToXml(subOption));
-            }
-            builder.append("</menuOption>\n");
-        } else {
-            builder.append("/>\n");
-        }
-        return builder.toString();
+    private String jaxbTransformation(Object dto, Class<?>... boundClasses) throws JAXBException {
+        JAXBContext ctx = JAXBContext.newInstance(boundClasses);
+        Marshaller marshaller = ctx.createMarshaller();
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(dto, writer);
+        return writer.toString();
     }
 
     @Override
@@ -186,5 +143,17 @@ public class FormBuilderServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         // TODO Auto-generated method stub
+    }
+    
+    public void setFormService(FormDefinitionService formService) {
+        this.formService = formService;
+    }
+    
+    public void setMenuService(MenuService menuService) {
+        this.menuService = menuService;
+    }
+    
+    public void setTaskService(TaskDefinitionService taskService) {
+        this.taskService = taskService;
     }
 }
