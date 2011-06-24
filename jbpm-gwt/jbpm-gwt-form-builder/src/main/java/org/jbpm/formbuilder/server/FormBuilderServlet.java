@@ -82,7 +82,9 @@ public class FormBuilderServlet extends HttpServlet {
             xml.append(listOptions());
         } else if (uri.contains("listTasks")) {
             xml.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
-        } 
+        } else if (uri.contains("listValidations")) {
+            //TODO implement
+        }
         resp.setContentType("text/xml");
         resp.getWriter().println(xml.toString());
     }

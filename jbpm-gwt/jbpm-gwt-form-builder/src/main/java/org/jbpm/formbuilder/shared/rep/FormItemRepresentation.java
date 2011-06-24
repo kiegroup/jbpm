@@ -3,8 +3,8 @@ package org.jbpm.formbuilder.shared.rep;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageFactory;
+import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.LanguageFactory;
 
 public abstract class FormItemRepresentation {
     

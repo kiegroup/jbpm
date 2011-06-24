@@ -1,0 +1,7 @@
+#set ($altParam = ${language.getParam("alt", $item.altText)})
+#set ($titleParam = ${language.getParam("title", $item.altText)})
+#set ($idParam = ${language.getParam("id", $item.id)})
+#set ($heightParam = ${language.getParam("height", $item.height)})
+#set ($widthParam = ${language.getParam("width", $item.width)})
+#set ($srcParam = ${language.getParam("src", $item.src)})
+<img $altParam $titleParam $idParam $heightParam $widthParam $srcParam />

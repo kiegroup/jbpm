@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.shared.rep.trans;
+package org.jbpm.formbuilder.server.trans;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;

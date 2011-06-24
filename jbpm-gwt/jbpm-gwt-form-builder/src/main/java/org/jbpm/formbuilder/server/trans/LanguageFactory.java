@@ -1,11 +1,10 @@
-package org.jbpm.formbuilder.shared.rep.trans;
+package org.jbpm.formbuilder.server.trans;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
-
-import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
-
 
 public class LanguageFactory {
 
@@ -15,11 +14,18 @@ public class LanguageFactory {
 
     private LanguageFactory() {
         cache = new HashMap<String, Language>();
+        Properties props = new Properties();
         try {
-            getLanguage("ftl");
-            getLanguage("xsl");
+            props.load(getClass().getResourceAsStream("/FormBuilder.properties"));
+            String property = props.getProperty("form.builder.languages");
+            String[] languages = property == null ? new String[0] : property.split(",");
+            for (String lang : languages) {
+                getLanguage(lang);
+            }
+        } catch (IOException e) {
+            //TODO implement error handling
         } catch (LanguageException e) {
-            //TODO this should be in an initializer somewhere else
+            //TODO implement error handling
         }
     }
     
@@ -30,12 +36,13 @@ public class LanguageFactory {
     public Language getLanguage(String language) throws LanguageException {
         synchronized(this) {
             if (!cache.containsKey(language)) {
-                String pkgName = "org.jbpm.formbuilder.shared.rep.trans";
-                String kclass = pkgName + "." + language + ".Language";
+                String pkgName = getClass().getPackage().getName();
+                String kclass = new StringBuilder(pkgName).append(".").
+                        append(language).append(".Language").toString();
                 Object obj = null;
                 try {
-                    Class<?> klass = ReflectionHelper.loadClass(kclass);
-                    obj = ReflectionHelper.newInstance(klass);
+                    Class<?> klass = Class.forName(kclass);
+                    obj = klass.newInstance();
                 } catch (Exception e) {
                     throw new LanguageException(e);
                 }

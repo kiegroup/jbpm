@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.shared.rep.trans;
+package org.jbpm.formbuilder.server.trans;
 
 public class LanguageException extends Exception {
 

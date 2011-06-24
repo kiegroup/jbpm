@@ -1,10 +1,10 @@
-package org.jbpm.formbuilder.shared.rep.trans.xsl;
+package org.jbpm.formbuilder.server.trans.xsl;
 
+import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.trans.LanguageException;
 
-public class Language implements org.jbpm.formbuilder.shared.rep.trans.Language {
+public class Language implements org.jbpm.formbuilder.server.trans.Language {
 
     private static final String LANG = "xsl";
     
