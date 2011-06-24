@@ -32,6 +32,6 @@
 <form $onSubmitParam $onLoadParam $nameParam $actionParam $methodParam $enctypeParam>
     <#-- taskId: $item.taskId -->
   #foreach ($subItem in $item.formItems)
-    ${language.translateItem($subItem)
+    ${language.translateItem($subItem)}
   #end
 </form>

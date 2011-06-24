@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
 import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.server.trans.LanguageFactory;
 import org.jbpm.formbuilder.shared.rep.FBScript;
@@ -22,7 +24,10 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
     private final Map<URL, Template> templates = new HashMap<URL, Template>();
 
     public Language() {
-        engine.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.URLResourceLoader");
+        engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "url");
+        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".class", URLResourceLoader.class.getName());
+        String url = getClass().getResource("/langs/freemarker/form.vm").toExternalForm();
+        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".root", url.replace("form.vm", ""));
         engine.init();
     }
     
@@ -49,7 +54,7 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
         Template template = null;
         synchronized (this) {
             if (!templates.containsKey(velocityTemplate)) {
-                Template temp = engine.getTemplate(velocityTemplate.toExternalForm());
+                Template temp = engine.getTemplate(scriptName + ".vm");
                 templates.put(velocityTemplate, temp);
             }
             template = templates.get(velocityTemplate);

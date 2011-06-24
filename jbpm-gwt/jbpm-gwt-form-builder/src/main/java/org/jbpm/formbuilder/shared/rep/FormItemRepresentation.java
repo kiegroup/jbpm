@@ -3,9 +3,6 @@ package org.jbpm.formbuilder.shared.rep;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.formbuilder.server.trans.LanguageException;
-import org.jbpm.formbuilder.server.trans.LanguageFactory;
-
 public abstract class FormItemRepresentation {
     
     private List<FBValidation> itemValidations = new ArrayList<FBValidation>();
@@ -63,9 +60,5 @@ public abstract class FormItemRepresentation {
 
     public String getTypeId() {
         return typeId;
-    }
-    
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).translateItem(this);
     }
 }

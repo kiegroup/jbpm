@@ -68,7 +68,6 @@ import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
-import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -424,13 +423,13 @@ public class FormBuilderModel implements FormBuilderService {
         builder.append("<menuItem>");
         builder.append("<itemId>").append(item.getItemId()).append("</itemId>");
         builder.append("<name>").append(item.getDescription().getText()).append("</name>");
-        try {
+        /*try {
             builder.append("<clone>").
                 append(item.buildWidget().getRepresentation().translate("xml")).
                 append("</clone>");
         } catch (LanguageException e) {
             builder.append("<clone>Exception:").append(e.getMessage()).append("</clone>");
-        }
+        }*/
         builder.append("</menuItem>");
         return builder.toString();
     }

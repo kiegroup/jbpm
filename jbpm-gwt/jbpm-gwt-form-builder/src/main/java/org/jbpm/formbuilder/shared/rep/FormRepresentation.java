@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.server.trans.LanguageException;
-import org.jbpm.formbuilder.server.trans.LanguageFactory;
-
 public class FormRepresentation implements Serializable {
 
     private static final long serialVersionUID = 6207901499318773670L;
@@ -131,10 +128,6 @@ public class FormRepresentation implements Serializable {
     
     public void setOnSubmitScripts(List<FBScript> onSubmitScripts) {
         this.onSubmitScripts = onSubmitScripts;
-    }
-    
-    public String translate(String language) throws LanguageException {
-        return LanguageFactory.getInstance().getLanguage(language).translateForm(this);
     }
     
     public void setLastModified(long lastModified) {
