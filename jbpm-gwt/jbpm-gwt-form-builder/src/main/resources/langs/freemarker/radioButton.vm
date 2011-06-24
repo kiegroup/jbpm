@@ -6,4 +6,4 @@
     #set ($selectedParam = ${language.getParam("selected", "true")})
 #end
 ## TODO getInput();
-<input type="radio" $idParam $nameParam $valueParam $selectedParam />
+<input type="radio" #if($idParam)$idParam#end#if($nameParam)$nameParam#end#if($valueParam)$valueParam#end#if($selectedParam)$selectedParam#end />

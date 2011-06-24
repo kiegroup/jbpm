@@ -68,7 +68,7 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
     }
 
     public String getParam(String paramName, String paramValue) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("");
         if (paramValue != null && !"".equals(paramValue)) {
             builder.append(paramName).append("=\"").append(paramValue).append("\" ");
         }
@@ -76,7 +76,7 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
     }
     
     public String getParam(String paramName, Integer paramValue) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("");
         if (paramValue != null) {
             builder.append(paramName).append("=\"").append(paramValue).append("\" ");
         }
@@ -84,7 +84,7 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
     }
     
     public String getStyleParam(String paramName, String paramValue) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("");
         if (paramValue != null && !"".equals(paramValue)) {
             builder.append(paramName).append(": ").append(paramValue).append("; ");
         }

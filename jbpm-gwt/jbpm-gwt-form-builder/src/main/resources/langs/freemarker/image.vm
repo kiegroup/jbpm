@@ -4,4 +4,4 @@
 #set ($heightParam = ${language.getParam("height", $item.height)})
 #set ($widthParam = ${language.getParam("width", $item.width)})
 #set ($srcParam = ${language.getParam("src", $item.src)})
-<img $altParam $titleParam $idParam $heightParam $widthParam $srcParam />
+<img #if($altParam)$altParam#end#if($titleParam)$titleParam#end#if($idParam)$idParam#end#if($heightParam)$heightParam#end#if($widthParam)$widthParam#end#if($srcParam)$srcParam#end />

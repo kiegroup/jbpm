@@ -6,4 +6,4 @@
 #set ($style = $width + $height)
 #set ($styleParam = ${langauge.getParam("style", $style)})
 ## TODO getInput();
-<input type="file" $idParam $nameParam $acceptParam $styleParam /> 
+<input type="file" #if($idParam)$idParam#end#if($nameParam)$nameParam#end#if($acceptParam)$acceptParam#end#if($styleParam)$styleParam#end />

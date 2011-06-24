@@ -23,13 +23,13 @@
 ## TODO List<FBValidation> validations = form.getFormValidations();
 ## TODO Map<String, InputData> inputs = form.getInputs();
 ## TODO Map<String, OutputData> outputs = form.getOutputs();
-#set($onSubmitParam = ${language.getParam("onsubmit", $invokeOnSubmit)})
+#set( $onSubmitParam = ${language.getParam("onsubmit", $invokeOnSubmit)})
 #set($onLoadParam = ${language.getParam("onload", $invokeOnLoad)})
 #set($nameParam = ${language.getParam("name", $item.name)})
 #set($actionParam = ${language.getParam("action", $item.action)})
 #set($methodParam = ${language.getParam("method", $item.method)})
 #set($enctypeParam = ${language.getParam("enctype", $item.enctype)})
-<form $onSubmitParam $onLoadParam $nameParam $actionParam $methodParam $enctypeParam>
+<form #if($onSubmitParam)$onSubmitParam#end#if($onLoadParam)$onLoadParam#end#if($nameParam)$nameParam#end#if($actionParam)$actionParam#end#if($methodParam)$methodParam#end#if($enctypeParam)$enctypeParam#end>
     <#-- taskId: $item.taskId -->
   #foreach ($subItem in $item.formItems)
     ${language.translateItem($subItem)}

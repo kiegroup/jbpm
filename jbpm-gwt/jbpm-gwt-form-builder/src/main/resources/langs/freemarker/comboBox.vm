@@ -6,7 +6,7 @@
 #set ($nameParam = ${language.getParam("name", $name)})
 ## TODO $item.itemValidations
 ## TODO $item.output
-<select $idParam $nameParam>
+<select #if($idParam)$idParam#end#if($nameParam)$nameParam#end>
 #if ($item.elements) 
   #foreach ($option in $item.elements)
     ${language.translateItem($option)}

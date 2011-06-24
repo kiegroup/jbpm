@@ -8,4 +8,4 @@
 #if (!($value and $value != "") and $item.input)
     #set ($value = $item.input.name)
 #end 
-<h1 $classParam $styleParam>$value</h1>
+<h1 #if($classParam)$classParam#end#if($styleParam)$styleParam#end>$value</h1>

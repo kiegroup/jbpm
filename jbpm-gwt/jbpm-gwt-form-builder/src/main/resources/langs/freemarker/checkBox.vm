@@ -10,4 +10,4 @@
 #end
 #set ($checkedParam = ${language.getParam("checked", $checked)})
 #set ($valueParam = ${language.getParam("value", $item.formValue)}) ##TODO getInput()
-<input type="checkbox" $idParam $nameParam $styleParam $checkedParam $valueParam />
+<input type="checkbox" #if($idParam)$idParam#end#if($nameParam)$nameParam#end#if($styleParam)$styleParam#end#if($checkedParam)$checkedParam#end#if($valueParam)$valueParam#end/>

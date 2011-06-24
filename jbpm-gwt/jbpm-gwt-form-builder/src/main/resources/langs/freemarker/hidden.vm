@@ -2,4 +2,5 @@
 #set ($nameParam = ${language.getParam("name", $item.name})
 #set ($valueParam = ${language.getParam("value", $item.value})
 ## TODO getInput();
-<input type="hidden" $idParam $nameParam $valueParam />
+<input type="hidden" #if($idParam)$idParam#end#if($nameParam)$nameParam#end#if($valueParam)$valueParam#end />
+

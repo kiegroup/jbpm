@@ -1,2 +1,2 @@
 #set ($valueParam = ${language.getParam("value", $item.value)})
-<option $valueParam>$item.label</option>
+<option #if($valueParam)$valueParam#end>$item.label</option>

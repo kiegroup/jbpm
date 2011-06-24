@@ -3,7 +3,7 @@
 #set ($cellspacingParam = ${language.getParam("cellspacing", $item.cellSpacing)})
 ## TODO table.getInput(); may be used to iterate contents, but not yet
 ## TODO table.getItemValidations();
-<table $borderParam $cellpaddingParam $cellspacingParam>
+<table #if($borderParam)$borderParam#end#if($cellpaddingParam)$cellpaddingParam#end#if($cellspacingParam)$cellspacingParam#end>
   #foreach ($row in $item.elements)
     <tr>
       #foreach($cell in $row)

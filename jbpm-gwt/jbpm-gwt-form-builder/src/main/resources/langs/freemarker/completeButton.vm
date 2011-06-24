@@ -10,4 +10,4 @@
 ## TODO completeButton.getOnClickScript(); should be loaded first
 #set ($nameParam = ${language.getParam("name", $name)})
 #set ($valueParam = ${language.getParam("value", $item.text)})
-<input type="submit" $idParam $styleParam $nameParam $valueParam />
+<input type="submit" #if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end#if($valueParam)$valueParam#end />
