@@ -1,10 +1,13 @@
 package org.jbpm.formbuilder.server.trans.ftl;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
@@ -33,7 +36,8 @@ public class LanguageTest extends TestCase {
         checkbox.setName("checkboxName");
         form.addFormItem(combo);
         form.addFormItem(checkbox);
-        String script = lang.translateForm(form);
+        URL url = lang.translateForm(form);
+        String script = FileUtils.readFileToString(new File(url.getFile()));
         System.out.println("script = " + script);
     }
 }

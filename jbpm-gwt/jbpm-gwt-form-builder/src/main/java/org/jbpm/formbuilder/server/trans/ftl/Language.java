@@ -1,10 +1,13 @@
 package org.jbpm.formbuilder.server.trans.ftl;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -39,8 +42,8 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
         return runVelocityScript(item, item.getTypeId());
     }
 
-    public String translateForm(FormRepresentation form) throws LanguageException {
-        return runVelocityScript(form, "form");
+    public URL translateForm(FormRepresentation form) throws LanguageException {
+        return saveToURL(runVelocityScript(form, "form"));
     }
 
     /*
@@ -65,6 +68,16 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
         StringWriter writer = new StringWriter();
         template.merge(context, writer);
         return writer.toString();
+    }
+    
+    private URL saveToURL(String fileContent) throws LanguageException {
+        try {
+            File tmpFile = File.createTempFile("formBuilderTrans", ".ftl");
+            FileUtils.writeStringToFile(tmpFile, fileContent);
+            return tmpFile.toURL();
+        } catch (IOException e) {
+            throw new LanguageException("Problem saving URL file", e);
+        }
     }
 
     public String getParam(String paramName, String paramValue) {

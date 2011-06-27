@@ -149,8 +149,7 @@ public class FormBuilderModel implements FormBuilderService {
         effectsValidation.add(new ValidationsEffect());
         
         List<FBFormEffect> effectsServer = new ArrayList<FBFormEffect>();
-        //effectsServer.add(new ScriptConditionEffect()); TODO maybe create it later?
-        //effectsServer.add(new VarBindingEffect()); TODO see if this makes sense in a server code block
+        effectsServer.add(new VarBindingEffect());
         
         List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
         effectsOptions.add(new RemoveEffect());
@@ -365,9 +364,10 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public String generateForm(FormRepresentation form, String language) {
-        //TODO send request and wait for publishing
-        String url = GWT.getModuleBaseURL() + this.contextPath + "/formPreview/" + form.getTaskId() + "/" + form.getLastModified();
-        return url;
+        saveForm(form);
+        return new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
+                append("/formPreview/").append(form.getTaskId()).append("/lang/").
+                append(language).toString();
     }
     
     public void saveMenuItem(String groupName, final FBMenuItem item) {

@@ -5,8 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.drools.repository.AssetItem;
@@ -14,6 +16,9 @@ import org.drools.repository.AssetItemIterator;
 import org.drools.repository.PackageItem;
 import org.drools.repository.RulesRepository;
 import org.drools.repository.VersionableItem;
+import org.jbpm.formbuilder.server.render.Renderer;
+import org.jbpm.formbuilder.server.render.RendererException;
+import org.jbpm.formbuilder.server.render.RendererFactory;
 import org.jbpm.formbuilder.server.trans.Language;
 import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.server.trans.LanguageFactory;
@@ -34,16 +39,25 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
     public String generateForm(String pkgName, String language, FormRepresentation form) {
         try {
             Language lang = LanguageFactory.getInstance().getLanguage(language);
-            String retval = lang.translateForm(form);
+            URL url = lang.translateForm(form);
+            Renderer render = RendererFactory.getInstance().getRenderer(language);
             PackageItem pkg = repo.loadPackage(pkgName);
             AssetItem item = pkg.loadAsset(xformName(form) + "_" + language);
             if (item == null) {
                 item = pkg.addAsset(xformName(form), language + " representation for xform " + form.getDocumentation());
             }
-            item.updateContent(retval);
+            Object obj = render.render(url, new HashMap<String, Object>()); //TODO 
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            ObjectOutputStream oout = new ObjectOutputStream(bout);
+            oout.writeObject(obj);
+            item.updateBinaryContentAttachment(new ByteArrayInputStream(bout.toByteArray()));
             item.checkin("Auto-Save " + new Date());
-            return retval;
+            return url.toExternalForm();
         } catch (LanguageException e) {
+            throw new RuntimeException("problem generating form", e); //TODO
+        } catch (RendererException e) {
+            throw new RuntimeException("problem generating form", e); //TODO
+        } catch (IOException e) {
             throw new RuntimeException("problem generating form", e); //TODO
         }
     }
@@ -95,5 +109,10 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             }
         }
         return retval;
+    }
+
+    public FormRepresentation getFormByTaskId(String pkgName, String taskId) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

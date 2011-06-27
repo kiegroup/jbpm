@@ -19,4 +19,9 @@ public class MockFormDefinitionService implements FormDefinitionService {
         return null;
     }
 
+    public FormRepresentation getFormByTaskId(String pkgName, String taskId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

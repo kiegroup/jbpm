@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.edition.EditionView; 
+import org.jbpm.formbuilder.client.edition.EditionView;
 import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.MenuView;
 import org.jbpm.formbuilder.client.notification.NotificationsView;
@@ -10,6 +10,7 @@ import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderView extends AbsolutePanel {
 
@@ -22,7 +23,8 @@ public class FormBuilderView extends AbsolutePanel {
         layoutGrid.getCellFormatter().setHeight(1, 0, "70px");
         
         mainGrid.getCellFormatter().setHeight(0, 0, "50px");
-        mainGrid.getCellFormatter().setHeight(1, 0, "90%");
+        int mainHeight = RootPanel.getBodyElement().getClientHeight() - 100;
+        mainGrid.getCellFormatter().setHeight(1, 0, "" + mainHeight + "px");
         mainGrid.getCellFormatter().setHeight(2, 0, "50px");
         
         toolGrid.getColumnFormatter().setWidth(0, "25%");
@@ -30,10 +32,11 @@ public class FormBuilderView extends AbsolutePanel {
         toolGrid.getColumnFormatter().setWidth(2, "25%");
         toolGrid.setHeight("100%");
         
+        int menuHeight = mainHeight / 2;
         editGrid.setSize("100%", "100%");
         editGrid.setCellPadding(0);
         editGrid.setCellSpacing(0);
-        editGrid.getCellFormatter().setHeight(0, 0, "50%");
+        editGrid.getCellFormatter().setHeight(0, 0, "" + menuHeight + "px");
         editGrid.getCellFormatter().setHeight(1, 0, "50%");
         
         toolGrid.setWidget(0, 0, editGrid);

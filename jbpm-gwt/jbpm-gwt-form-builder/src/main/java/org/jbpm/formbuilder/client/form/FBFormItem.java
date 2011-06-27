@@ -66,8 +66,10 @@ public abstract class FBFormItem extends FocusPanel {
         addRightClickHandler(new RightClickHandler() {
             public void onRightClick(RightClickEvent event) {
                 EffectsPopupPanel popupPanel = new EffectsPopupPanel(FBFormItem.this, true);
-                popupPanel.setPopupPosition(event.getX(), event.getY());
-                popupPanel.show();
+                if (getFormEffects() != null && !getFormEffects().isEmpty()) {
+                    popupPanel.setPopupPosition(event.getX(), event.getY());
+                    popupPanel.show();
+                }
             }
         });
     } 

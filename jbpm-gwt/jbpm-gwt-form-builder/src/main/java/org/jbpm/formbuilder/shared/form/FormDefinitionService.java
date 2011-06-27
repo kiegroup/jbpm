@@ -11,4 +11,6 @@ public interface FormDefinitionService {
     void saveForm(String pkgName, String comment, FormRepresentation form);
     
     List<FormRepresentation> getForms(String pkgName);
+
+    FormRepresentation getFormByTaskId(String pkgName, String taskId);
 }

@@ -17,6 +17,8 @@ package org.jbpm.formbuilder.server;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +38,13 @@ import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
+import org.jbpm.formbuilder.server.render.Renderer;
+import org.jbpm.formbuilder.server.render.RendererException;
+import org.jbpm.formbuilder.server.render.RendererFactory;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
+import org.jbpm.formbuilder.server.trans.Language;
+import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.LanguageFactory;
 import org.jbpm.formbuilder.server.xml.FormEffectDTO;
 import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
 import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
@@ -49,6 +57,7 @@ import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.menu.MenuService;
+import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -87,21 +96,56 @@ public class FormBuilderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String uri = req.getRequestURI();
-            StringBuilder xml = new StringBuilder();
+            StringBuilder content = new StringBuilder();
             if (uri.contains("menuItems")) {
-                xml.append(listMenuItems());
+                resp.setContentType("text/xml");
+                content.append(listMenuItems());
             } else if (uri.contains("menuOptions")) {
-                xml.append(listOptions());
+                resp.setContentType("text/xml");
+                content.append(listOptions());
             } else if (uri.contains("listTasks")) {
-                xml.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
+                resp.setContentType("text/xml");
+                content.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
             } else if (uri.contains("listValidations")) {
+                resp.setContentType("text/xml");
+                //TODO implement
+            } else if (uri.contains("formPreview")) {
+                resp.setContentType("text/xml");
+                content.append(getFormPreview(req.getRequestURI()));
                 //TODO implement
             }
-            resp.setContentType("text/xml");
-            resp.getWriter().println(xml.toString());
-        } catch (JAXBException e) {
+            
+            
+            resp.getWriter().println(content.toString());
+        } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } 
+    }
+    
+    private String getUriParameter(String requestUri, String paramName) {
+        paramName = "/" + paramName + "/";
+        int start = requestUri.indexOf(paramName) + paramName.length();
+        int end = requestUri.indexOf("/", start + 1);
+        if (end == -1) {
+            end = requestUri.length();
         }
+        return requestUri.substring(start, end);
+    }
+    
+    private String getFormPreview(String requestUri) throws LanguageException, RendererException {
+        StringBuilder builder = new StringBuilder();
+        String taskId = getUriParameter(requestUri, "formPreview");
+        String language = getUriParameter(requestUri, "lang");
+        String pkgName = getUriParameter(requestUri, "package");
+        LanguageFactory factory = LanguageFactory.getInstance();
+        Language translator = factory.getLanguage(language);
+        FormRepresentation form = formService.getFormByTaskId(pkgName, taskId);
+        URL url = translator.translateForm(form);
+        RendererFactory factory2 = RendererFactory.getInstance();
+        Renderer renderer = factory2.getRenderer(language);
+        builder.append(renderer.render(url, new HashMap<String, Object>()));
+        return builder.toString();
+        
     }
 
     private String listTasks(String filter, String pkgName) throws JAXBException {

@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.server.trans;
 
+import java.net.URL;
+
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -27,8 +29,8 @@ public interface Language {
 
     String getLanguage();
     
-    String translateForm(FormRepresentation form) throws LanguageException;
+    URL translateForm(FormRepresentation form) throws LanguageException;
     
-    String translateItem(FormItemRepresentation item) throws LanguageException;
+    Object translateItem(FormItemRepresentation item) throws LanguageException;
     
 }
