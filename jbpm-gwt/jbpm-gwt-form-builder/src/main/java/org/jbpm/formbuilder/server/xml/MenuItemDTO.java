@@ -5,37 +5,41 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlType;
 
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
+import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 
-@XmlType (name="menuItem") public class MenuItemDTO {
+public class MenuItemDTO {
 
-    @XmlAttribute private String className;
-    @XmlElement @XmlList private List<FormEffectDTO> effect = new ArrayList<FormEffectDTO>();
+    private String _className;
+    private List<FormEffectDTO> _effect = new ArrayList<FormEffectDTO>();
+
+    public MenuItemDTO() {
+        // jaxb needs a default constructor
+    }
     
-    public MenuItemDTO(FBMenuItem item) {
-        this.className = item.getClass().getName();
-        for (FBFormEffect eff : item.getFormEffects()) {
-            effect.add(new FormEffectDTO(eff));
+    public MenuItemDTO(MenuItemDescription item) {
+        this._className = item.getClassName();
+        for (FormEffectDescription eff : item.getEffects()) {
+            _effect.add(new FormEffectDTO(eff));
         }
     }
 
+    @XmlAttribute 
     public String getClassName() {
-        return className;
+        return _className;
     }
 
     public void setClassName(String className) {
-        this.className = className;
+        this._className = className;
     }
 
+    @XmlElement 
     public List<FormEffectDTO> getEffect() {
-        return effect;
+        return _effect;
     }
 
     public void setEffect(List<FormEffectDTO> effect) {
-        this.effect = effect;
+        this._effect = effect;
     }
 }

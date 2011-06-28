@@ -3,31 +3,36 @@ package org.jbpm.formbuilder.server.xml;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
-@XmlType public class MetaDataDTO {
+public class MetaDataDTO {
 
-    @XmlAttribute private String key;
-    @XmlAttribute private String value;
+    private String _key;
+    private String _value;
+    
+    public MetaDataDTO() {
+        // jaxb needs a default constructor
+    }
     
     public MetaDataDTO(Map.Entry<String, String> entry) {
-        this.key = entry.getKey();
-        this.value = entry.getValue();
+        this._key = entry.getKey();
+        this._value = entry.getValue();
     }
 
+    @XmlAttribute 
     public String getKey() {
-        return key;
+        return _key;
     }
 
     public void setKey(String key) {
-        this.key = key;
+        this._key = key;
     }
 
+    @XmlAttribute 
     public String getValue() {
-        return value;
+        return _value;
     }
 
     public void setValue(String value) {
-        this.value = value;
+        this._value = value;
     }
 }

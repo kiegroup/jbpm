@@ -5,36 +5,40 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlType;
 
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 
-@XmlType public class MenuGroupDTO {
+public class MenuGroupDTO {
 
-    @XmlElement @XmlList private List<MenuItemDTO> menuItem = new ArrayList<MenuItemDTO>();
-    @XmlAttribute private String name;
+    private List<MenuItemDTO> _menuItem = new ArrayList<MenuItemDTO>();
+    private String _name;
     
-    public MenuGroupDTO(String name, List<FBMenuItem> items) {
-        this.name = name;
-        for (FBMenuItem item : items) {
-            menuItem.add(new MenuItemDTO(item));
+    public MenuGroupDTO() {
+        // jaxb needs default constructors
+    }
+    
+    public MenuGroupDTO(String name, List<MenuItemDescription> items) {
+        this._name = name;
+        for (MenuItemDescription item : items) {
+            _menuItem.add(new MenuItemDTO(item));
         }
     }
 
+    @XmlElement
     public List<MenuItemDTO> getMenuItem() {
-        return menuItem;
+        return _menuItem;
     }
 
     public void setMenuItem(List<MenuItemDTO> menuItem) {
-        this.menuItem = menuItem;
+        this._menuItem = menuItem;
     }
 
+    @XmlAttribute 
     public String getName() {
-        return name;
+        return _name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this._name = name;
     }
 }

@@ -1,23 +1,27 @@
 package org.jbpm.formbuilder.server.xml;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
 
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 
-@XmlType (name="effect") public class FormEffectDTO {
+public class FormEffectDTO {
 
-    @XmlAttribute private String className;
+    private String _className;
+
+    public FormEffectDTO() {
+        // jaxb needs a default constructor
+    }
     
-    public FormEffectDTO(FBFormEffect effect) {
-        this.className = effect.getClass().getName();
+    public FormEffectDTO(FormEffectDescription effect) {
+        this._className = effect.getClassName();
     }
 
+    @XmlAttribute 
     public String getClassName() {
-        return className;
+        return _className;
     }
 
     public void setClassName(String className) {
-        this.className = className;
+        this._className = className;
     }
 }

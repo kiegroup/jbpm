@@ -7,27 +7,33 @@ import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
 @XmlType public class PropertyDTO {
 
-    @XmlAttribute private String name;
-    @XmlAttribute private String source;
+    private String _name;
+    private String _source;
     
-    public PropertyDTO(TaskPropertyRef ref) {
-        this.name = ref.getName();
-        this.source = ref.getSourceExpresion();
+    public PropertyDTO() {
+        // jaxb needs a default constructor
     }
     
+    public PropertyDTO(TaskPropertyRef ref) {
+        this._name = ref.getName();
+        this._source = ref.getSourceExpresion();
+    }
+    
+    @XmlAttribute 
     public String getName() {
-        return name;
+        return _name;
     }
     
     public void setName(String name) {
-        this.name = name;
+        this._name = name;
     }
     
+    @XmlAttribute 
     public String getSource() {
-        return source;
+        return _source;
     }
 
     public void setSource(String source) {
-        this.source = source;
+        this._source = source;
     }
 }

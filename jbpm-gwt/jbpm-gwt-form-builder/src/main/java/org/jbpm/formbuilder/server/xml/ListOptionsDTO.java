@@ -4,26 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.client.options.MainMenuOption;
+import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 
-@XmlType (name = "menuOptions") public class ListOptionsDTO {
+@XmlRootElement (name = "menuOptions") public class ListOptionsDTO {
 
-    @XmlElement @XmlList private List<MenuOptionDTO> menuOption = new ArrayList<MenuOptionDTO>();
+    private List<MenuOptionDTO> _menuOption = new ArrayList<MenuOptionDTO>();
     
-    public ListOptionsDTO(List<MainMenuOption> options) {
-        for (MainMenuOption option : options) {
-            menuOption.add(new MenuOptionDTO(option));
+    public ListOptionsDTO() {
+        // jaxb needs a default constructor
+    }
+    
+    public ListOptionsDTO(List<MenuOptionDescription> options) {
+        for (MenuOptionDescription option : options) {
+            _menuOption.add(new MenuOptionDTO(option));
         }
     }
 
+    @XmlElement 
     public List<MenuOptionDTO> getMenuOption() {
-        return menuOption;
+        return _menuOption;
     }
 
     public void setMenuOption(List<MenuOptionDTO> menuOption) {
-        this.menuOption = menuOption;
+        this._menuOption = menuOption;
     }
 }

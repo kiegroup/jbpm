@@ -34,8 +34,6 @@ import javax.xml.bind.Marshaller;
 import org.drools.repository.RulesRepository;
 import org.jboss.seam.Component;
 import org.jboss.seam.contexts.Contexts;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.render.Renderer;
@@ -56,6 +54,8 @@ import org.jbpm.formbuilder.server.xml.MetaDataDTO;
 import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
+import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
+import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
@@ -68,6 +68,8 @@ public class FormBuilderServlet extends HttpServlet {
     private MenuService menuService;
     private TaskDefinitionService taskService;
     private FormDefinitionService formService;
+
+    private Map<Class<?>[], Marshaller> marshallers = new HashMap<Class<?>[], Marshaller>();
     
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -110,12 +112,9 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.setContentType("text/xml");
                 //TODO implement
             } else if (uri.contains("formPreview")) {
-                resp.setContentType("text/xml");
+                resp.setContentType("text/html");
                 content.append(getFormPreview(req.getRequestURI()));
-                //TODO implement
             }
-            
-            
             resp.getWriter().println(content.toString());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
@@ -155,20 +154,26 @@ public class FormBuilderServlet extends HttpServlet {
     }
     
     private String listMenuItems() throws JAXBException {
-        Map<String, List<FBMenuItem>> items = menuService.listItems();
+        Map<String, List<MenuItemDescription>> items = menuService.listItems();
         ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
         return jaxbTransformation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
     }
 
     private String listOptions() throws JAXBException {
-        List<MainMenuOption> options = menuService.listOptions();
+        List<MenuOptionDescription> options = menuService.listOptions();
         ListOptionsDTO dto = new ListOptionsDTO(options);
         return jaxbTransformation(dto, ListOptionsDTO.class, MenuOptionDTO.class);
     }
 
     private String jaxbTransformation(Object dto, Class<?>... boundClasses) throws JAXBException {
-        JAXBContext ctx = JAXBContext.newInstance(boundClasses);
-        Marshaller marshaller = ctx.createMarshaller();
+        synchronized (this) {
+            if (marshallers.get(boundClasses) == null) {
+                JAXBContext ctx = JAXBContext.newInstance(boundClasses);
+                Marshaller marshaller = ctx.createMarshaller();
+                marshallers.put(boundClasses, marshaller);
+            }
+        }
+        Marshaller marshaller = marshallers.get(boundClasses);
         StringWriter writer = new StringWriter();
         marshaller.marshal(dto, writer);
         return writer.toString();

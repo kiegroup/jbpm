@@ -3,16 +3,13 @@ package org.jbpm.formbuilder.shared.menu;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.options.MainMenuOption;
-
 public interface MenuService {
 
-    List<MainMenuOption> listOptions();
+    List<MenuOptionDescription> listOptions();
     
-    Map<String, List<FBMenuItem>> listItems();
+    Map<String, List<MenuItemDescription>> listItems();
     
-    void save(FBMenuItem item);
+    void save(MenuItemDescription item);
     
-    void delete(FBMenuItem item);
+    void delete(MenuItemDescription item);
 }

@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.server.menu;
+package org.jbpm.formbuilder.shared.menu;
 
 import java.util.List;
 

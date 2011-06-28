@@ -5,26 +5,30 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 
-@XmlType (name ="menuGroups") public class ListMenuItemsDTO {
+@XmlRootElement (name ="menuGroups") public class ListMenuItemsDTO {
 
-    @XmlElement @XmlList private List<MenuGroupDTO> menuGroup = new ArrayList<MenuGroupDTO>();
+    private List<MenuGroupDTO> _menuGroup = new ArrayList<MenuGroupDTO>();
     
-    public ListMenuItemsDTO(Map<String, List<FBMenuItem>> items) {
+    public ListMenuItemsDTO() {
+        // jaxb needs a default constructor
+    }
+    
+    public ListMenuItemsDTO(Map<String, List<MenuItemDescription>> items) {
         for (String group : items.keySet()) {
-            menuGroup.add(new MenuGroupDTO(group, items.get(group)));
+            _menuGroup.add(new MenuGroupDTO(group, items.get(group)));
         }
     }
 
+    @XmlElement
     public List<MenuGroupDTO> getMenuGroup() {
-        return menuGroup;
+        return _menuGroup;
     }
 
     public void setMenuGroup(List<MenuGroupDTO> menuGroup) {
-        this.menuGroup = menuGroup;
+        this._menuGroup = menuGroup;
     }
 }

@@ -6,82 +6,89 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlType;
 
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-@XmlType(name="task")
 public class TaskRefDTO {
 
-    @XmlAttribute private String processId;
-    @XmlAttribute private String taskName;
-    @XmlAttribute private String taskId;
-    @XmlElement @XmlList private List<PropertyDTO> input = new ArrayList<PropertyDTO>();
-    @XmlElement @XmlList private List<PropertyDTO> output = new ArrayList<PropertyDTO>();
-    @XmlElement @XmlList private List<MetaDataDTO> metaData = new ArrayList<MetaDataDTO>();
+    private String _processId;
+    private String _taskName;
+    private String _taskId;
+    private List<PropertyDTO> _input = new ArrayList<PropertyDTO>();
+    private List<PropertyDTO> _output = new ArrayList<PropertyDTO>();
+    private List<MetaDataDTO> _metaData = new ArrayList<MetaDataDTO>();
+    
+    public TaskRefDTO() {
+        // jaxb needs a default constructor
+    }
     
     public TaskRefDTO(TaskRef task) {
-        this.processId = task.getProcessId();
-        this.taskName = task.getTaskName();
-        this.taskId = task.getTaskId();
+        this._processId = task.getProcessId();
+        this._taskName = task.getTaskName();
+        this._taskId = task.getTaskId();
         for (TaskPropertyRef ref : task.getInputs()) {
-            input.add(new PropertyDTO(ref));
+            _input.add(new PropertyDTO(ref));
         }
         for (TaskPropertyRef ref : task.getOutputs()) {
-            output.add(new PropertyDTO(ref));
+            _output.add(new PropertyDTO(ref));
         }
         for (Map.Entry<String, String> entry : task.getMetaData().entrySet()) {
-            metaData.add(new MetaDataDTO(entry));
+            _metaData.add(new MetaDataDTO(entry));
         }
     }
 
+    @XmlAttribute 
     public String getProcessId() {
-        return processId;
+        return _processId;
     }
 
     public void setProcessId(String processId) {
-        this.processId = processId;
+        this._processId = processId;
     }
-
+    
+    @XmlAttribute 
     public String getTaskName() {
-        return taskName;
+        return _taskName;
     }
 
     public void setTaskName(String taskName) {
-        this.taskName = taskName;
+        this._taskName = taskName;
     }
 
+    @XmlAttribute 
     public String getTaskId() {
-        return taskId;
+        return _taskId;
     }
 
     public void setTaskId(String taskId) {
-        this.taskId = taskId;
+        this._taskId = taskId;
     }
 
+    @XmlElement 
     public List<PropertyDTO> getInput() {
-        return input;
+        return _input;
     }
 
     public void setInput(List<PropertyDTO> input) {
-        this.input = input;
+        this._input = input;
     }
 
+    @XmlElement 
     public List<PropertyDTO> getOutput() {
-        return output;
+        return _output;
     }
 
     public void setOutput(List<PropertyDTO> output) {
-        this.output = output;
+        this._output = output;
     }
 
+    @XmlElement 
     public List<MetaDataDTO> getMetaData() {
-        return metaData;
+        return _metaData;
     }
 
     public void setMetaData(List<MetaDataDTO> metaData) {
-        this.metaData = metaData;
+        this._metaData = metaData;
     }
 }

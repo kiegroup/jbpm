@@ -1,28 +1,35 @@
 package org.jbpm.formbuilder.server.xml;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlList;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-@XmlType(name="tasks") public class ListTasksDTO {
+@XmlRootElement(name="tasks") public class ListTasksDTO {
 
-    @XmlElement @XmlList private List<TaskRefDTO> task;
+    private List<TaskRefDTO> _task = new ArrayList<TaskRefDTO>();
+    
+    public ListTasksDTO() {
+        // jaxb needs a default constructor
+    }
     
     public ListTasksDTO(List<TaskRef> tasks) {
-        for (TaskRef ref : tasks) {
-            task.add(new TaskRefDTO(ref));
+        if (tasks != null) {
+            for (TaskRef ref : tasks) {
+                _task.add(new TaskRefDTO(ref));
+            }
         }
     }
     
     public void setTask(List<TaskRefDTO> task) {
-        this.task = task;
+        this._task = task;
     }
     
+    @XmlElement
     public List<TaskRefDTO> getTask() {
-        return task;
+        return _task;
     }
 }
