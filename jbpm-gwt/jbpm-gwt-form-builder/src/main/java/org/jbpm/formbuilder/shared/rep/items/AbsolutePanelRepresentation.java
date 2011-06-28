@@ -48,4 +48,16 @@ public class AbsolutePanelRepresentation extends FormItemRepresentation {
     public Map<Position, FormItemRepresentation> getItems() {
         return items;
     }
+    
+    @Override
+    public Map<String, Object> getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void setData(Map<String, Object> data) {
+        // TODO Auto-generated method stub
+        
+    }
 }

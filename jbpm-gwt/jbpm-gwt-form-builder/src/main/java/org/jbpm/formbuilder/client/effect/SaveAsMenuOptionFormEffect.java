@@ -3,8 +3,8 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
-import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
@@ -46,12 +46,12 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
             public void onEvent(UndoableEvent event) {  }
             public void undoAction(UndoableEvent event) {
                 FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
-                MenuOptionRemoveEvent mevent = new MenuOptionRemoveEvent(menuItem, "Custom");
+                MenuItemRemoveEvent mevent = new MenuItemRemoveEvent(menuItem, "Custom");
                 FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
             public void doAction(UndoableEvent event) {
                 FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
-                MenuOptionAddedEvent mevent = new MenuOptionAddedEvent(menuItem, "Custom");
+                MenuItemAddedEvent mevent = new MenuItemAddedEvent(menuItem, "Custom");
                 FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
         }));

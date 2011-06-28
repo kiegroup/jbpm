@@ -13,4 +13,6 @@ public interface FBValidation {
     Map<String, String> getPropertiesMap();
     
     void setProperty(String name, String value);
+
+    String getJsonCode();
 }

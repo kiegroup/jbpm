@@ -20,54 +20,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
-import org.jbpm.formbuilder.client.bus.MenuOptionAddedEventHandler;
-import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
-import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEventHandler;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
-import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
-import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
-import org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand;
-import org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand;
-import org.jbpm.formbuilder.client.command.SaveFormCommand;
-import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
-import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
-import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.effect.RemoveEffect;
-import org.jbpm.formbuilder.client.effect.ResizeEffect;
-import org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect;
-import org.jbpm.formbuilder.client.effect.ValidationsEffect;
-import org.jbpm.formbuilder.client.effect.VarBindingEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem;
-import org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem;
-import org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem;
-import org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem;
-import org.jbpm.formbuilder.client.menu.items.ConditionalBlockMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
-import org.jbpm.formbuilder.client.menu.items.FileInputMenuItem;
-import org.jbpm.formbuilder.client.menu.items.HTMLMenuItem;
-import org.jbpm.formbuilder.client.menu.items.HeaderMenuItem;
-import org.jbpm.formbuilder.client.menu.items.HiddenMenuItem;
-import org.jbpm.formbuilder.client.menu.items.HorizontalLayoutMenuItem;
-import org.jbpm.formbuilder.client.menu.items.ImageMenuItem;
-import org.jbpm.formbuilder.client.menu.items.LabelMenuItem;
-import org.jbpm.formbuilder.client.menu.items.LoopBlockMenuItem;
-import org.jbpm.formbuilder.client.menu.items.PasswordFieldMenuItem;
-import org.jbpm.formbuilder.client.menu.items.RadioButtonMenuItem;
-import org.jbpm.formbuilder.client.menu.items.ServerTransformationMenuItem;
-import org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem;
-import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
-import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -93,13 +64,13 @@ public class FormBuilderModel implements FormBuilderService {
     
     public FormBuilderModel(String contextPath) {
         this.contextPath = contextPath;
-        bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedEventHandler() {
-            public void onEvent(MenuOptionAddedEvent event) {
+        bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedEventHandler() {
+            public void onEvent(MenuItemAddedEvent event) {
                 saveMenuItem(event.getGroupName(), event.getMenuItem());
             }
         });
-        bus.addHandler(MenuOptionRemoveEvent.TYPE, new MenuOptionRemoveEventHandler() {
-            public void onEvent(MenuOptionRemoveEvent event) {
+        bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveEventHandler() {
+            public void onEvent(MenuItemRemoveEvent event) {
                 deleteMenuItem(event.getGroupName(), event.getMenuItem());
             }
         });
@@ -111,83 +82,28 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public Map<String, List<FBMenuItem>> getMenuItems() {
-        /* TODO The whole idea is to get menu items definitions from a server
-         * so that anyone can configure it to return the JSON they desire
-         * and reconfigure it to have as many permissions to do things as
-         * they may want.
-        
         final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
                 menuItems.putAll(readMenuMap(xml));
+                for (String groupName : menuItems.keySet()) {
+                    for (FBMenuItem menuItem : menuItems.get(groupName)) {
+                        bus.fireEvent(new MenuItemAddedEvent(menuItem, groupName));
+                    }
+                }
             }
-
             public void onError(Request request, Throwable exception) {
-                
-                bus.fireEvent(new NotificationEvent(Level.ERROR, 
-                    "Couldn't find menu items", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find menu items", exception));
             }
         });
-        request.send();
-        */
-        Map<String, List<FBMenuItem>> map = new HashMap<String, List<FBMenuItem>>();
-        List<FBMenuItem> controls = new ArrayList<FBMenuItem>();
-        List<FBMenuItem> visuals = new ArrayList<FBMenuItem>();
-        List<FBMenuItem> layouts = new ArrayList<FBMenuItem>();
-        List<FBMenuItem> server = new ArrayList<FBMenuItem>();
-
-        List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
-        effects.add(new RemoveEffect());
-        effects.add(new DoneEffect());
-        effects.add(new ResizeEffect());
-        effects.add(new SaveAsMenuOptionFormEffect());
-        effects.add(new VarBindingEffect());
-        
-        List<FBFormEffect> effectsValidation = new ArrayList<FBFormEffect>(effects);
-        effectsValidation.add(new ValidationsEffect());
-        
-        List<FBFormEffect> effectsServer = new ArrayList<FBFormEffect>();
-        effectsServer.add(new VarBindingEffect());
-        
-        List<FBFormEffect> effectsOptions = new ArrayList<FBFormEffect>();
-        effectsOptions.add(new RemoveEffect());
-        effectsOptions.add(new DoneEffect());
-        effectsOptions.add(new ResizeEffect());
-        effectsOptions.add(new SaveAsMenuOptionFormEffect());
-        effectsOptions.add(new AddItemFormEffect());
-        effectsOptions.add(new DeleteItemFormEffect());
-        effectsOptions.add(new VarBindingEffect());
-        
-        visuals.add(new HeaderMenuItem(effects));
-        visuals.add(new LabelMenuItem(effects));
-        visuals.add(new ImageMenuItem(effects));
-        visuals.add(new HTMLMenuItem(effects));
-        map.put("Visual Components", visuals);
-        
-        controls.add(new ComboBoxMenuItem(effectsOptions));
-        controls.add(new TextFieldMenuItem(effects));
-        controls.add(new PasswordFieldMenuItem(effects));
-        controls.add(new CompleteButtonMenuItem(effects));
-        controls.add(new TextAreaMenuItem(effectsValidation));
-        controls.add(new HiddenMenuItem(effects));
-        controls.add(new FileInputMenuItem(effects));
-        controls.add(new CheckBoxMenuItem(effects));
-        controls.add(new RadioButtonMenuItem(effects));
-        map.put("Control Components", controls);
-        
-        layouts.add(new HorizontalLayoutMenuItem(effects));
-        layouts.add(new TableLayoutMenuItem(effects));
-        layouts.add(new AbsoluteLayoutMenuItem(effects));
-        map.put("Layout Components", layouts);
-        
-        server.add(new ConditionalBlockMenuItem(effectsServer));
-        server.add(new LoopBlockMenuItem(effectsServer));
-        server.add(new ServerTransformationMenuItem(effectsServer));
-        map.put("Server Components", server);
-        
-        return map;
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read menuItems", e));
+        }
+        return menuItems;
     }
 
     private Map<String, List<FBMenuItem>> readMenuMap(Document xml) {
@@ -246,13 +162,15 @@ public class FormBuilderModel implements FormBuilderService {
 
 
     public List<MainMenuOption> getMenuOptions() {
-        /* TODO
         final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuOptions");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
                 currentOptions.addAll(readMenuOptions(xml.getElementsByTagName("menuOption")));
+                for (MainMenuOption option : currentOptions) {
+                    bus.fireEvent(new MenuOptionAddedEvent(option));
+                }
             }
 
             public void onError(Request request, Throwable exception) {
@@ -260,53 +178,12 @@ public class FormBuilderModel implements FormBuilderService {
                     "Couldn't find menu options", exception));
             }
         });
-        request.send();*/
-        
-        List<MainMenuOption> retval = new ArrayList<MainMenuOption>();
-        MainMenuOption previewOption = new MainMenuOption();
-        previewOption.setHtml("Preview");
-        
-        List<MainMenuOption> previewMenu = new ArrayList<MainMenuOption>();
-
-        MainMenuOption previewFtl = new MainMenuOption();
-        previewFtl.setHtml("As FTL");
-        previewFtl.setCommand(new PreviewFormAsFtlCommand());
-        
-        MainMenuOption previewXsl = new MainMenuOption();
-        previewXsl.setHtml("As XSL");
-        previewXsl.setCommand(new PreviewFormAsXslCommand());
-        
-        previewMenu.add(previewFtl);
-        previewMenu.add(previewXsl);
-        
-        previewOption.setSubMenu(previewMenu);
-        
-        MainMenuOption editOption = new MainMenuOption();
-        editOption.setHtml("Edit");
-        
-        List<MainMenuOption> editMenu = new ArrayList<MainMenuOption>();
-        
-        MainMenuOption editUndo = new MainMenuOption();
-        editUndo.setHtml("Undo");
-        editUndo.setCommand(new EditFormUndoCommand());
-        
-        MainMenuOption editRedo = new MainMenuOption();
-        editRedo.setHtml("Redo");
-        editRedo.setCommand(new EditFormRedoCommand());
-
-        editMenu.add(editUndo);
-        editMenu.add(editRedo);
-        
-        editOption.setSubMenu(editMenu);
-        
-        MainMenuOption saveOption = new MainMenuOption();
-        saveOption.setHtml("Save");
-        saveOption.setCommand(new SaveFormCommand());
-        
-        retval.add(previewOption);
-        retval.add(editOption);
-        retval.add(saveOption);
-        return retval;
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read menuOptions", e));
+        }
+        return currentOptions;
     }
     
     private List<MainMenuOption> readMenuOptions(NodeList menuOptions) {
@@ -341,26 +218,28 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void saveForm(FormRepresentation form) {
-        /*RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
-                Document xml = XMLParser.parse(response.getText());
-                //TODO parse the form id and set it for future updating
+                if (response.getStatusCode() == Response.SC_CONFLICT) {
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "Form already updated in server. Try refreshing your form"));
+                } else if (response.getStatusCode() != Response.SC_CREATED) {
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveForm(...): " + response.getStatusCode()));
+                }
             }
-
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, 
-                    "Couldn't save form", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save form", exception));
             }
-        });        
+        });
         try {
-            request.setRequestData(form.translate("xml"));
+            String json = FormEncodingFactory.getEncoder().encode(form);
+            request.setRequestData(json);
             request.send();
-        } catch (LanguageException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't generate form", e));
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
-        }*/
+        } catch (FormEncodingException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form", e));
+        }
     }
     
     public String generateForm(FormRepresentation form, String language) {

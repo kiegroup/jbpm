@@ -50,14 +50,15 @@ public class GuvnorMenuService implements MenuService {
         write("/menuItems.json", items);
     }
 
-    protected <T> T read(String jsonFilePath, TypeToken<T> token) {
+    @SuppressWarnings("unchecked")
+    protected <T extends Object> T read(String jsonFilePath, TypeToken<T> token) {
         Gson gson = new Gson();
         URL url = getClass().getResource(jsonFilePath);
         T retval = null;
         try {
             File file = new File(url.toURI());
-            T value = gson.fromJson(new FileReader(file), token.getType());
-            retval = value;
+            Object value = gson.fromJson(new FileReader(file), token.getType());
+            retval = (T) value;
         } catch (URISyntaxException e) {
             //TODO throw error
         } catch (FileNotFoundException e) {
@@ -66,7 +67,7 @@ public class GuvnorMenuService implements MenuService {
         return retval;
     }
 
-    private <T> void write(String jsonFilePath, T items) {
+    private <T extends Object> void write(String jsonFilePath, T items) {
         Gson gson = new Gson();
         URL url = getClass().getResource(jsonFilePath);
         String json = gson.toJson(items, new TypeToken<T>() {}.getType());

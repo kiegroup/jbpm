@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.menu;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
-import org.jbpm.formbuilder.client.bus.MenuOptionAddedEventHandler;
-import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEvent;
-import org.jbpm.formbuilder.client.bus.MenuOptionRemoveEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
@@ -55,15 +55,15 @@ public class MenuPresenter {
             }
         }
         
-        this.bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedEventHandler() {
-            public void onEvent(MenuOptionAddedEvent event) {
+        this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedEventHandler() {
+            public void onEvent(MenuItemAddedEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
                 view.addItem(group, item);
             }
         });
-        this.bus.addHandler(MenuOptionRemoveEvent.TYPE, new MenuOptionRemoveEventHandler() {
-            public void onEvent(MenuOptionRemoveEvent event) {
+        this.bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveEventHandler() {
+            public void onEvent(MenuItemRemoveEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
                 view.removeItem(group, item);

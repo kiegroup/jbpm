@@ -37,4 +37,19 @@ public abstract class Data {
     public void setFormatter(Formatter formatter) {
         this.formatter = formatter;
     }
+    
+    public String getJsonCode() {
+        StringBuilder builder = new StringBuilder("{");
+        String mimeType = this.mimeType;
+        if (mimeType == null) mimeType = "";
+        builder.append("'mimeType': ").append("'" + mimeType + "', ");
+        String name = this.name;
+        if (name == null) name = "";
+        builder.append("'name': ").append("'" + name + "', ");
+        String value = this.value;
+        if (value == null) value = "";
+        builder.append("'value': ").append("'" + value + "', ");
+        builder.append("'formatter': ").append(formatter == null ? "null" : formatter.getJsonCode());
+        return builder.append("} ").toString();
+    }
 }

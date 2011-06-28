@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
@@ -54,12 +55,16 @@ import org.jbpm.formbuilder.server.xml.MetaDataDTO;
 import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
+import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class FormBuilderServlet extends HttpServlet {
 
@@ -180,8 +185,27 @@ public class FormBuilderServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        // TODO Auto-generated method stub
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            String uri = req.getRequestURI();
+            if (uri.contains("menuItems")) {
+                int status = saveForm(extractPackageName(uri, "menuItems"), req.getReader());
+                resp.setStatus(status);
+            }
+        } catch (Exception e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } 
+    }
+
+    private int saveForm(String pkgName, BufferedReader reader) {
+        try {
+            Gson gson = new Gson();
+            FormRepresentation form = gson.fromJson(reader, new TypeToken<FormRepresentation>(){}.getType());
+            formService.saveForm(pkgName, form.getDocumentation(), form);
+            return HttpServletResponse.SC_CREATED;
+        } catch (FormServiceException e) {
+            return HttpServletResponse.SC_CONFLICT;
+        }
     }
     
     @Override

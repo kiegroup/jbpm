@@ -33,4 +33,20 @@ public class NotEmptyValidation implements FBValidation {
         }
         return validation;
     }
+
+    public String getJsonCode() {
+        StringBuilder builder = new StringBuilder("{");
+        builder.append("'className': 'org.jbpm.formbuilder.shared.rep.validation.NotEmptyValidtion', ");
+        builder.append("'propertiesMap': ");
+        if (propertiesMap == null) {
+            builder.append("null");
+        } else {
+            builder.append("{");
+            for (Map.Entry<String, String> entry : propertiesMap.entrySet()) {
+                builder.append("'").append(entry.getKey()).append("': '").append(entry.getValue()).append("', ");
+            }
+            builder.append("}");
+        }
+        return builder.append("}").toString();
+    }
 }

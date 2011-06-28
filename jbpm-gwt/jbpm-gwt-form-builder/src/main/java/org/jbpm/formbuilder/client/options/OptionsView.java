@@ -28,24 +28,31 @@ public class OptionsView extends SimplePanel {
     public void addItems(List<MainMenuOption> options) {
         toMenuBar(this.bar, options);
     }
-    
+
+    public void addItem(MainMenuOption option) {
+        toMenuBar(this.bar, option);
+    }
+
     protected MenuBar toMenuBar(MenuBar popup, List<MainMenuOption> menu) {
         for (MainMenuOption option : menu) {
-            String html = option.getHtml();
-            BaseCommand cmd = option.getCommand();
-            List<MainMenuOption> subMenu = option.getSubMenu();
-            MenuItem item = null;
-            if (cmd == null && subMenu != null && !subMenu.isEmpty()) {
-                item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), toMenuBar(new MenuBar(true), subMenu));
-            } else if (cmd != null && (subMenu == null || subMenu.isEmpty())) {
-                item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
-                cmd.setItem(item);
-            }
-            if (item != null && !option.isEnabled()) {
-                item.setEnabled(false);
-            }
+            toMenuBar(popup, option);
         }
         return popup;
     }
     
+    protected void toMenuBar(MenuBar popup, MainMenuOption option) {
+        String html = option.getHtml();
+        BaseCommand cmd = option.getCommand();
+        List<MainMenuOption> subMenu = option.getSubMenu();
+        MenuItem item = null;
+        if (cmd == null && subMenu != null && !subMenu.isEmpty()) {
+            item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), toMenuBar(new MenuBar(true), subMenu));
+        } else if (cmd != null && (subMenu == null || subMenu.isEmpty())) {
+            item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
+            cmd.setItem(item);
+        }
+        if (item != null && !option.isEnabled()) {
+            item.setEnabled(false);
+        }
+    }
 }

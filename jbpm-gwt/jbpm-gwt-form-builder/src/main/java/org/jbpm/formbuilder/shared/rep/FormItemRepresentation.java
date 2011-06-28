@@ -1,7 +1,9 @@
 package org.jbpm.formbuilder.shared.rep;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public abstract class FormItemRepresentation {
     
@@ -61,4 +63,47 @@ public abstract class FormItemRepresentation {
     public String getTypeId() {
         return typeId;
     }
+    
+    public final String getJsonCode() {
+        Map<String, Object> data = getData();
+        StringBuilder builder = new StringBuilder();
+        if (data == null) {
+            builder.append("null");
+        } else {
+            builder.append("{");
+            builder.append(jsonFromMap(data));
+            builder.append("}");
+        }
+        return builder.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private String jsonFromMap(Map<String, Object> data) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            builder.append("'").append(entry.getKey()).append("': ");
+            Object obj = entry.getValue();
+            if (obj == null) {
+                builder.append("null");
+            } else if (obj instanceof Map) {
+                builder.append(jsonFromMap((Map<String, Object>) obj));
+            } else if (obj instanceof String) {
+                builder.append("'").append(obj).append("'");
+            } else if (obj instanceof Date) {
+                builder.append("'").append(formatDate((Date) obj)).append("'");
+            } else {
+                builder.append(obj);
+            }
+        }
+        return builder.toString();
+    }
+    
+    private String formatDate(Date date) {
+        return "null"; //TODO see how to manage dates later
+    }
+    
+    
+    public abstract Map<String, Object> getData();
+    
+    public abstract void setData(Map<String, Object> data);
 }

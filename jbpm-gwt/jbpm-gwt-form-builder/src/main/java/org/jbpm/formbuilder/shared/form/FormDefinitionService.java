@@ -8,7 +8,7 @@ public interface FormDefinitionService {
 
     String generateForm(String pkgName, String language, FormRepresentation form);
     
-    void saveForm(String pkgName, String comment, FormRepresentation form);
+    void saveForm(String pkgName, String comment, FormRepresentation form) throws FormServiceException;
     
     List<FormRepresentation> getForms(String pkgName);
 

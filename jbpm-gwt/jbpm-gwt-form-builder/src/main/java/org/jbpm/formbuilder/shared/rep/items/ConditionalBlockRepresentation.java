@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
+import java.util.Map;
+
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class ConditionalBlockRepresentation extends FormItemRepresentation {
@@ -34,5 +36,17 @@ public class ConditionalBlockRepresentation extends FormItemRepresentation {
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+    
+    @Override
+    public Map<String, Object> getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void setData(Map<String, Object> data) {
+        // TODO Auto-generated method stub
+        
     }
 }

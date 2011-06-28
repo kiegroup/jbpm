@@ -4,14 +4,14 @@ import org.jbpm.formbuilder.client.menu.FBMenuItem;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class MenuOptionRemoveEvent extends GwtEvent<MenuOptionRemoveEventHandler> {
+public class MenuItemRemoveEvent extends GwtEvent<MenuItemRemoveEventHandler> {
 
-    public static final Type<MenuOptionRemoveEventHandler> TYPE = new Type<MenuOptionRemoveEventHandler>();
+    public static final Type<MenuItemRemoveEventHandler> TYPE = new Type<MenuItemRemoveEventHandler>();
     
     private final FBMenuItem menuItem;
     private final String groupName;
     
-    public MenuOptionRemoveEvent(FBMenuItem menuItem, String groupName) {
+    public MenuItemRemoveEvent(FBMenuItem menuItem, String groupName) {
         this.menuItem = menuItem;
         this.groupName = groupName;
     }
@@ -25,12 +25,12 @@ public class MenuOptionRemoveEvent extends GwtEvent<MenuOptionRemoveEventHandler
     }
 
     @Override
-    public Type<MenuOptionRemoveEventHandler> getAssociatedType() {
+    public Type<MenuItemRemoveEventHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(MenuOptionRemoveEventHandler handler) {
+    protected void dispatch(MenuItemRemoveEventHandler handler) {
         handler.onEvent(this);
     }
 

@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
+import java.util.Map;
+
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class HeaderRepresentation extends FormItemRepresentation {
@@ -43,5 +45,17 @@ public class HeaderRepresentation extends FormItemRepresentation {
 
     public void setCssName(String cssName) {
         this.cssName = cssName;
+    }
+    
+    @Override
+    public Map<String, Object> getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void setData(Map<String, Object> data) {
+        // TODO Auto-generated method stub
+        
     }
 }

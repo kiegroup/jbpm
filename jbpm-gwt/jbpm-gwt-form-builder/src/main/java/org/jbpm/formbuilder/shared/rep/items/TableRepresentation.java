@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -71,5 +72,17 @@ public class TableRepresentation extends FormItemRepresentation {
 
     public Integer getColumns() {
         return columns;
+    }
+    
+    @Override
+    public Map<String, Object> getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void setData(Map<String, Object> data) {
+        // TODO Auto-generated method stub
+        
     }
 }

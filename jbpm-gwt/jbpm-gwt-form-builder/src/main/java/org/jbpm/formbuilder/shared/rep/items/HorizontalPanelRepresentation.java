@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -86,5 +87,17 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
     
     public void setItems(List<FormItemRepresentation> items) {
         this.items = items;
+    }
+    
+    @Override
+    public Map<String, Object> getData() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void setData(Map<String, Object> data) {
+        // TODO Auto-generated method stub
+        
     }
 }

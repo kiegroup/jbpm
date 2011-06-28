@@ -4,7 +4,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect"}
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem",
@@ -12,7 +12,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect"}
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem",
@@ -20,7 +20,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect"}
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         }
      ],
@@ -30,7 +30,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.AddItemFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DeleteItemFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
@@ -41,7 +41,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         },
@@ -50,7 +50,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         },
@@ -59,7 +59,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem",
@@ -67,7 +67,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         },
@@ -76,7 +76,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         },
@@ -85,7 +85,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         },
@@ -94,7 +94,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         },
@@ -103,7 +103,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.VarBindingEffect" }
             ]
         }
@@ -114,7 +114,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.LabelMenuItem",
@@ -122,7 +122,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.ImageMenuItem",
@@ -130,7 +130,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.HTMLMenuItem",
@@ -138,7 +138,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
         }
      ]

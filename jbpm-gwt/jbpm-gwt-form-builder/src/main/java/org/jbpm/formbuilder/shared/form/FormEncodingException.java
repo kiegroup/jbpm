@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.server.form;
+package org.jbpm.formbuilder.shared.form;
 
 public class FormEncodingException extends Exception {
 

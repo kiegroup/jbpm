@@ -57,4 +57,23 @@ public class FBScript {
     public void setInvokeFunction(String invokeFunction) {
         this.invokeFunction = invokeFunction;
     }
+
+    public String getJsonCode() {
+        StringBuilder builder = new StringBuilder("{");
+        builder.append("'documentation': ").append(jsonString(documentation)).append(", ");
+        builder.append("'id': ").append(jsonString(id)).append(", ");
+        builder.append("'type': ").append(jsonString(type)).append(", ");
+        builder.append("'src': ").append(jsonString(src)).append(", ");
+        builder.append("'content': ").append(jsonString(content)).append(", ");
+        builder.append("'invokeFunction': ").append(jsonString(invokeFunction)).append(", ");
+        return builder.append("}").toString();
+    }
+    
+    private String jsonString(String value) {
+        if (value == null) {
+            return "null";
+        } else {
+            return "'" + value + "'";
+        }
+    }
 }
