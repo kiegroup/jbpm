@@ -22,7 +22,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionEffect"}
             ]
-        },
+        }
      ],
      "Control Components": [
         {   "className": "org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem",
