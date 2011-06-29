@@ -15,7 +15,6 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 public class FormItemRepresentationTest extends TestCase {
 
     public void testGetData() throws Exception {
-        /* TODO comment until it works
         //get class names
         List<String> classNames = new ArrayList<String>();
         URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/rep/items/");
@@ -23,7 +22,7 @@ public class FormItemRepresentationTest extends TestCase {
         String[] classFiles = file.list();
         for (String classFile : classFiles) {
             if (!classFile.contains("$")) {
-                classNames.add("org.jbpm.formbuilder.shared.form.items." + classFile.replace(".class", ""));
+                classNames.add("org.jbpm.formbuilder.shared.rep.items." + classFile.replace(".class", ""));
             }
         }
         //get classes
@@ -68,7 +67,7 @@ public class FormItemRepresentationTest extends TestCase {
             }
             builder.append("\nCorrect these fields and try compiling again");
             fail(builder.toString());
-        } */
+        }
     }
     
 }
