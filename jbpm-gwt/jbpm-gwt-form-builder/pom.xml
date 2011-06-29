@@ -23,6 +23,7 @@
         <artifactId>gwt-maven-plugin</artifactId>
         <version>2.2.0</version>
         <configuration>
+          <htmlunit>Mozilla</htmlunit>
           <logLevel>INFO</logLevel>
           <style>DETAILED</style>
           <noServer>false</noServer>

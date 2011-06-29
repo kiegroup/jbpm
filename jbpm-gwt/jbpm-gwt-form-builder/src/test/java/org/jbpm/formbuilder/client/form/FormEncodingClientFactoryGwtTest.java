@@ -6,7 +6,7 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.google.gwt.junit.client.GWTTestCase;
 
-public class FormEncodingClientFactoryTest extends GWTTestCase {
+public class FormEncodingClientFactoryGwtTest extends GWTTestCase {
 
     private static final String JSON = "{"+
     "\"name\": \"myForm\","+
