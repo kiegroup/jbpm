@@ -48,8 +48,8 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-        Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+        Map<String, Object> data = super.getDataMap();
         data.put("formValue", this.formValue);
         data.put("checked", this.checked);
         data.put("name", this.name);
@@ -58,8 +58,8 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
-        super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+        super.setDataMap(data);
         this.formValue = (String) data.get("formValue");
         this.checked = (Boolean) data.get("checked");
         this.name = (String) data.get("name");

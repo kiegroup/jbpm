@@ -75,13 +75,13 @@ public class TableRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
+    public Map<String, Object> getDataMap() {
         // TODO Auto-generated method stub
         return null;
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) {
         // TODO Auto-generated method stub
         
     }

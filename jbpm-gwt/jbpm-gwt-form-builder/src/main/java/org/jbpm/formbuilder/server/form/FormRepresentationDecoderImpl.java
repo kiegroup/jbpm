@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -24,6 +25,11 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
     private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     protected FormRepresentationDecoderImpl() {
+    }
+    
+    public Object decode(Map<String, Object> data) throws FormEncodingException {
+        // TODO Auto-generated method stub
+        return null;
     }
     
     public FormRepresentation decode(String code) throws FormEncodingException {

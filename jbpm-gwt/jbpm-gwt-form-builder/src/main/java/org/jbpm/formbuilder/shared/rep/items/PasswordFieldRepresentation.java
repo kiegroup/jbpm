@@ -48,8 +48,8 @@ public class PasswordFieldRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-    	Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+    	Map<String, Object> data = super.getDataMap();
     	data.put("defaultValue", this.defaultValue);
     	data.put("name", this.name);
         data.put("id", this.id);
@@ -58,8 +58,8 @@ public class PasswordFieldRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
-    	super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+    	super.setDataMap(data);
     	this.defaultValue = (String) data.get("defaultValue");
     	this.name = (String) data.get("name");
     	this.id = (String) data.get("id");

@@ -1,6 +1,9 @@
 package org.jbpm.formbuilder.shared.rep;
 
-public class FBScript {
+import java.util.HashMap;
+import java.util.Map;
+
+public class FBScript implements Mappable {
 
     private String documentation;
     private String id;
@@ -58,22 +61,23 @@ public class FBScript {
         this.invokeFunction = invokeFunction;
     }
 
-    public String getJsonCode() {
-        StringBuilder builder = new StringBuilder("{");
-        builder.append("'documentation': ").append(jsonString(documentation)).append(", ");
-        builder.append("'id': ").append(jsonString(id)).append(", ");
-        builder.append("'type': ").append(jsonString(type)).append(", ");
-        builder.append("'src': ").append(jsonString(src)).append(", ");
-        builder.append("'content': ").append(jsonString(content)).append(", ");
-        builder.append("'invokeFunction': ").append(jsonString(invokeFunction)).append(", ");
-        return builder.append("}").toString();
+    public Map<String, Object> getDataMap() {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("documentation", this.documentation);
+        data.put("id", this.id);
+        data.put("type", this.type);
+        data.put("src", this.src);
+        data.put("content", this.content);
+        data.put("invokeFunction", this.invokeFunction);
+        return data;
     }
-    
-    private String jsonString(String value) {
-        if (value == null) {
-            return "null";
-        } else {
-            return "'" + value + "'";
-        }
+
+    public void setDataMap(Map<String, Object> dataMap) {
+        this.documentation = (String) dataMap.get("documentation");
+        this.id = (String) dataMap.get("id");
+        this.type = (String) dataMap.get("type");
+        this.src = (String) dataMap.get("src");
+        this.content = (String) dataMap.get("content");
+        this.invokeFunction = (String) dataMap.get("invokeFunction");
     }
 }

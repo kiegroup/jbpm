@@ -24,9 +24,11 @@ public abstract class FBValidationItem {
     }
     
     public <T extends FBValidation> T getRepresentation(T representation) {
+        Map<String, Object> dataMap = new HashMap<String, Object>();
         for (Map.Entry<String, HasValue<String>> entry : propertiesMap.entrySet()) {
-            representation.setProperty(entry.getKey(), entry.getValue().getValue());
+            dataMap.put(entry.getKey(), entry.getValue().getValue());
         }
+        representation.setDataMap(dataMap);
         return representation;
     }
     

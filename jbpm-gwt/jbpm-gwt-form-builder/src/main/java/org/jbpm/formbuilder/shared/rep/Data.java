@@ -3,6 +3,10 @@ package org.jbpm.formbuilder.shared.rep;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
+import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+
 public abstract class Data {
 	
     private String mimeType; 
@@ -72,9 +76,14 @@ public abstract class Data {
 
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> dataMap) {
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
     	this.mimeType = (String) dataMap.get("mimeType");
     	this.name = (String) dataMap.get("name");
     	this.value = (String) dataMap.get("value");
-    	this.formatter = (Formatter) JsonUtil.fromMap((Map<String, Object>) dataMap.get("formatter"));
+    	try {
+    	    this.formatter = (Formatter) decoder.decode((Map<String, Object>) dataMap.get("formatter"));
+    	} catch (FormEncodingException e) {
+    	    this.formatter = null; //TODO see how to handle this error
+    	}
     }
 }

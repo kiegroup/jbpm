@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.Mappable;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -45,6 +46,24 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         return form;
     }
     
+    public Object decode(Map<String, Object> data) throws FormEncodingException {
+        String className = (String) data.get("@className");
+        Object obj = null;
+        try {
+            Class<?> clazz = ReflectionHelper.loadClass(className);
+            obj = ReflectionHelper.newInstance(clazz);
+            if (obj instanceof Mappable) {
+                Mappable rep = (Mappable) obj;
+                rep.setDataMap(data);
+            } else {
+                throw new FormEncodingException("Type " + obj.getClass().getName() + " cannot be casted to Mappable");
+            }
+        } catch (Exception e) {
+            throw new FormEncodingException("Couldn't instantiate class " + className, e);
+        }
+        return obj;
+    }
+    
     public List<FormItemRepresentation> decodeItems(JSONValue json) throws FormEncodingException {
         List<FormItemRepresentation> retval = new ArrayList<FormItemRepresentation>();
         if (json.isArray() != null) {
@@ -53,22 +72,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
                 JSONValue elem = array.get(index);
                 JSONObject jsonObj = elem.isObject();
                 if (jsonObj != null) {
-                    String typeId = jsonObj.get("typeId").isString().stringValue();
-                    String className = __getItemClassName(typeId);
-                    Object obj;
-                    try {
-                        Class<?> clazz = ReflectionHelper.loadClass(className);
-                        obj = ReflectionHelper.newInstance(clazz);
-                        if (obj instanceof FormItemRepresentation) {
-                            FormItemRepresentation rep = (FormItemRepresentation) obj;
-                            Map<String, Object> data = toMap(jsonObj);
-                            rep.setData(data);
-                        } else {
-                            throw new FormEncodingException("Type " + obj.getClass().getName() + " cannot be casted to FormItemRepresentation");
-                        }
-                    } catch (Exception e) {
-                        throw new FormEncodingException("Couldn't instantiate class " + className, e);
-                    }
+                    retval.add((FormItemRepresentation) decode(toMap(jsonObj)));
                 }
             }
         }
@@ -102,9 +106,5 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
             retval = jsonValue.isString().stringValue();
         }
         return retval;
-    }
-
-    private String __getItemClassName(String typeId) {
-        return ""; //TODO implement 
     }
 }

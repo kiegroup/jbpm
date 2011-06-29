@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class FormItemRepresentation {
+public abstract class FormItemRepresentation implements Mappable {
     
     private List<FBValidation> itemValidations = new ArrayList<FBValidation>();
     private OutputData output;
@@ -64,20 +64,15 @@ public abstract class FormItemRepresentation {
         return typeId;
     }
     
-    public final String getJsonCode() {
-    	return JsonUtil.getJsonCode(getData());
-    }
-    
-    
-    public Map<String, Object> getData() {
+    public Map<String, Object> getDataMap() {
     	Map<String, Object> data = new HashMap<String, Object>();
     	
     	data.put("@className", getClass().getName());
     	
-        List<Map<String, String>> validationsMap = new ArrayList<Map<String, String>>();
+        List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
         if (this.itemValidations != null) {
 	        for (FBValidation valid : this.itemValidations) {
-	        	Map<String, String> map = valid.getPropertiesMap();
+	        	Map<String, Object> map = valid.getDataMap();
 	        	validationsMap.add(map);
 	        }
         }
@@ -91,11 +86,11 @@ public abstract class FormItemRepresentation {
     }
     
     @SuppressWarnings("unchecked")
-    public void setData(Map<String, Object> data) {
-        List<Map<String, String>> validationsMap = new ArrayList<Map<String, String>>();
+    public void setDataMap(Map<String, Object> data) {
+        List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
         if (this.itemValidations != null) {
 	        for (FBValidation valid : this.itemValidations) {
-	        	Map<String, String> map = valid.getPropertiesMap();
+	        	Map<String, Object> map = valid.getDataMap();
 	        	validationsMap.add(map);
 	        }
         }

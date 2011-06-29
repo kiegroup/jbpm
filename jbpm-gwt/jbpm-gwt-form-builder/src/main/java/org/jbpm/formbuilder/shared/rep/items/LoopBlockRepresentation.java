@@ -2,8 +2,9 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.JsonUtil;
 
 public class LoopBlockRepresentation extends FormItemRepresentation {
 
@@ -40,20 +41,24 @@ public class LoopBlockRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-        Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+        Map<String, Object> data = super.getDataMap();
         data.put("inputName", this.inputName);
         data.put("variableName", this.variableName);
-        data.put("loopBlock", this.loopBlock == null ? null : this.loopBlock.getData());
+        data.put("loopBlock", this.loopBlock == null ? null : this.loopBlock.getDataMap());
         return data;
     }
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setData(Map<String, Object> data) {
-        super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+        super.setDataMap(data);
         this.inputName = (String) data.get("inputName");
         this.variableName = (String) data.get("variableName");
-        this.loopBlock = (FormItemRepresentation) JsonUtil.fromMap((Map<String, Object>) data.get("loopBlock"));
+        try {
+            this.loopBlock = (FormItemRepresentation) FormEncodingFactory.getDecoder().decode((Map<String, Object>) data.get("loopBlock"));
+        } catch (FormEncodingException e) {
+            this.loopBlock = null; //TODO see how to handle this error
+        }
     }
 }

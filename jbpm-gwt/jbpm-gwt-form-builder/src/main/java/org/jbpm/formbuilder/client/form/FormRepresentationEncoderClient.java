@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +12,10 @@ import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
+import org.jbpm.formbuilder.shared.rep.Mappable;
 import org.jbpm.formbuilder.shared.rep.OutputData;
+
+import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 
 public class FormRepresentationEncoderClient implements FormRepresentationEncoder {
 
@@ -76,7 +80,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         if (formItems != null) {
             for (Iterator<FormItemRepresentation> iter = formItems.iterator(); iter.hasNext(); ) {
                 FormItemRepresentation item = iter.next();
-                builder.append(item.getJsonCode());
+                builder.append(toJson(item));
                 if (iter.hasNext()) {
                     builder.append(",");
                 }
@@ -93,7 +97,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         if (formValidations != null) {
             for (Iterator<FBValidation> iter = formValidations.iterator(); iter.hasNext(); ) {
                 FBValidation validation = iter.next();
-                builder.append(validation.getJsonCode());
+                builder.append(toJson(validation));
                 if (iter.hasNext()) {
                     builder.append(",");
                 }
@@ -110,7 +114,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         if (scripts != null) {
             for (Iterator<FBScript> iter = scripts.iterator(); iter.hasNext(); ) {
                 FBScript script = iter.next();
-                builder.append(script.getJsonCode());
+                builder.append(toJson(script));
                 if (iter.hasNext()) {
                     builder.append(",");
                 }
@@ -120,4 +124,61 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         }
         return builder.toString();
     }
+    
+    private String toJson(Mappable obj) {
+        StringBuilder builder = new StringBuilder();
+        if (obj == null) {
+            builder.append("null");
+        } else {
+            Map<String, Object> data = obj.getDataMap();
+            builder.append("{");
+            if (data != null) {
+                builder.append(jsonFromMap(data));
+            }
+            builder.append("}");
+        }
+        return builder.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static String jsonFromMap(Map<String, Object> data) {
+        StringBuilder builder = new StringBuilder();
+        if (data != null) {
+            for (Map.Entry<String, Object> entry : data.entrySet()) {
+                builder.append("'").append(entry.getKey()).append("': ");
+                Object obj = entry.getValue();
+                if (obj == null) {
+                    builder.append("null");
+                } else if (obj instanceof Map) {
+                    builder.append(jsonFromMap((Map<String, Object>) obj));
+                } else if (obj instanceof String) {
+                    builder.append("'").append(obj).append("'");
+                } else if (obj instanceof Date) {
+                    builder.append("'").append(formatDate((Date) obj)).append("'");
+                } else {
+                    builder.append(obj);
+                }
+            }
+        }
+        return builder.toString();
+    }
+    
+    public static Object fromMap(Map<String, Object> map) {
+        Object objClassName = map.get("className");
+        if (objClassName == null) {
+            return null;
+        }
+        String className = (String) objClassName;
+        try {
+            Class<?> klass = ReflectionHelper.loadClass(className);
+            return ReflectionHelper.newInstance(klass);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    private static String formatDate(Date date) {
+        return "null"; //TODO see how to manage dates later
+    }
+
 }

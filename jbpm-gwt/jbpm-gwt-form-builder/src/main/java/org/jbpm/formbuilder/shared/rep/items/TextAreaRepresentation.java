@@ -57,8 +57,8 @@ public class TextAreaRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-        Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+        Map<String, Object> data = super.getDataMap();
         data.put("name", this.name);
         data.put("rows", this.rows);
         data.put("cols", this.cols);
@@ -68,8 +68,8 @@ public class TextAreaRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
-    	super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+    	super.setDataMap(data);
     	this.name = (String) data.get("name");
     	this.rows = (data.get("rows") == null ? 0 : ((Number) data.get("rows")).intValue());
     	this.cols = (data.get("cols") == null ? 0 : ((Number) data.get("cols")).intValue());

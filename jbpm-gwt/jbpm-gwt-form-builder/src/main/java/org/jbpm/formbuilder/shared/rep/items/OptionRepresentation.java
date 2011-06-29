@@ -30,16 +30,16 @@ public class OptionRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-        Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+        Map<String, Object> data = super.getDataMap();
         data.put("label", this.label);
         data.put("value", this.value);
         return data;
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
-    	super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+    	super.setDataMap(data);
     	this.label = (String) data.get("label");
     	this.value = (String) data.get("value");
     }

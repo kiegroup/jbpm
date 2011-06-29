@@ -39,8 +39,8 @@ public class LabelRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-    	Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+    	Map<String, Object> data = super.getDataMap();
     	data.put("value", this.value);
     	data.put("id", this.id);
     	data.put("cssName", this.cssName);
@@ -48,8 +48,8 @@ public class LabelRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
-        super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+        super.setDataMap(data);
         this.value = (String) data.get("value");
         this.id = (String) data.get("id");
         this.cssName = (String) data.get("cssName");

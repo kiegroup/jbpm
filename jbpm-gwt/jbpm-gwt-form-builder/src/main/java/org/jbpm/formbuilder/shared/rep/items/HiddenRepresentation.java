@@ -39,8 +39,8 @@ public class HiddenRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public Map<String, Object> getData() {
-    	Map<String, Object> data = super.getData();
+    public Map<String, Object> getDataMap() {
+    	Map<String, Object> data = super.getDataMap();
     	data.put("id", this.id);
         data.put("name", this.name);
         data.put("value", this.value);
@@ -48,8 +48,8 @@ public class HiddenRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setData(Map<String, Object> data) {
-    	super.setData(data);
+    public void setDataMap(Map<String, Object> data) {
+    	super.setDataMap(data);
         this.id = (String) data.get("id");
         this.name = (String) data.get("name");
         this.value = (String) data.get("value");

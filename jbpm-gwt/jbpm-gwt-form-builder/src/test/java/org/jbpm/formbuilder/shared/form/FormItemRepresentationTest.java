@@ -15,14 +15,16 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 public class FormItemRepresentationTest extends TestCase {
 
     public void testGetData() throws Exception {
-        /* TODO uncomment and run until it works!
+        /* TODO comment until it works
         //get class names
         List<String> classNames = new ArrayList<String>();
         URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/rep/items/");
         File file = new File(dir.getFile());
         String[] classFiles = file.list();
         for (String classFile : classFiles) {
-            classNames.add("org.jbpm.formbuilder.shared.form.items." + classFile.replace(".class", ""));
+            if (!classFile.contains("$")) {
+                classNames.add("org.jbpm.formbuilder.shared.form.items." + classFile.replace(".class", ""));
+            }
         }
         //get classes
         List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -46,7 +48,7 @@ public class FormItemRepresentationTest extends TestCase {
             Field[] fields = clazz.getFields();
             List<String> uncoveredFields = new ArrayList<String>();
             FormItemRepresentation item = instances.get(clazz);
-            Map<String, Object> data = item.getData();
+            Map<String, Object> data = item.getDataMap();
             for (Field field : fields) {
                 String fieldName = field.getName();
                 if (!data.containsKey(fieldName)) {
@@ -66,7 +68,7 @@ public class FormItemRepresentationTest extends TestCase {
             }
             builder.append("\nCorrect these fields and try compiling again");
             fail(builder.toString());
-        }*/
+        } */
     }
     
 }
