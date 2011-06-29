@@ -1,6 +1,5 @@
 package org.jbpm.formbuilder.shared.rep.items;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -50,7 +49,7 @@ public class TextFieldRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        Map<String, Object> data = new HashMap<String, Object>();//TODO super.getData();
+        Map<String, Object> data = super.getData();
         data.put("defaultValue", this.defaultValue);
         data.put("name", this.name);
         data.put("id", this.id);
@@ -60,6 +59,13 @@ public class TextFieldRepresentation extends FormItemRepresentation {
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
+    	super.setData(data);
+    	this.defaultValue = (String) data.get("defaultValue");
+    	this.name = (String) data.get("name");
+    	this.id = (String) data.get("id");
+    	Object obj = data.get("maxLength");
+    	if (obj != null) {
+    		this.maxLength = ((Number) obj).intValue();
+    	}
     }
 }

@@ -58,13 +58,22 @@ public class TextAreaRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> data = super.getData();
+        data.put("name", this.name);
+        data.put("rows", this.rows);
+        data.put("cols", this.cols);
+        data.put("value", this.value);
+        data.put("id", this.id);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+    	super.setData(data);
+    	this.name = (String) data.get("name");
+    	this.rows = (data.get("rows") == null ? 0 : ((Number) data.get("rows")).intValue());
+    	this.cols = (data.get("cols") == null ? 0 : ((Number) data.get("cols")).intValue());
+    	this.value = (String) data.get("value");
+    	this.id = (String) data.get("id");
     }
 }

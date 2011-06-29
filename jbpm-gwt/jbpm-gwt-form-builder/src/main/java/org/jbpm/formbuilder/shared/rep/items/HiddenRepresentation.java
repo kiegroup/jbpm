@@ -40,13 +40,19 @@ public class HiddenRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+    	Map<String, Object> data = super.getData();
+    	data.put("id", this.id);
+        data.put("name", this.name);
+        data.put("value", this.value);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
+    	super.setData(data);
+        this.id = (String) data.get("id");
+        this.name = (String) data.get("name");
+        this.value = (String) data.get("value");
         
     }
 }

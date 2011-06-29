@@ -40,13 +40,18 @@ public class FileInputRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+    	Map<String, Object> data = super.getData();
+    	data.put("name", this.name);
+    	data.put("id", this.id);
+    	data.put("accept", this.accept);
+    	return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+    	super.setData(data);
+    	this.name = (String) data.get("name");
+    	this.id = (String) data.get("id");
+    	this.accept = (String) data.get("accept");
     }
 }

@@ -49,13 +49,20 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> data = super.getData();
+        data.put("formValue", this.formValue);
+        data.put("checked", this.checked);
+        data.put("name", this.name);
+        data.put("id", this.id);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+        super.setData(data);
+        this.formValue = (String) data.get("formValue");
+        this.checked = (Boolean) data.get("checked");
+        this.name = (String) data.get("name");
+        this.id = (String) data.get("id");
     }
 }

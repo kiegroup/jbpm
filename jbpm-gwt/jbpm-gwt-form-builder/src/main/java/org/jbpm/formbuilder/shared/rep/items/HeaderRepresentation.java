@@ -49,13 +49,20 @@ public class HeaderRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> data = super.getData();
+        data.put("value", this.value);
+        data.put("styleClass", this.styleClass);
+        data.put("cssId", this.cssId);
+        data.put("cssName", this.cssName);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+        super.setData(data);
+        this.value = (String) data.get("value");
+        this.styleClass = (String) data.get("styleClass");
+        this.cssId = (String) data.get("cssId");
+        this.cssName = (String) data.get("cssName");
     }
 }

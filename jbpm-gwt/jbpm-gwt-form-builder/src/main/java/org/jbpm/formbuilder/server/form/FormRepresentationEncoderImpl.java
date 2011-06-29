@@ -45,7 +45,7 @@ public class FormRepresentationEncoderImpl implements FormRepresentationEncoder 
         StringBuilder builder = new StringBuilder();
         if (scripts != null) {
             for (FBScript script : scripts) {
-                //TODO implement
+            	
             }
         }
         return builder.toString();

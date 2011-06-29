@@ -22,13 +22,14 @@ public class HTMLRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> data = super.getData();
+        data.put("content", this.content);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+        super.setData(data);
+    	this.content = (String) data.get("content");
     }
 }

@@ -40,13 +40,19 @@ public class ImageRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+    	Map<String, Object> data = super.getData();
+    	data.put("altText", this.altText);
+        data.put("url", this.url);
+        data.put("id", this.id);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
+        super.setData(data);
+        this.altText = (String) data.get("altText");
+        this.url = (String) data.get("url");
+        this.id = (String) data.get("id");
         
     }
 }

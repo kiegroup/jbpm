@@ -18,7 +18,7 @@ public class FormItemRepresentationTest extends TestCase {
         /* TODO uncomment and run until it works!
         //get class names
         List<String> classNames = new ArrayList<String>();
-        URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/form/items/");
+        URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/rep/items/");
         File file = new File(dir.getFile());
         String[] classFiles = file.list();
         for (String classFile : classFiles) {

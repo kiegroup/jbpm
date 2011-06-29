@@ -2,7 +2,6 @@ package org.jbpm.formbuilder.client.effect;
 
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 

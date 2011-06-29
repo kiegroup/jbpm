@@ -31,13 +31,16 @@ public class OptionRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> data = super.getData();
+        data.put("label", this.label);
+        data.put("value", this.value);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+    	super.setData(data);
+    	this.label = (String) data.get("label");
+    	this.value = (String) data.get("value");
     }
 }

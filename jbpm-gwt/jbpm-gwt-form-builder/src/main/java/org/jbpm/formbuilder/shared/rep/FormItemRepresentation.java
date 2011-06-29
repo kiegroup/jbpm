@@ -1,7 +1,7 @@
 package org.jbpm.formbuilder.shared.rep;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,45 +65,44 @@ public abstract class FormItemRepresentation {
     }
     
     public final String getJsonCode() {
-        Map<String, Object> data = getData();
-        StringBuilder builder = new StringBuilder();
-        if (data == null) {
-            builder.append("null");
-        } else {
-            builder.append("{");
-            builder.append(jsonFromMap(data));
-            builder.append("}");
-        }
-        return builder.toString();
+    	return JsonUtil.getJsonCode(getData());
     }
-
+    
+    
+    public Map<String, Object> getData() {
+    	Map<String, Object> data = new HashMap<String, Object>();
+    	
+    	data.put("@className", getClass().getName());
+    	
+        List<Map<String, String>> validationsMap = new ArrayList<Map<String, String>>();
+        if (this.itemValidations != null) {
+	        for (FBValidation valid : this.itemValidations) {
+	        	Map<String, String> map = valid.getPropertiesMap();
+	        	validationsMap.add(map);
+	        }
+        }
+        data.put("itemValidations", validationsMap);
+        data.put("output", this.output.getDataMap());
+        data.put("input", this.input.getDataMap());
+        data.put("width", this.width);
+        data.put("height", this.height);
+        data.put("typeId", this.typeId);
+    	return data;
+    }
+    
     @SuppressWarnings("unchecked")
-    private String jsonFromMap(Map<String, Object> data) {
-        StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, Object> entry : data.entrySet()) {
-            builder.append("'").append(entry.getKey()).append("': ");
-            Object obj = entry.getValue();
-            if (obj == null) {
-                builder.append("null");
-            } else if (obj instanceof Map) {
-                builder.append(jsonFromMap((Map<String, Object>) obj));
-            } else if (obj instanceof String) {
-                builder.append("'").append(obj).append("'");
-            } else if (obj instanceof Date) {
-                builder.append("'").append(formatDate((Date) obj)).append("'");
-            } else {
-                builder.append(obj);
-            }
+    public void setData(Map<String, Object> data) {
+        List<Map<String, String>> validationsMap = new ArrayList<Map<String, String>>();
+        if (this.itemValidations != null) {
+	        for (FBValidation valid : this.itemValidations) {
+	        	Map<String, String> map = valid.getPropertiesMap();
+	        	validationsMap.add(map);
+	        }
         }
-        return builder.toString();
+        data.put("itemValidations", validationsMap);
+        this.output.setDataMap((Map<String, Object>) data.get("output"));
+        this.input.setDataMap((Map<String, Object>) data.get("input"));
+        this.width = (String) data.get("width");
+        this.height = (String) data.get("height");
     }
-    
-    private String formatDate(Date date) {
-        return "null"; //TODO see how to manage dates later
-    }
-    
-    
-    public abstract Map<String, Object> getData();
-    
-    public abstract void setData(Map<String, Object> data);
 }

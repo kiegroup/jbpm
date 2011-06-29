@@ -31,13 +31,16 @@ public class ServerTransformationRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> data = super.getData();
+        data.put("script", this.script);
+        data.put("language", this.language);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+        super.setData(data);
+        this.script = (String) data.get("script");
+        this.language = (String) data.get("language");
     }
 }

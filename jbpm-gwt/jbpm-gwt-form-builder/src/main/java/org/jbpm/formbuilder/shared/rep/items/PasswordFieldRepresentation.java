@@ -49,13 +49,23 @@ public class PasswordFieldRepresentation extends FormItemRepresentation {
     
     @Override
     public Map<String, Object> getData() {
-        // TODO Auto-generated method stub
-        return null;
+    	Map<String, Object> data = super.getData();
+    	data.put("defaultValue", this.defaultValue);
+    	data.put("name", this.name);
+        data.put("id", this.id);
+        data.put("maxLength", this.maxLength);
+        return data;
     }
     
     @Override
     public void setData(Map<String, Object> data) {
-        // TODO Auto-generated method stub
-        
+    	super.setData(data);
+    	this.defaultValue = (String) data.get("defaultValue");
+    	this.name = (String) data.get("name");
+    	this.id = (String) data.get("id");
+    	Object obj = data.get("maxLength");
+    	if (obj != null) {
+    		this.maxLength = ((Number) obj).intValue();
+    	}
     }
 }
