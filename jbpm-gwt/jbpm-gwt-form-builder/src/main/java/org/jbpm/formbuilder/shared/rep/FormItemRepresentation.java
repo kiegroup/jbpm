@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 
 public abstract class FormItemRepresentation implements Mappable {
@@ -91,7 +91,7 @@ public abstract class FormItemRepresentation implements Mappable {
     
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> data) {
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
         if (this.itemValidations != null) {
 	        for (FBValidation valid : this.itemValidations) {

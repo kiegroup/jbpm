@@ -19,8 +19,8 @@ public class FormRepresentation implements Serializable {
     private List<FormItemRepresentation> formItems = new ArrayList<FormItemRepresentation>();
     private Map<String, OutputData> outputs = new HashMap<String, OutputData>();
     private Map<String, InputData> inputs = new HashMap<String, InputData>();
-    private List<FBScript> onLoadScripts;
-    private List<FBScript> onSubmitScripts;
+    private List<FBScript> onLoadScripts = new ArrayList<FBScript>();
+    private List<FBScript> onSubmitScripts = new ArrayList<FBScript>();
     
     private long lastModified = System.currentTimeMillis();
     private String documentation;

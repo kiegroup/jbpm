@@ -2,8 +2,8 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -71,7 +71,7 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
         this.text = (String) data.get("text");
         this.name = (String) data.get("name");
         this.id = (String) data.get("id");
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         try {
             this.onClickScript = (FBScript) decoder.decode((Map<String, Object>) data.get("onClickScript"));
         } catch (FormEncodingException e) {

@@ -7,9 +7,6 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
-import org.jbpm.formbuilder.shared.rep.FBScript;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.Mappable;
@@ -29,7 +26,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         builder.append("  \"enctype\": \"").append(form.getEnctype()).append("\",\n");
         builder.append("  \"lastModified\": \"").append(form.getLastModified()).append("\",\n");
         builder.append("  \"method\": \"").append(form.getMethod()).append("\",\n");
-        builder.append("  \"formItems\": ").append(encodeItems(form.getFormItems())).append(",\n");
+        builder.append("  \"formItems\": ").append(encodeList(form.getFormItems())).append(",\n");
         builder.append("  \"formValidations\": ").append(encodeList(form.getFormValidations())).append(",\n");
         builder.append("  \"inputs\": ").append(encodeInputs(form.getInputs())).append(",\n");
         builder.append("  \"outputs\": ").append(encodeOutputs(form.getOutputs())).append(",\n");
@@ -41,19 +38,20 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
     
     public String encodeList(List<? extends Mappable> list) {
         StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        if (list != null) {
+        if (list == null) {
+            builder.append("null");
+        } else {
+            builder.append("[");
             Iterator<? extends Mappable> iter = list.iterator();
             while(iter.hasNext()) {
                 Mappable mappable = iter.next();
-                Map<String, Object> map = mappable == null ? null : mappable.getDataMap();
-                builder.append(jsonFromMap(map));
+                builder.append(toJson(mappable));
                 if (iter.hasNext()) {
                     builder.append(", \n");
                 }
             }
+            builder.append("]");
         }
-        builder.append("]");
         return builder.toString();
     }
 
@@ -66,7 +64,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
             Iterator<Map.Entry<String, InputData>> iter = inputs.entrySet().iterator();
             while(iter.hasNext()) {
                 Map.Entry<String, InputData> input = iter.next();
-                builder.append("'").append(input.getKey()).append("': ");
+                builder.append("\"").append(input.getKey()).append("\": ");
                 builder.append(asJsonValue(input.getValue()));
                 if (iter.hasNext()) {
                     builder.append(", \n");
@@ -86,65 +84,13 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
             Iterator<Map.Entry<String, OutputData>> iter = outputs.entrySet().iterator();
             while(iter.hasNext()) {
                 Map.Entry<String, OutputData> output = iter.next();
-                builder.append("'").append(output.getKey()).append("': ");
+                builder.append("\"").append(output.getKey()).append("\": ");
                 builder.append(asJsonValue(output.getValue()));
                 if (iter.hasNext()) {
                     builder.append(", \n");
                 }
             }
             builder.append("}");
-        }
-        return builder.toString();
-    }
-    
-
-    public String encodeItems(List<FormItemRepresentation> formItems) throws FormEncodingException {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        if (formItems != null) {
-            for (Iterator<FormItemRepresentation> iter = formItems.iterator(); iter.hasNext(); ) {
-                FormItemRepresentation item = iter.next();
-                builder.append(toJson(item));
-                if (iter.hasNext()) {
-                    builder.append(",");
-                }
-                builder.append("\n");
-            }
-            builder.append("]\n");
-        }
-        return builder.toString();
-    }
-    
-    public String encodeValidations(List<FBValidation> formValidations) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        if (formValidations != null) {
-            for (Iterator<FBValidation> iter = formValidations.iterator(); iter.hasNext(); ) {
-                FBValidation validation = iter.next();
-                builder.append(toJson(validation));
-                if (iter.hasNext()) {
-                    builder.append(",");
-                }
-                builder.append("\n");
-            }
-            builder.append("]\n");
-        }
-        return builder.toString();
-    }
-    
-    public String encodeScripts(List<FBScript> scripts) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("[");
-        if (scripts != null) {
-            for (Iterator<FBScript> iter = scripts.iterator(); iter.hasNext(); ) {
-                FBScript script = iter.next();
-                builder.append(toJson(script));
-                if (iter.hasNext()) {
-                    builder.append(",");
-                }
-                builder.append("\n");
-            }
-            builder.append("]\n");
         }
         return builder.toString();
     }
@@ -171,7 +117,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
             Iterator<Map.Entry<String, Object>> iter = data.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry<String, Object> entry = iter.next();
-                builder.append("'").append(entry.getKey()).append("': ").append(asJsonValue(entry.getValue()));
+                builder.append("\"").append(entry.getKey()).append("\": ").append(asJsonValue(entry.getValue()));
                 if (iter.hasNext()) {
                     builder.append(",");
                 }
@@ -202,9 +148,9 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
     private String jsonFromValue(Object obj) {
         StringBuilder builder = new StringBuilder();
         if (obj instanceof String) {
-            builder.append("'").append(obj).append("'");
+            builder.append("\"").append(obj).append("\"");
         } else if (obj instanceof Date) {
-            builder.append("'").append(formatDate((Date) obj)).append("'");
+            builder.append("\"").append(formatDate((Date) obj)).append("\"");
         } else {
             builder.append(obj);
         }
@@ -228,8 +174,8 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         return builder.toString();
     }
     
-    public static Object fromMap(Map<String, Object> map) {
-        Object objClassName = map.get("className");
+    public Object fromMap(Map<String, Object> map) {
+        Object objClassName = map.get("@className");
         if (objClassName == null) {
             return null;
         }
@@ -242,8 +188,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         }
     }
     
-    private static String formatDate(Date date) {
+    private String formatDate(Date date) {
         return "null"; //TODO see how to manage dates later
     }
-
 }

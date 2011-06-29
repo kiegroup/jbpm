@@ -1,4 +1,4 @@
-package org.jbpm.formbuilder.shared.form;
+package org.jbpm.formbuilder.server.form;
 
 import java.io.File;
 import java.lang.reflect.Field;

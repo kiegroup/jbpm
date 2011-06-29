@@ -31,6 +31,7 @@ import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
@@ -38,7 +39,6 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -232,7 +232,7 @@ public class FormBuilderModel implements FormBuilderService {
             }
         });
         try {
-            String json = FormEncodingFactory.getEncoder().encode(form);
+            String json = FormEncodingClientFactory.getEncoder().encode(form);
             request.setRequestData(json);
             request.send();
         } catch (RequestException e) {

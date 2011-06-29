@@ -3,8 +3,8 @@ package org.jbpm.formbuilder.shared.rep;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 
 public abstract class Data implements Mappable {
@@ -58,7 +58,7 @@ public abstract class Data implements Mappable {
 
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> dataMap) {
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
     	this.mimeType = (String) dataMap.get("mimeType");
     	this.name = (String) dataMap.get("name");
     	this.value = (String) dataMap.get("value");

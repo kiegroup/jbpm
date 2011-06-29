@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -124,7 +124,7 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
         this.title = (String) data.get("title");
         this.id = (String) data.get("id");
         this.items.clear();
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         List<Map<String, Object>> mapItems = (List<Map<String, Object>>) data.get("items");
         if (mapItems != null) {
             for (Map<String, Object> mapItem : mapItems) {

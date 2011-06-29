@@ -2,8 +2,8 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -55,7 +55,7 @@ public class ConditionalBlockRepresentation extends FormItemRepresentation {
     public void setDataMap(Map<String, Object> data) {
         super.setDataMap(data);
         this.condition = (String) data.get("condition");
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         try {
             this.ifBlock = (FormItemRepresentation) decoder.decode((Map<String, Object>) data.get("ifBlock"));
         } catch (FormEncodingException e) {

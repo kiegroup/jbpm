@@ -2,8 +2,8 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class LoopBlockRepresentation extends FormItemRepresentation {
@@ -56,7 +56,7 @@ public class LoopBlockRepresentation extends FormItemRepresentation {
         this.inputName = (String) data.get("inputName");
         this.variableName = (String) data.get("variableName");
         try {
-            this.loopBlock = (FormItemRepresentation) FormEncodingFactory.getDecoder().decode((Map<String, Object>) data.get("loopBlock"));
+            this.loopBlock = (FormItemRepresentation) FormEncodingClientFactory.getDecoder().decode((Map<String, Object>) data.get("loopBlock"));
         } catch (FormEncodingException e) {
             this.loopBlock = null; //TODO see how to handle this error
         }

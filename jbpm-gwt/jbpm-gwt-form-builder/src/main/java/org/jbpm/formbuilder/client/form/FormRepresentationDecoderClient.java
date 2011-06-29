@@ -7,9 +7,13 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.rep.FBScript;
+import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.Mappable;
+import org.jbpm.formbuilder.shared.rep.OutputData;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -19,47 +23,20 @@ import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 
 public class FormRepresentationDecoderClient implements FormRepresentationDecoder {
 
-    
-    public FormRepresentationDecoderClient() {
-    }
-    
-    public FormRepresentation decode(String code) throws FormEncodingException {
-        FormRepresentation form = new FormRepresentation();
-        
-        JSONValue json = JSONParser.parseLenient(code);
-        if (json.isObject() != null) {
-            JSONObject jsonObj = json.isObject();
-            form.setAction(jsonObj.get("action").isString().stringValue());
-            form.setDocumentation(jsonObj.get("documentation").isString().stringValue());
-            form.setEnctype(jsonObj.get("enctype").isString().stringValue());
-            form.setLastModified(Double.valueOf(jsonObj.get("lastModified").isNumber().doubleValue()).longValue());
-            form.setMethod(jsonObj.get("method").isString().stringValue());
-            form.setName(jsonObj.get("name").isString().stringValue());
-            form.setTaskId(jsonObj.get("taskId").isString().stringValue());
-            form.setFormItems(decodeItems(jsonObj.get("formItems")));
-            
-            /* TODO implement
-            form.setFormValidations(formValidations);
-            form.setInputs(inputs);
-            form.setOnLoadScripts(onLoadScripts);
-            form.setOnSubmitScripts(onSubmitScripts);
-            form.setOutputs(outputs); */
-        }
-        //TODO implement
-        return form;
-    }
-    
     public Object decode(Map<String, Object> data) throws FormEncodingException {
+        if (data == null) {
+            return null;
+        }
         String className = (String) data.get("@className");
         Object obj = null;
         try {
             Class<?> clazz = ReflectionHelper.loadClass(className);
             obj = ReflectionHelper.newInstance(clazz);
             if (obj instanceof Mappable) {
-                Mappable rep = (Mappable) obj;
-                rep.setDataMap(data);
+                Mappable item = (Mappable) obj;
+                item.setDataMap(data);
             } else {
-                throw new FormEncodingException("Type " + obj.getClass().getName() + " cannot be casted to Mappable");
+                throw new FormEncodingException("Type " + obj.getClass().getName() + " cannot be casted to FormItemRepresentation");
             }
         } catch (Exception e) {
             throw new FormEncodingException("Couldn't instantiate class " + className, e);
@@ -67,6 +44,147 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         return obj;
     }
     
+    public FormRepresentation decode(String code) throws FormEncodingException {
+        FormRepresentation form = new FormRepresentation();
+        JSONValue json = JSONParser.parseLenient(code);
+        if (json.isObject() != null) {
+            JSONObject jsonObj = json.isObject();
+            if (jsonObj.get("action").isString() != null) {
+                form.setAction(jsonObj.get("action").isString().stringValue());
+            }
+            if (jsonObj.get("documentation").isString() != null) {
+                form.setDocumentation(jsonObj.get("documentation").isString().stringValue());
+            }
+            if (jsonObj.get("enctype").isString() != null) {
+                form.setEnctype(jsonObj.get("enctype").isString().stringValue());
+            }
+            if (jsonObj.get("lastModified").isNumber() != null) {
+                form.setLastModified(Double.valueOf(jsonObj.get("lastModified").isNumber().doubleValue()).longValue());
+            } else if (jsonObj.get("lastModified").isString() != null) {
+                form.setLastModified(Double.valueOf(jsonObj.get("lastModified").isString().stringValue()).longValue());
+            }
+            if (jsonObj.get("method").isString() != null) {
+                form.setMethod(jsonObj.get("method").isString().stringValue());
+            }
+            if (jsonObj.get("name").isString() != null) {
+                form.setName(jsonObj.get("name").isString().stringValue());
+            }
+            if (jsonObj.get("taskId").isString() != null) {
+                form.setTaskId(jsonObj.get("taskId").isString().stringValue());
+            }
+            form.setFormItems(decodeItems(jsonObj.get("formItems")));
+            form.setFormValidations(decodeValidations(jsonObj.get("formValidations")));
+            form.setInputs(decodeInputs(jsonObj.get("inputs")));
+            form.setOutputs(decodeOutputs(jsonObj.get("outputs")));
+            form.setOnLoadScripts(decodeScripts(jsonObj.get("onLoadScripts")));
+            form.setOnSubmitScripts(decodeScripts(jsonObj.get("onSubmitScripts")));
+        }
+        return form;
+    }
+    
+    public Map<String, InputData> decodeInputs(JSONValue json) throws FormEncodingException {
+        Map<String, InputData> retval = new HashMap<String, InputData>();
+        if (json != null && json.isObject() != null) {
+            for (String key : json.isObject().keySet()) {
+                JSONValue value = json.isObject().get(key);
+                if (value.isObject() != null) {
+                    JSONObject jsonObj = value.isObject();
+                    retval.put(key, (InputData) decode(asMap(jsonObj)));
+                }
+            }
+        }
+        return retval;
+    }
+    
+    public Map<String, OutputData> decodeOutputs(JSONValue json) throws FormEncodingException {
+        Map<String, OutputData> retval = new HashMap<String, OutputData>();
+        if (json != null && json.isObject() != null) {
+            for (String key : json.isObject().keySet()) {
+                JSONValue value = json.isObject().get(key);
+                if (value.isObject() != null) {
+                    JSONObject jsonObj = value.isObject();
+                    retval.put(key, (OutputData) decode(asMap(jsonObj)));
+                }
+            }
+        }
+        return retval;
+    }
+
+    public List<FBScript> decodeScripts(JSONValue json) throws FormEncodingException {
+        List<FBScript> retval = new ArrayList<FBScript>();
+        if (json != null && json.isArray() != null) {
+            JSONArray array = json.isArray();
+            for (int index = 0; index < array.size(); index++) {
+                JSONValue elem = array.get(index);
+                JSONObject jsonObj = elem.isObject();
+                retval.add((FBScript) decode(asMap(jsonObj)));
+            }
+        }
+        return retval;
+    }
+
+    public List<FormItemRepresentation> decodeItems(JSONValue json) throws FormEncodingException {
+        List<FormItemRepresentation> retval = new ArrayList<FormItemRepresentation>();
+        if (json != null && json.isArray() != null) {
+            JSONArray array = json.isArray();
+            for (int index = 0; index < array.size(); index++) {
+                JSONValue elem = array.get(index);
+                JSONObject jsonObj = elem.isObject();
+                retval.add((FormItemRepresentation) decode(asMap(jsonObj)));
+            }
+        }
+        return retval;
+    }
+    public List<FBValidation> decodeValidations(JSONValue json) throws FormEncodingException {
+        List<FBValidation> retval = new ArrayList<FBValidation>();
+        if (json != null && json.isArray() != null) {
+            JSONArray array = json.isArray();
+            for (int index = 0; index < array.size(); index++) {
+                JSONValue elem = array.get(index);
+                JSONObject jsonObj = elem.isObject();
+                retval.add((FBValidation) decode(asMap(jsonObj)));
+            }
+        }
+        return retval;
+    }
+
+    private Map<String, Object> asMap(JSONObject jsonObj) {
+        Map<String, Object> retval = new HashMap<String, Object>();
+        for (String key : jsonObj.keySet()) {
+            JSONValue value = jsonObj.get(key); 
+            retval.put(key, fromJsonValue(value));
+        }
+        return retval;
+    }
+    
+    private List<Object> asList(JSONArray array) {
+        List<Object> retval = new ArrayList<Object>();
+        if (array != null) {
+            for (int index = 0; index < array.size(); index++) {
+                retval.add(fromJsonValue(array.get(index)));
+            }
+        }
+        return retval;
+    }
+    
+    private Object fromJsonValue(JSONValue elem) {
+        if (elem.isString() != null) {
+            return elem.isString().stringValue();
+        } else if (elem.isNumber() != null) {
+            return elem.isNumber().doubleValue();
+        } else if (elem.isArray() != null) {
+            return asList(elem.isArray());
+        } else if (elem.isNull() != null) {
+            return null;
+        } else if (elem.isObject() != null) {
+            return asMap(elem.isObject());
+        } else {
+            return "";
+        }
+    }
+    
+    
+    /*
     public List<FormItemRepresentation> decodeItems(JSONValue json) throws FormEncodingException {
         List<FormItemRepresentation> retval = new ArrayList<FormItemRepresentation>();
         if (json.isArray() != null) {
@@ -109,5 +227,5 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
             retval = jsonValue.isString().stringValue();
         }
         return retval;
-    }
+    }*/
 }
