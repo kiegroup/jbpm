@@ -23,7 +23,7 @@ public class FormRepresentation implements Serializable {
     private List<FBScript> onSubmitScripts;
     
     private long lastModified = System.currentTimeMillis();
-    private String documentation; //TODO set comments
+    private String documentation;
     
     public String getName() {
         return name;
@@ -145,4 +145,80 @@ public class FormRepresentation implements Serializable {
     public String getDocumentation() {
         return documentation;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof FormRepresentation)) return false;
+        FormRepresentation other = (FormRepresentation) obj;
+        boolean equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.taskId == null && other.taskId == null) || (this.taskId != null && this.taskId.equals(other.taskId));
+        if (!equals) return equals;
+        equals = (this.action == null && other.action == null) || (this.action != null && this.action.equals(other.action));
+        if (!equals) return equals;
+        equals = (this.method == null && other.method == null) || (this.method != null && this.method.equals(other.method));
+        if (!equals) return equals;
+        equals = (this.enctype == null && other.enctype == null) || (this.enctype != null && this.enctype.equals(other.enctype));
+        if (!equals) return equals;
+        equals = (this.lastModified == other.lastModified);
+        if (!equals) return equals;
+        equals = (this.documentation == null && other.documentation == null) || 
+            (this.documentation != null && this.documentation.equals(other.documentation));
+        if (!equals) return equals;
+        equals = (this.formValidations == null && other.formValidations == null) || 
+            (this.formValidations != null && this.formValidations.equals(other.formValidations));
+        if (!equals) return equals;
+        equals = (this.formItems == null && other.formItems == null) || 
+            (this.formItems != null && this.formItems.equals(other.formItems));
+        if (!equals) return equals;
+        equals = (this.outputs == null && other.outputs == null) || 
+            (this.outputs != null && other.outputs != null && this.outputs.entrySet().equals(other.outputs.entrySet()));
+        if (!equals) return equals;
+        equals = (this.inputs == null && other.inputs == null) || 
+            (this.inputs != null && other.inputs != null && this.inputs.entrySet().equals(other.inputs.entrySet()));
+        if (!equals) return equals;
+        equals = (this.onLoadScripts == null && other.onLoadScripts == null) ||
+            (this.onLoadScripts != null && this.onLoadScripts.equals(other.onLoadScripts));
+        if (!equals) return equals;
+        equals = (this.onSubmitScripts == null && other.onSubmitScripts == null) ||
+            (this.onSubmitScripts != null && this.onSubmitScripts.equals(other.onSubmitScripts));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.taskId == null ? 0 : this.taskId.hashCode();
+        result = 37 * result + aux;
+        aux = this.action == null ? 0 : this.action.hashCode();
+        result = 37 * result + aux;
+        aux = this.method == null ? 0 : this.method.hashCode();
+        result = 37 * result + aux;
+        aux = this.enctype == null ? 0 : this.enctype.hashCode();
+        result = 37 * result + aux;
+        aux = this.enctype == null ? 0 : this.enctype.hashCode();
+        result = 37 * result + aux;
+        aux = (int) (this.lastModified ^ this.lastModified);
+        result = 37 * result + aux;
+        aux = this.documentation == null ? 0 : this.documentation.hashCode();
+        result = 37 * result + aux;
+        aux = this.formValidations == null ? 0 : this.formValidations.hashCode();
+        result = 37 * result + aux;
+        aux = this.formItems == null ? 0 : this.formItems.hashCode();
+        result = 37 * result + aux;
+        aux = this.outputs == null ? 0 : this.outputs.hashCode();
+        result = 37 * result + aux;
+        aux = this.inputs == null ? 0 : this.inputs.hashCode();
+        result = 37 * result + aux;
+        aux = this.onLoadScripts == null ? 0 : this.onLoadScripts.hashCode();
+        result = 37 * result + aux;
+        aux = this.onSubmitScripts == null ? 0 : this.onSubmitScripts.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
+    
 }

@@ -25,6 +25,10 @@ public class NotEmptyValidation implements FBValidation {
     }
 
     public Map<String, Object> getDataMap() {
+        if (!propertiesMap.containsKey("@className") ||
+                !NotEmptyValidation.class.getName().equals(propertiesMap.get("@className"))) {
+            propertiesMap.put("@className", NotEmptyValidation.class.getName());
+        }
         return propertiesMap;
     }
 

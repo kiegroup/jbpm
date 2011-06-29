@@ -136,4 +136,54 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
             }
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof TableRepresentation)) return false;
+        HorizontalPanelRepresentation other = (HorizontalPanelRepresentation) obj;
+        boolean equals = (this.borderWidth == null && other.borderWidth == null) || 
+            (this.borderWidth != null && this.borderWidth.equals(other.borderWidth));
+        if (!equals) return equals;
+        equals = (this.spacing == null && other.spacing == null) || (this.spacing != null && this.spacing.equals(other.spacing));
+        if (!equals) return equals;
+        equals = (this.cssClassName == null && other.cssClassName == null) || 
+            (this.cssClassName != null && this.cssClassName.equals(other.cssClassName));
+        if (!equals) return equals;
+        equals = (this.horizontalAlignment == null && other.horizontalAlignment == null) || 
+            (this.horizontalAlignment != null && this.horizontalAlignment.equals(other.horizontalAlignment));
+        if (!equals) return equals;
+        equals = (this.verticalAlignment == null && other.verticalAlignment == null) || 
+            (this.verticalAlignment != null && this.verticalAlignment.equals(other.verticalAlignment));
+        if (!equals) return equals;
+        equals = (this.title == null && other.title == null) || (this.title != null && this.title.equals(other.title));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        if (!equals) return equals;
+        equals = (this.items == null && other.items == null) || (this.items != null && this.items.equals(other.items));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.borderWidth == null ? 0 : this.borderWidth.hashCode();
+        result = 37 * result + aux;
+        aux = this.spacing == null ? 0 : this.spacing.hashCode();
+        result = 37 * result + aux;
+        aux = this.cssClassName == null ? 0 : this.cssClassName.hashCode();
+        result = 37 * result + aux;
+        aux = this.horizontalAlignment == null ? 0 : this.horizontalAlignment.hashCode();
+        result = 37 * result + aux;
+        aux = this.verticalAlignment == null ? 0 : this.verticalAlignment.hashCode();
+        result = 37 * result + aux;
+        aux = this.title == null ? 0 : this.title.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        aux = this.items == null ? 0 : this.items.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
+
 }

@@ -67,4 +67,32 @@ public class ConditionalBlockRepresentation extends FormItemRepresentation {
             //TODO see how to manage this error
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof ConditionalBlockRepresentation)) return false;
+        ConditionalBlockRepresentation other = (ConditionalBlockRepresentation) obj;
+        boolean equals = (this.condition == null && other.condition == null) || 
+            (this.condition != null && this.condition.equals(other.condition));
+        if (!equals) return equals;
+        equals = (this.ifBlock == null && other.ifBlock == null) || 
+            (this.ifBlock != null && this.ifBlock.equals(other.ifBlock));
+        if (!equals) return equals;
+        equals = (this.elseBlock == null && other.elseBlock == null) || 
+            (this.elseBlock != null && this.elseBlock.equals(other.elseBlock));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.condition == null ? 0 : this.condition.hashCode();
+        result = 37 * result + aux;
+        aux = this.ifBlock == null ? 0 : this.ifBlock.hashCode();
+        result = 37 * result + aux;
+        aux = this.elseBlock == null ? 0 : this.elseBlock.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

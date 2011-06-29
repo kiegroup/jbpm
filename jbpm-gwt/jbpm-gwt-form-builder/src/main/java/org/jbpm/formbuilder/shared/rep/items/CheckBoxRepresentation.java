@@ -65,4 +65,33 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
         this.name = (String) data.get("name");
         this.id = (String) data.get("id");
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof CheckBoxRepresentation)) return false;
+        CheckBoxRepresentation other = (CheckBoxRepresentation) obj;
+        boolean equals = (this.formValue == null && other.formValue == null) || (this.formValue != null && this.formValue.equals(other.formValue));
+        if (!equals) return equals;
+        equals = (this.checked == null && other.checked == null) || (this.checked != null && this.checked.equals(other.checked));
+        if (!equals) return equals;
+        equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.formValue == null ? 0 : this.formValue.hashCode();
+        result = 37 * result + aux;
+        aux = this.checked == null ? 0 : this.checked.hashCode();
+        result = 37 * result + aux;
+        aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

@@ -95,4 +95,27 @@ public class AbsolutePanelRepresentation extends FormItemRepresentation {
             }
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof AbsolutePanelRepresentation)) return false;
+        AbsolutePanelRepresentation other = (AbsolutePanelRepresentation) obj;
+        boolean equals = (this.items == null && other.items == null) || 
+            (this.items != null && other.items != null && this.items.entrySet().equals(other.items.entrySet()));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.items == null ? 0 : this.items.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
+
 }

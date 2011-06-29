@@ -9,4 +9,5 @@ public interface FormRepresentationDecoder {
     FormRepresentation decode(String json) throws FormEncodingException;
     
     Object decode(Map<String, Object> data) throws FormEncodingException;
+    
 }

@@ -54,4 +54,29 @@ public class LabelRepresentation extends FormItemRepresentation {
         this.id = (String) data.get("id");
         this.cssName = (String) data.get("cssName");
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof LabelRepresentation)) return false;
+        LabelRepresentation other = (LabelRepresentation) obj;
+        boolean equals = (this.value == null && other.value == null) || (this.value != null && this.value.equals(other.value));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        if (!equals) return equals;
+        equals = (this.cssName == null && other.cssName == null) || (this.cssName != null && this.cssName.equals(other.cssName));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.value == null ? 0 : this.value.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        aux = this.cssName == null ? 0 : this.cssName.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

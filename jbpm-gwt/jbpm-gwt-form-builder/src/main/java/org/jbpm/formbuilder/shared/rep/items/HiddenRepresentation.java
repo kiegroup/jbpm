@@ -55,4 +55,29 @@ public class HiddenRepresentation extends FormItemRepresentation {
         this.value = (String) data.get("value");
         
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof HiddenRepresentation)) return false;
+        HiddenRepresentation other = (HiddenRepresentation) obj;
+        boolean equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        if (!equals) return equals;
+        equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.value == null && other.value == null) || (this.value != null && this.value.equals(other.value));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.value == null ? 0 : this.value.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

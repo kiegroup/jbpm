@@ -68,4 +68,34 @@ public class PasswordFieldRepresentation extends FormItemRepresentation {
     		this.maxLength = ((Number) obj).intValue();
     	}
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof PasswordFieldRepresentation)) return false;
+        PasswordFieldRepresentation other = (PasswordFieldRepresentation) obj;
+        boolean equals = (this.defaultValue == null && other.defaultValue == null) || 
+            (this.defaultValue != null && this.defaultValue.equals(other.defaultValue));
+        if (!equals) return equals;
+        equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        if (!equals) return equals;
+        equals = (this.maxLength == null && other.maxLength == null) || (this.maxLength != null && this.maxLength.equals(other.maxLength));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.defaultValue == null ? 0 : this.defaultValue.hashCode();
+        result = 37 * result + aux;
+        aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        aux = this.maxLength == null ? 0 : this.maxLength.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

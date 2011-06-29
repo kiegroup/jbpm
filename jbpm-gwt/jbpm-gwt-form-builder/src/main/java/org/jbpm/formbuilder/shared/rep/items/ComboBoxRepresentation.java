@@ -93,4 +93,35 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
             this.elementsPopulationScript = null; //TODO see how to manage this error
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof ComboBoxRepresentation)) return false;
+        ComboBoxRepresentation other = (ComboBoxRepresentation) obj;
+        boolean equals = (this.elements == null && other.elements == null) || 
+            (this.elements != null && this.elements.equals(other.elements));
+        if (!equals) return equals;
+        equals = (this.elementsPopulationScript == null && other.elementsPopulationScript == null) || 
+            (this.elementsPopulationScript != null && this.elementsPopulationScript.equals(other.elementsPopulationScript));
+        if (!equals) return equals;
+        equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.elements == null ? 0 : this.elements.hashCode();
+        result = 37 * result + aux;
+        aux = this.elementsPopulationScript == null ? 0 : this.elementsPopulationScript.hashCode();
+        result = 37 * result + aux;
+        aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

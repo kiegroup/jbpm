@@ -81,4 +81,34 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
             //TODO see how to manage this error 
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof CompleteButtonRepresentation)) return false;
+        CompleteButtonRepresentation other = (CompleteButtonRepresentation) obj;
+        boolean equals = (this.text == null && other.text == null) || (this.text != null && this.text.equals(other.text));
+        if (!equals) return equals;
+        equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        if (!equals) return equals;
+        equals = (this.onClickScript == null && other.onClickScript == null) || 
+            (this.onClickScript != null && this.onClickScript.equals(other.onClickScript));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.text == null ? 0 : this.text.hashCode();
+        result = 37 * result + aux;
+        aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.id == null ? 0 : this.id.hashCode();
+        result = 37 * result + aux;
+        aux = this.onClickScript == null ? 0 : this.onClickScript.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

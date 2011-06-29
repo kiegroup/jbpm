@@ -143,4 +143,45 @@ public class TableRepresentation extends FormItemRepresentation {
             }
         }
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof TableRepresentation)) return false;
+        TableRepresentation other = (TableRepresentation) obj;
+        boolean equals = (this.rows == null && other.rows == null) || (this.rows != null && this.rows.equals(other.rows));
+        if (!equals) return equals;
+        equals = (this.columns == null && other.columns == null) || (this.columns != null && this.columns.equals(other.columns));
+        if (!equals) return equals;
+        equals = (this.borderWidth == null && other.borderWidth == null) || 
+            (this.borderWidth != null && this.borderWidth.equals(other.borderWidth));
+        if (!equals) return equals;
+        equals = (this.cellPadding == null && other.cellPadding == null) || 
+            (this.cellPadding != null && this.cellPadding.equals(other.cellPadding));
+        if (!equals) return equals;
+        equals = (this.cellSpacing == null && other.cellSpacing == null) || 
+            (this.cellSpacing != null && this.cellSpacing.equals(other.cellSpacing));
+        if (!equals) return equals;
+        equals = (this.elements == null && other.elements == null) || (this.elements != null && this.elements.equals(other.elements));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.rows == null ? 0 : this.rows.hashCode();
+        result = 37 * result + aux;
+        aux = this.columns == null ? 0 : this.columns.hashCode();
+        result = 37 * result + aux;
+        aux = this.borderWidth == null ? 0 : this.borderWidth.hashCode();
+        result = 37 * result + aux;
+        aux = this.cellPadding == null ? 0 : this.cellPadding.hashCode();
+        result = 37 * result + aux;
+        aux = this.cellSpacing == null ? 0 : this.cellSpacing.hashCode();
+        result = 37 * result + aux;
+        aux = this.elements == null ? 0 : this.elements.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
+
 }

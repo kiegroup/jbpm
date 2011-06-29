@@ -32,4 +32,20 @@ public class HTMLRepresentation extends FormItemRepresentation {
         super.setDataMap(data);
     	this.content = (String) data.get("content");
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof HTMLRepresentation)) return false;
+        HTMLRepresentation other = (HTMLRepresentation) obj;
+        return (this.content == null && other.content == null) || (this.content != null && this.content.equals(other.content));
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.content == null ? 0 : this.content.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

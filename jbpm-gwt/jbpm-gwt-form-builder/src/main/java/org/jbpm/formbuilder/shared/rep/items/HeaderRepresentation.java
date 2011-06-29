@@ -65,4 +65,34 @@ public class HeaderRepresentation extends FormItemRepresentation {
         this.cssId = (String) data.get("cssId");
         this.cssName = (String) data.get("cssName");
     }
+
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof HeaderRepresentation)) return false;
+        HeaderRepresentation other = (HeaderRepresentation) obj;
+        boolean equals = (this.value == null && other.value == null) || (this.value != null && this.value.equals(other.value));
+        if (!equals) return equals;
+        equals = (this.styleClass == null && other.styleClass == null) || (this.styleClass != null && this.styleClass.equals(other.styleClass));
+        if (!equals) return equals;
+        equals = (this.cssId == null && other.cssId == null) || (this.cssId != null && this.cssId.equals(other.cssId));
+        if (!equals) return equals;
+        equals = (this.cssName == null && other.cssName == null) || (this.cssName != null && this.cssName.equals(other.cssName));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.value == null ? 0 : this.value.hashCode();
+        result = 37 * result + aux;
+        aux = this.styleClass == null ? 0 : this.styleClass.hashCode();
+        result = 37 * result + aux;
+        aux = this.cssId == null ? 0 : this.cssId.hashCode();
+        result = 37 * result + aux;
+        aux = this.cssName == null ? 0 : this.cssName.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

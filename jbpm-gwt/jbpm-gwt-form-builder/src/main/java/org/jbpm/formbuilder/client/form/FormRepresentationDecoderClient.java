@@ -1,10 +1,12 @@
-package org.jbpm.formbuilder.shared.form;
+package org.jbpm.formbuilder.client.form;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.Mappable;
@@ -18,11 +20,12 @@ import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 public class FormRepresentationDecoderClient implements FormRepresentationDecoder {
 
     
-    protected FormRepresentationDecoderClient() {
+    public FormRepresentationDecoderClient() {
     }
     
     public FormRepresentation decode(String code) throws FormEncodingException {
         FormRepresentation form = new FormRepresentation();
+        
         JSONValue json = JSONParser.parseLenient(code);
         if (json.isObject() != null) {
             JSONObject jsonObj = json.isObject();

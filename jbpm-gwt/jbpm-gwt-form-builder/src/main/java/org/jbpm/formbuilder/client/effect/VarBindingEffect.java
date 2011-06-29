@@ -59,9 +59,6 @@ public class VarBindingEffect extends FBFormEffect {
                 public Object format(Object object) {
                     return object;
                 }
-                public String getJsonCode() {
-                    return "null";
-                }
                 public Map<String, Object> getDataMap() {
                 	return new HashMap<String, Object>();
                 }
@@ -77,9 +74,6 @@ public class VarBindingEffect extends FBFormEffect {
             out.setFormatter(new Formatter() {
                 public Object format(Object object) {
                     return object;
-                }
-                public String getJsonCode() {
-                    return "null";
                 }
                 public Map<String, Object> getDataMap() {
                 	return new HashMap<String, Object>();

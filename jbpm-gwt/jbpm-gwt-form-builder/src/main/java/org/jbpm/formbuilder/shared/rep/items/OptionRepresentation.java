@@ -43,4 +43,25 @@ public class OptionRepresentation extends FormItemRepresentation {
     	this.label = (String) data.get("label");
     	this.value = (String) data.get("value");
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) return false;
+        if (!(obj instanceof OptionRepresentation)) return false;
+        OptionRepresentation other = (OptionRepresentation) obj;
+        boolean equals = (this.label == null && other.label == null) || (this.label != null && this.label.equals(other.label));
+        if (!equals) return equals;
+        equals = (this.value == null && other.value == null) || (this.value != null && this.value.equals(other.value));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.label == null ? 0 : this.label.hashCode();
+        result = 37 * result + aux;
+        aux = this.value == null ? 0 : this.value.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }
