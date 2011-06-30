@@ -16,18 +16,33 @@
   
   <build>
     <plugins>
-    
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!--  exclude tests that gwt should run, since gwt-maven-plugin has the responsibility of running them -->
+          <!-- excludes> 
+            <exclude>**/*GwtTest*.java</exclude>
+            <exclude>**/*Gwt*Suite*.java</exclude>
+          </excludes -->
+          <!-- GWTTestCase subclasses need an URLClassLoader -->
+          <useSystemClassLoader>false</useSystemClassLoader> 
+          <additionalClasspathElements>
+            <additionalClasspathElement>${basedir}/src/main/java</additionalClasspathElement>
+            <additionalClasspathElement>${basedir}/src/test/java</additionalClasspathElement>
+          </additionalClasspathElements>
+        </configuration>
+      </plugin>
       <plugin>
         <!--use -Dgwt.compiler.skip=true to sGWT compiler-->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
         <version>2.2.0</version>
         <configuration>
-          <htmlunit>Mozilla</htmlunit>
           <logLevel>INFO</logLevel>
+          <gwtVersion>${gwt.version}</gwtVersion>
           <style>DETAILED</style>
           <noServer>false</noServer>
-          <gwtVersion>${gwt.version}</gwtVersion>
           <inplace>true</inplace>
           <module>org.jbpm.formbuilder.FormBuilder</module>
           <runTarget>FormBuilder.html</runTarget>
@@ -41,10 +56,7 @@
         </configuration>
         <executions>
           <execution>
-            <phase>prepare-package</phase>
             <goals>
-              <!-- goal>mergewebxml</goal -->
-              <!-- goal>i18n</goal -->
               <goal>compile</goal>
               <goal>test</goal>
             </goals>
