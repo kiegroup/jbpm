@@ -5,12 +5,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathVariableResolver;
 
 import org.drools.process.instance.WorkItem;
 import org.drools.runtime.process.ProcessContext;
@@ -68,7 +70,7 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
 		this.isInput = isInput;
 	}
 
-	public void execute(WorkItem workItem, ProcessContext context) throws Exception {
+	public void execute(final WorkItem workItem, final ProcessContext context) throws Exception {
         String from = assignment.getFrom();
         String to = assignment.getTo();
         
@@ -92,7 +94,32 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
             source = ((WorkItem) workItem).getResult(sourceExpr);
         }
         
+        
+        // this is the only way to change the reference itself, 
+        // otherwise change only in whatever is being pointed to
+        
+        if(".".equals(from) && ".".equals(to)) {
+        	target = source;
+            if (isInput) {
+                ((WorkItem) workItem).setParameter(targetExpr, target);
+            } else {
+                context.setVariable(targetExpr, target);
+            }
+            return;
+        }
+        
         Object targetElem = null;
+        
+        // create temp as per bpm-1534, 
+        // as the target may be target of many assignments and need a container to hold nodelists etc
+        
+        if(!(source instanceof String) && target == null ) {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = builder.newDocument();
+            //quirky
+            Element temp = doc.createElementNS(null, "temp");
+            target = temp;
+        }
 
         if (target instanceof org.w3c.dom.Node) {
             XPATHExpressionModifier modifier = new XPATHExpressionModifier();
@@ -101,15 +128,15 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
 
             // now pick the leaf for this operation
             if (target != null) {
-                org.w3c.dom.Node parent = null;
+//                org.w3c.dom.Node parent = null;
 //               if(isInput) {
-                parent = ((org.w3c.dom.Node) target).getParentNode();
+//                parent = ((org.w3c.dom.Node) target).getParentNode();
 //               }
 //               else {
 //                parent = (org.w3c.dom.Node) target;
 //               }
 
-                targetElem = exprTo.evaluate(parent, XPathConstants.NODE);
+                targetElem = exprTo.evaluate(target, XPathConstants.NODE);
 
                 if (targetElem == null) {
                     throw new RuntimeException(
@@ -123,7 +150,21 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
         
         NodeList nl = null;
         if (source instanceof org.w3c.dom.Node) {
-             nl = (NodeList) exprFrom.evaluate(source, XPathConstants.NODESET);
+//             nl = (NodeList) exprFrom.evaluate(source, XPathConstants.NODESET);
+        	XPath xpathEvaluator = factory.newXPath();
+        	xpathEvaluator.setXPathVariableResolver(new XPathVariableResolver() {                
+                public Object resolveVariable(QName variableName) {
+                    if(isInput) {
+                    	return context.getVariable(variableName.getLocalPart());
+                    }
+                    else {
+                    	return ((WorkItem) workItem).getResult(variableName.getLocalPart());
+                    }
+                }
+            });
+
+    		DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            nl = (NodeList) xpathEvaluator.evaluate("$"+sourceExpr+"/" + from, builder.newDocument(), XPathConstants.NODESET);
         } else if (source instanceof String) {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
@@ -140,8 +181,7 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
         if (nl.getLength() == 0) {
             throw new RuntimeException("Nothing was selected by the from expression " + from + " on " + sourceExpr);
         }
-        for (int i = 0 ; i < nl.getLength(); i++) {
-            
+        for (int i = 0 ; i < nl.getLength(); i++) {            
             if (!(targetElem instanceof org.w3c.dom.Node)) {
                 if (nl.item(i) instanceof Attr) {
                     targetElem = ((Attr) nl.item(i)).getValue();

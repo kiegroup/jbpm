@@ -86,9 +86,9 @@ public class XPATHExpressionModifier {
 	        xpath = xpath.substring(1);
 	    }
 	    Node rootNode = contextNode;
-	    if (contextNode != null) {
-	        contextNode = contextNode.getOwnerDocument();
-	    }
+//	    if (contextNode != null) {
+//	        contextNode = contextNode.getOwnerDocument();
+//	    }
 	    
 		XPathFactory xpf = new XPathFactoryImpl();
 		XPath xpe = xpf.newXPath();    	
@@ -113,7 +113,7 @@ public class XPATHExpressionModifier {
 			pathExpr = null;
 			step = (AxisExpression) expression;
 		} else {
-			return contextNode;
+			return rootNode;
 		}
 
 		while (step != null) {
@@ -173,6 +173,8 @@ public class XPATHExpressionModifier {
 					Attr attribute = ((Element) contextNode).getAttributeNodeNS(childName.getNamespaceURI(), childName.getLocalPart());
 					if (attribute == null) {
 						attribute = document.createAttributeNS(childName.getNamespaceURI(), childName.getLocalPart());
+				        Document currentDoc = (Document) (contextNode instanceof Document ? contextNode : contextNode.getOwnerDocument());
+						attribute = (Attr) currentDoc.importNode(attribute, true);
 						((Element) contextNode).setAttributeNode(attribute);
 						contextNode = attribute;
 					} else {
