@@ -20,17 +20,21 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <!--  exclude tests that gwt should run, since gwt-maven-plugin has the responsibility of running them -->
-          <!-- excludes> 
-            <exclude>**/*GwtTest*.java</exclude>
-            <exclude>**/*Gwt*Suite*.java</exclude>
-          </excludes -->
-          <!-- GWTTestCase subclasses need an URLClassLoader -->
-          <useSystemClassLoader>false</useSystemClassLoader> 
+          <excludes>
+            <exclude>**/*GwtTest.java</exclude>
+          </excludes>
           <additionalClasspathElements>
-            <additionalClasspathElement>${basedir}/src/main/java</additionalClasspathElement>
-            <additionalClasspathElement>${basedir}/src/test/java</additionalClasspathElement>
+            <additionalClasspathElement>${project.build.sourceDirectory}</additionalClasspathElement>
+            <additionalClasspathElement>${project.build.testSourceDirectory}</additionalClasspathElement>
           </additionalClasspathElements>
+          <useManifestOnlyJar>false</useManifestOnlyJar>
+          <forkMode>always</forkMode>
+          <systemProperties>
+            <property>
+              <name>gwt.args</name>
+              <value>-out \${webAppDirectory}</value>
+            </property>
+          </systemProperties>
         </configuration>
       </plugin>
       <plugin>
@@ -131,12 +135,6 @@
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
       <version>3.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.gwt</groupId>
-      <artifactId>gwt-dev</artifactId>
-      <version>${gwt.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
