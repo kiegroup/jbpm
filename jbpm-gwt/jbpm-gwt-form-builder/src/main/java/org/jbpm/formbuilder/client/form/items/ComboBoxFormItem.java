@@ -31,8 +31,8 @@ public class ComboBoxFormItem extends OptionsFormItem {
     public ComboBoxFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(listBox);
-        setWidth("30px");
-        setHeight("15px");
+        setWidth("50px");
+        setHeight("21px");
         listBox.setSize(getWidth(), getHeight());
     }
 

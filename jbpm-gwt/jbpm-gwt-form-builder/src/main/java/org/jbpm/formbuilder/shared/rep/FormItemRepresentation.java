@@ -8,7 +8,6 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 
 public abstract class FormItemRepresentation implements Mappable {
     
@@ -24,7 +23,7 @@ public abstract class FormItemRepresentation implements Mappable {
     
     public FormItemRepresentation(String typeId) {
         this.typeId = typeId;
-        this.itemClassName = RepresentationFactory.getItemClassName(TextFieldRepresentation.class.getName());
+        this.itemClassName = RepresentationFactory.getItemClassName(getClass().getName());
     }
 
     public List<FBValidation> getItemValidations() {
@@ -79,7 +78,6 @@ public abstract class FormItemRepresentation implements Mappable {
     	Map<String, Object> data = new HashMap<String, Object>();
     	
     	data.put("@className", getClass().getName());
-    	
         List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
         if (this.itemValidations != null) {
 	        for (FBValidation valid : this.itemValidations) {

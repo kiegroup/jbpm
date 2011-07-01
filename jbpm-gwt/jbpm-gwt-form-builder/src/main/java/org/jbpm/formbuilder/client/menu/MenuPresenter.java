@@ -20,6 +20,8 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
+import org.jbpm.formbuilder.client.bus.MenuItemFromServerHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
@@ -68,7 +70,14 @@ public class MenuPresenter {
                 FBMenuItem item = event.getMenuItem();
                 view.removeItem(group, item);
             }
-       });
+        });
+        this.bus.addHandler(MenuItemFromServerEvent.TYPE, new MenuItemFromServerHandler() {
+            public void onEvent(MenuItemFromServerEvent event) {
+                String group = event.getGroupName();
+                FBMenuItem item = event.getMenuItem();
+                view.removeItem(group, item);
+            }
+        });
     }
 
     public Widget getView() {

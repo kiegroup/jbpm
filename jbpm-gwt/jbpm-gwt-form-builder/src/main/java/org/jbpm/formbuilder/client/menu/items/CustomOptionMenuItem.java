@@ -12,10 +12,12 @@ import com.google.gwt.user.client.ui.Label;
 
 public class CustomOptionMenuItem extends FBMenuItem {
 
-    private final String newMenuOptionName;
-    private final FBFormItem cloneableItem;
+    private String newMenuOptionName;
+    private FBFormItem cloneableItem;
 
-    //TODO might need a default constructor strategy some at point in the future
+    public CustomOptionMenuItem() {
+        //needs a default constructor for reconstruction from xml in GWT
+    }
     
     public CustomOptionMenuItem(FBFormItem cloneableItem, String newMenuOptionName, List<FBFormEffect> formEffects) {
         super(formEffects);
@@ -24,6 +26,23 @@ public class CustomOptionMenuItem extends FBMenuItem {
         repaint();
     }
 
+    public String getNewMenuOptionName() {
+        return newMenuOptionName;
+    }
+    
+    public FBFormItem getCloneableItem() {
+        return cloneableItem;
+    }
+    
+    public void setCloneableItem(FBFormItem cloneableItem) {
+        this.cloneableItem = cloneableItem;
+    }
+    
+    public void setNewMenuOptionName(String newMenuOptionName) {
+        this.newMenuOptionName = newMenuOptionName;
+        repaint();
+    }
+    
     @Override
     protected ImageResource getIconUrl() {
         return FormBuilderResources.INSTANCE.questionIcon();

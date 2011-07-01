@@ -9,7 +9,7 @@ public interface MenuService {
     
     Map<String, List<MenuItemDescription>> listItems();
     
-    void save(MenuItemDescription item);
+    void save(String groupName, MenuItemDescription item) throws MenuServiceException;
     
     void delete(MenuItemDescription item);
 }

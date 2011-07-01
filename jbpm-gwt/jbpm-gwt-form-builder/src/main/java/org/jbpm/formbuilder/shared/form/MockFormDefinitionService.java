@@ -12,7 +12,6 @@ public class MockFormDefinitionService implements FormDefinitionService {
 
     public void saveForm(String pkgName, String comment, FormRepresentation form) {
         // TODO Auto-generated method stub
-
     }
     
     public List<FormRepresentation> getForms(String pkgName) {

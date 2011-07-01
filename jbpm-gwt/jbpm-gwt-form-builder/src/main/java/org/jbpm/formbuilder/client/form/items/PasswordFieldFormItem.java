@@ -26,8 +26,8 @@ public class PasswordFieldFormItem extends FBFormItem {
     public PasswordFieldFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(textBox);
-        setWidth("60px");
-        setHeight("15px");
+        setWidth("100px");
+        setHeight("21px");
         textBox.setSize(getWidth(), getHeight());
     }
     

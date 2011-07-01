@@ -177,14 +177,15 @@ public class MockMenuService implements MenuService {
         return items;
     }
 
-    public void save(MenuItemDescription item) {
+    public void save(String groupName, MenuItemDescription item) {
+        String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listItems();
-        List<MenuItemDescription> customItems = items.get("Custom");
+        List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
         }
         customItems.add(item);
-        items.put("Custom", customItems);
+        items.put(group, customItems);
     }
 
     public void delete(MenuItemDescription item) {

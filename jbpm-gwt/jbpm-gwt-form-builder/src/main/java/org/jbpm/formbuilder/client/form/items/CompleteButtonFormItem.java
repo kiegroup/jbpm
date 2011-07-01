@@ -25,8 +25,8 @@ public class CompleteButtonFormItem extends FBFormItem {
     public CompleteButtonFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(button);
-        setHeight("20px");
-        setWidth("40px");
+        setHeight("27px");
+        setWidth("100px");
         button.setSize(getWidth(), getHeight());
     }
     

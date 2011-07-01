@@ -1,12 +1,14 @@
 package org.jbpm.formbuilder.client.form;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.Mappable;
@@ -34,6 +36,14 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         builder.append("  \"onSubmitScripts\": ").append(encodeList(form.getOnSubmitScripts())).append("\n");
         builder.append("}\n");
         return builder.toString();
+    }
+    
+    public String encode(FormItemRepresentation item) throws FormEncodingException {
+        if (item == null) { 
+            return "null";
+        }
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+        return jsonFromMap(dataMap);
     }
     
     public String encodeList(List<? extends Mappable> list) {

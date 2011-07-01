@@ -326,7 +326,7 @@ public abstract class FBFormItem extends FocusPanel {
         return rep;
     }
     
-    protected FBFormItem createItem(FormItemRepresentation rep) throws FormBuilderException {
+    public static FBFormItem createItem(FormItemRepresentation rep) throws FormBuilderException {
         String className = rep.getItemClassName();
         try {
             Class<?> clazz = ReflectionHelper.loadClass(className);

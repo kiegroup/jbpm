@@ -82,6 +82,17 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         return form;
     }
     
+    public FormItemRepresentation decodeItem(String json) throws FormEncodingException {
+        JSONValue jsonValue = JSONParser.parseLenient(json);
+        if (jsonValue.isObject() != null) {
+            JSONObject jsonObj = jsonValue.isObject();
+            Map<String, Object> dataMap = asMap(jsonObj);
+            return (FormItemRepresentation) decode(dataMap);
+        } else {
+            throw new FormEncodingException("Expected json object but found " + jsonValue);
+        }
+    }
+    
     public Map<String, InputData> decodeInputs(JSONValue json) throws FormEncodingException {
         Map<String, InputData> retval = new HashMap<String, InputData>();
         if (json != null && json.isObject() != null) {

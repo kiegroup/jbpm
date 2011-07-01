@@ -28,14 +28,15 @@ public class GuvnorMenuService implements MenuService {
         return read("/menuItems.json", new TypeToken<Map<String, List<MenuItemDescription>>>(){});
     }
     
-    public void save(MenuItemDescription item) {
+    public void save(String groupName, MenuItemDescription item) {
+        String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listItems();
-        List<MenuItemDescription> customItems = items.get("Custom");
+        List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
         }
         customItems.add(item);
-        items.put("Custom", customItems);
+        items.put(group, customItems);
         write("/menuItems.json", items);
     }
     

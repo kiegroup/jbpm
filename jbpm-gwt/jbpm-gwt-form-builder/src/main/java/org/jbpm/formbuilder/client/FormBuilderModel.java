@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
@@ -31,14 +32,18 @@ import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -90,7 +95,7 @@ public class FormBuilderModel implements FormBuilderService {
                 menuItems.putAll(readMenuMap(xml));
                 for (String groupName : menuItems.keySet()) {
                     for (FBMenuItem menuItem : menuItems.get(groupName)) {
-                        bus.fireEvent(new MenuItemAddedEvent(menuItem, groupName));
+                        bus.fireEvent(new MenuItemFromServerEvent(menuItem, groupName));
                     }
                 }
             }
@@ -127,7 +132,14 @@ public class FormBuilderModel implements FormBuilderService {
                 Class<?> klass = ReflectionHelper.loadClass(itemClassName);
                 Object obj = ReflectionHelper.newInstance(klass);
                 FBMenuItem menuItem = null;
-                if (obj instanceof FBMenuItem) {
+                if (obj instanceof CustomOptionMenuItem) {
+                    CustomOptionMenuItem customItem = (CustomOptionMenuItem) obj;
+                    String optionName = ((Element) itemNode).getAttribute("optionName");
+                    FBFormItem cloneableItem = FBFormItem.createItem(makeRepresentation(itemNode));
+                    customItem.setCloneableItem(cloneableItem);
+                    customItem.setNewMenuOptionName(optionName);
+                    menuItem = customItem;
+                } else if (obj instanceof FBMenuItem) {
                     menuItem = (FBMenuItem) obj;
                 } else {
                     throw new Exception(itemClassName + " not of type FBMenuItem");
@@ -144,6 +156,21 @@ public class FormBuilderModel implements FormBuilderService {
         return menuItems;
     }
     
+    private FormItemRepresentation makeRepresentation(Node itemNode) {
+        NodeList list = ((Element) itemNode).getElementsByTagName("itemJson");
+        FormItemRepresentation rep = null;
+        if (list.getLength() > 0) {
+            String json = list.item(0).getNodeValue();
+            FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+            try {
+                rep = (FormItemRepresentation) decoder.decodeItem(json);
+            } catch (FormEncodingException e) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't load form representation from server", e));
+            }
+        }
+        return rep;
+    }
+
     private List<FBFormEffect> readItemEffects(NodeList effects) throws Exception {
         List<FBFormEffect> itemEffects = new ArrayList<FBFormEffect>();
         for (int i = 0; i < effects.getLength(); i++) {
@@ -167,7 +194,7 @@ public class FormBuilderModel implements FormBuilderService {
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
-                currentOptions.addAll(readMenuOptions(xml.getElementsByTagName("menuOption")));
+                currentOptions.addAll(readMenuOptions(xml.getElementsByTagName("menuOptions").item(0).getChildNodes()));
                 for (MainMenuOption option : currentOptions) {
                     bus.fireEvent(new MenuOptionAddedEvent(option));
                 }
@@ -210,7 +237,7 @@ public class FormBuilderModel implements FormBuilderService {
                     option.setEnabled(false);
                 }
             } else {
-                option.setSubMenu(readMenuOptions(menuElement.getElementsByTagName("menuOption")));
+                option.setSubMenu(readMenuOptions(menuElement.getChildNodes()));
             }
             options.add(option);
         }
@@ -249,17 +276,17 @@ public class FormBuilderModel implements FormBuilderService {
                 append(language).toString();
     }
     
-    public void saveMenuItem(String groupName, final FBMenuItem item) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
+    public void saveMenuItem(final String groupName, final FBMenuItem item) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
+                GWT.getModuleBaseURL() + this.contextPath + "/defaultPackage/menuItems/" + groupName + "/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
                 if (code == Response.SC_CREATED) {
                     Document xml = XMLParser.parse(response.getText());
-                    NodeList xmlItems = xml.getElementsByTagName("menuItem");
-                    List<FBMenuItem> myItems = readMenuItems(xmlItems);
-                    FBMenuItem myItem = myItems.get(0);
-                    item.setItemId(myItem.getItemId());
+                    NodeList xmlItems = xml.getElementsByTagName("menuItemId");
+                    String menuItemId = xmlItems.item(0).getNodeValue();
+                    bus.fireEvent(new NotificationEvent(Level.INFO, "Menu item " + menuItemId + " saved successfully."));
                 }
             }
 
@@ -268,7 +295,7 @@ public class FormBuilderModel implements FormBuilderService {
             }
         });
         try {
-            request.setRequestData(asXml(item));
+            request.setRequestData(asXml(groupName, item));
             request.send();
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save menu item", e));
@@ -277,7 +304,8 @@ public class FormBuilderModel implements FormBuilderService {
     
     public void deleteMenuItem(String groupName, FBMenuItem item) {
         //TODO this method should send a body
-        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, GWT.getModuleBaseURL() + this.contextPath + "/menuItems/" + item.getItemId());
+        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, 
+                GWT.getModuleBaseURL() + this.contextPath + "/defaultPackage/menuItems/" + item.getItemId());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
@@ -297,18 +325,21 @@ public class FormBuilderModel implements FormBuilderService {
         }
     }
     
-    private String asXml(FBMenuItem item) {
+    private String asXml(String groupName, FBMenuItem item) {
         StringBuilder builder = new StringBuilder();
         builder.append("<menuItem>");
-        builder.append("<itemId>").append(item.getItemId()).append("</itemId>");
+        builder.append("<groupName>").append(groupName).append("</groupName>");
         builder.append("<name>").append(item.getDescription().getText()).append("</name>");
-        /*try {
-            builder.append("<clone>").
-                append(item.buildWidget().getRepresentation().translate("xml")).
-                append("</clone>");
-        } catch (LanguageException e) {
-            builder.append("<clone>Exception:").append(e.getMessage()).append("</clone>");
-        }*/
+        try {
+            String json = FormEncodingClientFactory.getEncoder().encode(item.buildWidget().getRepresentation());
+            String jsonTag = new StringBuilder("<clone><![CDATA[").append(json).append("]]></clone>").toString();
+            builder.append(jsonTag);
+        } catch (FormEncodingException e) {
+            builder.append("<clone error=\"true\">Exception:").append(e.getMessage()).append("</clone>");
+        }
+        for (FBFormEffect effect : item.getFormEffects()) {
+            builder.append("<effect className=\"").append(effect.getClass().getName()).append("\" />");
+        }
         builder.append("</menuItem>");
         return builder.toString();
     }

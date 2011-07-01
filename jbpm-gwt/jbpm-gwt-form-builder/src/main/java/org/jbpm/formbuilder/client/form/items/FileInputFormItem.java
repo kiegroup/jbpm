@@ -24,7 +24,7 @@ public class FileInputFormItem extends FBFormItem {
     public FileInputFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(fileUpload);
-        setHeight("15px");
+        setHeight("27px");
         setWidth("100px");
         fileUpload.setSize(getWidth(), getHeight());
     }

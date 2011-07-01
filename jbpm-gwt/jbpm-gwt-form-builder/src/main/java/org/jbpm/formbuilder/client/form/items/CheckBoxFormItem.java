@@ -25,7 +25,7 @@ public class CheckBoxFormItem extends FBFormItem {
     public CheckBoxFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(checkBox);
-        setWidth("30px");
+        setWidth("15px");
         setHeight("15px");
         checkBox.setSize(getWidth(), getHeight());
     }

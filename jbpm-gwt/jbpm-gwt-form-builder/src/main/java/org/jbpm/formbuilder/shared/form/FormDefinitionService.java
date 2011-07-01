@@ -6,7 +6,7 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 public interface FormDefinitionService {
 
-    String generateForm(String pkgName, String language, FormRepresentation form);
+    String /*URL*/ generateForm(String pkgName, String language, FormRepresentation form);
     
     void saveForm(String pkgName, String comment, FormRepresentation form) throws FormServiceException;
     

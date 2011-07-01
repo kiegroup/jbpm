@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,11 +32,14 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.drools.repository.RulesRepository;
 import org.jboss.seam.Component;
 import org.jboss.seam.contexts.Contexts;
+import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
+import org.jbpm.formbuilder.server.form.SaveMenuItemDTO;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.render.Renderer;
 import org.jbpm.formbuilder.server.render.RendererException;
@@ -55,10 +59,12 @@ import org.jbpm.formbuilder.server.xml.MetaDataDTO;
 import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
-import org.jbpm.formbuilder.shared.form.FormServiceException;
+import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
+import org.jbpm.formbuilder.shared.menu.MenuServiceException;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
@@ -75,6 +81,7 @@ public class FormBuilderServlet extends HttpServlet {
     private FormDefinitionService formService;
 
     private Map<Class<?>[], Marshaller> marshallers = new HashMap<Class<?>[], Marshaller>();
+    private Map<Class<?>[], Unmarshaller> unmarshallers = new HashMap<Class<?>[], Unmarshaller>();
     
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -183,29 +190,65 @@ public class FormBuilderServlet extends HttpServlet {
         marshaller.marshal(dto, writer);
         return writer.toString();
     }
+    
+    @SuppressWarnings("unchecked")
+    private <T> T jaxbTransformation(BufferedReader reader, Class<T> retvalType, Class<?>... allBoundClasses) throws JAXBException {
+        synchronized (this) {
+            if (unmarshallers.get(allBoundClasses) == null) {
+                JAXBContext ctx = JAXBContext.newInstance(allBoundClasses);
+                Unmarshaller unmarshaller = ctx.createUnmarshaller();
+                unmarshallers.put(allBoundClasses, unmarshaller);
+            }
+        }
+        Unmarshaller unmarshaller = unmarshallers.get(allBoundClasses);
+        Object obj = unmarshaller.unmarshal(reader);
+        return (T) obj;
+    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String uri = req.getRequestURI();
             if (uri.contains("menuItems")) {
-                int status = saveForm(extractPackageName(uri, "menuItems"), req.getReader());
+                int status = saveMenuItem(req.getReader());
                 resp.setStatus(status);
+            } else if (uri.contains("form")) {
+                //TODO saveForm not done yet
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
     }
 
-    private int saveForm(String pkgName, BufferedReader reader) {
+    private int saveMenuItem(BufferedReader reader) throws JAXBException {
         try {
-            Gson gson = new Gson();
-            FormRepresentation form = gson.fromJson(reader, new TypeToken<FormRepresentation>(){}.getType());
-            formService.saveForm(pkgName, form.getDocumentation(), form);
+            SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class<?>[0]);
+            MenuItemDescription menuItem = toMenuItemDescription(dto);
+            menuService.save(dto.getGroupName(), menuItem);
             return HttpServletResponse.SC_CREATED;
-        } catch (FormServiceException e) {
+        } catch (MenuServiceException e) {
             return HttpServletResponse.SC_CONFLICT;
         }
+    }
+
+    private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto) {
+        Gson gson = new Gson();
+        String json = dto.getClone();
+        FormItemRepresentation item = gson.fromJson(json, new TypeToken<FormItemRepresentation>() {}.getType());
+        MenuItemDescription menuItem = new MenuItemDescription();
+        menuItem.setClassName(CustomOptionMenuItem.class.getName());
+        menuItem.setItemRepresentation(item);
+        menuItem.setName(dto.getName());
+        List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
+        if (dto.getEffect() != null) {
+            for (FormEffectDTO effectDto : dto.getEffect()) {
+                FormEffectDescription effect = new FormEffectDescription();
+                effect.setClassName(effectDto.getClassName());
+                effects.add(effect);
+            }
+        }
+        menuItem.setEffects(effects);
+        return menuItem;
     }
     
     @Override
