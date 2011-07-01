@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -89,6 +90,21 @@ public class TextAreaFormItem extends FBFormItem {
         rep.setRows(this.rows);
         rep.setValue(this.defaultValue);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof TextAreaRepresentation)) {
+            throw new FormBuilderException("rep should be of type FormBuilderException but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        TextAreaRepresentation trep = (TextAreaRepresentation) rep;
+        this.cols = trep.getCols();
+        this.id = trep.getId();
+        this.name = trep.getName();
+        this.rows = trep.getRows();
+        this.defaultValue = trep.getValue();
+        populate(this.area);
     }
     
     @Override

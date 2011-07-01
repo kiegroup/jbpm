@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -107,13 +108,24 @@ public class HeaderFormItem extends FBFormItem {
     }
     
     @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof HeaderRepresentation)) {
+            throw new FormBuilderException("rep should be of type LabelRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        HeaderRepresentation hrep = (HeaderRepresentation) rep;
+        this.header.setText("<h1>" + hrep.getValue() + "</h1>");
+        this.cssClassName = hrep.getCssName();
+        this.id = hrep.getCssId();
+        populate(this.header);
+    }
+    
+    @Override
     public FBFormItem cloneItem() {
-        HeaderFormItem clone = new HeaderFormItem(getFormEffects());
+        HeaderFormItem clone = super.cloneItem(new HeaderFormItem(getFormEffects()));
         clone.cssClassName = this.cssClassName;
-        clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.name = this.name;
-        clone.setWidth(this.getWidth());
         clone.setContent(this.header.getHTML());
         clone.populate(this.header);
         return clone;

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
@@ -119,6 +120,28 @@ public class ComboBoxFormItem extends OptionsFormItem {
         rep.setName(this.name);
         rep.setId(this.id);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof ComboBoxRepresentation)) {
+            throw new FormBuilderException("rep should be of type TextFieldRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        ComboBoxRepresentation crep = (ComboBoxRepresentation) rep;
+        List<OptionRepresentation> options = crep.getElements();
+        this.items.clear();
+        if (options != null) {
+            for (OptionRepresentation option : options) {
+                this.items.put(option.getLabel(), option.getValue());
+                this.listBox.addItem(option.getLabel(), option.getValue());
+            }
+        }
+        this.listBox.clear();
+        addItems(this.items, this.listBox);
+        this.name = crep.getName();
+        this.id = crep.getId();
+        populate(this.listBox);
     }
 
     @Override

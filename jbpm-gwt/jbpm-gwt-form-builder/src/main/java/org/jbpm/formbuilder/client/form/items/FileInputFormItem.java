@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -71,6 +72,19 @@ public class FileInputFormItem extends FBFormItem {
         return rep;
     }
 
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof FileInputRepresentation)) {
+            throw new FormBuilderException("rep should be of type FileInputRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        FileInputRepresentation frep = (FileInputRepresentation) rep;
+        this.id = frep.getId();
+        this.name = frep.getName();
+        this.accept = frep.getAccept();
+        populate(this.fileUpload);
+    }
+    
     @Override
     public FBFormItem cloneItem() {
         FileInputFormItem clone = new FileInputFormItem(getFormEffects());

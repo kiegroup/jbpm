@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -70,6 +71,25 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
                     item.getDesiredY() - panel.getAbsoluteTop());
         }
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof AbsolutePanelRepresentation)) {
+            throw new FormBuilderException("rep should be of type AbsolutePanelRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        AbsolutePanelRepresentation arep = (AbsolutePanelRepresentation) rep;
+        panel.clear();
+        getItems().clear();
+        if (arep.getItems() != null) {
+            for (Map.Entry<AbsolutePanelRepresentation.Position, FormItemRepresentation> entry : arep.getItems().entrySet()) {
+                FBFormItem item = super.createItem(entry.getValue());
+                item.setDesiredPosition(entry.getKey().getX(), entry.getKey().getY());
+                this.add(item);
+            }
+        }
+        populate(this.panel);
     }
 
     @Override

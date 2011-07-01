@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -104,6 +105,30 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
             rep.addItem(item.getRepresentation());
         }
         return rep;
+    }
+
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof HorizontalPanelRepresentation)) {
+            throw new FormBuilderException("rep should be of type HorizontalPanelRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        HorizontalPanelRepresentation hrep = (HorizontalPanelRepresentation) rep;
+        this.borderWidth = hrep.getBorderWidth();
+        this.cssClassName = hrep.getCssClassName();
+        this.horizontalAlignment = hrep.getHorizontalAlignment();
+        this.id = hrep.getId();
+        this.spacing = hrep.getSpacing();
+        this.title = hrep.getTitle();
+        this.verticalAlignment = hrep.getVerticalAlignment();
+        this.panel.clear();
+        super.getItems().clear();
+        populate(this.panel);
+        if (hrep.getItems() != null) {
+            for (FormItemRepresentation item : hrep.getItems()) {
+                add(super.createItem(item));
+            }
+        }
     }
     
     @Override

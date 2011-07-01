@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -75,6 +76,19 @@ public class CompleteButtonFormItem extends FBFormItem {
         rep.setName(this.name);
         rep.setId(this.id);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof CompleteButtonRepresentation)) {
+            throw new FormBuilderException("rep should be of type CompleteButtonRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        CompleteButtonRepresentation crep = (CompleteButtonRepresentation) rep;
+        this.innerText = crep.getText();
+        this.name = crep.getName();
+        this.id = crep.getId();
+        populate(this.button);
     }
     
     @Override

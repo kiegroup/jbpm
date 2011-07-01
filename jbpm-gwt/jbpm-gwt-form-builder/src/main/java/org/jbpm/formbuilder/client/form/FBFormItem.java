@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.EffectsPopupPanel;
@@ -25,6 +26,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
@@ -288,6 +290,15 @@ public abstract class FBFormItem extends FocusPanel {
     
     public abstract FormItemRepresentation getRepresentation();
     
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        //TODO this.effects = ??? this needs to be obtained from server?
+        //TODO this.validations = rep.getItemValidations(); will need a translation as well?
+        this.widgetHeight = rep.getHeight();
+        this.widgetWidth = rep.getWidth();
+        this.input = rep.getInput();
+        this.output = rep.getOutput();
+    }
+    
     public abstract FBFormItem cloneItem();
     
     protected <T extends FBFormItem> T cloneItem(T clone) {
@@ -313,6 +324,18 @@ public abstract class FBFormItem extends FocusPanel {
         }
         rep.setItemValidations(repValidations);
         return rep;
+    }
+    
+    protected FBFormItem createItem(FormItemRepresentation rep) throws FormBuilderException {
+        String className = rep.getItemClassName();
+        try {
+            Class<?> clazz = ReflectionHelper.loadClass(className);
+            FBFormItem item = (FBFormItem) ReflectionHelper.newInstance(clazz);
+            item.populate(rep);
+            return item;
+        } catch (Exception e) {
+            throw new FormBuilderException("Couldn't instantiate class " + className, e);
+        }
     }
     
     public void setValidations(List<FBValidationItem> validations) {

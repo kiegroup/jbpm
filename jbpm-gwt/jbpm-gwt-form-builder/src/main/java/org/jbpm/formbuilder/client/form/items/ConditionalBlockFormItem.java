@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
@@ -83,6 +84,28 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
         return rep;
     }
 
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof ConditionalBlockRepresentation)) {
+            throw new FormBuilderException("rep should be of type ConditionalBlockRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        ConditionalBlockRepresentation srep = (ConditionalBlockRepresentation) rep;
+        this.conditionScript = srep.getCondition();
+        FormItemRepresentation ifRep = srep.getIfBlock();
+        if (ifRep == null) {
+            this.ifBlock = null;
+        } else {
+            this.ifBlock = createItem(ifRep);
+        }
+        FormItemRepresentation elseRep = srep.getElseBlock();
+        if (elseRep == null) {
+            this.elseBlock = null;
+        } else {
+            this.elseBlock = createItem(elseRep);
+        }
+    }
+    
     @Override
     public FBFormItem cloneItem() {
         ConditionalBlockFormItem item = new ConditionalBlockFormItem(super.getFormEffects());

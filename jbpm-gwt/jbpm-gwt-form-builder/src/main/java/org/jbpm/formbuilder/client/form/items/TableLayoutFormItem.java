@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
@@ -171,6 +172,33 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof TableRepresentation)) {
+            throw new FormBuilderException("rep should be of type TableRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        TableRepresentation trep = (TableRepresentation) rep;
+        this.rows = trep.getRows();
+        this.columns = trep.getColumns();
+        this.borderWidth = trep.getBorderWidth();
+        this.cellpadding = trep.getCellPadding();
+        this.cellspacing = trep.getCellSpacing();
+        populate(this.grid);
+        this.grid.clear();
+        if (trep.getElements() != null) {
+            for (int rowindex = 0; rowindex < trep.getElements().size(); rowindex++) {
+                List<FormItemRepresentation> row = trep.getElements().get(rowindex);
+                if(row != null) {
+                    for (int cellindex = 0; cellindex < row.size(); cellindex++) {
+                        FormItemRepresentation cell = row.get(cellindex);
+                        this.grid.setWidget(rowindex, cellindex, super.createItem(cell));
+                    }
+                }
+            }
+        }
     }
     
     @Override

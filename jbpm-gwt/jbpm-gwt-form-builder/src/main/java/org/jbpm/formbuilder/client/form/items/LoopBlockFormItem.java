@@ -4,12 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.items.LoopBlockRepresentation;
 
 import com.google.gwt.event.shared.EventBus;
@@ -53,6 +55,26 @@ public class LoopBlockFormItem extends LayoutFormItem {
         return rep;
     }
 
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof LoopBlockRepresentation)) {
+            throw new FormBuilderException("rep should be of type LoopBlockRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        LoopBlockRepresentation lrep = (LoopBlockRepresentation) rep;
+        this.variableName = lrep.getVariableName();
+        this.loopBlock.clear();
+        if (lrep.getInputName() != null && !"".equals(lrep.getInputName())) {
+            InputData input = new InputData();
+            input.setName(lrep.getInputName());
+            lrep.setInput(input);
+        }
+        if (lrep.getLoopBlock() != null) {
+            FBFormItem child = super.createItem(lrep.getLoopBlock());
+            this.loopBlock.add(child);
+        }
+    }
+    
     @Override
     public FBFormItem cloneItem() {
         LoopBlockFormItem clone = super.cloneItem(new LoopBlockFormItem(getFormEffects()));

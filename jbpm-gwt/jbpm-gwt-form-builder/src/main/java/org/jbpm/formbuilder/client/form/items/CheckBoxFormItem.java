@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -78,6 +79,20 @@ public class CheckBoxFormItem extends FBFormItem {
         rep.setId(id);
         rep.setChecked(checked);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof CheckBoxRepresentation)) {
+            throw new FormBuilderException("rep should be of type CheckBoxRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        CheckBoxRepresentation crep = (CheckBoxRepresentation) rep;
+        this.formValue = crep.getFormValue();
+        this.name = crep.getName();
+        this.id = crep.getId();
+        this.checked = crep.getChecked();
+        populate(this.checkBox);
     }
 
     @Override

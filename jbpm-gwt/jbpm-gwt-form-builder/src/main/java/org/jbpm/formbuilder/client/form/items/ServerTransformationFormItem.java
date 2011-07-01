@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.editors.ServerScriptEditor;
@@ -46,6 +47,17 @@ public class ServerTransformationFormItem extends FBFormItem {
         rep.setLanguage(this.language);
         return rep;
     }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof ServerTransformationRepresentation)) {
+            throw new FormBuilderException("rep should be of type ServerTransformationRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        ServerTransformationRepresentation srep = (ServerTransformationRepresentation) rep;
+        this.setScriptContent(srep.getScript());
+        srep.setLanguage(this.language);
+    }
 
     @Override
     public FBFormItem cloneItem() {
@@ -63,7 +75,7 @@ public class ServerTransformationFormItem extends FBFormItem {
         display.setStyleName("transformationBlockBorder");
         return display;
     }
-
+    
     @Override
     public Widget createInplaceEditor() {
         return new ServerScriptEditor(this);

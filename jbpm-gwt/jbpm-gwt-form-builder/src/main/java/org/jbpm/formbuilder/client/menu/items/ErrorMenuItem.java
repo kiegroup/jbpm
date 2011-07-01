@@ -61,6 +61,10 @@ public class ErrorMenuItem extends FBMenuItem {
             }
             
             @Override
+            public void populate(FormItemRepresentation rep) {
+            }
+            
+            @Override
             public FBFormItem cloneItem() {
                 return null;
             }

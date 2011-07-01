@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -67,6 +68,19 @@ public class HiddenFormItem extends FBFormItem {
         rep.setName(name);
         rep.setValue(value);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof HiddenRepresentation)) {
+            throw new FormBuilderException("rep should be of type HiddenRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        HiddenRepresentation hrep = (HiddenRepresentation) rep;
+        this.id = hrep.getId();
+        this.name = hrep.getName();
+        this.value = hrep.getValue();
+        populate(this.hidden);
     }
 
     @Override

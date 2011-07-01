@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -47,7 +48,6 @@ public class ImageFormItem extends FBFormItem {
         this.setWidth(extractString(asPropertiesMap.get("width")));
         this.url = extractString(asPropertiesMap.get("url"));
         this.id = extractString(asPropertiesMap.get("id"));
-        
         populate(this.image);
     }
 
@@ -74,6 +74,19 @@ public class ImageFormItem extends FBFormItem {
         rep.setUrl(this.url);
         rep.setId(this.id);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof ImageRepresentation)) {
+            throw new FormBuilderException("rep should be of type ImageRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        ImageRepresentation irep = (ImageRepresentation) rep;
+        this.altText = irep.getAltText();
+        this.url = irep.getUrl();
+        this.id = irep.getId();
+        populate(this.image);
     }
 
     @Override

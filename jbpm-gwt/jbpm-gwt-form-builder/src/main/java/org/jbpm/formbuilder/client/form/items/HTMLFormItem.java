@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.editors.HTMLFormItemEditor;
@@ -64,6 +65,16 @@ public class HTMLFormItem extends FBFormItem {
         HTMLRepresentation rep = super.getRepresentation(new HTMLRepresentation());
         rep.setContent(html.getHTML());
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof HTMLRepresentation)) {
+            throw new FormBuilderException("rep should be of type TextFieldRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        HTMLRepresentation hrep = (HTMLRepresentation) rep;
+        this.setContent(hrep.getContent());
     }
     
     @Override

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -85,6 +86,20 @@ public class PasswordFieldFormItem extends FBFormItem {
         rep.setId(this.id);
         rep.setMaxLength(this.maxlength);
         return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof PasswordFieldRepresentation)) {
+            throw new FormBuilderException("rep should be of type PasswordBuilderException but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        PasswordFieldRepresentation prep = (PasswordFieldRepresentation) rep;
+        this.defaultContent = prep.getDefaultValue();
+        this.name = prep.getName();
+        this.id = prep.getId();
+        this.maxlength = prep.getMaxLength();
+        populate(this.textBox);
     }
     
     @Override
