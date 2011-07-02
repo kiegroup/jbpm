@@ -7,6 +7,38 @@
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.AnyLayoutMenuItem",
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
+        },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.BorderLayoutMenuItem",
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
+        },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.CSSLayoutMenuItem",
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
+        },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.FlowLayoutMenuItem",
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
+        },
         {   "className": "org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem",
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
@@ -140,7 +172,41 @@
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
+        },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.LineGraphMenuItem",
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
         }
+     ],
+     "Server Components": [
+     	{	"className": "org.jbpm.formbuilder.client.menu.items.LoopBlockMenuItem",
+     		"effects": [
+     			{ "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+     			{ "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
+     		]
+     	},
+     	{	"className": "org.jbpm.formbuilder.client.menu.items.ConditionalBlockMenuItem",
+     		"effects": [
+     			{ "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+     			{ "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
+     		]
+     	},
+     	{	"className": "org.jbpm.formbuilder.client.menu.items.ServerTransformationMenuItem",
+     		"effects": [
+     			{ "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+     			{ "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
+     		]
+     	}
      ],
      "My Components": [
      	{   "className": "org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem",
