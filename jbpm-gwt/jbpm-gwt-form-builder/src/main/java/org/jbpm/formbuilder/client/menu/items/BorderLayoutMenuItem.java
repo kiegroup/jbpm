@@ -1,7 +1,12 @@
 package org.jbpm.formbuilder.client.menu.items;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.BorderLayoutFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
@@ -11,28 +16,34 @@ import com.google.gwt.user.client.ui.Label;
  */
 public class BorderLayoutMenuItem extends FBMenuItem {
 
-    @Override
+	// NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST, CENTER;
+	
+	public BorderLayoutMenuItem() {
+		super();
+	}
+	
+    public BorderLayoutMenuItem(List<FBFormEffect> formEffects) {
+		super(formEffects);
+	}
+
+	@Override
     protected ImageResource getIconUrl() {
-        // TODO Auto-generated method stub
-        return null;
+        return FormBuilderResources.INSTANCE.borderLayoutIcon();
     }
 
     @Override
     public Label getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        return new Label("Border Layout");
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new BorderLayoutMenuItem(getFormEffects());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new BorderLayoutFormItem(getFormEffects());
     }
 
 }
