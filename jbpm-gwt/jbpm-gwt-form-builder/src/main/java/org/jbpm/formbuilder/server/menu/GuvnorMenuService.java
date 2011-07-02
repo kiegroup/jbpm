@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
@@ -21,11 +25,39 @@ import com.google.gson.reflect.TypeToken;
 public class GuvnorMenuService implements MenuService {
 
     public List<MenuOptionDescription> listOptions() {
-        return read("/menuOptions.json", new TypeToken<List<MenuOptionDescription>>(){});
+    	Gson gson = new Gson();
+        URL url = getClass().getResource("/menuOptions.json");
+        List<MenuOptionDescription> retval = null;
+        try {
+            File file = new File(url.toURI());
+            retval = gson.fromJson(new FileReader(file), 
+            		new TypeToken<List<MenuOptionDescription>>(){}.getType());
+        } catch (URISyntaxException e) {
+            //TODO throw error
+        } catch (FileNotFoundException e) {
+            //TODO throw error
+        }
+        return retval;
     }
 
     public Map<String, List<MenuItemDescription>> listItems() {
-        return read("/menuItems.json", new TypeToken<Map<String, List<MenuItemDescription>>>(){});
+        URL url = getClass().getResource("/menuItems.json");
+        Map<String, List<MenuItemDescription>> retval = null;
+        try {
+        	FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        	File file = new File(url.toURI());
+        	String json = FileUtils.readFileToString(file);
+        	retval = decoder.decodeMenuItemsMap(json);
+        } catch (FormEncodingException e) {
+            //TODO throw error
+        } catch (URISyntaxException e) {
+            //TODO throw error
+        } catch (FileNotFoundException e) {
+        	//TODO throw error
+        } catch (IOException e) {
+        	//TODO throw error
+        }
+        return retval;
     }
     
     public void save(String groupName, MenuItemDescription item) {
@@ -49,23 +81,6 @@ public class GuvnorMenuService implements MenuService {
         customItems.remove(item);
         items.put("Custom", customItems);
         write("/menuItems.json", items);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T extends Object> T read(String jsonFilePath, TypeToken<T> token) {
-        Gson gson = new Gson();
-        URL url = getClass().getResource(jsonFilePath);
-        T retval = null;
-        try {
-            File file = new File(url.toURI());
-            Object value = gson.fromJson(new FileReader(file), token.getType());
-            retval = (T) value;
-        } catch (URISyntaxException e) {
-            //TODO throw error
-        } catch (FileNotFoundException e) {
-            //TODO throw error
-        }
-        return retval;
     }
 
     private <T extends Object> void write(String jsonFilePath, T items) {

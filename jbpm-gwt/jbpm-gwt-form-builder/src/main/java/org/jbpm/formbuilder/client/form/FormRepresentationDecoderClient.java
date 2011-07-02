@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
+import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -81,6 +83,48 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         }
         return form;
     }
+    
+    @SuppressWarnings("unchecked")
+    public Map<String, List<MenuItemDescription>> decodeMenuItemsMap(String json) throws FormEncodingException {
+    	JSONObject jsonObj = JSONParser.parseLenient(json).isObject();
+    	Map<String, Object> dataMap = asMap(jsonObj);
+    	Map<String, List<MenuItemDescription>> retval = null;
+    	if (dataMap != null) {
+    		retval = new HashMap<String, List<MenuItemDescription>>();
+    		for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+    			List<MenuItemDescription> itemsList = new ArrayList<MenuItemDescription>();
+    			String key = entry.getKey();
+    			Object obj = entry.getValue();
+    			if (obj != null) {
+    				List<Object> itemsMapList = (List<Object>) obj;
+    				for (Object itemObj : itemsMapList) {
+    					Map<String, Object> itemDescMap = (Map<String, Object>) itemObj;
+    					MenuItemDescription desc = new MenuItemDescription();
+    					desc.setClassName((String) itemDescMap.get("className"));
+    					desc.setName((String) itemDescMap.get("name"));
+    					List<Object> effectMapList = (List<Object>) itemDescMap.get("effects");
+    					List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
+    					if (effectMapList != null) {
+    						for (Object effectMapObj : effectMapList) {
+    							Map<String, Object> effectMap = (Map<String, Object>) effectMapObj;
+    							FormEffectDescription effDesc = new FormEffectDescription();
+    							effDesc.setClassName((String) effectMap.get("className"));
+    							effects.add(effDesc);
+    						}
+    					}
+    					desc.setEffects(effects);
+    					Map<String, Object> itemMap = (Map<String, Object>) itemDescMap.get("itemRepresentation");
+    					FormItemRepresentation rep = (FormItemRepresentation) decode(itemMap);
+    					desc.setItemRepresentation(rep);
+    					itemsList.add(desc);
+    				}
+    			}
+				retval.put(key, itemsList);
+    		}
+    	}
+    	return retval;
+    }
+
     
     public FormItemRepresentation decodeItem(String json) throws FormEncodingException {
         JSONValue jsonValue = JSONParser.parseLenient(json);
