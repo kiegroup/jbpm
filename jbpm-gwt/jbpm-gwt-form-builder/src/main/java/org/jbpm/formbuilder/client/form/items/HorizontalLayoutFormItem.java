@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
  
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,10 @@ import com.google.gwt.user.client.ui.Widget;
 public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     private HorizontalPanel panel = new HorizontalPanel();
+
+    public HorizontalLayoutFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public HorizontalLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

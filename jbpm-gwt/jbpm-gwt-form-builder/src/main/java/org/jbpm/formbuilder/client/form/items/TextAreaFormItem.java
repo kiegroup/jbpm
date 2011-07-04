@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,10 @@ public class TextAreaFormItem extends FBFormItem {
     private Integer cols = 30;
     private String name;
     private String id;
+
+    public TextAreaFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public TextAreaFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Integer columns = 1;
     private Integer rows = 1;
     private String title = null;
+
+    public TableLayoutFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public TableLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

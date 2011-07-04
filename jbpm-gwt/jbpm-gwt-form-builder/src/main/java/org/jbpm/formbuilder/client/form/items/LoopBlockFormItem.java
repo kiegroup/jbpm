@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,10 @@ public class LoopBlockFormItem extends LayoutFormItem {
     private String variableName;
     private SimplePanel loopBlock = new SimplePanel();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+
+    public LoopBlockFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public LoopBlockFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

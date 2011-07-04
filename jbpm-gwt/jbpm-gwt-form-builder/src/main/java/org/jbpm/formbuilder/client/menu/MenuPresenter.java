@@ -75,7 +75,7 @@ public class MenuPresenter {
             public void onEvent(MenuItemFromServerEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
-                view.removeItem(group, item);
+                view.addItem(group, item);
             }
         });
     }

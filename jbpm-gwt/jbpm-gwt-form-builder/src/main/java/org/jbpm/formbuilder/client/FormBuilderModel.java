@@ -160,7 +160,8 @@ public class FormBuilderModel implements FormBuilderService {
         NodeList list = ((Element) itemNode).getElementsByTagName("itemJson");
         FormItemRepresentation rep = null;
         if (list.getLength() > 0) {
-            String json = list.item(0).getNodeValue();
+            Node node = list.item(0);
+            String json = node.getFirstChild().getNodeValue();
             FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
             try {
                 rep = (FormItemRepresentation) decoder.decodeItem(json);

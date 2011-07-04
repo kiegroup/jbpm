@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,10 @@ public class FileInputFormItem extends FBFormItem {
     private String name;
     private String id;
     private String accept;
+
+    public FileInputFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public FileInputFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,10 @@ public class ImageFormItem extends FBFormItem {
     private String altText;
     private String url;
     private String id;
+
+    public ImageFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public ImageFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

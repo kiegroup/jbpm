@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +58,10 @@ public class BorderLayoutFormItem extends LayoutFormItem {
             }
         }
 	};
+
+	public BorderLayoutFormItem() {
+	    this(new ArrayList<FBFormEffect>());
+    }
 	
 	public BorderLayoutFormItem(List<FBFormEffect> formEffects) {
 		super(formEffects);

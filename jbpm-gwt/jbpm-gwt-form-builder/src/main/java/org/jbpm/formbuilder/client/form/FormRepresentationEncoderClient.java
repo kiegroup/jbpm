@@ -59,8 +59,7 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         if (item == null) { 
             return "null";
         }
-        Map<String, Object> dataMap = new HashMap<String, Object>();
-        return jsonFromMap(dataMap);
+        return jsonFromMap(item.getDataMap());
     }
     
     public String encodeList(List<? extends Mappable> list) {

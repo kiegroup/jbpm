@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,10 @@ public class CompleteButtonFormItem extends FBFormItem {
     private String name;
     private String id;
     private String cssStyleName;
+
+    public CompleteButtonFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public CompleteButtonFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,10 @@ public class HiddenFormItem extends FBFormItem {
     private String id;
     private String name;
     private String value;
+
+    public HiddenFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public HiddenFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

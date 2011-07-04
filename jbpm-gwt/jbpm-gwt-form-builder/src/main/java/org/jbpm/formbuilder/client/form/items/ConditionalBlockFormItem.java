@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,10 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
     private FBFormItem ifBlock = null;
     private FBFormItem elseBlock = null;
     private String conditionScript = "true";
+
+    public ConditionalBlockFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public ConditionalBlockFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,10 @@ public class TextFieldFormItem extends FBFormItem {
     private String id = null;
     private String title = null;
     private Integer maxlength = null;
+    
+    public TextFieldFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public TextFieldFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

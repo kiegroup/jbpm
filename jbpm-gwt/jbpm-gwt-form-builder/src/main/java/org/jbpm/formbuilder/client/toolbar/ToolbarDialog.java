@@ -26,6 +26,11 @@ public class ToolbarDialog extends DialogBox {
                 hide();
             }
         });
+        okButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                hide();
+            }
+        });
         buttons.add(okButton);
         buttons.add(cancelButton);
         panel.add(buttons);

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,10 @@ public class LabelFormItem extends FBFormItem {
     
     private String id;
     private String cssClassName;
+
+    public LabelFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public LabelFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

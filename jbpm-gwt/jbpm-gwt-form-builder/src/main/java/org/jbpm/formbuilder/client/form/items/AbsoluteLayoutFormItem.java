@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,10 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     };
     
     private String id;
+
+    public AbsoluteLayoutFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public AbsoluteLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

@@ -24,6 +24,7 @@ public class MenuItemDTO {
     
     public MenuItemDTO(MenuItemDescription item) {
         this._className = item.getClassName();
+        this._optionName = item.getName();
         for (FormEffectDescription eff : item.getEffects()) {
             _effect.add(new FormEffectDTO(eff));
         }
@@ -62,7 +63,7 @@ public class MenuItemDTO {
         this._effect = effect;
     }
 
-    @XmlElement
+    @XmlAttribute
     public String getOptionName() {
         return _optionName;
     }

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,10 @@ import com.google.gwt.user.client.ui.Widget;
 public class HTMLFormItem extends FBFormItem {
 
     private HTML html = new HTML();
+
+    public HTMLFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public HTMLFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

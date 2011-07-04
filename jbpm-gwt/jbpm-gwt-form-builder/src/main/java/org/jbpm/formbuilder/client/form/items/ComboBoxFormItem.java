@@ -27,6 +27,10 @@ public class ComboBoxFormItem extends OptionsFormItem {
     private String title;
     private String name;
     private String id;
+
+    public ComboBoxFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public ComboBoxFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

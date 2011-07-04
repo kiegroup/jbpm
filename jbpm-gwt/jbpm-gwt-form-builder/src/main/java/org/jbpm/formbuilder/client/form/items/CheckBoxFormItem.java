@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,10 @@ public class CheckBoxFormItem extends FBFormItem {
     private Boolean checked;
     private String name;
     private String id;
+
+    public CheckBoxFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public CheckBoxFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);

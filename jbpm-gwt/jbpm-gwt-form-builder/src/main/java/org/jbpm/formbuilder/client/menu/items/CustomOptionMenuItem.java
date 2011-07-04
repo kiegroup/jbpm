@@ -59,6 +59,12 @@ public class CustomOptionMenuItem extends FBMenuItem {
     }
 
     @Override
+    public void addEffect(FBFormEffect effect) {
+        super.addEffect(effect);
+        this.cloneableItem.addEffect(effect);
+    }
+    
+    @Override
     public FBFormItem buildWidget() {
         return cloneableItem.cloneItem();
     }

@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form.items;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,10 @@ public class RadioButtonFormItem extends FBFormItem {
     private String id;
     private String value;
     private Boolean selected = Boolean.FALSE;
+
+    public RadioButtonFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
     
     public RadioButtonFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
