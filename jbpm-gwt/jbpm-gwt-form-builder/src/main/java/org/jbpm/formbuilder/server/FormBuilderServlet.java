@@ -38,6 +38,7 @@ import org.drools.repository.RulesRepository;
 import org.jboss.seam.Component;
 import org.jboss.seam.contexts.Contexts;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
+import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.form.SaveMenuItemDTO;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
@@ -59,6 +60,8 @@ import org.jbpm.formbuilder.server.xml.MetaDataDTO;
 import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
@@ -69,16 +72,13 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 public class FormBuilderServlet extends HttpServlet {
 
     private static final long serialVersionUID = -5961620265453738055L;
 
-    private MenuService menuService;
-    private TaskDefinitionService taskService;
-    private FormDefinitionService formService;
+    MenuService menuService;
+    TaskDefinitionService taskService;
+    FormDefinitionService formService;
 
     private Map<Class<?>[], Marshaller> marshallers = new HashMap<Class<?>[], Marshaller>();
     private Map<Class<?>[], Unmarshaller> unmarshallers = new HashMap<Class<?>[], Unmarshaller>();
@@ -222,7 +222,7 @@ public class FormBuilderServlet extends HttpServlet {
 
     private int saveMenuItem(BufferedReader reader) throws JAXBException {
         try {
-            SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class<?>[0]);
+            SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class[] {SaveMenuItemDTO.class});
             MenuItemDescription menuItem = toMenuItemDescription(dto);
             menuService.saveMenuItem(dto.getGroupName(), menuItem);
             return HttpServletResponse.SC_CREATED;
@@ -233,7 +233,7 @@ public class FormBuilderServlet extends HttpServlet {
 
     private int deleteMenuItem(BufferedReader reader) throws JAXBException {
         try {
-            SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class<?>[0]);
+            SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class<?>[] {SaveMenuItemDTO.class});
             MenuItemDescription menuItem = toMenuItemDescription(dto);
             Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
             List<MenuItemDescription> group = items.get(dto.getGroupName());
@@ -244,29 +244,33 @@ public class FormBuilderServlet extends HttpServlet {
                 return HttpServletResponse.SC_CONFLICT;
             }
             menuService.deleteMenuItem(dto.getGroupName(), menuItem);
-            return HttpServletResponse.SC_CREATED;
+            return HttpServletResponse.SC_ACCEPTED;
         } catch (MenuServiceException e) {
             return HttpServletResponse.SC_CONFLICT;
         }
     }
     
-    private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto) {
-        Gson gson = new Gson();
+    private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto) throws MenuServiceException {
+        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
         String json = dto.getClone();
-        FormItemRepresentation item = gson.fromJson(json, new TypeToken<FormItemRepresentation>() {}.getType());
         MenuItemDescription menuItem = new MenuItemDescription();
-        menuItem.setClassName(CustomOptionMenuItem.class.getName());
-        menuItem.setItemRepresentation(item);
-        menuItem.setName(dto.getName());
-        List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
-        if (dto.getEffect() != null) {
-            for (FormEffectDTO effectDto : dto.getEffect()) {
-                FormEffectDescription effect = new FormEffectDescription();
-                effect.setClassName(effectDto.getClassName());
-                effects.add(effect);
+        try {
+            FormItemRepresentation item = decoder.decodeItem(json);
+            menuItem.setClassName(CustomOptionMenuItem.class.getName());
+            menuItem.setItemRepresentation(item);
+            menuItem.setName(dto.getName());
+            List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
+            if (dto.getEffect() != null) {
+                for (FormEffectDTO effectDto : dto.getEffect()) {
+                    FormEffectDescription effect = new FormEffectDescription();
+                    effect.setClassName(effectDto.getClassName());
+                    effects.add(effect);
+                }
             }
+            menuItem.setEffects(effects);
+        } catch (FormEncodingException e) {
+            throw new MenuServiceException("Couldn't load formRepresentation from dto", e); 
         }
-        menuItem.setEffects(effects);
         return menuItem;
     }
     

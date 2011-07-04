@@ -174,12 +174,11 @@ public class MockMenuService implements MenuService {
     }
 
     public Map<String, List<MenuItemDescription>> listMenuItems() {
-        return items;
+        return new HashMap<String, List<MenuItemDescription>>(items);
     }
 
     public void saveMenuItem(String groupName, MenuItemDescription item) {
         String group = groupName == null ? "Custom" : groupName;
-        Map<String, List<MenuItemDescription>> items = listMenuItems();
         List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
@@ -190,7 +189,6 @@ public class MockMenuService implements MenuService {
 
     public void deleteMenuItem(String groupName, MenuItemDescription item) {
         String group = groupName == null ? "Custom" : groupName;
-        Map<String, List<MenuItemDescription>> items = listMenuItems();
         List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
