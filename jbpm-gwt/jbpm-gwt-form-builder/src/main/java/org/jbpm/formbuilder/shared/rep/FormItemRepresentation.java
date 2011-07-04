@@ -95,7 +95,7 @@ public abstract class FormItemRepresentation implements Mappable {
     }
     
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
         if (this.itemValidations != null) {
@@ -105,18 +105,8 @@ public abstract class FormItemRepresentation implements Mappable {
 	        }
         }
         data.put("itemValidations", validationsMap);
-        try {
-            this.output = (OutputData) decoder.decode((Map<String, Object>) data.get("output"));
-        } catch (FormEncodingException e) {
-            this.output = null;
-            //TODO see how to handle this error
-        }
-        try {
-            this.input = (InputData) decoder.decode((Map<String, Object>) data.get("input"));
-        } catch (FormEncodingException e) {
-            this.output = null;
-            //TODO see how to handle this error
-        }
+        this.output = (OutputData) decoder.decode((Map<String, Object>) data.get("output"));
+        this.input = (InputData) decoder.decode((Map<String, Object>) data.get("input"));
         this.width = (String) data.get("width");
         this.height = (String) data.get("height");
     }

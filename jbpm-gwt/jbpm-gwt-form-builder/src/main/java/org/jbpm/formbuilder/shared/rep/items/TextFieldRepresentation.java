@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class TextFieldRepresentation extends FormItemRepresentation {
@@ -58,8 +59,8 @@ public class TextFieldRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setDataMap(Map<String, Object> data) {
-    	super.setDataMap(data);
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
+    	super.setDataMap(data);    
     	this.defaultValue = (String) data.get("defaultValue");
     	this.name = (String) data.get("name");
     	this.id = (String) data.get("id");

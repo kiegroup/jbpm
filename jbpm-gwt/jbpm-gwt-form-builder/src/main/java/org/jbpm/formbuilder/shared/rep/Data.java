@@ -57,16 +57,12 @@ public abstract class Data implements Mappable {
     }
 
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> dataMap) {
+    public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
     	this.mimeType = (String) dataMap.get("mimeType");
     	this.name = (String) dataMap.get("name");
     	this.value = (String) dataMap.get("value");
-    	try {
-    	    this.formatter = (Formatter) decoder.decode((Map<String, Object>) dataMap.get("formatter"));
-    	} catch (FormEncodingException e) {
-    	    this.formatter = null; //TODO see how to handle this error
-    	}
+    	this.formatter = (Formatter) decoder.decode((Map<String, Object>) dataMap.get("formatter"));
     }
     
     @Override

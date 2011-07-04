@@ -117,7 +117,7 @@ public class TableRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.borderWidth = data.get("borderWidth") == null ? null : ((Number) data.get("borderWidth")).intValue();
         this.cellPadding = data.get("cellPadding") == null ? null : ((Number) data.get("cellPadding")).intValue();
@@ -132,11 +132,7 @@ public class TableRepresentation extends FormItemRepresentation {
                 List<FormItemRepresentation> row = new ArrayList<FormItemRepresentation>();
                 if (mapRow != null) {
                     for (Map<String, Object> mapCell : mapRow) {
-                        try {
-                            row.add((FormItemRepresentation) decoder.decode(mapCell));
-                        } catch (FormEncodingException e) {
-                            row.add(null); //TODO see how to manage this error
-                        }
+                        row.add((FormItemRepresentation) decoder.decode(mapCell));
                     }
                 }
                 this.elements.add(row);

@@ -114,7 +114,7 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.borderWidth = data.get("borderWidth") == null ? null : ((Number) data.get("borderWidth")).intValue();
         this.spacing = data.get("spacing") == null ? null : ((Number) data.get("spacing")).intValue();
@@ -128,11 +128,7 @@ public class HorizontalPanelRepresentation extends FormItemRepresentation {
         List<Map<String, Object>> mapItems = (List<Map<String, Object>>) data.get("items");
         if (mapItems != null) {
             for (Map<String, Object> mapItem : mapItems) {
-                try {
-                    this.items.add((FormItemRepresentation) decoder.decode(mapItem));
-                } catch (FormEncodingException e) {
-                    //TODO see what to do with this error
-                }
+                this.items.add((FormItemRepresentation) decoder.decode(mapItem));
             }
         }
     }

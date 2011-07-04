@@ -71,7 +71,7 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.name = (String) data.get("name");
         this.id = (String) data.get("id");
@@ -80,18 +80,10 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         if (elems != null) {
             for (Map<String, Object> map : elems) {
-                try {
-                    this.elements.add((OptionRepresentation) decoder.decode(map));
-                } catch (FormEncodingException e) {
-                    //TODO see how to manage this error
-                }
+                this.elements.add((OptionRepresentation) decoder.decode(map));
             }
         }
-        try {
-            this.elementsPopulationScript = (FBScript) decoder.decode((Map<String, Object>) data.get("elementsPopulationScript"));
-        } catch (FormEncodingException e) {
-            this.elementsPopulationScript = null; //TODO see how to manage this error
-        }
+        this.elementsPopulationScript = (FBScript) decoder.decode((Map<String, Object>) data.get("elementsPopulationScript"));
     }
     
     @Override

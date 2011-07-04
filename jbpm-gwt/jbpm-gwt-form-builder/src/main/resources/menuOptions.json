@@ -18,8 +18,5 @@
                 "commandClass": "org.jbpm.formbuilder.client.command.EditFormRedoCommand"
             }
         ]
-    },
-    {   "html": "Save",
-        "commandClass": "org.jbpm.formbuilder.client.command.SaveFormCommand"
     }
 ]

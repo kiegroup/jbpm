@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.shared.rep.items;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class OptionRepresentation extends FormItemRepresentation {
@@ -38,7 +39,7 @@ public class OptionRepresentation extends FormItemRepresentation {
     }
     
     @Override
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
     	super.setDataMap(data);
     	this.label = (String) data.get("label");
     	this.value = (String) data.get("value");

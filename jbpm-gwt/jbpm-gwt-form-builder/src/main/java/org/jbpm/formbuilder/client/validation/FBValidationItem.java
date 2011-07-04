@@ -3,6 +3,10 @@ package org.jbpm.formbuilder.client.validation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 
 import com.google.gwt.user.client.ui.HasValue;
@@ -28,7 +32,12 @@ public abstract class FBValidationItem {
         for (Map.Entry<String, HasValue<String>> entry : propertiesMap.entrySet()) {
             dataMap.put(entry.getKey(), entry.getValue().getValue());
         }
-        representation.setDataMap(dataMap);
+        try {
+            representation.setDataMap(dataMap);
+        } catch (FormEncodingException e) {
+            FormBuilderGlobals.getInstance().getEventBus().fireEvent(
+                    new NotificationEvent(Level.ERROR, "Couldn't create validation item representation", e));
+        }
         return representation;
     }
     

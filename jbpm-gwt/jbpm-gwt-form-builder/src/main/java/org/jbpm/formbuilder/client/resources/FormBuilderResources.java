@@ -97,4 +97,10 @@ public interface FormBuilderResources extends ClientBundle {
     
     @Source("images/transformation_block.gif")
     ImageResource transformationBlock();
+
+    @Source("images/save_button.gif")
+    ImageResource saveButton();
+
+    @Source("images/refresh_button.gif")
+    ImageResource refreshButton();
 }

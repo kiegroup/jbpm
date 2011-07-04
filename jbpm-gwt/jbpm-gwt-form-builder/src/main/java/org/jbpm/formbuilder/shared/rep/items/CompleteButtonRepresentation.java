@@ -66,20 +66,13 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.text = (String) data.get("text");
         this.name = (String) data.get("name");
         this.id = (String) data.get("id");
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
-        try {
-            this.onClickScript = (FBScript) decoder.decode((Map<String, Object>) data.get("onClickScript"));
-        } catch (FormEncodingException e) {
-            this.onClickScript = new FBScript();
-            this.onClickScript.setType("text/javascript");
-            this.onClickScript.setContent("document.forms[0].submit();");
-            //TODO see how to manage this error 
-        }
+        this.onClickScript = (FBScript) decoder.decode((Map<String, Object>) data.get("onClickScript"));
     }
     
     @Override

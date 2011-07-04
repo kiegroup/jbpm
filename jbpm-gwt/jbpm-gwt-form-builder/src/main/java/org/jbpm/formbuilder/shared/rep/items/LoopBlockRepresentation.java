@@ -51,15 +51,11 @@ public class LoopBlockRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.inputName = (String) data.get("inputName");
         this.variableName = (String) data.get("variableName");
-        try {
-            this.loopBlock = (FormItemRepresentation) FormEncodingClientFactory.getDecoder().decode((Map<String, Object>) data.get("loopBlock"));
-        } catch (FormEncodingException e) {
-            this.loopBlock = null; //TODO see how to handle this error
-        }
+        this.loopBlock = (FormItemRepresentation) FormEncodingClientFactory.getDecoder().decode((Map<String, Object>) data.get("loopBlock"));
     }
     
     @Override

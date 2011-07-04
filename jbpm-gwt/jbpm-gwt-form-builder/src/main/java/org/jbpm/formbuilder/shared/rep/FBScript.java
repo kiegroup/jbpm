@@ -3,6 +3,8 @@ package org.jbpm.formbuilder.shared.rep;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+
 public class FBScript implements Mappable {
 
     private String documentation;
@@ -73,7 +75,7 @@ public class FBScript implements Mappable {
         return data;
     }
 
-    public void setDataMap(Map<String, Object> dataMap) {
+    public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
         this.documentation = (String) dataMap.get("documentation");
         this.id = (String) dataMap.get("id");
         this.type = (String) dataMap.get("type");

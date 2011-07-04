@@ -75,7 +75,7 @@ public class AbsolutePanelRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.id = (String) data.get("id");
         this.items.clear();
@@ -83,15 +83,11 @@ public class AbsolutePanelRepresentation extends FormItemRepresentation {
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
         if (mapItems != null) {
             for (Map<String, Object> entry : mapItems) {
-                try {
-                    int x = entry.get("x") == null ? 0 : ((Number) entry.get("x")).intValue();
-                    int y = entry.get("y") == null ? 0 : ((Number) entry.get("y")).intValue();
-                    Position pos = new Position(x, y);
-                    FormItemRepresentation item = (FormItemRepresentation) decoder.decode(entry);
-                    this.items.put(pos, item);
-                } catch (FormEncodingException e) {
-                    //TODO see what to do with this error
-                }
+                int x = entry.get("x") == null ? 0 : ((Number) entry.get("x")).intValue();
+                int y = entry.get("y") == null ? 0 : ((Number) entry.get("y")).intValue();
+                Position pos = new Position(x, y);
+                FormItemRepresentation item = (FormItemRepresentation) decoder.decode(entry);
+                this.items.put(pos, item);
             }
         }
     }

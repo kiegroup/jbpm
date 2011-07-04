@@ -1,10 +1,52 @@
 package org.jbpm.formbuilder.client.toolbar;
 
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
+
 public class ToolBarPresenter {
 
+    private static final String SAVE_TYPE = ToolBarPresenter.class.getName();
+    
     private final ToolBarView view;
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
 
     public ToolBarPresenter(ToolBarView toolBarView) {
         this.view = toolBarView;
+        this.bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
+            public void onEvent(PreviewFormRepresentationEvent event) {
+                if (SAVE_TYPE.equals(event.getSaveType())) {
+                    Window.alert("MUST SHOW FLOATING PANEL WITH REPRESENTATION " + event.getRepresentation()); //TODO implement
+                }
+            }
+        });
+        this.view.addButton(FormBuilderResources.INSTANCE.saveButton(), "Save", new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
+            }
+        });
+        
+        this.view.addButton(FormBuilderResources.INSTANCE.refreshButton(), "Refresh from Server", new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                final ToolbarDialog dialog = view.createToolbarDialog(
+                        "Attention! if you continue, all data you haven't saved will be lost and " +
+                        "replaced with the server information. Are you sure you want to continue?");
+                dialog.addOkButtonHandler(new ClickHandler() {
+                    public void onClick(ClickEvent event) {
+                        Window.alert("MUST REFRESH FORM TEMPLATE WITH INFO FROM SERVER"); //TODO implement
+                        //bus.fireEvent(new RefreshFormRepresentationEvent());
+                    }
+                });
+                dialog.show();
+                
+            }
+        });
     }
 }

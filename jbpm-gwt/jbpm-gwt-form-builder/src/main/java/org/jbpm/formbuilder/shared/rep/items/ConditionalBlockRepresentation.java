@@ -52,20 +52,12 @@ public class ConditionalBlockRepresentation extends FormItemRepresentation {
     
     @Override
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.condition = (String) data.get("condition");
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
-        try {
-            this.ifBlock = (FormItemRepresentation) decoder.decode((Map<String, Object>) data.get("ifBlock"));
-        } catch (FormEncodingException e) {
-            //TODO see how to manage this error
-        }
-        try {
-            this.elseBlock = (FormItemRepresentation) decoder.decode((Map<String, Object>) data.get("elseBlock"));
-        } catch (FormEncodingException e) {
-            //TODO see how to manage this error
-        }
+        this.ifBlock = (FormItemRepresentation) decoder.decode((Map<String, Object>) data.get("ifBlock"));
+        this.elseBlock = (FormItemRepresentation) decoder.decode((Map<String, Object>) data.get("elseBlock"));
     }
     
     @Override
