@@ -188,14 +188,19 @@ public class MockMenuService implements MenuService {
         items.put(group, customItems);
     }
 
-    public void delete(MenuItemDescription item) {
+    public void delete(String groupName, MenuItemDescription item) {
+        String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listItems();
-        List<MenuItemDescription> customItems = items.get("Custom");
+        List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
         }
         customItems.remove(item);
-        items.put("Custom", customItems);
+        if (customItems.isEmpty()) {
+            items.remove(group);
+        } else {
+            items.put(group, customItems);
+        }
     }
 
 }

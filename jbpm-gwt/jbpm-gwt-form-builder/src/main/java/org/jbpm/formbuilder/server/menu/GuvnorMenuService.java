@@ -3,7 +3,6 @@ package org.jbpm.formbuilder.server.menu;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -15,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
@@ -69,31 +69,37 @@ public class GuvnorMenuService implements MenuService {
         }
         customItems.add(item);
         items.put(group, customItems);
-        write("/menuItems.json", items);
+        writeMenuItems(items);
     }
     
-    public void delete(MenuItemDescription item) {
+    public void delete(String groupName, MenuItemDescription item) {
+        String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listItems();
-        List<MenuItemDescription> customItems = items.get("Custom");
+        List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
         }
         customItems.remove(item);
-        items.put("Custom", customItems);
-        write("/menuItems.json", items);
+        if (customItems.isEmpty()) {
+            items.remove(group);
+        } else {
+            items.put(group, customItems);
+        }
+        writeMenuItems(items);
     }
 
-    private <T extends Object> void write(String jsonFilePath, T items) {
-        Gson gson = new Gson();
-        URL url = getClass().getResource(jsonFilePath);
-        String json = gson.toJson(items, new TypeToken<T>() {}.getType());
+    private void writeMenuItems(Map<String, List<MenuItemDescription>> items) {
+        URL url = getClass().getResource("/menuItems.json");
         try {
-            File menuItemsFile = new File(url.toURI());
-            FileWriter writer = new FileWriter(menuItemsFile);
-            writer.write(json);
-            writer.flush();
-            writer.close();
+            FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
+            File file = new File(url.toURI());
+            String json = encoder.encodeMenuItemsMap(items);
+            FileUtils.writeStringToFile(file, json);
+        } catch (FormEncodingException e) {
+            //TODO throw error
         } catch (URISyntaxException e) {
+            //TODO throw error
+        } catch (FileNotFoundException e) {
             //TODO throw error
         } catch (IOException e) {
             //TODO throw error

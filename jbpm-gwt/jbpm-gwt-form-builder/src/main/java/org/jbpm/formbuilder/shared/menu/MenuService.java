@@ -11,5 +11,5 @@ public interface MenuService {
     
     void save(String groupName, MenuItemDescription item) throws MenuServiceException;
     
-    void delete(MenuItemDescription item);
+    void delete(String groupName, MenuItemDescription item) throws MenuServiceException;
 }

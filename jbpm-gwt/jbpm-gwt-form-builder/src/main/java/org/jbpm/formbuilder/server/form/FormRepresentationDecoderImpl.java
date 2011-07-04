@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
@@ -64,22 +63,7 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
     				for (Object itemObj : itemsMapList) {
     					Map<String, Object> itemDescMap = (Map<String, Object>) itemObj;
     					MenuItemDescription desc = new MenuItemDescription();
-    					desc.setClassName((String) itemDescMap.get("className"));
-    					desc.setName((String) itemDescMap.get("name"));
-    					List<Object> effectMapList = (List<Object>) itemDescMap.get("effects");
-    					List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
-    					if (effectMapList != null) {
-    						for (Object effectMapObj : effectMapList) {
-    							Map<String, Object> effectMap = (Map<String, Object>) effectMapObj;
-    							FormEffectDescription effDesc = new FormEffectDescription();
-    							effDesc.setClassName((String) effectMap.get("className"));
-    							effects.add(effDesc);
-    						}
-    					}
-    					desc.setEffects(effects);
-    					Map<String, Object> itemMap = (Map<String, Object>) itemDescMap.get("itemRepresentation");
-    					FormItemRepresentation rep = (FormItemRepresentation) decode(itemMap);
-    					desc.setItemRepresentation(rep);
+    					desc.setDataMap(itemDescMap);
     					itemsList.add(desc);
     				}
     			}

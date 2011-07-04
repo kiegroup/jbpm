@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.client.form;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
@@ -36,6 +38,21 @@ public class FormRepresentationEncoderClient implements FormRepresentationEncode
         builder.append("  \"onSubmitScripts\": ").append(encodeList(form.getOnSubmitScripts())).append("\n");
         builder.append("}\n");
         return builder.toString();
+    }
+    
+    public String encodeMenuItemsMap(Map<String, List<MenuItemDescription>> items) throws FormEncodingException {
+        Map<String, Object> dataMap = new HashMap<String, Object>();
+        if (items == null) {
+            return "null";
+        }
+        for (Map.Entry<String, List<MenuItemDescription>> entry : items.entrySet()) {
+            List<Map<String, Object>> itemMap = new ArrayList<Map<String, Object>>();
+            for (MenuItemDescription desc : entry.getValue()) {
+                itemMap.add(desc.getDataMap());
+            }
+            dataMap.put(entry.getKey(), itemMap);
+        }
+        return jsonFromMap(dataMap);
     }
     
     public String encode(FormItemRepresentation item) throws FormEncodingException {
