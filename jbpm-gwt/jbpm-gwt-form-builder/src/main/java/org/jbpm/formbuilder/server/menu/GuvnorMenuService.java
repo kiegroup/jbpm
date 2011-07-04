@@ -40,7 +40,7 @@ public class GuvnorMenuService implements MenuService {
         return retval;
     }
 
-    public Map<String, List<MenuItemDescription>> listItems() {
+    public Map<String, List<MenuItemDescription>> listMenuItems() {
         URL url = getClass().getResource("/menuItems.json");
         Map<String, List<MenuItemDescription>> retval = null;
         try {
@@ -60,9 +60,9 @@ public class GuvnorMenuService implements MenuService {
         return retval;
     }
     
-    public void save(String groupName, MenuItemDescription item) {
+    public void saveMenuItem(String groupName, MenuItemDescription item) {
         String group = groupName == null ? "Custom" : groupName;
-        Map<String, List<MenuItemDescription>> items = listItems();
+        Map<String, List<MenuItemDescription>> items = listMenuItems();
         List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
@@ -72,9 +72,9 @@ public class GuvnorMenuService implements MenuService {
         writeMenuItems(items);
     }
     
-    public void delete(String groupName, MenuItemDescription item) {
+    public void deleteMenuItem(String groupName, MenuItemDescription item) {
         String group = groupName == null ? "Custom" : groupName;
-        Map<String, List<MenuItemDescription>> items = listItems();
+        Map<String, List<MenuItemDescription>> items = listMenuItems();
         List<MenuItemDescription> customItems = items.get(group);
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();

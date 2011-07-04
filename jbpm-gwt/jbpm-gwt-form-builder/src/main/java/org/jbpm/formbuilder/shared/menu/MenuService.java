@@ -7,9 +7,9 @@ public interface MenuService {
 
     List<MenuOptionDescription> listOptions();
     
-    Map<String, List<MenuItemDescription>> listItems();
+    Map<String, List<MenuItemDescription>> listMenuItems();
     
-    void save(String groupName, MenuItemDescription item) throws MenuServiceException;
+    void saveMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException;
     
-    void delete(String groupName, MenuItemDescription item) throws MenuServiceException;
+    void deleteMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException;
 }

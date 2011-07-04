@@ -166,7 +166,7 @@ public class FormBuilderServlet extends HttpServlet {
     }
     
     private String listMenuItems() throws JAXBException {
-        Map<String, List<MenuItemDescription>> items = menuService.listItems();
+        Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
         ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
         return jaxbTransformation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
     }
@@ -224,13 +224,32 @@ public class FormBuilderServlet extends HttpServlet {
         try {
             SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class<?>[0]);
             MenuItemDescription menuItem = toMenuItemDescription(dto);
-            menuService.save(dto.getGroupName(), menuItem);
+            menuService.saveMenuItem(dto.getGroupName(), menuItem);
             return HttpServletResponse.SC_CREATED;
         } catch (MenuServiceException e) {
             return HttpServletResponse.SC_CONFLICT;
         }
     }
 
+    private int deleteMenuItem(BufferedReader reader) throws JAXBException {
+        try {
+            SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class<?>[0]);
+            MenuItemDescription menuItem = toMenuItemDescription(dto);
+            Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
+            List<MenuItemDescription> group = items.get(dto.getGroupName());
+            if (group == null || group.isEmpty()) {
+                return HttpServletResponse.SC_NOT_FOUND;
+            }
+            if (!group.contains(menuItem)) {
+                return HttpServletResponse.SC_CONFLICT;
+            }
+            menuService.deleteMenuItem(dto.getGroupName(), menuItem);
+            return HttpServletResponse.SC_CREATED;
+        } catch (MenuServiceException e) {
+            return HttpServletResponse.SC_CONFLICT;
+        }
+    }
+    
     private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto) {
         Gson gson = new Gson();
         String json = dto.getClone();
@@ -257,8 +276,18 @@ public class FormBuilderServlet extends HttpServlet {
     }
     
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-        // TODO Auto-generated method stub
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            String uri = req.getRequestURI();
+            if (uri.contains("menuItems")) {
+                int status = deleteMenuItem(req.getReader());
+                resp.setStatus(status);
+            } else if (uri.contains("form")) {
+                //TODO saveForm not done yet
+            }
+        } catch (Exception e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } 
     }
     
     public void setFormService(FormDefinitionService formService) {

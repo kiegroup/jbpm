@@ -319,6 +319,7 @@ public class FormBuilderModel implements FormBuilderService {
             }
         });
         try {
+            request.setRequestData(asXml(groupName, item));
             request.send();
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting menu item on server", e));

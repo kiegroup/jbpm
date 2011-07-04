@@ -29,7 +29,7 @@ public class GuvnorMenuServiceTest extends TestCase {
     
     public void testListItems() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
-        Map<String, List<MenuItemDescription>> items = service.listItems();
+        Map<String, List<MenuItemDescription>> items = service.listMenuItems();
         assertNotNull("items shouldn't be null", items);
         assertFalse("items shouldn't be empty", items.isEmpty());
         for (String key : items.keySet()) {
@@ -61,7 +61,7 @@ public class GuvnorMenuServiceTest extends TestCase {
         desc.setItemRepresentation(itemRepresentation);
         
         String groupName = "Test Components";
-        service.save(groupName, desc);
+        service.saveMenuItem(groupName, desc);
         
         String jsonResult = FileUtils.readFileToString(dbFile);
         
@@ -71,7 +71,7 @@ public class GuvnorMenuServiceTest extends TestCase {
         assertFalse(groupName + " list should not be empty", descsResult.get(groupName).isEmpty());
         assertFalse("descsInitial and descsResult should not be the same", descsInitial.equals(descsResult));
         
-        service.delete(groupName, desc);
+        service.deleteMenuItem(groupName, desc);
         
         String jsonFinal = FileUtils.readFileToString(dbFile);
         Map<String, List<MenuItemDescription>> descsFinal = decoder.decodeMenuItemsMap(jsonFinal);
