@@ -92,6 +92,7 @@
                     null,
                     {
                         "onClickScript": {
+                            "@className": "org.jbpm.formbuilder.shared.rep.FBScript",
                             "type": "text/javascript",
                             "documentation": null,
                             "content": "document.forms[0].submit();",

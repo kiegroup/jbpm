@@ -26,10 +26,10 @@ public class FormEncodingClientFactoryGwtTest extends GWTTestCase {
         "\"output\": null,\"cssName\": null,\"itemValidations\": [],\"id\": null},{\"maxLength\": null,\"typeId\": \"textField\","+
         "\"input\": null,\"@className\": \"org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation\",\"width\": \"160px\","+
         "\"defaultValue\": null,\"height\": \"21px\",\"output\": null,\"itemValidations\": [],\"name\": \"pwd\",\"id\": null"+
-        "}],[null,{\"onClickScript\": {\"type\": \"text/javascript\",\"documentation\": null,\"content\": \"document.forms[0].submit();\","+
-        "\"src\": null,\"invokeFunction\": null,\"id\": null},\"typeId\": \"completeButton\",\"input\": null,"+
-        "\"@className\": \"org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation\",\"text\": \"Login\","+
-        "\"width\": \"140px\",\"height\": \"25px\",\"output\": null,\"itemValidations\": [],\"name\": null,\"id\": null"+
+        "}],[null,{\"onClickScript\": {\"@className\": \"org.jbpm.formbuilder.shared.rep.FBScript\", \"type\": \"text/javascript\"," +
+        "\"documentation\": null,\"content\": \"document.forms[0].submit();\",\"src\": null,\"invokeFunction\": null,\"id\": null}," +
+        "\"typeId\": \"completeButton\",\"input\": null,\"@className\": \"org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation\"," +
+        "\"text\": \"Login\",\"width\": \"140px\",\"height\": \"25px\",\"output\": null,\"itemValidations\": [],\"name\": null,\"id\": null"+
         "}]]}],\"formValidations\": [],\"inputs\": {\"in2\": {\"@className\": \"org.jbpm.formbuilder.shared.rep.InputData\","+
         "\"mimeType\": null,\"value\": \"${process.dataY}\",\"name\": \"in2\",\"formatter\": null},\"in1\": {"+
         "\"@className\": \"org.jbpm.formbuilder.shared.rep.InputData\",\"mimeType\": null,\"value\": \"${process.dataX}\","+
