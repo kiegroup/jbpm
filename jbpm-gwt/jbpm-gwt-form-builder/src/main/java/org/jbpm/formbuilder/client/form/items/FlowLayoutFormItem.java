@@ -122,4 +122,10 @@ public class FlowLayoutFormItem extends LayoutFormItem {
 	public Panel getPanel() {
 		return this.panel;
 	}
+	
+	@Override
+	public boolean add(FBFormItem item) {
+		this.panel.add(item);
+		return super.add(item);
+	}
 }

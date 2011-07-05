@@ -1,6 +1,7 @@
 package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,27 +27,8 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	enum Position {
 		SOUTH, SOUTHWEST, WEST, NORTHWEST, NORTH, NORTHEAST, EAST, SOUTHEAST, CENTER;
 	}
-	
-	class PositionWrapper {
-		private Position position;
-		private FBFormItem item;
 
-		public Position getPosition() {
-			return position;
-		}
-		
-		public void setPosition(Position position) {
-			this.position = position;
-		}
-		
-		public FBFormItem getItem() {
-			return item;
-		}
-		
-		public void setItem(FBFormItem item) {
-			this.item = item;
-		}
-	}
+	Map<Position, FBFormItem> locations = new HashMap<Position, FBFormItem>();
 	
 	private Grid grid = new Grid(1,1) {
         @Override
@@ -92,9 +74,13 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 			public void onMouseUp(MouseUpEvent event) {
 				Position pos = obtainPosition(event.getX(), event.getY());
 				clearHighlihgting();
-				// TODO on decided position, add element
+				setDropPosition(pos);
 			}
 		}, MouseUpEvent.getType());
+	}
+
+	protected void setDropPosition(Position position) {
+		// TODO on decided position, add element
 	}
 	
 	protected void clearHighlihgting() {
@@ -183,7 +169,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	
 	@Override
 	public boolean add(FBFormItem item) {
-		// TODO Auto-generated method stub
+		// TODO add to panel on selected position? check
 		return super.add(item);
 	}
 

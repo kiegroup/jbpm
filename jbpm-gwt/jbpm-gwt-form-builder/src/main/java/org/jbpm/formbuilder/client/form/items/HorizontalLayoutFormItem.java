@@ -164,4 +164,10 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         }
         return hp;
     }
+    
+    @Override
+    public boolean add(FBFormItem item) {
+    	this.panel.add(item);
+    	return super.add(item);
+    }
 }
