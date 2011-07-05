@@ -11,6 +11,8 @@ public class RepresentationFactory {
     static {
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.AbsoluteLayoutFormItem");
+        registerItemClassName("org.jbpm.formbuilder.shared.rep.items.BorderPanelRepresentation",
+        		"org.jbpm.formbuilder.client.form.items.BorderLayoutFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation",
                 "org.jbpm.formbuilder.client.form.items.CheckBoxFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation", 

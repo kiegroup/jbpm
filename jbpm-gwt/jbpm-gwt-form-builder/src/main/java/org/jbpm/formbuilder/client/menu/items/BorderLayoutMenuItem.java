@@ -11,13 +11,8 @@ import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
-/*
- * TODO yet to be implemented. Inspired by Swing Border Layout (http://download.oracle.com/javase/tutorial/uiswing/layout/using.html)
- */
 public class BorderLayoutMenuItem extends FBMenuItem {
 
-	// NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST, CENTER;
-	
 	public BorderLayoutMenuItem() {
 		super();
 	}
