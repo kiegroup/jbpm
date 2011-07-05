@@ -32,8 +32,8 @@ public class DropFormItemController extends AbstractDropController {
     @Override
     public void onDrop(DragContext context) {
         Widget drag = context.draggable;
-        int x = context.desiredDraggableX;
-        int y = context.desiredDraggableY;
+        int x = context.mouseX;
+        int y = context.mouseY;
         if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
             FBMenuItem menuItem = (FBMenuItem) drag;
             FBFormItem formItem = menuItem.buildWidget();

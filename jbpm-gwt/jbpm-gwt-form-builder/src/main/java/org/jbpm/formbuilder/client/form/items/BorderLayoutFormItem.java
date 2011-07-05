@@ -177,46 +177,46 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 		int col = 0;
 		switch (currentPosition) {
 		case NORTH:
-			ensureRows(3);
+			ensureRows();
 			col = getMiddleColumn();
 			row = 0;
 			break;
 		case NORTHEAST:
-			ensureRows(3);
-			ensureColumns(3);
+			ensureRows();
+			ensureColumns();
 			col = 0;
 			row = 0;
 			break;
 		case EAST:
-			ensureColumns(3);
+			ensureColumns();
 			row = getMiddleRow();
 			col = 2;
 			break;
 		case SOUTHEAST:
-			ensureColumns(3);
-			ensureRows(3);
+			ensureColumns();
+			ensureRows();
 			row = 2;
 			col = 2;
 			break;
 		case SOUTH:
-			ensureRows(3);
+			ensureRows();
 			row = 2;
 			col = getMiddleColumn();
 			break;
 		case SOUTHWEST:
-			ensureRows(3);
-			ensureColumns(3);
+			ensureRows();
+			ensureColumns();
 			row = 2;
 			col = 0;
 			break;
 		case WEST:
-			ensureColumns(3);
+			ensureColumns();
 			row = getMiddleRow();
 			col = 0;
 			break;
 		case NORTHWEST:
-			ensureColumns(3);
-			ensureRows(3);
+			ensureColumns();
+			ensureRows();
 			col = 0;
 			row = 0;
 			break;
@@ -252,15 +252,33 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 		}
 		return col;
 	}
-	private void ensureRows(int rows) {
-		if (grid.getRowCount() < rows) {
-			grid.resizeRows(rows);
+	private void ensureRows() {
+		if (grid.getRowCount() < 3) {
+			grid.resizeRows(3);
+			for (int i = 0; i < 2; i++) {
+				if (grid.getColumnCount() > i) {
+					Widget widget = grid.getWidget(0, i);
+					if (widget != null) {
+						grid.remove(widget);
+						grid.setWidget(1, i, widget);
+					}
+				}
+			}
 		}
 	}
 	
-	private void ensureColumns(int cols) {
-		if (grid.getColumnCount() < cols) {
-			grid.resizeColumns(cols);
+	private void ensureColumns() {
+		if (grid.getColumnCount() < 3) {
+			grid.resizeColumns(3);
+			for (int i = 0; i < 2; i++) {
+				if (grid.getRowCount() > i) {
+					Widget widget = grid.getWidget(i, 0);
+					if (widget != null) {
+						grid.remove(widget);
+						grid.setWidget(i, 1, widget);
+					}
+				}
+			}
 		}
 	}
 
@@ -268,16 +286,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	public boolean remove(Widget child) {
         boolean removed = false;
         if (child instanceof FBFormItem) {
-            for (int i = 0; i < grid.getRowCount(); i++) {
-                for (int j = 0; j < grid.getColumnCount(); j++) {
-                    if (grid.getWidget(i, j) != null && grid.getWidget(i, j).equals(child)) {
-                        removed = super.remove(child);
-                        ////WARN dom used: seems the only way of fixing deleted cell bug
-                        grid.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");
-                        break;
-                    }
-                }
-            }
+        	grid.remove(child);
             Position pos = null;
             for (Map.Entry<Position, FBFormItem> entry : this.locations.entrySet()) {
             	if (entry.getValue().equals(child)) {
@@ -286,6 +295,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
             	}
             }
             this.locations.remove(pos);
+            removeItem((FBFormItem) child);
         } else {
             removed = super.remove(child);
         }

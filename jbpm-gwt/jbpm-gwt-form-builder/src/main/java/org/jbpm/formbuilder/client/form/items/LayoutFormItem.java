@@ -28,6 +28,10 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         return items;
     }
     
+    public boolean removeItem(FBFormItem item) {
+    	return this.items.remove(item);
+    }
+    
     public void setItems(List<FBFormItem> items) {
         this.items = items;
     }
