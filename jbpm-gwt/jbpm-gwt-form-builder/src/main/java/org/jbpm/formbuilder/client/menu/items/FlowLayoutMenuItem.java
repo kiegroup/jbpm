@@ -1,38 +1,44 @@
 package org.jbpm.formbuilder.client.menu.items;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.FlowLayoutFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
-/*
- * TODO yet to be implemented. Inspired by Swing Flow Layout (http://download.oracle.com/javase/tutorial/uiswing/layout/using.html)
- */
 public class FlowLayoutMenuItem extends FBMenuItem {
 
+	public FlowLayoutMenuItem() {
+		super();
+	}
+	
+	public FlowLayoutMenuItem(List<FBFormEffect> effects) {
+		super(effects);
+	}
+	
     @Override
     protected ImageResource getIconUrl() {
-        // TODO Auto-generated method stub
-        return null;
+    	return FormBuilderResources.INSTANCE.flowLayoutIcon();
     }
 
     @Override
     public Label getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        return new Label("Flow Layout");
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new FlowLayoutMenuItem(getFormEffects());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new FlowLayoutFormItem(getFormEffects());
     }
 
 }

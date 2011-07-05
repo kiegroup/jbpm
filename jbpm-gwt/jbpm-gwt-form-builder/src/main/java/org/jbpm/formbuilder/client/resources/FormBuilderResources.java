@@ -103,4 +103,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/refresh_button.gif")
     ImageResource refreshButton();
+
+    @Source("images/flow_layout_icon.gif")
+	ImageResource flowLayoutIcon();
 }

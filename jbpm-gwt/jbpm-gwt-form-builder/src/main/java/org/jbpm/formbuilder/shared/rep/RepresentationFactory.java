@@ -21,6 +21,8 @@ public class RepresentationFactory {
                 "org.jbpm.formbuilder.client.form.items.ConditionalBlockFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation",
                 "org.jbpm.formbuilder.client.form.items.FileInputFormItem");
+        registerItemClassName("org.jbpm.formbuilder.shared.rep.items.FlowPanelRepresentation", 
+        		"org.jbpm.formbuilder.client.form.items.FlowLayoutFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation",
                 "org.jbpm.formbuilder.client.form.items.HeaderFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation",
