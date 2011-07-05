@@ -91,13 +91,17 @@ public class FormBuilderModel implements FormBuilderService {
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
-                Document xml = XMLParser.parse(response.getText());
-                menuItems.putAll(readMenuMap(xml));
-                for (String groupName : menuItems.keySet()) {
-                    for (FBMenuItem menuItem : menuItems.get(groupName)) {
-                        bus.fireEvent(new MenuItemFromServerEvent(menuItem, groupName));
-                    }
-                }
+            	if (response.getStatusCode() == Response.SC_OK) {
+            		Document xml = XMLParser.parse(response.getText());
+            		menuItems.putAll(readMenuMap(xml));
+            		for (String groupName : menuItems.keySet()) {
+            			for (FBMenuItem menuItem : menuItems.get(groupName)) {
+            				bus.fireEvent(new MenuItemFromServerEvent(menuItem, groupName));
+            			}
+            		}
+            	} else {
+            		bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find menu items: response status 404"));
+            	}
             }
             public void onError(Request request, Throwable exception) {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find menu items", exception));

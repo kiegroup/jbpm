@@ -31,6 +31,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
         @Override
         public boolean remove(Widget widget) {
             if (widget instanceof FBFormItem) {
+            	super.remove(widget);
                 return BorderLayoutFormItem.this.remove(widget);
             } else {
                 return super.remove(widget);
@@ -288,7 +289,6 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	public boolean remove(Widget child) {
         boolean removed = false;
         if (child instanceof FBFormItem) {
-        	grid.remove(child);
             Position pos = null;
             for (Map.Entry<Position, FBFormItem> entry : this.locations.entrySet()) {
             	if (entry.getValue().equals(child)) {
