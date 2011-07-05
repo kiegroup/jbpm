@@ -46,8 +46,12 @@ import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
 import org.jbpm.process.instance.context.swimlane.SwimlaneContextInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.workflow.core.node.HumanTaskNode;
+import org.jbpm.workflow.core.node.WorkItemNode;
+import org.jbpm.workflow.instance.impl.NodeInstanceFactoryRegistry;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.impl.factory.CreateNewNodeFactory;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
@@ -535,7 +539,13 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 }
                 break;
             case PersisterEnums.HUMAN_TASK_NODE_INSTANCE:
-                nodeInstance = new HumanTaskNodeInstance();
+//                nodeInstance = new HumanTaskNodeInstance();
+    			try {
+    				nodeInstance = (NodeInstanceImpl) ((CreateNewNodeFactory) NodeInstanceFactoryRegistry.INSTANCE.registry.get(HumanTaskNode.class)).cls.newInstance();
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				throw new RuntimeException(e);
+    			}
                 ((HumanTaskNodeInstance) nodeInstance).internalSetWorkItemId(stream.readLong());
                 nbTimerInstances = stream.readInt();
                 if (nbTimerInstances > 0) {
@@ -547,7 +557,13 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 }
                 break;
             case PersisterEnums.WORK_ITEM_NODE_INSTANCE:
-                nodeInstance = new WorkItemNodeInstance();
+//                nodeInstance = new WorkItemNodeInstance();
+			try {
+				nodeInstance = (NodeInstanceImpl) ((CreateNewNodeFactory) NodeInstanceFactoryRegistry.INSTANCE.registry.get(WorkItemNode.class)).cls.newInstance();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
                 ((WorkItemNodeInstance) nodeInstance).internalSetWorkItemId(stream.readLong());
                 nbTimerInstances = stream.readInt();
                 if (nbTimerInstances > 0) {

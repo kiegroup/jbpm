@@ -67,7 +67,7 @@ public class NodeInstanceFactoryRegistry {
 
 	public static final NodeInstanceFactoryRegistry INSTANCE = new NodeInstanceFactoryRegistry();
 
-	private Map<Class<? extends Node>, NodeInstanceFactory> registry;
+	public Map<Class<? extends Node>, NodeInstanceFactory> registry;
 
 	private NodeInstanceFactoryRegistry() {
 		this.registry = new HashMap<Class<? extends Node>, NodeInstanceFactory>();
