@@ -264,6 +264,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 					}
 				}
 			}
+			grid.setSize(getWidth(), getHeight());
 		}
 	}
 	
@@ -279,6 +280,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 					}
 				}
 			}
+			grid.setSize(getWidth(), getHeight());
 		}
 	}
 
