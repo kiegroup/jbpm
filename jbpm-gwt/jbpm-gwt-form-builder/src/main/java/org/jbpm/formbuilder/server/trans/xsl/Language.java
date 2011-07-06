@@ -7,6 +7,6 @@ public class Language extends ScriptingLanguage {
     private static final String LANG = "xsl";
 
     public Language() {
-        super(LANG, Language.class.getResource("/langs/xsl/form.vm").toExternalForm().replace("form.vm", ""));
+        super(LANG, "/langs/xsl/");
     }
 }

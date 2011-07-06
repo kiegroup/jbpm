@@ -10,7 +10,7 @@ public class Language extends ScriptingLanguage {
     private static final String LANG = "ftl";
 
     public Language() {
-        super(LANG, Language.class.getResource("/langs/freemarker/form.vm").toExternalForm().replace("form.vm", ""));
+        super(LANG, "/langs/freemarker/");
     }
 
     public String getParam(String paramName, String paramValue) {

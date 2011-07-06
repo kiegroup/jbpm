@@ -19,7 +19,7 @@ import com.google.gwt.visualization.client.visualizations.LineChart.Options;
 
 public class LineGraphFormItem extends FBFormItem {
 
-    private LineChart chart = new LineChart();
+    private LineChart chart = new LineChart(DataTable.create(), Options.create());
     
     private List<List<String>> dataTableRep = new ArrayList<List<String>>();
     private List<Map.Entry<String, String>> dataStructRep = new ArrayList<Map.Entry<String, String>>();

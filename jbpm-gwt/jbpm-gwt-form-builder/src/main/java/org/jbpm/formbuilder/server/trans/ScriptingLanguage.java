@@ -24,12 +24,14 @@ public class ScriptingLanguage implements Language {
     private final String language;
     private final String folderLocation;
     
-    public ScriptingLanguage(String language, String folderLocation) {
+    public ScriptingLanguage(String language, String folderClassPathLocation) {
         this.language = language;
-        this.folderLocation = folderLocation;
+        this.folderLocation = folderClassPathLocation;
+        String url = getClass().getResource(folderClassPathLocation + "form.vm").toExternalForm();
+        String folderFileLocation = url.replace("form.vm", "");
         engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "url");
         engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".class", URLResourceLoader.class.getName());
-        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".root", folderLocation);
+        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".root", folderFileLocation);
         engine.init();
     }
     
