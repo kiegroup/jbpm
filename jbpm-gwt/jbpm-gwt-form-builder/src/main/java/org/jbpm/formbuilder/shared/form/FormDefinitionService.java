@@ -12,6 +12,10 @@ public interface FormDefinitionService {
 
     String /*formId*/ saveForm(String pkgName, FormRepresentation form) throws FormServiceException;
     String /*formItemId*/ saveFormItem(String pkgName, String formItemName, FormItemRepresentation formItem) throws FormServiceException;
+    
+    void deleteForm(String pkgName, String formId) throws FormServiceException;
+    void deleteFormItem(String pkgName, String formItemId) throws FormServiceException;
+    
     FormRepresentation getForm(String pkgName, String formId) throws FormServiceException;
     FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException;
     

@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -182,6 +183,36 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             throw new FormServiceException(e);
         } finally {
             method.releaseConnection();
+        }
+    }
+
+    public void deleteForm(String pkgName, String formId) throws FormServiceException {
+        HttpClient client = new HttpClient();
+        if (formId != null && !"".equals(formId)) {
+            DeleteMethod method = new DeleteMethod(getBaseUrl(pkgName) + formId);
+            try {
+                method.setRequestHeader("Authorization", getAuthString());
+                client.executeMethod(method);
+            } catch (IOException e) {
+                throw new FormServiceException(e);
+            } finally {
+                method.releaseConnection();
+            }
+        }
+    }
+    
+    public void deleteFormItem(String pkgName, String formItemId) throws FormServiceException {
+        HttpClient client = new HttpClient();
+        if (formItemId != null && !"".equals(formItemId)) {
+            DeleteMethod method = new DeleteMethod(getBaseUrl(pkgName) + formItemId);
+            try {
+                method.setRequestHeader("Authorization", getAuthString());
+                client.executeMethod(method);
+            } catch (IOException e) {
+                throw new FormServiceException(e);
+            } finally {
+                method.releaseConnection();
+            }
         }
     }
     

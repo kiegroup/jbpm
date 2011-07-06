@@ -34,6 +34,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.io.IOUtils;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
@@ -110,19 +111,19 @@ public class FormBuilderServlet extends HttpServlet {
         try {
             String uri = req.getRequestURI();
             StringBuilder content = new StringBuilder();
-            if (uri.contains("menuItems")) {
+            if (uri.contains("/menuItems/")) {
                 resp.setContentType("text/xml");
                 content.append(listMenuItems());
-            } else if (uri.contains("menuOptions")) {
+            } else if (uri.contains("/menuOptions/")) {
                 resp.setContentType("text/xml");
                 content.append(listOptions());
-            } else if (uri.contains("listTasks")) {
+            } else if (uri.contains("/listTasks/")) {
                 resp.setContentType("text/xml");
                 content.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
-            } else if (uri.contains("listValidations")) {
+            } else if (uri.contains("/listValidations/")) {
                 resp.setContentType("text/xml");
                 //TODO implement listValidations
-            } else if (uri.contains("formPreview")) {
+            } else if (uri.contains("/formPreview/")) {
                 resp.setContentType("text/html");
                 content.append(getFormPreview(req.getRequestURI()));
             }
@@ -159,7 +160,7 @@ public class FormBuilderServlet extends HttpServlet {
     }
 
     private String listTasks(String filter, String pkgName) throws JAXBException {
-        List<TaskRef> tasks = taskService.query(pkgName, filter);
+        List<TaskRef> tasks = taskService.query(pkgName, filter); //TODO check implementation
         ListTasksDTO dto = new ListTasksDTO(tasks);
         return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
     }
@@ -208,17 +209,41 @@ public class FormBuilderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String uri = req.getRequestURI();
-            if (uri.contains("menuItems")) {
+            if (uri.contains("/menuItems/")) {
                 int status = saveMenuItem(req.getReader());
                 resp.setStatus(status);
-            } else if (uri.contains("form")) {
-                //TODO saveForm not done yet
+            } else if (uri.contains("/formItems/")) {
+                String formItemId = saveFormItem(uri, req.getReader());
+                resp.getWriter().println(formItemId);
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+            } else if (uri.contains("/forms/")) {
+                String formId = saveForm(uri, req.getReader());
+                resp.getWriter().println(formId);
+                resp.setStatus(HttpServletResponse.SC_CREATED);
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
     }
 
+    private String saveFormItem(String uri, BufferedReader reader) throws IOException, FormEncodingException, FormServiceException {
+        String json = IOUtils.toString(reader);
+        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormItemRepresentation item = decoder.decodeItem(json);
+        String pkgName = getUriParameter(uri, "package");
+        String formItemName = getUriParameter(uri, "formItemName");
+        String formItemId = formService.saveFormItem(pkgName, formItemName, item);
+        return formItemId;
+    }
+    
+    private String saveForm(String uri, BufferedReader reader) throws IOException, FormEncodingException, FormServiceException {
+        String json = IOUtils.toString(reader);
+        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormRepresentation form = decoder.decode(json);
+        String formId = formService.saveForm(getUriParameter(uri, "package"), form);
+        return formId;
+    }
+    
     private int saveMenuItem(BufferedReader reader) throws JAXBException {
         try {
             SaveMenuItemDTO dto = jaxbTransformation(reader, SaveMenuItemDTO.class, new Class[] {SaveMenuItemDTO.class});
@@ -277,15 +302,39 @@ public class FormBuilderServlet extends HttpServlet {
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String uri = req.getRequestURI();
-            if (uri.contains("menuItems")) {
+            if (uri.contains("/menuItems/")) {
                 int status = deleteMenuItem(req.getReader());
                 resp.setStatus(status);
-            } else if (uri.contains("form")) {
-                //TODO deleteForm not done yet
+            } else if (uri.contains("/forms/")) {
+                deleteForm(uri);
+            } else if (uri.contains("/formItems/")) {
+                deleteFormItem(uri);
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
+    }
+    
+    private int deleteFormItem(String uri) throws IOException {
+        String pkgName = getUriParameter(uri, "package");
+        String formItemName = getUriParameter(uri, "formItemName");
+        try {
+            formService.deleteFormItem(pkgName, formItemName);
+            return HttpServletResponse.SC_OK;
+        } catch (FormServiceException e) {
+            return HttpServletResponse.SC_NO_CONTENT;
+        }
+    }
+    
+    private int deleteForm(String uri) throws IOException {
+        String pkgName = getUriParameter(uri, "package");
+        String formId =  getUriParameter(uri, "formId");
+        try {
+            formService.deleteForm(pkgName, formId);
+            return HttpServletResponse.SC_OK;
+        } catch (FormServiceException e) {
+            return HttpServletResponse.SC_NO_CONTENT;
+        }
     }
     
     public void setFormService(FormDefinitionService formService) {

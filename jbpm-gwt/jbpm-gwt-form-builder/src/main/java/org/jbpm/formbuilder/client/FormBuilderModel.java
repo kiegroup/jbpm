@@ -88,7 +88,7 @@ public class FormBuilderModel implements FormBuilderService {
     
     public Map<String, List<FBMenuItem>> getMenuItems() {
         final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
-        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
             	if (response.getStatusCode() == Response.SC_OK) {
@@ -195,7 +195,7 @@ public class FormBuilderModel implements FormBuilderService {
 
     public List<MainMenuOption> getMenuOptions() {
         final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
-        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuOptions");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuOptions/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 Document xml = XMLParser.parse(response.getText());
@@ -250,7 +250,7 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void saveForm(FormRepresentation form) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/menuItems");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/forms/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {

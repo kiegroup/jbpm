@@ -101,4 +101,38 @@ public class MockFormDefinitionService implements FormDefinitionService {
         items.put(pkgName, list);
         return itemName;
     }
+    
+    public void deleteForm(String pkgName, String formId) {
+        List<FormRepresentation> list = forms.get(pkgName);
+        if (list != null) {
+            FormRepresentation toRemove = null;
+            for (FormRepresentation form : list) {
+                if (formId.equals(form.getName())) {
+                    toRemove = form;
+                    break;
+                }
+            }
+            if (toRemove != null) {
+                list.remove(toRemove);
+            }
+            forms.put(pkgName, list);
+        }
+    }
+    
+    public void deleteFormItem(String pkgName, String formItemId) {
+        List<Map.Entry<String, FormItemRepresentation>> list = items.get(pkgName);
+        if (list != null) {
+            Map.Entry<String, FormItemRepresentation> toRemove = null;
+            for (Map.Entry<String, FormItemRepresentation> item: list) {
+                if (formItemId.equals(item.getKey())) {
+                    toRemove = item;
+                    break;
+                }
+            }
+            if (toRemove != null) {
+                list.remove(toRemove);
+            }
+            items.put(pkgName, list);
+        }
+    }
 }
