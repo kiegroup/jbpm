@@ -18,13 +18,14 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
+import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class GuvnorMenuService implements MenuService {
 
-    public List<MenuOptionDescription> listOptions() {
+    public List<MenuOptionDescription> listOptions() throws MenuServiceException {
     	Gson gson = new Gson();
         URL url = getClass().getResource("/menuOptions.json");
         List<MenuOptionDescription> retval = null;
@@ -33,14 +34,14 @@ public class GuvnorMenuService implements MenuService {
             retval = gson.fromJson(new FileReader(file), 
             		new TypeToken<List<MenuOptionDescription>>(){}.getType());
         } catch (URISyntaxException e) {
-            //TODO throw error
+            throw new MenuServiceException("Problem finding menu options json file", e); 
         } catch (FileNotFoundException e) {
-            //TODO throw error
+            throw new MenuServiceException("No menu options json file found", e);
         }
         return retval;
     }
 
-    public Map<String, List<MenuItemDescription>> listMenuItems() {
+    public Map<String, List<MenuItemDescription>> listMenuItems() throws MenuServiceException {
         URL url = getClass().getResource("/menuItems.json");
         Map<String, List<MenuItemDescription>> retval = null;
         try {
@@ -49,18 +50,18 @@ public class GuvnorMenuService implements MenuService {
         	String json = FileUtils.readFileToString(file);
         	retval = decoder.decodeMenuItemsMap(json);
         } catch (FormEncodingException e) {
-            //TODO throw error
+            throw new MenuServiceException("Problem parsing menu items json file", e);
         } catch (URISyntaxException e) {
-            //TODO throw error
+            throw new MenuServiceException("Problem finding menu items json file", e);
         } catch (FileNotFoundException e) {
-        	//TODO throw error
+            throw new MenuServiceException("No menu items json file found", e);
         } catch (IOException e) {
-        	//TODO throw error
+            throw new MenuServiceException("Problem reading menu items json file", e);
         }
         return retval;
     }
     
-    public void saveMenuItem(String groupName, MenuItemDescription item) {
+    public void saveMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException {
         String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listMenuItems();
         List<MenuItemDescription> customItems = items.get(group);
@@ -72,7 +73,7 @@ public class GuvnorMenuService implements MenuService {
         writeMenuItems(items);
     }
     
-    public void deleteMenuItem(String groupName, MenuItemDescription item) {
+    public void deleteMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException {
         String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listMenuItems();
         List<MenuItemDescription> customItems = items.get(group);
@@ -88,7 +89,7 @@ public class GuvnorMenuService implements MenuService {
         writeMenuItems(items);
     }
 
-    private void writeMenuItems(Map<String, List<MenuItemDescription>> items) {
+    private void writeMenuItems(Map<String, List<MenuItemDescription>> items) throws MenuServiceException {
         URL url = getClass().getResource("/menuItems.json");
         try {
             FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
@@ -96,13 +97,13 @@ public class GuvnorMenuService implements MenuService {
             String json = encoder.encodeMenuItemsMap(items);
             FileUtils.writeStringToFile(file, json);
         } catch (FormEncodingException e) {
-            //TODO throw error
+            throw new MenuServiceException("Problem transforming menu items to json", e);
         } catch (URISyntaxException e) {
-            //TODO throw error
+            throw new MenuServiceException("Problem finding menu items json file", e);
         } catch (FileNotFoundException e) {
-            //TODO throw error
+            throw new MenuServiceException("No menu items json file found", e);
         } catch (IOException e) {
-            //TODO throw error
+            throw new MenuServiceException("Problem writing menu items json file", e);
         }
     }
 }

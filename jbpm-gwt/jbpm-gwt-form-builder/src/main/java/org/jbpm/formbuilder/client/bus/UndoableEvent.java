@@ -5,9 +5,6 @@ import java.util.Map;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-/*
- * TODO EVERYTHING THAT PERFORMS A CHANGE SHOULD THROW ONE OF THESE
- */
 public class UndoableEvent extends GwtEvent<UndoableEventHandler> {
 
     public static final Type<UndoableEventHandler> TYPE = new Type<UndoableEventHandler>();

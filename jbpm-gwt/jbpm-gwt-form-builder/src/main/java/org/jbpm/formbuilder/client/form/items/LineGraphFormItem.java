@@ -1,0 +1,134 @@
+package org.jbpm.formbuilder.client.form.items;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
+import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.LineGraphRepresentation;
+
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
+import com.google.gwt.visualization.client.DataTable;
+import com.google.gwt.visualization.client.visualizations.LineChart;
+import com.google.gwt.visualization.client.visualizations.LineChart.Options;
+
+public class LineGraphFormItem extends FBFormItem {
+
+    private LineChart chart = new LineChart();
+    
+    private List<List<String>> dataTableRep = new ArrayList<List<String>>();
+    private List<Map.Entry<String, String>> dataStructRep = new ArrayList<Map.Entry<String, String>>();
+    
+    private String graphTitle;
+    private String graphXTitle;
+    private String graphYTitle;
+    
+    public LineGraphFormItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
+    
+    public LineGraphFormItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+        setSize("200px", "150px");
+        chart.setSize("200px", "150px");
+        add(chart);
+    }
+
+    @Override
+    public Map<String, Object> getFormItemPropertiesMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("width", getWidth());
+        map.put("height", getHeight());
+        map.put("graphTitle", this.graphTitle);
+        map.put("graphXTitle", this.graphXTitle);
+        map.put("graphYTitle", this.graphYTitle);
+        return map;
+    }
+
+    @Override
+    public void saveValues(Map<String, Object> asPropertiesMap) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
+        this.graphTitle = extractString(map.get("graphTitle"));
+        this.graphXTitle = extractString(map.get("graphXTitle"));
+        this.graphYTitle = extractString(map.get("graphYTitle"));
+        populate(this.chart);
+    }
+    
+    private int getIntValue(Object obj) {
+        return Integer.valueOf(obj.toString());
+    }
+    
+    private void populate(LineChart chart) {
+        Options options = Options.create();
+        options.setWidth(getOffsetWidth());
+        options.setHeight(getOffsetHeight());
+        options.setTitle(this.graphTitle);
+        options.setTitleX(this.graphXTitle);
+        options.setTitleY(this.graphYTitle);
+        DataTable dataTable = DataTable.create();
+        if (dataStructRep != null) {
+            for (Map.Entry<String, String> col : dataStructRep) {
+                dataTable.addColumn(ColumnType.valueOf(col.getValue()), col.getKey());
+            }
+        }
+        if (dataTableRep != null) {
+            for (List<String> row : dataTableRep) {
+                dataTable.setValue(getIntValue(row.get(0)), getIntValue(row.get(1)), row.get(2));
+            }
+        }
+        chart.draw(dataTable, options);  
+    }
+
+    @Override
+    public FormItemRepresentation getRepresentation() {
+        LineGraphRepresentation rep = super.getRepresentation(new LineGraphRepresentation());
+        rep.setDataStructure(new ArrayList<Map.Entry<String, String>>(dataStructRep));
+        rep.setDataTable(new ArrayList<List<String>>(dataTableRep));
+        rep.setGraphTitle(graphTitle);
+        rep.setGraphXTitle(graphXTitle);
+        rep.setGraphYTitle(graphYTitle);
+        return rep;
+    }
+    
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof LineGraphRepresentation)) {
+            throw new FormBuilderException("rep should be of type LineGraphRepresentation but is of type " + rep.getClass().getName());
+        }
+        super.populate(rep);
+        LineGraphRepresentation grep = (LineGraphRepresentation) rep;
+        this.dataStructRep = new ArrayList<Map.Entry<String, String>>(grep.getDataStructure());
+        this.dataTableRep = new ArrayList<List<String>>(grep.getDataTable());
+        this.graphTitle = grep.getGraphTitle();
+        this.graphXTitle = grep.getGraphXTitle();
+        this.graphYTitle = grep.getGraphYTitle();
+        populate(this.chart);
+    }
+
+    @Override
+    public FBFormItem cloneItem() {
+        LineGraphFormItem item = super.cloneItem(new LineGraphFormItem(getFormEffects()));
+        item.chart = (LineChart) cloneDisplay();
+        item.dataStructRep = new ArrayList<Map.Entry<String, String>>(this.dataStructRep);
+        item.dataTableRep = new ArrayList<List<String>>(this.dataTableRep);
+        item.graphTitle = this.graphTitle;
+        item.graphXTitle = this.graphXTitle;
+        item.graphYTitle = this.graphYTitle;
+        return item;
+    }
+
+    @Override
+    public Widget cloneDisplay() {
+        LineChart chart = new LineChart();
+        populate(chart);
+        return chart;
+    }
+
+}

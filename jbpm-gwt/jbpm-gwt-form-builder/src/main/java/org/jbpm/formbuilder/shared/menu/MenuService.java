@@ -5,9 +5,9 @@ import java.util.Map;
 
 public interface MenuService {
 
-    List<MenuOptionDescription> listOptions();
+    List<MenuOptionDescription> listOptions() throws MenuServiceException;
     
-    Map<String, List<MenuItemDescription>> listMenuItems();
+    Map<String, List<MenuItemDescription>> listMenuItems() throws MenuServiceException;
     
     void saveMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException;
     

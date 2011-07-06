@@ -122,7 +122,7 @@ public class FormBuilderServlet extends HttpServlet {
                 content.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
             } else if (uri.contains("listValidations")) {
                 resp.setContentType("text/xml");
-                //TODO implement
+                //TODO implement listValidations
             } else if (uri.contains("formPreview")) {
                 resp.setContentType("text/html");
                 content.append(getFormPreview(req.getRequestURI()));
@@ -165,13 +165,13 @@ public class FormBuilderServlet extends HttpServlet {
         return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
     }
     
-    private String listMenuItems() throws JAXBException {
+    private String listMenuItems() throws JAXBException, MenuServiceException {
         Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
         ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
         return jaxbTransformation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
     }
 
-    private String listOptions() throws JAXBException {
+    private String listOptions() throws JAXBException, MenuServiceException {
         List<MenuOptionDescription> options = menuService.listOptions();
         ListOptionsDTO dto = new ListOptionsDTO(options);
         return jaxbTransformation(dto, ListOptionsDTO.class, MenuOptionDTO.class);
@@ -275,11 +275,6 @@ public class FormBuilderServlet extends HttpServlet {
     }
     
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
-        // TODO Auto-generated method stub
-    }
-    
-    @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             String uri = req.getRequestURI();
@@ -287,7 +282,7 @@ public class FormBuilderServlet extends HttpServlet {
                 int status = deleteMenuItem(req.getReader());
                 resp.setStatus(status);
             } else if (uri.contains("form")) {
-                //TODO saveForm not done yet
+                //TODO deleteForm not done yet
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());

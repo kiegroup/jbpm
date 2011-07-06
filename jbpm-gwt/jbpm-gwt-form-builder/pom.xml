@@ -93,6 +93,11 @@
       <version>3.0.1</version>
     </dependency>
     <dependency>
+      <groupId>com.google.gwt.google-apis</groupId>
+      <artifactId>gwt-visualization</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
       <groupId>org.drools</groupId>
       <artifactId>guvnor-repository</artifactId>
     </dependency>    

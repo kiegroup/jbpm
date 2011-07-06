@@ -123,9 +123,4 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     public void addEffect(FBFormEffect effect) {
         this.formEffects.add(effect);
     }
-
-    public void setItemId(String itemId) {
-        // TODO implement where needed
-    }
-
 }

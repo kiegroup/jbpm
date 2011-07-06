@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.LineGraphFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
@@ -40,8 +41,7 @@ public class LineGraphMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new LineGraphFormItem(getFormEffects());
     }
 
 }
