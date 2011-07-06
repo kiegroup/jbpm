@@ -52,6 +52,7 @@ public class ComboBoxFormItem extends OptionsFormItem {
         populate(this.listBox);
     }
 
+    @SuppressWarnings("deprecation")
     private void populate(ListBox listBox) {
         if (this.multiple != null) {
             this.listBox.setMultipleSelect(this.multiple);

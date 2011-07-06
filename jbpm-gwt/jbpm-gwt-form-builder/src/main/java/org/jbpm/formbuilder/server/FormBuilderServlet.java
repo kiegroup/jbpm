@@ -34,9 +34,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.drools.repository.RulesRepository;
-import org.jboss.seam.Component;
-import org.jboss.seam.contexts.Contexts;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
@@ -62,6 +59,7 @@ import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
@@ -87,10 +85,11 @@ public class FormBuilderServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         this.menuService = new GuvnorMenuService();
         this.taskService = new GuvnorTaskDefinitionService();
-        if ( Contexts.isApplicationContextActive() ) {
-            RulesRepository repo = (RulesRepository) Component.getInstance( "repository" );
-            this.formService = new GuvnorFormDefinitionService(repo);
-        }
+        this.formService = new GuvnorFormDefinitionService(
+                config.getInitParameter("guvnor-base-url"),
+                config.getInitParameter("guvnor-user"),
+                config.getInitParameter("guvnor-password")
+        );
     }
     
     /*
@@ -143,14 +142,14 @@ public class FormBuilderServlet extends HttpServlet {
         return requestUri.substring(start, end);
     }
     
-    private String getFormPreview(String requestUri) throws LanguageException, RendererException {
+    private String getFormPreview(String requestUri) throws LanguageException, RendererException, FormServiceException {
         StringBuilder builder = new StringBuilder();
-        String taskId = getUriParameter(requestUri, "formPreview");
+        String formId = getUriParameter(requestUri, "formPreview");
         String language = getUriParameter(requestUri, "lang");
         String pkgName = getUriParameter(requestUri, "package");
         LanguageFactory factory = LanguageFactory.getInstance();
         Language translator = factory.getLanguage(language);
-        FormRepresentation form = formService.getFormByTaskId(pkgName, taskId);
+        FormRepresentation form = formService.getForm(pkgName, formId);
         URL url = translator.translateForm(form);
         RendererFactory factory2 = RendererFactory.getInstance();
         Renderer renderer = factory2.getRenderer(language);
