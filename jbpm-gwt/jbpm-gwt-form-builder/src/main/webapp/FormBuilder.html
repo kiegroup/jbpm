@@ -171,6 +171,12 @@
 </style>
 </head>
 <body oncontextmenu='return false;'>
+    <!-- for google chart apis -->
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {'packages' : ["corechart"] });
+    </script>
+    <!-- END for google chart apis -->
 	<script language='javascript' src='org.jbpm.formbuilder.FormBuilder/org.jbpm.formbuilder.FormBuilder.nocache.js'></script>
 	<div id="formBuilder"></div>
 </body>

@@ -17,7 +17,15 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FlowLayoutFormItem extends LayoutFormItem {
 
-	private FlowPanel panel = new FlowPanel();
+    private FlowPanel panel = new FlowPanel() {
+        @Override
+        public boolean remove(Widget w) {
+            if (w instanceof FBFormItem) {
+                removeItem((FBFormItem) w);
+            }
+            return super.remove(w);
+        }
+    };
 	
 	private String cssClassName;
 	private String id;

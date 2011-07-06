@@ -4,16 +4,13 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.CSSLayoutFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 
-/*
- * TODO not implemented yet. Designed to rely on CSS to define structure.
- * Also could have a functionality similar to http://www.miglayout.com/ 
- */
 public class CSSLayoutMenuItem extends FBMenuItem {
 
     public CSSLayoutMenuItem() {
@@ -41,8 +38,7 @@ public class CSSLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new CSSLayoutFormItem(getFormEffects());
     }
 
 }

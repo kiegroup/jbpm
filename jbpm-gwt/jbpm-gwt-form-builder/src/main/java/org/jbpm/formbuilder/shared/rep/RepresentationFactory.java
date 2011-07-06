@@ -21,6 +21,8 @@ public class RepresentationFactory {
                 "org.jbpm.formbuilder.client.form.items.CompleteButtonFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.ConditionalBlockRepresentation",
                 "org.jbpm.formbuilder.client.form.items.ConditionalBlockFormItem");
+        registerItemClassName("org.jbpm.formbuilder.shared.rep.items.CSSPanelRepresentation",
+        "org.jbpm.formbuilder.client.form.items.CSSLayoutFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation",
                 "org.jbpm.formbuilder.client.form.items.FileInputFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.FlowPanelRepresentation", 
@@ -37,6 +39,8 @@ public class RepresentationFactory {
                 "org.jbpm.formbuilder.client.form.items.ImageFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.LabelRepresentation",
                 "org.jbpm.formbuilder.client.form.items.LabelFormItem");
+        registerItemClassName("org.jbpm.formbuilder.shared.rep.items.LineGraphRepresentation",
+        "org.jbpm.formbuilder.client.form.items.LineGraphFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.LoopBlockRepresentation",
                 "org.jbpm.formbuilder.client.form.items.LoopBlockFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation",
