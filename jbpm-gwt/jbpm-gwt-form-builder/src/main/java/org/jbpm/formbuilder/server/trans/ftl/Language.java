@@ -1,83 +1,16 @@
 package org.jbpm.formbuilder.server.trans.ftl;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
 import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.server.trans.LanguageFactory;
+import org.jbpm.formbuilder.server.trans.ScriptingLanguage;
 import org.jbpm.formbuilder.shared.rep.FBScript;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
-public class Language implements org.jbpm.formbuilder.server.trans.Language {
+public class Language extends ScriptingLanguage {
 
     private static final String LANG = "ftl";
-    
-    private final VelocityEngine engine = new VelocityEngine();
-    private final Map<URL, Template> templates = new HashMap<URL, Template>();
 
     public Language() {
-        engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "url");
-        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".class", URLResourceLoader.class.getName());
-        String url = getClass().getResource("/langs/freemarker/form.vm").toExternalForm();
-        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".root", url.replace("form.vm", ""));
-        engine.init();
-    }
-    
-    public String getLanguage() {
-        return LANG;
-    }
-    
-    public String translateItem(FormItemRepresentation item) throws LanguageException {
-        return runVelocityScript(item, item.getTypeId());
-    }
-
-    public URL translateForm(FormRepresentation form) throws LanguageException {
-        return saveToURL(runVelocityScript(form, "form"));
-    }
-
-    /*
-     * utilitary methods
-     */
-    private String runVelocityScript(Object item, String scriptName) throws LanguageException {
-        URL velocityTemplate = getClass().getResource("/langs/freemarker/" + scriptName + ".vm");
-        if (velocityTemplate == null) {
-            throw new LanguageException("Unknown typeId: " + scriptName);
-        }
-        Template template = null;
-        synchronized (this) {
-            if (!templates.containsKey(velocityTemplate)) {
-                Template temp = engine.getTemplate(scriptName + ".vm");
-                templates.put(velocityTemplate, temp);
-            }
-            template = templates.get(velocityTemplate);
-        }
-        VelocityContext context = new VelocityContext();
-        context.put("item", item);
-        context.put("language", this);
-        StringWriter writer = new StringWriter();
-        template.merge(context, writer);
-        return writer.toString();
-    }
-    
-    private URL saveToURL(String fileContent) throws LanguageException {
-        try {
-            File tmpFile = File.createTempFile("formBuilderTrans", ".ftl");
-            FileUtils.writeStringToFile(tmpFile, fileContent);
-            return tmpFile.toURL();
-        } catch (IOException e) {
-            throw new LanguageException("Problem saving URL file", e);
-        }
+        super(LANG, Language.class.getResource("/langs/freemarker/form.vm").toExternalForm().replace("form.vm", ""));
     }
 
     public String getParam(String paramName, String paramValue) {
@@ -123,8 +56,7 @@ public class Language implements org.jbpm.formbuilder.server.trans.Language {
     }
 
     private boolean isValidScript(FBScript script) {
-        return script != null && script.getType() != null && 
-                (script.getType().contains(LANG) || script.getType().contains("freemarker"));
+        return script != null && script.getType() != null && (script.getType().contains(LANG) || script.getType().contains("freemarker"));
     }
     
     public boolean isClientScript(FBScript script) {

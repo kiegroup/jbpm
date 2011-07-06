@@ -11,6 +11,8 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 
+import com.google.gwt.i18n.client.HasDirection.Direction;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
@@ -85,7 +87,12 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
         if (this.cssClassName != null) {
             panel.setStyleName(this.cssClassName);
         }
-        //panel.setHorizontalAlignment(HorizontalAlignmentConstant.startOf(Direction.valueOf(horizontalAlignment))); TODO
+        if (this.horizontalAlignment != null) {
+            try {
+                Direction d = Direction.valueOf(horizontalAlignment);
+                panel.setHorizontalAlignment(HorizontalAlignmentConstant.startOf(d));
+            } catch (IllegalArgumentException e) { }
+        }
         if (this.title != null) {
             panel.setTitle(this.title);
         }

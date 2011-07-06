@@ -1,5 +1,8 @@
 package org.jbpm.formbuilder.client.menu.items;
 
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -13,6 +16,14 @@ import com.google.gwt.user.client.ui.Label;
  */
 public class CSSLayoutMenuItem extends FBMenuItem {
 
+    public CSSLayoutMenuItem() {
+        super();
+    }
+    
+    public CSSLayoutMenuItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
+
     @Override
     protected ImageResource getIconUrl() {
         return FormBuilderResources.INSTANCE.cssLayoutIcon();
@@ -25,8 +36,7 @@ public class CSSLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return new CSSLayoutMenuItem(getFormEffects());
     }
 
     @Override

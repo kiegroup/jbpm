@@ -1,0 +1,9 @@
+#set ($idParam = ${language.getParam("id", $item.id)})
+#set ($nameParam = ${language.getParam("id", $item.name)})
+#set ($acceptParam = ${language.getParam("accept", $item.accept)})
+#set ($width = ${language.getStyleParam("width", $item.width)})
+#set ($height = ${language.getStyleParam("height", $item.height)})
+#set ($style = $width + $height)
+#set ($styleParam = ${langauge.getParam("style", $style)})
+## TODO getInput();
+<input type="file" #if($idParam)$idParam#end#if($nameParam)$nameParam#end#if($acceptParam)$acceptParam#end#if($styleParam)$styleParam#end />
