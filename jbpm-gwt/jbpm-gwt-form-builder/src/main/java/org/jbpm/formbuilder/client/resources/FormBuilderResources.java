@@ -89,6 +89,9 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/absolute_layout_icon.gif")
     ImageResource absoluteLayoutIcon();
 
+    @Source("images/css_layout_icon.gif")
+    ImageResource cssLayoutIcon();
+    
     @Source("images/conditional_block.gif")
     ImageResource conditionalBlock();
     
@@ -106,4 +109,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/flow_layout_icon.gif")
 	ImageResource flowLayoutIcon();
+
+    @Source("images/lineGraph.gif")
+    ImageResource lineGraph();
 }

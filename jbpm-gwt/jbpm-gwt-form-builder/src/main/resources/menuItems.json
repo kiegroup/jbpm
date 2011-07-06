@@ -7,14 +7,6 @@
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         },
-        {   "className": "org.jbpm.formbuilder.client.menu.items.AnyLayoutMenuItem",
-            "effects": [
-                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
-            ]
-        },
         {   "className": "org.jbpm.formbuilder.client.menu.items.BorderLayoutMenuItem",
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },

@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.client.menu.items;
 
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
@@ -13,14 +14,12 @@ public class LineGraphMenuItem extends FBMenuItem {
 
     @Override
     protected ImageResource getIconUrl() {
-        // TODO Auto-generated method stub
-        return null;
+        return FormBuilderResources.INSTANCE.lineGraph();
     }
 
     @Override
     public Label getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        return new Label("Line Graph");
     }
 
     @Override
