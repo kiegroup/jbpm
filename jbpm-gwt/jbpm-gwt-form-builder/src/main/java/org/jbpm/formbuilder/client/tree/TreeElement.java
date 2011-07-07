@@ -54,17 +54,21 @@ public class TreeElement extends FocusPanel {
         sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                bus.fireEvent(new FormItemSelectionEvent(item, true));
+                if (item != null) {
+                    bus.fireEvent(new FormItemSelectionEvent(item, true));
+                }
             }
         });
         add(panel);
         addRightClickHandler(new RightClickHandler() {
             public void onRightClick(RightClickEvent event) {
-                EffectsPopupPanel popupPanel = new EffectsPopupPanel(item, true);
-                if (item.getFormEffects() != null && !item.getFormEffects().isEmpty()) {
-                    popupPanel.setPopupPosition(event.getX(), event.getY());
-                    popupPanel.show();
-                }
+                if (item != null) {
+                    EffectsPopupPanel popupPanel = new EffectsPopupPanel(item, true);
+                    if (item.getFormEffects() != null && !item.getFormEffects().isEmpty()) {
+                        popupPanel.setPopupPosition(event.getX(), event.getY());
+                        popupPanel.show();
+                    }
+                } 
             }
         });
     }
