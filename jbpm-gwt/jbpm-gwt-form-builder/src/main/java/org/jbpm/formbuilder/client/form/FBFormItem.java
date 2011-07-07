@@ -323,6 +323,9 @@ public abstract class FBFormItem extends FocusPanel {
             repValidations.add(item.createValidation());
         }
         rep.setItemValidations(repValidations);
+        for (FBFormEffect effect : getFormEffects()) {
+            rep.addEffectClass(effect.getClass());
+        }
         return rep;
     }
     

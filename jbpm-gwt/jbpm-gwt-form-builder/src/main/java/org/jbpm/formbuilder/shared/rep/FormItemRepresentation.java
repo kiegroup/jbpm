@@ -21,6 +21,8 @@ public abstract class FormItemRepresentation implements Mappable {
     private final String typeId;
     private final String itemClassName;
     
+    private List<String> effectClasses = new ArrayList<String>();
+    
     public FormItemRepresentation(String typeId) {
         this.typeId = typeId;
         this.itemClassName = RepresentationFactory.getItemClassName(getClass().getName());
@@ -74,11 +76,23 @@ public abstract class FormItemRepresentation implements Mappable {
         return itemClassName;
     }
     
+    public List<String> getEffectClasses() {
+        return effectClasses;
+    }
+    
+    public void setEffectClasses(List<String> effectClasses) {
+        this.effectClasses = effectClasses;
+    }
+    
+    public boolean addEffectClass(Class<?> clazz) {
+        return effectClasses.add(clazz.getName());
+    }
+
     public Map<String, Object> getDataMap() {
     	Map<String, Object> data = new HashMap<String, Object>();
     	
     	data.put("@className", getClass().getName());
-        List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
+        List<Object> validationsMap = new ArrayList<Object>();
         if (this.itemValidations != null) {
 	        for (FBValidation valid : this.itemValidations) {
 	        	Map<String, Object> map = valid.getDataMap();
@@ -86,6 +100,7 @@ public abstract class FormItemRepresentation implements Mappable {
 	        }
         }
         data.put("itemValidations", validationsMap);
+        data.put("effectClasses", new ArrayList<Object>(this.effectClasses));
         data.put("output", this.output == null ? null : this.output.getDataMap());
         data.put("input", this.input == null ? null : this.input.getDataMap());
         data.put("width", this.width);
@@ -97,14 +112,22 @@ public abstract class FormItemRepresentation implements Mappable {
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
-        List<Map<String, Object>> validationsMap = new ArrayList<Map<String, Object>>();
-        if (this.itemValidations != null) {
-	        for (FBValidation valid : this.itemValidations) {
-	        	Map<String, Object> map = valid.getDataMap();
-	        	validationsMap.add(map);
+        List<Object> validationsMap = (List<Object>) data.get("itemValidations");
+        this.itemValidations.clear();
+        if (validationsMap != null) {
+	        for (Object obj : validationsMap) {
+	            Map<String, Object> validMap = (Map<String, Object>) obj;
+	        	FBValidation validation = (FBValidation) decoder.decode(validMap);
+	        	this.itemValidations.add(validation);
 	        }
         }
-        data.put("itemValidations", validationsMap);
+        List<Object> effectClassesObj = (List<Object>) data.get("effectClasses");
+        effectClasses.clear();
+        if (effectClassesObj != null) {
+            for (Object obj : effectClassesObj) {
+                effectClasses.add(obj.toString());
+            }
+        }
         this.output = (OutputData) decoder.decode((Map<String, Object>) data.get("output"));
         this.input = (InputData) decoder.decode((Map<String, Object>) data.get("input"));
         this.width = (String) data.get("width");
@@ -122,6 +145,9 @@ public abstract class FormItemRepresentation implements Mappable {
         equals = (this.output == null && other.output == null) || (this.output != null && this.output.equals(other.output));
         if (!equals) return equals;
         equals = (this.input == null && other.input == null) || (this.input != null && this.input.equals(other.input));
+        if (!equals) return equals;
+        equals = (this.effectClasses == null && other.effectClasses == null) || 
+            (this.effectClasses != null && this.effectClasses.equals(other.effectClasses));
         if (!equals) return equals;
         equals = (this.itemValidations == null && other.itemValidations == null) || 
             (this.itemValidations != null && this.itemValidations.equals(other.itemValidations));
@@ -141,6 +167,8 @@ public abstract class FormItemRepresentation implements Mappable {
         aux = this.output == null ? 0 : this.output.hashCode();
         result = 37 * result + aux;
         aux = this.input == null ? 0 : this.input.hashCode();
+        result = 37 * result + aux;
+        aux = this.effectClasses == null ? 0 : this.effectClasses.hashCode();
         result = 37 * result + aux;
         aux = this.itemValidations == null ? 0 : this.itemValidations.hashCode();
         result = 37 * result + aux;
