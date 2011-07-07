@@ -1,0 +1,39 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+    xmlns:g='urn:import:com.google.gwt.user.client.ui'
+    xmlns:fb='urn:import:org.jbpm.formbuilder.client'>
+
+  <g:HTMLPanel height="100%" width="100%">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tr height="50">
+        <td colspan="4"><g:SimplePanel height="100%" width="100%" ui:field="optionsView"/></td>
+      </tr>
+      <tr height="500">
+        <td width="150"><g:SimplePanel height="100%" width="100%" ui:field="treeView"/></td>
+        <td width="150">
+          <table cellpadding="0" cellspacing="0" border="0">
+            <tr height="250">
+              <td><g:ScrollPanel height="100%" width="100%" ui:field="menuView"/></td>
+            </tr>
+            <tr height="250">
+              <td><g:ScrollPanel height="100%" width="100%" ui:field="editionView"/></td>
+            </tr>
+          </table>
+        </td>
+        <td width="500">
+          <table>
+            <tr>
+              <td height="400" width="500"><g:SimplePanel height="100%" width="100%" ui:field="layoutView"/></td>
+            </tr>
+            <tr>
+              <td height="100" width="500"><g:AbsolutePanel height="100%" width="100%" ui:field="toolBarView"/></td>
+            </tr>
+          </table>
+        </td>
+        <td width="150"><g:AbsolutePanel height="100%" width="100%" ui:field="tasksView"/></td>
+      </tr>
+      <tr>
+        <td colspan="4"><g:FocusPanel height="100%" width="100%" ui:field="notificationsView"/></td>
+      </tr>
+    </table>
+  </g:HTMLPanel>
+</ui:UiBinder>

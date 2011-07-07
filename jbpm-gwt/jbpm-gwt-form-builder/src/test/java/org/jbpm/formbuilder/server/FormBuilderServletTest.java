@@ -47,7 +47,7 @@ public class FormBuilderServletTest extends TestCase {
     }
 
     public void testListMenuItems() throws Exception {
-        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/defaultPackage/menuItems/").once();
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/menuItems/package/defaultPackage/").once();
         StringWriter writer = new StringWriter();
         EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
         resp.setContentType(EasyMock.same("text/xml"));
@@ -62,7 +62,7 @@ public class FormBuilderServletTest extends TestCase {
     }
 
     public void testListMenuOptions() throws Exception {
-        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/defaultPackage/menuOptions/").once();
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/menuOptions/package/defaultPackage/").once();
         StringWriter writer = new StringWriter();
         EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
         resp.setContentType(EasyMock.same("text/xml"));
@@ -77,7 +77,7 @@ public class FormBuilderServletTest extends TestCase {
     }
     
     public void testListTasks() throws Exception {
-        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/defaultPackage/listTasks/?q=task").once();
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/tasks/package/defaultPackage/?q=task").once();
         EasyMock.expect(req.getParameter(EasyMock.same("q"))).andReturn("task");
         StringWriter writer = new StringWriter();
         EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
@@ -93,7 +93,7 @@ public class FormBuilderServletTest extends TestCase {
     }
     
     public void testSaveMenuItem() throws Exception {
-        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/defaultPackage/menuItems/").once();
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/menuItems/package/defaultPackage/").once();
         StringBuilder builder = new StringBuilder();
         builder.append("<menuItem>\n");
         builder.append("  <groupName>My Test Group</groupName>\n");
@@ -118,7 +118,7 @@ public class FormBuilderServletTest extends TestCase {
     }
     
     public void testDeleteMenuItem() throws Exception {
-        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/defaultPackage/menuItems/").times(2);
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/menuItems/package/defaultPackage").times(2);
         StringBuilder builder = new StringBuilder();
         builder.append("<menuItem>\n");
         builder.append("  <groupName>My Test Group</groupName>\n");

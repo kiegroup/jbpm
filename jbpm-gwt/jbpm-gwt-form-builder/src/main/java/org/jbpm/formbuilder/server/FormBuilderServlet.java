@@ -117,15 +117,17 @@ public class FormBuilderServlet extends HttpServlet {
             } else if (uri.contains("/menuOptions/")) {
                 resp.setContentType("text/xml");
                 content.append(listOptions());
-            } else if (uri.contains("/listTasks/")) {
+            } else if (uri.contains("/tasks/")) {
                 resp.setContentType("text/xml");
                 content.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
-            } else if (uri.contains("/listValidations/")) {
+            } else if (uri.contains("/validations/")) {
                 resp.setContentType("text/xml");
                 //TODO implement listValidations
             } else if (uri.contains("/formPreview/")) {
                 resp.setContentType("text/html");
                 content.append(getFormPreview(req.getRequestURI()));
+            } else { //print help
+                req.getRequestDispatcher(req.getContextPath() + "/fbapi/help.jsp").forward(req, resp);
             }
             resp.getWriter().println(content.toString());
         } catch (Exception e) {

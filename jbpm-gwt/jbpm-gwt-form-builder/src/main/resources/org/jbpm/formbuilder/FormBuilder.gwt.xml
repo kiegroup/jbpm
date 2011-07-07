@@ -11,6 +11,7 @@
   <inherits name="com.google.gwt.http.HTTP" />
   <inherits name="com.google.gwt.xml.XML" />
   <inherits name="com.google.gwt.json.JSON" />
+  <inherits name="com.google.gwt.uibinder.UiBinder"/>
   <inherits name='com.google.gwt.visualization.Visualization'/>
   <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
   <inherits name="com.google.gwt.junit.JUnit" />

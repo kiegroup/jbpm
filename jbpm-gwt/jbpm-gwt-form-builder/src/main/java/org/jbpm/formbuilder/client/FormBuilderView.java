@@ -8,68 +8,86 @@ import org.jbpm.formbuilder.client.options.OptionsView;
 import org.jbpm.formbuilder.client.tasks.TasksView;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class FormBuilderView extends AbsolutePanel {
 
-    private final Grid mainGrid = new Grid(3, 1);
-    private final Grid toolGrid = new Grid(1, 3);
-    private final Grid editGrid = new Grid(2, 1);
-    private final Grid layoutGrid = new Grid(2, 1);
+    private static FBUiBinder uiBinder = GWT.create(FBUiBinder.class);
+
+    interface FBUiBinder extends UiBinder<Widget, FormBuilderView> {
+    }
     
-    public FormBuilderView() {
-        layoutGrid.getCellFormatter().setHeight(1, 0, "70px");
-        
-        mainGrid.getCellFormatter().setHeight(0, 0, "50px");
-        int mainHeight = RootPanel.getBodyElement().getClientHeight() - 100;
-        mainGrid.getCellFormatter().setHeight(1, 0, "" + mainHeight + "px");
-        mainGrid.getCellFormatter().setHeight(2, 0, "50px");
-        
-        toolGrid.getColumnFormatter().setWidth(0, "25%");
-        toolGrid.getColumnFormatter().setWidth(1, "50%");
-        toolGrid.getColumnFormatter().setWidth(2, "25%");
-        toolGrid.setHeight("100%");
-        
-        int menuHeight = mainHeight / 2;
-        editGrid.setSize("100%", "100%");
-        editGrid.setCellPadding(0);
-        editGrid.setCellSpacing(0);
-        editGrid.getCellFormatter().setHeight(0, 0, "" + menuHeight + "px");
-        editGrid.getCellFormatter().setHeight(1, 0, "50%");
-        
-        toolGrid.setWidget(0, 0, editGrid);
-        toolGrid.setWidget(0, 1, layoutGrid);
-        mainGrid.setWidget(1, 0, toolGrid);
-        add(mainGrid);
+    @UiField(provided=true) ScrollPanel treeView = new ScrollPanel(new HTML("YET TO BE POPULATED"));
+    @UiField(provided=true) SimplePanel optionsView;
+    @UiField(provided=true) ScrollPanel menuView;
+    @UiField(provided=true) ScrollPanel editionView;
+    @UiField(provided=true) SimplePanel layoutView;
+    @UiField(provided=true) AbsolutePanel toolBarView;
+    @UiField(provided=true) AbsolutePanel tasksView;
+    @UiField(provided=true) FocusPanel notificationsView;
+
+    protected final void checkBinding() {
+        if (timeToBind()) {
+            Widget widget = uiBinder.createAndBindUi(this);
+            setSize("100%", "100%");
+            widget.setSize("100%", "100%");
+            add(widget);
+        }
+    }
+
+    protected boolean timeToBind() {
+        return getWidgetCount() == 0 &&
+            treeView != null && optionsView != null &&
+            menuView != null && editionView != null &&
+            layoutView != null && toolBarView != null &&
+            tasksView != null && notificationsView != null;
     }
 
     public void setMenuView(MenuView menuView) {
-        editGrid.setWidget(0, 0, menuView);
+        this.menuView = menuView;
+        checkBinding();
     }
     
     public void setEditionView(EditionView editionView) {
-        editGrid.setWidget(1, 0, editionView);
+        this.editionView = editionView;
+        checkBinding();
     }
 
     public void setLayoutView(LayoutView layoutView) {
-        layoutGrid.setWidget(0, 0, layoutView);
+        this.layoutView = layoutView;
+        checkBinding();
     }
     
     public void setOptionsView(OptionsView optionsView) {
-        mainGrid.setWidget(0, 0, optionsView);
+        this.optionsView = optionsView;
+        checkBinding();
     }
     
     public void setTasksView(TasksView tasksView) {
-        toolGrid.setWidget(0, 2, tasksView);
+        this.tasksView = tasksView;
+        checkBinding();
     }
     
     public void setToolBarView(ToolBarView toolBarView) {
-        layoutGrid.setWidget(1, 0, toolBarView);
+        this.toolBarView = toolBarView;
+        checkBinding();
     }
     
     public void setNotificationsView(NotificationsView notificationsView) {
-        mainGrid.setWidget(2, 0, notificationsView);
+        this.notificationsView = notificationsView;
+        checkBinding();
+    }
+    
+    public void setTreeView(ScrollPanel treeView) { //TODO make TreeView and use it
+        this.treeView = treeView;
+        checkBinding();
     }
 }
