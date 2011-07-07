@@ -25,7 +25,7 @@ public class FormBuilderView extends AbsolutePanel {
     interface FBUiBinder extends UiBinder<Widget, FormBuilderView> {
     }
     
-    @UiField(provided=true) ScrollPanel treeView = new ScrollPanel(new HTML("YET TO BE POPULATED"));
+    @UiField(provided=true) ScrollPanel treeView;
     @UiField(provided=true) SimplePanel optionsView;
     @UiField(provided=true) ScrollPanel menuView;
     @UiField(provided=true) ScrollPanel editionView;

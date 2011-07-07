@@ -18,6 +18,8 @@ import org.jbpm.formbuilder.client.tasks.TasksPresenter;
 import org.jbpm.formbuilder.client.tasks.TasksView;
 import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
+import org.jbpm.formbuilder.client.tree.TreePresenter;
+import org.jbpm.formbuilder.client.tree.TreeView;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
@@ -45,6 +47,7 @@ public class FormBuilderController {
         view.setOptionsView(createOptions(model));
         view.setTasksView(createTasks(model));
         view.setToolBarView(createToolBar());
+        view.setTreeView(createTree());
     }
 
     private EditionView createEdition() {
@@ -94,6 +97,12 @@ public class FormBuilderController {
     private NotificationsView createNotifications() {
         NotificationsView view = new NotificationsView();
         new NotificationsPresenter(view);
+        return view;
+    }
+    
+    private TreeView createTree() {
+        TreeView view = new TreeView();
+        new TreePresenter(view);
         return view;
     }
 

@@ -112,4 +112,10 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/lineGraph.gif")
     ImageResource lineGraph();
+
+    @Source("images/treeFolder.gif")
+    ImageResource treeFolder();
+
+    @Source("images/treeLeaf.gif")
+    ImageResource treeLeaf();
 }
