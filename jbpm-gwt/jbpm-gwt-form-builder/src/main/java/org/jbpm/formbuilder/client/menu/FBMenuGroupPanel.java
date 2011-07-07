@@ -45,6 +45,10 @@ public class FBMenuGroupPanel extends SimplePanel {
         setWidget(vPanel);
     }
     
+    public boolean hasWidgets() {
+        return menuPanel.getWidgetCount() > 0;
+    }
+    
     public void add(FBMenuItem menuItem) {
         menuPanel.add(menuItem);
     }

@@ -71,12 +71,26 @@ public class FormBuilderModel implements FormBuilderService {
         this.contextPath = contextPath;
         bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedEventHandler() {
             public void onEvent(MenuItemAddedEvent event) {
-                saveMenuItem(event.getGroupName(), event.getMenuItem());
+                FBMenuItem item = event.getMenuItem();
+                saveMenuItem(event.getGroupName(), item);
+                if (item instanceof CustomOptionMenuItem) {
+                    CustomOptionMenuItem customItem = (CustomOptionMenuItem) item;
+                    String formItemName = customItem.getNewMenuOptionName();
+                    FormItemRepresentation formItem = customItem.getCloneableItem().getRepresentation();
+                    saveFormItem(formItem, formItemName);
+                }
             }
         });
         bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveEventHandler() {
             public void onEvent(MenuItemRemoveEvent event) {
-                deleteMenuItem(event.getGroupName(), event.getMenuItem());
+                FBMenuItem item = event.getMenuItem();
+                deleteMenuItem(event.getGroupName(), item);
+                if (item instanceof CustomOptionMenuItem) {
+                    CustomOptionMenuItem customItem = (CustomOptionMenuItem) item;
+                    String formItemName = customItem.getNewMenuOptionName();
+                    FormItemRepresentation formItem = customItem.getCloneableItem().getRepresentation();
+                    deleteFormItem(formItemName, formItem);
+                }
             }
         });
         bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
@@ -122,12 +136,12 @@ public class FormBuilderModel implements FormBuilderService {
             Node groupNode = groups.item(jindex);
             String groupName = ((Element) groupNode).getAttribute("name");
             NodeList items = ((Element) groupNode).getElementsByTagName("menuItem");
-            menuItems.put(groupName, readMenuItems(items));
+            menuItems.put(groupName, readMenuItems(items, groupName));
         }
         return menuItems;
     }
     
-    private List<FBMenuItem> readMenuItems(NodeList items) {
+    private List<FBMenuItem> readMenuItems(NodeList items, String groupName) {
         List<FBMenuItem> menuItems = new ArrayList<FBMenuItem>();
         for (int index = 0; index < items.getLength(); index ++) {
             Node itemNode = items.item(index);
@@ -142,6 +156,7 @@ public class FormBuilderModel implements FormBuilderService {
                     FBFormItem cloneableItem = FBFormItem.createItem(makeRepresentation(itemNode));
                     customItem.setCloneableItem(cloneableItem);
                     customItem.setNewMenuOptionName(optionName);
+                    customItem.setGroupName(groupName);
                     menuItem = customItem;
                 } else if (obj instanceof FBMenuItem) {
                     menuItem = (FBMenuItem) obj;
@@ -249,14 +264,50 @@ public class FormBuilderModel implements FormBuilderService {
         return options;
     }
     
-    public void saveForm(FormRepresentation form) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/forms/");
+    public void saveFormItem(final FormItemRepresentation formItem, String formItemName) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
+                GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/formItems/");
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == Response.SC_CONFLICT) {
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "formItem already updated in server. Try refreshing your view"));
+                } else if (response.getStatusCode() != Response.SC_CREATED) {
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveFormItem: HTTP " + response.getStatusCode()));
+                } else {
+                    Document xml = XMLParser.parse(response.getText());
+                    Node node = xml.getElementsByTagName("formItemId").item(0);
+                    String name = node.getFirstChild().getNodeValue();
+                    bus.fireEvent(new NotificationEvent(Level.INFO, "Form item " + name + " saved successfully"));
+                }
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save form item", exception));
+            }
+        });
+        try {
+            request.setRequestData(asXml(formItemName, formItem));
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form item " + formItemName + " to server", e));
+        } catch (FormEncodingException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form item " + formItemName, e));
+        }
+    }
+    
+    public void saveForm(final FormRepresentation form) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
+                GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/forms/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {
                     bus.fireEvent(new NotificationEvent(Level.WARN, "Form already updated in server. Try refreshing your form"));
                 } else if (response.getStatusCode() != Response.SC_CREATED) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveForm(...): " + response.getStatusCode()));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveForm: HTTP " + response.getStatusCode()));
+                } else {
+                    Document xml = XMLParser.parse(response.getText());
+                    Node node = xml.getElementsByTagName("formId").item(0);
+                    String name = node.getFirstChild().getNodeValue();
+                    form.setName(name);
                 }
             }
             public void onError(Request request, Throwable exception) {
@@ -287,12 +338,13 @@ public class FormBuilderModel implements FormBuilderService {
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
+                NotificationEvent event;
                 if (code == Response.SC_CREATED) {
-                    Document xml = XMLParser.parse(response.getText());
-                    NodeList xmlItems = xml.getElementsByTagName("menuItemId");
-                    String menuItemId = xmlItems.item(0).getNodeValue();
-                    bus.fireEvent(new NotificationEvent(Level.INFO, "Menu item " + menuItemId + " saved successfully."));
+                    event = new NotificationEvent(Level.INFO, "Menu item " + item.getItemId() + " saved successfully.");
+                } else {
+                    event = new NotificationEvent(Level.WARN, "Invalid status for saveMenuItem: HTTP " + code);
                 }
+                bus.fireEvent(event);
             }
 
             public void onError(Request request, Throwable exception) {
@@ -315,6 +367,8 @@ public class FormBuilderModel implements FormBuilderService {
                 int code = response.getStatusCode();
                 if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
                     bus.fireEvent(new NotificationEvent(Level.WARN, "Error deleting menu item on server (code = " + code + ")"));
+                } else {
+                    bus.fireEvent(new NotificationEvent(Level.INFO, "menu item deleted successfully"));
                 }
             }
 
@@ -328,6 +382,42 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting menu item on server", e));
         }
+    }
+    
+    public void deleteForm(FormRepresentation form) {
+        //TODO implement and use (maybe from a menu option?)
+    }
+    
+    public void deleteFormItem(String formItemName, FormItemRepresentation formItem) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, 
+                GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/formItems/formItemName/" + formItemName);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                int code = response.getStatusCode();
+                if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
+                    bus.fireEvent(new NotificationEvent(Level.WARN, "Error deleting form item on server (code = " + code + ")"));
+                } else {
+                    bus.fireEvent(new NotificationEvent(Level.INFO, "form item deleted successfully"));
+                }
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting form item on server", exception));
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form item " + formItemName + " deletion to server", e));
+        }
+    }
+    
+    private String asXml(String formItemName, FormItemRepresentation formItem) throws FormEncodingException {
+        StringBuilder builder = new StringBuilder();
+        String json = FormEncodingClientFactory.getEncoder().encode(formItem);
+        builder.append("<formItem name=\"").append(formItemName).append("\">");
+        builder.append("<content>").append(json).append("</content>");
+        builder.append("</formItem>");
+        return builder.toString();
     }
     
     private String asXml(String groupName, FBMenuItem item) {

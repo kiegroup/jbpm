@@ -60,6 +60,10 @@ public class MenuView extends ScrollPanel {
         if (accordion.get(group) != null) {
             FBMenuGroupPanel groupPanel = accordion.get(group);
             groupPanel.remove(item);
+            if (!groupPanel.hasWidgets()) {
+                accordion.remove(groupPanel);
+                panel.remove(groupPanel);
+            }
         }
     }
 }

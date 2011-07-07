@@ -214,11 +214,13 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.setStatus(status);
             } else if (uri.contains("/formItems/")) {
                 String formItemId = saveFormItem(uri, req.getReader());
-                resp.getWriter().println(formItemId);
+                resp.setContentType("text/xml");
+                resp.getWriter().println("<formItemId>"+formItemId+"</formItemId>");
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } else if (uri.contains("/forms/")) {
                 String formId = saveForm(uri, req.getReader());
-                resp.getWriter().println(formId);
+                resp.setContentType("text/xml");
+                resp.getWriter().println("<formId>"+formId+"</formId>");
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             }
         } catch (Exception e) {

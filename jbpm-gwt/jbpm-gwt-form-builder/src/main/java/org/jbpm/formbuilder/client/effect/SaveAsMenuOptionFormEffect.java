@@ -43,8 +43,7 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
     @Override
     protected void createStyles() {
         final FBFormItem formItem = super.getItem();
-        FBMenuItem menuItem = new CustomOptionMenuItem(formItem, newMenuOptionName, formItem.getFormEffects());
-        //TODO fire UndoableEvent
+        FBMenuItem menuItem = new CustomOptionMenuItem(formItem, newMenuOptionName, formItem.getFormEffects(), groupName);
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("menuItem", menuItem);
         dataSnapshot.put("groupName", groupName);
@@ -63,7 +62,6 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
                 FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
         }));
-        //END  fire UndoableEvent
     }
 
     @Override
