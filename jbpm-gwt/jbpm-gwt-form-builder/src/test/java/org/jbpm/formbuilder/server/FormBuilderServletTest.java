@@ -18,9 +18,12 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.menu.MockMenuService;
+import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.task.MockTaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 
@@ -74,6 +77,138 @@ public class FormBuilderServletTest extends TestCase {
         String xmlResponse = writer.toString();
         assertNotNull("xml response should not be null", xmlResponse);
         assertTrue("xml response should contain PreviewFormAsFtlCommand", xmlResponse.contains("PreviewFormAsFtlCommand"));
+    }
+    
+    public void testListForms() throws Exception {
+        EasyMock.expect(req.getRequestURI()).
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/").
+            once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType("text/xml");
+        EasyMock.expectLastCall().once();
+        
+        MockFormDefinitionService formService = new MockFormDefinitionService();
+        FormRepresentation myForm1 = new FormRepresentation();
+        myForm1.setName("myForm");
+        myForm1.setTaskId("myTask");
+        formService.saveForm("defaultPackage", myForm1);
+        FormRepresentation myForm2 = new FormRepresentation();
+        myForm2.setName("otherForm");
+        myForm2.setTaskId("otherTask");
+        formService.saveForm("defaultPackage", myForm2);
+        servlet.setFormService(formService);
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        
+        String xml = writer.toString();
+        assertNotNull("xml shouldn't be null", xml);
+        assertFalse("xml shouldn't be empty", xml.equals(""));
+        assertTrue("xml should contain myTask", xml.contains("myTask"));
+        assertTrue("xml should contain otherTask", xml.contains("otherTask"));
+        assertTrue("xml should contain otherForm", xml.contains("otherForm"));
+        assertTrue("xml should contain myForm", xml.contains("myForm"));
+    }
+    
+    public void testGetForm() throws Exception {
+        EasyMock.expect(req.getRequestURI()).
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/formDefinitionId/formDefinition_myForm").
+            once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType("text/xml");
+        EasyMock.expectLastCall().once();
+        
+        MockFormDefinitionService formService = new MockFormDefinitionService();
+        FormRepresentation myForm1 = new FormRepresentation();
+        myForm1.setName("formDefinition_myForm");
+        myForm1.setTaskId("myTask");
+        formService.saveForm("defaultPackage", myForm1);
+        FormRepresentation myForm2 = new FormRepresentation();
+        myForm2.setName("formDefinition_otherForm");
+        myForm2.setTaskId("otherTask");
+        formService.saveForm("defaultPackage", myForm2);
+        servlet.setFormService(formService);
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        
+        String xml = writer.toString();
+        assertNotNull("xml shouldn't be null", xml);
+        assertFalse("xml shouldn't be empty", xml.equals(""));
+        assertTrue("xml should contain myTask", xml.contains("myTask"));
+        assertTrue("xml should contain myForm", xml.contains("myForm"));
+        assertFalse("xml shouldn't contain otherTask", xml.contains("otherTask"));
+        assertFalse("xml shouldn't contain otherForm", xml.contains("otherForm"));
+    }
+    
+    public void testListFormItems() throws Exception {
+        /* TODO Review this test
+        EasyMock.expect(req.getRequestURI()).
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/").
+            once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType("text/xml");
+        EasyMock.expectLastCall().once();
+        
+        MockFormDefinitionService formService = new MockFormDefinitionService();
+        LabelRepresentation myFormItem1 = new LabelRepresentation();
+        myFormItem1.setValue("some value");
+        String formItemId1 = formService.saveFormItem("defaultPackage", null, myFormItem1);
+        LabelRepresentation myFormItem2 = new LabelRepresentation();
+        myFormItem2.setValue("some other value");
+        Thread.sleep(10);
+        String formItemId2 = formService.saveFormItem("defaultPackage", null, myFormItem2);
+        servlet.setFormService(formService);
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        
+        String xml = writer.toString();
+        assertNotNull("xml shouldn't be null", xml);
+        assertFalse("xml shouldn't be empty", xml.equals(""));
+        assertTrue("xml should contain " + formItemId1, xml.contains(formItemId1));
+        assertTrue("xml should contain " + formItemId2, xml.contains(formItemId2));
+        assertTrue("xml should contain 'some value'", xml.contains("some value"));
+        assertTrue("xml should contain 'some other value'", xml.contains("some other value"));*/
+    }
+
+    public void testGetFormItem() throws Exception {
+        /* TODO Review this test
+        EasyMock.expect(req.getRequestURI()).
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/formItemId/formItemDefinition_bla").
+            once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType("text/xml");
+        EasyMock.expectLastCall().once();
+        
+        MockFormDefinitionService formService = new MockFormDefinitionService();
+        LabelRepresentation myFormItem1 = new LabelRepresentation();
+        myFormItem1.setValue("some value");
+        String formItemId1 = formService.saveFormItem("defaultPackage", "formItemDefinition_bla", myFormItem1);
+        Thread.sleep(10);
+        LabelRepresentation myFormItem2 = new LabelRepresentation();
+        myFormItem2.setValue("some other value");
+        String formItemId2 = formService.saveFormItem("defaultPackage", "formItemDefinition_other", myFormItem2);
+        servlet.setFormService(formService);
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        
+        String xml = writer.toString();
+        assertNotNull("xml shouldn't be null", xml);
+        assertFalse("xml shouldn't be empty", xml.equals(""));
+        assertTrue("xml should contain " + formItemId1, xml.contains(formItemId1));
+        assertFalse("xml shouldn't contain " + formItemId2, xml.contains(formItemId2));
+        assertTrue("xml should contain 'some value'", xml.contains("some value"));
+        assertFalse("xml shouldn't contain 'some other value'", xml.contains("some other value"));*/
     }
     
     public void testListTasks() throws Exception {

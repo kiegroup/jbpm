@@ -1,6 +1,7 @@
 package org.jbpm.formbuilder.shared.form;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
@@ -8,7 +9,7 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 public interface FormDefinitionService {
 
     List<FormRepresentation> getForms(String pkgName) throws FormServiceException;
-    List<FormItemRepresentation> getFormItems(String pkgName) throws FormServiceException;
+    Map<String, FormItemRepresentation> getFormItems(String pkgName) throws FormServiceException;
 
     String /*formId*/ saveForm(String pkgName, FormRepresentation form) throws FormServiceException;
     String /*formItemId*/ saveFormItem(String pkgName, String formItemName, FormItemRepresentation formItem) throws FormServiceException;

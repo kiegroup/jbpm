@@ -36,8 +36,12 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.IOUtils;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
+import org.jbpm.formbuilder.server.form.FormDefDTO;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.server.form.FormItemDefDTO;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
+import org.jbpm.formbuilder.server.form.ListFormsDTO;
+import org.jbpm.formbuilder.server.form.ListFormsItemsDTO;
 import org.jbpm.formbuilder.server.form.SaveMenuItemDTO;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.render.Renderer;
@@ -93,19 +97,6 @@ public class FormBuilderServlet extends HttpServlet {
         );
     }
     
-    /*
-     * all URLs are supposed to be "/<contextPath>/<pkgName>/<operation>"
-     */
-    private String extractPackageName(String uri, String operation) {
-        String[] folders = uri.split("/");
-        for (int index = 0; index < folders.length; index++) {
-            if (folders[index].equals(operation)) {
-                return folders[index - 1];
-            }
-        }
-        return null;
-    }
-    
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
@@ -119,13 +110,31 @@ public class FormBuilderServlet extends HttpServlet {
                 content.append(listOptions());
             } else if (uri.contains("/tasks/")) {
                 resp.setContentType("text/xml");
-                content.append(listTasks(extractPackageName(uri, "listTasks"), req.getParameter("q")));
+                content.append(listTasks(getUriParameter(uri, "package"), req.getParameter("q")));
             } else if (uri.contains("/validations/")) {
                 resp.setContentType("text/xml");
                 //TODO implement listValidations
             } else if (uri.contains("/formPreview/")) {
                 resp.setContentType("text/html");
                 content.append(getFormPreview(req.getRequestURI()));
+            } else if (uri.contains("/formDefinitions/")) {
+                String pkgName = getUriParameter(uri, "package");
+                String formId = getUriParameter(uri, "formDefinitionId");
+                resp.setContentType("text/xml");
+                if (formId == null) {
+                    content.append(getForms(pkgName));
+                } else {
+                    content.append(getForm(pkgName, formId));
+                }
+            } else if (uri.contains("/formItems/")) {
+                String pkgName = getUriParameter(uri, "package");
+                String formItemId = getUriParameter(uri, "formItemId");
+                resp.setContentType("text/xml");
+                if (formItemId == null) {
+                    content.append(getFormItems(pkgName));
+                } else {
+                    content.append(getFormItem(pkgName, formItemId));
+                }
             } else { //print help
                 req.getRequestDispatcher(req.getContextPath() + "/fbapi/help.jsp").forward(req, resp);
             }
@@ -136,13 +145,44 @@ public class FormBuilderServlet extends HttpServlet {
     }
     
     private String getUriParameter(String requestUri, String paramName) {
-        paramName = "/" + paramName + "/";
-        int start = requestUri.indexOf(paramName) + paramName.length();
-        int end = requestUri.indexOf("/", start + 1);
-        if (end == -1) {
-            end = requestUri.length();
+        if (!requestUri.contains(paramName)) {
+            return null;
         }
-        return requestUri.substring(start, end);
+        paramName = "/" + paramName + "/";
+        try {
+            int start = requestUri.indexOf(paramName) + paramName.length();
+            int end = requestUri.indexOf("/", start + 1);
+            if (end == -1) {
+                end = requestUri.length();
+            }
+            return requestUri.substring(start, end);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+    
+    private String getForms(String pkgName) throws FormServiceException, FormEncodingException, JAXBException {
+        List<FormRepresentation> forms = formService.getForms(pkgName);
+        ListFormsDTO dto = new ListFormsDTO(forms);
+        return jaxbTransformation(dto, ListFormsDTO.class, FormDefDTO.class);
+    }
+    
+    private String getForm(String pkgName, String formId) throws FormServiceException, FormEncodingException, JAXBException {
+        FormRepresentation form = formService.getForm(pkgName, formId);
+        ListFormsDTO dto = new ListFormsDTO(form);
+        return jaxbTransformation(dto, ListFormsDTO.class, FormDefDTO.class);
+    }
+    
+    private String getFormItems(String pkgName) throws FormServiceException, FormEncodingException, JAXBException {
+        Map<String, FormItemRepresentation> formItems = formService.getFormItems(pkgName);
+        ListFormsItemsDTO dto = new ListFormsItemsDTO(formItems);
+        return jaxbTransformation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
+    }
+    
+    private String getFormItem(String pkgName, String formItemId) throws FormServiceException, FormEncodingException, JAXBException {
+        FormItemRepresentation formItem = formService.getFormItem(pkgName, formItemId);
+        ListFormsItemsDTO dto = new ListFormsItemsDTO(formItemId, formItem);
+        return jaxbTransformation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
     }
     
     private String getFormPreview(String requestUri) throws LanguageException, RendererException, FormServiceException {
@@ -219,7 +259,7 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.setContentType("text/xml");
                 resp.getWriter().println("<formItemId>"+formItemId+"</formItemId>");
                 resp.setStatus(HttpServletResponse.SC_CREATED);
-            } else if (uri.contains("/forms/")) {
+            } else if (uri.contains("/formDefinitions/")) {
                 String formId = saveForm(uri, req.getReader());
                 resp.setContentType("text/xml");
                 resp.getWriter().println("<formId>"+formId+"</formId>");
@@ -309,7 +349,7 @@ public class FormBuilderServlet extends HttpServlet {
             if (uri.contains("/menuItems/")) {
                 int status = deleteMenuItem(req.getReader());
                 resp.setStatus(status);
-            } else if (uri.contains("/forms/")) {
+            } else if (uri.contains("/formDefinitions/")) {
                 deleteForm(uri);
             } else if (uri.contains("/formItems/")) {
                 deleteFormItem(uri);

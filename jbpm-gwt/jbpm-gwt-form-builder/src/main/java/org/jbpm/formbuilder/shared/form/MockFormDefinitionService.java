@@ -49,13 +49,13 @@ public class MockFormDefinitionService implements FormDefinitionService {
         return item;
     }
     
-    public List<FormItemRepresentation> getFormItems(String pkgName) {
+    public Map<String, FormItemRepresentation> getFormItems(String pkgName) {
         List<Map.Entry<String, FormItemRepresentation>> list = items.get(pkgName);
-        List<FormItemRepresentation> retval = null;
+        Map<String, FormItemRepresentation> retval = null;
         if (list != null) {
-            retval = new ArrayList<FormItemRepresentation>();
+            retval = new HashMap<String, FormItemRepresentation>();
             for (Map.Entry<String, FormItemRepresentation> entry : list) {
-                retval.add(entry.getValue());
+                retval.put(entry.getKey(), entry.getValue());
             }
         }
         return retval;
@@ -79,8 +79,8 @@ public class MockFormDefinitionService implements FormDefinitionService {
     public String saveFormItem(String pkgName, String formItemName, final FormItemRepresentation formItem) {
         if (formItemName == null) {
             formItemName = "formItemDefinition_" + System.currentTimeMillis();
-        } else if (!formItemName.startsWith("formDefinition_")){
-            formItemName = "formDefinition_" + formItemName;
+        } else if (!formItemName.startsWith("formItemDefinition_")){
+            formItemName = "formItemDefinition_" + formItemName;
         }
         List<Map.Entry<String, FormItemRepresentation>> list = items.get(pkgName);
         if (list == null) {

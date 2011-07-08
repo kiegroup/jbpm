@@ -2,7 +2,9 @@ package org.jbpm.formbuilder.server.form;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
@@ -138,7 +140,7 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
         return null;
     }
     
-    public List<FormItemRepresentation> getFormItems(String pkgName) throws FormServiceException {
+    public Map<String, FormItemRepresentation> getFormItems(String pkgName) throws FormServiceException {
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(getBaseUrl(pkgName));
         try {
@@ -146,12 +148,12 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             client.executeMethod(method);
             Properties props = new Properties();
             props.load(method.getResponseBodyAsStream());
-            List<FormItemRepresentation> items = new ArrayList<FormItemRepresentation>();
+            Map<String, FormItemRepresentation> items = new HashMap<String, FormItemRepresentation>();
             for (Object key : props.keySet()) {
                 String assetId = key.toString();
                 if (assetId.startsWith("formItemDefinition_")) {
                     FormItemRepresentation item = getFormItem(pkgName, assetId);
-                    items.add(item);
+                    items.put(assetId, item);
                 }
             }
             return items;

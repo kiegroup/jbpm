@@ -121,7 +121,7 @@
 		</ul>
 	  </li>
       <li>
-	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/forms/</h4>
+	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/</h4>
 		<ul>
 		  <li style="color:red;"><strong>GET</strong>: build and explain listForms()</li>
 		  <li style="color:red;"><strong>POST</strong>: explain saveForm(body)</li>
