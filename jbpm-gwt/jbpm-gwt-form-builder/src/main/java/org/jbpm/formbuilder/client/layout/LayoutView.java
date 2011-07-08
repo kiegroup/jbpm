@@ -15,10 +15,9 @@
  */
 package org.jbpm.formbuilder.client.layout;
 
-import org.jbpm.formbuilder.client.form.FBForm; 
+import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -31,11 +30,7 @@ public class LayoutView extends SimplePanel {
         formDisplay.setStyleName("formDisplay");
         formDisplay.setSize("100%", "100%");
         setSize("500px", "500px");
-        Grid grid = new Grid(1,1);
-        grid.setSize("100%", "100%");
-        grid.setBorderWidth(2);
-        grid.setWidget(0, 0, formDisplay);
-        add(grid);
+        add(formDisplay);
     }
 
     public Panel getUnderlyingLayout(int x, int y) {

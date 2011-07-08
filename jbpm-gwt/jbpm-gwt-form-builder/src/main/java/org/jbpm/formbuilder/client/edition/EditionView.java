@@ -43,12 +43,8 @@ public class EditionView extends ScrollPanel {
     public EditionView() {
         setSize("100%", "100%");
         setAlwaysShowScrollBars(false);
-        Grid grid = new Grid(1,1);
         panel.setSize("100%", "100%");
-        grid.setWidget(0, 0, panel);
-        grid.setSize("100%", "100%");
-        grid.setBorderWidth(2);
-        add(grid);
+        add(panel);
         
         PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
         dragController.registerDropController(new DisposeDropController(this));

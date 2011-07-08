@@ -3,7 +3,6 @@ package org.jbpm.formbuilder.client.tree;
 import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -15,11 +14,7 @@ public class TreeView extends ScrollPanel {
     public TreeView() {
         tree.setSize("100%", "100%");
         tree.addItem(new TreeElement(null));
-        Grid grid = new Grid(1,1);
-        grid.setSize("100%", "100%");
-        grid.setBorderWidth(2);
-        grid.setWidget(0, 0, tree);
-        setWidget(grid);
+        setWidget(tree);
     }
     
     public void addFormItem(FBFormItem item, FBCompositeItem parent) {

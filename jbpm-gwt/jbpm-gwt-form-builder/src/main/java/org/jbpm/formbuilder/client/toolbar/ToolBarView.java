@@ -5,7 +5,6 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -18,11 +17,7 @@ public class ToolBarView extends AbsolutePanel {
         setSize("100%", "100%");
         hPanel.setSize("100%", "100%");
         hPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-        Grid grid = new Grid(1, 1);
-        grid.setBorderWidth(2);
-        grid.setSize("100%", "100%");
-        grid.setWidget(0, 0, hPanel);
-        add(grid);
+        add(hPanel);
     }
 
     public void addButton(ImageResource imgRes, String name, ClickHandler handler) {

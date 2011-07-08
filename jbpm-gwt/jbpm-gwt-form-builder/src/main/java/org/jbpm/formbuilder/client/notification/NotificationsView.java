@@ -1,7 +1,6 @@
 package org.jbpm.formbuilder.client.notification;
 
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -18,11 +17,7 @@ public class NotificationsView extends FocusPanel {
     public NotificationsView() {
         setSize("100%", "60px");
         scroll.setSize("100%", "60px");
-        Grid grid = new Grid(1, 1);
-        grid.setWidget(0, 0, scroll);
-        grid.setBorderWidth(2);
-        grid.setSize("100%", "100%");
-        add(grid);
+        add(scroll);
         panel.add(new HTML("<strong>Notifications</strong>"));
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
     }

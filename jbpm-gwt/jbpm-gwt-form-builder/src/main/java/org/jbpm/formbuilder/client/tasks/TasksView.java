@@ -44,18 +44,14 @@ public class TasksView extends AbsolutePanel {
     public TasksView() {
         setSize("100%", "100%");
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-        Grid grid = new Grid(1, 1);
-        grid.setBorderWidth(2);
-        grid.setSize("100%", "100%");
-        grid.setWidget(0, 0, panel);
-        add(grid);
-        panel.add(taskName());
         HorizontalPanel ioTasks = new HorizontalPanel();
         ioTasks.add(taskInputs());
         ioTasks.add(new HTML("&nbsp;"));
         ioTasks.add(taskOutputs());
+        panel.add(taskName());
         panel.add(ioTasks);
         panel.add(data());
+        add(panel);
     }
     
     private HorizontalPanel taskName() {

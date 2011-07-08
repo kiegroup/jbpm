@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,13 +32,9 @@ public class MenuView extends ScrollPanel {
     
     public MenuView() {
         setSize("100%", "100%");
-        Grid grid = new Grid(1,1);
         panel.setSize("100%", "100%");
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-        grid.setWidget(0, 0, panel);
-        grid.setSize("100%", "100%");
-        grid.setBorderWidth(2);
-        add(grid);
+        add(panel);
     }
     
     public void setDragController(PickupDragController dragController) {
