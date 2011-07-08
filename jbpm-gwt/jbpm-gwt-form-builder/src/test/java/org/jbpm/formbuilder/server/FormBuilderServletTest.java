@@ -146,7 +146,6 @@ public class FormBuilderServletTest extends TestCase {
     }
     
     public void testListFormItems() throws Exception {
-        /* TODO Review this test
         EasyMock.expect(req.getRequestURI()).
             andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/").
             once();
@@ -158,11 +157,11 @@ public class FormBuilderServletTest extends TestCase {
         MockFormDefinitionService formService = new MockFormDefinitionService();
         LabelRepresentation myFormItem1 = new LabelRepresentation();
         myFormItem1.setValue("some value");
-        String formItemId1 = formService.saveFormItem("defaultPackage", null, myFormItem1);
+        String formItemId1 = formService.saveFormItem("defaultPackage", "formItemDefinition_one", myFormItem1);
         LabelRepresentation myFormItem2 = new LabelRepresentation();
         myFormItem2.setValue("some other value");
         Thread.sleep(10);
-        String formItemId2 = formService.saveFormItem("defaultPackage", null, myFormItem2);
+        String formItemId2 = formService.saveFormItem("defaultPackage", "formItemDefinition_two", myFormItem2);
         servlet.setFormService(formService);
         
         EasyMock.replay(req, resp);
@@ -175,13 +174,12 @@ public class FormBuilderServletTest extends TestCase {
         assertTrue("xml should contain " + formItemId1, xml.contains(formItemId1));
         assertTrue("xml should contain " + formItemId2, xml.contains(formItemId2));
         assertTrue("xml should contain 'some value'", xml.contains("some value"));
-        assertTrue("xml should contain 'some other value'", xml.contains("some other value"));*/
+        assertTrue("xml should contain 'some other value'", xml.contains("some other value"));
     }
 
     public void testGetFormItem() throws Exception {
-        /* TODO Review this test
         EasyMock.expect(req.getRequestURI()).
-            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/formItemId/formItemDefinition_bla").
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/formItemId/formItemDefinition_some").
             once();
         StringWriter writer = new StringWriter();
         EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
@@ -191,7 +189,7 @@ public class FormBuilderServletTest extends TestCase {
         MockFormDefinitionService formService = new MockFormDefinitionService();
         LabelRepresentation myFormItem1 = new LabelRepresentation();
         myFormItem1.setValue("some value");
-        String formItemId1 = formService.saveFormItem("defaultPackage", "formItemDefinition_bla", myFormItem1);
+        String formItemId1 = formService.saveFormItem("defaultPackage", "formItemDefinition_some", myFormItem1);
         Thread.sleep(10);
         LabelRepresentation myFormItem2 = new LabelRepresentation();
         myFormItem2.setValue("some other value");
@@ -208,7 +206,7 @@ public class FormBuilderServletTest extends TestCase {
         assertTrue("xml should contain " + formItemId1, xml.contains(formItemId1));
         assertFalse("xml shouldn't contain " + formItemId2, xml.contains(formItemId2));
         assertTrue("xml should contain 'some value'", xml.contains("some value"));
-        assertFalse("xml shouldn't contain 'some other value'", xml.contains("some other value"));*/
+        assertFalse("xml shouldn't contain 'some other value'", xml.contains("some other value"));
     }
     
     public void testListTasks() throws Exception {
