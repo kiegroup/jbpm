@@ -66,7 +66,7 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
 
     @Override
     public PopupPanel createPanel() {
-        final PopupPanel panel = new PopupPanel();
+        final PopupPanel panel = new PopupPanel(true);
         panel.setSize("250px", "90px");
         VerticalPanel vPanel = new VerticalPanel();
         Grid grid = new Grid(2, 2);

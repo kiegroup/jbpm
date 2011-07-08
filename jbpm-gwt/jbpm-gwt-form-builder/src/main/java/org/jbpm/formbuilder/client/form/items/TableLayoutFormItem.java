@@ -119,14 +119,13 @@ public class TableLayoutFormItem extends LayoutFormItem {
         for (int i = 0; i < grid.getRowCount() && !added; i++) {
             for (int j = 0; j < grid.getColumnCount() && !added; j++) {
                 //WARN dom used: seems the only way of fixing deleted cell bug
-                if (grid.getWidget(i, j) == null || grid.getWidget(i, j).getElement().getParentElement().getInnerHTML().equals("&nbsp;")) {
+                if (grid.getWidget(i, j) == null || isWhiteSpace(grid.getWidget(i, j))) {
                     added = true;
-                    FBFormItem item = (FBFormItem) child;
                     int index = (i+1)*(j+1);
                     if (super.size() > index) { 
-                        super.set(index-1, item);
+                        super.set(index-1, child);
                     } else {
-                        super.add(item);
+                        super.add(child);
                     }
                     grid.setWidget(i, j, child);
                     break;
@@ -139,6 +138,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
             return false;
         }
         return true;
+    }
+    
+    private boolean isWhiteSpace(Widget widget) {
+        return widget.getElement().getParentElement().getInnerHTML().equals("&nbsp;");
     }
     
     @Override
@@ -193,17 +196,24 @@ public class TableLayoutFormItem extends LayoutFormItem {
         this.cellspacing = trep.getCellSpacing();
         populate(this.grid);
         this.grid.clear();
+        super.getItems().clear();
         if (trep.getElements() != null) {
             for (int rowindex = 0; rowindex < trep.getElements().size(); rowindex++) {
                 List<FormItemRepresentation> row = trep.getElements().get(rowindex);
                 if(row != null) {
                     for (int cellindex = 0; cellindex < row.size(); cellindex++) {
                         FormItemRepresentation cell = row.get(cellindex);
-                        this.grid.setWidget(rowindex, cellindex, super.createItem(cell));
+                        FBFormItem subItem = super.createItem(cell);
+                        this.grid.setWidget(rowindex, cellindex, subItem);
+                        super.add(subItem);
                     }
                 }
             }
         }
+    }
+    
+    private void addItemToCollection(FBFormItem item) {
+        super.add(item);
     }
     
     @Override
@@ -224,6 +234,12 @@ public class TableLayoutFormItem extends LayoutFormItem {
             FBFormItem item = (FBFormItem) this.grid.getWidget(row, column);
             if (item != null) {
                 clone.grid.setWidget(row, column, item.cloneItem());
+            }
+        }
+        List<FBFormItem> items = this.getItems();
+        if (items != null) {
+            for (FBFormItem item : items) {
+                clone.addItemToCollection(item);
             }
         }
         return clone;

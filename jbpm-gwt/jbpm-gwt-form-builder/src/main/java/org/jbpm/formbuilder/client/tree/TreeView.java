@@ -1,5 +1,7 @@
 package org.jbpm.formbuilder.client.tree;
 
+import java.util.List;
+
 import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
@@ -26,6 +28,17 @@ public class TreeView extends ScrollPanel {
             }
         }
         treeBranch.addItem(new TreeElement(item));
+        if (item instanceof FBCompositeItem) {
+            FBCompositeItem compItem = (FBCompositeItem) item;
+            List<FBFormItem> subItems = compItem.getItems();
+            if (subItems != null) {
+                for (FBFormItem subItem : subItems) {
+                    if (subItem != null) {
+                        addFormItem(subItem, compItem);
+                    }
+                }
+            }
+        }
     }
     
     public void removeFormItem(FBFormItem item) {
