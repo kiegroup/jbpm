@@ -18,6 +18,12 @@
             "output": null,
             "cssId": null,
             "cssName": null,
+            "effectClasses": [
+                "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                "org.jbpm.formbuilder.client.effect.DoneEffect",
+                "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+            ],
             "itemValidations": []
         },
         {
@@ -31,6 +37,12 @@
             "typeId": "table",
             "cellPadding": 0,
             "height": "200px",
+            "effectClasses": [
+                "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                "org.jbpm.formbuilder.client.effect.DoneEffect",
+                "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+            ],
             "borderWidth": 1,
             "cellSpacing": 0,
             "elements": [
@@ -44,6 +56,12 @@
                         "height": null,
                         "output": null,
                         "cssName": null,
+                        "effectClasses": [
+                            "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                            "org.jbpm.formbuilder.client.effect.DoneEffect",
+                            "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                            "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+                        ],
                         "itemValidations": [],
                         "id": null
                     },
@@ -56,6 +74,12 @@
                         "defaultValue": null,
                         "height": "21px",
                         "output": null,
+                        "effectClasses": [
+                            "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                            "org.jbpm.formbuilder.client.effect.DoneEffect",
+                            "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                            "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+                        ],
                         "itemValidations": [],
                         "name": "usr",
                         "id": null
@@ -71,6 +95,12 @@
                         "height": null,
                         "output": null,
                         "cssName": null,
+                        "effectClasses": [
+                            "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                            "org.jbpm.formbuilder.client.effect.DoneEffect",
+                            "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                            "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+                        ],
                         "itemValidations": [],
                         "id": null
                     },
@@ -83,6 +113,12 @@
                         "defaultValue": null,
                         "height": "21px",
                         "output": null,
+                        "effectClasses": [
+                            "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                            "org.jbpm.formbuilder.client.effect.DoneEffect",
+                            "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                            "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+                        ],
                         "itemValidations": [],
                         "name": "pwd",
                         "id": null
@@ -107,6 +143,12 @@
                         "width": "140px",
                         "height": "25px",
                         "output": null,
+                        "effectClasses": [
+                            "org.jbpm.formbuilder.client.effect.RemoveEffect",
+                            "org.jbpm.formbuilder.client.effect.DoneEffect",
+                            "org.jbpm.formbuilder.client.effect.ResizeEffect",
+                            "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"
+                        ],
                         "itemValidations": [],
                         "name": null,
                         "id": null
