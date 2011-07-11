@@ -20,6 +20,8 @@ import org.jbpm.formbuilder.client.bus.FormItemSelectionEventHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class EditionPresenter {
 
@@ -34,6 +36,12 @@ public class EditionPresenter {
         this.bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionEventHandler() {
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
+                    Widget parent = editView.getParent();
+                    while (!(parent instanceof TabLayoutPanel)) {
+                        parent = parent.getParent();
+                    }
+                    TabLayoutPanel tab = (TabLayoutPanel) parent;
+                    tab.selectTab(editView);
                     editView.populate(event.getFormItemSelected());
                 } else {
                     editView.clear();

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public class MockFormDefinitionService implements FormDefinitionService {
 
@@ -134,5 +135,17 @@ public class MockFormDefinitionService implements FormDefinitionService {
             }
             items.put(pkgName, list);
         }
+    }
+
+    public FormRepresentation getAssociatedForm(String pkgName, TaskRef task) throws FormServiceException {
+        List<FormRepresentation> forms = this.forms.get(pkgName);
+        FormRepresentation retval = null;
+        for (FormRepresentation form : forms) {
+            if (form.getTaskId() != null && form.getTaskId().equals(task.getTaskId())) {
+                retval = form;
+                break;
+            }
+        }
+        return retval;
     }
 }

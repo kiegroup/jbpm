@@ -26,7 +26,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <!--use -Dgwt.compiler.skip=true to sGWT compiler-->
+        <!-- use -Dgwt.compiler.skip=true to skip GWT compiler -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
         <version>2.2.0</version>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>guvnor-repository</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -140,6 +140,10 @@
       <artifactId>jaxb-impl</artifactId>
       <version>2.2.1</version>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-bpmn2</artifactId>
     </dependency>
   </dependencies>
   

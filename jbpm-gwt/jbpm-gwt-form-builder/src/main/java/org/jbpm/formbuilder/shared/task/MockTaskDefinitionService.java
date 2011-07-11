@@ -3,8 +3,6 @@ package org.jbpm.formbuilder.shared.task;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-
 public class MockTaskDefinitionService implements TaskDefinitionService {
 
     private List<TaskRef> tasks = new ArrayList<TaskRef>();
@@ -43,10 +41,4 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
             throw new RuntimeException("Not updated " + task);
         }
     }
-
-    public FormRepresentation getAssociatedForm(TaskRef task) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

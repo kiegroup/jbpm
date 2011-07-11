@@ -21,6 +21,7 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public class GuvnorFormDefinitionService implements FormDefinitionService {
 
@@ -216,6 +217,18 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
                 method.releaseConnection();
             }
         }
+    }
+    
+    public FormRepresentation getAssociatedForm(String pkgName, TaskRef task) throws FormServiceException {
+        List<FormRepresentation> forms = getForms(pkgName);
+        FormRepresentation retval = null;
+        for (FormRepresentation form : forms) {
+            if (form.getTaskId() != null && form.getTaskId().equals(task.getTaskId())) {
+                retval = form;
+                break;
+            }
+        }
+        return retval;
     }
     
     private String getBaseUrl(String pkgName) {

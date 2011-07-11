@@ -5,36 +5,40 @@
   <g:HTMLPanel height="100%" width="100%">
     <table cellpadding="0" cellspacing="0" border="1">
       <tr height="30">
-        <td colspan="4"><g:SimplePanel height="100%" width="100%" ui:field="optionsView"/></td>
+        <td colspan="3"><g:SimplePanel height="30px" width="990px" ui:field="optionsView"/></td>
       </tr>
       <tr height="400">
-        <td width="170" height="400"><g:ScrollPanel height="400px" width="170px" ui:field="treeView"/></td>
-        <td width="170">
-          <table cellpadding="0" cellspacing="0" border="0">
-            <tr height="200">
-              <td width="170"><g:ScrollPanel height="200px" width="170px" ui:field="menuView"/></td>
-            </tr>
-            <tr height="1"><td width="170" style="background-color:black;"></td></tr>
-            <tr height="199">
-              <td width="170"><g:ScrollPanel height="200px" width="170px" ui:field="editionView"/></td>
-            </tr>
-          </table>
+        <td width="230">
+          <g:TabLayoutPanel width="230px" height="400px" barHeight="30" barUnit="PX" >
+            <g:tab selected="true">
+              <g:header>Menu</g:header>
+              <g:ScrollPanel height="360px" width="220px" ui:field="menuView"/>
+            </g:tab>
+            <g:tab>
+              <g:header>Tree</g:header>
+              <g:ScrollPanel height="360px" width="220px" ui:field="treeView"/>
+            </g:tab>
+            <g:tab>
+              <g:header>Edition</g:header>
+              <g:ScrollPanel height="360px" width="220px" ui:field="editionView"/>
+            </g:tab>
+          </g:TabLayoutPanel>
         </td>
-        <td width="500">
+        <td width="610">
           <table>
             <tr>
-              <td height="350" width="500"><g:SimplePanel height="350px" width="500px" ui:field="layoutView"/></td>
+              <td height="350" width="610"><g:SimplePanel height="350px" width="610px" ui:field="layoutView"/></td>
             </tr>
-            <tr height="1"><td width="500" style="background-color:black;"></td></tr>
+            <tr height="1"><td width="610" style="background-color:black;"></td></tr>
             <tr>
-              <td height="49" width="500"><g:AbsolutePanel height="50px" width="500px" ui:field="toolBarView"/></td>
+              <td height="49" width="610"><g:AbsolutePanel height="50px" width="610px" ui:field="toolBarView"/></td>
             </tr>
           </table>
         </td>
-        <td width="150"><g:AbsolutePanel height="100%" width="100%" ui:field="tasksView"/></td>
+        <td width="150"><g:AbsolutePanel height="100%" width="150px" ui:field="tasksView"/></td>
       </tr>
       <tr>
-        <td colspan="4" height="100"><g:FocusPanel height="100px" width="100%" ui:field="notificationsView"/></td>
+        <td colspan="3" height="100"><g:FocusPanel height="100px" width="100%" ui:field="notificationsView"/></td>
       </tr>
     </table>
   </g:HTMLPanel>

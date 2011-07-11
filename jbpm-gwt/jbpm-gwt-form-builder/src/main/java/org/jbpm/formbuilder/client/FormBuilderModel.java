@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
@@ -45,6 +46,7 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.core.client.GWT;
@@ -54,6 +56,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
@@ -439,21 +442,71 @@ public class FormBuilderModel implements FormBuilderService {
         return builder.toString();
     }
     
-    public List<TaskRef> getExistingTasks(String filter) { //TODO actual implementation not done
-        List<TaskRef> retval = new ArrayList<TaskRef>();
-        TaskRef task1 = new TaskRef();
-        task1.setTaskId("task1");
-        task1.addInput("input1", "${hey}");
-        task1.addInput("input2", "${why}");
-        task1.addOutput("output1", "");
-        task1.addOutput("output2", "");
-        retval.add(task1);
-        TaskRef task2 = new TaskRef();
-        task2.addInput("input3", "${hey}");
-        task2.addInput("input4", "${why}");
-        task2.addOutput("output3", "");
-        task2.addOutput("output4", "");
-        retval.add(task2);
+    public List<TaskRef> getExistingTasks(final String filter) {
+        final List<TaskRef> retval = new ArrayList<TaskRef>();
+        String url = GWT.getModuleBaseURL() + this.contextPath + "/tasks/package/defaultPackage/";
+        if (filter != null && !"".equals(filter)) {
+            url = url + "q=" + URL.encodeQueryString(filter);
+        }
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                Document xml = XMLParser.parse(response.getText());
+                retval.addAll(readTasks(xml));
+                bus.fireEvent(new ExistingTasksResponseEvent(retval, filter));
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read tasks", exception));
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read tasks", e));
+        }
+        return retval;
+    }
+    
+    private List<TaskRef> readTasks(Document xml) {
+        List<TaskRef> retval = null;
+        NodeList list = xml.getElementsByTagName("task");
+        if (list != null) {
+            retval = new ArrayList<TaskRef>(list.getLength());
+            for (int index = 0; index < list.getLength(); index++) {
+                Element elem = (Element) list.item(index);
+                TaskRef ref = new TaskRef();
+                ref.setProcessId(elem.getAttribute("processId"));
+                ref.setTaskId(elem.getAttribute("taskName"));
+                ref.setInputs(extractTaskIO(elem.getElementsByTagName("input")));
+                ref.setOutputs(extractTaskIO(elem.getElementsByTagName("output")));
+                NodeList mdList = elem.getElementsByTagName("metaData");
+                if (mdList != null) {
+                    Map<String, String> metaData = new HashMap<String, String>();
+                    for (int i = 0; i < mdList.getLength(); i++) {
+                        Element mdElem = (Element) mdList.item(i);
+                        metaData.put(mdElem.getAttribute("key"), mdElem.getAttribute("value"));
+                    }
+                    ref.setMetaData(metaData);
+                }
+            }
+        }
+        return retval;
+    }
+
+    private List<TaskPropertyRef> extractTaskIO(NodeList ioList) {
+        List<TaskPropertyRef> retval = null;
+        if (ioList != null) {
+            retval = new ArrayList<TaskPropertyRef>(ioList.getLength());
+            for (int i = 0; i < ioList.getLength(); i++) {
+                Element inElem = (Element) ioList.item(i);
+                TaskPropertyRef prop = new TaskPropertyRef();
+                String name = inElem.getAttribute("name");
+                prop.setName(name);
+                String sourceExpression = inElem.getAttribute("source");
+                prop.setSourceExpresion(sourceExpression);
+                retval.add(prop);
+            }
+        }
         return retval;
     }
     

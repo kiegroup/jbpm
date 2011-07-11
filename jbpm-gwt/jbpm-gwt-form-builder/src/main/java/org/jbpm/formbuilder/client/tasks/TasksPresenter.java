@@ -1,11 +1,12 @@
 package org.jbpm.formbuilder.client.tasks;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderService;
+import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
+import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
@@ -29,13 +30,17 @@ public class TasksPresenter {
         bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterEventHandler() {
             public void onEvent(TaskNameFilterEvent event) {
                 String filter = event.getTaskNameFilter();
-                List<TaskRef> tasks; 
                 try {
-                    tasks = model.getExistingTasks(filter);
+                    model.getExistingTasks(filter);
                 } catch (Exception e) {
                     bus.fireEvent(new NotificationEvent(Level.WARN, "Couldn't populate autocomplete", e));
-                    tasks = new ArrayList<TaskRef>();
                 }
+            }
+        });
+        bus.addHandler(ExistingTasksResponseEvent.TYPE, new ExistingTasksResponseHandler() {
+            public void onEvent(ExistingTasksResponseEvent event) {
+                List<TaskRef> tasks = event.getTasks();
+                String filter = event.getFilter();
                 Map<String, String> taskItems = new HashMap<String, String>();
                 for (TaskRef task : tasks) {
                     taskItems.put(task.getTaskId(), task.getTaskName() + " (from " + task.getProcessId() + ")");

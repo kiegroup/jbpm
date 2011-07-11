@@ -68,7 +68,7 @@ public class MenuItemDescription implements Mappable {
     }
 
     @SuppressWarnings("unchecked")
-    public void setDataMap(Map<String, Object> data) {
+    public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         this.className = (String) data.get("className");
         this.name = (String) data.get("name");
         List<Object> effectsMap = (List<Object>) data.get("effects");
@@ -82,12 +82,8 @@ public class MenuItemDescription implements Mappable {
             }
         }
         FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
-        try {
-            this.itemRepresentation = (FormItemRepresentation) decoder.decode(
-                    (Map<String, Object>) data.get("itemRepresentation"));
-        } catch (FormEncodingException e) {
-            //TODO see what to do with this error
-        }
+        Map<String, Object> itemMap = (Map<String, Object>) data.get("itemRepresentation");
+        this.itemRepresentation = (FormItemRepresentation) decoder.decode(itemMap);
     }
     
     @Override

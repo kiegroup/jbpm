@@ -74,6 +74,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
+import org.jbpm.formbuilder.shared.task.TaskServiceException;
 
 public class FormBuilderServlet extends HttpServlet {
 
@@ -89,12 +90,11 @@ public class FormBuilderServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         this.menuService = new GuvnorMenuService();
-        this.taskService = new GuvnorTaskDefinitionService();
-        this.formService = new GuvnorFormDefinitionService(
-                config.getInitParameter("guvnor-base-url"),
-                config.getInitParameter("guvnor-user"),
-                config.getInitParameter("guvnor-password")
-        );
+        String baseUrl = config.getInitParameter("guvnor-base-url");
+        String user = config.getInitParameter("guvnor-user");
+        String pass = config.getInitParameter("guvnor-password");
+        this.taskService = new GuvnorTaskDefinitionService(baseUrl, user, pass);
+        this.formService = new GuvnorFormDefinitionService(baseUrl, user, pass);
     }
     
     @Override
@@ -201,7 +201,7 @@ public class FormBuilderServlet extends HttpServlet {
         
     }
 
-    private String listTasks(String filter, String pkgName) throws JAXBException {
+    private String listTasks(String filter, String pkgName) throws JAXBException, TaskServiceException {
         List<TaskRef> tasks = taskService.query(pkgName, filter); //TODO check implementation
         ListTasksDTO dto = new ListTasksDTO(tasks);
         return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);

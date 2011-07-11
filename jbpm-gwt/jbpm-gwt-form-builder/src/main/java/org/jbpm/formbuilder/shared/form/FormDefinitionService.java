@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public interface FormDefinitionService {
 
@@ -19,6 +20,8 @@ public interface FormDefinitionService {
     
     FormRepresentation getForm(String pkgName, String formId) throws FormServiceException;
     FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException;
-    
+
+    FormRepresentation getAssociatedForm(String pkgName, TaskRef task) throws FormServiceException;
+
     // TODO see where to put method renderTemplate(template t, Map<String, Object> inputs): html
 }
