@@ -291,7 +291,18 @@ public abstract class FBFormItem extends FocusPanel {
     public abstract FormItemRepresentation getRepresentation();
     
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
-        //TODO this.effects = ??? this needs to be obtained from server?
+        if (rep.getEffectClasses() != null) {
+            this.effects = new ArrayList<FBFormEffect>(rep.getEffectClasses().size());
+            for (String className : rep.getEffectClasses()) {
+                try {
+                    Class<?> clazz = ReflectionHelper.loadClass(className);
+                    FBFormEffect effect = (FBFormEffect) ReflectionHelper.newInstance(clazz);
+                    this.effects.add(effect);
+                } catch (Exception e) {
+                    throw new FormBuilderException("Couldn't instantiate class " + className, e);
+                }
+            }
+        }
         //TODO this.validations = rep.getItemValidations(); will need a translation as well?
         this.widgetHeight = rep.getHeight();
         this.widgetWidth = rep.getWidth();

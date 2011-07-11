@@ -3,12 +3,15 @@ package org.jbpm.formbuilder.client.form;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.InputData;
+import org.jbpm.formbuilder.shared.rep.OutputData;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -25,6 +28,8 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     private String method;
     private String enctype;
     private String action;
+    private Map<String, InputData> inputs;
+    private Map<String, OutputData> outputs;
     
     private List<FBFormItem> formItems = new ArrayList<FBFormItem>();
     private List<FBValidationItem> validationItems = new ArrayList<FBValidationItem>();
@@ -203,6 +208,22 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         
     }
     
+    public void setInputs(Map<String, InputData> inputs) {
+        this.inputs = inputs;
+    }
+    
+    public Map<String, InputData> getInputs() {
+        return inputs;
+    }
+    
+    public void setOutputs(Map<String, OutputData> outputs) {
+        this.outputs = outputs;
+    }
+    
+    public Map<String, OutputData> getOutputs() {
+        return outputs;
+    }
+    
     public FormRepresentation createRepresentation() {
         FormRepresentation rep = new FormRepresentation();
         rep.setName(name);
@@ -216,9 +237,9 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         for (FBValidationItem item : validationItems) {
             rep.addFormValidation(item.createValidation());
         }
-        /* TODO rep.setInputs(inputs);
+        rep.setInputs(inputs);
         rep.setOutputs(outputs);
-        rep.setOnLoadScript(onLoadScript);
+        /* TODO rep.setOnLoadScript(onLoadScript);
         rep.setOnSubmitScript(onSubmitScript); */
         return rep;
     }

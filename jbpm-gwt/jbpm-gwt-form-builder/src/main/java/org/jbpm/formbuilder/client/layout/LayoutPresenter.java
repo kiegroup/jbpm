@@ -15,16 +15,16 @@
  */
 package org.jbpm.formbuilder.client.layout;
 
-import java.util.HashMap; 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEventHandler;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -34,6 +34,9 @@ import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.InputData;
+import org.jbpm.formbuilder.shared.rep.OutputData;
+import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
@@ -102,16 +105,53 @@ public class LayoutPresenter {
             public void onSelectedTask(TaskSelectedEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldTaskID", layoutView.getFormDisplay().getTaskId());
+                dataSnapshot.put("oldTaskInputs", layoutView.getFormDisplay().getInputs());
+                dataSnapshot.put("oldTaskOutputs", layoutView.getFormDisplay().getOutputs());
+                if (event.getSelectedTask() != null) {
+                    dataSnapshot.put("newTaskID", event.getSelectedTask().getTaskId());
+                    Map<String, InputData> inputs = new HashMap<String, InputData>();
+                    Map<String, OutputData> outputs = new HashMap<String, OutputData>();
+                    if (event.getSelectedTask().getInputs() != null) {
+                        for (TaskPropertyRef input : event.getSelectedTask().getInputs()) {
+                            InputData in = new InputData();
+                            in.setName(input.getName());
+                            in.setValue(input.getSourceExpresion());
+                            inputs.put(input.getName(), in);
+                        }
+                    }
+                    if (event.getSelectedTask().getOutputs() != null) {
+                        for (TaskPropertyRef output : event.getSelectedTask().getOutputs()) {
+                            OutputData out = new OutputData();
+                            out.setName(output.getName());
+                            out.setValue(output.getSourceExpresion());
+                            outputs.put(output.getName(), out);
+                        }
+                    }
+                    dataSnapshot.put("newTaskInputs", inputs);
+                    dataSnapshot.put("newTaskOutputs", outputs);
+                }
                 dataSnapshot.put("newTaskID", event.getSelectedTask() == null ? null : event.getSelectedTask().getTaskId());
+                dataSnapshot.put("newTaskInputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getInputs());
+                dataSnapshot.put("newTaskOutputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getOutputs());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
                     public void onEvent(UndoableEvent event) { }
+                    @SuppressWarnings("unchecked")
                     public void doAction(UndoableEvent event) {
                         String value = (String) event.getData("newTaskID");
+                        Map<String, InputData> inputs = (Map<String, InputData>) event.getData("newTaskInputs");
+                        Map<String, OutputData> outputs = (Map<String, OutputData>) event.getData("newTaskOutputs");
                         layoutView.getFormDisplay().setTaskId(value);
+                        layoutView.getFormDisplay().setInputs(inputs);
+                        layoutView.getFormDisplay().setOutputs(outputs);
                     }
+                    @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
                         String value = (String) event.getData("oldTaskID");
+                        Map<String, InputData> inputs = (Map<String, InputData>) event.getData("oldTaskInputs");
+                        Map<String, OutputData> outputs = (Map<String, OutputData>) event.getData("oldTaskOutputs");
                         layoutView.getFormDisplay().setTaskId(value);
+                        layoutView.getFormDisplay().setInputs(inputs);
+                        layoutView.getFormDisplay().setOutputs(outputs);
                     }
                 }));
             }

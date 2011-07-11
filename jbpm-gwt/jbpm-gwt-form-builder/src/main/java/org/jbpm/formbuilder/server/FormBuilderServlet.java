@@ -202,7 +202,7 @@ public class FormBuilderServlet extends HttpServlet {
     }
 
     private String listTasks(String filter, String pkgName) throws JAXBException, TaskServiceException {
-        List<TaskRef> tasks = taskService.query(pkgName, filter); //TODO check implementation
+        List<TaskRef> tasks = taskService.query(pkgName, filter);
         ListTasksDTO dto = new ListTasksDTO(tasks);
         return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
     }
