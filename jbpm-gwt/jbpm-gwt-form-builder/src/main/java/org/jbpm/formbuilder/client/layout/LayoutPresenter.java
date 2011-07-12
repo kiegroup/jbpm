@@ -18,10 +18,13 @@ package org.jbpm.formbuilder.client.layout;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEventHandler;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
@@ -31,6 +34,8 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayHandler;
+import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
+import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
@@ -164,10 +169,22 @@ public class LayoutPresenter {
                 }));
             }
         });
+        
+        bus.addHandler(UpdateFormViewEvent.TYPE, new UpdateFormViewHandler() {
+            public void onEvent(UpdateFormViewEvent event) {
+                FormRepresentation form = event.getFormRepresentation();
+                try {
+                    layoutView.getFormDisplay().populate(form);
+                } catch (FormBuilderException e) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't populate screen with form data", e));
+                }
+            }
+        });
     }
 
     private void populateFormData(String action, String taskId,
             String name, String method, String enctype) {
+        
         if (action != null && !"".equals(action)) {
             layoutView.getFormDisplay().setAction(action);
         }

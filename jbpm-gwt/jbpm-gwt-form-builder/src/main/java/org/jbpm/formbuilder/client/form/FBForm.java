@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.shared.rep.FBValidation;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
@@ -38,7 +41,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     private List<RightClickHandler> rclickHandlers = new ArrayList<RightClickHandler>();
     private List<ClickHandler> clickHandlers = new ArrayList<ClickHandler>();
     
-    private final FormDataPopupPanel popup = new FormDataPopupPanel(this);
+    private final FormDataPopupPanel popup = new FormDataPopupPanel();
     
     public FBForm() {
         super();
@@ -262,5 +265,25 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         /* TODO rep.setOnLoadScript(onLoadScript);
         rep.setOnSubmitScript(onSubmitScript); */
         return rep;
+    }
+
+    public void populate(FormRepresentation rep) throws FormBuilderException {
+        setName(rep.getName());
+        setTaskId(rep.getTaskId());
+        setAction(rep.getAction());
+        setMethod(rep.getMethod());
+        setEnctype(rep.getEnctype());
+        for (FormItemRepresentation itemRep : rep.getFormItems()) {
+            FBFormItem item = FBFormItem.createItem(itemRep);
+            add(item);
+        }
+        for (FBValidation validationRep : rep.getFormValidations()) {
+            FBValidationItem validation = FBValidationItem.createValidation(validationRep);
+            addValidation(validation);
+        }
+        rep.setInputs(inputs);
+        rep.setOutputs(outputs);
+        /* TODO setOnLoadScript(rep.getOnLoadScript());
+        setOnSubmitScript(rep.getOnSubmitScript()); */
     }
 }

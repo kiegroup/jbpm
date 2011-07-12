@@ -103,6 +103,83 @@ public class FormBuilderModel implements FormBuilderService {
         });
     }
     
+    public FormRepresentation getForm(final String formName) throws FormBuilderException {
+        String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
+            append("/formDefinitions/package/defaultPackage/formDefinitionId/").
+            append(formName).append("/").toString();
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
+        final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == Response.SC_OK) {
+                    Document xml = XMLParser.parse(response.getText());
+                    list.addAll(readForms(xml));
+                } else {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find form " + formName + ": response status 404"));
+                }
+            }
+            
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find form " + formName, exception));
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            throw new FormBuilderException(e);
+        }
+        while (list.isEmpty());
+        return list.get(0);
+    }
+
+    public List<FormRepresentation> getForms() throws FormBuilderException {
+        String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
+            append("/formDefinitions/package/defaultPackage/").toString();
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
+        final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == Response.SC_OK) {
+                    Document xml = XMLParser.parse(response.getText());
+                    list.addAll(readForms(xml));
+                } else {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find forms: response status 404"));
+                }
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find forms", exception));
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            throw new FormBuilderException(e);
+        }
+        while (list.isEmpty());
+        return list;
+    }
+    
+    private List<FormRepresentation> readForms(Document xml) {
+        NodeList list = xml.getElementsByTagName("json");
+        List<FormRepresentation> retval = new ArrayList<FormRepresentation>();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        if (list != null) {
+            for (int index = 0; index < list.getLength(); index++) {
+                Node node = list.item(index);
+                String json = node.getFirstChild().getNodeValue();
+                try {
+                    FormRepresentation form = decoder.decode(json);
+                    retval.add(form);
+                } catch (FormEncodingException e) {
+                    FormRepresentation error = new FormRepresentation();
+                    error.setName("ERROR: " + e.getLocalizedMessage());
+                    retval.add(error);
+                }
+            }
+        }
+        return retval;
+    }
+    
     public Map<String, List<FBMenuItem>> getMenuItems() {
         final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems/");

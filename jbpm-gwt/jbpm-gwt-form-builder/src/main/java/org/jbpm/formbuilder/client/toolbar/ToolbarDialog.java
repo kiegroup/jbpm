@@ -38,7 +38,7 @@ public class ToolbarDialog extends DialogBox {
         int height = RootPanel.getBodyElement().getClientHeight();
         int width = RootPanel.getBodyElement().getClientWidth();
         setSize("300px", "100px");
-        setPopupPosition((width - 150) / 2, (height - 50) / 2);
+        setPopupPosition(width / 2 - 150, height / 2 - 50);
     }
     
     public void addOkButtonHandler(ClickHandler handler) {

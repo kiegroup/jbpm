@@ -35,5 +35,8 @@ public interface FormBuilderService {
     void updateTask(TaskRef task) throws FormBuilderException;
 
     List<FBValidationItem> getExistingValidations() throws FormBuilderException;
+
+    FormRepresentation getForm(String formName) throws FormBuilderException;
     
+    List<FormRepresentation> getForms() throws FormBuilderException;
 }

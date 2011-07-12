@@ -1,11 +1,21 @@
 [
-    {   "html": "Preview",
-        "subMenu": [
-            {   "html": "As FTL",
-                "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand"
+    {   "html": "Form",
+        "submenu": [
+            {   "html": "Load",
+                "commandClass": "org.jbpm.formbuilder.client.command.LoadFormCommand"
             },
-            {   "html": "As XSL",
-                "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand"
+            {   "html": "Preview",
+                "subMenu": [
+                    {   "html": "As FTL",
+                        "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand"
+                    },
+                    {   "html": "As XSL",
+                        "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand"
+                    }
+                ]
+            },
+            {   "html": "Save",
+                "commandClass": "org.jbpm.formbuilder.client.command.SaveFormCommand"
             }
         ]
     },

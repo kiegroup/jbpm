@@ -146,6 +146,16 @@ public class FormRepresentation implements Serializable {
         return documentation;
     }
     
+    public void populate(String name, String taskId, String action, 
+            String method, String enctype, String documentation) {
+        this.name = name;
+        this.taskId = taskId;
+        this.action = action;
+        this.method = method;
+        this.enctype = enctype;
+        this.documentation = documentation;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;

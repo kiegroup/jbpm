@@ -2,6 +2,7 @@ package org.jbpm.formbuilder.client.validation;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.validation.NotEmptyValidation;
 
@@ -23,6 +24,13 @@ public class NotEmptyValidationItem extends FBValidationItem {
             map.put("errorMessage", new TextBox());
         }
         return map;
+    }
+    
+    @Override
+    public void populate(FBValidation validation) throws FormBuilderException {
+        if (!(validation instanceof NotEmptyValidation)) {
+            throw new FormBuilderException("validation should be of type NotEmptyValidation but is of type " + validation.getClass().getName());
+        }
     }
     
     @Override

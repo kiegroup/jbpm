@@ -55,6 +55,9 @@ public class RepresentationFactory {
                 "org.jbpm.formbuilder.client.form.items.TextAreaFormItem");
         registerItemClassName("org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation",
                 "org.jbpm.formbuilder.client.form.items.TextFieldFormItem");
+        
+        registerItemClassName("org.jbpm.formbuilder.shared.rep.validation.NotEmptyValidation", 
+                "org.jbpm.formbuilder.client.validation.NotEmptyValidationItem");
     }
 
     public static void registerItemClassName(String repClassName, String itemClassName) {
