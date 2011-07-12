@@ -16,6 +16,15 @@
             },
             {   "html": "Redo",
                 "commandClass": "org.jbpm.formbuilder.client.command.EditFormRedoCommand"
+            },
+            {   "html": "Copy (Ctrl + C)",
+                "commandClass": "org.jbpm.formbuilder.client.command.CopyCommand"
+            },
+            {   "html": "Cut (Ctrl + X)",
+                "commandClass": "org.jbpm.formbuilder.client.command.CutCommand"
+            },
+            {   "html": "Paste (Ctrl + V)",
+                "commandClass": "org.jbpm.formbuilder.client.command.PasteCommand"
             }
         ]
     }

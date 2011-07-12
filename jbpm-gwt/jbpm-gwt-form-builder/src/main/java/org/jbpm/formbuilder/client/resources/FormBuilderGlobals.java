@@ -1,8 +1,11 @@
 package org.jbpm.formbuilder.client.resources;
 
 import org.jbpm.formbuilder.client.FormBuilderService;
+import org.jbpm.formbuilder.client.command.CopyCommand;
+import org.jbpm.formbuilder.client.command.CutCommand;
+import org.jbpm.formbuilder.client.command.PasteCommand;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController; 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
 
 public class FormBuilderGlobals {
@@ -44,5 +47,33 @@ public class FormBuilderGlobals {
     
     public FormBuilderService getService() {
         return service;
+    }
+
+    private CopyCommand copy;
+    private CutCommand cut;
+    private PasteCommand paste;
+    
+    public void register(CopyCommand copy) {
+        this.copy = copy;
+    }
+    
+    public void register(CutCommand cut) {
+        this.cut = cut;
+    }
+    
+    public void register(PasteCommand paste) {
+        this.paste = paste;
+    }
+    
+    public CopyCommand copy() {
+        return copy;
+    }
+    
+    public CutCommand cut() {
+        return cut;
+    }
+    
+    public PasteCommand paste() {
+        return paste;
     }
 }

@@ -18,10 +18,14 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
@@ -57,12 +61,37 @@ public abstract class FBFormItem extends FocusPanel {
         addFocusHandler(new FocusHandler() {
             public void onFocus(FocusEvent event) {
                 makeEditor();
+                fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
+            }
+        });
+        addBlurHandler(new BlurHandler() {
+            public void onBlur(BlurEvent event) {
+                reset();
+                fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, false));
             }
         });
         sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 makeEditor();
+            }
+        });
+        addKeyPressHandler(new KeyPressHandler() {
+            public void onKeyPress(KeyPressEvent event) {
+                if (event.getNativeEvent().getCtrlKey()) {
+                    switch (event.getCharCode()) {
+                    case 'c': case 'C': //copy
+                        FormBuilderGlobals.getInstance().copy().append(FBFormItem.this).execute();
+                        break;
+                    case 'x': case 'X': //cut
+                        FormBuilderGlobals.getInstance().cut().append(FBFormItem.this).execute();
+                        break;
+                    case 'v': case 'V': //paste
+                        FormBuilderGlobals.getInstance().paste().append(FBFormItem.this).execute();
+                        break;
+                    default: /*nothing*/
+                    }
+                }
             }
         });
         addRightClickHandler(new RightClickHandler() {
