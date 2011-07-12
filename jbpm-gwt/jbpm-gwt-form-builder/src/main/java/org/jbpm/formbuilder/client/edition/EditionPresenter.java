@@ -43,8 +43,6 @@ public class EditionPresenter {
                     TabLayoutPanel tab = (TabLayoutPanel) parent;
                     tab.selectTab(editView);
                     editView.populate(event.getFormItemSelected());
-                } else {
-                    editView.clear();
                 }
             }
         });

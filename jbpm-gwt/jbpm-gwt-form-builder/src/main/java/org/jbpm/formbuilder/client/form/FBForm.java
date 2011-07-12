@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
@@ -41,7 +42,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     public FBForm() {
         super();
-        sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
+        sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU | Event.ONKEYPRESS);
         addRightClickHandler(new RightClickHandler() {
             public void onRightClick(RightClickEvent event) {
                 popup.setPopupPosition(event.getX(), event.getY());
@@ -52,35 +53,54 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     @Override
     public void onBrowserEvent(Event event) {
-      event.stopPropagation();
-      event.preventDefault();
-      switch (DOM.eventGetType(event)) {
+        switch (DOM.eventGetType(event)) {
         case Event.ONMOUSEUP:
-          if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
-            for (ClickHandler handler : clickHandlers) {
-                ClickEvent cevent = new ClickEvent() {
-                    @Override
-                    public Object getSource() {
-                        return FBForm.this;
-                    }
-                };
-                cevent.setNativeEvent(event);
-                handler.onClick(cevent);
+            event.stopPropagation();
+            event.preventDefault();
+            if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
+                for (ClickHandler handler : clickHandlers) {
+                    ClickEvent cevent = new ClickEvent() {
+                        @Override
+                        public Object getSource() {
+                            return FBForm.this;
+                        }
+                    };
+                    cevent.setNativeEvent(event);
+                    handler.onClick(cevent);
+                }
+                super.onBrowserEvent(event);
+            } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
+                for (RightClickHandler handler : rclickHandlers) {
+                    handler.onRightClick(new RightClickEvent(event));
+                }
             }
-            super.onBrowserEvent(event);
-          } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
-            for (RightClickHandler handler : rclickHandlers) {
-                handler.onRightClick(new RightClickEvent(event));
-            }
-          }
-          break;
+            break;
         case Event.ONDBLCLICK:
-          break;
+            event.stopPropagation();
+            event.preventDefault();
+            break;
         case Event.ONCONTEXTMENU:
-          break;
+            event.stopPropagation();
+            event.preventDefault();
+            break;
+        case Event.ONKEYPRESS:
+            if (event.getCtrlKey()) {
+                event.stopPropagation();
+                event.preventDefault();
+                switch (event.getCharCode()) {
+                case 'v': case 'V': //paste
+                    FormBuilderGlobals.getInstance().paste().append(null).execute();
+                    break;
+                default: 
+                    super.onBrowserEvent(event);
+                }
+            } else {
+                super.onBrowserEvent(event);
+            }
+            break;
         default:
-          break; // Do nothing
-      }//end switch
+            //Do nothing
+        }//end switch
     }
 
     public HandlerRegistration addRightClickHandler(final RightClickHandler handler) {

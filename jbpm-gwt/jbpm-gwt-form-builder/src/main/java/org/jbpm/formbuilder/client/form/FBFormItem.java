@@ -134,59 +134,72 @@ public abstract class FBFormItem extends FocusPanel {
 
     @Override
     public void onBrowserEvent(Event event) {
-      event.stopPropagation();
-      event.preventDefault();
-      switch (DOM.eventGetType(event)) {
+        switch (DOM.eventGetType(event)) {
         case Event.ONMOUSEUP:
-          if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
-            for (ClickHandler handler : clickHandlers) {
-                ClickEvent cevent = new ClickEvent() {
-                    @Override
-                    public Object getSource() {
-                        return FBFormItem.this;
-                    }
-                };
-                cevent.setNativeEvent(event);
-                handler.onClick(cevent);
+            event.stopPropagation();
+            event.preventDefault();
+            if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
+                for (ClickHandler handler : clickHandlers) {
+                    ClickEvent cevent = new ClickEvent() {
+                        @Override
+                        public Object getSource() {
+                            return FBFormItem.this;
+                        }
+                    };
+                    cevent.setNativeEvent(event);
+                    handler.onClick(cevent);
+                }
+                super.onBrowserEvent(event);
+            } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
+                for (RightClickHandler handler : rclickHandlers) {
+                    handler.onRightClick(new RightClickEvent(event));
+                }
             }
-            super.onBrowserEvent(event);
-          } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
-            for (RightClickHandler handler : rclickHandlers) {
-                handler.onRightClick(new RightClickEvent(event));
-            }
-          }
-          break;
+            break;
         case Event.ONDBLCLICK:
-          break;
+            event.stopPropagation();
+            event.preventDefault();
+            break;
         case Event.ONCONTEXTMENU:
-          break;
+            event.stopPropagation();
+            event.preventDefault();
+            break;
         case Event.ONKEYPRESS:
-          if (event.getCtrlKey()) {
-            switch (event.getCharCode()) {
-            case 'c': case 'C': //copy
-                FormBuilderGlobals.getInstance().copy().append(FBFormItem.this).execute();
-                break;
-            case 'x': case 'X': //cut
-                FormBuilderGlobals.getInstance().cut().append(FBFormItem.this).execute();
-                break;
-            case 'v': case 'V': //paste
-                FormBuilderGlobals.getInstance().paste().append(FBFormItem.this).execute();
-                break;
-            default: /*nothing*/
+            if (event.getCtrlKey()) {
+                event.stopPropagation();
+                event.preventDefault();
+                switch (event.getCharCode()) {
+                    case 'c': case 'C': //copy
+                    FormBuilderGlobals.getInstance().copy().append(FBFormItem.this).execute();
+                    break;
+                case 'x': case 'X': //cut
+                    FormBuilderGlobals.getInstance().cut().append(FBFormItem.this).execute();
+                    break;
+                case 'v': case 'V': //paste
+                    FormBuilderGlobals.getInstance().paste().append(FBFormItem.this).execute();
+                    break;
+                default: 
+                    super.onBrowserEvent(event);
+                }
+            } else {
+                super.onBrowserEvent(event);
             }
-          }
-          break;
+            break;
         case Event.ONFOCUS:
-          makeEditor();
-          fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
-          break;
+            event.stopPropagation();
+            event.preventDefault();
+            makeEditor();
+            fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
+            break;
         case Event.ONBLUR:
-          reset();
-          fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, false));
-          break;
+            event.stopPropagation();
+            event.preventDefault();
+            reset();
+            fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, false));
+            break;
         default:
-          break; // Do nothing
-      }//end switch
+            // Do nothing
+        }//end switch
     }
 
     public HandlerRegistration addRightClickHandler(final RightClickHandler handler) {
