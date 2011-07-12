@@ -1,11 +1,15 @@
 package org.jbpm.formbuilder.client.command;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.LoadServerFormEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormHandler;
+import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
+import org.jbpm.formbuilder.client.bus.LoadServerFormResponseHandler;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
@@ -33,39 +37,42 @@ public class LoadFormCommand implements BaseCommand {
         bus.addHandler(LoadServerFormEvent.TYPE, new LoadServerFormHandler() {
             public void onEvent(LoadServerFormEvent event) {
                 String formName = event.getFormName();
-                loadForm(formName);
+                if (formName != null) {
+                    try {
+                        service.getForm(formName);
+                    } catch (FormBuilderException e) {
+                        bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't load form " + formName, e));
+                    }
+                } else {
+                    try {
+                        service.getForms();
+                    } catch (FormBuilderException e) {
+                        bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't retrieve all forms", e));
+                    }
+                }
+            }
+        });
+        bus.addHandler(LoadServerFormResponseEvent.TYPE, new LoadServerFormResponseHandler() {
+            public void onListForms(LoadServerFormResponseEvent event) {
+                popupFormSelection(event.getList());
+            }
+            
+            public void onGetForm(LoadServerFormResponseEvent event) {
+                populateFormView(event.getForm());
             }
         });
     }
 
-    private void loadForm(String formName) {
-        if (formName == null) {
-            try {
-                List<FormRepresentation> forms = service.getForms();
-                popupFormSelection(forms);
-            } catch (FormBuilderException e) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't retrieve all forms", e));
-            }
-        } else {
-            populateFormView(formName);
-        }
-    }
-
-    private void populateFormView(String formName) {
-        if (formName != null) {
-            try {
-                FormRepresentation form = service.getForm(formName);
-                bus.fireEvent(new UpdateFormViewEvent(form));
-            } catch (FormBuilderException e) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't load form " + formName, e));
-            }
-        }
+    private void populateFormView(FormRepresentation form) {
+        bus.fireEvent(new UpdateFormViewEvent(form));
     }
 
     private void popupFormSelection(List<FormRepresentation> forms) {
+        final Map<String, FormRepresentation> formMap = new HashMap<String, FormRepresentation>();
         final ListBox names = new ListBox();
         for (FormRepresentation form : forms) {
             names.addItem(form.getName());
+            formMap.put(form.getName(), form);
         }
         final PopupPanel panel = new PopupPanel(false, true);
         VerticalPanel vPanel = new VerticalPanel();
@@ -78,7 +85,7 @@ public class LoadFormCommand implements BaseCommand {
         loadButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 String formName = names.getValue(names.getSelectedIndex());
-                populateFormView(formName);
+                populateFormView(formMap.get(formName));
                 panel.hide();
             }
         });

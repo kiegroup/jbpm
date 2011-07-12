@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
+import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
@@ -114,6 +115,7 @@ public class FormBuilderModel implements FormBuilderService {
                 if (response.getStatusCode() == Response.SC_OK) {
                     Document xml = XMLParser.parse(response.getText());
                     list.addAll(readForms(xml));
+                    bus.fireEvent(new LoadServerFormResponseEvent(list.isEmpty() ? null : list.iterator().next()));
                 } else {
                     bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find form " + formName + ": response status 404"));
                 }
@@ -128,8 +130,7 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             throw new FormBuilderException(e);
         }
-        while (list.isEmpty());
-        return list.get(0);
+        return list.isEmpty() ? null : list.iterator().next();
     }
 
     public List<FormRepresentation> getForms() throws FormBuilderException {
@@ -142,6 +143,7 @@ public class FormBuilderModel implements FormBuilderService {
                 if (response.getStatusCode() == Response.SC_OK) {
                     Document xml = XMLParser.parse(response.getText());
                     list.addAll(readForms(xml));
+                    bus.fireEvent(new LoadServerFormResponseEvent(list));
                 } else {
                     bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find forms: response status 404"));
                 }
