@@ -1,6 +1,6 @@
 [
     {   "html": "Form",
-        "submenu": [
+        "subMenu": [
             {   "html": "Load",
                 "commandClass": "org.jbpm.formbuilder.client.command.LoadFormCommand"
             },
