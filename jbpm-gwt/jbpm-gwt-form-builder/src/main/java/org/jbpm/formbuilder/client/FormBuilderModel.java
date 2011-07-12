@@ -157,7 +157,6 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             throw new FormBuilderException(e);
         }
-        while (list.isEmpty());
         return list;
     }
     
