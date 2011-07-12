@@ -41,7 +41,6 @@ public class DropFormItemController extends AbstractDropController {
             FBFormItem formItem = menuItem.buildWidget();
             formItem.setDesiredPosition(x, y);
             Map<String, Object> dataSnapshot = new HashMap<String, Object>();
-            dataSnapshot.put("layoutView", layoutView);
             dataSnapshot.put("formItem", formItem);
             dataSnapshot.put("menuItem", menuItem);
             dataSnapshot.put("x", x);
@@ -50,7 +49,6 @@ public class DropFormItemController extends AbstractDropController {
                 public void onEvent(UndoableEvent event) {  }
                 public void undoAction(UndoableEvent event) {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
-                    LayoutView layoutView = (LayoutView) event.getData("layoutView");
                     Integer x = (Integer) event.getData("x");
                     Integer y = (Integer) event.getData("y");
                     Panel panel = layoutView.getUnderlyingLayout(x, y);
@@ -60,7 +58,6 @@ public class DropFormItemController extends AbstractDropController {
                 public void doAction(UndoableEvent event) {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
                     FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
-                    LayoutView layoutView = (LayoutView) event.getData("layoutView");
                     Integer x = (Integer) event.getData("x");
                     Integer y = (Integer) event.getData("y");
                     if (formItem != null) {

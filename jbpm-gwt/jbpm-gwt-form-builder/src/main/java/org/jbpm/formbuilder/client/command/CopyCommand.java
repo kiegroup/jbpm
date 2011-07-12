@@ -8,36 +8,38 @@ import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
-public class CopyCommand extends OneMemoryObjectCommand {
+import com.google.gwt.user.client.ui.MenuItem;
+
+public class CopyCommand extends AbstractCopyPasteCommand {
 
     public CopyCommand() {
         super();
         FormBuilderGlobals.getInstance().register(this);
     }
     
+    @Override
+    protected void enable(MenuItem menuItem) {
+        menuItem.setEnabled(getSelectedItem() != null);
+    }
+    
     public void execute() {
-        if (getSelectedItem() == null) {
-            OneMemoryObjectCommand.setMemory(null);
-        } else {
-            OneMemoryObjectCommand.setMemory(getSelectedItem().cloneItem());
-        }
-        
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("selectedItem", getSelectedItem());
-        dataSnapshot.put("oldMemory", OneMemoryObjectCommand.getMemory());
+        dataSnapshot.put("oldMemory", AbstractCopyPasteCommand.getMemory());
         fireUndoableEvent(dataSnapshot, new UndoableEventHandler() {
             public void doAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("selectedItem");
                 if (item == null) {
-                    OneMemoryObjectCommand.setMemory(null);
+                    AbstractCopyPasteCommand.setMemory(null);
                 } else {
-                    OneMemoryObjectCommand.setMemory(item.cloneItem());
-                    item.removeFromParent();
+                    AbstractCopyPasteCommand.setMemory(item.cloneItem());
                 }
+                FormBuilderGlobals.getInstance().paste().enable();
             }
             public void undoAction(UndoableEvent event) {
                 Object oldMemory = event.getData("oldMemory");
-                OneMemoryObjectCommand.setMemory(oldMemory);
+                AbstractCopyPasteCommand.setMemory(oldMemory);
+                FormBuilderGlobals.getInstance().paste().enable();
             }
             public void onEvent(UndoableEvent event) { }
         });

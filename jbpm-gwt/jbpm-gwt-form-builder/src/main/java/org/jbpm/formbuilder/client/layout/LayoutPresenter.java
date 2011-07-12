@@ -29,6 +29,8 @@ import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
+import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
+import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayHandler;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
@@ -64,6 +66,12 @@ public class LayoutPresenter {
                 FBForm formDisplay = layoutView.getFormDisplay();
                 FormRepresentation rep = formDisplay.createRepresentation();
                 bus.fireEvent(new PreviewFormRepresentationEvent(rep, event.getSaveType()));
+            }
+        });
+        
+        this.bus.addHandler(GetFormDisplayEvent.TYPE, new GetFormDisplayHandler() {
+            public void onEvent(GetFormDisplayEvent event) {
+                event.setFormDisplay(layoutView.getFormDisplay());
             }
         });
         

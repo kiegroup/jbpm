@@ -12,8 +12,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;
 
-
-public abstract class OneMemoryObjectCommand implements BaseCommand {
+public abstract class AbstractCopyPasteCommand implements BaseCommand {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
@@ -22,7 +21,7 @@ public abstract class OneMemoryObjectCommand implements BaseCommand {
     private FBFormItem selectedItem;
     private MenuItem menuItem;
     
-    public OneMemoryObjectCommand() {   
+    public AbstractCopyPasteCommand() {   
         bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionEventHandler() {
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
@@ -36,10 +35,16 @@ public abstract class OneMemoryObjectCommand implements BaseCommand {
     
     private void setSelectedItem(FBFormItem item) {
         this.selectedItem = item;
-        menuItem.setEnabled(item != null);
+        enable(menuItem);
     }
     
-    public OneMemoryObjectCommand append(FBFormItem selectedItem) {
+    protected void enable() {
+        enable(this.menuItem);
+    }
+    
+    protected abstract void enable(MenuItem menuItem);
+    
+    public AbstractCopyPasteCommand append(FBFormItem selectedItem) {
         setSelectedItem(selectedItem);
         return this;
     }
