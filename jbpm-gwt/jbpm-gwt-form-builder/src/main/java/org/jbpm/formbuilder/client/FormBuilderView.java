@@ -28,7 +28,7 @@ public class FormBuilderView extends AbsolutePanel {
     @UiField(provided=true) SimplePanel optionsView;
     @UiField(provided=true) ScrollPanel menuView;
     @UiField(provided=true) ScrollPanel editionView;
-    @UiField(provided=true) SimplePanel layoutView;
+    @UiField(provided=true) ScrollPanel layoutView;
     @UiField(provided=true) AbsolutePanel toolBarView;
     @UiField(provided=true) AbsolutePanel tasksView;
     @UiField(provided=true) FocusPanel notificationsView;

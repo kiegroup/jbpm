@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -14,6 +15,7 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
@@ -28,8 +30,8 @@ import com.google.gwt.user.client.ui.PopupPanel;
 
 public class CustomOptionMenuItem extends FBMenuItem {
 
-    private String newMenuOptionName;
-    private FBFormItem cloneableItem;
+    private String optionName;
+    private FormItemRepresentation representation;
     private String groupName;
     
     public CustomOptionMenuItem() {
@@ -37,10 +39,10 @@ public class CustomOptionMenuItem extends FBMenuItem {
         this(null, null, new ArrayList<FBFormEffect>(), null);
     }
     
-    public CustomOptionMenuItem(FBFormItem cloneableItem, String newMenuOptionName, List<FBFormEffect> formEffects, String groupName) {
+    public CustomOptionMenuItem(FormItemRepresentation representation, String optionName, List<FBFormEffect> formEffects, String groupName) {
         super(formEffects);
-        this.cloneableItem = cloneableItem;
-        this.newMenuOptionName = newMenuOptionName;
+        this.representation = representation;
+        this.optionName = optionName;
         this.groupName = groupName;
         sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         repaint();
@@ -104,20 +106,20 @@ public class CustomOptionMenuItem extends FBMenuItem {
       }//end switch
     }
 
-    public String getNewMenuOptionName() {
-        return newMenuOptionName;
+    public String getOptionName() {
+        return optionName;
     }
     
-    public FBFormItem getCloneableItem() {
-        return cloneableItem;
+    public FormItemRepresentation getRepresentation() {
+        return representation;
     }
     
-    public void setCloneableItem(FBFormItem cloneableItem) {
-        this.cloneableItem = cloneableItem;
+    public void setRepresentation(FormItemRepresentation representation) {
+        this.representation = representation;
     }
     
-    public void setNewMenuOptionName(String newMenuOptionName) {
-        this.newMenuOptionName = newMenuOptionName;
+    public void setOptionName(String optionName) {
+        this.optionName = optionName;
         repaint();
     }
     
@@ -136,27 +138,34 @@ public class CustomOptionMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label(newMenuOptionName);
+        return new Label(optionName);
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new CustomOptionMenuItem(cloneableItem, newMenuOptionName, getFormEffects(), groupName);
+        return new CustomOptionMenuItem(representation, optionName, getFormEffects(), groupName);
     }
 
     @Override
     public void addEffect(FBFormEffect effect) {
         super.addEffect(effect);
-        this.cloneableItem.addEffect(effect);
     }
     
     @Override
     public FBFormItem buildWidget() {
-        return cloneableItem.cloneItem();
+        try {
+            FBFormItem item = FBFormItem.createItem(representation);
+            for (FBFormEffect effect : getFormEffects()) {
+                item.addEffect(effect);
+            }
+            return item;
+        } catch (FormBuilderException e) {
+            return new ErrorMenuItem(e.getLocalizedMessage()).buildWidget();
+        }
     }
     
     @Override
     public String getItemId() {
-        return groupName + ":" + newMenuOptionName;
+        return groupName + ":" + optionName;
     }
 }

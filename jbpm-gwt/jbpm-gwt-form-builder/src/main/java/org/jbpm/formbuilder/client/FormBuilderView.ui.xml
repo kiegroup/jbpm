@@ -1,11 +1,9 @@
-<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
-    xmlns:g='urn:import:com.google.gwt.user.client.ui'
-    xmlns:fb='urn:import:org.jbpm.formbuilder.client'>
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder' xmlns:g='urn:import:com.google.gwt.user.client.ui'>
 
   <g:HTMLPanel height="100%" width="100%">
     <table cellpadding="0" cellspacing="0" border="1">
       <tr height="30">
-        <td colspan="3"><g:SimplePanel height="30px" width="990px" ui:field="optionsView"/></td>
+        <td colspan="2"><g:SimplePanel height="30px" width="990px" ui:field="optionsView"/></td>
       </tr>
       <tr height="400">
         <td width="230">
@@ -22,23 +20,26 @@
               <g:header>Edition</g:header>
               <g:ScrollPanel height="360px" width="220px" ui:field="editionView"/>
             </g:tab>
+            <g:tab>
+              <g:header>Tasks</g:header>
+              <g:AbsolutePanel height="100%" width="220px" ui:field="tasksView"/>
+            </g:tab>
           </g:TabLayoutPanel>
         </td>
-        <td width="610">
+        <td width="760">
           <table>
             <tr>
-              <td height="350" width="610"><g:SimplePanel height="350px" width="610px" ui:field="layoutView"/></td>
+              <td height="350" width="760"><g:ScrollPanel height="350px" width="760px" ui:field="layoutView"/></td>
             </tr>
-            <tr height="1"><td width="610" style="background-color:black;"></td></tr>
+            <tr height="1"><td width="760" style="background-color:black;"></td></tr>
             <tr>
-              <td height="49" width="610"><g:AbsolutePanel height="50px" width="610px" ui:field="toolBarView"/></td>
+              <td height="49" width="760"><g:AbsolutePanel height="50px" width="760px" ui:field="toolBarView"/></td>
             </tr>
           </table>
         </td>
-        <td width="150"><g:AbsolutePanel height="100%" width="150px" ui:field="tasksView"/></td>
       </tr>
       <tr>
-        <td colspan="3" height="100"><g:FocusPanel height="100px" width="100%" ui:field="notificationsView"/></td>
+        <td colspan="2" height="100"><g:FocusPanel height="100px" width="100%" ui:field="notificationsView"/></td>
       </tr>
     </table>
   </g:HTMLPanel>

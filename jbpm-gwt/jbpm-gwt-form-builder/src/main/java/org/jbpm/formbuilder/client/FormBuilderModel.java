@@ -32,7 +32,6 @@ import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
@@ -77,8 +76,8 @@ public class FormBuilderModel implements FormBuilderService {
                 saveMenuItem(event.getGroupName(), item);
                 if (item instanceof CustomOptionMenuItem) {
                     CustomOptionMenuItem customItem = (CustomOptionMenuItem) item;
-                    String formItemName = customItem.getNewMenuOptionName();
-                    FormItemRepresentation formItem = customItem.getCloneableItem().getRepresentation();
+                    String formItemName = customItem.getOptionName();
+                    FormItemRepresentation formItem = customItem.getRepresentation();
                     saveFormItem(formItem, formItemName);
                 }
             }
@@ -89,8 +88,8 @@ public class FormBuilderModel implements FormBuilderService {
                 deleteMenuItem(event.getGroupName(), item);
                 if (item instanceof CustomOptionMenuItem) {
                     CustomOptionMenuItem customItem = (CustomOptionMenuItem) item;
-                    String formItemName = customItem.getNewMenuOptionName();
-                    FormItemRepresentation formItem = customItem.getCloneableItem().getRepresentation();
+                    String formItemName = customItem.getOptionName();
+                    FormItemRepresentation formItem = customItem.getRepresentation();
                     deleteFormItem(formItemName, formItem);
                 }
             }
@@ -233,9 +232,8 @@ public class FormBuilderModel implements FormBuilderService {
                 if (obj instanceof CustomOptionMenuItem) {
                     CustomOptionMenuItem customItem = (CustomOptionMenuItem) obj;
                     String optionName = ((Element) itemNode).getAttribute("optionName");
-                    FBFormItem cloneableItem = FBFormItem.createItem(makeRepresentation(itemNode));
-                    customItem.setCloneableItem(cloneableItem);
-                    customItem.setNewMenuOptionName(optionName);
+                    customItem.setRepresentation(makeRepresentation(itemNode));
+                    customItem.setOptionName(optionName);
                     customItem.setGroupName(groupName);
                     menuItem = customItem;
                 } else if (obj instanceof FBMenuItem) {
