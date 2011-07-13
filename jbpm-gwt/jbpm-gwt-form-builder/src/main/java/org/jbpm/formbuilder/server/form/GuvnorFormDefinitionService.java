@@ -47,9 +47,9 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
         } else {
             if (!form.getName().startsWith("formDefinition_")) {
                 form.setName("formDefinition_" + form.getName());
-                method = new PostMethod(url + form.getName());
+                method = new PostMethod(url + form.getName() + ".json");
             } else {
-                method = new PutMethod(url + form.getName());
+                method = new PutMethod(url + form.getName() + ".json");
             }
         }
         FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
@@ -58,6 +58,9 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             method.setRequestHeader("Checkin-Comment", form.getDocumentation());
             method.setRequestHeader("Authorization", getAuthString());
             client.executeMethod(method);
+            if (!"OK".equalsIgnoreCase(method.getResponseBodyAsString())) {
+                throw new FormServiceException("Remote guvnor error: " + method.getResponseBodyAsString());
+            }
             return form.getName();
         } catch (IOException e) {
             throw new FormServiceException(e);
@@ -76,11 +79,12 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             formItemName = "formItemDefinition_" + System.currentTimeMillis();
             method = new PostMethod(getBaseUrl(pkgName) + formItemName);
         } else {
+            String url = getBaseUrl(pkgName);
             if (!formItemName.startsWith("formItemDefinition_")) {
                 formItemName = "formItemDefinition_" + formItemName;
-                method = new PostMethod(getBaseUrl(pkgName) + formItemName);
+                method = new PostMethod(url + formItemName + ".json");
             } else {
-                method = new PutMethod(getBaseUrl(pkgName) + formItemName);
+                method = new PutMethod(url + formItemName + ".json");
             }
         }
         FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
@@ -102,7 +106,7 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
     public FormRepresentation getForm(String pkgName, String formId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formId != null && !"".equals(formId)) {
-            GetMethod method = new GetMethod(getBaseUrl(pkgName) + formId);
+            GetMethod method = new GetMethod(getBaseUrl(pkgName) + formId + ".json");
             FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", getAuthString());
@@ -123,7 +127,7 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
     public FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formItemId != null && !"".equals(formItemId)) {
-            GetMethod method = new GetMethod(getBaseUrl(pkgName) + formItemId);
+            GetMethod method = new GetMethod(getBaseUrl(pkgName) + formItemId + ".json");
             FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", getAuthString());
@@ -153,7 +157,7 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             for (Object key : props.keySet()) {
                 String assetId = key.toString();
                 if (assetId.startsWith("formItemDefinition_")) {
-                    FormItemRepresentation item = getFormItem(pkgName, assetId);
+                    FormItemRepresentation item = getFormItem(pkgName, assetId.replace(".json", ""));
                     items.put(assetId, item);
                 }
             }
@@ -176,8 +180,8 @@ public class GuvnorFormDefinitionService implements FormDefinitionService {
             List<FormRepresentation> forms = new ArrayList<FormRepresentation>();
             for (Object key : props.keySet()) {
                 String assetId = key.toString();
-                if (assetId.startsWith("formItemDefinition_")) {
-                    FormRepresentation form = getForm(pkgName, assetId);
+                if (assetId.startsWith("formDefinition_")) {
+                    FormRepresentation form = getForm(pkgName, assetId.replace(".json", ""));
                     forms.add(form);
                 }
             }

@@ -30,8 +30,6 @@ import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
@@ -97,17 +95,18 @@ public class FormBuilderModel implements FormBuilderService {
                 }
             }
         });
-        bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
-            public void onEvent(PreviewFormRepresentationEvent event) {
-                saveForm(event.getRepresentation());
-            }
-        });
     }
     
     public FormRepresentation getForm(final String formName) throws FormBuilderException {
+        final String myFormName;
+        if (!formName.startsWith("formDefinition_")) { 
+            myFormName = "formDefinition_" + formName;
+        } else {
+            myFormName = formName;
+        }
         String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
             append("/formDefinitions/package/defaultPackage/formDefinitionId/").
-            append(formName).append("/").toString();
+            append(myFormName).append("/").toString();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
         request.setCallback(new RequestCallback() {
@@ -377,7 +376,8 @@ public class FormBuilderModel implements FormBuilderService {
     
     public void saveForm(final FormRepresentation form) {
         RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
-                GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/forms/");
+                GWT.getModuleBaseURL() + this.contextPath + 
+                "/formDefinitions/package/defaultPackage/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {

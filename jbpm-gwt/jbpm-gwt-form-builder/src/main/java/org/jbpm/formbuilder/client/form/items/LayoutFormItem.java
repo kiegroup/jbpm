@@ -5,10 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -46,8 +50,11 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
 
     @Override
     public boolean remove(Widget w) {
+        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         if (w instanceof FBFormItem) {
-            this.items.remove((FBFormItem) w);
+            FBFormItem item = (FBFormItem) w;
+            this.items.remove(item);
+            bus.fireEvent(new FormItemRemovedEvent(item));
         }
         return super.remove(w);
     }
@@ -69,7 +76,10 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
     }
 
     public boolean add(FBFormItem item) {
-        return items.add(item);
+        boolean add = items.add(item);
+        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+        bus.fireEvent(new FormItemAddedEvent(item, this));
+        return add;
     }
 
     public FBFormItem set(int index, FBFormItem element) {

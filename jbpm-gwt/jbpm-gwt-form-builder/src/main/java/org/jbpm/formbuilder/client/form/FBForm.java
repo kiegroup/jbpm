@@ -6,6 +6,8 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
@@ -19,6 +21,7 @@ import org.jbpm.formbuilder.shared.rep.OutputData;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
@@ -180,7 +183,10 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     @Override
     public boolean remove(Widget w) {
         if (w instanceof FBFormItem) {
-            this.formItems.remove((FBFormItem) w);
+            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+            FBFormItem item = (FBFormItem) w;
+            this.formItems.remove(item);
+            bus.fireEvent(new FormItemRemovedEvent(item));
         }
         return super.remove(w);
     }
@@ -188,6 +194,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     @Override
     public void add(Widget w) {
         if (w instanceof FBFormItem) {
+            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
             FBFormItem formItem = (FBFormItem) w;
             int index = getItemPosition(formItem);
             if (index == getWidgetCount()) {
@@ -197,6 +204,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
                 this.formItems.set(index, formItem);
                 super.insert(w, index);
             }
+            bus.fireEvent(new FormItemAddedEvent(formItem, this));
         } else {
             super.add(w);
         }
@@ -273,6 +281,10 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         setAction(rep.getAction());
         setMethod(rep.getMethod());
         setEnctype(rep.getEnctype());
+        for (FBFormItem item : new ArrayList<FBFormItem>(formItems)) {
+            item.removeFromParent();
+        }
+        
         for (FormItemRepresentation itemRep : rep.getFormItems()) {
             FBFormItem item = FBFormItem.createItem(itemRep);
             add(item);

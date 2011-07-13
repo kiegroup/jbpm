@@ -119,10 +119,13 @@ public class HeaderFormItem extends FBFormItem {
         }
         super.populate(rep);
         HeaderRepresentation hrep = (HeaderRepresentation) rep;
-        this.header.setText("<h1>" + hrep.getValue() + "</h1>");
         this.cssClassName = hrep.getCssName();
         this.id = hrep.getCssId();
-        populate(this.header);
+        if (hrep.getValue().startsWith("<h1>")) {
+            setContent(hrep.getValue());
+        } else {
+            setContent("<h1>" + hrep.getValue() + "</h1>");
+        }
     }
     
     @Override

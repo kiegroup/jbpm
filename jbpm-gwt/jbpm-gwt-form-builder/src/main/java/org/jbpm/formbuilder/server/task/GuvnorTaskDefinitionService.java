@@ -52,7 +52,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     
     private String getBaseUrl(String pkgName) {
         return new StringBuilder(this.guvnorBaseUrl).
-            append("/org.drools.guvnor.Guvnor/api/packages/").
+            append("/org.drools.guvnor.Guvnor/api/package/").
             append(pkgName).append("/").toString();
     }
     

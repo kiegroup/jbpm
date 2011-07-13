@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class LoadFormCommand implements BaseCommand {
@@ -100,6 +101,10 @@ public class LoadFormCommand implements BaseCommand {
         buttonPanel.add(cancelButton);
         vPanel.add(buttonPanel);
         panel.add(vPanel);
+        panel.setPopupPosition(
+                RootPanel.getBodyElement().getClientWidth() / 2 - 150, 
+                RootPanel.getBodyElement().getClientHeight() / 2 - 150);
+        panel.show();
     }
     
     public void execute() {

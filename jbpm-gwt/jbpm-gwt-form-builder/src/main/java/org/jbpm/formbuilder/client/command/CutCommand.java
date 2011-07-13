@@ -5,12 +5,9 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
-import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
-import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -41,8 +38,6 @@ public class CutCommand extends AbstractCopyPasteCommand {
                 } else {
                     AbstractCopyPasteCommand.setMemory(item.cloneItem());
                     item.removeFromParent();
-                    EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-                    bus.fireEvent(new FormItemRemovedEvent(item));
                 }
                 FormBuilderGlobals.getInstance().paste().enable();
             }
@@ -59,8 +54,6 @@ public class CutCommand extends AbstractCopyPasteCommand {
                     HasOneWidget oldParentPanel = (HasOneWidget) oldParent;
                     oldParentPanel.setWidget(item);
                 }
-                EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-                bus.fireEvent(new FormItemAddedEvent(item, oldParent));
             }
             public void onEvent(UndoableEvent event) { }
         });
