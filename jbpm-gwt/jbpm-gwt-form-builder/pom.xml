@@ -78,7 +78,10 @@
     <dependency>
       <groupId>com.google.code.gwt-dnd</groupId>
       <artifactId>gwt-dnd</artifactId>
-      <version>3.0.1</version>
+      <version>3.1.0</version>
+      <!-- temporal fix. Should change soon enough -->
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/gwt-dnd-3.1.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.google.gwt.google-apis</groupId>
