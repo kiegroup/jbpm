@@ -8,6 +8,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.editors.ServerScriptEditor;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ServerTransformationRepresentation;
@@ -82,7 +83,7 @@ public class ServerTransformationFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget createInplaceEditor() {
+    public FBInplaceEditor createInplaceEditor() {
         return new ServerScriptEditor(this);
     }
 

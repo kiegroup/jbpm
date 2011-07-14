@@ -46,11 +46,6 @@ public class ErrorMenuItem extends FBMenuItem {
             }
             
             @Override
-            public Widget createInplaceEditor() {
-                return null;
-            }
-            
-            @Override
             public Map<String, Object> getFormItemPropertiesMap() {
                 return new HashMap<String, Object>();
             }

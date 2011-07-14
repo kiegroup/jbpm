@@ -8,14 +8,12 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.FBInplaceEditor;
+import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class HeaderFormItem extends FBFormItem {
@@ -51,19 +49,8 @@ public class HeaderFormItem extends FBFormItem {
     }
 
     @Override
-    public Widget createInplaceEditor() {
-        final HorizontalPanel editPanel = new HorizontalPanel();
-        editPanel.setBorderWidth(1);
-        final TextBox textBox = new TextBox();
-        textBox.setValue(getHeader().getText());
-        textBox.addChangeHandler(new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                setContent("<h1>" + textBox.getValue() + "</h1>");
-                reset();
-            }
-        });
-        editPanel.add(textBox);
-        return editPanel;
+    public FBInplaceEditor createInplaceEditor() {
+        return new HeaderInplaceEditor(this);
     }
 
     @Override
@@ -88,11 +75,11 @@ public class HeaderFormItem extends FBFormItem {
         }
     }
     
-    protected HTML getHeader() {
+    public HTML getHeader() {
         return this.header;
     }
     
-    protected void setContent(String html) {
+    public void setContent(String html) {
         getHeader().setHTML(html);
     }
     

@@ -55,7 +55,6 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	}
 	
 	protected Position obtainPosition(int x, int y) {
-		System.out.println("obtainPosition(x=" + x + ",y=" + y + ")");
 		int xpos = x - grid.getAbsoluteLeft(); 
 		int width = grid.getOffsetWidth();
 		int ypos = y - grid.getAbsoluteTop();

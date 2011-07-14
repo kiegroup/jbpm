@@ -15,7 +15,7 @@ public class TreeView extends ScrollPanel {
     
     public TreeView() {
         tree.setSize("100%", "100%");
-        tree.addItem(new TreeElement(null));
+        tree.addItem(new TreeElement());
         setWidget(tree);
     }
     
@@ -26,15 +26,17 @@ public class TreeView extends ScrollPanel {
             if (treeBranch2 != null) {
                 treeBranch = treeBranch2;
             }
-        }
-        treeBranch.addItem(new TreeElement(item));
-        if (item instanceof FBCompositeItem) {
-            FBCompositeItem compItem = (FBCompositeItem) item;
-            List<FBFormItem> subItems = compItem.getItems();
-            if (subItems != null) {
-                for (FBFormItem subItem : subItems) {
-                    if (subItem != null) {
-                        addFormItem(subItem, compItem);
+        } 
+        if (parent != null) {
+            treeBranch.addItem(new TreeElement(item));
+            if (item instanceof FBCompositeItem) {
+                FBCompositeItem compItem = (FBCompositeItem) item;
+                List<FBFormItem> subItems = compItem.getItems();
+                if (subItems != null) {
+                    for (FBFormItem subItem : subItems) {
+                        if (subItem != null) {
+                            addFormItem(subItem, compItem);
+                        }
                     }
                 }
             }

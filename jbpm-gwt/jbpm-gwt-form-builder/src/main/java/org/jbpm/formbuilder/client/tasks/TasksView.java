@@ -60,7 +60,6 @@ public class TasksView extends AbsolutePanel {
         taskName.addKeyPressHandler(new KeyPressHandler() {
             public void onKeyPress(KeyPressEvent event) {
                 String newValue = taskName.getValue();
-                System.out.println("Value changed to " + newValue);
                 bus.fireEvent(new TaskNameFilterEvent(newValue));
             }
         });

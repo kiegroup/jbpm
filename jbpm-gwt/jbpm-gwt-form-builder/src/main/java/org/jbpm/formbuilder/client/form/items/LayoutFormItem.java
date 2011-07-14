@@ -82,10 +82,26 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         return add;
     }
 
-    public FBFormItem set(int index, FBFormItem element) {
-        return items.set(index, element);
+    public FBFormItem insert(int index, FBFormItem newItem) {
+        FBFormItem item = null;
+        if (items.get(index) == null || isWhiteSpace(items.get(index))) {
+            item = items.set(index, newItem);
+        } else {
+            item = newItem;
+            for (; index < items.size() ; index++) {
+                item = items.set(index, item);
+            }
+            items.add(item);
+        }
+        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+        bus.fireEvent(new FormItemAddedEvent(newItem, this));
+        return item;
     }
 
+    protected boolean isWhiteSpace(Widget widget) {
+        return widget.getElement().getParentElement().getInnerHTML().equals("&nbsp;");
+    }
+    
     public abstract Panel getPanel();
     
     public Panel getUnderlyingLayout(int x, int y) {

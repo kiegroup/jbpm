@@ -9,7 +9,6 @@ import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.EffectsPopupPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
@@ -26,7 +25,6 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 
 public abstract class FBFormItem extends FocusPanel {
@@ -53,11 +51,11 @@ public abstract class FBFormItem extends FocusPanel {
         this.effects.addAll(formEffects);
         addStyleName("fbFormItemThinBorder");
         sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU | Event.ONKEYPRESS | Event.ONFOCUS | Event.ONBLUR);
-        addClickHandler(new ClickHandler() {
+        /*addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 makeEditor();
             }
-        });
+        });*/
         addRightClickHandler(new RightClickHandler() {
             public void onRightClick(RightClickEvent event) {
                 EffectsPopupPanel popupPanel = new EffectsPopupPanel(FBFormItem.this, true);
@@ -73,12 +71,13 @@ public abstract class FBFormItem extends FocusPanel {
         if (!getFormItemPropertiesMap().isEmpty() && !isAlreadyEditing()) {
             fireSelectionEvent(new FormItemSelectionEvent(this, true));
         }
-        Widget inplaceEditor = createInplaceEditor();
+        FBInplaceEditor inplaceEditor = createInplaceEditor();
         if (inplaceEditor != null && !isAlreadyEditing()) {
             auxiliarWidget = getWidget();
             clear();
             setWidget(inplaceEditor);
             setAlreadyEditing(true);
+            inplaceEditor.focus();
         }
     }
     
@@ -91,12 +90,16 @@ public abstract class FBFormItem extends FocusPanel {
     }
 
     public void reset() {
-        if (auxiliarWidget != null) {
+        if (auxiliarWidget != null && !getEditor().isFocused()) {
             clear();
             add(auxiliarWidget);
             setAlreadyEditing(false);
-            fireSelectionEvent(new FormItemSelectionEvent(null, false));
+            fireSelectionEvent(new FormItemSelectionEvent(this, false));
         }
+    }
+    
+    private FBInplaceEditor getEditor() {
+        return (FBInplaceEditor) getWidget();
     }
     
     public final void fireSelectionEvent(FormItemSelectionEvent event) {
@@ -104,29 +107,11 @@ public abstract class FBFormItem extends FocusPanel {
         bus.fireEvent(event);
     }
 
-    public Widget createInplaceEditor() {
+    public FBInplaceEditor createInplaceEditor() {
         return null;
     }
     
     public abstract Map<String, Object> getFormItemPropertiesMap();
-    
-    protected Image createDoneImage(ClickHandler handler) {
-        final Image done = new Image(FormBuilderResources.INSTANCE.doneIcon());
-        done.addClickHandler(handler);
-        return done;
-    }
-    
-    protected Image createRemoveImage() {
-        final Image remove = new Image(FormBuilderResources.INSTANCE.removeIcon());
-        remove.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                reset();
-                removeFromParent();
-            } 
-        });
-        return remove;
-    }
-
     
     public abstract void saveValues(Map<String, Object> asPropertiesMap);
 
@@ -138,23 +123,7 @@ public abstract class FBFormItem extends FocusPanel {
         case Event.ONMOUSEUP:
             event.stopPropagation();
             event.preventDefault();
-            if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
-                for (ClickHandler handler : clickHandlers) {
-                    ClickEvent cevent = new ClickEvent() {
-                        @Override
-                        public Object getSource() {
-                            return FBFormItem.this;
-                        }
-                    };
-                    cevent.setNativeEvent(event);
-                    handler.onClick(cevent);
-                }
-                super.onBrowserEvent(event);
-            } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
-                for (RightClickHandler handler : rclickHandlers) {
-                    handler.onRightClick(new RightClickEvent(event));
-                }
-            }
+            handleMouseUp(event);
             break;
         case Event.ONDBLCLICK:
             event.stopPropagation();
@@ -165,43 +134,61 @@ public abstract class FBFormItem extends FocusPanel {
             event.preventDefault();
             break;
         case Event.ONKEYPRESS:
-            if (event.getCtrlKey()) {
-                event.stopPropagation();
-                event.preventDefault();
-                switch (event.getCharCode()) {
-                    case 'c': case 'C': //copy
-                    FormBuilderGlobals.getInstance().copy().append(FBFormItem.this).execute();
-                    break;
-                case 'x': case 'X': //cut
-                    FormBuilderGlobals.getInstance().cut().append(FBFormItem.this).execute();
-                    break;
-                case 'v': case 'V': //paste
-                    FormBuilderGlobals.getInstance().paste().append(FBFormItem.this).execute();
-                    break;
-                default: 
-                    super.onBrowserEvent(event);
-                }
-            } else {
-                super.onBrowserEvent(event);
-            }
+            handleKeyPress(event);
             break;
         case Event.ONFOCUS:
-            event.stopPropagation();
-            event.preventDefault();
             makeEditor();
-            fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, true));
             break;
         case Event.ONBLUR:
-            event.stopPropagation();
-            event.preventDefault();
             reset();
-            fireSelectionEvent(new FormItemSelectionEvent(FBFormItem.this, false));
             break;
         default:
             // Do nothing
         }//end switch
     }
 
+    private void handleMouseUp(Event event) {
+        if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
+            for (ClickHandler handler : clickHandlers) {
+                ClickEvent cevent = new ClickEvent() {
+                    @Override
+                    public Object getSource() {
+                        return FBFormItem.this;
+                    }
+                };
+                cevent.setNativeEvent(event);
+                handler.onClick(cevent);
+            }
+            super.onBrowserEvent(event);
+        } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
+            for (RightClickHandler handler : rclickHandlers) {
+                handler.onRightClick(new RightClickEvent(event));
+            }
+        }
+    }
+
+    private void handleKeyPress(Event event) {
+        if (event.getCtrlKey()) {
+            event.stopPropagation();
+            event.preventDefault();
+            switch (event.getCharCode()) {
+                case 'c': case 'C': //copy
+                FormBuilderGlobals.getInstance().copy().append(this).execute();
+                break;
+            case 'x': case 'X': //cut
+                FormBuilderGlobals.getInstance().cut().append(this).execute();
+                break;
+            case 'v': case 'V': //paste
+                FormBuilderGlobals.getInstance().paste().append(this).execute();
+                break;
+            default: 
+                super.onBrowserEvent(event);
+            }
+        } else {
+            super.onBrowserEvent(event);
+        }
+    }
+    
     public HandlerRegistration addRightClickHandler(final RightClickHandler handler) {
         HandlerRegistration reg = new HandlerRegistration() {
             public void removeHandler() {

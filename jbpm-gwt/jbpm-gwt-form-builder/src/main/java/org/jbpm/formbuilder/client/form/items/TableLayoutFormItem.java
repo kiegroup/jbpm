@@ -121,9 +121,9 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 //WARN dom used: seems the only way of fixing deleted cell bug
                 if (grid.getWidget(i, j) == null || isWhiteSpace(grid.getWidget(i, j))) {
                     added = true;
-                    int index = (i+1)*(j+1);
+                    int index = (i * grid.getColumnCount()) + j;
                     if (super.size() > index) { 
-                        super.set(index-1, child);
+                        super.insert(index-1, child);
                     } else {
                         super.add(child);
                     }
@@ -138,10 +138,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
             return false;
         }
         return true;
-    }
-    
-    private boolean isWhiteSpace(Widget widget) {
-        return widget.getElement().getParentElement().getInnerHTML().equals("&nbsp;");
     }
     
     @Override

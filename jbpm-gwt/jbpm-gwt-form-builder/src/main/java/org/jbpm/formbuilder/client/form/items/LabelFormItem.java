@@ -8,14 +8,12 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.FBInplaceEditor;
+import org.jbpm.formbuilder.client.form.editors.LabelInplaceEditor;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class LabelFormItem extends FBFormItem {
@@ -31,6 +29,7 @@ public class LabelFormItem extends FBFormItem {
     
     public LabelFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
+        setWidth("200px");
         add(getLabel());
     }
     
@@ -45,19 +44,8 @@ public class LabelFormItem extends FBFormItem {
     }
 
     @Override
-    public Widget createInplaceEditor() {
-        final HorizontalPanel editPanel = new HorizontalPanel();
-        editPanel.setBorderWidth(1);
-        final TextBox textBox = new TextBox();
-        textBox.setValue(getLabel().getText());
-        textBox.addChangeHandler(new ChangeHandler() {
-            public void onChange(ChangeEvent event) {
-                getLabel().setText(textBox.getValue());
-                reset();
-            }
-        });
-        editPanel.add(textBox);
-        return editPanel;
+    public FBInplaceEditor createInplaceEditor() {
+        return new LabelInplaceEditor(this);
     }
 
     @Override
@@ -81,7 +69,7 @@ public class LabelFormItem extends FBFormItem {
         }
     }
     
-    protected Label getLabel() {
+    public Label getLabel() {
         return this.label;
     }
     

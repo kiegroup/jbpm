@@ -19,6 +19,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -34,20 +35,30 @@ public class TreeElement extends FocusPanel {
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final HorizontalPanel panel = new HorizontalPanel();
     
+    public TreeElement() {
+        panel.setSpacing(0);
+        panel.setBorderWidth(0);
+        this.item = null;
+        this.img = new Image(FormBuilderResources.INSTANCE.treeFolder());
+        this.itemName = new HTML("<strong>form</strong>");
+        panel.add(this.img);
+        panel.add(this.itemName);
+        add(panel);
+    }
+    
     public TreeElement(FBFormItem formItem) {
         panel.setSpacing(0);
         panel.setBorderWidth(0);
         this.item = formItem;
-        if (formItem == null) {
-            this.itemName = new Label("form");
-            this.img = new Image(FormBuilderResources.INSTANCE.treeFolder());
-        } else {
+        if (formItem != null) {
             this.itemName = new Label(formItem.getRepresentation().getTypeId());
             if (formItem instanceof FBCompositeItem) {
                 this.img = new Image(FormBuilderResources.INSTANCE.treeFolder());
             } else {
                 this.img = new Image(FormBuilderResources.INSTANCE.treeLeaf());
             }
+        } else {
+            throw new IllegalArgumentException("formItem shouldn't be null");
         }
         panel.add(this.img);
         panel.add(this.itemName);
@@ -115,10 +126,10 @@ public class TreeElement extends FocusPanel {
     }
     
     public boolean represents(FBFormItem item) {
-        return this.item != null && this.item.equals(item);
+        return this.item != null && this.item == item;
     }
     
     public boolean represents(FBCompositeItem item) {
-        return this.item != null && this.item.equals(item);
+        return this.item != null && this.item == item;
     }
 }
