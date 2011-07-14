@@ -33,6 +33,10 @@ public class UndoableEvent extends GwtEvent<UndoableEventHandler> {
         return dataSnapshot.get(key);
     }
     
+    public void setData(String key, Object value) {
+        dataSnapshot.put(key, value);
+    }
+    
     @Override
     public Type<UndoableEventHandler> getAssociatedType() {
         return TYPE;

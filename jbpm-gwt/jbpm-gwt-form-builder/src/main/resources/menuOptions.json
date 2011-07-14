@@ -16,6 +16,9 @@
             },
             {   "html": "Save",
                 "commandClass": "org.jbpm.formbuilder.client.command.SaveFormCommand"
+            },
+            {   "html": "Delete",
+                "commandClass": "org.jbpm.formbuilder.client.command.DeleteFormCommand"
             }
         ]
     },
