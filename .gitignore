@@ -16,3 +16,4 @@
 bin/
 *~
 *.tlog
+jbpm-human-task/activemq-data/
