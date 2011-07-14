@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,15 +14,15 @@ import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formbuilder.shared.menu.AbstractBaseMenuService;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
-import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class GuvnorMenuService implements MenuService {
+public class GuvnorMenuService extends AbstractBaseMenuService {
 
     public List<MenuOptionDescription> listOptions() throws MenuServiceException {
     	Gson gson = new Gson();
@@ -62,30 +61,14 @@ public class GuvnorMenuService implements MenuService {
     }
     
     public void saveMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException {
-        String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listMenuItems();
-        List<MenuItemDescription> customItems = items.get(group);
-        if (customItems == null) {
-            customItems = new ArrayList<MenuItemDescription>();
-        }
-        customItems.add(item);
-        items.put(group, customItems);
+        addToMap(groupName, item, items);
         writeMenuItems(items);
     }
     
     public void deleteMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException {
-        String group = groupName == null ? "Custom" : groupName;
         Map<String, List<MenuItemDescription>> items = listMenuItems();
-        List<MenuItemDescription> customItems = items.get(group);
-        if (customItems == null) {
-            customItems = new ArrayList<MenuItemDescription>();
-        }
-        customItems.remove(item);
-        if (customItems.isEmpty()) {
-            items.remove(group);
-        } else {
-            items.put(group, customItems);
-        }
+        removeFromMap(groupName, item, items);
         writeMenuItems(items);
     }
 

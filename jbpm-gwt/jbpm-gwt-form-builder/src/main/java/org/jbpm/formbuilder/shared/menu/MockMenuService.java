@@ -30,7 +30,7 @@ import org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem;
 import org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem;
 
-public class MockMenuService implements MenuService {
+public class MockMenuService extends AbstractBaseMenuService {
 
     private final Map<String, List<MenuItemDescription>> items = new HashMap<String, List<MenuItemDescription>>();
     private final List<MenuOptionDescription> options = new ArrayList<MenuOptionDescription>();
@@ -178,27 +178,10 @@ public class MockMenuService implements MenuService {
     }
 
     public void saveMenuItem(String groupName, MenuItemDescription item) {
-        String group = groupName == null ? "Custom" : groupName;
-        List<MenuItemDescription> customItems = items.get(group);
-        if (customItems == null) {
-            customItems = new ArrayList<MenuItemDescription>();
-        }
-        customItems.add(item);
-        items.put(group, customItems);
+        addToMap(groupName, item, items);
     }
 
     public void deleteMenuItem(String groupName, MenuItemDescription item) {
-        String group = groupName == null ? "Custom" : groupName;
-        List<MenuItemDescription> customItems = items.get(group);
-        if (customItems == null) {
-            customItems = new ArrayList<MenuItemDescription>();
-        }
-        customItems.remove(item);
-        if (customItems.isEmpty()) {
-            items.remove(group);
-        } else {
-            items.put(group, customItems);
-        }
+        removeFromMap(groupName, item, items);
     }
-
 }

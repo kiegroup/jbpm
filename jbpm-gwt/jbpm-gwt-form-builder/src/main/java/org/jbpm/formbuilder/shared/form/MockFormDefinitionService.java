@@ -9,7 +9,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-public class MockFormDefinitionService implements FormDefinitionService {
+public class MockFormDefinitionService extends AbstractBaseFormDefinitionService {
 
     private Map<String, List<FormRepresentation>> forms = new HashMap<String, List<FormRepresentation>>();
     private Map<String, List<Map.Entry<String, FormItemRepresentation>>> items = 
@@ -63,11 +63,7 @@ public class MockFormDefinitionService implements FormDefinitionService {
     }
 
     public String saveForm(String pkgName, FormRepresentation form) {
-        if (form.getName() == null) {
-            form.setName("formDefinition_" + System.currentTimeMillis());
-        } else if (!form.getName().startsWith("formDefinition_")){
-            form.setName("formDefinition_" + form.getName());
-        }
+        updateFormName(form);
         List<FormRepresentation> list = forms.get(pkgName);
         if (list == null) {
             list = new ArrayList<FormRepresentation>();
@@ -78,11 +74,9 @@ public class MockFormDefinitionService implements FormDefinitionService {
     }
 
     public String saveFormItem(String pkgName, String formItemName, final FormItemRepresentation formItem) {
-        if (formItemName == null) {
-            formItemName = "formItemDefinition_" + System.currentTimeMillis();
-        } else if (!formItemName.startsWith("formItemDefinition_")){
-            formItemName = "formItemDefinition_" + formItemName;
-        }
+        StringBuilder builder = new StringBuilder();
+        updateItemName(formItemName, builder);
+        formItemName = builder.toString();
         List<Map.Entry<String, FormItemRepresentation>> list = items.get(pkgName);
         if (list == null) {
             list = new ArrayList<Map.Entry<String, FormItemRepresentation>>();
