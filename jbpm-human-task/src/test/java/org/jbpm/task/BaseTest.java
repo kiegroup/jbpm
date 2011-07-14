@@ -128,4 +128,10 @@ public abstract class BaseTest extends TestCase {
         vars.put("now", new Date());
         return MVEL.executeExpression(compiler.compile(context), vars);
     }
+
+    public EntityManagerFactory getEmf() {
+        return emf;
+    }
+    
+    
 }

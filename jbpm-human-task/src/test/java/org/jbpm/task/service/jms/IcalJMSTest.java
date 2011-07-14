@@ -27,7 +27,7 @@ import org.drools.util.ChainedProperties;
 import org.drools.util.ClassLoaderUtil;
 import org.easymock.EasyMock;
 import org.jbpm.task.service.IcalBaseTest;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.subethamail.wiser.Wiser;
@@ -76,7 +76,7 @@ public class IcalJMSTest extends IcalBaseTest {
 		clientProperties.setProperty("JMSTaskClient.queueName", "tasksQueue");
 		clientProperties.setProperty("JMSTaskClient.responseQueueName", "tasksResponseQueue");
         
-		client = new TaskClient(new JMSTaskClientConnector("client 1",
+		client = new AsyncTaskClientImpl(new JMSTaskClientConnector("client 1",
 								new JMSTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()),
 								clientProperties, context));
 		client.connect();

@@ -18,7 +18,7 @@ package org.jbpm.task.service.mina;
 
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.MockUserInfo;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.TaskServiceEventMessagingBaseTest;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
@@ -38,7 +38,7 @@ public class TaskServiceEventMessagingMinaTest extends TaskServiceEventMessaging
         	Thread.sleep( 50 );
         }
         
-        client = new TaskClient(new MinaTaskClientConnector("client 1",
+        client = new AsyncTaskClientImpl(new MinaTaskClientConnector("client 1",
                                 new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 9123);
         

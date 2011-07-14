@@ -22,7 +22,7 @@ import java.util.Map;
 import org.drools.SystemEventListener;
 import org.hornetq.api.core.client.ClientProducer;
 import org.hornetq.api.core.client.ClientSession;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.TaskClientHandler;
 
 public class HornetQTaskClientHandler extends BaseHornetQHandler {
@@ -35,11 +35,11 @@ public class HornetQTaskClientHandler extends BaseHornetQHandler {
         this.producers = new HashMap<String, ClientProducer>();
     }
 
-    public TaskClient getClient() {
+    public AsyncTaskClientImpl getClient() {
         return handler.getClient();
     }
 
-    public void setClient(TaskClient client) {
+    public void setClient(AsyncTaskClientImpl client) {
         handler.setClient(client);
     }
 

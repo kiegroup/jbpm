@@ -42,7 +42,7 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     private static final int DEFAULT_WAIT_TIME = 5000;
 
     protected TaskServer server;
-    protected TaskClient client;
+    protected AsyncTaskClientImpl client;
 
     public void testNewTaskWithNoPotentialOwners() {
         Map  vars = new HashMap();     

@@ -6,13 +6,13 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.drools.SystemEventListenerFactory;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.jms.JMSTaskClientConnector;
 import org.jbpm.task.service.jms.JMSTaskClientHandler;
 import org.jbpm.task.service.jms.WSHumanTaskJMSProperties;
 
 
-public class WSThroughJMSHumanTaskHandler extends WSHumanTaskHandler {
+public class WSThroughJMSHumanTaskHandler extends AsyncWSHumanTaskHandler {
 
 	public WSThroughJMSHumanTaskHandler() {
 		super();
@@ -21,10 +21,10 @@ public class WSThroughJMSHumanTaskHandler extends WSHumanTaskHandler {
 	@Override
 	public void connect() {
 		try {
-			final Field field = WSHumanTaskHandler.class.getDeclaredField("client");
-			TaskClient client = (TaskClient) field.get(this);
+			final Field field = AsyncWSHumanTaskHandler.class.getDeclaredField("client");
+			AsyncTaskClientImpl client = (AsyncTaskClientImpl) field.get(this);
 			if (client == null) {
-				client = new TaskClient(new JMSTaskClientConnector(
+				client = new AsyncTaskClientImpl(new JMSTaskClientConnector(
 						"org.jbpm.process.workitem.wsht.WSThroughJMSHumanTaskHandler",
 						new JMSTaskClientHandler(SystemEventListenerFactory
 								.getSystemEventListener()),

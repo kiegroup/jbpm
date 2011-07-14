@@ -30,7 +30,7 @@ import org.jbpm.task.query.TaskSummary;
 
 public class TaskClientHandler {
 
-	private TaskClient client;
+	private AsyncTaskClientImpl client;
     private SystemEventListener systemEventListener;
 	private final Map<Integer, ResponseHandler> responseHandlers;
 
@@ -39,11 +39,11 @@ public class TaskClientHandler {
 		this.systemEventListener = systemEventListener;
     }
 
-    public TaskClient getClient() {
+    public AsyncTaskClientImpl getClient() {
         return client;
     }
 
-    public void setClient(TaskClient client) {
+    public void setClient(AsyncTaskClientImpl client) {
         this.client = client;
     }
 

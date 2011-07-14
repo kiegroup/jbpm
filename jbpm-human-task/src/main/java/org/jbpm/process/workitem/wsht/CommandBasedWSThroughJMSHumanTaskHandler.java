@@ -8,8 +8,8 @@ import javax.naming.NamingException;
 import org.drools.SystemEventListenerFactory;
 import org.drools.runtime.KnowledgeRuntime;
 import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
-import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.jms.JMSTaskClientConnector;
 import org.jbpm.task.service.jms.JMSTaskClientHandler;
 import org.jbpm.task.service.jms.WSHumanTaskJMSProperties;
@@ -23,10 +23,10 @@ public class CommandBasedWSThroughJMSHumanTaskHandler extends CommandBasedWSHuma
 	@Override
 	public void connect() {
 		try {
-			final Field field = WSHumanTaskHandler.class.getDeclaredField("client");
-			TaskClient client = (TaskClient) field.get(this);
+			final Field field = AsyncWSHumanTaskHandler.class.getDeclaredField("client");
+			AsyncTaskClientImpl client = (AsyncTaskClientImpl) field.get(this);
 			if (client == null) {
-				client = new TaskClient(new JMSTaskClientConnector(
+				client = new AsyncTaskClientImpl(new JMSTaskClientConnector(
 						"org.drools.process.workitem.wsht.WSThroughJMSHumanTaskHandler",
 						new JMSTaskClientHandler(SystemEventListenerFactory
 								.getSystemEventListener()),

@@ -14,52 +14,43 @@
  * limitations under the License.
  */
 
-package org.jbpm.task.service.mina;
+package org.jbpm.process.workitem.wsht.mina;
 
 import org.drools.SystemEventListenerFactory;
-import org.drools.util.ChainedProperties;
-import org.drools.util.ClassLoaderUtil;
-import org.jbpm.task.service.IcalBaseTest;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandlerBaseTest;
+import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
+import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
 import org.jbpm.task.service.mina.MinaTaskServer;
-import org.subethamail.wiser.Wiser;
 
-public class IcalMinaTest extends IcalBaseTest {
+public class SyncWSHumanTaskHandlerMinaTest extends SyncWSHumanTaskHandlerBaseTest {
+
+	private TaskServer server;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-
-		ChainedProperties props = new ChainedProperties("process.email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false) );
-		setEmailHost(props.getProperty("host", "locahost"));
-		setEmailPort(props.getProperty("port", "2345"));        
-
 		server = new MinaTaskServer(taskService);
 		Thread thread = new Thread(server);
 		thread.start();
-		System.out.println("Waiting for the MinaTask Server to come up");
-        while (!server.isRunning()) {
+		System.out.println("Waiting for the Mina Server to come up");
+		while (!server.isRunning()) {
         	System.out.print(".");
         	Thread.sleep( 50 );
         }
-
-		client = new AsyncTaskClientImpl(new MinaTaskClientConnector("client 1",
-						new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-		client.connect("127.0.0.1", 9123);
-
-		setWiser(new Wiser());
-		getWiser().setHostname(getEmailHost());
-		getWiser().setPort( Integer.parseInt(getEmailPort()));         
-		getWiser().start();
+		setClient(new TaskClientImpl(new MinaTaskClientConnector("client 1",
+								new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
+		getClient().connect("127.0.0.1", 9123);
+		setHandler(new AsyncWSHumanTaskHandler());
 	}
 
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		client.disconnect();
+		((AsyncWSHumanTaskHandler) getHandler()).dispose();
+		getClient().disconnect();
 		server.stop();
-		getWiser().stop();
+		super.tearDown();
 	}
 
 }

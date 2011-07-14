@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package org.jbpm.task.service.hornetq;
+package org.jbpm.process.workitem.wsht.hornetq;
 
 import org.drools.SystemEventListenerFactory;
-import org.jbpm.task.service.AsyncTaskClientImpl;
-import org.jbpm.task.service.TaskLifeCycleBaseTest;
+import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandlerBaseTest;
+import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
+import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
 import org.jbpm.task.service.hornetq.HornetQTaskServer;
 
-public class TaskLifeCycleHornetQTest extends TaskLifeCycleBaseTest {
+public class SyncWSHumanTaskHandlerHornetQTest extends SyncWSHumanTaskHandlerBaseTest {
+
+	private TaskServer server;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -32,19 +36,23 @@ public class TaskLifeCycleHornetQTest extends TaskLifeCycleBaseTest {
 		Thread thread = new Thread(server);
 		thread.start();
 		System.out.println("Waiting for the HornetQTask Server to come up");
-        while (!server.isRunning()) {
+		while (!server.isRunning()) {
         	System.out.print(".");
         	Thread.sleep( 50 );
         }
-		client = new AsyncTaskClientImpl(new HornetQTaskClientConnector("client 1",
-								new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-		client.connect("127.0.0.1", 5446);
+		setClient(new TaskClientImpl(new HornetQTaskClientConnector("client 1",
+								new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
+		getClient().connect("127.0.0.1", 5446);
+		SyncWSHumanTaskHandler handler = new SyncWSHumanTaskHandler();
+		handler.setClient(getClient());
+		setHandler(handler);
 	}
 
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		client.disconnect();
+		((SyncWSHumanTaskHandler) getHandler()).dispose();
+		getClient().disconnect();
 		server.stop();
-	}    
+		super.tearDown();
+	}
 
 }

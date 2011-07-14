@@ -19,7 +19,7 @@ package org.jbpm.task.service.hornetq;
 import java.util.Properties;
 
 import org.drools.SystemEventListenerFactory;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.TaskServiceDeadlinesBaseTest;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
@@ -48,7 +48,7 @@ public class TaskServiceDeadlinesHornetQTest extends TaskServiceDeadlinesBaseTes
         	Thread.sleep( 50 );
         }
 
-		client = new TaskClient(new HornetQTaskClientConnector("client 1",
+		client = new AsyncTaskClientImpl(new HornetQTaskClientConnector("client 1",
 								new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
 		client.connect("127.0.0.1", 5446);
 

@@ -30,7 +30,7 @@ import org.jbpm.task.Task;
 import org.jbpm.task.event.TaskCompletedEvent;
 import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingEventResponseHandler;
@@ -41,7 +41,7 @@ import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler
 public abstract class TaskLifeCycleBaseTest extends BaseTest {
 	
 	protected TaskServer server;
-	protected TaskClient client;
+	protected AsyncTaskClientImpl client;
 
     @SuppressWarnings("unchecked")
 	public void testLifeCycle() throws Exception {      

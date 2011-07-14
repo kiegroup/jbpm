@@ -25,7 +25,7 @@ import org.jbpm.eventmessaging.Payload;
 import org.jbpm.task.*;
 import org.jbpm.task.event.*;
 import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
@@ -38,11 +38,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WSHumanTaskHandler implements WorkItemHandler {
+public class AsyncWSHumanTaskHandler implements WorkItemHandler {
 
 	private String ipAddress = "127.0.0.1";
 	private int port = 9123;
-	private TaskClient client;
+	private AsyncTaskClientImpl client;
 	private WorkItemManager manager = null;
 
 	public void setConnection(String ipAddress, int port) {
@@ -50,13 +50,13 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 		this.port = port;
 	}
 	
-	public void setClient(TaskClient client) {
+	public void setClient(AsyncTaskClientImpl client) {
 		this.client = client;
 	}
 	
 	public void connect() {
 		if (client == null) {
-			client = new TaskClient(new MinaTaskClientConnector("org.drools.process.workitem.wsht.WSHumanTaskHandler",
+			client = new AsyncTaskClientImpl(new MinaTaskClientConnector("org.drools.process.workitem.wsht.WSHumanTaskHandler",
 										new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
 			
 			boolean connected = client.connect(ipAddress, port);
@@ -203,9 +203,9 @@ public class WSHumanTaskHandler implements WorkItemHandler {
     
     private static class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
         private WorkItemManager manager;
-        private TaskClient client;
+        private AsyncTaskClientImpl client;
         
-        public TaskCompletedHandler(WorkItemManager manager, TaskClient client) {
+        public TaskCompletedHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
             this.manager = manager;
             this.client = client;
         }
@@ -226,9 +226,9 @@ public class WSHumanTaskHandler implements WorkItemHandler {
     private static class GetCompletedTaskResponseHandler extends AbstractBaseResponseHandler implements GetTaskResponseHandler {
 
     	private WorkItemManager manager;
-    	private TaskClient client;
+    	private AsyncTaskClientImpl client;
     	
-    	public GetCompletedTaskResponseHandler(WorkItemManager manager, TaskClient client) {
+    	public GetCompletedTaskResponseHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
     		this.manager = manager;
     		this.client = client;
     	}
@@ -292,9 +292,9 @@ public class WSHumanTaskHandler implements WorkItemHandler {
     
     private static class AbortTaskResponseHandler extends AbstractBaseResponseHandler implements GetTaskResponseHandler {
 
-    	private TaskClient client;
+    	private AsyncTaskClientImpl client;
     	
-    	public AbortTaskResponseHandler(TaskClient client) {
+    	public AbortTaskResponseHandler(AsyncTaskClientImpl client) {
     		this.client = client;
     	}
     	

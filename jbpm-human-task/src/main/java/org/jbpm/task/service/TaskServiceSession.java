@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.task.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import org.drools.RuleBase;
 import org.drools.StatefulSession;
+import org.drools.runtime.process.WorkItemManager;
+import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventKeys;
+import org.jbpm.eventmessaging.Payload;
 import org.jbpm.task.*;
 import org.jbpm.task.query.DeadlineSummary;
 import org.jbpm.task.query.TaskSummary;
@@ -29,6 +34,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.jbpm.eventmessaging.EventTriggerTransport;
+import org.jbpm.task.event.TaskCompletedEvent;
+import org.jbpm.task.event.TaskFailedEvent;
+import org.jbpm.task.event.TaskSkippedEvent;
 
 public class TaskServiceSession {
 
@@ -43,6 +52,7 @@ public class TaskServiceSession {
         this.em = em;
     }
 
+    
     public void dispose() {
         em.close();
     }
@@ -51,6 +61,7 @@ public class TaskServiceSession {
         return em;
     }
 
+    
     public void setRuleBase(final String type, final RuleBase ruleBase) {
         if (ruleBases == null) {
             ruleBases = new HashMap<String, RuleBase>();
@@ -58,6 +69,7 @@ public class TaskServiceSession {
         ruleBases.put(type, ruleBase);
     }
 
+    
     public void setGlobals(final String type, final Map<String, Object> globals) {
         if (this.globals == null) {
             this.globals = new HashMap<String, Map<String, Object>>();
@@ -65,9 +77,11 @@ public class TaskServiceSession {
         this.globals.put(type, globals);
     }
 
+    
     public void addUser(final User user) {
         persistInTransaction(user);
     }
+
 
     public void addGroup(final Group group) {
         persistInTransaction(group);
@@ -82,8 +96,7 @@ public class TaskServiceSession {
      * @throws CannotAddTaskException throw if the task is not allowed to be added
      */
     private void executeTaskAddRules(final Task task, final ContentData contentData)
-        throws CannotAddTaskException
-    {
+            throws CannotAddTaskException {
         RuleBase ruleBase = ruleBases.get("addTask");
         if (ruleBase != null) {
             StatefulSession session = ruleBase.newStatefulSession();
@@ -103,7 +116,7 @@ public class TaskServiceSession {
                 StringBuilder error = new StringBuilder("Cannot add Task:\n");
                 if (request.getReasons() != null) {
                     for (String reason : request.getReasons()) {
-                        error.append( reason).append('\n');
+                        error.append(reason).append('\n');
                     }
                 }
 
@@ -112,9 +125,9 @@ public class TaskServiceSession {
         }
     }
 
+    
     public void addTask(final Task task, final ContentData contentData)
-        throws CannotAddTaskException
-    {
+            throws CannotAddTaskException {
         final TaskData taskData = task.getTaskData();
 
         // initialize the task data
@@ -132,6 +145,7 @@ public class TaskServiceSession {
         }
 
         doOperationInTransaction(new TransactedOperation() {
+
             public void doOperation() {
                 em.persist(task);
 
@@ -186,8 +200,8 @@ public class TaskServiceSession {
     }
 
     void evalCommand(final Operation operation, final List<OperationCommand> commands, final Task task,
-                     final User user, final OrganizationalEntity targetEntity,
-                     List<String> groupIds) throws PermissionDeniedException {
+            final User user, final OrganizationalEntity targetEntity,
+            List<String> groupIds) throws PermissionDeniedException {
 
         final TaskData taskData = task.getTaskData();
         boolean statusMatched = false;
@@ -234,7 +248,7 @@ public class TaskServiceSession {
     }
 
     private static boolean isAllowed(final OperationCommand command, final Task task, final User user,
-    		                         final List<String> groupIds) {
+            final List<String> groupIds) {
         final PeopleAssignments people = task.getPeopleAssignments();
         final TaskData taskData = task.getTaskData();
 
@@ -249,9 +263,9 @@ public class TaskServiceSession {
                     break;
                 }
                 case Initiator: {
-                    operationAllowed = (taskData.getCreatedBy() != null && 
-                		(taskData.getCreatedBy().equals(user)) 
-                		 || (groupIds != null && groupIds.contains(taskData.getCreatedBy().getId())));
+                    operationAllowed = (taskData.getCreatedBy() != null
+                            && (taskData.getCreatedBy().equals(user))
+                            || (groupIds != null && groupIds.contains(taskData.getCreatedBy().getId())));
                     break;
                 }
                 case PotentialOwner: {
@@ -263,8 +277,8 @@ public class TaskServiceSession {
                     break;
                 }
                 case Anyone: {
-                	operationAllowed = true;
-                	break;
+                    operationAllowed = true;
+                    break;
                 }
             }
         }
@@ -282,7 +296,7 @@ public class TaskServiceSession {
     }
 
     private void commands(final OperationCommand command, final Task task, final User user,
-                          final OrganizationalEntity targetEntity) {
+            final OrganizationalEntity targetEntity) {
         final PeopleAssignments people = task.getPeopleAssignments();
         final TaskData taskData = task.getTaskData();
 
@@ -324,9 +338,10 @@ public class TaskServiceSession {
         }
     }
 
+    
     public void taskOperation(final Operation operation, final long taskId, final String userId,
-                              final String targetEntityId, final ContentData data,
-                              List<String> groupIds) throws TaskException {
+            final String targetEntityId, final ContentData data,
+            List<String> groupIds) throws TaskException {
         OrganizationalEntity targetEntity = null;
 
         if (targetEntityId != null) {
@@ -361,18 +376,19 @@ public class TaskServiceSession {
                     break;
                 }
                 case Remove: {
-                	taskRemoveOperation(task, user);
-                	break;
+                    taskRemoveOperation(task, user);
+                    break;
                 }
                 case Register: {
-                	taskRegisterOperation(task, user);
-                	break;
+                    taskRegisterOperation(task, user);
+                    break;
                 }
             }
         } catch (RuntimeException e) {
             em.getTransaction().rollback();
 
             doOperationInTransaction(new TransactedOperation() {
+
                 public void doOperation() {
                     task.getTaskData().setStatus(Status.Error);
                 }
@@ -393,9 +409,10 @@ public class TaskServiceSession {
         service.getEventSupport().fireTaskClaimed(task.getId(), task.getTaskData().getActualOwner().getId());
     }
 
+    
     private void taskCompleteOperation(final Task task, final ContentData data) {
         if (data != null) {
-        	setOutput(task.getId(), task.getTaskData().getActualOwner().getId(), data);
+            setOutput(task.getId(), task.getTaskData().getActualOwner().getId(), data);
         }
 
         // trigger event support
@@ -406,7 +423,7 @@ public class TaskServiceSession {
     private void taskFailOperation(final Task task, final ContentData data) {
         // set fault data
         if (data != null) {
-        	setFault(task.getId(), task.getTaskData().getActualOwner().getId(), (FaultData) data);
+            setFault(task.getId(), task.getTaskData().getActualOwner().getId(), (FaultData) data);
         }
 
         // trigger event support
@@ -418,7 +435,7 @@ public class TaskServiceSession {
         service.getEventSupport().fireTaskSkipped(task.getId(), userId);
         checkSubTaskStrategy(task);
     }
-
+ 
     public Task getTask(final long taskId) {
         return getEntity(Task.class, taskId);
     }
@@ -522,7 +539,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(final String userId,
-                                                                     final String language) {
+            final String language) {
         final Query tasksAssignedAsBusinessAdministrator = em.createNamedQuery("TasksAssignedAsBusinessAdministrator");
         tasksAssignedAsBusinessAdministrator.setParameter("userId", userId);
         tasksAssignedAsBusinessAdministrator.setParameter("language", language);
@@ -531,7 +548,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsExcludedOwner(final String userId,
-                                                             final String language) {
+            final String language) {
         final Query tasksAssignedAsExcludedOwner = em.createNamedQuery("TasksAssignedAsExcludedOwner");
         tasksAssignedAsExcludedOwner.setParameter("userId", userId);
         tasksAssignedAsExcludedOwner.setParameter("language", language);
@@ -540,7 +557,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(final String userId,
-                                                              final String language) {
+            final String language) {
         final Query tasksAssignedAsPotentialOwner = em.createNamedQuery("TasksAssignedAsPotentialOwner");
         tasksAssignedAsPotentialOwner.setParameter("userId", userId);
         tasksAssignedAsPotentialOwner.setParameter("language", language);
@@ -549,7 +566,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(final String userId, final List<String> groupIds,
-                                                              final String language) {
+            final String language) {
         final Query tasksAssignedAsPotentialOwner = em.createNamedQuery("TasksAssignedAsPotentialOwnerWithGroups");
         tasksAssignedAsPotentialOwner.setParameter("userId", userId);
         tasksAssignedAsPotentialOwner.setParameter("groupIds", groupIds);
@@ -558,9 +575,8 @@ public class TaskServiceSession {
         return (List<TaskSummary>) tasksAssignedAsPotentialOwner.getResultList();
     }
 
-
     public List<TaskSummary> getSubTasksAssignedAsPotentialOwner(final long parentId, final String userId,
-                                                                 final String language) {
+            final String language) {
         final Query tasksAssignedAsPotentialOwner = em.createNamedQuery("SubTasksAssignedAsPotentialOwner");
         tasksAssignedAsPotentialOwner.setParameter("parentId", parentId);
         tasksAssignedAsPotentialOwner.setParameter("userId", userId);
@@ -570,7 +586,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByGroup(final String groupId,
-                                                                     final String language) {
+            final String language) {
         final Query tasksAssignedAsPotentialOwnerByGroup = em.createNamedQuery("TasksAssignedAsPotentialOwnerByGroup");
         tasksAssignedAsPotentialOwnerByGroup.setParameter("groupId", groupId);
         tasksAssignedAsPotentialOwnerByGroup.setParameter("language", language);
@@ -587,7 +603,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsRecipient(final String userId,
-                                                         final String language) {
+            final String language) {
         final Query tasksAssignedAsRecipient = em.createNamedQuery("TasksAssignedAsRecipient");
         tasksAssignedAsRecipient.setParameter("userId", userId);
         tasksAssignedAsRecipient.setParameter("language", language);
@@ -596,7 +612,7 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsTaskInitiator(final String userId,
-                                                             final String language) {
+            final String language) {
         final Query tasksAssignedAsTaskInitiator = em.createNamedQuery("TasksAssignedAsTaskInitiator");
         tasksAssignedAsTaskInitiator.setParameter("userId", userId);
         tasksAssignedAsTaskInitiator.setParameter("language", language);
@@ -605,123 +621,123 @@ public class TaskServiceSession {
     }
 
     public List<TaskSummary> getTasksAssignedAsTaskStakeholder(final String userId,
-                                                               final String language) {
+            final String language) {
         final Query tasksAssignedAsTaskStakeholder = em.createNamedQuery("TasksAssignedAsTaskStakeholder");
         tasksAssignedAsTaskStakeholder.setParameter("userId", userId);
         tasksAssignedAsTaskStakeholder.setParameter("language", language);
 
         return (List<TaskSummary>) tasksAssignedAsTaskStakeholder.getResultList();
     }
-    
+
     public List<?> query(final String qlString, final Integer size, final Integer offset) {
-    	final Query genericQuery = em.createQuery(qlString);
-    	genericQuery.setMaxResults(size);
-    	genericQuery.setFirstResult(offset);
-    	return genericQuery.getResultList();
+        final Query genericQuery = em.createQuery(qlString);
+        genericQuery.setMaxResults(size);
+        genericQuery.setFirstResult(offset);
+        return genericQuery.getResultList();
     }
-    
+
     private void taskRemoveOperation(final Task task, final User user) {
-		if (task.getPeopleAssignments().getRecipients().contains(user)) {
-			task.getPeopleAssignments().getRecipients().remove(user);
-		} else {
-			throw new RuntimeException("Couldn't remove user " + user.getId() + " since it isn't a notification recipient");
-		}
+        if (task.getPeopleAssignments().getRecipients().contains(user)) {
+            task.getPeopleAssignments().getRecipients().remove(user);
+        } else {
+            throw new RuntimeException("Couldn't remove user " + user.getId() + " since it isn't a notification recipient");
+        }
     }
-    
+
     private void taskRegisterOperation(final Task task, final User user) {
-		if (!task.getPeopleAssignments().getRecipients().contains(user)) {
-			task.getPeopleAssignments().getRecipients().add(user);
-		}
+        if (!task.getPeopleAssignments().getRecipients().contains(user)) {
+            task.getPeopleAssignments().getRecipients().add(user);
+        }
     }
-    
+
     public void nominateTask(final long taskId, String userId, final List<OrganizationalEntity> potentialOwners) {
-    	final Task task = getEntity(Task.class, taskId);
-    	final User user = getEntity(User.class, userId);
-    	if (isAllowed(user, null, task.getPeopleAssignments().getBusinessAdministrators())) {
-	    	doOperationInTransaction(new TransactedOperation() {
-				public void doOperation() {
-					task.getTaskData().assignOwnerAndStatus(potentialOwners);
-					if (task.getTaskData().getStatus() == Status.Ready) {
-						task.getPeopleAssignments().setPotentialOwners(potentialOwners);
-					}
-				}
-	    	});
-    	} else {
-    		throw new PermissionDeniedException("User " + userId + " is not allowed to perform Nominate on Task " + taskId);
-    	}
+        final Task task = getEntity(Task.class, taskId);
+        final User user = getEntity(User.class, userId);
+        if (isAllowed(user, null, task.getPeopleAssignments().getBusinessAdministrators())) {
+            doOperationInTransaction(new TransactedOperation() {
+                public void doOperation() {
+                    task.getTaskData().assignOwnerAndStatus(potentialOwners);
+                    if (task.getTaskData().getStatus() == Status.Ready) {
+                        task.getPeopleAssignments().setPotentialOwners(potentialOwners);
+                    }
+                }
+            });
+        } else {
+            throw new PermissionDeniedException("User " + userId + " is not allowed to perform Nominate on Task " + taskId);
+        }
     }
-    
+
     public void setOutput(final long taskId, final String userId, final ContentData outputContentData) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform setOutput");
-    			}
-    			Content content = new Content();
-    			content.setContent(outputContentData.getContent());
-    			em.persist(content);
-    			task.getTaskData().setOutput(content.getId(), outputContentData);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform setOutput");
+                }
+                Content content = new Content();
+                content.setContent(outputContentData.getContent());
+                em.persist(content);
+                task.getTaskData().setOutput(content.getId(), outputContentData);
+            }
+        });
     }
-    
+
     public void setFault(final long taskId, final String userId, final FaultData faultContentData) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform setFault");
-    			}
-    			Content content = new Content();
-    			content.setContent(faultContentData.getContent());
-    			em.persist(content);
-    			task.getTaskData().setFault(content.getId(), faultContentData);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform setFault");
+                }
+                Content content = new Content();
+                content.setContent(faultContentData.getContent());
+                em.persist(content);
+                task.getTaskData().setFault(content.getId(), faultContentData);
+            }
+        });
     }
-    
+
     public void setPriority(final long taskId, final String userId, final int priority) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			task.setPriority(priority);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                task.setPriority(priority);
+            }
+        });
     }
-    
+
     public void deleteOutput(final long taskId, final String userId) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform deleteOutput");
-    			}
-    			long contentId = task.getTaskData().getOutputContentId();
-    			Content content = getEntity(Content.class, contentId);
-    			ContentData data = new ContentData();
-    			em.remove(content);
-    			task.getTaskData().setOutput(0, data);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform deleteOutput");
+                }
+                long contentId = task.getTaskData().getOutputContentId();
+                Content content = getEntity(Content.class, contentId);
+                ContentData data = new ContentData();
+                em.remove(content);
+                task.getTaskData().setOutput(0, data);
+            }
+        });
     }
-    
+
     public void deleteFault(final long taskId, final String userId) {
-    	doOperationInTransaction(new TransactedOperation() {
-    		public void doOperation() {
-    			Task task = getEntity(Task.class, taskId);
-    			if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
-    				throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform deleteFault");
-    			}
-    			long contentId = task.getTaskData().getFaultContentId();
-    			Content content = getEntity(Content.class, contentId);
-    			FaultData data = new FaultData();
-    			em.remove(content);
-    			task.getTaskData().setFault(0, data);
-    		}
-    	});
+        doOperationInTransaction(new TransactedOperation() {
+            public void doOperation() {
+                Task task = getEntity(Task.class, taskId);
+                if (!userId.equals(task.getTaskData().getActualOwner().getId())) {
+                    throw new RuntimeException("User " + userId + " is not the actual owner of the task " + taskId + " and can't perform deleteFault");
+                }
+                long contentId = task.getTaskData().getFaultContentId();
+                Content content = getEntity(Content.class, contentId);
+                FaultData data = new FaultData();
+                em.remove(content);
+                task.getTaskData().setFault(0, data);
+            }
+        });
     }
-    
+
     public static boolean isAllowed(final User user, final List<OrganizationalEntity>[] people) {
         for (List<OrganizationalEntity> list : people) {
             if (isAllowed(user, null, list)) {
@@ -775,7 +791,7 @@ public class TaskServiceSession {
 
         return entity;
     }
-   
+
     /**
      * Persists the specified object within a new transaction. If there are any problems, the
      * transaction will be rolled back.
@@ -823,6 +839,10 @@ public class TaskServiceSession {
                 tx.rollback();
             }
         }
+    }
+
+    public TaskService getService() {
+        return service;
     }
 
     private interface TransactedOperation {

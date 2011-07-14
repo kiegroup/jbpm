@@ -24,7 +24,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.drools.SystemEventListenerFactory;
 import org.easymock.EasyMock;
 import org.jbpm.task.MockUserInfo;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.TaskServiceEventMessagingBaseTest;
 
 public class TaskServiceEventMessagingJMSTest extends TaskServiceEventMessagingBaseTest {
@@ -64,7 +64,7 @@ public class TaskServiceEventMessagingJMSTest extends TaskServiceEventMessagingB
 		clientProperties.setProperty("JMSTaskClient.queueName", "tasksQueue");
 		clientProperties.setProperty("JMSTaskClient.responseQueueName", "tasksResponseQueue");
         
-		client = new TaskClient(new JMSTaskClientConnector("client 1",
+		client = new AsyncTaskClientImpl(new JMSTaskClientConnector("client 1",
 								new JMSTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()),
 								clientProperties, context));
 		client.connect();

@@ -35,26 +35,26 @@ import org.jbpm.task.Task;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.AsyncTaskClientImpl;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
-public abstract class WSHumanTaskHandlerBaseTest extends BaseTest {
+public abstract class AsyncWSHumanTaskHandlerBaseTest extends BaseTest {
 
 	private static final int DEFAULT_WAIT_TIME = 5000;
 	private static final int MANAGER_COMPLETION_WAIT_TIME = DEFAULT_WAIT_TIME;
 	private static final int MANAGER_ABORT_WAIT_TIME = DEFAULT_WAIT_TIME;
 
-	private TaskClient client;
+	private AsyncTaskClientImpl client;
 	private WorkItemHandler handler;
 
-	public void setClient(TaskClient client) {
+	public void setClient(AsyncTaskClientImpl client) {
 		this.client = client;
 	}
 
-	public TaskClient getClient() {
+	public AsyncTaskClientImpl getClient() {
 		return client;
 	}
 
