@@ -337,7 +337,6 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form " + form.getName() + " deletion to server", e));
         }
-        //TODO use (maybe from a menu option?)
     }
     
     public void deleteFormItem(String formItemName, FormItemRepresentation formItem) {
