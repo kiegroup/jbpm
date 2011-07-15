@@ -16,21 +16,17 @@
 
 package org.jbpm.process.workitem.wsht;
 
-import org.drools.SystemEventListenerFactory;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
 import org.jbpm.task.*;
 import org.jbpm.task.event.*;
 import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.mina.MinaTaskClientConnector;
-import org.jbpm.task.service.mina.MinaTaskClientHandler;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.TaskClientImpl;
 import org.jbpm.task.service.TaskServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,15 +48,15 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
 	}
 	
 	public void connect() {
-		if (client == null) {
-			client = new TaskClientImpl(new MinaTaskClientConnector("org.drools.process.workitem.wsht.WSHumanTaskHandler",
-										new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-			
-			boolean connected = client.connect(ipAddress, port);
-			if (!connected) {
-				throw new IllegalArgumentException("Could not connect task client");
-			}
-		}
+//		if (client == null) {
+//			client = new TaskClientImpl(new MinaTaskClientConnector("org.drools.process.workitem.wsht.WSHumanTaskHandler",
+//										new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
+//			
+//			boolean connected = client.connect(ipAddress, port);
+//			if (!connected) {
+//				throw new IllegalArgumentException("Could not connect task client");
+//			}
+//		}
 		TaskEventKey key = new TaskEventKey(TaskCompletedEvent.class, -1);           
 		//TaskCompletedHandler eventResponseHandler = new TaskCompletedHandler(manager, client);
 		client.registerForEvent(key, false, manager);

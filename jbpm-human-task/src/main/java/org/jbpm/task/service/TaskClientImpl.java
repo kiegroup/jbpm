@@ -27,6 +27,7 @@ import org.drools.runtime.process.WorkItemManager;
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.eventmessaging.Payload;
+import org.jbpm.process.workitem.wsht.BlockingAddTaskResponseHandler;
 
 import org.jbpm.process.workitem.wsht.BlockingGetTaskResponseHandler;
 import org.jbpm.task.Attachment;
@@ -82,11 +83,18 @@ public class TaskClientImpl implements TaskServiceClient {
     }
 
     public void addTask(Task task, ContentData contentData) throws CannotAddTaskException {
-        asyncTaskClient.addTask(task, contentData, null);
+        BlockingAddTaskResponseHandler handler = new BlockingAddTaskResponseHandler();
+        asyncTaskClient.addTask(task, contentData, handler);
+        do{
+            if(handler.getError() != null){
+                 throw handler.getError();
+            }
+        }while(!handler.isDone());
+        task.setId(handler.getTaskId());
     }
 
     public void addUser(User user) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //@TODO: add this method to the async impl
     }
 
     public void deleteAttachment(long taskId, long attachmentId, long contentId) {
@@ -130,6 +138,11 @@ public class TaskClientImpl implements TaskServiceClient {
     public Task getTask(long taskId) {
         BlockingGetTaskResponseHandler handler = new BlockingGetTaskResponseHandler();
         asyncTaskClient.getTask(taskId, handler);
+         do{
+            if(handler.getError() != null){
+                 throw handler.getError();
+            }
+        }while(!handler.isDone());
         return handler.getTask();
     }
 
@@ -245,7 +258,15 @@ public class TaskClientImpl implements TaskServiceClient {
     }
 
     public void start(long taskId, String userId) {
-        asyncTaskClient.start(taskId, userId, null);
+        BlockingTaskOperationResponseHandler handler = new BlockingTaskOperationResponseHandler();
+        asyncTaskClient.start(taskId, userId, handler);
+         do{
+            if(handler.getError() != null){
+                 throw handler.getError();
+            }
+        }while(!handler.isDone());
+        
+        
     }
 
     public void stop(long taskId, String userId) {
