@@ -1,10 +1,25 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.bus.ui;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class TaskNameFilterEvent extends GwtEvent<TaskNameFilterEventHandler> {
+public class TaskNameFilterEvent extends GwtEvent<TaskNameFilterHandler> {
 
-    public static final Type<TaskNameFilterEventHandler> TYPE = new Type<TaskNameFilterEventHandler>();
+    public static final Type<TaskNameFilterHandler> TYPE = new Type<TaskNameFilterHandler>();
     
     private final String taskNameFilter;
     
@@ -18,12 +33,12 @@ public class TaskNameFilterEvent extends GwtEvent<TaskNameFilterEventHandler> {
     }
     
     @Override
-    public Type<TaskNameFilterEventHandler> getAssociatedType() {
+    public Type<TaskNameFilterHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(TaskNameFilterEventHandler handler) {
+    protected void dispatch(TaskNameFilterHandler handler) {
         handler.onEvent(this);
     }
 

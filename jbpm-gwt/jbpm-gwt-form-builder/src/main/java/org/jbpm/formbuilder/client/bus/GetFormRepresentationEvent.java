@@ -1,11 +1,29 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.bus;
 
 import com.google.gwt.event.shared.GwtEvent;
 
+/**
+ * Asks for a form representation to the client components
+ */
 public class GetFormRepresentationEvent extends
-        GwtEvent<GetFormRepresentationEventHandler> {
+        GwtEvent<GetFormRepresentationHandler> {
 
-    public static final Type<GetFormRepresentationEventHandler> TYPE = new Type<GetFormRepresentationEventHandler>();
+    public static final Type<GetFormRepresentationHandler> TYPE = new Type<GetFormRepresentationHandler>();
     
     private final String saveType;
     
@@ -18,12 +36,12 @@ public class GetFormRepresentationEvent extends
     }
 
     @Override
-    public Type<GetFormRepresentationEventHandler> getAssociatedType() {
+    public Type<GetFormRepresentationHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(GetFormRepresentationEventHandler handler) {
+    protected void dispatch(GetFormRepresentationHandler handler) {
         handler.onEvent(this);
     }
 

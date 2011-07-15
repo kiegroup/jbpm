@@ -1,12 +1,30 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.bus;
 
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class FormItemSelectionEvent extends GwtEvent<FormItemSelectionEventHandler> {
+/**
+ * Notifies an instance of FBFormItem has focus
+ */
+public class FormItemSelectionEvent extends GwtEvent<FormItemSelectionHandler> {
 
-    public static Type<FormItemSelectionEventHandler> TYPE = new Type<FormItemSelectionEventHandler>();
+    public static Type<FormItemSelectionHandler> TYPE = new Type<FormItemSelectionHandler>();
     
     private final FBFormItem formItemSelected;
     private final boolean selected;
@@ -26,12 +44,12 @@ public class FormItemSelectionEvent extends GwtEvent<FormItemSelectionEventHandl
     }
     
     @Override
-    public Type<FormItemSelectionEventHandler> getAssociatedType() {
+    public Type<FormItemSelectionHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(FormItemSelectionEventHandler handler) {
+    protected void dispatch(FormItemSelectionHandler handler) {
         handler.onEvent(this);
         
     }

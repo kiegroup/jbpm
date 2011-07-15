@@ -1,10 +1,28 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.bus;
 
 import com.google.gwt.event.shared.GwtEvent; 
 
-public class FormDataPopulatedEvent extends GwtEvent<FormDataPopulatedEventHandler> {
+/**
+ * Notifies that the properties of the form have been populated
+ */
+public class FormDataPopulatedEvent extends GwtEvent<FormDataPopulatedHandler> {
 
-    public static final Type<FormDataPopulatedEventHandler> TYPE = new Type<FormDataPopulatedEventHandler>();
+    public static final Type<FormDataPopulatedHandler> TYPE = new Type<FormDataPopulatedHandler>();
 
     private final String action;
     private final String method;
@@ -21,12 +39,12 @@ public class FormDataPopulatedEvent extends GwtEvent<FormDataPopulatedEventHandl
     }
     
     @Override
-    public Type<FormDataPopulatedEventHandler> getAssociatedType() {
+    public Type<FormDataPopulatedHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(FormDataPopulatedEventHandler handler) {
+    protected void dispatch(FormDataPopulatedHandler handler) {
         handler.onEvent(this);
     }
 
