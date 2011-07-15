@@ -181,8 +181,8 @@ public class FormRepresentation implements Serializable {
         if (!equals) return equals;
         equals = (this.enctype == null && other.enctype == null) || (this.enctype != null && this.enctype.equals(other.enctype));
         if (!equals) return equals;
-        equals = (this.lastModified == other.lastModified);
-        if (!equals) return equals;
+        /*equals = (this.lastModified == other.lastModified);
+        if (!equals) return equals;*/
         equals = (this.documentation == null && other.documentation == null) || 
             (this.documentation != null && this.documentation.equals(other.documentation));
         if (!equals) return equals;
@@ -204,7 +204,7 @@ public class FormRepresentation implements Serializable {
         equals = (this.onSubmitScripts == null && other.onSubmitScripts == null) ||
             (this.onSubmitScripts != null && this.onSubmitScripts.equals(other.onSubmitScripts));
         if (!equals) return equals;
-        equals = this.saved != other.saved;
+        equals = (this.saved == other.saved);
         return equals;
     }
     
@@ -223,8 +223,8 @@ public class FormRepresentation implements Serializable {
         result = 37 * result + aux;
         aux = this.enctype == null ? 0 : this.enctype.hashCode();
         result = 37 * result + aux;
-        aux = (int) (this.lastModified ^ this.lastModified);
-        result = 37 * result + aux;
+        /*aux = (int) (this.lastModified ^ this.lastModified);
+        result = 37 * result + aux;*/
         aux = this.documentation == null ? 0 : this.documentation.hashCode();
         result = 37 * result + aux;
         aux = this.formValidations == null ? 0 : this.formValidations.hashCode();
