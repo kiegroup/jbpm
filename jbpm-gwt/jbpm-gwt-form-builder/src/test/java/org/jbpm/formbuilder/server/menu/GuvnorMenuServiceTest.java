@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
-import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
@@ -45,7 +45,7 @@ public class GuvnorMenuServiceTest extends TestCase {
         String jsonInitial = FileUtils.readFileToString(dbFile);
         Map<String, List<MenuItemDescription>> descsInitial = decoder.decodeMenuItemsMap(jsonInitial);
         MenuItemDescription desc = new MenuItemDescription();
-        desc.setClassName(CustomOptionMenuItem.class.getName());
+        desc.setClassName(CustomMenuItem.class.getName());
         List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
         FormEffectDescription effDesc1 = new FormEffectDescription();
         effDesc1.setClassName(RemoveEffect.class.getName());

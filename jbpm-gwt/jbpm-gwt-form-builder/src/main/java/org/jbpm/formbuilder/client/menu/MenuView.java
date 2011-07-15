@@ -23,6 +23,9 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+/**
+ * menu view. Displays the menu items accordion
+ */
 public class MenuView extends ScrollPanel {
 
     private Map<String, FBMenuGroupPanel> accordion = new HashMap<String, FBMenuGroupPanel>();

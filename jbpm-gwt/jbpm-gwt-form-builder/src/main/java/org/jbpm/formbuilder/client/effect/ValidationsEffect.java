@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.effect;
 
 import java.util.ArrayList;
@@ -5,17 +20,21 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.view.ValidationsEffectView;
+import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PopupPanel;
 
+/**
+ * Allows to add validations to the related {@link FBFormItem}
+ */
 public class ValidationsEffect extends FBFormEffect {
 
     private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

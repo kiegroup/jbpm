@@ -49,7 +49,7 @@
     </menuItem>
   </menuGroup>
   <menuGroup name="My Components">
-    <menuItem className="org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem">
+    <menuItem className="org.jbpm.formbuilder.client.menu.items.CustomMenuItem">
       <effect className="org.jbpm.formbuilder.client.effect.RemoveEffect"/>
       <effect className="org.jbpm.formbuilder.client.effect.DoneEffect"/>
       <effect className="org.jbpm.formbuilder.client.effect.ResizeEffect"/>

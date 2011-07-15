@@ -1,15 +1,33 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.command;
 
 import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
-import org.jbpm.formbuilder.client.bus.UndoRedoEventHandler;
+import org.jbpm.formbuilder.client.bus.UndoRedoHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
-import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.options.UndoRedoManager;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;
 
+/**
+ * Handles the redo action
+ */
 public class EditFormRedoCommand implements BaseCommand {
 
     private final UndoRedoManager mgr = UndoRedoManager.getInstance();
@@ -17,14 +35,14 @@ public class EditFormRedoCommand implements BaseCommand {
     
     public EditFormRedoCommand() {
         EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-        bus.addHandler(UndoableEvent.TYPE, new UndoableEventHandler() {
+        bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
             public void onEvent(UndoableEvent event) {  
                 checkEnabled();
             }
             public void doAction(UndoableEvent event) {  }
             public void undoAction(UndoableEvent event) {  }
         });
-        bus.addHandler(UndoRedoEvent.TYPE, new UndoRedoEventHandler() {
+        bus.addHandler(UndoRedoEvent.TYPE, new UndoRedoHandler() {
             public void onEvent(UndoRedoEvent event) {
                 checkEnabled();
             }

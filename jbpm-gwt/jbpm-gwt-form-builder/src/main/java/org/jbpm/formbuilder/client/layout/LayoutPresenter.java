@@ -20,22 +20,24 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
-import org.jbpm.formbuilder.client.bus.FormDataPopulatedEventHandler;
+import org.jbpm.formbuilder.client.bus.FormDataPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.GetFormRepresentationEventHandler;
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationHandler;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.RegisterLayoutEvent;
-import org.jbpm.formbuilder.client.bus.RegisterLayoutEventHandler;
-import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
-import org.jbpm.formbuilder.client.bus.TaskSelectedHandler;
+import org.jbpm.formbuilder.client.bus.RegisterLayoutHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
-import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormSavedHandler;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
@@ -48,6 +50,17 @@ import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
 
+/**
+ * layout presenter.
+ * 
+ * Registers the dropController to work on it when
+ * started and when layout form items are added, to 
+ * work on said layout form items.
+ * 
+ * Exposes the form representation and display, and
+ * populates both when they are loaded from the server,
+ * changed by another view or saved.
+ */
 public class LayoutPresenter {
 
     private final LayoutView layoutView;
@@ -59,18 +72,18 @@ public class LayoutPresenter {
         final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
         dragController.registerDropController(new DropFormItemController(layoutView, layoutView));
         
-        this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutEventHandler() {
+        this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutHandler() {
             public void onEvent(RegisterLayoutEvent event) {
                 LayoutFormItem item = event.getLayout();
                 dragController.registerDropController(new DropFormItemController(item, layoutView));
             }
         });
         
-        this.bus.addHandler(GetFormRepresentationEvent.TYPE, new GetFormRepresentationEventHandler() {
+        this.bus.addHandler(GetFormRepresentationEvent.TYPE, new GetFormRepresentationHandler() {
             public void onEvent(GetFormRepresentationEvent event) {
                 FBForm formDisplay = layoutView.getFormDisplay();
                 FormRepresentation rep = formDisplay.createRepresentation();
-                bus.fireEvent(new PreviewFormRepresentationEvent(rep, event.getSaveType()));
+                bus.fireEvent(new GetFormRepresentationResponseEvent(rep, event.getSaveType()));
             }
         });
         
@@ -80,7 +93,7 @@ public class LayoutPresenter {
             }
         });
         
-        this.bus.addHandler(FormDataPopulatedEvent.TYPE, new FormDataPopulatedEventHandler() {
+        this.bus.addHandler(FormDataPopulatedEvent.TYPE, new FormDataPopulatedHandler() {
             public void onEvent(FormDataPopulatedEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldName", layoutView.getFormDisplay().getName());
@@ -93,7 +106,7 @@ public class LayoutPresenter {
                 dataSnapshot.put("newTaskId", event.getTaskId());
                 dataSnapshot.put("newMehtod", event.getMethod());
                 dataSnapshot.put("newEnctype", event.getEnctype());
-                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
                     public void onEvent(UndoableEvent event) {  }
                     public void undoAction(UndoableEvent event) {
                         String name = (String) event.getData("oldName");
@@ -146,7 +159,7 @@ public class LayoutPresenter {
                 dataSnapshot.put("newTaskID", event.getSelectedTask() == null ? null : event.getSelectedTask().getTaskId());
                 dataSnapshot.put("newTaskInputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getInputs());
                 dataSnapshot.put("newTaskOutputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getOutputs());
-                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
                     public void onEvent(UndoableEvent event) { }
                     @SuppressWarnings("unchecked")
                     public void doAction(UndoableEvent event) {
@@ -167,6 +180,12 @@ public class LayoutPresenter {
                         layoutView.getFormDisplay().setOutputs(outputs);
                     }
                 }));
+            }
+        });
+        
+        bus.addHandler(FormSavedEvent.TYPE, new FormSavedHandler() {
+            public void onEvent(FormSavedEvent event) {
+                layoutView.getFormDisplay().setSaved(true);
             }
         });
         

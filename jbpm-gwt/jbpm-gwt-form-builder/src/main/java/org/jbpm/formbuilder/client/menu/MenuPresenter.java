@@ -19,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
-import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
-import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
@@ -32,6 +32,12 @@ import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Menu presenter. Handles the adding and
+ * removing of items from the view when
+ * notified, either from the current user
+ * or from the server.
+ */
 public class MenuPresenter {
 
     private final EventBus bus;
@@ -57,14 +63,14 @@ public class MenuPresenter {
             }
         }
         
-        this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedEventHandler() {
+        this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
             public void onEvent(MenuItemAddedEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
                 view.addItem(group, item);
             }
         });
-        this.bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveEventHandler() {
+        this.bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveHandler() {
             public void onEvent(MenuItemRemoveEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();

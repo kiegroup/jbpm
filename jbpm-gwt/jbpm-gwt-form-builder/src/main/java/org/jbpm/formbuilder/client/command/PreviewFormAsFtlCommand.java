@@ -1,30 +1,29 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.command;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
-import org.jbpm.formbuilder.client.FormBuilderService;
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-
+/**
+ * Handles the preview action for Freemarker
+ */
 public class PreviewFormAsFtlCommand extends PreviewFormCommand {
 
     private static final String LANG = "ftl";
     
-    private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     
     public PreviewFormAsFtlCommand() {
         super(LANG);
-    }
-
-    @Override
-    public void saveForm(FormRepresentation form) {
-        try {
-            String url = server.generateForm(form, LANG);
-            refreshPopupForURL(url);
-        } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, 
-                    "Unexpected error while previewing ftl form", e));
-        } 
     }
 }

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.form;
 
 import java.util.ArrayList;
@@ -27,6 +42,11 @@ import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Base class for UI components. Contains most of the edition definitions:
+ *  right click functionality, inplace editor invocation, desired positioning, 
+ *  width, height, validations, input association and output association.
+ */
 public abstract class FBFormItem extends FocusPanel {
 
     private List<FBValidationItem> validations = new ArrayList<FBValidationItem>();
@@ -106,14 +126,6 @@ public abstract class FBFormItem extends FocusPanel {
         EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         bus.fireEvent(event);
     }
-
-    public FBInplaceEditor createInplaceEditor() {
-        return null;
-    }
-    
-    public abstract Map<String, Object> getFormItemPropertiesMap();
-    
-    public abstract void saveValues(Map<String, Object> asPropertiesMap);
 
     //right click handling for optional menu
 
@@ -305,30 +317,6 @@ public abstract class FBFormItem extends FocusPanel {
         return input;
     }
     
-    public abstract FormItemRepresentation getRepresentation();
-    
-    public void populate(FormItemRepresentation rep) throws FormBuilderException {
-        if (rep.getEffectClasses() != null) {
-            this.effects = new ArrayList<FBFormEffect>(rep.getEffectClasses().size());
-            for (String className : rep.getEffectClasses()) {
-                try {
-                    Class<?> clazz = ReflectionHelper.loadClass(className);
-                    FBFormEffect effect = (FBFormEffect) ReflectionHelper.newInstance(clazz);
-                    this.effects.add(effect);
-                } catch (Exception e) {
-                    throw new FormBuilderException("Couldn't instantiate class " + className, e);
-                }
-            }
-        }
-        //TODO this.validations = rep.getItemValidations(); will need a translation as well?
-        this.widgetHeight = rep.getHeight();
-        this.widgetWidth = rep.getWidth();
-        this.input = rep.getInput();
-        this.output = rep.getOutput();
-    }
-    
-    public abstract FBFormItem cloneItem();
-    
     protected <T extends FBFormItem> T cloneItem(T clone) {
         clone.validations = this.validations;
         clone.widgetHeight = this.widgetHeight;
@@ -339,8 +327,6 @@ public abstract class FBFormItem extends FocusPanel {
         return clone;
     }
     
-    public abstract Widget cloneDisplay();
-
     protected <T extends FormItemRepresentation> T getRepresentation(T rep) {
         rep.setInput(getInput());
         rep.setOutput(getOutput());
@@ -379,4 +365,78 @@ public abstract class FBFormItem extends FocusPanel {
     public List<FBValidationItem> getValidations() {
         return validations;
     }
+
+    /**
+     * If you wish that on clicking your UI component, it becomes replaced by
+     * a custom editor, this is where you must create it
+     * @return A custom subclass of {@link FBInplaceEditor} to replace component
+     * and be rechanged after lost of focus. Default returns null
+     */
+    public FBInplaceEditor createInplaceEditor() {
+        return null;
+    }
+    
+    /**
+     * This method must be defined to tell outside default editors what properties
+     * this UI component has. Outside editors will then provide functionality to edit
+     * these properties and invoke {@link #saveValues(Map)} 
+     * @return a map of the properties of this UI component
+     */
+    public abstract Map<String, Object> getFormItemPropertiesMap();
+    
+    /**
+     * This method must be defined so that outside default editor can tell this 
+     * UI component the new value of its properties. It's the entire responsibility
+     * of this UI component to repopulate itself from these properties 
+     * @param asPropertiesMap a map of the proeprties to set on this UI component
+     */
+    public abstract void saveValues(Map<String, Object> asPropertiesMap);
+    
+    /**
+     * This method is used to create a POJO representation of the UI component that any
+     * java service can understand.
+     * @return a POJO representation of this UI component 
+     */
+    public abstract FormItemRepresentation getRepresentation();
+    
+    /**
+     * This method must be overriden by each {@link FBFormItem} subclass to repopulate
+     * its properties from an outside POJO representation.
+     * @param rep the POJO representation of this UI component. It's the responsibility 
+     * of each {@link FBFormItem} instance to validate the POJO representation for itself,
+     * call the superclass method, and define what and how properties of its UI component
+     * should be updated.
+     * @throws FormBuilderException in case of error or invalid content
+     */
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (rep.getEffectClasses() != null) {
+            this.effects = new ArrayList<FBFormEffect>(rep.getEffectClasses().size());
+            for (String className : rep.getEffectClasses()) {
+                try {
+                    Class<?> clazz = ReflectionHelper.loadClass(className);
+                    FBFormEffect effect = (FBFormEffect) ReflectionHelper.newInstance(clazz);
+                    this.effects.add(effect);
+                } catch (Exception e) {
+                    throw new FormBuilderException("Couldn't instantiate class " + className, e);
+                }
+            }
+        }
+        //TODO this.validations = rep.getItemValidations(); will need a translation as well?
+        this.widgetHeight = rep.getHeight();
+        this.widgetWidth = rep.getWidth();
+        this.input = rep.getInput();
+        this.output = rep.getOutput();
+    }
+    
+    /**
+     * This methods is similar to {@link #clone()}, but returns a proper type and forces implementation
+     * @return a clone of this very object
+     */
+    public abstract FBFormItem cloneItem();
+
+    /**
+     * Similar to {@link #cloneItem()}, but only clones the underlying UI GWT component.
+     * @return
+     */
+    public abstract Widget cloneDisplay();
 }

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.form;
 
 import java.util.ArrayList;
@@ -28,6 +43,9 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Display class for a {@link FormRepresentation}
+ */
 public class FBForm extends FlowPanel implements FBCompositeItem {
 
     private String name;
@@ -45,6 +63,9 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     private List<ClickHandler> clickHandlers = new ArrayList<ClickHandler>();
     
     private final FormDataPopupPanel popup = new FormDataPopupPanel();
+    
+    private boolean saved = false;
+    private long lastModified = 0L;
     
     public FBForm() {
         super();
@@ -255,6 +276,11 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         return outputs;
     }
     
+    public void setSaved(boolean saved) {
+        this.saved = saved;
+        this.lastModified = System.currentTimeMillis();
+    }
+    
     public FormRepresentation createRepresentation() {
         FormRepresentation rep = new FormRepresentation();
         rep.setName(name);
@@ -270,6 +296,8 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         }
         rep.setInputs(inputs);
         rep.setOutputs(outputs);
+        rep.setSaved(saved);
+        rep.setLastModified(lastModified);
         /* TODO rep.setOnLoadScript(onLoadScript);
         rep.setOnSubmitScript(onSubmitScript); */
         return rep;
@@ -293,8 +321,10 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
             FBValidationItem validation = FBValidationItem.createValidation(validationRep);
             addValidation(validation);
         }
-        rep.setInputs(inputs);
-        rep.setOutputs(outputs);
+        setInputs(rep.getInputs());
+        setOutputs(rep.getOutputs());
+        this.saved = rep.isSaved();
+        this.lastModified = rep.getLastModified();
         /* TODO setOnLoadScript(rep.getOnLoadScript());
         setOnSubmitScript(rep.getOnSubmitScript()); */
     }

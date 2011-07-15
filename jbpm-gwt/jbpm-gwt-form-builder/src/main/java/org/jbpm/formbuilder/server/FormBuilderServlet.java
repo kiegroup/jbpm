@@ -35,7 +35,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.IOUtils;
-import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormDefDTO;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.FormItemDefDTO;
@@ -324,7 +324,7 @@ public class FormBuilderServlet extends HttpServlet {
         MenuItemDescription menuItem = new MenuItemDescription();
         try {
             FormItemRepresentation item = decoder.decodeItem(json);
-            menuItem.setClassName(CustomOptionMenuItem.class.getName());
+            menuItem.setClassName(CustomMenuItem.class.getName());
             menuItem.setItemRepresentation(item);
             menuItem.setName(dto.getName());
             List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();

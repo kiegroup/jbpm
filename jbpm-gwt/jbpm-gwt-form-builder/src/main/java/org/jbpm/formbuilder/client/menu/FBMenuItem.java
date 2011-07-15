@@ -32,6 +32,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Base class for all menu items.
+ * It's in charge of creating a {@link FBFormItem}
+ */
 public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle {
     
     private FocusPanel shim = new FocusPanel();
@@ -61,14 +65,6 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
         return formEffects;
     }
     
-    protected abstract ImageResource getIconUrl();
-    
-    public abstract Label getDescription();
-
-    public abstract FBMenuItem cloneWidget();
-    
-    public abstract FBFormItem buildWidget();
-
     public String getItemId() {
         return getClass().getName();
     }
@@ -123,4 +119,34 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     public void addEffect(FBFormEffect effect) {
         this.formEffects.add(effect);
     }
+
+    /**
+     * This method returns an icon that visually represents 
+     * the UI component this menu item creates.
+     * @return an icon
+     */
+    protected abstract ImageResource getIconUrl();
+    
+    /**
+     * This method returns a description that represents
+     * the UI component this menu item creates.
+     * @return a description label
+     */
+    public abstract Label getDescription();
+
+    /**
+     * This method is like {@link #clone()}, but returns
+     * the proper instance and forces implementation
+     * @return a copy of this {@link FBMenuItem} object
+     */
+    public abstract FBMenuItem cloneWidget();
+    
+    /**
+     * Builds a {@link FBFormItem}. Remember to assign
+     * all {@link FBFormEffect} it will need. See
+     * {@link #getFormEffects()} and {@link #FBMenuItem(List)}
+     * to see how to assign and get these to and from your instance.
+     * @return a {@link FBFormItem} instance.
+     */
+    public abstract FBFormItem buildWidget();
 }

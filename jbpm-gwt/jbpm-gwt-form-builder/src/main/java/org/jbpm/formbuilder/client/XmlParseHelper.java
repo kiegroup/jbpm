@@ -1,3 +1,19 @@
+/**
+
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client;
 
 import java.util.ArrayList;
@@ -9,7 +25,7 @@ import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -26,8 +42,24 @@ import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
 
+/**
+ * This class is to help {@link FormBuilderModel} to parse response messages
+ * and transform request bodies.
+ */
 public class XmlParseHelper {
 
+    /**
+     * Method to output xml from a form item and is name with the following format:
+     * <code>
+     * &lt;formItem name="${formItemName}"&gt;<br>
+     * &nbsp;&nbsp;&lt;content&gt;${formItem.asJson()}&lt;/content&gt;<br>
+     * &lt;/formItem&gt;<br>
+     * </code>
+     * 
+     * @param formItemName name of the form item
+     * @param formItem the form item to format
+     * @return XML request body
+     */
     public String asXml(String formItemName, FormItemRepresentation formItem) throws FormEncodingException {
         StringBuilder builder = new StringBuilder();
         String json = FormEncodingClientFactory.getEncoder().encode(formItem);
@@ -37,6 +69,24 @@ public class XmlParseHelper {
         return builder.toString();
     }
     
+    /**
+     * Method to output xml from a menu item and its group's name with the following format:
+     * <code>
+     * &lt;menuItem&gt;<br>
+     * &nbsp;&nbsp;&lt;groupName&gt;${groupName}&lt;/groupName&gt;<br>
+     * &nbsp;&nbsp;&lt;name&gt;${item.description.text}&lt;/name&gt;<br>
+     * &nbsp;&nbsp;&lt;clone&gt;&lt;![CDATA[${item.asJson()}]]&gt;&lt;/clone&gt;<br>
+     * &nbsp;&nbsp;&lt;effect&gt;${item.formEffects[0].class.name}&lt;/effect&gt;<br>
+     * &nbsp;&nbsp;&lt;effect&gt;${item.formEffects[1].class.name}&lt;/effect&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;effect&gt;${item.formEffects[n].class.name}&lt;/effect&gt;<br>
+     * &lt;/menuItem&gt;<br>
+     * </code>
+     * 
+     * @param groupName the menu item group's name
+     * @param item the menu item
+     * @return XML request body
+     */
     public String asXml(String groupName, FBMenuItem item) {
         StringBuilder builder = new StringBuilder();
         builder.append("<menuItem>");
@@ -56,6 +106,35 @@ public class XmlParseHelper {
         return builder.toString();
     }
     
+    /**
+     * Ment to parse an XML response with the following format:
+     * <code>
+     * &lt;tasks&gt;<br>
+     * &nbsp;&nbsp;&lt;task processId="${task.processId}" taskName="${task.taskId}"&gt;<br>
+     * <br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;input name="${task.inputs[0].name}" source="${task.inputs[0].sourceExpression}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;input name="${task.inputs[1].name}" source="${task.inputs[1].sourceExpression}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;input name="${task.inputs[n].name}" source="${task.inputs[n].sourceExpression}"/&gt;<br>
+     * <br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;output name="${task.outputs[0].name}" source="${task.outputs[0].sourceExpression}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;output name="${task.outputs[1].name}" source="${task.outputs[1].sourceExpression}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;output name="${task.outputs[n].name}" source="${task.outputs[n].sourceExpression}"/&gt;<br>
+     * <br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;metaData key="${task.metaData.entrySet[0].key}" value="${task.metaData.entrySet[0].value}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;metaData key="${task.metaData.entrySet[1].key}" value="${task.metaData.entrySet[1].value}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;metaData key="${task.metaData.entrySet[n].key}" value="${task.metaData.entrySet[n].value}"/&gt;<br>
+     * <br>
+     * &nbsp;&nbsp;&lt;/task&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &lt;/tasks&gt;<br>
+     * </code>
+     * 
+     * @param responseText The XML response.
+     * @return a list of task definition references.
+     */
     public List<TaskRef> readTasks(String responseText) {
         Document xml = XMLParser.parse(responseText);
         List<TaskRef> retval = null;
@@ -83,10 +162,121 @@ public class XmlParseHelper {
         return retval;
     }
     
+    /**
+     * Ment to parse an XML response with the following format:
+     * <code>
+     * &lt;menuOptions&gt;<br>
+     * &nbsp;&nbsp;&lt;menuOption name="${option[0].html}" (commandClass="${option[0].command.class.name}")&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;menuOption name="${option[0].subMenu[0].html}" commandClass="${option[0].subMenu[0].command.class.name}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;menuOption name="${option[0].subMenu[n].html}" (commandClass="${option[0].subMenu[n].command.class.name}")&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;menuOption name="${option[0].subMenu[n].subMenu[0].html}" commandClass="${option[0].subMenu[n].subMenu[0].command.class.name}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;/menuOption&gt;<br>
+     * &nbsp;&nbsp;&lt;/menuOption&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;menuOption name="${option[m].html}" commandClass="${option[m].command.class.name}"/&gt;<br>
+     * &lt;/menuOptions&gt;<br>
+     * </code>
+     * 
+     * @param responseText The XML response.
+     * @return a list of menuOptions.
+     */
     public List<MainMenuOption> readMenuOptions(String responseText) {
         Document xml = XMLParser.parse(responseText);
         NodeList menuOptions = xml.getElementsByTagName("menuOptions").item(0).getChildNodes();
         return readMenuOptions(menuOptions);
+    }
+    
+    /**
+     * Ment to parse an XML response with the following format:
+     * <code>
+     * &lt;listForms&gt;<br>
+     * &nbsp;&nbsp;&lt;form&gt;&lt;json&gt;${jsonFromFormRepresentation}&lt;/json&gt;&lt;/form&gt;<br>
+     * &lt;/listForms&gt;<br>
+     * </code>
+     * 
+     * @param responseText the XML response.
+     * @return a list of FormRepresentation items.
+     */
+    public List<FormRepresentation> readForms(String responseText) {
+        Document xml = XMLParser.parse(responseText);
+        NodeList list = xml.getElementsByTagName("json");
+        List<FormRepresentation> retval = new ArrayList<FormRepresentation>();
+        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        if (list != null) {
+            for (int index = 0; index < list.getLength(); index++) {
+                Node node = list.item(index);
+                String json = node.getFirstChild().getNodeValue();
+                try {
+                    FormRepresentation form = decoder.decode(json);
+                    retval.add(form);
+                } catch (FormEncodingException e) {
+                    FormRepresentation error = new FormRepresentation();
+                    error.setName("ERROR: " + e.getLocalizedMessage());
+                    retval.add(error);
+                }
+            }
+        }
+        return retval;
+    }
+    
+    /**
+     * Ment to parse an XML response with the following format:
+     * <code>
+     * &lt;menuGroups&gt;<br>
+     * &nbsp;&nbsp;&lt;menuGroup name="???"&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;menuItem className="???" optionName="???"&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;itemJson&gt;???&lt;/itemJson&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;effect className="???"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;/menuItem&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;menuItem ...&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;/menuItem&gt;<br>
+     * &nbsp;&nbsp;&lt;/menuGroup&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;menuGroup name="???"&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;/menuGroup&gt;<br>
+     * &lt;/menuGroups&gt;<br>
+     * </code>
+     * 
+     * @param responseText the XML response.
+     * @return a map of lists of FBMenuItem instances.
+     */
+    public Map<String, List<FBMenuItem>> readMenuMap(String responseText) {
+        Document xml = XMLParser.parse(responseText);
+        Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
+        NodeList groups = xml.getElementsByTagName("menuGroup");
+        for (int jindex = 0; jindex < groups.getLength(); jindex++) {
+            Node groupNode = groups.item(jindex);
+            String groupName = ((Element) groupNode).getAttribute("name");
+            NodeList items = ((Element) groupNode).getElementsByTagName("menuItem");
+            menuItems.put(groupName, readMenuItems(items, groupName));
+        }
+        return menuItems;
+    }
+    
+    /**
+     * Parses and returns a formId from an XML response of the following format:
+     * <code>&lt;formId&gt;${response}&lt;/formId&gt;</code>
+     * 
+     * @param responseText XML response to parse
+     * @return a formId
+     */
+    public String getFormItemId(String responseText) {
+        return textOfFirstNode(responseText, "formItemId");
+    }
+    
+    /**
+     * Parses and returns a formItemId from an XML response of the following format:
+     * <code>&lt;formItemId&gt;${response}&lt;/formItemId&gt;</code>
+     * 
+     * @param responseText XML response to parse
+     * @return a formItemId
+     */
+    public String getFormId(String responseText) {
+        return textOfFirstNode(responseText, "formId");
     }
     
     private List<MainMenuOption> readMenuOptions(NodeList menuOptions) {
@@ -118,49 +308,6 @@ public class XmlParseHelper {
             options.add(option);
         }
         return options;
-    }
-    
-    public List<FormRepresentation> readForms(String responseText) {
-        Document xml = XMLParser.parse(responseText);
-        NodeList list = xml.getElementsByTagName("json");
-        List<FormRepresentation> retval = new ArrayList<FormRepresentation>();
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
-        if (list != null) {
-            for (int index = 0; index < list.getLength(); index++) {
-                Node node = list.item(index);
-                String json = node.getFirstChild().getNodeValue();
-                try {
-                    FormRepresentation form = decoder.decode(json);
-                    retval.add(form);
-                } catch (FormEncodingException e) {
-                    FormRepresentation error = new FormRepresentation();
-                    error.setName("ERROR: " + e.getLocalizedMessage());
-                    retval.add(error);
-                }
-            }
-        }
-        return retval;
-    }
-    
-    public Map<String, List<FBMenuItem>> readMenuMap(String responseText) {
-        Document xml = XMLParser.parse(responseText);
-        Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
-        NodeList groups = xml.getElementsByTagName("menuGroup");
-        for (int jindex = 0; jindex < groups.getLength(); jindex++) {
-            Node groupNode = groups.item(jindex);
-            String groupName = ((Element) groupNode).getAttribute("name");
-            NodeList items = ((Element) groupNode).getElementsByTagName("menuItem");
-            menuItems.put(groupName, readMenuItems(items, groupName));
-        }
-        return menuItems;
-    }
-    
-    public String getFormItemId(String responseText) {
-        return textOfFirstNode(responseText, "formItemId");
-    }
-    
-    public String getFormId(String responseText) {
-        return textOfFirstNode(responseText, "formId");
     }
 
     private String textOfFirstNode(String responseText, String tagName) {
@@ -195,8 +342,8 @@ public class XmlParseHelper {
                 Class<?> klass = ReflectionHelper.loadClass(itemClassName);
                 Object obj = ReflectionHelper.newInstance(klass);
                 FBMenuItem menuItem = null;
-                if (obj instanceof CustomOptionMenuItem) {
-                    CustomOptionMenuItem customItem = (CustomOptionMenuItem) obj;
+                if (obj instanceof CustomMenuItem) {
+                    CustomMenuItem customItem = (CustomMenuItem) obj;
                     String optionName = ((Element) itemNode).getAttribute("optionName");
                     customItem.setRepresentation(makeRepresentation(itemNode));
                     customItem.setOptionName(optionName);

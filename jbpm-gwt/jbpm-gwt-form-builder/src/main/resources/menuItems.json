@@ -270,7 +270,7 @@
      	}
      ],
      "My Components": [
-     	{   "className": "org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem",
+     	{   "className": "org.jbpm.formbuilder.client.menu.items.CustomMenuItem",
      		"name": "Login template",
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },

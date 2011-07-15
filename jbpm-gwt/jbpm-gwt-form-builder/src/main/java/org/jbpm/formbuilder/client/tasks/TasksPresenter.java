@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.tasks;
 
 import java.util.HashMap;
@@ -7,16 +22,20 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.bus.TaskSelectedEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
-import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEventHandler;
+import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.shared.EventBus;
 
+/**
+ * Tasks presenter. Handles server querying of existing tasks 
+ * and view population
+ */
 public class TasksPresenter {
     
     private final TasksView view;
@@ -27,7 +46,7 @@ public class TasksPresenter {
     public TasksPresenter(FormBuilderService service, TasksView tasksView) {
         this.view = tasksView;
         this.model = service;
-        bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterEventHandler() {
+        bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterHandler() {
             public void onEvent(TaskNameFilterEvent event) {
                 String filter = event.getTaskNameFilter();
                 try {

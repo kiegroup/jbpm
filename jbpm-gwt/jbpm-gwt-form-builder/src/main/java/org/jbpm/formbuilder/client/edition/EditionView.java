@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
-import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -36,6 +36,9 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 
+/**
+ * Edition panel
+ */
 public class EditionView extends ScrollPanel {
 
     private SimplePanel panel = new SimplePanel();
@@ -72,7 +75,7 @@ public class EditionView extends ScrollPanel {
                 dataSnapshot.put("oldItems", map);
                 dataSnapshot.put("newItems", newItems);
                 dataSnapshot.put("itemSelected", itemSelected);
-                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
                     public void onEvent(UndoableEvent event) {  }
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
@@ -94,7 +97,7 @@ public class EditionView extends ScrollPanel {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("newItems", asPropertiesMap(grid));
                 dataSnapshot.put("fakeItemSelected", itemSelected.cloneItem());
-                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
                     public void onEvent(UndoableEvent event) {  }
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {

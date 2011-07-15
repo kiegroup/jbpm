@@ -1,4 +1,5 @@
 /**
+
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,8 +23,19 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
 
+/**
+ * Main entry point of the form builder application
+ */
 public class FormBuilderEntryPoint implements EntryPoint {
 
+    /**
+     * Does the following steps to start the app:
+     * 1 - Registers an event bus
+     * 2 - Starts a client service resolver and registers it
+     * 3 - Creates a FormBuilderView instance
+     * 4 - Creates a FormBuilderController instance
+     * 5 - adds the FormBuilderView instance to the main view
+     */
     public void onModuleLoad() {
         //register event bus
         EventBus eventBus = new SimpleEventBus();

@@ -1,8 +1,27 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.command;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -12,15 +31,19 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
+/**
+ * Preview form as a given language base class.
+ */
 public abstract class PreviewFormCommand implements BaseCommand {
 
     protected final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     private final String saveType;
     
     public PreviewFormCommand(final String saveType) {
         this.saveType = saveType;
-        this.bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
-            public void onEvent(PreviewFormRepresentationEvent event) {
+        this.bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            public void onEvent(GetFormRepresentationResponseEvent event) {
                 FormRepresentation form = event.getRepresentation();
                 String type = event.getSaveType();
                 if (saveType.equals(type)) {
@@ -53,6 +76,14 @@ public abstract class PreviewFormCommand implements BaseCommand {
         panel.show();
     }
 
-    public abstract void saveForm(FormRepresentation form);
+    public void saveForm(FormRepresentation form) {
+        try {
+            String url = server.generateForm(form, this.saveType);
+            refreshPopupForURL(url);
+        } catch (FormBuilderException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, 
+                    "Unexpected error while previewing " + this.saveType + " form", e));
+        }
+    }
 
 }

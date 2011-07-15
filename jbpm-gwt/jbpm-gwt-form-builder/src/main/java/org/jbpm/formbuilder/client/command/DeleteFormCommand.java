@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.command;
 
 import java.util.HashMap;
@@ -6,12 +21,12 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.PreviewFormRepresentationEventHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
+import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
-import org.jbpm.formbuilder.client.bus.UndoableEventHandler;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -26,6 +41,9 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+/**
+ * Handles the action of deleting a form on the server.
+ */
 public class DeleteFormCommand implements BaseCommand {
 
     private static final String DELETE_TYPE = DeleteFormCommand.class.getName();
@@ -35,8 +53,8 @@ public class DeleteFormCommand implements BaseCommand {
     
     public DeleteFormCommand() {
         super();
-        bus.addHandler(PreviewFormRepresentationEvent.TYPE, new PreviewFormRepresentationEventHandler() {
-            public void onEvent(PreviewFormRepresentationEvent event) {
+        bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            public void onEvent(GetFormRepresentationResponseEvent event) {
                 if (DELETE_TYPE.equals(event.getSaveType())) {
                     FormRepresentation form = event.getRepresentation();
                     showDeletePanel(form);
@@ -55,7 +73,7 @@ public class DeleteFormCommand implements BaseCommand {
 
     private void showDeletePanel(final FormRepresentation form) {
         final PopupPanel panel = new PopupPanel();
-        if (wasSaved(form)) {
+        if (form.isSaved()) {
             VerticalPanel vpanel = new VerticalPanel();
             vpanel.add(new Label("Warning! You will delete form " + form.getName() + " from the server. " +
                     "Are you sure you want to continue?"));
@@ -97,7 +115,7 @@ public class DeleteFormCommand implements BaseCommand {
     private void deleteForm(FormRepresentation form) {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("form", form);
-        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableEventHandler() {
+        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
             public void undoAction(UndoableEvent event) {
                 FormRepresentation form = (FormRepresentation) event.getData("form");
                 if (form != null) {
@@ -119,9 +137,5 @@ public class DeleteFormCommand implements BaseCommand {
                 }
             }
         }));
-    }
-    
-    private boolean wasSaved(FormRepresentation form) {
-        return form.getName() != null && !"".equals(form.getName()) && !"null".equals(form.getName());
     }
 }

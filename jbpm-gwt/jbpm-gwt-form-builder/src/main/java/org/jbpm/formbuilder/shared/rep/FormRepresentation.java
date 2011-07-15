@@ -24,6 +24,7 @@ public class FormRepresentation implements Serializable {
     
     private long lastModified = System.currentTimeMillis();
     private String documentation;
+    private boolean saved = false;
     
     public String getName() {
         return name;
@@ -146,6 +147,14 @@ public class FormRepresentation implements Serializable {
         return documentation;
     }
     
+    public boolean isSaved() {
+        return saved;
+    }
+    
+    public void setSaved(boolean saved) {
+        this.saved = saved;
+    }
+    
     public void populate(String name, String taskId, String action, 
             String method, String enctype, String documentation) {
         this.name = name;
@@ -194,6 +203,8 @@ public class FormRepresentation implements Serializable {
         if (!equals) return equals;
         equals = (this.onSubmitScripts == null && other.onSubmitScripts == null) ||
             (this.onSubmitScripts != null && this.onSubmitScripts.equals(other.onSubmitScripts));
+        if (!equals) return equals;
+        equals = this.saved != other.saved;
         return equals;
     }
     
@@ -228,7 +239,8 @@ public class FormRepresentation implements Serializable {
         result = 37 * result + aux;
         aux = this.onSubmitScripts == null ? 0 : this.onSubmitScripts.hashCode();
         result = 37 * result + aux;
+        aux = this.saved ? 1 : 0;
+        result = 37 * result + aux;
         return result;
     }
-    
 }

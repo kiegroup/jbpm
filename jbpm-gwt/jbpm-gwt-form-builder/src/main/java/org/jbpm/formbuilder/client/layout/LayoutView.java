@@ -22,6 +22,9 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * layout view. Represents a single form
+ */
 public class LayoutView extends ScrollPanel {
 
     private FBForm formDisplay = new FBForm();

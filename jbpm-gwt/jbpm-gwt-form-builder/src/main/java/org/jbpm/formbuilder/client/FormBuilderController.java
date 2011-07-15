@@ -1,7 +1,23 @@
+/**
+
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionPresenter;
 import org.jbpm.formbuilder.client.edition.EditionView;
@@ -30,6 +46,11 @@ public class FormBuilderController {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
+    /**
+     * Initiates gwt-dnd drag controller and sub views and presenters
+     * @param model
+     * @param view
+     */
     public FormBuilderController(FormBuilderService model, FormBuilderView view) {
         super();
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -38,8 +59,8 @@ public class FormBuilderController {
             }
         });
         PickupDragController dragController = new PickupDragController(view, true);
-        FormBuilderGlobals.getInstance().registerDragController(dragController);
         dragController.registerDropController(new DisposeDropController(view));
+        FormBuilderGlobals.getInstance().registerDragController(dragController);
         view.setNotificationsView(createNotifications());
         view.setMenuView(createMenu(model));
         view.setEditionView(createEdition());

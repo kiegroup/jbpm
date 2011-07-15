@@ -19,6 +19,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.ImageResource;
 
+/**
+ * Images should be loaded from here
+ */
 public interface FormBuilderResources extends ClientBundle {
 
     FormBuilderResources INSTANCE = GWT.create( FormBuilderResources.class );

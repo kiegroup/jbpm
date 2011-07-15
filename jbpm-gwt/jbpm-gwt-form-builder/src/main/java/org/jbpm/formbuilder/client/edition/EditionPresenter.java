@@ -16,13 +16,16 @@
 package org.jbpm.formbuilder.client.edition;
 
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
-import org.jbpm.formbuilder.client.bus.FormItemSelectionEventHandler;
+import org.jbpm.formbuilder.client.bus.FormItemSelectionHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+/**
+ * Populates edition panel when a form item is selected
+ */
 public class EditionPresenter {
 
     private final EditionView editView;
@@ -33,7 +36,7 @@ public class EditionPresenter {
         this.editView = view;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
         
-        this.bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionEventHandler() {
+        this.bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionHandler() {
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
                     Widget parent = editView.getParent();

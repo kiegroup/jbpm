@@ -23,16 +23,17 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
-import org.jbpm.formbuilder.client.bus.MenuItemAddedEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
-import org.jbpm.formbuilder.client.bus.MenuItemRemoveEventHandler;
+import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.menu.items.CustomOptionMenuItem;
+import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
@@ -60,24 +61,26 @@ public class FormBuilderModel implements FormBuilderService {
     
     public FormBuilderModel(String contextPath) {
         this.contextPath = contextPath;
-        bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedEventHandler() {
+        //registered to save the menu items
+        bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
             public void onEvent(MenuItemAddedEvent event) {
                 FBMenuItem item = event.getMenuItem();
                 saveMenuItem(event.getGroupName(), item);
-                if (item instanceof CustomOptionMenuItem) {
-                    CustomOptionMenuItem customItem = (CustomOptionMenuItem) item;
+                if (item instanceof CustomMenuItem) {
+                    CustomMenuItem customItem = (CustomMenuItem) item;
                     String formItemName = customItem.getOptionName();
                     FormItemRepresentation formItem = customItem.getRepresentation();
                     saveFormItem(formItem, formItemName);
                 }
             }
         });
-        bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveEventHandler() {
+        //registered to delete the menu items
+        bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveHandler() {
             public void onEvent(MenuItemRemoveEvent event) {
                 FBMenuItem item = event.getMenuItem();
                 deleteMenuItem(event.getGroupName(), item);
-                if (item instanceof CustomOptionMenuItem) {
-                    CustomOptionMenuItem customItem = (CustomOptionMenuItem) item;
+                if (item instanceof CustomMenuItem) {
+                    CustomMenuItem customItem = (CustomMenuItem) item;
                     String formItemName = customItem.getOptionName();
                     FormItemRepresentation formItem = customItem.getRepresentation();
                     deleteFormItem(formItemName, formItem);
@@ -238,7 +241,10 @@ public class FormBuilderModel implements FormBuilderService {
                     bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveForm: HTTP " + response.getStatusCode()));
                 } else {
                     String name = helper.getFormId(response.getText());
+                    form.setLastModified(System.currentTimeMillis());
+                    form.setSaved(true);
                     form.setName(name);
+                    bus.fireEvent(new FormSavedEvent(form));
                 }
             }
             public void onError(Request request, Throwable exception) {
