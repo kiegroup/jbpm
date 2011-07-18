@@ -26,32 +26,34 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.TaskServiceClient;
+import org.jbpm.task.service.TaskServiceClientSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+/*
+ * This is the Synchronous implementation of the WS Human Task WorkItem Handler
+ */
 
-public class SyncWSHumanTaskHandler implements WorkItemHandler {
+public class WSHumanTaskHandler implements WorkItemHandler {
 
     private String ipAddress = "127.0.0.1";
     private int port;
-    private TaskServiceClient client;
+    private TaskServiceClientSync client;
     private WorkItemManager manager = null;
-    private static final Logger logger = LoggerFactory.getLogger(SyncWSHumanTaskHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(WSHumanTaskHandler.class);
 
     public void setConnection(String ipAddress, int port) {
         this.ipAddress = ipAddress;
         this.port = port;
     }
 
-    public void setClient(TaskServiceClient client) {
+    public void setClient(TaskServiceClientSync client) {
         this.client = client;
     }
 
     public void connect() {
-        //@TODO: Implement this logic
-//            if(!client.isConnected()){
-//                client.connect(ipAddress, port);
-//            }
+        if (!client.isConnected()) {
+            client.connect(ipAddress, port);
+        }
         registerTaskEvents();
     }
 

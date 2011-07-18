@@ -35,7 +35,7 @@ import org.jbpm.task.query.TaskSummary;
  * @author salaboy
  * Synchronous behavior to interact with the task service
  */
-public interface TaskServiceClient {
+public interface TaskServiceClientSync {
 
     void addAttachment(final long taskId, final Attachment attachment, final Content content);
 
@@ -148,6 +148,8 @@ public interface TaskServiceClient {
     boolean connect();
 
     boolean connect(String address, int port);
+    
+    boolean isConnected();
 
     void disconnect() throws Exception;
     

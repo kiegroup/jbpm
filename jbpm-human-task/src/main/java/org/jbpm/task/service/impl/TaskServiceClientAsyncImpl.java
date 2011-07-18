@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.task.service;
+package org.jbpm.task.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +26,14 @@ import org.jbpm.task.Comment;
 import org.jbpm.task.Content;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Task;
+import org.jbpm.task.service.TaskServiceClientAsync;
+import org.jbpm.task.service.BaseHandler;
+import org.jbpm.task.service.Command;
+import org.jbpm.task.service.CommandName;
+import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.FaultData;
+import org.jbpm.task.service.Operation;
+import org.jbpm.task.service.TaskClientConnector;
 import org.jbpm.task.service.TaskClientHandler.AddAttachmentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.AddCommentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.AddTaskResponseHandler;
@@ -38,14 +46,15 @@ import org.jbpm.task.service.TaskClientHandler.SetDocumentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskOperationResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskSummaryResponseHandler;
 
-public class AsyncTaskClientImpl implements AsyncTaskServiceClient {
+public class TaskServiceClientAsyncImpl implements TaskServiceClientAsync {
 
     private final BaseHandler handler;
     private final AtomicInteger counter;
     private final String name;
     private final TaskClientConnector connector;
+    private boolean connected;
 
-    public AsyncTaskClientImpl(TaskClientConnector connector) {
+    public TaskServiceClientAsyncImpl(TaskClientConnector connector) {
         this.connector = connector;
         this.counter = connector.getCounter();
         this.name = connector.getName();
@@ -782,16 +791,23 @@ public class AsyncTaskClientImpl implements AsyncTaskServiceClient {
 
     @Override
     public boolean connect() {
-        return connector.connect();
+        connected = connector.connect();
+        return connected;
     }
 
     @Override
     public boolean connect(String address, int port) {
-        return connector.connect(address, port);
+        connected = connector.connect(address, port);
+        return connected;
     }
 
     @Override
     public void disconnect() throws Exception {
         connector.disconnect();
+        connected = false;
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 }

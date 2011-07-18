@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jbpm.task.service;
+package org.jbpm.task.service.impl;
 
 import java.util.List;
 import java.util.Map;
@@ -23,14 +23,20 @@ import org.jbpm.task.Task;
 import org.jbpm.task.User;
 import org.jbpm.task.query.DeadlineSummary;
 import org.jbpm.task.query.TaskSummary;
+import org.jbpm.task.service.CannotAddTaskException;
+import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.FaultData;
+import org.jbpm.task.service.Operation;
+import org.jbpm.task.service.TaskException;
+import org.jbpm.task.service.TaskServiceClientSync;
 
 /**
  *
  * @author salaboy
  */
-public class TaskServiceClientJNDILookupImpl implements TaskServiceClient {
+public class TaskServiceClientJNDILookupImpl implements TaskServiceClientSync {
 
-    private TaskServiceClientLocalImpl session;
+    private TaskServiceClientSyncLocalImpl session;
 
     private static TaskServiceClientJNDILookupImpl instance;
     
@@ -49,7 +55,7 @@ public class TaskServiceClientJNDILookupImpl implements TaskServiceClient {
             
             Context envCtx = (Context) initCtx.lookup("java:comp/env");
             
-            session = (TaskServiceClientLocalImpl) envCtx.lookup("bean/TaskServiceClientFactory");
+            session = (TaskServiceClientSyncLocalImpl) envCtx.lookup("bean/TaskServiceClientFactory");
             
         } catch (NamingException ex) {
             
@@ -275,5 +281,9 @@ public class TaskServiceClientJNDILookupImpl implements TaskServiceClient {
 
     public void registerForEvent(EventKey key, boolean remove, WorkItemManager manager) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean isConnected() {
+        return true;
     }
 }

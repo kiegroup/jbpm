@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.task.service;
+package org.jbpm.task.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,20 +41,32 @@ import org.jbpm.task.User;
 import org.jbpm.task.event.TaskEvent;
 import org.jbpm.task.query.DeadlineSummary;
 import org.jbpm.task.query.TaskSummary;
+import org.jbpm.task.service.CannotAddTaskException;
+import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.FaultData;
+import org.jbpm.task.service.Operation;
+import org.jbpm.task.service.TaskClientConnector;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
+import org.jbpm.task.service.TaskException;
+import org.jbpm.task.service.TaskServiceClientSync;
 import org.jbpm.task.service.responsehandlers.AbstractBaseResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingQueryGenericResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
-public class TaskClientImpl implements TaskServiceClient {
+/*
+ * This is a Synchronous implementation that hides the asycn nature of the default 
+ * implementation just to provide a simple interface
+ */
 
-    private final AsyncTaskClientImpl asyncTaskClient;
+public class TaskServiceClientSyncImpl implements TaskServiceClientSync {
 
-    public TaskClientImpl(TaskClientConnector connector) {
-        asyncTaskClient = new AsyncTaskClientImpl(connector);
+    private final TaskServiceClientAsyncImpl asyncTaskClient;
+
+    public TaskServiceClientSyncImpl(TaskClientConnector connector) {
+        asyncTaskClient = new TaskServiceClientAsyncImpl(connector);
 
     }
 
@@ -149,18 +161,33 @@ public class TaskClientImpl implements TaskServiceClient {
     public Task getTaskByWorkItemId(long workItemId) {
         BlockingGetTaskResponseHandler handler = new BlockingGetTaskResponseHandler();
         asyncTaskClient.getTaskByWorkItemId(workItemId, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getTask();
     }
 
     public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsBusinessAdministrator(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
     public List<TaskSummary> getTasksAssignedAsExcludedOwner(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsExcludedOwner(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
@@ -178,6 +205,11 @@ public class TaskClientImpl implements TaskServiceClient {
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsPotentialOwner(userId, groupIds, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
@@ -188,24 +220,44 @@ public class TaskClientImpl implements TaskServiceClient {
     public List<TaskSummary> getTasksAssignedAsRecipient(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsRecipient(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
     public List<TaskSummary> getTasksAssignedAsTaskInitiator(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsTaskInitiator(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
     public List<TaskSummary> getTasksAssignedAsTaskStakeholder(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsTaskStakeholder(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
     public List<TaskSummary> getTasksOwned(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksOwned(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
@@ -220,6 +272,11 @@ public class TaskClientImpl implements TaskServiceClient {
     public List<?> query(String qlString, Integer size, Integer offset) {
         BlockingQueryGenericResponseHandler handler = new BlockingQueryGenericResponseHandler();
         asyncTaskClient.query(qlString, size, offset, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
@@ -298,7 +355,12 @@ public class TaskClientImpl implements TaskServiceClient {
 
     public void claim(long taskId, String userId, List<String> groupIds) {
         BlockingTaskOperationResponseHandler handler = new BlockingTaskOperationResponseHandler();
-        asyncTaskClient.claim(taskId, userId, groupIds, null);
+        asyncTaskClient.claim(taskId, userId, groupIds, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         if (handler.getError() != null) {
             throw handler.getError();
         }
@@ -335,14 +397,23 @@ public class TaskClientImpl implements TaskServiceClient {
     public void registerForEvent(EventKey key, boolean remove, WorkItemManager manager) {
         TaskCompletedHandler handler = new TaskCompletedHandler(manager, asyncTaskClient);
         asyncTaskClient.registerForEvent(key, remove, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
+    }
+
+    public boolean isConnected() {
+        return asyncTaskClient.isConnected();
     }
 
     private static class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
 
         private WorkItemManager manager;
-        private AsyncTaskClientImpl client;
+        private TaskServiceClientAsyncImpl client;
 
-        public TaskCompletedHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
+        public TaskCompletedHandler(WorkItemManager manager, TaskServiceClientAsyncImpl client) {
             this.manager = manager;
             this.client = client;
         }
@@ -364,9 +435,9 @@ public class TaskClientImpl implements TaskServiceClient {
     private static class GetCompletedTaskResponseHandler extends AbstractBaseResponseHandler implements GetTaskResponseHandler {
 
         private WorkItemManager manager;
-        private AsyncTaskClientImpl client;
+        private TaskServiceClientAsyncImpl client;
 
-        public GetCompletedTaskResponseHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
+        public GetCompletedTaskResponseHandler(WorkItemManager manager, TaskServiceClientAsyncImpl client) {
             this.manager = manager;
             this.client = client;
         }

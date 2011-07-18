@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jbpm.task.service;
+package org.jbpm.task.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -31,30 +31,38 @@ import org.jbpm.task.event.TaskFailedEvent;
 import org.jbpm.task.event.TaskSkippedEvent;
 import org.jbpm.task.query.DeadlineSummary;
 import org.jbpm.task.query.TaskSummary;
+import org.jbpm.task.service.CannotAddTaskException;
+import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.FaultData;
+import org.jbpm.task.service.Operation;
+import org.jbpm.task.service.TaskException;
+import org.jbpm.task.service.TaskService;
+import org.jbpm.task.service.TaskServiceClientSync;
+import org.jbpm.task.service.TaskServiceSession;
 
 /**
  *
  * @author salaboy
  */
-public class TaskServiceClientLocalImpl implements TaskServiceClient{
+public class TaskServiceClientSyncLocalImpl implements TaskServiceClientSync{
     private TaskServiceSession session;
     
     private EntityManagerFactory emf;
-    private static TaskServiceClientLocalImpl instance;
+    private static TaskServiceClientSyncLocalImpl instance;
     
-    public static TaskServiceClientLocalImpl getInstance(){
+    public static TaskServiceClientSyncLocalImpl getInstance(){
         if(instance == null){
-            instance = new TaskServiceClientLocalImpl();
+            instance = new TaskServiceClientSyncLocalImpl();
         }
         return instance;
     }
     
     
-    public TaskServiceClientLocalImpl(){
+    public TaskServiceClientSyncLocalImpl(){
         this(Persistence.createEntityManagerFactory("org.jbpm.task"));
     }
     
-    public TaskServiceClientLocalImpl(EntityManagerFactory emf) {
+    public TaskServiceClientSyncLocalImpl(EntityManagerFactory emf) {
         
         this.emf = emf;
         TaskService taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
@@ -272,7 +280,6 @@ public class TaskServiceClientLocalImpl implements TaskServiceClient{
     }
 
     public boolean connect(String address, int port) {
-        //do Nothing this client is local
         return true;
     }
 
@@ -284,6 +291,10 @@ public class TaskServiceClientLocalImpl implements TaskServiceClient{
         SimpleEventTransport transport = new SimpleEventTransport(session, manager, remove);
         session.getService().getEventKeys().register(key, transport);
         
+    }
+
+    public boolean isConnected() {
+        return true;
     }
     
     

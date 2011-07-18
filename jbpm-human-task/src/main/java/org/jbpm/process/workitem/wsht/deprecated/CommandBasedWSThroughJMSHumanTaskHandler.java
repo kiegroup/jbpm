@@ -1,4 +1,4 @@
-package org.jbpm.process.workitem.wsht;
+package org.jbpm.process.workitem.wsht.deprecated;
 
 import java.lang.reflect.Field;
 
@@ -7,13 +7,17 @@ import javax.naming.NamingException;
 
 import org.drools.SystemEventListenerFactory;
 import org.drools.runtime.KnowledgeRuntime;
-import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
 import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.process.workitem.wsht.CommandBasedWSHumanTaskHandler;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.jms.JMSTaskClientConnector;
 import org.jbpm.task.service.jms.JMSTaskClientHandler;
 import org.jbpm.task.service.jms.WSHumanTaskJMSProperties;
 
+/*
+ * This class it's not being used or tested 
+ */
+@Deprecated
 public class CommandBasedWSThroughJMSHumanTaskHandler extends CommandBasedWSHumanTaskHandler {
 
 	public CommandBasedWSThroughJMSHumanTaskHandler(KnowledgeRuntime session) {
@@ -24,9 +28,9 @@ public class CommandBasedWSThroughJMSHumanTaskHandler extends CommandBasedWSHuma
 	public void connect() {
 		try {
 			final Field field = AsyncWSHumanTaskHandler.class.getDeclaredField("client");
-			AsyncTaskClientImpl client = (AsyncTaskClientImpl) field.get(this);
+			TaskServiceClientAsyncImpl client = (TaskServiceClientAsyncImpl) field.get(this);
 			if (client == null) {
-				client = new AsyncTaskClientImpl(new JMSTaskClientConnector(
+				client = new TaskServiceClientAsyncImpl(new JMSTaskClientConnector(
 						"org.drools.process.workitem.wsht.WSThroughJMSHumanTaskHandler",
 						new JMSTaskClientHandler(SystemEventListenerFactory
 								.getSystemEventListener()),

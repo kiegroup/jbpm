@@ -40,7 +40,7 @@ import org.jbpm.task.service.TaskClientHandler.TaskSummaryResponseHandler;
  * @author salaboy
  * Asynchronous behavior to interact with the task service
  */
-public interface AsyncTaskServiceClient {
+public interface TaskServiceClientAsync {
 
     
     void addAttachment(long taskId, Attachment attachment, Content content, AddAttachmentResponseHandler responseHandler);
@@ -138,6 +138,10 @@ public interface AsyncTaskServiceClient {
     boolean connect();
 
     boolean connect(String address, int port);
+    
+    boolean isConnected();
 
     void disconnect() throws Exception;
+    
+    
 }
