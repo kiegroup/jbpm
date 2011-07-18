@@ -15,6 +15,14 @@
  */
 package org.jbpm.process.workitem.wsht.mina;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.drools.process.instance.impl.WorkItemImpl;
+import org.drools.runtime.process.WorkItem;
+import org.drools.runtime.process.WorkItemHandler;
+import org.drools.runtime.process.WorkItemManager;
+import org.jbpm.task.query.TaskSummary;
 import java.util.ArrayList;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -53,6 +61,7 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
     protected TaskService taskService;
     private EntityManagerFactory emf;
     private User user;
+    private User admin;
 
     public SimpleSyncHumanTaskHandlerMinaTest() {
     }
@@ -70,8 +79,12 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
         emf = Persistence.createEntityManagerFactory("org.jbpm.task");
         taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
         TaskServiceSession createSession = taskService.createSession();
+        
         user = new User("salaboy");
         createSession.addUser(user);
+        admin = new User("Administrator");
+        createSession.addUser(admin);
+        
         server = new MinaTaskServer(taskService);
         Thread thread = new Thread(server);
         thread.start();
@@ -80,6 +93,10 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
             System.out.print(".");
             Thread.sleep(50);
         }
+
+        client = new TaskClientImpl(new MinaTaskClientConnector("myClient",
+                new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
+        client.connect("127.0.0.1", 9123);
     }
 
     @After
@@ -93,18 +110,9 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
     @Test
     public void simpleAPIRemoteMinaTest() {
 
-
-        client = new TaskClientImpl(new MinaTaskClientConnector("myClient",
-                new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-        client.connect("127.0.0.1", 9123);
-
         handler = new SyncWSHumanTaskHandler();
 
         handler.setClient(client);
-
-        final User user = new User("salaboy");
-        client.addUser(user);
-
 
 
         Task task = new Task();
@@ -132,5 +140,128 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
 
         client.complete(task.getId(), user.getId(), null);
         assertEquals(Status.Completed, client.getTask(task.getId()).getTaskData().getStatus());
+    }
+
+    @Test
+    public void simpleAPIWithWorkItemRemoteMinaTest() throws InterruptedException {
+
+        handler = new SyncWSHumanTaskHandler();
+        handler.setClient(client);
+
+        TestWorkItemManager manager = new TestWorkItemManager();
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("TaskName", "TaskName");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("ActorId", "salaboy");
+        workItem.setProcessInstanceId(10);
+        handler.executeWorkItem(workItem, manager);
+
+        List<TaskSummary> tasks = client.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
+        assertEquals(1, tasks.size());
+
+        Task task = client.getTask(tasks.get(0).getId());
+        assertEquals(Status.Reserved, task.getTaskData().getStatus());
+
+        client.start(task.getId(), "salaboy");
+        task = client.getTask(tasks.get(0).getId());
+        assertEquals(Status.InProgress, task.getTaskData().getStatus());
+
+        client.complete(tasks.get(0).getId(), user.getId(), null);
+        task = client.getTask(tasks.get(0).getId());
+        assertEquals(Status.Completed, task.getTaskData().getStatus());
+
+
+        assertTrue(manager.waitTillCompleted(1000));
+    }
+
+    private class TestWorkItemManager implements WorkItemManager {
+
+        private volatile boolean completed;
+        private volatile boolean aborted;
+        private volatile Map<String, Object> results;
+
+        public synchronized boolean waitTillCompleted(long time) {
+            if (!isCompleted()) {
+                try {
+                    wait(time);
+                } catch (InterruptedException e) {
+                    // swallow and return state of completed
+                }
+            }
+
+            return isCompleted();
+        }
+
+        public synchronized boolean waitTillAborted(long time) {
+            if (!isAborted()) {
+                try {
+                    wait(time);
+                } catch (InterruptedException e) {
+                    // swallow and return state of aborted
+                }
+            }
+
+            return isAborted();
+        }
+
+        public void abortWorkItem(long id) {
+            setAborted(true);
+        }
+
+        public synchronized boolean isAborted() {
+            return aborted;
+        }
+
+        private synchronized void setAborted(boolean aborted) {
+            this.aborted = aborted;
+            notifyAll();
+        }
+
+        public void completeWorkItem(long id, Map<String, Object> results) {
+            this.results = results;
+            setCompleted(true);
+        }
+
+        private synchronized void setCompleted(boolean completed) {
+            this.completed = completed;
+            notifyAll();
+        }
+
+        public synchronized boolean isCompleted() {
+            return completed;
+        }
+
+        public Map<String, Object> getResults() {
+            return results;
+        }
+
+        public void registerWorkItemHandler(String workItemName, WorkItemHandler handler) {
+        }
+
+        public void internalExecuteWorkItem(WorkItem workItem) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void internalAddWorkItem(WorkItem workItem) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void internalAbortWorkItem(long id) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public Set<WorkItem> getWorkItems() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public WorkItem getWorkItem(long id) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void clear() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
     }
 }

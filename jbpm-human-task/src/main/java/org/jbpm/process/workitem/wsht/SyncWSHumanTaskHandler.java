@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.process.workitem.wsht;
 
 import org.drools.runtime.process.WorkItem;
@@ -33,96 +32,96 @@ import org.slf4j.LoggerFactory;
 
 public class SyncWSHumanTaskHandler implements WorkItemHandler {
 
-	private String ipAddress = "127.0.0.1";
-	private int port = 9123;
-	private TaskServiceClient client;
-	private WorkItemManager manager = null;
-        private static final Logger logger = LoggerFactory.getLogger(SyncWSHumanTaskHandler.class);
-	public void setConnection(String ipAddress, int port) {
-		this.ipAddress = ipAddress;
-		this.port = port;
-	}
-	
-	public void setClient(TaskServiceClient client) {
-		this.client = client;
-	}
-	
-	public void connect() {
-//		if (client == null) {
-//			client = new TaskClientImpl(new MinaTaskClientConnector("org.drools.process.workitem.wsht.WSHumanTaskHandler",
-//										new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-//			
-//			boolean connected = client.connect(ipAddress, port);
-//			if (!connected) {
-//				throw new IllegalArgumentException("Could not connect task client");
-//			}
-//		}
-		TaskEventKey key = new TaskEventKey(TaskCompletedEvent.class, -1);           
-		//TaskCompletedHandler eventResponseHandler = new TaskCompletedHandler(manager, client);
-		client.registerForEvent(key, false, manager);
-		key = new TaskEventKey(TaskFailedEvent.class, -1);           
-		client.registerForEvent(key, false, manager);
-		key = new TaskEventKey(TaskSkippedEvent.class, -1);           
-		client.registerForEvent(key, false, manager);
-		System.out.println("Registered human task listener");
-	}
-	
-	public void setManager(WorkItemManager manager) {
-		this.manager = manager;
-	}
+    private String ipAddress = "127.0.0.1";
+    private int port;
+    private TaskServiceClient client;
+    private WorkItemManager manager = null;
+    private static final Logger logger = LoggerFactory.getLogger(SyncWSHumanTaskHandler.class);
 
-	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-		if (this.manager == null) {
-			this.manager = manager;
-		} else {
-			if (this.manager != manager) {
-				throw new IllegalArgumentException(
-					"This WSHumanTaskHandler can only be used for one WorkItemManager");
-			}
-		}
-		connect();
-		Task task = new Task();
-		String taskName = (String) workItem.getParameter("TaskName");
-		if (taskName != null) {
-			List<I18NText> names = new ArrayList<I18NText>();
-			names.add(new I18NText("en-UK", taskName));
-			task.setNames(names);
-		}
-		String comment = (String) workItem.getParameter("Comment");
-		if (comment != null) {
-			List<I18NText> descriptions = new ArrayList<I18NText>();
-			descriptions.add(new I18NText("en-UK", comment));
-			task.setDescriptions(descriptions);
-			List<I18NText> subjects = new ArrayList<I18NText>();
-			subjects.add(new I18NText("en-UK", comment));
-			task.setSubjects(subjects);
-		}
-		String priorityString = (String) workItem.getParameter("Priority");
-		int priority = 0;
-		if (priorityString != null) {
-			try {
-				priority = new Integer(priorityString);
-			} catch (NumberFormatException e) {
-				// do nothing
-			}
-		}
-		task.setPriority(priority);
-		
-		TaskData taskData = new TaskData();
-		taskData.setWorkItemId(workItem.getId());
-		taskData.setProcessInstanceId(workItem.getProcessInstanceId());
-		taskData.setSkipable(!"false".equals(workItem.getParameter("Skippable")));
+    public void setConnection(String ipAddress, int port) {
+        this.ipAddress = ipAddress;
+        this.port = port;
+    }
+
+    public void setClient(TaskServiceClient client) {
+        this.client = client;
+    }
+
+    public void connect() {
+        //@TODO: Implement this logic
+//            if(!client.isConnected()){
+//                client.connect(ipAddress, port);
+//            }
+        registerTaskEvents();
+    }
+
+    private void registerTaskEvents() {
+
+        TaskEventKey key = new TaskEventKey(TaskCompletedEvent.class, -1);
+        client.registerForEvent(key, false, manager);
+        key = new TaskEventKey(TaskFailedEvent.class, -1);
+        client.registerForEvent(key, false, manager);
+        key = new TaskEventKey(TaskSkippedEvent.class, -1);
+        client.registerForEvent(key, false, manager);
+        System.out.println("Registered human task listener");
+    }
+
+    public void setManager(WorkItemManager manager) {
+        this.manager = manager;
+    }
+
+    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+        if (this.manager == null) {
+            this.manager = manager;
+        } else {
+            if (this.manager != manager) {
+                throw new IllegalArgumentException(
+                        "This WSHumanTaskHandler can only be used for one WorkItemManager");
+            }
+        }
+        connect();
+        Task task = new Task();
+        String taskName = (String) workItem.getParameter("TaskName");
+        if (taskName != null) {
+            List<I18NText> names = new ArrayList<I18NText>();
+            names.add(new I18NText("en-UK", taskName));
+            task.setNames(names);
+        }
+        String comment = (String) workItem.getParameter("Comment");
+        if (comment != null) {
+            List<I18NText> descriptions = new ArrayList<I18NText>();
+            descriptions.add(new I18NText("en-UK", comment));
+            task.setDescriptions(descriptions);
+            List<I18NText> subjects = new ArrayList<I18NText>();
+            subjects.add(new I18NText("en-UK", comment));
+            task.setSubjects(subjects);
+        }
+        String priorityString = (String) workItem.getParameter("Priority");
+        int priority = 0;
+        if (priorityString != null) {
+            try {
+                priority = new Integer(priorityString);
+            } catch (NumberFormatException e) {
+                // do nothing
+            }
+        }
+        task.setPriority(priority);
+
+        TaskData taskData = new TaskData();
+        taskData.setWorkItemId(workItem.getId());
+        taskData.setProcessInstanceId(workItem.getProcessInstanceId());
+        taskData.setSkipable(!"false".equals(workItem.getParameter("Skippable")));
         //Sub Task Data
         Long parentId = (Long) workItem.getParameter("ParentId");
-        if(parentId != null){
+        if (parentId != null) {
             taskData.setParentId(parentId);
         }
 
         String subTaskStrategiesCommaSeparated = (String) workItem.getParameter("SubTaskStrategies");
-        if(subTaskStrategiesCommaSeparated!= null && !subTaskStrategiesCommaSeparated.equals("")){
-            String[] subTaskStrategies =  subTaskStrategiesCommaSeparated.split(",");
+        if (subTaskStrategiesCommaSeparated != null && !subTaskStrategiesCommaSeparated.equals("")) {
+            String[] subTaskStrategies = subTaskStrategiesCommaSeparated.split(",");
             List<SubTasksStrategy> strategies = new ArrayList<SubTasksStrategy>();
-            for(String subTaskStrategyString : subTaskStrategies){
+            for (String subTaskStrategyString : subTaskStrategies) {
                 SubTasksStrategy subTaskStrategy = SubTasksStrategyFactory.newStrategy(subTaskStrategyString);
                 strategies.add(subTaskStrategy);
             }
@@ -130,93 +129,89 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
         }
 
         PeopleAssignments assignments = new PeopleAssignments();
-		List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
+        List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
 
         String actorId = (String) workItem.getParameter("ActorId");
-		if (actorId != null && actorId.trim().length() > 0) {
-			String[] actorIds = actorId.split(",");
-			for (String id: actorIds) {
-				potentialOwners.add(new User(id.trim()));
-			}
+        if (actorId != null && actorId.trim().length() > 0) {
+            String[] actorIds = actorId.split(",");
+            for (String id : actorIds) {
+                potentialOwners.add(new User(id.trim()));
+            }
             //Set the first user as creator ID??? hmmm might be wrong
-            if (potentialOwners.size() > 0){
-                taskData.setCreatedBy((User)potentialOwners.get(0));
+            if (potentialOwners.size() > 0) {
+                taskData.setCreatedBy((User) potentialOwners.get(0));
             }
         }
-		
+
         String groupId = (String) workItem.getParameter("GroupId");
-		if (groupId != null && groupId.trim().length() > 0) {
-			String[] groupIds = groupId.split(",");
-			for (String id: groupIds) {
-				potentialOwners.add(new Group(id.trim()));
-			}
-		}
+        if (groupId != null && groupId.trim().length() > 0) {
+            String[] groupIds = groupId.split(",");
+            for (String id : groupIds) {
+                potentialOwners.add(new Group(id.trim()));
+            }
+        }
 
         assignments.setPotentialOwners(potentialOwners);
-		List<OrganizationalEntity> businessAdministrators = new ArrayList<OrganizationalEntity>();
-		businessAdministrators.add(new User("Administrator"));
-		assignments.setBusinessAdministrators(businessAdministrators);
-		task.setPeopleAssignments(assignments);
-        
-		task.setTaskData(taskData);
+        List<OrganizationalEntity> businessAdministrators = new ArrayList<OrganizationalEntity>();
+        businessAdministrators.add(new User("Administrator"));
+        assignments.setBusinessAdministrators(businessAdministrators);
+        task.setPeopleAssignments(assignments);
 
-		ContentData content = null;
-		Object contentObject = workItem.getParameter("Content");
-		if (contentObject != null) {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream out;
-			try {
-				out = new ObjectOutputStream(bos);
-				out.writeObject(contentObject);
-				out.close();
-				content = new ContentData();
-				content.setContent(bos.toByteArray());
-				content.setAccessType(AccessType.Inline);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-                // If the content is not set we will automatically copy all the input objects into 
-                // the task content
-                else {
-                    contentObject = workItem.getParameters();
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			ObjectOutputStream out;
-			try {
-				out = new ObjectOutputStream(bos);
-				out.writeObject(contentObject);
-				out.close();
-				content = new ContentData();
-				content.setContent(bos.toByteArray());
-				content.setAccessType(AccessType.Inline);
-                                content.setType("java.util.map");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-                }
-		client.addTask(task, content);
-	}
-	
-	public void dispose() throws Exception {
-		if (client != null) {
-			client.disconnect();
-		}
-	}
+        task.setTaskData(taskData);
 
-	public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-		//GetTaskResponseHandler abortTaskResponseHandler =
-    		//new AbortTaskResponseHandler(client);
-            
-            Task task = client.getTaskByWorkItemId(workItem.getId());
-            if(task != null){
-                try{
-                    client.skip(task.getId(), "Administrator");
-                }catch (PermissionDeniedException e){
-                    logger.info(e.getMessage());
-                }
+        ContentData content = null;
+        Object contentObject = workItem.getParameter("Content");
+        if (contentObject != null) {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out;
+            try {
+                out = new ObjectOutputStream(bos);
+                out.writeObject(contentObject);
+                out.close();
+                content = new ContentData();
+                content.setContent(bos.toByteArray());
+                content.setAccessType(AccessType.Inline);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-	}
-    
-    
-    
+        } // If the content is not set we will automatically copy all the input objects into 
+        // the task content
+        else {
+            contentObject = workItem.getParameters();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream out;
+            try {
+                out = new ObjectOutputStream(bos);
+                out.writeObject(contentObject);
+                out.close();
+                content = new ContentData();
+                content.setContent(bos.toByteArray());
+                content.setAccessType(AccessType.Inline);
+                content.setType("java.util.map");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        client.addTask(task, content);
+    }
+
+    public void dispose() throws Exception {
+        if (client != null) {
+            client.disconnect();
+        }
+    }
+
+    public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+        //GetTaskResponseHandler abortTaskResponseHandler =
+        //new AbortTaskResponseHandler(client);
+
+        Task task = client.getTaskByWorkItemId(workItem.getId());
+        if (task != null) {
+            try {
+                client.skip(task.getId(), "Administrator");
+            } catch (PermissionDeniedException e) {
+                logger.info(e.getMessage());
+            }
+        }
+    }
 }

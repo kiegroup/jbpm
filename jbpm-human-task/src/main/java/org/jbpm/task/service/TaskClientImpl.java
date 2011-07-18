@@ -85,11 +85,11 @@ public class TaskClientImpl implements TaskServiceClient {
     public void addTask(Task task, ContentData contentData) throws CannotAddTaskException {
         BlockingAddTaskResponseHandler handler = new BlockingAddTaskResponseHandler();
         asyncTaskClient.addTask(task, contentData, handler);
-        do{
-            if(handler.getError() != null){
-                 throw handler.getError();
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
             }
-        }while(!handler.isDone());
+        } while (!handler.isDone());
         task.setId(handler.getTaskId());
     }
 
@@ -138,11 +138,11 @@ public class TaskClientImpl implements TaskServiceClient {
     public Task getTask(long taskId) {
         BlockingGetTaskResponseHandler handler = new BlockingGetTaskResponseHandler();
         asyncTaskClient.getTask(taskId, handler);
-         do{
-            if(handler.getError() != null){
-                 throw handler.getError();
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
             }
-        }while(!handler.isDone());
+        } while (!handler.isDone());
         return handler.getTask();
     }
 
@@ -167,6 +167,11 @@ public class TaskClientImpl implements TaskServiceClient {
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language) {
         BlockingTaskSummaryResponseHandler handler = new BlockingTaskSummaryResponseHandler();
         asyncTaskClient.getTasksAssignedAsPotentialOwner(userId, language, handler);
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
+            }
+        } while (!handler.isDone());
         return handler.getResults();
     }
 
@@ -260,13 +265,13 @@ public class TaskClientImpl implements TaskServiceClient {
     public void start(long taskId, String userId) {
         BlockingTaskOperationResponseHandler handler = new BlockingTaskOperationResponseHandler();
         asyncTaskClient.start(taskId, userId, handler);
-         do{
-            if(handler.getError() != null){
-                 throw handler.getError();
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
             }
-        }while(!handler.isDone());
-        
-        
+        } while (!handler.isDone());
+
+
     }
 
     public void stop(long taskId, String userId) {
@@ -284,19 +289,19 @@ public class TaskClientImpl implements TaskServiceClient {
     public void claim(long taskId, String userId) {
         BlockingTaskOperationResponseHandler handler = new BlockingTaskOperationResponseHandler();
         asyncTaskClient.claim(taskId, userId, handler);
-        do{
-            if(handler.getError() != null){
-                 throw handler.getError();
+        do {
+            if (handler.getError() != null) {
+                throw handler.getError();
             }
-        }while(!handler.isDone());
+        } while (!handler.isDone());
     }
 
     public void claim(long taskId, String userId, List<String> groupIds) {
         BlockingTaskOperationResponseHandler handler = new BlockingTaskOperationResponseHandler();
         asyncTaskClient.claim(taskId, userId, groupIds, null);
-         if(handler.getError() != null){
-             throw handler.getError();
-         }
+        if (handler.getError() != null) {
+            throw handler.getError();
+        }
     }
 
     public void complete(long taskId, String userId, ContentData outputData) {
@@ -332,95 +337,94 @@ public class TaskClientImpl implements TaskServiceClient {
         asyncTaskClient.registerForEvent(key, remove, handler);
     }
 
-    
-    
-     private static class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
+    private static class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
+
         private WorkItemManager manager;
         private AsyncTaskClientImpl client;
-        
+
         public TaskCompletedHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
             this.manager = manager;
             this.client = client;
         }
 
         public void execute(Payload payload) {
-            TaskEvent event = ( TaskEvent ) payload.get();
-        	long taskId = event.getTaskId();
+            TaskEvent event = (TaskEvent) payload.get();
+            long taskId = event.getTaskId();
             System.out.println("Task completed " + taskId);
-        	GetTaskResponseHandler getTaskResponseHandler =
-        		new GetCompletedTaskResponseHandler(manager, client);
-        	client.getTask(taskId, getTaskResponseHandler);   
+            GetTaskResponseHandler getTaskResponseHandler =
+                    new GetCompletedTaskResponseHandler(manager, client);
+            client.getTask(taskId, getTaskResponseHandler);
         }
-        
+
         public boolean isRemove() {
-        	return false;
+            return false;
         }
     }
-    
+
     private static class GetCompletedTaskResponseHandler extends AbstractBaseResponseHandler implements GetTaskResponseHandler {
 
-    	private WorkItemManager manager;
-    	private AsyncTaskClientImpl client;
-    	
-    	public GetCompletedTaskResponseHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
-    		this.manager = manager;
-    		this.client = client;
-    	}
-    	
-		public void execute(Task task) {
-			long workItemId = task.getTaskData().getWorkItemId();
-			if (task.getTaskData().getStatus() == Status.Completed) {
-				String userId = task.getTaskData().getActualOwner().getId();
-				Map<String, Object> results = new HashMap<String, Object>();
-				results.put("ActorId", userId);
-				long contentId = task.getTaskData().getOutputContentId();
-				if (contentId != -1) {
-					GetContentResponseHandler getContentResponseHandler =
-						new GetResultContentResponseHandler(manager, task, results);
-					client.getContent(contentId, getContentResponseHandler);
-				} else {
-					manager.completeWorkItem(workItemId, results);
-				}
-			} else {
-				manager.abortWorkItem(workItemId);
-			}
-		}
+        private WorkItemManager manager;
+        private AsyncTaskClientImpl client;
+
+        public GetCompletedTaskResponseHandler(WorkItemManager manager, AsyncTaskClientImpl client) {
+            this.manager = manager;
+            this.client = client;
+        }
+
+        public void execute(Task task) {
+            long workItemId = task.getTaskData().getWorkItemId();
+            if (task.getTaskData().getStatus() == Status.Completed) {
+                String userId = task.getTaskData().getActualOwner().getId();
+                Map<String, Object> results = new HashMap<String, Object>();
+                results.put("ActorId", userId);
+                long contentId = task.getTaskData().getOutputContentId();
+                if (contentId != -1) {
+                    GetContentResponseHandler getContentResponseHandler =
+                            new GetResultContentResponseHandler(manager, task, results);
+                    client.getContent(contentId, getContentResponseHandler);
+                } else {
+                    manager.completeWorkItem(workItemId, results);
+                }
+            } else {
+                manager.abortWorkItem(workItemId);
+            }
+        }
     }
+
     private static class GetResultContentResponseHandler extends AbstractBaseResponseHandler implements GetContentResponseHandler {
 
-    	private WorkItemManager manager;
-    	private Task task;
-    	private Map<String, Object> results;
+        private WorkItemManager manager;
+        private Task task;
+        private Map<String, Object> results;
 
-    	public GetResultContentResponseHandler(WorkItemManager manager, Task task, Map<String, Object> results) {
-    		this.manager = manager;
-    		this.task = task;
-    		this.results = results;
-    	}
-    	
-		public void execute(Content content) {
-			ByteArrayInputStream bis = new ByteArrayInputStream(content.getContent());
-			ObjectInputStream in;
-			try {
-				in = new ObjectInputStream(bis);
-				Object result = in.readObject();
-				in.close();
-				results.put("Result", result);
-				if (result instanceof Map) {
-					Map<?, ?> map = (Map) result;
-					for (Map.Entry<?, ?> entry: map.entrySet()) {
-						if (entry.getKey() instanceof String) {
-							results.put((String) entry.getKey(), entry.getValue());
-						}
-					}
-				}
-				manager.completeWorkItem(task.getTaskData().getWorkItemId(), results);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
+        public GetResultContentResponseHandler(WorkItemManager manager, Task task, Map<String, Object> results) {
+            this.manager = manager;
+            this.task = task;
+            this.results = results;
+        }
+
+        public void execute(Content content) {
+            ByteArrayInputStream bis = new ByteArrayInputStream(content.getContent());
+            ObjectInputStream in;
+            try {
+                in = new ObjectInputStream(bis);
+                Object result = in.readObject();
+                in.close();
+                results.put("Result", result);
+                if (result instanceof Map) {
+                    Map<?, ?> map = (Map) result;
+                    for (Map.Entry<?, ?> entry : map.entrySet()) {
+                        if (entry.getKey() instanceof String) {
+                            results.put((String) entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+                manager.completeWorkItem(task.getTaskData().getWorkItemId(), results);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
     }
-   
 }
