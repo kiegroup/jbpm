@@ -26,17 +26,17 @@ import org.jbpm.task.query.TaskSummary;
 import java.util.ArrayList;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
+import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
-import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientSyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.TaskService;
-import org.jbpm.task.service.TaskServiceClient;
+import org.jbpm.task.service.TaskServiceClientSync;
 import org.jbpm.task.service.TaskServiceSession;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
@@ -55,8 +55,8 @@ import static org.junit.Assert.*;
  */
 public class SimpleSyncHumanTaskHandlerMinaTest {
 
-    private TaskServiceClient client;
-    private SyncWSHumanTaskHandler handler;
+    private TaskServiceClientSync client;
+    private WSHumanTaskHandler handler;
     private TaskServer server;
     protected TaskService taskService;
     private EntityManagerFactory emf;
@@ -88,13 +88,14 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
         server = new MinaTaskServer(taskService);
         Thread thread = new Thread(server);
         thread.start();
+        
         System.out.println("Waiting for the Mina Server to come up");
         while (!server.isRunning()) {
             System.out.print(".");
             Thread.sleep(50);
         }
 
-        client = new TaskClientImpl(new MinaTaskClientConnector("myClient",
+        client = new TaskServiceClientSyncImpl(new MinaTaskClientConnector("myClient",
                 new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 9123);
     }
@@ -110,7 +111,7 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
     @Test
     public void simpleAPIRemoteMinaTest() {
 
-        handler = new SyncWSHumanTaskHandler();
+        handler = new WSHumanTaskHandler();
 
         handler.setClient(client);
 
@@ -145,7 +146,7 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
     @Test
     public void simpleAPIWithWorkItemRemoteMinaTest() throws InterruptedException {
 
-        handler = new SyncWSHumanTaskHandler();
+        handler = new WSHumanTaskHandler();
         handler.setClient(client);
 
         TestWorkItemManager manager = new TestWorkItemManager();

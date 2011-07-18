@@ -29,7 +29,7 @@ import org.jbpm.task.Comment;
 import org.jbpm.task.Content;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddAttachmentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingAddCommentResponseHandler;
@@ -43,7 +43,7 @@ import org.jbpm.task.utils.CollectionUtils;
 public abstract class TaskServiceCommentsAndAttachmentsBaseTest extends BaseTest {
 
 	protected TaskServer server;
-    protected AsyncTaskClientImpl client;
+    protected TaskServiceClientAsyncImpl client;
 
     @Override
     protected void setUp() throws Exception {

@@ -15,6 +15,7 @@
  */
 package org.jbpm.process.workitem.wsht.local;
 
+import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
 import java.util.List;
@@ -27,15 +28,15 @@ import javax.persistence.Persistence;
 import javax.persistence.EntityManagerFactory;
 
 import java.util.ArrayList;
-import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
+import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
-import org.jbpm.task.service.TaskServiceClient;
-import org.jbpm.task.service.TaskServiceClientLocalImpl;
+import org.jbpm.task.service.TaskServiceClientSync;
+import org.jbpm.task.service.impl.TaskServiceClientSyncLocalImpl;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,13 +45,19 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- *
+ * This test was created to test the APIs and to improve the user experience
+ * There is no reason and no way to implement an Async Local Client (yet)
+ * That's why this test create a Sync task Client and a Sync WSHumanTaskHandler
  * @author salaboy
  */
 public class SimpleSyncHumanTaskHandlerLocalTest {
-
-    private TaskServiceClient client;
-    private SyncWSHumanTaskHandler handler;
+    // Sync Client
+    private TaskServiceClientSync client;
+    //Sync Handler
+    private WSHumanTaskHandler handler;
+    
+  
+    
     private EntityManagerFactory emf;
     private User user;
     private User admin;
@@ -69,7 +76,11 @@ public class SimpleSyncHumanTaskHandlerLocalTest {
     @Before
     public void setUp() throws InterruptedException {
         emf = Persistence.createEntityManagerFactory("org.jbpm.task");
-        client = new TaskServiceClientLocalImpl(emf);
+        
+        //Sync Local Client
+        client = new TaskServiceClientSyncLocalImpl(emf);
+        
+        //Create One User and One Administrator
         user = new User("salaboy");
         client.addUser(user);
         admin = new User("Administrator");
@@ -121,7 +132,7 @@ public class SimpleSyncHumanTaskHandlerLocalTest {
     @Test
     public void simpleAPIWithWorkItemLocalTest() throws InterruptedException {
 
-        handler = new SyncWSHumanTaskHandler();
+        handler = new WSHumanTaskHandler();
         handler.setClient(client);
 
         TestWorkItemManager manager = new TestWorkItemManager();

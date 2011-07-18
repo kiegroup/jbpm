@@ -17,18 +17,18 @@
 package org.jbpm.client;
 
 import org.apache.mina.core.session.IoSession;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.mina.BaseMinaHandler;
 
 public class KnowledgeBaseMinaHandler extends BaseMinaHandler {
 
-	private AsyncTaskClientImpl client;
+	private TaskServiceClientAsyncImpl client;
 
-    public AsyncTaskClientImpl getClient() {
+    public TaskServiceClientAsyncImpl getClient() {
         return client;
     }
 
-    public void setClient(AsyncTaskClientImpl client) {
+    public void setClient(TaskServiceClientAsyncImpl client) {
         this.client = client;
     }
 

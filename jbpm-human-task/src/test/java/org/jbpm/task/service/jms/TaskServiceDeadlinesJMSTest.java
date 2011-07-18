@@ -23,7 +23,7 @@ import javax.naming.Context;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.drools.SystemEventListenerFactory;
 import org.easymock.EasyMock;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServiceDeadlinesBaseTest;
 import org.subethamail.wiser.Wiser;
 
@@ -71,7 +71,7 @@ public class TaskServiceDeadlinesJMSTest extends TaskServiceDeadlinesBaseTest {
 		clientProperties.setProperty("JMSTaskClient.queueName", "tasksQueue");
 		clientProperties.setProperty("JMSTaskClient.responseQueueName", "tasksResponseQueue");
         
-        client = new AsyncTaskClientImpl(new JMSTaskClientConnector("client 1",
+        client = new TaskServiceClientAsyncImpl(new JMSTaskClientConnector("client 1",
 				new JMSTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()),
 				clientProperties, context));
         client.connect();

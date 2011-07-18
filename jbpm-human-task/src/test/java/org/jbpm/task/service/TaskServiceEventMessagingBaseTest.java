@@ -30,7 +30,7 @@ import org.jbpm.task.event.TaskClaimedEvent;
 import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.event.TaskUserEvent;
 import org.jbpm.task.service.Operation;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingEventResponseHandler;
@@ -39,7 +39,7 @@ import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 public abstract class TaskServiceEventMessagingBaseTest extends BaseTest {
 
 	protected TaskServer server;
-    protected AsyncTaskClientImpl client;
+    protected TaskServiceClientAsyncImpl client;
 
     public void testClaimEvent() throws Exception {      
         Map  vars = new HashMap();     

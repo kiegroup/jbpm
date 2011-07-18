@@ -32,7 +32,7 @@ import javax.mail.internet.MimeMessage.RecipientType;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.Task;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
@@ -42,7 +42,7 @@ import org.subethamail.wiser.WiserMessage;
 public abstract class IcalBaseTest extends BaseTest {
 
 	protected TaskServer server;
-	protected AsyncTaskClientImpl client;
+	protected TaskServiceClientAsyncImpl client;
 	private Wiser wiser;
 	private String emailHost;
 	private String emailPort;    

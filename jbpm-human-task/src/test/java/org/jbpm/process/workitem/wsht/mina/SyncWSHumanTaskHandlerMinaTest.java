@@ -18,7 +18,7 @@ package org.jbpm.process.workitem.wsht.mina;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandlerBaseTest;
 import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
-import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientSyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
@@ -39,7 +39,7 @@ public class SyncWSHumanTaskHandlerMinaTest extends SyncWSHumanTaskHandlerBaseTe
             System.out.print(".");
             Thread.sleep(50);
         }
-        setClient(new TaskClientImpl(new MinaTaskClientConnector("client 1",
+        setClient(new TaskServiceClientSyncImpl(new MinaTaskClientConnector("client 1",
                 new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
         getClient().connect("127.0.0.1", 9123);
         setHandler(new AsyncWSHumanTaskHandler());

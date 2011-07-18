@@ -20,7 +20,7 @@ import org.drools.SystemEventListenerFactory;
 import org.drools.util.ChainedProperties;
 import org.drools.util.ClassLoaderUtil;
 import org.jbpm.task.service.IcalBaseTest;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
 import org.jbpm.task.service.hornetq.HornetQTaskServer;
@@ -47,7 +47,7 @@ public class IcalHornetQTest extends IcalBaseTest {
         	Thread.sleep( 50 );
         }
 
-        client = new AsyncTaskClientImpl(new HornetQTaskClientConnector("client 1",
+        client = new TaskServiceClientAsyncImpl(new HornetQTaskClientConnector("client 1",
         					new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 5446);
 

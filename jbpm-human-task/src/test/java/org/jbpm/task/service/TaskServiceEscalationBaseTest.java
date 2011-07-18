@@ -31,7 +31,7 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.Deadline;
 import org.jbpm.task.Task;
 import org.jbpm.task.service.EscalatedDeadlineHandler;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceEscalationBaseTest.MockEscalatedDeadlineHandler.Item;
@@ -40,7 +40,7 @@ import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 public abstract class TaskServiceEscalationBaseTest extends BaseTest {
 
 	protected TaskServer server;
-	protected AsyncTaskClientImpl client;
+	protected TaskServiceClientAsyncImpl client;
 
     public void testDummy() {
         assertTrue( true );

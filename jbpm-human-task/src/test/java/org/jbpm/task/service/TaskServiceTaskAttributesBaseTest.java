@@ -26,7 +26,7 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.Content;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
@@ -36,7 +36,7 @@ import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandl
 public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
 
 	protected TaskServer server;
-    protected AsyncTaskClientImpl client;
+    protected TaskServiceClientAsyncImpl client;
 
     @Override
     protected void setUp() throws Exception {

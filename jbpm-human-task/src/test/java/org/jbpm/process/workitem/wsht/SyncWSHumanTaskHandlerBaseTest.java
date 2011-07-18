@@ -35,7 +35,7 @@ import org.jbpm.task.Task;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.TaskServiceClient;
+import org.jbpm.task.service.TaskServiceClientSync;
 
 public abstract class SyncWSHumanTaskHandlerBaseTest extends BaseTest {
 
@@ -43,14 +43,14 @@ public abstract class SyncWSHumanTaskHandlerBaseTest extends BaseTest {
 	private static final int MANAGER_COMPLETION_WAIT_TIME = DEFAULT_WAIT_TIME;
 	private static final int MANAGER_ABORT_WAIT_TIME = DEFAULT_WAIT_TIME;
 
-	private TaskServiceClient client;
+	private TaskServiceClientSync client;
 	private WorkItemHandler handler;
 
-	public void setClient(TaskServiceClient client) {
+	public void setClient(TaskServiceClientSync client) {
 		this.client = client;
 	}
 
-	public TaskServiceClient getClient() {
+	public TaskServiceClientSync getClient() {
 		return client;
 	}
 

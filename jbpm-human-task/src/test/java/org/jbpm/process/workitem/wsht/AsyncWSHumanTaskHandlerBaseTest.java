@@ -35,7 +35,7 @@ import org.jbpm.task.Task;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
@@ -47,14 +47,14 @@ public abstract class AsyncWSHumanTaskHandlerBaseTest extends BaseTest {
 	private static final int MANAGER_COMPLETION_WAIT_TIME = DEFAULT_WAIT_TIME;
 	private static final int MANAGER_ABORT_WAIT_TIME = DEFAULT_WAIT_TIME;
 
-	private AsyncTaskClientImpl client;
+	private TaskServiceClientAsyncImpl client;
 	private WorkItemHandler handler;
 
-	public void setClient(AsyncTaskClientImpl client) {
+	public void setClient(TaskServiceClientAsyncImpl client) {
 		this.client = client;
 	}
 
-	public AsyncTaskClientImpl getClient() {
+	public TaskServiceClientAsyncImpl getClient() {
 		return client;
 	}
 

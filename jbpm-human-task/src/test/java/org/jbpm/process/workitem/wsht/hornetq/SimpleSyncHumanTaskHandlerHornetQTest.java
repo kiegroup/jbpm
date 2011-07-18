@@ -15,6 +15,7 @@
  */
 package org.jbpm.process.workitem.wsht.hornetq;
 
+import java.util.UUID;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,17 +29,17 @@ import java.util.ArrayList;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.drools.SystemEventListenerFactory;
-import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
+import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
-import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientSyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.TaskService;
-import org.jbpm.task.service.TaskServiceClient;
+import org.jbpm.task.service.TaskServiceClientSync;
 import org.jbpm.task.service.TaskServiceSession;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
@@ -55,8 +56,8 @@ import static org.junit.Assert.*;
  */
 public class SimpleSyncHumanTaskHandlerHornetQTest {
 
-    private TaskServiceClient client;
-    private SyncWSHumanTaskHandler handler;
+    private TaskServiceClientSync client;
+    private WSHumanTaskHandler handler;
     private TaskServer server;
     protected TaskService taskService;
     private EntityManagerFactory emf;
@@ -89,12 +90,14 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
         server = new HornetQTaskServer(taskService, 5443);
         Thread thread = new Thread(server);
         thread.start();
+        
+        
         System.out.println("Waiting for the HornetQ Server to come up");
         while (!server.isRunning()) {
             System.out.print(".");
-            Thread.sleep(50);
+            Thread.sleep(100);
         }
-        client = new TaskClientImpl(new HornetQTaskClientConnector("myClient",
+        client = new TaskServiceClientSyncImpl(new HornetQTaskClientConnector("tasksQueue/workItemHandler"+UUID.randomUUID().toString(),
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 5443);
         
@@ -102,17 +105,24 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
 
     @After
     public void tearDown() throws Exception {
-        System.out.println("Stoping the HornetQ Server");
+        
         handler.dispose();
         client.disconnect();
         server.stop();
+        System.out.println("Waiting for the HornetQ Server to stop");
+        while (server.isRunning()) {
+            System.out.print(".");
+            Thread.sleep(100);
+        }
+        server = null;
+        
     }
 
     @Test
     public void simpleAPIRemoteHornetQTest() {
 
 
-        handler = new SyncWSHumanTaskHandler();
+        handler = new WSHumanTaskHandler();
 
         handler.setClient(client);
 
@@ -150,7 +160,7 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
      @Test
     public void simpleAPIWithWorkItemRemoteMinaTest() throws InterruptedException {
 
-        handler = new SyncWSHumanTaskHandler();
+        handler = new WSHumanTaskHandler();
         handler.setClient(client);
 
         TestWorkItemManager manager = new TestWorkItemManager();

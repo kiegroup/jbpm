@@ -10,7 +10,7 @@ import javax.jms.Session;
 import javax.jms.Topic;
 
 import org.drools.SystemEventListener;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskClientHandler;
 
 public class JMSTaskClientHandler extends BaseJMSHandler {
@@ -22,11 +22,11 @@ public class JMSTaskClientHandler extends BaseJMSHandler {
 		this.producers = new HashMap<String, MessageProducer>();
 	}
 
-	public AsyncTaskClientImpl getClient() {
+	public TaskServiceClientAsyncImpl getClient() {
 		return this.handler.getClient();
 	}
 
-	public void setClient(AsyncTaskClientImpl client) {
+	public void setClient(TaskServiceClientAsyncImpl client) {
 		this.handler.setClient(client);
 	}
 

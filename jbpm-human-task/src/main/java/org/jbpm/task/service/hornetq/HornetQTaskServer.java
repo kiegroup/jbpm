@@ -20,21 +20,15 @@ import org.drools.SystemEventListenerFactory;
 import org.hornetq.core.config.Configuration;
 import org.jbpm.task.service.TaskService;
 
-public class HornetQTaskServer extends BaseHornetQTaskServer implements Runnable {
+public class HornetQTaskServer extends BaseHornetQTaskServer {
 
 	public HornetQTaskServer(TaskService service, int port) {
 		super(new HornetQTaskServerHandler(service, SystemEventListenerFactory.getSystemEventListener()), port, false);
 	}
 
-//	public HornetQTaskServer(TaskService service, int port, boolean standalone) {
-//		super(new HornetQTaskServerHandler(service, SystemEventListenerFactory.getSystemEventListener()), port, standalone);
-//	}
 
 	public HornetQTaskServer(TaskService service, int port, Configuration configuration) {
 		super(new HornetQTaskServerHandler(service, SystemEventListenerFactory.getSystemEventListener()), port, configuration, false);
 	}
 
-//	public HornetQTaskServer(TaskService service, int port, Configuration configuration, boolean standalone) {
-//		super(new HornetQTaskServerHandler(service, SystemEventListenerFactory.getSystemEventListener()), port, configuration, standalone);
-//	}
 }

@@ -18,8 +18,8 @@ package org.jbpm.process.workitem.wsht.hornetq;
 
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandlerBaseTest;
-import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
-import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
+import org.jbpm.task.service.impl.TaskServiceClientSyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
@@ -40,16 +40,16 @@ public class SyncWSHumanTaskHandlerHornetQTest extends SyncWSHumanTaskHandlerBas
         	System.out.print(".");
         	Thread.sleep( 50 );
         }
-		setClient(new TaskClientImpl(new HornetQTaskClientConnector("client 1",
+		setClient(new TaskServiceClientSyncImpl(new HornetQTaskClientConnector("client 1",
 								new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
 		getClient().connect("127.0.0.1", 5446);
-		SyncWSHumanTaskHandler handler = new SyncWSHumanTaskHandler();
+		WSHumanTaskHandler handler = new WSHumanTaskHandler();
 		handler.setClient(getClient());
 		setHandler(handler);
 	}
 
 	protected void tearDown() throws Exception {
-		((SyncWSHumanTaskHandler) getHandler()).dispose();
+		((WSHumanTaskHandler) getHandler()).dispose();
 		getClient().disconnect();
 		server.stop();
 		super.tearDown();

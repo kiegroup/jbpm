@@ -18,7 +18,7 @@ package org.jbpm.task.service.mina;
 
 import org.apache.mina.core.session.IoSession;
 import org.drools.SystemEventListener;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskClientHandler;
 
 public class MinaTaskClientHandler extends BaseMinaHandler {
@@ -29,11 +29,11 @@ public class MinaTaskClientHandler extends BaseMinaHandler {
         this.handler = new TaskClientHandler(responseHandlers, systemEventListener);
     }
 
-    public AsyncTaskClientImpl getClient() {
+    public TaskServiceClientAsyncImpl getClient() {
         return handler.getClient();
     }
 
-    public void setClient(AsyncTaskClientImpl client) {
+    public void setClient(TaskServiceClientAsyncImpl client) {
         handler.setClient(client);
     }
 

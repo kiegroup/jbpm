@@ -25,7 +25,7 @@ import java.util.Map;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.TaskClientHandler.TaskSummaryResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
@@ -34,7 +34,7 @@ import org.jbpm.task.utils.CollectionUtils;
 public abstract class TaskServiceBaseTest extends BaseTest {
 
 	protected TaskServer server;
-    protected AsyncTaskClientImpl client;
+    protected TaskServiceClientAsyncImpl client;
 
     @SuppressWarnings("unchecked")
     public void testTasksOwnedQueryWithI18N() throws Exception {

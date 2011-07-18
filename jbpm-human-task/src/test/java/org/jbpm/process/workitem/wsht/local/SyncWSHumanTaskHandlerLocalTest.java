@@ -16,9 +16,9 @@
 
 package org.jbpm.process.workitem.wsht.local;
 
-import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
+import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandlerBaseTest;
-import org.jbpm.task.service.TaskServiceClientLocalImpl;
+import org.jbpm.task.service.impl.TaskServiceClientSyncLocalImpl;
 
 public class SyncWSHumanTaskHandlerLocalTest extends SyncWSHumanTaskHandlerBaseTest {
 
@@ -28,15 +28,15 @@ public class SyncWSHumanTaskHandlerLocalTest extends SyncWSHumanTaskHandlerBaseT
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		setClient(new TaskServiceClientLocalImpl(getEmf()));
-                SyncWSHumanTaskHandler syncWSHumanTaskHandler = new SyncWSHumanTaskHandler();
+		setClient(new TaskServiceClientSyncLocalImpl(getEmf()));
+                WSHumanTaskHandler syncWSHumanTaskHandler = new WSHumanTaskHandler();
                 syncWSHumanTaskHandler.setClient(getClient());
 		setHandler(syncWSHumanTaskHandler);
                 
 	}
 
 	protected void tearDown() throws Exception {
-		((SyncWSHumanTaskHandler) getHandler()).dispose();
+		((WSHumanTaskHandler) getHandler()).dispose();
 		
 		super.tearDown();
 	}

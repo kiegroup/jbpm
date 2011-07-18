@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.process.workitem.wsht.hornetq;
 
+import java.util.UUID;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
 import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandlerBaseTest;
-import org.jbpm.task.service.AsyncTaskClientImpl;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
@@ -27,32 +27,34 @@ import org.jbpm.task.service.hornetq.HornetQTaskServer;
 
 public class AsycnWSHumanTaskHandlerHornetQTest extends AsyncWSHumanTaskHandlerBaseTest {
 
-	private TaskServer server;
+    private TaskServer server;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		server = new HornetQTaskServer(taskService, 5446);
-		Thread thread = new Thread(server);
-		thread.start();
-		System.out.println("Waiting for the HornetQTask Server to come up");
-		while (!server.isRunning()) {
-        	System.out.print(".");
-        	Thread.sleep( 50 );
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        server = new HornetQTaskServer(taskService, 5446);
+        Thread thread = new Thread(server);
+        thread.start();
+        System.out.println("Waiting for the HornetQTask Server to come up");
+        while (!server.isRunning()) {
+            System.out.print(".");
+            Thread.sleep(50);
         }
-		setClient(new AsyncTaskClientImpl(new HornetQTaskClientConnector("client 1",
-								new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
-		getClient().connect("127.0.0.1", 5446);
-		AsyncWSHumanTaskHandler handler = new AsyncWSHumanTaskHandler();
-		handler.setClient(getClient());
-		setHandler(handler);
-	}
+        // Each client should have an unique identifier that's why: "tasksQueue/workItemHandler"+UUID.randomUUID().toString()
+        setClient(new TaskServiceClientAsyncImpl(new HornetQTaskClientConnector("tasksQueue/workItemHandler"+UUID.randomUUID().toString(),
+                new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
+        getClient().connect("127.0.0.1", 5446);
+        
+        
+        AsyncWSHumanTaskHandler handler = new AsyncWSHumanTaskHandler();
+        handler.setClient(getClient());
+        setHandler(handler);
+    }
 
-	protected void tearDown() throws Exception {
-		((AsyncWSHumanTaskHandler) getHandler()).dispose();
-		getClient().disconnect();
-		server.stop();
-		super.tearDown();
-	}
-
+    protected void tearDown() throws Exception {
+        ((AsyncWSHumanTaskHandler) getHandler()).dispose();
+        getClient().disconnect();
+        server.stop();
+        super.tearDown();
+    }
 }

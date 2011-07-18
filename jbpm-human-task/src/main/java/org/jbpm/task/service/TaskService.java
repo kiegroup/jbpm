@@ -69,10 +69,10 @@ import org.mvel2.ParserConfiguration;
 import org.mvel2.ParserContext;
 
 public class TaskService {
-    EntityManagerFactory emf;
-    EntityManager em;
+    private EntityManagerFactory emf;
+    private EntityManager em;
 
-    ScheduledThreadPoolExecutor scheduler;
+    private ScheduledThreadPoolExecutor scheduler;
 
     private EscalatedDeadlineHandler escalatedDeadlineHandler;
 
