@@ -85,9 +85,7 @@
 		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/menuItems/</td>
 		          </tr>
 		          <tr>
-		              <th colspan="2">Response Example:</th>
-		          </tr>
-		          <tr>
+		              <th>Response Example:</th>
 		              <td><code id="code_listMenuItems"></code></td>
 		          </tr>
 		          <tr><td>&nbsp;</td><td><input type="button" onclick="hide('listMenuItems');" value="Hide"/></td></tr>
@@ -101,29 +99,71 @@
                       <td>/org.jbpm.formbuilder.FormBuilder/fbapi/menuItems/</td>
                   </tr>
                   <tr>
-                      <th colspan="2">Request Example:</th>
-                  </tr>
-                  <tr>
+                      <th>Request Example:</th>
                       <td><code id="code_saveMenuItem"></code></td>
                   </tr>
                   <tr><td>&nbsp;</td><td><input type="button" onclick="hide('saveMenuItem');" value="Hide"/></td></tr>
 		      </table>
 		  </li>
-		  <li style="color:red;"><strong>DELETE</strong>: explain deleteMenuItem(uri)</li>
+		  <li><a href="javascript:void(0);" onclick="show('deleteMenuItem');"><strong>DELETE</strong>: Deletes a (custom) menu item</a></li>
+		  <li style="visibility: collapse;" id="deleteMenuItem">
+		      <table border="0" cellspacing="0" cellpadding="0">
+		          <tr>
+		              <th>URL Example:</th>
+		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/menuItems/</td>
+		          </tr>
+		          <tr>
+		              <th>Request Example:</th>
+		              <td><code id="code_deleteMenuItem"></code></td>
+		          </tr>
+		      </table>
+		  </li>
 		</ul>
 	  </li>
       <li>
 	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: build and explain listFormItems()</li>
-		  <li style="color:red;"><strong>POST</strong>: explain saveFormItem(body)</li>
-		  <li style="color:red;"><strong>DELETE</strong>: explain deleteFormItem(uri)</li>
+		  <li><a href="javascript:void(0);" onclick="show('listFormItems');"><strong>GET</strong>: Lists UI components available</a></li>
+		  <li style="visibility: collapse;" id="listFormItems">
+		      <table border="0" cellpadding="0" cellspacing="0">
+		          <tr>
+		              <th>URL Example:</th>
+		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/</td>
+		          </tr>
+		          <tr>
+		              <th>Response Example:</th>
+		              <td><code id="code_listFormItems"></code></td>
+		          </tr>
+		      </table>
+		  </li>
+		  <li><a href="javascript:void(0);" onclick="show('saveFormItem');"><strong>POST</strong>: Saves a UI component on the server</a></li>
+		  <li style="visibility: collapse;" id="saveFormItem">
+		      <table border="0" cellpadding="0" cellspacing="0">
+		          <tr>
+		              <th>URL Example:</th>
+		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/</td>
+		          </tr>
+		          <tr>
+		              <th>Request Body Example:</th>
+		              <td><code id="code_saveFormItem"></code></td>
+		          </tr>
+		      </table>
+		  </li>
+		  <li><a href="javascript:void(0);" onclick="show('deleteFormItem')"><strong>DELETE</strong>: Deletes a UI component from the server</a></li>
+		  <li style="visibility: collapse;" id="deleteFormItem">
+		      <table border="0" cellpadding="0" cellspacing="0">
+		          <tr>
+		              <th>URL Example:</th>
+		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/formItemName/FORM_ITEM_TO_DELETE/</td>
+		          </tr>
+		      </table>
+		  </li>
 		</ul>
 	  </li>
       <li>
 	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: build and explain listForms()</li>
+		  <li style="color:red;"><strong>GET</strong>: explain listForms()</li>
 		  <li style="color:red;"><strong>POST</strong>: explain saveForm(body)</li>
 		  <li style="color:red;"><strong>DELETE</strong>: explain deleteForm(uri)</li>
 		</ul>
@@ -143,7 +183,7 @@
       <li>
 	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/validations/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: build and explain listTasks()</li>
+		  <li style="color:red;"><strong>GET</strong>: explain listTasks()</li>
 		</ul>
 	  </li>
       <li>

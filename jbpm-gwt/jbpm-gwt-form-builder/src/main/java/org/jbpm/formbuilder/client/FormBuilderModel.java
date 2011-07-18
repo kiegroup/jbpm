@@ -225,7 +225,7 @@ public class FormBuilderModel implements FormBuilderService {
 
     public void saveFormItem(final FormItemRepresentation formItem, String formItemName) {
         RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
-                GWT.getModuleBaseURL() + this.contextPath + "/package/defaultPackage/formItems/");
+                GWT.getModuleBaseURL() + this.contextPath + "/formItems/package/defaultPackage/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {
@@ -320,7 +320,7 @@ public class FormBuilderModel implements FormBuilderService {
     
     public void deleteMenuItem(String groupName, FBMenuItem item) {
         RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, 
-                GWT.getModuleBaseURL() + this.contextPath + "/defaultPackage/menuItems/");
+                GWT.getModuleBaseURL() + this.contextPath + "/menuItems/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
