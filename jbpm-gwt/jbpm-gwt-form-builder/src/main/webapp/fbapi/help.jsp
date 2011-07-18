@@ -116,6 +116,7 @@
 		              <th>Request Example:</th>
 		              <td><code id="code_deleteMenuItem"></code></td>
 		          </tr>
+		          <tr><td>&nbsp;</td><td><input type="button" onclick="hide('deleteMenuItem');" value="Hide"/></td></tr>
 		      </table>
 		  </li>
 		</ul>
@@ -134,6 +135,7 @@
 		              <th>Response Example:</th>
 		              <td><code id="code_listFormItems"></code></td>
 		          </tr>
+		          <tr><td>&nbsp;</td><td><input type="button" onclick="hide('listFormItems');" value="Hide"/></td></tr>
 		      </table>
 		  </li>
 		  <li><a href="javascript:void(0);" onclick="show('saveFormItem');"><strong>POST</strong>: Saves a UI component on the server</a></li>
@@ -147,6 +149,7 @@
 		              <th>Request Body Example:</th>
 		              <td><code id="code_saveFormItem"></code></td>
 		          </tr>
+		          <tr><td>&nbsp;</td><td><input type="button" onclick="hide('saveFormItem');" value="Hide"/></td></tr>
 		      </table>
 		  </li>
 		  <li><a href="javascript:void(0);" onclick="show('deleteFormItem')"><strong>DELETE</strong>: Deletes a UI component from the server</a></li>
@@ -156,6 +159,12 @@
 		              <th>URL Example:</th>
 		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formItems/package/defaultPackage/formItemName/FORM_ITEM_TO_DELETE/</td>
 		          </tr>
+                  <tr>
+                      <td colspan="2" style="color: red;"><strong>Attention</strong>: In storage, all form item definition ids are preceded 
+                      by "formItemDefinition_" in their name. So, if you have a form item definition saved with the name "myItem", you must retrieve
+                      it with the form item definition ID "formItemDefinition_myForm"</td>
+                  </tr>
+		          <tr><td>&nbsp;</td><td><input type="button" onclick="hide('deleteFormItem');" value="Hide"/></td></tr>
 		      </table>
 		  </li>
 		</ul>
@@ -163,15 +172,73 @@
       <li>
 	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: explain listForms()</li>
-		  <li style="color:red;"><strong>POST</strong>: explain saveForm(body)</li>
-		  <li style="color:red;"><strong>DELETE</strong>: explain deleteForm(uri)</li>
+		  <li><a href="javascript:void(0);" onclick="show('listForms');"><strong>GET</strong>: Lists form definitions available</a></li>
+		  <li style="visibility: collapse;" id="listForms">
+		      <table border="0" cellpadding="0" cellspacing="0">
+		          <tr>
+                      <th>URL Example to get one form:</th>
+                      <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/formDefinitionId/FORM_DEF_TO_GET/</td>
+		          </tr>
+                  <tr>
+                      <th>URL Example to get all forms:</th>
+                      <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/</td>
+                  </tr>
+                  <tr>
+                      <td colspan="2" style="color: red;"><strong>Attention</strong>: In storage, all form definition ids are preceded 
+                      by "formDefinition_" in their name. So, if you have a form definition saved with the name "myForm", you must retrieve
+                      it with the form definition ID "formDefinition_myForm"</td>
+                  </tr>
+                  <tr><td>&nbsp;</td><td><input type="button" onclick="hide('listForms');" value="Hide"/></td></tr>
+		      </table>
+		  </li>
+		  <li><a href="javascript:void(0);" onclick="show('saveForm');"><strong>POST</strong>: Saves a form definition on the server</a></li>
+		  <li style="visibility: collapse;" id="saveForm">
+		      <table border="0" cellpadding="0" cellspacing="0">
+		          <tr>
+		              <th>URL Example:</th>
+		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/</td>
+		          </tr>
+		          <tr>
+		              <th>Request Body Example:</th>
+		              <td><code id="code_saveForm"></code></td>
+		          </tr>
+		          <tr><td>&nbsp;</td><td><input type="button" onclick="hide('saveForm');" value="Hide"/></td></tr>
+		      </table>
+		  </li>
+		  <li><a href="javascript:void(0);" onclick="show('deleteForm');"><strong>DELETE</strong>: Deletes a form definition from the server</a></li>
+		  <li style="visibility: collapse;" id="deleteForm">
+		      <table border="0" cellpadding="0" cellspacing="0">
+		          <tr>
+		              <th>URL Example:</th>
+		              <td>/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/formDefinitionId/FORM_DEF_TO_DELETE/</td>
+		          </tr>
+		          <tr>
+                      <td colspan="2" style="color: red;"><strong>Attention</strong>: In storage, all form definition ids are preceded 
+                      by "formDefinition_" in their name. So, if you have a form definition saved with the name "myForm", you must delete
+                      it with the form definition ID "formDefinition_myForm"</td>
+                  </tr>
+                  <tr><td>&nbsp;</td><td><input type="button" onclick="hide('deleteForm');" value="Hide"/></td></tr>
+		      </table>
+		  </li>
 		</ul>
 	  </li>
       <li>
 	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/menuOptions/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: explain listOptions()</li>
+		  <li><a href="javascript:void(0);" onclick="show('getMenuOptions');"><strong>GET</strong>: Lists menu bar options</a></li>
+		  <li style="visibility: collapse;" id="getMenuOptions">
+		      <table border="0" cellpadding="0" cellspacing="0">
+			      <tr>
+			          <th>URL Example:</th>
+			          <td>/org.jbpm.formbuilder.FormBuilder/fbapi/menuOptions/</td>
+			      </tr>
+			      <tr>
+                      <th>Request Body Example:</th>
+                      <td><code id="code_getMenuOptions"></code></td>
+                  </tr>
+                  <tr><td>&nbsp;</td><td><input type="button" onclick="hide('getMenuOptions');" value="Hide"/></td></tr>
+			  </table>
+		  </li>
 		</ul>
 	  </li>
       <li>
@@ -183,7 +250,7 @@
       <li>
 	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/validations/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: explain listTasks()</li>
+		  <li style="color:red;"><strong>GET</strong>: explain listValidations()</li>
 		</ul>
 	  </li>
       <li>
