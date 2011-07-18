@@ -63,15 +63,13 @@ public interface FormBuilderService {
     void deleteFormItem(String formItemName, final FormItemRepresentation formItem) throws FormBuilderException;
     
     /**
-     * Translates a form.
+     * Translates a form. An event exposes where to retrieve the form from.
      * 
      * @param form Form to be translated
      * @param language Language to translate the form
-     * @return a URL as a string, indicating where is the generated form template located. It's the server
-     * responsibility to later bind that template to actual data.
      * @throws FormBuilderException in case of error
      */
-    String /* URL */ generateForm(FormRepresentation form, String language) throws FormBuilderException;
+    void generateForm(FormRepresentation form, String language, Map<String, Object> inputs) throws FormBuilderException;
     
     /**
      * Saves a new (custom) menu item on the server

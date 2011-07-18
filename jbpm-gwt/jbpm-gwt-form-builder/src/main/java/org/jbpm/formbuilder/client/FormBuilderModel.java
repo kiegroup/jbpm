@@ -28,6 +28,7 @@ import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
@@ -284,11 +285,27 @@ public class FormBuilderModel implements FormBuilderService {
         }
     }
     
-    public String generateForm(FormRepresentation form, String language) {
-        saveForm(form);
-        return new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
-                append("/formPreview/").append(form.getTaskId()).append("/lang/").
-                append(language).toString();
+    public void generateForm(FormRepresentation form, String language, Map<String, Object> inputs) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
+                GWT.getModuleBaseURL() + this.contextPath + 
+                "/formPreview/lang/" + language);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                String html = response.getText();
+                bus.fireEvent(new PreviewFormResponseEvent(html));
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't preview form", exception));
+            }
+        });
+        try {
+            request.setRequestData(helper.asXml(form, inputs));
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
+        } catch (FormEncodingException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form", e));
+        }
     }
     
     public void saveMenuItem(final String groupName, final FBMenuItem item) {

@@ -55,19 +55,21 @@ public class ToolBarPresenter {
         });
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
             public void onEvent(final GetFormRepresentationResponseEvent event) {
-                final ToolbarDialog dialog = view.createToolbarDialog(
-                        "Attention! if you continue, all data you haven't saved will be lost and " +
-                        "replaced with the server information. Are you sure you want to continue?");
-                dialog.addOkButtonHandler(new ClickHandler() {
-                    public void onClick(ClickEvent clickEvent) {
-                        if (LOAD_TYPE.equals(event.getSaveType())) {
-                            if (event.getRepresentation().isSaved()) {
-                                bus.fireEvent(new LoadServerFormEvent(event.getRepresentation().getName()));
+                if (LOAD_TYPE.equals(event.getSaveType())) {
+                    final ToolbarDialog dialog = view.createToolbarDialog(
+                            "Attention! if you continue, all data you haven't saved will be lost and " +
+                            "replaced with the server information. Are you sure you want to continue?");
+                    dialog.addOkButtonHandler(new ClickHandler() {
+                        public void onClick(ClickEvent clickEvent) {
+                            if (LOAD_TYPE.equals(event.getSaveType())) {
+                                if (event.getRepresentation().isSaved()) {
+                                    bus.fireEvent(new LoadServerFormEvent(event.getRepresentation().getName()));
+                                }
                             }
                         }
-                    }
-                });
-                dialog.show();
+                    });
+                    dialog.show();
+                }
             }
         });
     }

@@ -20,13 +20,15 @@ import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
+import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
+import org.jbpm.formbuilder.client.bus.PreviewFormResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -51,6 +53,11 @@ public abstract class PreviewFormCommand implements BaseCommand {
                 }
             }
         });
+        this.bus.addHandler(PreviewFormResponseEvent.TYPE, new PreviewFormResponseHandler() {
+            public void onServerResponse(PreviewFormResponseEvent event) {
+                refreshPopup(event.getHtml());
+            }
+        });
     }
     
     public void setItem(MenuItem item) {
@@ -61,25 +68,23 @@ public abstract class PreviewFormCommand implements BaseCommand {
         this.bus.fireEvent(new GetFormRepresentationEvent(this.saveType));
     }
 
-    protected void refreshPopupForURL(String url) {
-        // TODO This needs to have a control to edit input values, and even to check for expected outputs 
+    protected void refreshPopup(String html) {
         PopupPanel panel = new PopupPanel(true);
-        Frame frame = new Frame(url);
+        HTML content = new HTML(html);
+        panel.setWidget(content);
         int height = RootPanel.getBodyElement().getClientHeight();
         int width = RootPanel.getBodyElement().getClientWidth();
         int left = RootPanel.getBodyElement().getAbsoluteLeft();
         int top = RootPanel.getBodyElement().getAbsoluteTop();
         panel.setPixelSize(width - 200, height - 200);
-        frame.setPixelSize(width - 200, height - 200);
+        content.setPixelSize(width - 200, height - 200);
         panel.setPopupPosition(left + 100, top + 100);
-        panel.setWidget(frame);
         panel.show();
     }
 
     public void saveForm(FormRepresentation form) {
         try {
-            String url = server.generateForm(form, this.saveType);
-            refreshPopupForURL(url);
+            server.generateForm(form, this.saveType, null /* TODO need to set inputs for the preview to be as complete as possible*/);
         } catch (FormBuilderException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, 
                     "Unexpected error while previewing " + this.saveType + " form", e));

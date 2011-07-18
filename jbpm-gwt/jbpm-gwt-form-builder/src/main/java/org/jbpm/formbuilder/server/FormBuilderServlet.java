@@ -52,6 +52,8 @@ import org.jbpm.formbuilder.server.trans.Language;
 import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.server.trans.LanguageFactory;
 import org.jbpm.formbuilder.server.xml.FormEffectDTO;
+import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
+import org.jbpm.formbuilder.server.xml.FormPreviewParameterDTO;
 import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
 import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
@@ -118,9 +120,6 @@ public class FormBuilderServlet extends HttpServlet {
             } else if (uri.contains("/validations/")) {
                 resp.setContentType("text/xml");
                 //TODO implement listValidations
-            } else if (uri.contains("/formPreview/")) {
-                resp.setContentType("text/html");
-                content.append(getFormPreview(req.getRequestURI()));
             } else if (uri.contains("/formDefinitions/")) {
                 String pkgName = getUriParameter(uri, "package");
                 String formId = getUriParameter(uri, "formDefinitionId");
@@ -192,20 +191,24 @@ public class FormBuilderServlet extends HttpServlet {
         return jaxbTransformation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
     }
     
-    private String getFormPreview(String requestUri) throws LanguageException, RendererException, FormServiceException {
-        StringBuilder builder = new StringBuilder();
-        String formId = getUriParameter(requestUri, "formPreview");
-        String language = getUriParameter(requestUri, "lang");
-        String pkgName = getUriParameter(requestUri, "package");
-        LanguageFactory factory = LanguageFactory.getInstance();
-        Language translator = factory.getLanguage(language);
-        FormRepresentation form = formService.getForm(pkgName, formId);
-        URL url = translator.translateForm(form);
-        RendererFactory factory2 = RendererFactory.getInstance();
-        Renderer renderer = factory2.getRenderer(language);
-        builder.append(renderer.render(url, new HashMap<String, Object>()));
-        return builder.toString();
+    private String getFormPreview(String requestUri, BufferedReader reader) throws JAXBException, LanguageException, RendererException, FormEncodingException {
         
+        String language = getUriParameter(requestUri, "lang");
+        FormPreviewDTO dto = jaxbTransformation(reader, FormPreviewDTO.class, new Class[] {FormPreviewDTO.class, FormPreviewParameterDTO.class});
+        
+        String json = dto.getRepresentation();
+        Map<String, Object> inputs = dto.getInputsAsMap();
+        StringBuilder builder = new StringBuilder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        FormRepresentation form = decoder.decode(json);
+        Language translator = LanguageFactory.getInstance().getLanguage(language);
+        URL url = translator.translateForm(form);
+        Renderer renderer = RendererFactory.getInstance().getRenderer(language);
+        builder.append("<html><head><title>Test Form: ");
+        builder.append(form.getName()).append("</title></head><body>");
+        builder.append(renderer.render(url, inputs));
+        builder.append("</body></html>");
+        return builder.toString();
     }
 
     private String listTasks(String filter, String pkgName) throws JAXBException, TaskServiceException {
@@ -277,6 +280,9 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.setContentType("text/xml");
                 resp.getWriter().println("<formId>"+formId+"</formId>");
                 resp.setStatus(HttpServletResponse.SC_CREATED);
+            } else if (uri.contains("/formPreview/")) {
+                resp.setContentType("text/html");
+                resp.getWriter().println(getFormPreview(uri, req.getReader()));
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());

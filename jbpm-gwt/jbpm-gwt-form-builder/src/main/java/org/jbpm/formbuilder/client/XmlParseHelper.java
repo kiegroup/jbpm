@@ -30,6 +30,7 @@ import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
@@ -305,6 +306,40 @@ public class XmlParseHelper {
             retval.put(key, value);
         }
         return retval;
+    }
+    
+    /**
+     * Method to output xml from a form preview and its group of test input variables with the following format:
+     * <code>
+     * &lt;formPreview&gt;<br>
+     * &nbsp;&nbsp;&lt;representation&gt;${form.toJson()}&lt;/representation&gt;<br>
+     * &nbsp;&nbsp;&lt;input key="${inputs[0].key}" value="${inputs[0].value}"/&gt;<br>
+     * &nbsp;&nbsp;&lt;input key="${inputs[1].key}" value="${inputs[1].value}"/&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;input key="${inputs[n].key}" value="${inputs[n].value}"/&gt;<br>
+     * &lt;/formPreview&gt;<br>
+     * </code>
+     * 
+     * @param form the form representation to transform on server side to a given language
+     * @param inputs the data inputs of the form representation to test it
+     * @return XML request body
+     * @throws FormEncodingException in case of error parsing the form representation
+     */
+    public String asXml(FormRepresentation form, Map<String, Object> inputs) throws FormEncodingException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<formPreview>");
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
+        String json = encoder.encode(form);
+        builder.append("<representation>").append(json).append("</representation>");
+        if (inputs != null) {
+            for (Map.Entry<String, Object> entry : inputs.entrySet()) {
+                String key = entry.getKey();
+                Object obj = entry.getValue();
+                builder.append("<input key=\"").append(key).append("\" value=\"").append(obj).append("\"/>");
+            }
+        }
+        builder.append("</formPreview>");
+        return builder.toString();
     }
     
     private List<MainMenuOption> readMenuOptions(NodeList menuOptions) {
