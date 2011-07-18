@@ -33,6 +33,8 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
+import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
@@ -56,6 +58,7 @@ public class FormBuilderServletTest extends TestCase {
         servlet.setMenuService(menuService);
         TaskDefinitionService taskService = new MockTaskDefinitionService();
         servlet.setTaskService(taskService);
+        FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
     }
     
     @Override
@@ -77,6 +80,22 @@ public class FormBuilderServletTest extends TestCase {
         String xmlResponse = writer.toString();
         assertNotNull("xml response should not be null", xmlResponse);
         assertTrue("xml response should contain ComboBoxMenuItem", xmlResponse.contains("ComboBoxMenuItem"));
+    }
+    
+    public void testGetFormBuilderProperties() throws Exception {
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/representationMappings/").once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType(EasyMock.same("text/xml"));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        String xmlResponse = writer.toString();
+        assertNotNull("xml response should not be null", xmlResponse);
+        assertTrue("xml response should contain ComboBoxFormItem", xmlResponse.contains("ComboBoxFormItem"));
+        assertTrue("xml response should contain <property ", xmlResponse.contains("<property "));
     }
 
     public void testListMenuOptions() throws Exception {

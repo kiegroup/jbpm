@@ -15,12 +15,16 @@
  */
 package org.jbpm.formbuilder.server.form;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormRepresentationEncoderClient;
+import org.jbpm.formbuilder.shared.form.AbstractFormRepresentationEncoder;
 
-public class FormRepresentationEncoderImpl extends FormRepresentationEncoderClient {
+public class FormRepresentationEncoderImpl extends AbstractFormRepresentationEncoder {
 
+    private static final SimpleDateFormat FORMAT = new SimpleDateFormat(getDateFormatString());
+    
     @Override
     public Object fromMap(Map<String, Object> map) {
         Object objClassName = map.get("@className");
@@ -34,5 +38,10 @@ public class FormRepresentationEncoderImpl extends FormRepresentationEncoderClie
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    @Override
+    public String formatDate(Date date) {
+        return FORMAT.format(date);
     }
 }

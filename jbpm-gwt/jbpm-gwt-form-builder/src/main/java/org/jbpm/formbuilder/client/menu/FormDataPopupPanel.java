@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -94,7 +95,8 @@ public class FormDataPopupPanel extends PopupPanel {
         grid.setWidget(5, 1, name);
         
         vPanel.add(grid);
-        vPanel.add(new Button("Apply", new ClickHandler() {
+        HorizontalPanel buttonPanel = new HorizontalPanel();
+        buttonPanel.add(new Button("Apply", new ClickHandler() {
             public void onClick(ClickEvent event) {
                 FormDataPopulatedEvent formEvent = new FormDataPopulatedEvent(action.getValue(), 
                         method.getValue(method.getSelectedIndex()), taskId.getValue(), 
@@ -103,7 +105,12 @@ public class FormDataPopupPanel extends PopupPanel {
                 hide();
             }
         }));
-        
+        buttonPanel.add(new Button("Cancel", new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                hide();
+            }
+        }));
+        vPanel.add(buttonPanel);
         add(vPanel);
         
     }

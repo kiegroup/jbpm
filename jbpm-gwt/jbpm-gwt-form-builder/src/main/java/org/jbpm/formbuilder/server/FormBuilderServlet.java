@@ -59,10 +59,13 @@ import org.jbpm.formbuilder.server.xml.MenuGroupDTO;
 import org.jbpm.formbuilder.server.xml.MenuItemDTO;
 import org.jbpm.formbuilder.server.xml.MenuOptionDTO;
 import org.jbpm.formbuilder.server.xml.MetaDataDTO;
+import org.jbpm.formbuilder.server.xml.PropertiesDTO;
+import org.jbpm.formbuilder.server.xml.PropertiesItemDTO;
 import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
@@ -89,6 +92,7 @@ public class FormBuilderServlet extends HttpServlet {
     
     @Override
     public void init(ServletConfig config) throws ServletException {
+        FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
         this.menuService = new GuvnorMenuService();
         String baseUrl = config.getInitParameter("guvnor-base-url");
         String user = config.getInitParameter("guvnor-user");
@@ -135,6 +139,9 @@ public class FormBuilderServlet extends HttpServlet {
                 } else {
                     content.append(getFormItem(pkgName, formItemId));
                 }
+            } else if (uri.contains("/representationMappings/")) {
+                resp.setContentType("text/xml");
+                content.append(getRepresentationMappings());
             } else { //print help
                 req.getRequestDispatcher(req.getContextPath() + "/fbapi/help.jsp").forward(req, resp);
             }
@@ -212,6 +219,12 @@ public class FormBuilderServlet extends HttpServlet {
         ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
         return jaxbTransformation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
     }
+    
+    private String getRepresentationMappings() throws JAXBException, MenuServiceException {
+        Map<String, String> props = menuService.getFormBuilderProperties();
+        PropertiesDTO dto = new PropertiesDTO(props);
+        return jaxbTransformation(dto, PropertiesDTO.class, PropertiesItemDTO.class);
+    }
 
     private String listOptions() throws JAXBException, MenuServiceException {
         List<MenuOptionDescription> options = menuService.listOptions();
@@ -272,7 +285,7 @@ public class FormBuilderServlet extends HttpServlet {
 
     private String saveFormItem(String uri, BufferedReader reader) throws IOException, FormEncodingException, FormServiceException {
         String json = IOUtils.toString(reader);
-        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         FormItemRepresentation item = decoder.decodeItem(json);
         String pkgName = getUriParameter(uri, "package");
         String formItemName = getUriParameter(uri, "formItemName");
@@ -282,7 +295,7 @@ public class FormBuilderServlet extends HttpServlet {
     
     private String saveForm(String uri, BufferedReader reader) throws IOException, FormEncodingException, FormServiceException {
         String json = IOUtils.toString(reader);
-        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         FormRepresentation form = decoder.decode(json);
         String formId = formService.saveForm(getUriParameter(uri, "package"), form);
         return formId;
@@ -319,7 +332,7 @@ public class FormBuilderServlet extends HttpServlet {
     }
     
     private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto) throws MenuServiceException {
-        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         String json = dto.getClone();
         MenuItemDescription menuItem = new MenuItemDescription();
         try {

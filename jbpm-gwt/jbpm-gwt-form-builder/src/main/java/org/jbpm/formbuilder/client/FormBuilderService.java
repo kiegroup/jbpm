@@ -9,6 +9,7 @@ import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 /**
@@ -120,4 +121,11 @@ public interface FormBuilderService {
      * @throws FormBuilderException in case of error.
      */
     List<FormRepresentation> getForms() throws FormBuilderException;
+    
+    /**
+     * Populates the {@link RepresentationFactory} with the form items and representations
+     * that belong to them.
+     * @throws FormBuilderException
+     */
+    void populateRepresentationFactory() throws FormBuilderException;
 }

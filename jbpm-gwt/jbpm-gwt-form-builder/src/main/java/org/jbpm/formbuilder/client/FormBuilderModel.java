@@ -31,7 +31,6 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
@@ -39,8 +38,10 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.core.client.GWT;
@@ -149,6 +150,27 @@ public class FormBuilderModel implements FormBuilderService {
         return list;
     }
     
+    public void populateRepresentationFactory() throws FormBuilderException {
+        String url = GWT.getModuleBaseURL() + this.contextPath + "/representationMappings/";
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                Map<String, String> repMap = helper.readPropertyMap(response.getText());
+                for (Map.Entry<String, String> entry : repMap.entrySet()) {
+                    RepresentationFactory.registerItemClassName(entry.getKey(), entry.getValue());
+                }
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read representation mappings", exception));
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read representation mappings", e));
+        }
+    }
+    
     public Map<String, List<FBMenuItem>> getMenuItems() {
         final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems/");
@@ -252,7 +274,7 @@ public class FormBuilderModel implements FormBuilderService {
             }
         });
         try {
-            String json = FormEncodingClientFactory.getEncoder().encode(form);
+            String json = FormEncodingFactory.getEncoder().encode(form);
             request.setRequestData(json);
             request.send();
         } catch (RequestException e) {

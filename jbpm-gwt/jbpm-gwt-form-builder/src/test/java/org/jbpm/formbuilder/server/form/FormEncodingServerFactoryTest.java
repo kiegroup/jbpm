@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
@@ -29,14 +30,16 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 public class FormEncodingServerFactoryTest extends TestCase {
 
     public void testComplexFormDecoding() throws Exception {
+        FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
+        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormEncodingFactory.register(encoder, decoder);
+        
         URL url = getClass().getResource("/org/jbpm/formbuilder/shared/form/testComplexFormDecoding.json");
         String json = FileUtils.readFileToString(new File(url.getFile()));
         
         assertNotNull("json shouldn't be null", json);
         assertNotSame("json shouldn't be empty", "", json);
         
-        FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
-        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
         
         FormRepresentation form = decoder.decode(json);
         assertNotNull("form shouldn't be null", form);

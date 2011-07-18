@@ -95,8 +95,10 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
 
     public boolean add(FBFormItem item) {
         boolean add = items.add(item);
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-        bus.fireEvent(new FormItemAddedEvent(item, this));
+        if (item != null) {
+            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+            bus.fireEvent(new FormItemAddedEvent(item, this));
+        }
         return add;
     }
 
@@ -111,8 +113,10 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
             }
             items.add(item);
         }
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-        bus.fireEvent(new FormItemAddedEvent(newItem, this));
+        if (item != null) {
+            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+            bus.fireEvent(new FormItemAddedEvent(newItem, this));
+        }
         return item;
     }
 

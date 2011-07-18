@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -92,7 +92,7 @@ public class ComboBoxRepresentation extends FormItemRepresentation {
         this.id = (String) data.get("id");
         this.elements = new ArrayList<OptionRepresentation>();
         List<Map<String, Object>> elems = (List<Map<String, Object>>) data.get("elements");
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         if (elems != null) {
             for (Map<String, Object> map : elems) {
                 this.elements.add((OptionRepresentation) decoder.decode(map));

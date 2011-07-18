@@ -27,6 +27,7 @@ import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
@@ -35,6 +36,12 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class GuvnorMenuServiceTest extends TestCase {
 
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
+    }
+    
     public void testListOptions() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
         List<MenuOptionDescription> options = service.listOptions();
@@ -55,7 +62,7 @@ public class GuvnorMenuServiceTest extends TestCase {
     
     public void testSaveMenuItem() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
-        FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         File dbFile = new File(getClass().getResource("/menuItems.json").getFile());
         String jsonInitial = FileUtils.readFileToString(dbFile);
         Map<String, List<MenuItemDescription>> descsInitial = decoder.decodeMenuItemsMap(jsonInitial);
@@ -92,5 +99,12 @@ public class GuvnorMenuServiceTest extends TestCase {
         Map<String, List<MenuItemDescription>> descsFinal = decoder.decodeMenuItemsMap(jsonFinal);
         
         assertEquals("descsInitial and descsFinal should be the same", descsInitial.entrySet(), descsFinal.entrySet());
+    }
+    
+    public void testGetFormBuilderProperties() throws Exception {
+        GuvnorMenuService service = new GuvnorMenuService();
+        Map<String, String> props = service.getFormBuilderProperties();
+        assertNotNull("props shouldn't be null", props);
+        assertFalse("props shouldn't be empty", props.isEmpty());
     }
 }

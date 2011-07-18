@@ -21,8 +21,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 
@@ -44,7 +44,7 @@ public class MenuItemDTO {
             _effect.add(new FormEffectDTO(eff));
         }
         try {
-            String json = FormEncodingServerFactory.getEncoder().encode(item.getItemRepresentation());
+            String json = FormEncodingFactory.getEncoder().encode(item.getItemRepresentation());
             this._itemJson = json;
         } catch (FormEncodingException e) {
             

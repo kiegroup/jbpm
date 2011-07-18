@@ -19,14 +19,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.menu.AbstractBaseMenuService;
@@ -59,7 +62,7 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         URL url = getClass().getResource("/menuItems.json");
         Map<String, List<MenuItemDescription>> retval = null;
         try {
-        	FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+        	FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         	File file = new File(url.toURI());
         	String json = FileUtils.readFileToString(file);
         	retval = decoder.decodeMenuItemsMap(json);
@@ -87,10 +90,25 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         writeMenuItems(items);
     }
 
+    public Map<String, String> getFormBuilderProperties() throws MenuServiceException {
+        InputStream input = getClass().getResourceAsStream("/FormBuilder.properties");
+        Properties props = new Properties();
+        try {
+            props.load(input);
+        } catch (IOException e) {
+            throw new MenuServiceException("Couldn't read FormBuilder.properties", e);
+        }
+        Map<String, String> retval = new HashMap<String, String>();
+        for (Map.Entry<Object, Object> entry : props.entrySet()) {
+            retval.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+        return retval;
+    }
+    
     private void writeMenuItems(Map<String, List<MenuItemDescription>> items) throws MenuServiceException {
         URL url = getClass().getResource("/menuItems.json");
         try {
-            FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
+            FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
             File file = new File(url.toURI());
             String json = encoder.encodeMenuItemsMap(items);
             FileUtils.writeStringToFile(file, json);

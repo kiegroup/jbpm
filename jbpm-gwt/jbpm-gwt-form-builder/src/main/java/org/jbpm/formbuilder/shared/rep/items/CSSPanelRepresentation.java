@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -76,7 +76,7 @@ public class CSSPanelRepresentation extends FormItemRepresentation {
         this.cssStylesheetUrl = (String) data.get("cssStylesheetUrl");
         this.items.clear();
         List<Object> mapItems = (List<Object>) data.get("items");
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         if (mapItems != null) {
             for (Object obj : mapItems) {
                 Map<String, Object> itemMap = (Map<String, Object>) obj;

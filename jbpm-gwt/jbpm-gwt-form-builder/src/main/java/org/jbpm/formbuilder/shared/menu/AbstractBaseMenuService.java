@@ -44,5 +44,4 @@ public abstract class AbstractBaseMenuService implements MenuService {
         customItems.add(item);
         items.put(group, customItems);
     }
-
 }

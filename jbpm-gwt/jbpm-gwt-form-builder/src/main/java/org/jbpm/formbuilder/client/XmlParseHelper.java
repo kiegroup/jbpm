@@ -23,12 +23,12 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
@@ -62,7 +62,7 @@ public class XmlParseHelper {
      */
     public String asXml(String formItemName, FormItemRepresentation formItem) throws FormEncodingException {
         StringBuilder builder = new StringBuilder();
-        String json = FormEncodingClientFactory.getEncoder().encode(formItem);
+        String json = FormEncodingFactory.getEncoder().encode(formItem);
         builder.append("<formItem name=\"").append(formItemName).append("\">");
         builder.append("<content>").append(json).append("</content>");
         builder.append("</formItem>");
@@ -93,7 +93,7 @@ public class XmlParseHelper {
         builder.append("<groupName>").append(groupName).append("</groupName>");
         builder.append("<name>").append(item.getDescription().getText()).append("</name>");
         try {
-            String json = FormEncodingClientFactory.getEncoder().encode(item.buildWidget().getRepresentation());
+            String json = FormEncodingFactory.getEncoder().encode(item.buildWidget().getRepresentation());
             String jsonTag = new StringBuilder("<clone><![CDATA[").append(json).append("]]></clone>").toString();
             builder.append(jsonTag);
         } catch (FormEncodingException e) {
@@ -202,7 +202,7 @@ public class XmlParseHelper {
         Document xml = XMLParser.parse(responseText);
         NodeList list = xml.getElementsByTagName("json");
         List<FormRepresentation> retval = new ArrayList<FormRepresentation>();
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         if (list != null) {
             for (int index = 0; index < list.getLength(); index++) {
                 Node node = list.item(index);
@@ -277,6 +277,34 @@ public class XmlParseHelper {
      */
     public String getFormId(String responseText) {
         return textOfFirstNode(responseText, "formId");
+    }
+
+    /**
+     * Parses and returns a map of strings with string keys from an XML response of the 
+     * following format:
+     * 
+     * <code>
+     * &lt;properties&gt;<br>
+     * &nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
+     * &nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;property key="${key[n]}" value="${value[n]}"/&gt;<br>
+     * &lt;/properties&gt;<br>
+     * </code>
+     * @param responseText XML response to parse
+     * @return a map of the string values indexed by property name
+     */
+    public Map<String, String> readPropertyMap(String responseText) {
+        Document xml = XMLParser.parse(responseText);
+        Map<String, String> retval = new HashMap<String, String>();
+        NodeList list = xml.getElementsByTagName("property");
+        for (int index = 0; index < list.getLength(); index++) {
+            Element propElement = (Element) list.item(index);
+            String key = propElement.getAttribute("key");
+            String value = propElement.getAttribute("value");
+            retval.put(key, value);
+        }
+        return retval;
     }
     
     private List<MainMenuOption> readMenuOptions(NodeList menuOptions) {
@@ -372,7 +400,7 @@ public class XmlParseHelper {
         if (list.getLength() > 0) {
             Node node = list.item(0);
             String json = node.getFirstChild().getNodeValue();
-            FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+            FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             rep = (FormItemRepresentation) decoder.decodeItem(json);
         }
         return rep;

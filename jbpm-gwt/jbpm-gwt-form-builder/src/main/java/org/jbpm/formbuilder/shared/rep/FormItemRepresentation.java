@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 
 public abstract class FormItemRepresentation implements Mappable {
@@ -126,7 +126,7 @@ public abstract class FormItemRepresentation implements Mappable {
     
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> data) throws FormEncodingException {
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         List<Object> validationsMap = (List<Object>) data.get("itemValidations");
         this.itemValidations.clear();
         if (validationsMap != null) {

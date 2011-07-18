@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.shared.form.AbstractBaseFormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
@@ -55,7 +56,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         boolean isUpdate = updateFormName(form);
         String finalUrl = url + form.getName() + ".json";
         method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl); 
-        FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
             method.setRequestBody(encoder.encode(form));
             method.setRequestHeader("Checkin-Comment", form.getDocumentation());
@@ -82,7 +83,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         boolean isUpdate = updateItemName(formItemName, builder);
         String finalUrl = url + builder.toString() + ".json";
         EntityEnclosingMethod method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl);
-        FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
             method.setRequestBody(encoder.encode(formItem));
             method.setRequestHeader("Checkin-Comment", "Committing " + formItemName);
@@ -102,7 +103,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         HttpClient client = new HttpClient();
         if (formId != null && !"".equals(formId)) {
             GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + formId + ".json");
-            FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+            FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);
@@ -123,7 +124,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         HttpClient client = new HttpClient();
         if (formItemId != null && !"".equals(formItemId)) {
             GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + formItemId + ".json");
-            FormRepresentationDecoder decoder = FormEncodingServerFactory.getDecoder();
+            FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);

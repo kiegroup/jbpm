@@ -27,4 +27,6 @@ public interface MenuService {
     void saveMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException;
     
     void deleteMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException;
+
+    Map<String, String> getFormBuilderProperties() throws MenuServiceException;
 }

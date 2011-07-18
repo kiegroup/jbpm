@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -95,7 +95,7 @@ public class AbsolutePanelRepresentation extends FormItemRepresentation {
         this.id = (String) data.get("id");
         this.items.clear();
         List<Map<String, Object>> mapItems = (List<Map<String, Object>>) data.get("items");
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         if (mapItems != null) {
             for (Map<String, Object> entry : mapItems) {
                 int x = entry.get("x") == null ? 0 : ((Number) entry.get("x")).intValue();

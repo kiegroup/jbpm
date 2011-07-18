@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -140,7 +140,7 @@ public class TableRepresentation extends FormItemRepresentation {
         this.columns = data.get("columns") == null ? null : ((Number) data.get("columns")).intValue();
         this.rows = data.get("rows") == null ? null : ((Number) data.get("rows")).intValue();
         this.elements.clear();
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         List<List<Map<String, Object>>> mapElements = (List<List<Map<String, Object>>>) data.get("elements");
         if (mapElements != null) {
             for (List<Map<String, Object>> mapRow : mapElements) {

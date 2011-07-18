@@ -21,6 +21,7 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionPresenter;
 import org.jbpm.formbuilder.client.edition.EditionView;
+import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.layout.LayoutPresenter;
 import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.MenuPresenter;
@@ -36,6 +37,7 @@ import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 import org.jbpm.formbuilder.client.tree.TreePresenter;
 import org.jbpm.formbuilder.client.tree.TreeView;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
@@ -58,10 +60,12 @@ public class FormBuilderController {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, "An error ocurred in the UI", exception));
             }
         });
+        FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         PickupDragController dragController = new PickupDragController(view, true);
         dragController.registerDropController(new DisposeDropController(view));
         FormBuilderGlobals.getInstance().registerDragController(dragController);
         view.setNotificationsView(createNotifications());
+        populateRepresentationFactory(model);
         view.setMenuView(createMenu(model));
         view.setEditionView(createEdition());
         view.setLayoutView(createLayout());
@@ -69,6 +73,14 @@ public class FormBuilderController {
         view.setTasksView(createTasks(model));
         view.setToolBarView(createToolBar());
         view.setTreeView(createTree());
+    }
+
+    private void populateRepresentationFactory(FormBuilderService model) {
+        try {
+            model.populateRepresentationFactory();
+        } catch (FormBuilderException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem obtaining representation - ui component mapping", e));
+        }
     }
 
     private EditionView createEdition() {

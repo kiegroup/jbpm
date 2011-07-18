@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.Mappable;
@@ -96,7 +96,7 @@ public class MenuItemDescription implements Mappable {
                 this.effects.add(effect);
             }
         }
-        FormRepresentationDecoder decoder = FormEncodingClientFactory.getDecoder();
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         Map<String, Object> itemMap = (Map<String, Object>) data.get("itemRepresentation");
         this.itemRepresentation = (FormItemRepresentation) decoder.decode(itemMap);
     }

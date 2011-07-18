@@ -19,6 +19,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
@@ -32,7 +33,7 @@ public class FormItemDefDTO {
     }
     
     public FormItemDefDTO(String formItemId, FormItemRepresentation formItem) throws FormEncodingException {
-        FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         this._formItemId = formItemId;
         this._json = encoder.encode(formItem);
     }
