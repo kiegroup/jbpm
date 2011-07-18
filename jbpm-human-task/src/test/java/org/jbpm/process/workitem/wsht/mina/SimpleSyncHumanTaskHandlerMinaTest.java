@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.process.workitem.wsht.local;
-
-import javax.persistence.Persistence;
-import javax.persistence.EntityManagerFactory;
+package org.jbpm.process.workitem.wsht.mina;
 
 import java.util.ArrayList;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
@@ -26,27 +25,36 @@ import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
+import org.jbpm.task.service.TaskClientImpl;
+import org.jbpm.task.service.TaskServer;
+import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceClient;
-import org.jbpm.task.service.TaskServiceClientLocalImpl;
+import org.jbpm.task.service.TaskServiceSession;
+import org.jbpm.task.service.mina.MinaTaskClientConnector;
+import org.jbpm.task.service.mina.MinaTaskClientHandler;
+import org.jbpm.task.service.mina.MinaTaskServer;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.drools.SystemEventListenerFactory;
 import static org.junit.Assert.*;
 
 /**
  *
  * @author salaboy
  */
-public class SimpleSyncHumanTaskHandlerLocalTest {
+public class SimpleSyncHumanTaskHandlerMinaTest {
 
     private TaskServiceClient client;
     private SyncWSHumanTaskHandler handler;
+    private TaskServer server;
+    protected TaskService taskService;
     private EntityManagerFactory emf;
     private User user;
 
-    public SimpleSyncHumanTaskHandlerLocalTest() {
+    public SimpleSyncHumanTaskHandlerMinaTest() {
     }
 
     @BeforeClass
@@ -60,21 +68,43 @@ public class SimpleSyncHumanTaskHandlerLocalTest {
     @Before
     public void setUp() throws InterruptedException {
         emf = Persistence.createEntityManagerFactory("org.jbpm.task");
-        client = new TaskServiceClientLocalImpl(emf);
+        taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
+        TaskServiceSession createSession = taskService.createSession();
         user = new User("salaboy");
-        client.addUser(user);
-
+        createSession.addUser(user);
+        server = new MinaTaskServer(taskService);
+        Thread thread = new Thread(server);
+        thread.start();
+        System.out.println("Waiting for the Mina Server to come up");
+        while (!server.isRunning()) {
+            System.out.print(".");
+            Thread.sleep(50);
+        }
     }
 
     @After
     public void tearDown() throws Exception {
+        System.out.println("Stoping the Mina Server");
+        handler.dispose();
+        client.disconnect();
+        server.stop();
     }
 
     @Test
-    public void simpleAPILocalTest() {
+    public void simpleAPIRemoteMinaTest() {
+
+
+        client = new TaskClientImpl(new MinaTaskClientConnector("myClient",
+                new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
+        client.connect("127.0.0.1", 9123);
 
         handler = new SyncWSHumanTaskHandler();
+
         handler.setClient(client);
+
+        final User user = new User("salaboy");
+        client.addUser(user);
+
 
 
         Task task = new Task();
@@ -94,14 +124,13 @@ public class SimpleSyncHumanTaskHandlerLocalTest {
         assertEquals("1", task.getId().toString());
 
         task = client.getTask(task.getId());
-        assertEquals(Status.Reserved, task.getTaskData().getStatus());
+        assertEquals(Status.Reserved, client.getTask(task.getId()).getTaskData().getStatus());
         assertNotNull(task);
         client.start(task.getId(), "salaboy");
-        assertEquals(Status.InProgress, task.getTaskData().getStatus());
+
+        assertEquals(Status.InProgress, client.getTask(task.getId()).getTaskData().getStatus());
 
         client.complete(task.getId(), user.getId(), null);
-        assertEquals(Status.Completed, task.getTaskData().getStatus());
+        assertEquals(Status.Completed, client.getTask(task.getId()).getTaskData().getStatus());
     }
-
-   
 }
