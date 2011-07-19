@@ -86,8 +86,7 @@ public class SimpleSyncHumanTaskHandlerMinaTest {
         createSession.addUser(admin);
         
         server = new MinaTaskServer(taskService);
-        Thread thread = new Thread(server);
-        thread.start();
+        new Thread(server).start();
         
         System.out.println("Waiting for the Mina Server to come up");
         while (!server.isRunning()) {

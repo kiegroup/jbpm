@@ -17,7 +17,7 @@ package org.jbpm.process.workitem.wsht.mina;
 
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandlerBaseTest;
-import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
+import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.task.service.impl.TaskServiceClientSyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
@@ -32,8 +32,9 @@ public class SyncWSHumanTaskHandlerMinaTest extends SyncWSHumanTaskHandlerBaseTe
     protected void setUp() throws Exception {
         super.setUp();
         server = new MinaTaskServer(taskService);
-        Thread thread = new Thread(server);
-        thread.start();
+        
+        new Thread(server).start();
+        
         System.out.println("Waiting for the Mina Server to come up");
         while (!server.isRunning()) {
             System.out.print(".");
@@ -42,11 +43,14 @@ public class SyncWSHumanTaskHandlerMinaTest extends SyncWSHumanTaskHandlerBaseTe
         setClient(new TaskServiceClientSyncImpl(new MinaTaskClientConnector("client 1",
                 new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
         getClient().connect("127.0.0.1", 9123);
-        setHandler(new AsyncWSHumanTaskHandler());
+        //setHandler(new AsyncWSHumanTaskHandler());
+        WSHumanTaskHandler wSHumanTaskHandler = new WSHumanTaskHandler();
+        wSHumanTaskHandler.setClient(getClient());
+        setHandler(wSHumanTaskHandler);
     }
 
     protected void tearDown() throws Exception {
-        ((AsyncWSHumanTaskHandler) getHandler()).dispose();
+        ((WSHumanTaskHandler) getHandler()).dispose();
         getClient().disconnect();
         server.stop();
         super.tearDown();

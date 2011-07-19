@@ -397,11 +397,7 @@ public class TaskServiceClientSyncImpl implements TaskServiceClientSync {
     public void registerForEvent(EventKey key, boolean remove, WorkItemManager manager) {
         TaskCompletedHandler handler = new TaskCompletedHandler(manager, asyncTaskClient);
         asyncTaskClient.registerForEvent(key, remove, handler);
-        do {
-            if (handler.getError() != null) {
-                throw handler.getError();
-            }
-        } while (!handler.isDone());
+
     }
 
     public boolean isConnected() {

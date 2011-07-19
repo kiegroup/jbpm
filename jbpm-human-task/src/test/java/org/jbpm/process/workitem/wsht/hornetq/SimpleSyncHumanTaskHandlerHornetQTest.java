@@ -87,9 +87,9 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
         createSession.addUser(admin);
         
         
-        server = new HornetQTaskServer(taskService, 5443);
-        Thread thread = new Thread(server);
-        thread.start();
+        server = new HornetQTaskServer(taskService, 5445);
+        new Thread(server).start();
+        
         
         
         System.out.println("Waiting for the HornetQ Server to come up");
@@ -97,9 +97,9 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
             System.out.print(".");
             Thread.sleep(100);
         }
-        client = new TaskServiceClientSyncImpl(new HornetQTaskClientConnector("tasksQueue/workItemHandler"+UUID.randomUUID().toString(),
+        client = new TaskServiceClientSyncImpl(new HornetQTaskClientConnector("clientQueue/taskWorkItemHandler"+UUID.randomUUID().toString(),
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-        client.connect("127.0.0.1", 5443);
+        client.connect("127.0.0.1", 5445);
         
     }
 
@@ -114,7 +114,7 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
             System.out.print(".");
             Thread.sleep(100);
         }
-        server = null;
+        
         
     }
 
@@ -158,12 +158,13 @@ public class SimpleSyncHumanTaskHandlerHornetQTest {
         assertEquals(Status.Completed, client.getTask(task.getId()).getTaskData().getStatus());
     }
      @Test
-    public void simpleAPIWithWorkItemRemoteMinaTest() throws InterruptedException {
+    public void simpleAPIWithWorkItemRemoteHornetQTest() throws InterruptedException {
 
         handler = new WSHumanTaskHandler();
         handler.setClient(client);
 
         TestWorkItemManager manager = new TestWorkItemManager();
+        
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setName("Human Task");
         workItem.setParameter("TaskName", "TaskName");

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.process.workitem.wsht.mina;
 
 import org.drools.SystemEventListenerFactory;
@@ -27,30 +26,30 @@ import org.jbpm.task.service.mina.MinaTaskServer;
 
 public class AsyncWSHumanTaskHandlerMinaTest extends AsyncWSHumanTaskHandlerBaseTest {
 
-	private TaskServer server;
+    private TaskServer server;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		server = new MinaTaskServer(taskService);
-		Thread thread = new Thread(server);
-		thread.start();
-		System.out.println("Waiting for the Mina Server to come up");
-		while (!server.isRunning()) {
-        	System.out.print(".");
-        	Thread.sleep( 50 );
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        server = new MinaTaskServer(taskService);
+        new Thread(server).start();
+        System.out.println("Waiting for the Mina Server to come up");
+        while (!server.isRunning()) {
+            System.out.print(".");
+            Thread.sleep(50);
         }
-		setClient(new TaskServiceClientAsyncImpl(new MinaTaskClientConnector("client 1",
-								new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
-		getClient().connect("127.0.0.1", 9123);
-		setHandler(new AsyncWSHumanTaskHandler());
-	}
+        setClient(new TaskServiceClientAsyncImpl(new MinaTaskClientConnector("client 1",
+                new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
+        getClient().connect("127.0.0.1", 9123);
+        AsyncWSHumanTaskHandler asyncWSHumanTaskHandler = new AsyncWSHumanTaskHandler();
+        asyncWSHumanTaskHandler.setClient(getClient());
+        setHandler(asyncWSHumanTaskHandler);
+    }
 
-	protected void tearDown() throws Exception {
-		((AsyncWSHumanTaskHandler) getHandler()).dispose();
-		getClient().disconnect();
-		server.stop();
-		super.tearDown();
-	}
-
+    protected void tearDown() throws Exception {
+        ((AsyncWSHumanTaskHandler) getHandler()).dispose();
+        getClient().disconnect();
+        server.stop();
+        super.tearDown();
+    }
 }
