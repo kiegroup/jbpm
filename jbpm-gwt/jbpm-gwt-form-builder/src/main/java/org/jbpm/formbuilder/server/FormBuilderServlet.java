@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.server;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
@@ -34,6 +35,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormDefDTO;
@@ -138,16 +140,33 @@ public class FormBuilderServlet extends HttpServlet {
                 } else {
                     content.append(getFormItem(pkgName, formItemId));
                 }
+            } else if (uri.contains("/formTemplate/")) {
+                exportTemplateFile(req, resp);
             } else if (uri.contains("/representationMappings/")) {
                 resp.setContentType("text/xml");
                 content.append(getRepresentationMappings());
             } else { //print help
                 req.getRequestDispatcher(req.getContextPath() + "/fbapi/help.jsp").forward(req, resp);
             }
-            resp.getWriter().println(content.toString());
+            if (content.length() > 0) {
+                resp.getWriter().println(content.toString());
+            }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
+    }
+
+    private void exportTemplateFile(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String fileName = req.getParameter("fileName");
+        String formName = req.getParameter("formName");
+        String language = getUriParameter(req.getRequestURI(), "lang");
+        File file = new File(fileName);
+        resp.setContentLength((int) file.length());
+        String headerValue = new StringBuilder("attachment; filename=\"").
+            append(formName).append('.').append(language).
+            append("\"").toString();
+        resp.setHeader("Content-Disposition", headerValue);
+        IOUtils.write(FileUtils.readFileToByteArray(file), resp.getOutputStream());
     }
     
     private String getUriParameter(String requestUri, String paramName) {
@@ -196,19 +215,34 @@ public class FormBuilderServlet extends HttpServlet {
         String language = getUriParameter(requestUri, "lang");
         FormPreviewDTO dto = jaxbTransformation(reader, FormPreviewDTO.class, new Class[] {FormPreviewDTO.class, FormPreviewParameterDTO.class});
         
-        String json = dto.getRepresentation();
+        URL url = createTemplate(language, dto);
         Map<String, Object> inputs = dto.getInputsAsMap();
         StringBuilder builder = new StringBuilder();
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
-        FormRepresentation form = decoder.decode(json);
-        Language translator = LanguageFactory.getInstance().getLanguage(language);
-        URL url = translator.translateForm(form);
         Renderer renderer = RendererFactory.getInstance().getRenderer(language);
         builder.append("<html><head><title>Test Form: ");
-        builder.append(form.getName()).append("</title></head><body>");
+        builder.append(dto.getForm().getName()).append("</title></head><body>");
         builder.append(renderer.render(url, inputs));
         builder.append("</body></html>");
         return builder.toString();
+    }
+    
+    private String getFormTemplate(String requestUri, BufferedReader reader) throws JAXBException, 
+            LanguageException, FormEncodingException, IOException {
+        String language = getUriParameter(requestUri, "lang");
+        FormPreviewDTO dto = jaxbTransformation(reader, FormPreviewDTO.class, 
+                new Class[] {FormPreviewDTO.class, FormPreviewParameterDTO.class});
+        URL url = createTemplate(language, dto);
+        return url.getFile();
+    }
+
+    private URL createTemplate(String language, FormPreviewDTO dto) throws FormEncodingException, LanguageException {
+        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+        String json = dto.getRepresentation();
+        FormRepresentation form = decoder.decode(json);
+        dto.setForm(form);
+        Language translator = LanguageFactory.getInstance().getLanguage(language);
+        URL url = translator.translateForm(form);
+        return url;
     }
 
     private String listTasks(String filter, String pkgName) throws JAXBException, TaskServiceException {
@@ -283,6 +317,10 @@ public class FormBuilderServlet extends HttpServlet {
             } else if (uri.contains("/formPreview/")) {
                 resp.setContentType("text/html");
                 resp.getWriter().println(getFormPreview(uri, req.getReader()));
+            } else if (uri.contains("/formTemplate/")) {
+                String fileName = getFormTemplate(uri, req.getReader());
+                resp.setContentType("text/xml");
+                resp.getWriter().println("<fileName>"+fileName+"</fileName>");
             }
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());

@@ -1,3 +1,5 @@
+TO BE IMPLEMENTED IN XUL
+
 #set ($idParam = ${language.getParam("id", $item.id)})
 #set ($nameParam = ${language.getParam("name", $item.name)})
 #set ($acceptParam = ${language.getParam("accept", $item.accept)})

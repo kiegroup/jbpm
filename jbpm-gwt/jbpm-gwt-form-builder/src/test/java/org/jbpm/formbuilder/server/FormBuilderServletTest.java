@@ -17,7 +17,9 @@ package org.jbpm.formbuilder.server;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -25,6 +27,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,11 +38,14 @@ import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.menu.MockMenuService;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 import org.jbpm.formbuilder.shared.task.MockTaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
@@ -177,6 +183,89 @@ public class FormBuilderServletTest extends TestCase {
         assertTrue("xml should contain myForm", xml.contains("myForm"));
         assertFalse("xml shouldn't contain otherTask", xml.contains("otherTask"));
         assertFalse("xml shouldn't contain otherForm", xml.contains("otherForm"));
+    }
+    
+    public void testGetFormTemplate() throws Exception {
+        //Test post that generates the form template via POST
+        EasyMock.expect(req.getRequestURI()).
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formTemplate/lang/ftl/").once();
+
+        FormRepresentation myForm = new FormRepresentation();
+        myForm.setName("myForm");
+        myForm.setTaskId("myTask");
+        LabelRepresentation label = new LabelRepresentation();
+        label.setValue("My label");
+        myForm.addFormItem(label);
+        HiddenRepresentation hidden = new HiddenRepresentation();
+        hidden.setName("hiddenField");
+        hidden.setValue("my hidden value");
+        myForm.addFormItem(hidden);
+        CompleteButtonRepresentation submit = new CompleteButtonRepresentation();
+        submit.setName("Complete");
+        myForm.addFormItem(submit);
+        
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
+        StringBuilder builder = new StringBuilder();
+        builder.append("<formPreview>");
+        String json = encoder.encode(myForm);
+        builder.append("<representation>").append(json).append("</representation>");
+        builder.append("</formPreview>");
+        String xml = builder.toString();
+        EasyMock.expect(req.getReader()).andReturn(new BufferedReader(new InputStreamReader(
+                new ByteArrayInputStream(xml.getBytes())))).once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType(EasyMock.same("text/xml"));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(req, resp);
+        servlet.doPost(req, resp);
+        EasyMock.verify(req, resp);
+        
+        String fileNameXml = writer.toString();
+        
+        assertNotNull("fileNameXml shouldn't be null", fileNameXml);
+        assertFalse("fileNameXml shouldn't be empty", "".equals(fileNameXml));
+        assertTrue("fileNameXml should start with <fileName>", fileNameXml.startsWith("<fileName>"));
+        assertTrue("fileNameXml should end with </fileName>", fileNameXml.contains("</fileName>"));
+        
+        String fileName = fileNameXml.replace("<fileName>", "").replace("</fileName>", "").replace("\n", "").replace("\r", "");
+        
+        //With the response (fileName) test the retrieval of the template via GET
+        
+        HttpServletRequest req = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse resp = EasyMock.createMock(HttpServletResponse.class);
+        
+        EasyMock.expect(req.getRequestURI()).
+            andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formTemplate/lang/ftl/").times(2);
+        EasyMock.expect(req.getParameter(EasyMock.same("fileName"))).
+            andReturn(fileName).once();
+        EasyMock.expect(req.getParameter(EasyMock.same("formName"))).
+            andReturn(myForm.getName()).once();
+        resp.setHeader(EasyMock.same("Content-Disposition"), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        resp.setContentLength(EasyMock.anyInt());
+        EasyMock.expectLastCall().once();
+        
+        final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        
+        EasyMock.expect(resp.getOutputStream()).andReturn(new ServletOutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                bout.write(b);
+            }
+        });
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        
+        String template = bout.toString();
+        
+        assertNotNull("template shouldn't be null", template);
+        assertFalse("template shouldn't be empty", "".equals(template));
+        assertTrue("template should contain myForm's name", template.contains(myForm.getName()));
+        assertTrue("template should contain myForm's task ID", template.contains(myForm.getTaskId()));
     }
     
     public void testListFormItems() throws Exception {

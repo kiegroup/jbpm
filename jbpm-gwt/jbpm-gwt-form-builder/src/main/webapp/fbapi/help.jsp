@@ -254,11 +254,18 @@
 		</ul>
 	  </li>
       <li>
-	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formPreview/</h4>
+	    <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formTemplate/</h4>
 		<ul>
-		  <li style="color:red;"><strong>GET</strong>: build and explain formPreview()</li>
+		  <li style="color:red;"><strong>POST</strong>: explain getFormTemplate()</li>
+		  <li style="color:red;"><strong>POST</strong>: explain exportTemplateFile()</li>
 		</ul>
 	  </li>
+      <li>
+        <h4><%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/fbapi/formPreview/</h4>
+        <ul>
+          <li style="color:red;"><strong>POST</strong>: explain getFormPreview()</li>
+        </ul>
+      </li>
     </ul>
   </body>
 </html>

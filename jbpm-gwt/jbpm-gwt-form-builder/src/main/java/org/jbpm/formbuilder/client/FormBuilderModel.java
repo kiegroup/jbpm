@@ -53,6 +53,9 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderModel implements FormBuilderService {
 
@@ -300,6 +303,39 @@ public class FormBuilderModel implements FormBuilderService {
         });
         try {
             request.setRequestData(helper.asXml(form, inputs));
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
+        } catch (FormEncodingException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form", e));
+        }
+    }
+    
+    public void loadFormTemplate(final FormRepresentation form, final String language) {
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST,
+                GWT.getModuleBaseURL() + this.contextPath +
+                "/formTemplate/lang/" + language);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                String fileName = helper.getFileName(response.getText()); //TODO response should return fileName, not file
+                FormPanel auxiliarForm = new FormPanel();
+                auxiliarForm.setMethod("get");
+                auxiliarForm.setAction(GWT.getModuleBaseURL() + contextPath + "/formTemplate/lang/" + language);
+                Hidden hidden1 = new Hidden("fileName");
+                hidden1.setValue(fileName);
+                Hidden hidden2 = new Hidden("formName");
+                hidden2.setValue(form.getName());
+                auxiliarForm.add(hidden1);
+                auxiliarForm.add(hidden2);
+                RootPanel.get().add(auxiliarForm);
+                auxiliarForm.submit();
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't export template", exception));
+            }
+        });
+        try {
+            request.setRequestData(helper.asXml(form, null));
             request.send();
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));

@@ -24,4 +24,12 @@ public class Language extends ScriptingLanguage {
     public Language() {
         super(LANG, "/langs/xsl/");
     }
+    
+    @Override
+    public String getParam(String paramName, String paramValue) {
+        if ("ref".equalsIgnoreCase(paramName)) {
+            paramValue = paramValue.replaceAll("\\.", "/");
+        }
+        return super.getParam(paramName, paramValue);
+    }
 }

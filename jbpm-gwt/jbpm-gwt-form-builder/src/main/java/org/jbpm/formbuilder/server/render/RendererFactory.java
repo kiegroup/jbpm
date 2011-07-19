@@ -15,21 +15,43 @@
  */
 package org.jbpm.formbuilder.server.render;
 
+import java.io.IOException;
 import java.util.HashMap; 
 import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class RendererFactory {
 
+    private static final Log log = LogFactory.getLog(RendererFactory.class);
     private static final RendererFactory INSTANCE = new RendererFactory();
+    private static final String DEFAULT_FILE = "/FormBuilder.properties";
+    private static final String LANGUAGES_PROPERTY_NAME = "form.builder.languages";
     
     public static RendererFactory getInstance() {
         return INSTANCE;
     }
 
-    private final Map<String, Renderer> cache = new HashMap<String, Renderer>();
+    private final Map<String, Renderer> cache;
     
     private RendererFactory() {
+        cache = new HashMap<String, Renderer>();
+        Properties props = new Properties();
+        try {
+            props.load(getClass().getResourceAsStream(DEFAULT_FILE));
+            String property = props.getProperty(LANGUAGES_PROPERTY_NAME);
+            String[] languages = property == null ? new String[0] : property.split(",");
+            for (String lang : languages) {
+                getRenderer(lang);
+            }
+        } catch (IOException e) {
+            log.error("Couldn't read file " + DEFAULT_FILE, e);
+        } catch (RendererException e) {
+            log.error("Couldn't initiate RendererFactory", e);
+        }
     }
     
     public Renderer getRenderer(String language) throws RendererException {
@@ -43,7 +65,7 @@ public class RendererFactory {
                     Class<?> klass = Class.forName(kclass);
                     obj = klass.newInstance();
                 } catch (Exception e) {
-                    throw new RendererException(e);
+                    throw new RendererException("Couldn't find class " + kclass, e);
                 }
                 cache.put(language, (Renderer) obj);
             }

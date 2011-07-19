@@ -123,7 +123,15 @@ public interface FormBuilderService {
     /**
      * Populates the {@link RepresentationFactory} with the form items and representations
      * that belong to them.
-     * @throws FormBuilderException
+     * @throws FormBuilderException in case of error.
      */
     void populateRepresentationFactory() throws FormBuilderException;
+
+    /**
+     * Loads a file from the server that contains a given language's form template
+     * @param form the form representation to create a template from
+     * @param language the result template expected language
+     * @throws FormBuilderException in case of error.
+     */
+    void loadFormTemplate(FormRepresentation form, String language) throws FormBuilderException;
 }

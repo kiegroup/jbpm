@@ -7,11 +7,15 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 @XmlRootElement (name = "formPreview") public class FormPreviewDTO {
 
     private List<FormPreviewParameterDTO> _input = new ArrayList<FormPreviewParameterDTO>();
     private String _representation;
+    private FormRepresentation _form;
     
     public FormPreviewDTO() {
         // jaxb needs a default constructor
@@ -33,6 +37,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 
     public void setRepresentation(String representation) {
         this._representation = representation;
+    }
+
+    @XmlTransient
+    public FormRepresentation getForm() {
+        return _form;
+    }
+
+    public void setForm(FormRepresentation form) {
+        this._form = form;
     }
 
     public Map<String, Object> getInputsAsMap() {

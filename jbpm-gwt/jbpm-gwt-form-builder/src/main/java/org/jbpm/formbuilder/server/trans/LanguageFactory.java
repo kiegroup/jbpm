@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 
 public class LanguageFactory {
 
-
     private static final Log log = LogFactory.getLog(LanguageFactory.class);
     private static final String DEFAULT_FILE = "/FormBuilder.properties";
     private static final String LANGUAGES_PROPERTY_NAME = "form.builder.languages";

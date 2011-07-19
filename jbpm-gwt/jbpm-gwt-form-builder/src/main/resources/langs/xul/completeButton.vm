@@ -1,3 +1,5 @@
+TO BE IMPLEMENTED IN XUL
+
 #set ($idParam = ${language.getParam("id", $item.id)})
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
@@ -8,19 +10,6 @@
     #set ($name = $item.ouptput.name)
 #end
 ## TODO completeButton.getOnClickScript(); should be loaded first
-#set ($nameParam = ${language.getParam("ref", $name)})
-<input type="submit" #if($valueParam)$valueParam#end />
-
-<xforms:button 
-    #if($idParam)$idParam#end
-    #if($styleParam)$styleParam#end
-    #if($nameParam)$nameParam#end 
-    submitInfo = xsd:IDREF #REQUIRED
-    xmlns:xforms="http://www.w3.org/2002/01/xforms">
-  #if($value)
-    <xforms:value xmlns:xforms="http://www.w3.org/2002/01/xforms">$value</xforms:value>
-  #end
-  
->
-  <!-- caption, (help|hint|alert|action|extension)* -->
-</xforms:submit>
+#set ($nameParam = ${language.getParam("name", $name)})
+#set ($valueParam = ${language.getParam("value", $item.text)})
+<input type="submit" #if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end#if($valueParam)$valueParam#end />

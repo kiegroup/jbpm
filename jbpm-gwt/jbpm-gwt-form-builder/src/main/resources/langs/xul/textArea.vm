@@ -1,0 +1,9 @@
+TO BE IMPLEMENTED IN XUL
+
+#set ($rowsParam = ${language.getParam("rows", $item.rows)})
+#set ($colsParam = ${language.getParam("cols", $item.cols)})
+#set ($idParam = ${language.getParam("id", $item.id)})
+#set ($nameParam = ${language.getParam("name", $item.name)})
+<textarea #if($rowsParam)$rowsParam#end#if($colsParam)$colsParam#end#if($idParam)$idParam#end#if($nameParam)$nameParam#end>
+    $item.value
+</textarea>

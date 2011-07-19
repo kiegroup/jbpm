@@ -279,6 +279,17 @@ public class XmlParseHelper {
     public String getFormId(String responseText) {
         return textOfFirstNode(responseText, "formId");
     }
+    
+    /**
+     * Parses and returns a file name from an XML response of the following format:
+     * <code>&lt;fileName&gt;${response}&lt;/fileName&gt;</code>
+     * 
+     * @param responseText XML response to parse
+     * @return a file name on the server
+     */
+    public String getFileName(String responseText) {
+        return textOfFirstNode(responseText, "fileName");
+    }
 
     /**
      * Parses and returns a map of strings with string keys from an XML response of the 

@@ -28,30 +28,6 @@ public class Language extends ScriptingLanguage {
         super(LANG, "/langs/freemarker/");
     }
 
-    public String getParam(String paramName, String paramValue) {
-        StringBuilder builder = new StringBuilder("");
-        if (paramValue != null && !"".equals(paramValue)) {
-            builder.append(paramName).append("=\"").append(paramValue).append("\" ");
-        }
-        return builder.toString();
-    }
-    
-    public String getParam(String paramName, Integer paramValue) {
-        StringBuilder builder = new StringBuilder("");
-        if (paramValue != null) {
-            builder.append(paramName).append("=\"").append(paramValue).append("\" ");
-        }
-        return builder.toString();
-    }
-    
-    public String getStyleParam(String paramName, String paramValue) {
-        StringBuilder builder = new StringBuilder("");
-        if (paramValue != null && !"".equals(paramValue)) {
-            builder.append(paramName).append(": ").append(paramValue).append("; ");
-        }
-        return builder.toString();
-    }
-    
     public String toServerScript(FBScript script) throws LanguageException {
         if (isValidScript(script)) {
             return asFtlScript(script);
