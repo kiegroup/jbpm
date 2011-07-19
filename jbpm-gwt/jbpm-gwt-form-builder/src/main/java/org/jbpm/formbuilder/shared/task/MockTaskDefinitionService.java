@@ -41,19 +41,4 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
     public List<TaskRef> query(String pkgName, String filter) {
         return new ArrayList<TaskRef>(tasks);
     }
-
-    public void update(TaskRef task) {
-        boolean updated = false;
-        for (int i = 0; i < tasks.size(); i++) {
-            TaskRef currTask = tasks.get(i);
-            if (task.getTaskId().equals(currTask.getTaskId())) {
-                tasks.set(i, task);
-                updated = true;
-                break;
-            }
-        }
-        if (!updated) {
-            throw new RuntimeException("Not updated " + task);
-        }
-    }
 }

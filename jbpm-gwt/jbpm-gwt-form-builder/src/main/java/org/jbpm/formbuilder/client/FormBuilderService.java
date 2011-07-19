@@ -95,9 +95,6 @@ public interface FormBuilderService {
      */
     List<TaskRef> getExistingTasks(String filter) throws FormBuilderException;
 
-    //TODO Define this, or see if it should be here at all
-    void updateTask(TaskRef task) throws FormBuilderException;
-
     /**
      * Returns existing validations from the server
      * @return all existing validation types available on server side

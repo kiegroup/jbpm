@@ -56,6 +56,7 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class FormBuilderModel implements FormBuilderService {
 
@@ -317,16 +318,18 @@ public class FormBuilderModel implements FormBuilderService {
                 "/formTemplate/lang/" + language);
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
-                String fileName = helper.getFileName(response.getText()); //TODO response should return fileName, not file
+                String fileName = helper.getFileName(response.getText());
                 FormPanel auxiliarForm = new FormPanel();
                 auxiliarForm.setMethod("get");
                 auxiliarForm.setAction(GWT.getModuleBaseURL() + contextPath + "/formTemplate/lang/" + language);
                 Hidden hidden1 = new Hidden("fileName");
                 hidden1.setValue(fileName);
                 Hidden hidden2 = new Hidden("formName");
-                hidden2.setValue(form.getName());
-                auxiliarForm.add(hidden1);
-                auxiliarForm.add(hidden2);
+                hidden2.setValue(form.getName() == null || "".equals(form.getName()) ? "template" : form.getName());
+                VerticalPanel vPanel = new VerticalPanel();
+                vPanel.add(hidden1);
+                vPanel.add(hidden2);
+                auxiliarForm.add(vPanel);
                 RootPanel.get().add(auxiliarForm);
                 auxiliarForm.submit();
             }
@@ -473,9 +476,5 @@ public class FormBuilderModel implements FormBuilderService {
         List<FBValidationItem> retval = new ArrayList<FBValidationItem>();
         retval.add(new NotEmptyValidationItem());
         return retval;
-    }
-
-    public void updateTask(TaskRef task) throws FormBuilderException {
-        //TODO implement
     }
 }

@@ -138,9 +138,4 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             return new ArrayList<TaskRef>();
         }
     }
-    
-    public void update(TaskRef task) {
-        // TODO Auto-generated method stub
-        
-    }
 }
