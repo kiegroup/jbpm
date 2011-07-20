@@ -122,6 +122,61 @@
         </dependency>
     </dependencies>
   
-    
+    <profiles>  
+        <profile>  
+            <id>hornetQ</id>  
+            <build>
+                <defaultGoal>exec:java</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>org.jbpm.task.utils.TaskServerLauncher</mainClass>
+                            <commandlineArgs>
+                                 --impl=HORNETQ --port=9124
+                            </commandlineArgs>
+         
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>  
+            <id>mina</id>  
+            <build>
+                <defaultGoal>exec:java</defaultGoal>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>org.jbpm.task.utils.TaskServerLauncher</mainClass>
+                            <commandlineArgs>
+                                 --impl=MINA --port=9124
+                            </commandlineArgs>
+         
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+    </profiles>
   
 </project>
