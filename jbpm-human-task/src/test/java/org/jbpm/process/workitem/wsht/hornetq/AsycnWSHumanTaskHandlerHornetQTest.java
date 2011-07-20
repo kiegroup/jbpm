@@ -33,8 +33,9 @@ public class AsycnWSHumanTaskHandlerHornetQTest extends AsyncWSHumanTaskHandlerB
     protected void setUp() throws Exception {
         super.setUp();
         server = new HornetQTaskServer(taskService, 5446);
-        Thread thread = new Thread(server);
-        thread.start();
+        
+        new Thread(server).start();
+        
         System.out.println("Waiting for the HornetQTask Server to come up");
         while (!server.isRunning()) {
             System.out.print(".");

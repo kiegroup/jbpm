@@ -23,12 +23,10 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.hornetq.api.core.HornetQException;
-import org.hornetq.api.core.SimpleString;
 import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.api.core.client.ClientConsumer;
 import org.hornetq.api.core.client.ClientMessage;
 import org.hornetq.api.core.client.ClientSession;
-import org.hornetq.api.core.client.ClientSession.QueueQuery;
 import org.hornetq.api.core.client.ClientSessionFactory;
 import org.hornetq.api.core.client.HornetQClient;
 import org.hornetq.core.config.Configuration;
@@ -52,7 +50,7 @@ public abstract class BaseHornetQTaskServer extends TaskServer {
     private boolean standalone;
     private final int port;
     volatile boolean embeddedServerRunning;
-    private boolean running;
+    private volatile boolean running;
     private ClientSession session;
     private ClientConsumer consumer;
 
@@ -92,21 +90,6 @@ public abstract class BaseHornetQTaskServer extends TaskServer {
         } catch (Exception e) {
             throw new RuntimeException("Server Exception with class " + getClass() + " using port " + port, e);
         }
-
-//        try {
-//            start();
-//            while (running) {
-//                ClientMessage clientMessage = consumer.receive();
-//                if (clientMessage != null) {
-//                    Object object = readMessage(clientMessage);
-//                    String clientId = clientMessage.getStringProperty("producerId");
-//                    handler.messageReceived(session, object, clientId);
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new RuntimeException("Server Exception with class " + getClass() + " using port " + port,
-//                    e);
-//        }
     }
 
     private Object readMessage(ClientMessage msgReceived) throws IOException {
@@ -148,7 +131,8 @@ public abstract class BaseHornetQTaskServer extends TaskServer {
             server.start();
             embeddedServerRunning = true;
         }
-
+        running = true;
+        
         TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getCanonicalName(), connectionParams);
         ClientSessionFactory factory = HornetQClient.createClientSessionFactory(transportConfiguration);
         session = factory.createSession();
@@ -162,42 +146,7 @@ public abstract class BaseHornetQTaskServer extends TaskServer {
         }
         consumer = session.createConsumer(SERVER_TASK_COMMANDS_QUEUE);
         session.start();
-        running = true;
-
-//        configuration = new ConfigurationImpl();
-//        configuration.setPersistenceEnabled(false);
-//        configuration.setSecurityEnabled(false);
-//
-//        Map<String, Object> connectionParams = new HashMap<String, Object>();
-//        connectionParams.put(TransportConstants.PORT_PROP_NAME, port);
-//
-//        TransportConfiguration transpConf = new TransportConfiguration(NettyAcceptorFactory.class.getName(), connectionParams);
-//
-//        HashSet<TransportConfiguration> setTransp = new HashSet<TransportConfiguration>();
-//        setTransp.add(transpConf);
-//
-//        configuration.setAcceptorConfigurations(setTransp);
-//
-//        server = HornetQServers.newHornetQServer(configuration);
-//        server.start();
-//        running = true;
-//        
-//        
-//        try {
-//            session = createFactory().createSession(true, true);
-//
-//            QueueQuery queueQuery = session.queueQuery(new SimpleString(SERVER_TASK_COMMANDS_QUEUE));
-//
-//            if (!queueQuery.isExists()) {
-//                session.createQueue(SERVER_TASK_COMMANDS_QUEUE, SERVER_TASK_COMMANDS_QUEUE);
-//                session.start();
-//            }
-//            
-//        } catch (HornetQException ex) {
-//            throw new IllegalStateException("Error while creating '" + SERVER_TASK_COMMANDS_QUEUE + "' queue", ex);
-//        }
-//        consumer = session.createConsumer(SERVER_TASK_COMMANDS_QUEUE);
-//        
+          
     }
 
     public void stop() throws Exception {
@@ -225,11 +174,8 @@ public abstract class BaseHornetQTaskServer extends TaskServer {
     public boolean isRunning() {
         return running;
     }
-
-//    private ClientSessionFactory createFactory() {
-//        Map<String, Object> connectionParams = new HashMap<String, Object>();
-//        connectionParams.put(TransportConstants.PORT_PROP_NAME, port);
-//        TransportConfiguration transportConfiguration = new TransportConfiguration(NettyConnectorFactory.class.getCanonicalName(), connectionParams);
-//        return HornetQClient.createClientSessionFactory(transportConfiguration);
-//    }
+    
+    public String getDescription(){
+        return "[Port: "+this.port+ " - Address: NAN]";
+    }
 }

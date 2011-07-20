@@ -31,4 +31,9 @@ public class HornetQTaskServer extends BaseHornetQTaskServer {
 		super(new HornetQTaskServerHandler(service, SystemEventListenerFactory.getSystemEventListener()), port, configuration, false);
 	}
 
+    @Override
+    public String getName() {
+        return "HornetQTaskServer";
+    }
+
 }

@@ -33,7 +33,6 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.Task;
 import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
-import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.subethamail.wiser.Wiser;

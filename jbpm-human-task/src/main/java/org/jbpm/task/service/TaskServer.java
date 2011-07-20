@@ -17,7 +17,8 @@
 package org.jbpm.task.service;
 
 public abstract class TaskServer implements Runnable {
-	
+	public abstract String getName();
+        public abstract String getDescription();
 	public abstract void start() throws Exception;
 	public abstract void stop() throws Exception;
 	public abstract boolean isRunning();
