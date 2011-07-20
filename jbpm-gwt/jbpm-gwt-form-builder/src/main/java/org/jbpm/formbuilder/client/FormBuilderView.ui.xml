@@ -21,8 +21,8 @@
               <g:ScrollPanel height="360px" width="220px" ui:field="editionView"/>
             </g:tab>
             <g:tab>
-              <g:header>Tasks</g:header>
-              <g:AbsolutePanel height="100%" width="220px" ui:field="tasksView"/>
+              <g:header>IO Data</g:header>
+              <g:AbsolutePanel height="100%" width="220px" ui:field="ioAssociationView"/>
             </g:tab>
           </g:TabLayoutPanel>
         </td>

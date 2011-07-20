@@ -21,7 +21,7 @@ import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.MenuView;
 import org.jbpm.formbuilder.client.notification.NotificationsView;
 import org.jbpm.formbuilder.client.options.OptionsView;
-import org.jbpm.formbuilder.client.tasks.TasksView;
+import org.jbpm.formbuilder.client.tasks.IoAsociationView;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 
 import com.google.gwt.core.client.GWT;
@@ -49,7 +49,7 @@ public class FormBuilderView extends AbsolutePanel {
     @UiField(provided=true) ScrollPanel editionView;
     @UiField(provided=true) ScrollPanel layoutView;
     @UiField(provided=true) AbsolutePanel toolBarView;
-    @UiField(provided=true) AbsolutePanel tasksView;
+    @UiField(provided=true) AbsolutePanel ioAssociationView;
     @UiField(provided=true) FocusPanel notificationsView;
 
     protected final void checkBinding() {
@@ -66,7 +66,7 @@ public class FormBuilderView extends AbsolutePanel {
             treeView != null && optionsView != null &&
             menuView != null && editionView != null &&
             layoutView != null && toolBarView != null &&
-            tasksView != null && notificationsView != null;
+            ioAssociationView != null && notificationsView != null;
     }
 
     public void setMenuView(MenuView menuView) {
@@ -89,8 +89,8 @@ public class FormBuilderView extends AbsolutePanel {
         checkBinding();
     }
     
-    public void setTasksView(TasksView tasksView) {
-        this.tasksView = tasksView;
+    public void setIoAssociationView(IoAsociationView ioAssociationView) {
+        this.ioAssociationView = ioAssociationView;
         checkBinding();
     }
     

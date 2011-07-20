@@ -36,14 +36,14 @@ import com.google.gwt.event.shared.EventBus;
  * Tasks presenter. Handles server querying of existing tasks 
  * and view population
  */
-public class TasksPresenter {
+public class IoAssociationPresenter {
     
-    private final TasksView view;
+    private final IoAsociationView view;
     private final FormBuilderService model;
     
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
-    public TasksPresenter(FormBuilderService service, TasksView tasksView) {
+    public IoAssociationPresenter(FormBuilderService service, IoAsociationView tasksView) {
         this.view = tasksView;
         this.model = service;
         bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterHandler() {

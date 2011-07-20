@@ -31,8 +31,11 @@ import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -48,12 +51,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * 
  * TODO Implementation must be improved 
  */
-public class TasksView extends AbsolutePanel {
+public class IoAsociationView extends AbsolutePanel {
 
     private VerticalPanel panel = new VerticalPanel();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private TextBox taskName = new TextBox();
+    private Button searchButton = new Button("Search");
     
     private VerticalPanel dataPanel = new VerticalPanel();
     private PopupPanel taskOptionsPanel = new PopupPanel();
@@ -63,9 +67,21 @@ public class TasksView extends AbsolutePanel {
     private List<TaskPropertyRef> taskOutputs = null;
     private Map<String, TaskRef> possibleTasks = new HashMap<String, TaskRef>();
     
-    public TasksView() {
+    public IoAsociationView() {
         setSize("100%", "100%");
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+        
+        panel.add(new Label("Search IO associations"));
+        HorizontalPanel search = new HorizontalPanel();
+        search.add(taskName);
+        search.add(searchButton);
+        panel.add(search);
+        HorizontalPanel toogleSearch = new HorizontalPanel();
+        toogleSearch.setWidth("100%");
+        toogleSearch.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        toogleSearch.add(new Anchor("advanced search"));
+        
+        
         HorizontalPanel ioTasks = new HorizontalPanel();
         ioTasks.add(taskInputs());
         ioTasks.add(new HTML("&nbsp;"));

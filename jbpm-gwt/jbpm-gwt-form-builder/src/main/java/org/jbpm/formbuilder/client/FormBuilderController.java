@@ -31,8 +31,8 @@ import org.jbpm.formbuilder.client.notification.NotificationsView;
 import org.jbpm.formbuilder.client.options.OptionsPresenter;
 import org.jbpm.formbuilder.client.options.OptionsView;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.tasks.TasksPresenter;
-import org.jbpm.formbuilder.client.tasks.TasksView;
+import org.jbpm.formbuilder.client.tasks.IoAssociationPresenter;
+import org.jbpm.formbuilder.client.tasks.IoAsociationView;
 import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 import org.jbpm.formbuilder.client.tree.TreePresenter;
@@ -70,7 +70,7 @@ public class FormBuilderController {
         view.setEditionView(createEdition());
         view.setLayoutView(createLayout());
         view.setOptionsView(createOptions(model));
-        view.setTasksView(createTasks(model));
+        view.setIoAssociationView(createIoAssociation(model));
         view.setToolBarView(createToolBar());
         view.setTreeView(createTree());
     }
@@ -115,9 +115,9 @@ public class FormBuilderController {
         return view;
     }
     
-    private TasksView createTasks(FormBuilderService model) {
-        TasksView view = new TasksView();
-        new TasksPresenter(model, view);
+    private IoAsociationView createIoAssociation(FormBuilderService model) {
+        IoAsociationView view = new IoAsociationView();
+        new IoAssociationPresenter(model, view);
         return view;
     }
     
