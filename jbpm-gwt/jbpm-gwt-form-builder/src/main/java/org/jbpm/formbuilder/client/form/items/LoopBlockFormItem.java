@@ -51,7 +51,9 @@ public class LoopBlockFormItem extends LayoutFormItem {
     public LoopBlockFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         loopBlock.setStyleName("loopBlockBorder");
+        loopBlock.setSize("100%", "50px");
         add(loopBlock);
+        setSize("100%", "50px");
     }
 
     @Override
@@ -125,9 +127,10 @@ public class LoopBlockFormItem extends LayoutFormItem {
     public boolean add(FBFormItem item) {
         if (loopBlock.getWidget() == null) {
             loopBlock.setWidget(item);
+            return super.add(item);
         } else {
             bus.fireEvent(new NotificationEvent(Level.WARN, "Loop block can only contain one item"));
+            return false;
         }
-        return super.add(item);
     }
 }

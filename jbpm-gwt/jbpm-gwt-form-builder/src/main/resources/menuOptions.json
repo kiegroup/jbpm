@@ -50,8 +50,8 @@
             {   "html": "XSL template",
                 "commandClass": "org.jbpm.formbuilder.client.command.ExportFormAsXslCommand"
             },
-            {   "html": "XUL template",
-                "commandClass": "org.jbpm.formbuilder.client.command.ExportFormAsXulCommand"
+            {   "html": "XUL for PHP template",
+                "commandClass": "org.jbpm.formbuilder.client.command.ExportFormAsXulForPhpCommand"
             }
         ]
     }

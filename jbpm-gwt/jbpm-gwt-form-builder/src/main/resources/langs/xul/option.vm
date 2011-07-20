@@ -1,4 +1,0 @@
-TO BE IMPLEMENTED IN XUL
-
-#set ($valueParam = ${language.getParam("value", $item.value)})
-<option #if($valueParam)$valueParam#end>$item.label</option>

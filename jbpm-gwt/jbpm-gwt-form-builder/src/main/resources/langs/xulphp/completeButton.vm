@@ -1,5 +1,3 @@
-TO BE IMPLEMENTED IN XUL
-
 #set ($idParam = ${language.getParam("id", $item.id)})
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
@@ -12,4 +10,15 @@ TO BE IMPLEMENTED IN XUL
 ## TODO completeButton.getOnClickScript(); should be loaded first
 #set ($nameParam = ${language.getParam("name", $name)})
 #set ($valueParam = ${language.getParam("value", $item.text)})
-<input type="submit" #if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end#if($valueParam)$valueParam#end />
+#set ($valueParam = ${language.getParam("label", $item.text)})
+
+<xul:button type="submit" #if($labelParam)$labelParam#end
+    #if($idParam)$idParam#end
+    #if($styleParam)$styleParam#end
+    #if($nameParam)$nameParam#end
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <xul:description 
+        #if($valueParam)$valueParam#end
+        xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    />
+</xul:button>

@@ -83,7 +83,9 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
         super(formEffects);
         display.setBorderWidth(1);
         display.setStyleName("conditionalBlockBorder");
+        display.setSize("100%", "50px");
         add(display);
+        setSize("100%", "50px");
     }
     
     @Override

@@ -1,5 +1,3 @@
-TO BE IMPLEMENTED IN XUL
-
 #set ($invokeOnLoad = "")
 #foreach ($script in $item.onLoadScripts)
   #if ($language.isClientScript($script))
@@ -31,9 +29,12 @@ TO BE IMPLEMENTED IN XUL
 #set($actionParam = ${language.getParam("action", $item.action)})
 #set($methodParam = ${language.getParam("method", $item.method)})
 #set($enctypeParam = ${language.getParam("enctype", $item.enctype)})
-<form #if($onSubmitParam)$onSubmitParam#end#if($onLoadParam)$onLoadParam#end#if($nameParam)$nameParam#end#if($actionParam)$actionParam#end#if($methodParam)$methodParam#end#if($enctypeParam)$enctypeParam#end>
-    <#-- taskId: $item.taskId -->
-  #foreach ($subItem in $item.formItems)
-    ${language.translateItem($subItem)}
-  #end
-</form>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" xmlns:html="http://www.w3.org/1999/xhtml">
+  <form #if($onSubmitParam)$onSubmitParam#end#if($onLoadParam)$onLoadParam#end#if($nameParam)$nameParam#end#if($actionParam)$actionParam#end#if($methodParam)$methodParam#end#if($enctypeParam)$enctypeParam#end>
+    <?php /*taskId: $item.taskId*/ ?>
+    #foreach ($subItem in $item.formItems)
+      ${language.translateItem($subItem)}
+    #end
+  </form>
+</window>

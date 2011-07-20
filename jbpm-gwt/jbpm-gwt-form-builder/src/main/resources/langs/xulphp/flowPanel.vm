@@ -1,5 +1,3 @@
-TO BE IMPLEMENTED IN XUL
-
 #set ($widthParam = ${language.getStyleParam("width", $item.width)})
 #set ($heightParam = ${language.getStyleParam("height", $item.height)})
 #set ($style = "$widthParam$heightParam")
@@ -8,8 +6,11 @@ TO BE IMPLEMENTED IN XUL
 #set ($idParam = ${language.getParam("id", $item.id)})
 ## TODO table.getItemValidations();
 ## TODO table.getInput(); may be used to iterate contents, but not yet
-<div #if($styleParam)$styleParam#end#if($classParam)$classParam#end#if($idParam)$idParam#end>
-   #foreach ($subItem in $item.items)
-      ${language.translateItem($subItem)}
-   #end
-</div>
+
+<xul:box xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <html:div xmlns:html="http://www.w3.org/1999/xhtml" #if($styleParam)$styleParam#end#if($classParam)$classParam#end#if($idParam)$idParam#end>
+     #foreach ($subItem in $item.items)
+       ${language.translateItem($subItem)}
+     #end
+  </html:div>
+</xul:box>
