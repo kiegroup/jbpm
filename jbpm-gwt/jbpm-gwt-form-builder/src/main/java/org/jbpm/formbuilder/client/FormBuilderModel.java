@@ -450,9 +450,6 @@ public class FormBuilderModel implements FormBuilderService {
     public List<TaskRef> getExistingIoAssociations(final String filter) {
         final List<TaskRef> retval = new ArrayList<TaskRef>();
         String url = GWT.getModuleBaseURL() + this.contextPath + "/ioAssociations/package/defaultPackage/";
-        if (filter != null && !"".equals(filter)) {
-            url = url + "q=" + URL.encodeQueryString(filter);
-        }
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
@@ -464,6 +461,9 @@ public class FormBuilderModel implements FormBuilderService {
             }
         });
         try {
+            if (filter != null && !"".equals(filter)) {
+                request.setRequestData("q=" + URL.encodeQueryString(filter));
+            }
             request.send();
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read tasks", e));

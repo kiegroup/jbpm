@@ -78,7 +78,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                     validateAsset(pkgName, assetId, props.getProperty(assetId));
                     for (Map.Entry<String, List<TaskRef>> entry : tasksIndex.entrySet()) {
                         for (TaskRef ref : entry.getValue()) {
-                            if (filter == null) {
+                            if (filter == null || "".equals(filter)) {
                                 tasks.add(ref);
                             } else {
                                 if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {

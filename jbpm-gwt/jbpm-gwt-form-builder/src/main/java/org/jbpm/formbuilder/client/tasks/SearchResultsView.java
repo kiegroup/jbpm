@@ -35,7 +35,7 @@ public class SearchResultsView extends VerticalPanel {
                 even = !even;
                 row.addRightClickHandler(new RightClickHandler() {
                     public void onRightClick(RightClickEvent event) {
-                        PopupPanel panel = new PopupPanel();
+                        PopupPanel panel = new PopupPanel(true);
                         panel.setPopupPosition(event.getX(), event.getY());
                         MenuBar bar = new MenuBar();
                         bar.addItem("Select IO object", new Command() {

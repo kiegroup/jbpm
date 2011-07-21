@@ -22,6 +22,7 @@ import java.util.Map;
 import org.jbpm.bpmn2.xml.UserTaskHandler;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -47,30 +48,42 @@ public class HumanTaskGetInformationHandler extends UserTaskHandler {
     @Override
     protected void readIoSpecification(org.w3c.dom.Node xmlNode,
             Map<String, String> dataInputs, Map<String, String> dataOutputs) {
-        super.readIoSpecification(xmlNode, dataInputs, dataOutputs);
+        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
+        while (subNode instanceof Element) {
+            String subNodeName = subNode.getNodeName();
+            if ("dataInput".equals(subNodeName)) {
+                String id = ((Element) subNode).getAttribute("id");
+                String inputName = ((Element) subNode).getAttribute("name");
+                dataInputs.put(id, inputName);
+            }
+            if ("dataOutput".equals(subNodeName)) {
+                String id = ((Element) subNode).getAttribute("id");
+                String outputName = ((Element) subNode).getAttribute("name");
+                dataOutputs.put(id, outputName);
+            }
+            subNode = subNode.getNextSibling();
+        }
         NamedNodeMap map = xmlNode.getParentNode().getAttributes();
         Node nodeName = map.getNamedItem("name");
         String name = nodeName.getNodeValue();
         TaskRef task = new TaskRef();
         task.setTaskId(name);
-        if (dataInputs != null) {
-            List<TaskPropertyRef> inputs = new ArrayList<TaskPropertyRef>(dataInputs.size());
-            for (Map.Entry<String, String> in : dataInputs.entrySet()) {
-                TaskPropertyRef prop = new TaskPropertyRef();
-                prop.setName(in.getKey());
-                prop.setSourceExpresion(in.getValue());
-            }
-            task.setInputs(inputs);
+        List<TaskPropertyRef> inputs = new ArrayList<TaskPropertyRef>(dataInputs.size());
+        for (Map.Entry<String, String> in : dataInputs.entrySet()) {
+            TaskPropertyRef prop = new TaskPropertyRef();
+            prop.setName(in.getKey());
+            prop.setSourceExpresion(in.getValue());
+            inputs.add(prop);
         }
-        if (dataOutputs != null) {
-            List<TaskPropertyRef> outputs = new ArrayList<TaskPropertyRef>(dataOutputs.size());
-            for (Map.Entry<String, String> out : dataOutputs.entrySet()) {
-                TaskPropertyRef prop = new TaskPropertyRef();
-                prop.setName(out.getKey());
-                prop.setSourceExpresion(out.getValue());
-            }
-            task.setOutputs(outputs);
+        task.setInputs(inputs);
+        List<TaskPropertyRef> outputs = new ArrayList<TaskPropertyRef>(dataOutputs.size());
+        for (Map.Entry<String, String> out : dataOutputs.entrySet()) {
+            TaskPropertyRef prop = new TaskPropertyRef();
+            prop.setName(out.getKey());
+            prop.setSourceExpresion(out.getValue());
+            outputs.add(prop);
         }
+        task.setOutputs(outputs);
         this.taskRepository.addTask(task);
     }
 

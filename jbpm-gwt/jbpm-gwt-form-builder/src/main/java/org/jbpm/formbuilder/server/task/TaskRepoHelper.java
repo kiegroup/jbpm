@@ -15,13 +15,18 @@
  */
 package org.jbpm.formbuilder.server.task;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public class TaskRepoHelper {
 
+    Map<String, TaskRef> tasksMap = new HashMap<String, TaskRef>();
+    
     List<TaskRef> tasks = new LinkedList<TaskRef>();
     
     public void clear() {
@@ -29,7 +34,20 @@ public class TaskRepoHelper {
     }
     
     public void addTask(TaskRef task) {
-        tasks.add(task);
+        TaskRef oldTask = tasksMap.get(task.getTaskName());
+        if (oldTask != null) {
+            for (TaskPropertyRef input : task.getInputs()) {
+                oldTask.addInput(input.getName(), input.getSourceExpresion());
+            }
+            for (TaskPropertyRef output : task.getOutputs()) {
+                oldTask.addOutput(output.getName(), output.getSourceExpresion());
+            }
+            Map<String, String> metaData = oldTask.getMetaData();
+            metaData.putAll(task.getMetaData());
+            oldTask.setMetaData(metaData);
+        } else {
+            tasks.add(task);
+        }
     }
     
     public List<TaskRef> getTasks() {

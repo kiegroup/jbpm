@@ -23,6 +23,9 @@ public class AdvancedSearchView extends Grid {
     
     public AdvancedSearchView() {
         super(3, 2);
+        queryType.addItem("");
+        queryType.addItem("bpmn2 IO references", "bpmn2");
+        queryType.addItem("file IO references", "file");
         setWidget(0, 0, new Label("Query:"));
         setWidget(0, 1, queryName);
         setWidget(1, 0, new Label("Type"));

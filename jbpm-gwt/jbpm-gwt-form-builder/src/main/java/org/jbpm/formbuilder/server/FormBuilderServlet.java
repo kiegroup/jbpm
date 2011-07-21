@@ -246,6 +246,15 @@ public class FormBuilderServlet extends HttpServlet {
     }
 
     private String listIoAssociations(String pkgName, String filter) throws JAXBException, TaskServiceException {
+        String[] filters = filter == null ? new String[0] : filter.split(" ");
+        String newFilter = "";
+        for (String subFilter : filters) {
+            if (subFilter.startsWith("iotype:")) {
+                //TODO String type = subFilter.replace("iotype:", ""); decide what to do with this filter
+            } else {
+                newFilter += subFilter;
+            }
+        }
         List<TaskRef> tasks = taskService.query(pkgName, filter);
         ListTasksDTO dto = new ListTasksDTO(tasks);
         return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
