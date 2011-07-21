@@ -26,4 +26,7 @@ public interface FBCompositeItem {
 
     void setItems(List<FBFormItem> items);
 
+    void addPhantom(int x, int y);
+    
+    int clearPhantom();
 }

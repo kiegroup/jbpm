@@ -45,7 +45,7 @@ public class LayoutView extends ScrollPanel {
                 }
             }
         }
-        return formDisplay; // TODO Implement a way to see what's in that position
+        return formDisplay;
     }
     
     public FBForm getFormDisplay() {

@@ -20,9 +20,12 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -33,6 +36,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class CutCommand extends AbstractCopyPasteCommand {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
     public CutCommand() {
         super();
         FormBuilderGlobals.getInstance().register(this);
@@ -58,6 +63,7 @@ public class CutCommand extends AbstractCopyPasteCommand {
                     item.removeFromParent();
                 }
                 FormBuilderGlobals.getInstance().paste().enable();
+                bus.fireEvent(new FormItemRemovedEvent(item));
             }
             public void undoAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("selectedItem");
@@ -72,6 +78,7 @@ public class CutCommand extends AbstractCopyPasteCommand {
                     HasOneWidget oldParentPanel = (HasOneWidget) oldParent;
                     oldParentPanel.setWidget(item);
                 }
+                bus.fireEvent(new FormItemAddedEvent(item, oldParent));
             }
             public void onEvent(UndoableEvent event) { }
         });

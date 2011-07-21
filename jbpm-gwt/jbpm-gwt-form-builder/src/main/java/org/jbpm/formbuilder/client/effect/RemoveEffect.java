@@ -21,6 +21,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
@@ -50,10 +52,12 @@ public class RemoveEffect extends FBFormEffect {
                 Panel panel = (Panel) event.getData("itemParent");
                 FBFormItem item = (FBFormItem) event.getData("item");
                 panel.add(item);
+                bus.fireEvent(new FormItemAddedEvent(item, panel));
             }
             public void doAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("item");
                 item.removeFromParent();
+                bus.fireEvent(new FormItemRemovedEvent(item));
             }
         }));
     }

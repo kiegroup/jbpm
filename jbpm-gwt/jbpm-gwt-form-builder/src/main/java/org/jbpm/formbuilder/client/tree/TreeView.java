@@ -67,7 +67,7 @@ public class TreeView extends ScrollPanel {
         if (treeBranch2 != null) {
             treeBranch = treeBranch2;
         }
-        treeBranch.getParentItem().removeItem(treeBranch);
+        treeBranch.removeItem(treeBranch);
     }
 
     private TreeItem getItem(TreeItem treeBranch, FBFormItem item) {

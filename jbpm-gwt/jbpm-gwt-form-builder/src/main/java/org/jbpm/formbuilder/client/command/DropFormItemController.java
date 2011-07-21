@@ -20,6 +20,9 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
+import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
@@ -70,6 +73,7 @@ public class DropFormItemController extends AbstractDropController {
                     Integer y = (Integer) event.getData("y");
                     Panel panel = layoutView.getUnderlyingLayout(x, y);
                     panel.remove(formItem);
+                    bus.fireEvent(new FormItemRemovedEvent(formItem));
                 }
                 public void doAction(UndoableEvent event) {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
@@ -79,16 +83,94 @@ public class DropFormItemController extends AbstractDropController {
                     if (formItem != null) {
                         Panel panel = layoutView.getUnderlyingLayout(x, y);
                         if (panel instanceof FBForm) {
-                            panel.remove(menuItem);
-                            panel.add(formItem);
+                            FBForm formDisplay = (FBForm) panel;
+                            int position = formDisplay.clearPhantom();
+                            formDisplay.remove(menuItem);
+                            if (position >= 0) {
+                                formDisplay.insert(formItem, position);
+                            } else {
+                                formDisplay.add(formItem);
+                            }
                         } else {
                             LayoutFormItem layoutItem = (LayoutFormItem) panel.getParent();
-                            panel.remove(menuItem);
-                            layoutItem.add(formItem);
+                            int position = layoutItem.clearPhantom();
+                            layoutItem.remove(menuItem);
+                            if (position >= 0) {
+                                layoutItem.insert(position, formItem);
+                            } else {
+                                layoutItem.add(formItem);
+                            }
                         }
+                        fireAddingEvent(formItem, panel);
                     }
                 }
             }));
+        }
+    }
+
+    protected void fireAddingEvent(FBFormItem formItem, Panel formItemHolder) {
+        bus.fireEvent(new FormItemAddedEvent(formItem, formItemHolder));
+        if (formItem instanceof FBCompositeItem) {
+            FBCompositeItem comboItem = (FBCompositeItem) formItem;
+            if (comboItem.getItems() != null) {
+                for (FBFormItem item : comboItem.getItems()) {
+                    fireAddingEvent(item, formItem);
+                }
+            }
+        }
+    }
+    
+    @Override
+    public void onEnter(DragContext context) {
+        super.onEnter(context);
+        addPhantoms(context);
+    }
+
+    @Override
+    public void onMove(DragContext context) {
+        super.onMove(context);
+        clearPhantoms();
+        addPhantoms(context);
+    }
+    
+    @Override
+    public void onLeave(DragContext context) {
+        super.onLeave(context);
+        clearPhantoms();
+    }
+    
+    protected void clearPhantoms() {
+        FBForm form = layoutView.getFormDisplay();
+        form.clearPhantom();
+        for (FBFormItem item : form.getItems()) {
+            if (item instanceof LayoutFormItem) {
+                clearPhantoms((LayoutFormItem) item);
+            }
+        }
+    }
+    
+    protected void clearPhantoms(LayoutFormItem item) {
+        item.clearPhantom();
+        for (FBFormItem subItem : item.getItems()) {
+            if (subItem instanceof LayoutFormItem) {
+                clearPhantoms((LayoutFormItem) subItem);
+            }
+        }
+    }
+    
+    protected void addPhantoms(DragContext context) {
+        Widget drag = context.draggable;
+        int x = context.mouseX;
+        int y = context.mouseY;
+        if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
+            Panel panel = layoutView.getUnderlyingLayout(x, y);
+            if (panel instanceof FBForm) {
+                FBForm formDisplay = (FBForm) panel;
+                formDisplay.addPhantom(x, y);
+            } else {
+                LayoutFormItem layoutItem = (LayoutFormItem) panel.getParent();
+                layoutItem.addPhantom(x, y);
+            }
         }
     }
 }

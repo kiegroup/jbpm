@@ -20,14 +20,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
-import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.form.PhantomPanel;
 
-import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.InsertPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -68,11 +66,9 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
 
     @Override
     public boolean remove(Widget w) {
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         if (w instanceof FBFormItem) {
             FBFormItem item = (FBFormItem) w;
             this.items.remove(item);
-            bus.fireEvent(new FormItemRemovedEvent(item));
         }
         return super.remove(w);
     }
@@ -94,12 +90,7 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
     }
 
     public boolean add(FBFormItem item) {
-        boolean add = items.add(item);
-        if (item != null) {
-            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-            bus.fireEvent(new FormItemAddedEvent(item, this));
-        }
-        return add;
+        return items.add(item);
     }
 
     public FBFormItem insert(int index, FBFormItem newItem) {
@@ -113,9 +104,10 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
             }
             items.add(item);
         }
-        if (item != null) {
-            EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-            bus.fireEvent(new FormItemAddedEvent(newItem, this));
+        Panel panel = getPanel();
+        if (panel instanceof InsertPanel) {
+            InsertPanel iPanel = (InsertPanel) panel;
+            iPanel.insert(newItem, index);
         }
         return item;
     }
@@ -140,5 +132,14 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
             return getPanel();
         }
         return null;
+    }
+    
+    public void addPhantom(int x, int y) {
+        PhantomPanel phantom = new PhantomPanel();
+        phantom.selfInsert(this, x, y, getItems());
+    }
+    
+    public int clearPhantom() {
+        return PhantomPanel.selfClear(getPanel());
     }
 }

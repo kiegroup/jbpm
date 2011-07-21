@@ -57,9 +57,9 @@ public class FBMenuPanel extends VerticalPanel {
     public boolean remove(Widget w) {
         int index = getWidgetIndex(w);
         if (index != -1 && w instanceof FBMenuItem) {
-            FBMenuItem clone = ((FBMenuItem) w).cloneWidget();
-            dragController.makeDraggable(clone);
-            insert(clone, index);
+            FBMenuItem item = ((FBMenuItem) w).cloneWidget();
+            dragController.makeDraggable(item);
+            insert(item, index);
         }
         return super.remove(w);
     }

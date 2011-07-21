@@ -20,6 +20,8 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.FBFormItem;
@@ -74,6 +76,7 @@ public class PasteCommand extends AbstractCopyPasteCommand {
                             parentPanel.add(itemToPaste);
                         } 
                     }
+                    bus.fireEvent(new FormItemAddedEvent(itemToPaste, itemToHold == null ? getFormDisplay() : itemToHold));
                 }
             }
             public void onEvent(UndoableEvent event) { }
@@ -83,6 +86,7 @@ public class PasteCommand extends AbstractCopyPasteCommand {
                 if (itemToHold != null && obj instanceof FBFormItem) {
                     FBFormItem itemToPaste = (FBFormItem) obj;
                     itemToPaste.removeFromParent();
+                    bus.fireEvent(new FormItemRemovedEvent(itemToPaste));
                 }
             }
         });
