@@ -140,8 +140,13 @@
                         </executions>
                         <configuration>
                             <mainClass>org.jbpm.task.utils.TaskServerLauncher</mainClass>
+                            
+                                <argument>-classpath</argument>
+                                <classpath/>
+                            
                             <commandlineArgs>
-                                 --impl=HORNETQ --port=9124
+                                 --impl=HORNETQ --port=9124 --users=src/test/resources/org/jbpm/task/LoadUsers.mvel --groups=src/test/resources/org/jbpm/task/LoadGroups.mvel 
+                                 --persistenceUnit=org.jbpm.task
                             </commandlineArgs>
          
                         </configuration>
@@ -167,8 +172,13 @@
                         </executions>
                         <configuration>
                             <mainClass>org.jbpm.task.utils.TaskServerLauncher</mainClass>
+                            
+                                <argument>-classpath</argument>
+                                <classpath/>
+                            
                             <commandlineArgs>
-                                 --impl=MINA --port=9124
+                                 --impl=MINA --port=9124 --users=src/test/resources/org/jbpm/task/LoadUsers.mvel --groups=src/test/resources/org/jbpm/task/LoadGroups.mvel 
+                                 --persistenceUnit=org.jbpm.task
                             </commandlineArgs>
          
                         </configuration>

@@ -15,6 +15,8 @@
  */
 package org.jbpm.task.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -66,12 +68,24 @@ public class TaskServerLauncher {
         CommandLine commandLine;
         try {
             commandLine = cmdLinePosixParser.parse(posixOptions, args);
-            initializeServices();
+            if (commandLine.hasOption("persistenceUnit")) {
+                initializeServices(commandLine.getOptionValue("persistenceUnit"));
+            }else{
+                initializeServices("org.jbpm.task");
+            }
             if (commandLine.hasOption("users")) {
-                initializeUsers("");
+                try {
+                    initializeUsers(commandLine.getOptionValue("users"));
+                } catch (IOException ex) {
+                    Logger.getLogger(TaskServerLauncher.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             if (commandLine.hasOption("groups")) {
-                initializeGroups("");
+                try {
+                    initializeGroups(commandLine.getOptionValue("groups"));
+                } catch (IOException ex) {
+                    Logger.getLogger(TaskServerLauncher.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             if (commandLine.hasOption("port")) {
                 port = Integer.valueOf(commandLine.getOptionValue("port"));
@@ -146,7 +160,12 @@ public class TaskServerLauncher {
         
         posixOptions.addOption(OptionBuilder
                                 .withLongOpt("groups")
-                                .withDescription("File where the group mappings are defined")
+                                .withDescription("File where the groups mappings are defined")
+                                .hasArg()
+                                .create());
+        posixOptions.addOption(OptionBuilder
+                                .withLongOpt("persistenceUnit")
+                                .withDescription("The name of the Persistence Unit that will be used for this task server")
                                 .hasArg()
                                 .create());
 
@@ -168,25 +187,25 @@ public class TaskServerLauncher {
         System.out.println(server.getName() + ": " + server.getDescription());
     }
 
-    private static void initializeServices() {
-        emf = Persistence.createEntityManagerFactory("org.jbpm.task");
+    private static void initializeServices(String puName) {
+        emf = Persistence.createEntityManagerFactory(puName);
         taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
         taskSession = taskService.createSession();
     }
 
-    private static void initializeUsers(String usersLocation) {
+    private static void initializeUsers(String usersLocation) throws IOException {
         Map<String, Object> vars = new HashMap();
 
-        Reader reader = new InputStreamReader(TaskServerLauncher.class.getResourceAsStream(usersLocation));
+        Reader reader = new InputStreamReader(new FileInputStream(usersLocation));
         Map<String, User> users = (Map<String, User>) eval(reader, vars);
         for (User user : users.values()) {
             taskSession.addUser(user);
         }
     }
 
-    private static void initializeGroups(String groupsLocation) {
+    private static void initializeGroups(String groupsLocation) throws IOException {
         Map<String, Object> vars = new HashMap();
-        Reader reader = new InputStreamReader(TaskServerLauncher.class.getResourceAsStream(groupsLocation));
+        Reader reader = new InputStreamReader(new FileInputStream(groupsLocation));
         Map<String, Group> groups = (Map<String, Group>) eval(reader, vars);
         for (Group group : groups.values()) {
             taskSession.addGroup(group);
@@ -213,15 +232,18 @@ public class TaskServerLauncher {
     }
 
     public static Object eval(String str, Map<String, Object> vars) {
-        ExpressionCompiler compiler = new ExpressionCompiler(str.trim());
 
-        ParserContext context = new ParserContext();
+         ParserContext context = new ParserContext();
         context.addPackageImport("org.drools.task");
         context.addPackageImport("org.drools.task.service");
         context.addPackageImport("org.drools.task.query");
         context.addPackageImport("java.util");
+        context.addImport(org.jbpm.task.User.class);
+        context.addImport(org.jbpm.task.Group.class);
+        ExpressionCompiler compiler = new ExpressionCompiler(str.trim(),context);
 
+     
         vars.put("now", new Date());
-        return MVEL.executeExpression(compiler.compile(context), vars);
+        return MVEL.executeExpression(compiler.compile(), vars);
     }
 }
