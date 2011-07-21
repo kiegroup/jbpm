@@ -22,7 +22,6 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
-import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
@@ -101,25 +100,13 @@ public class DropFormItemController extends AbstractDropController {
                                 layoutItem.add(formItem);
                             }
                         }
-                        fireAddingEvent(formItem, panel);
+                        bus.fireEvent(new FormItemAddedEvent(formItem, panel));
                     }
                 }
             }));
         }
     }
 
-    protected void fireAddingEvent(FBFormItem formItem, Panel formItemHolder) {
-        bus.fireEvent(new FormItemAddedEvent(formItem, formItemHolder));
-        if (formItem instanceof FBCompositeItem) {
-            FBCompositeItem comboItem = (FBCompositeItem) formItem;
-            if (comboItem.getItems() != null) {
-                for (FBFormItem item : comboItem.getItems()) {
-                    fireAddingEvent(item, formItem);
-                }
-            }
-        }
-    }
-    
     @Override
     public void onEnter(DragContext context) {
         super.onEnter(context);

@@ -51,7 +51,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * 
  * TODO Implementation must be improved 
  */
-public class IoAsociationView extends AbsolutePanel {
+public class IoAssociationView extends AbsolutePanel {
 
     private VerticalPanel panel = new VerticalPanel();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
@@ -67,7 +67,7 @@ public class IoAsociationView extends AbsolutePanel {
     private List<TaskPropertyRef> taskOutputs = null;
     private Map<String, TaskRef> possibleTasks = new HashMap<String, TaskRef>();
     
-    public IoAsociationView() {
+    public IoAssociationView() {
         setSize("100%", "100%");
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
         

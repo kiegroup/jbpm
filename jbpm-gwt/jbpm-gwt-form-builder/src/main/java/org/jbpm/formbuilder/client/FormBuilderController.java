@@ -32,7 +32,7 @@ import org.jbpm.formbuilder.client.options.OptionsPresenter;
 import org.jbpm.formbuilder.client.options.OptionsView;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.tasks.IoAssociationPresenter;
-import org.jbpm.formbuilder.client.tasks.IoAsociationView;
+import org.jbpm.formbuilder.client.tasks.IoAssociationView;
 import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 import org.jbpm.formbuilder.client.tree.TreePresenter;
@@ -115,8 +115,8 @@ public class FormBuilderController {
         return view;
     }
     
-    private IoAsociationView createIoAssociation(FormBuilderService model) {
-        IoAsociationView view = new IoAsociationView();
+    private IoAssociationView createIoAssociation(FormBuilderService model) {
+        IoAssociationView view = new IoAssociationView();
         new IoAssociationPresenter(model, view);
         return view;
     }

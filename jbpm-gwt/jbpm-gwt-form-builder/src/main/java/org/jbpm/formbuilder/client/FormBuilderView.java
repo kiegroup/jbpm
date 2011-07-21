@@ -21,7 +21,7 @@ import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.MenuView;
 import org.jbpm.formbuilder.client.notification.NotificationsView;
 import org.jbpm.formbuilder.client.options.OptionsView;
-import org.jbpm.formbuilder.client.tasks.IoAsociationView;
+import org.jbpm.formbuilder.client.tasks.IoAssociationView;
 import org.jbpm.formbuilder.client.toolbar.ToolBarView;
 
 import com.google.gwt.core.client.GWT;
@@ -89,7 +89,7 @@ public class FormBuilderView extends AbsolutePanel {
         checkBinding();
     }
     
-    public void setIoAssociationView(IoAsociationView ioAssociationView) {
+    public void setIoAssociationView(IoAssociationView ioAssociationView) {
         this.ioAssociationView = ioAssociationView;
         checkBinding();
     }

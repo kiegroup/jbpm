@@ -38,12 +38,12 @@ import com.google.gwt.event.shared.EventBus;
  */
 public class IoAssociationPresenter {
     
-    private final IoAsociationView view;
+    private final IoAssociationView view;
     private final FormBuilderService model;
     
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
-    public IoAssociationPresenter(FormBuilderService service, IoAsociationView tasksView) {
+    public IoAssociationPresenter(FormBuilderService service, IoAssociationView tasksView) {
         this.view = tasksView;
         this.model = service;
         bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterHandler() {

@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.bus.ui;
 
+import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.event.shared.GwtEvent;
@@ -52,6 +53,15 @@ public class FormItemAddedEvent extends GwtEvent<FormItemAddedHandler> {
     @Override
     protected void dispatch(FormItemAddedHandler handler) {
         handler.onEvent(this);
+        if (formItem instanceof FBCompositeItem) {
+            FBCompositeItem comboItem = (FBCompositeItem) formItem;
+            if (comboItem.getItems() != null) {
+                for (FBFormItem item : comboItem.getItems()) {
+                    FormItemAddedEvent event = new FormItemAddedEvent(item, formItem);
+                    event.dispatch(handler);
+                }
+            }
+        }
     }
 
 }
