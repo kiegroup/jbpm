@@ -158,6 +158,7 @@ public class XmlParseHelper {
                     }
                     ref.setMetaData(metaData);
                 }
+                retval.add(ref);
             }
         }
         return retval;

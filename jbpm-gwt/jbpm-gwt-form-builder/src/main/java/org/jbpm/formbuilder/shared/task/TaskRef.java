@@ -111,4 +111,39 @@ public class TaskRef {
     public Map<String, String> getMetaData() {
         return metaData;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof TaskRef)) return false;
+        TaskRef other = (TaskRef) obj;
+        boolean equals = (this.processId == null && other.processId == null) || (this.processId != null && this.processId.equals(other.processId));
+        if (!equals) return equals;
+        equals = (this.taskId == null && other.taskId == null) || (this.taskId != null && this.taskId.equals(other.taskId));
+        if (!equals) return equals;
+        equals = (this.inputs == null && other.inputs == null) || (this.inputs != null && this.inputs.equals(other.inputs));
+        if (!equals) return equals;
+        equals = (this.outputs == null && other.outputs == null) || (this.outputs != null && this.outputs.equals(other.outputs));
+        if (!equals) return equals;
+        equals = (this.metaData == null && other.metaData == null) 
+            || (this.metaData != null && this.metaData.entrySet().equals(other.metaData.entrySet()));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.processId == null ? 0 : this.processId.hashCode();
+        result = 37 * result + aux;
+        aux = this.taskId == null ? 0 : this.taskId.hashCode();
+        result = 37 * result + aux;
+        aux = this.inputs == null ? 0 : this.inputs.hashCode();
+        result = 37 * result + aux;
+        aux = this.outputs == null ? 0 : this.outputs.hashCode();
+        result = 37 * result + aux;
+        aux = this.metaData == null ? 0 : this.metaData.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
 }

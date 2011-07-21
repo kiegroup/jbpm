@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.layout;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
@@ -33,11 +34,11 @@ import org.jbpm.formbuilder.client.bus.ui.FormSavedHandler;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
@@ -164,20 +165,20 @@ public class LayoutPresenter {
                     @SuppressWarnings("unchecked")
                     public void doAction(UndoableEvent event) {
                         String value = (String) event.getData("newTaskID");
-                        Map<String, InputData> inputs = (Map<String, InputData>) event.getData("newTaskInputs");
-                        Map<String, OutputData> outputs = (Map<String, OutputData>) event.getData("newTaskOutputs");
+                        List<TaskPropertyRef> inputs = (List<TaskPropertyRef>) event.getData("newTaskInputs");
+                        List<TaskPropertyRef> outputs = (List<TaskPropertyRef>) event.getData("newTaskOutputs");
                         layoutView.getFormDisplay().setTaskId(value);
-                        layoutView.getFormDisplay().setInputs(inputs);
-                        layoutView.getFormDisplay().setOutputs(outputs);
+                        layoutView.getFormDisplay().setInputs(toInputs(inputs));
+                        layoutView.getFormDisplay().setOutputs(toOutputs(outputs));
                     }
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
                         String value = (String) event.getData("oldTaskID");
-                        Map<String, InputData> inputs = (Map<String, InputData>) event.getData("oldTaskInputs");
-                        Map<String, OutputData> outputs = (Map<String, OutputData>) event.getData("oldTaskOutputs");
+                        List<TaskPropertyRef> inputs = (List<TaskPropertyRef>) event.getData("oldTaskInputs");
+                        List<TaskPropertyRef> outputs = (List<TaskPropertyRef>) event.getData("oldTaskOutputs");
                         layoutView.getFormDisplay().setTaskId(value);
-                        layoutView.getFormDisplay().setInputs(inputs);
-                        layoutView.getFormDisplay().setOutputs(outputs);
+                        layoutView.getFormDisplay().setInputs(toInputs(inputs));
+                        layoutView.getFormDisplay().setOutputs(toOutputs(outputs));
                     }
                 }));
             }
@@ -201,6 +202,32 @@ public class LayoutPresenter {
         });
     }
 
+    private Map<String, InputData> toInputs(List<TaskPropertyRef> inputs) {
+        Map<String, InputData> retval = new HashMap<String, InputData>();
+        if (inputs != null) {
+            for (TaskPropertyRef ref : inputs) {
+                InputData input = new InputData();
+                input.setName(ref.getName());
+                input.setValue(ref.getSourceExpresion());
+                retval.put(ref.getName(), input);
+            }
+        }
+        return retval;
+    }
+    
+    private Map<String, OutputData> toOutputs(List<TaskPropertyRef> outputs) {
+        Map<String, OutputData> retval = new HashMap<String, OutputData>();
+        if (outputs != null) {
+            for (TaskPropertyRef ref : outputs) {
+                OutputData output = new OutputData();
+                output.setName(ref.getName());
+                output.setValue(ref.getSourceExpresion());
+                retval.put(ref.getName(), output);
+            }
+        }
+        return retval;
+    }
+    
     private void populateFormData(String action, String taskId,
             String name, String method, String enctype) {
         

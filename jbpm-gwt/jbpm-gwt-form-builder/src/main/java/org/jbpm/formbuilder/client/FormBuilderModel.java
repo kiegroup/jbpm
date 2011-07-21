@@ -447,9 +447,9 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     
-    public List<TaskRef> getExistingTasks(final String filter) {
+    public List<TaskRef> getExistingIoAssociations(final String filter) {
         final List<TaskRef> retval = new ArrayList<TaskRef>();
-        String url = GWT.getModuleBaseURL() + this.contextPath + "/tasks/package/defaultPackage/";
+        String url = GWT.getModuleBaseURL() + this.contextPath + "/ioAssociations/package/defaultPackage/";
         if (filter != null && !"".equals(filter)) {
             url = url + "q=" + URL.encodeQueryString(filter);
         }

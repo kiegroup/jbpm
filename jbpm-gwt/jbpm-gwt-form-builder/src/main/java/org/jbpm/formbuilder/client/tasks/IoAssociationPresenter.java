@@ -15,20 +15,16 @@
  */
 package org.jbpm.formbuilder.client.tasks;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.shared.EventBus;
 
@@ -39,18 +35,17 @@ import com.google.gwt.event.shared.EventBus;
 public class IoAssociationPresenter {
     
     private final IoAssociationView view;
-    private final FormBuilderService model;
+    private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
     
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
-    public IoAssociationPresenter(FormBuilderService service, IoAssociationView tasksView) {
+    public IoAssociationPresenter(IoAssociationView tasksView) {
         this.view = tasksView;
-        this.model = service;
         bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterHandler() {
             public void onEvent(TaskNameFilterEvent event) {
                 String filter = event.getTaskNameFilter();
                 try {
-                    model.getExistingTasks(filter);
+                    model.getExistingIoAssociations(filter);
                 } catch (Exception e) {
                     bus.fireEvent(new NotificationEvent(Level.WARN, "Couldn't populate autocomplete", e));
                 }
@@ -58,26 +53,12 @@ public class IoAssociationPresenter {
         });
         bus.addHandler(ExistingTasksResponseEvent.TYPE, new ExistingTasksResponseHandler() {
             public void onEvent(ExistingTasksResponseEvent event) {
-                List<TaskRef> tasks = event.getTasks();
-                String filter = event.getFilter();
-                Map<String, String> taskItems = new HashMap<String, String>();
-                for (TaskRef task : tasks) {
-                    taskItems.put(task.getTaskId(), task.getTaskName() + " (from " + task.getProcessId() + ")");
-                }
-                view.setTaskCombo(tasks);
-                if (taskItems.get(filter) != null) {
-                    TaskRef selectedTask = null;
-                    for (TaskRef task : tasks) {
-                        if (task.getTaskId().equals(filter)) {
-                            selectedTask = task;
-                            break;
-                        }
-                    }
-                    bus.fireEvent(new TaskSelectedEvent(selectedTask));
-                    view.setTaskInputs(selectedTask.getInputs());
-                    view.setTaskOutputs(selectedTask.getOutputs());
-                    view.setData(selectedTask.getMetaData());
-                }
+                view.setTasks(event.getTasks());
+            }
+        });
+        bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            public void onSelectedTask(TaskSelectedEvent event) {
+                view.setSelectedTask(event.getSelectedTask());
             }
         });
     }

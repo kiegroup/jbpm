@@ -16,14 +16,20 @@ public class SearchFilterView extends VerticalPanel {
     private final Anchor toogleAnchor;
     
     public SearchFilterView() {
-        setWidth("100%");
+        setSize("100%", "90px");
         toogleAnchor = new Anchor("Advanced Search");
         toogleAnchor.setHref("javascript:void(0);");
         toogleAnchor.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                remove(simple);
-                toogleAnchor.setText("Simple Search");
-                insert(advanced, getWidgetIndex(tooglePanel));
+                if (getWidget(0) == simple) {
+                    remove(simple);
+                    toogleAnchor.setText("Simple Search");
+                    insert(advanced, getWidgetIndex(tooglePanel));
+                } else {
+                    remove(advanced);
+                    toogleAnchor.setText("Advanced Search");
+                    insert(simple, getWidgetIndex(tooglePanel));
+                }
             }
         });
         tooglePanel.setWidth("100%");

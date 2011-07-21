@@ -88,12 +88,12 @@ public interface FormBuilderService {
     void deleteMenuItem(String groupName, FBMenuItem item) throws FormBuilderException;
     
     /**
-     * Returns the tasks as matching on a simple string filter
+     * Returns the IoAssociations as matching on a simple string filter
      * @param filter a filter for a google-like search textfield
      * @return all best fit task definition references to the filter
      * @throws FormBuilderException in case of error
      */
-    List<TaskRef> getExistingTasks(String filter) throws FormBuilderException;
+    List<TaskRef> getExistingIoAssociations(String filter) throws FormBuilderException;
 
     /**
      * Returns existing validations from the server

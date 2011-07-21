@@ -63,7 +63,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     
     public List<TaskRef> query(String pkgName, String filter) throws TaskServiceException {
         HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(helper.getApiUrl(pkgName));
+        GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName));
         try {
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -73,12 +73,17 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             for (Object key : props.keySet()) {
                 String assetId = key.toString();
                 if (assetId.endsWith(ResourceType.BPMN2.getDefaultExtension()) || 
-                        assetId.endsWith(ResourceType.DRF.getDefaultExtension())) {
+                        assetId.endsWith(ResourceType.DRF.getDefaultExtension()) ||
+                        assetId.endsWith("bpmn2")) {
                     validateAsset(pkgName, assetId, props.getProperty(assetId));
                     for (Map.Entry<String, List<TaskRef>> entry : tasksIndex.entrySet()) {
                         for (TaskRef ref : entry.getValue()) {
-                            if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
+                            if (filter == null) {
                                 tasks.add(ref);
+                            } else {
+                                if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
+                                    tasks.add(ref);
+                                }
                             }
                         }
                     }
@@ -108,7 +113,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     private String getTaskDefinitionContent(String pkgName, String itemName) throws TaskServiceException {
         HttpClient client = new HttpClient();
         if (itemName != null && !"".equals(itemName)) {
-            GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + itemName);
+            GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName) + itemName);
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);

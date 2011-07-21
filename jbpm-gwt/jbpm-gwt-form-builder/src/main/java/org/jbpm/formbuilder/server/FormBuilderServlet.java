@@ -116,9 +116,9 @@ public class FormBuilderServlet extends HttpServlet {
             } else if (uri.contains("/menuOptions/")) {
                 resp.setContentType("text/xml");
                 content.append(listOptions());
-            } else if (uri.contains("/tasks/")) {
+            } else if (uri.contains("/ioAssociations/")) {
                 resp.setContentType("text/xml");
-                content.append(listTasks(getUriParameter(uri, "package"), req.getParameter("q")));
+                content.append(listIoAssociations(getUriParameter(uri, "package"), req.getParameter("q")));
             } else if (uri.contains("/validations/")) {
                 resp.setContentType("text/xml");
                 //TODO implement listValidations
@@ -245,7 +245,7 @@ public class FormBuilderServlet extends HttpServlet {
         return url;
     }
 
-    private String listTasks(String filter, String pkgName) throws JAXBException, TaskServiceException {
+    private String listIoAssociations(String pkgName, String filter) throws JAXBException, TaskServiceException {
         List<TaskRef> tasks = taskService.query(pkgName, filter);
         ListTasksDTO dto = new ListTasksDTO(tasks);
         return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);

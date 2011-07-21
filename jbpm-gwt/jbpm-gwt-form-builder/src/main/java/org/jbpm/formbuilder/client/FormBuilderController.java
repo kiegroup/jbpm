@@ -70,7 +70,7 @@ public class FormBuilderController {
         view.setEditionView(createEdition());
         view.setLayoutView(createLayout());
         view.setOptionsView(createOptions(model));
-        view.setIoAssociationView(createIoAssociation(model));
+        view.setIoAssociationView(createIoAssociation());
         view.setToolBarView(createToolBar());
         view.setTreeView(createTree());
     }
@@ -115,9 +115,9 @@ public class FormBuilderController {
         return view;
     }
     
-    private IoAssociationView createIoAssociation(FormBuilderService model) {
+    private IoAssociationView createIoAssociation() {
         IoAssociationView view = new IoAssociationView();
-        new IoAssociationPresenter(model, view);
+        new IoAssociationPresenter(view);
         return view;
     }
     
