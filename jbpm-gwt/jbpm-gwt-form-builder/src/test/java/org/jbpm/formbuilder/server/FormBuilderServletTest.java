@@ -333,7 +333,7 @@ public class FormBuilderServletTest extends TestCase {
     }
     
     public void testListTasks() throws Exception {
-        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/tasks/package/defaultPackage/?q=task").once();
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/ioAssociations/package/defaultPackage/?q=task").once();
         EasyMock.expect(req.getParameter(EasyMock.same("q"))).andReturn("task");
         StringWriter writer = new StringWriter();
         EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
