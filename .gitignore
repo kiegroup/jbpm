@@ -17,3 +17,5 @@ bin/
 *~
 *.tlog
 jbpm-human-task/activemq-data/
+/jbpm-human-task/jbpm-human-task-api/nbproject/private/
+/jbpm-human-task/jbpm-human-task-api/target/
