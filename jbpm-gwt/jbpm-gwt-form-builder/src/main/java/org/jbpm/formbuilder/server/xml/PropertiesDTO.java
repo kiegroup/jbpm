@@ -6,7 +6,7 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.sun.xml.txw2.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElement;
 
 @XmlRootElement (name ="properties") public class PropertiesDTO {
 
