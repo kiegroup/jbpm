@@ -17,7 +17,8 @@
         <module>jbpm-human-task-model</module>
         <module>jbpm-human-task-identity</module>
         <module>jbpm-human-task-impl-mina</module>
-    </modules>
+    <module>jbpm-human-task-impl-hornetq</module>
+  </modules>
     
     <dependencies>
         <dependency>
