@@ -442,7 +442,7 @@ public class TaskData
         this.createdOn = createdOn;
     }
 
-    Date getActivationTime() {
+    public Date getActivationTime() {
         return activationTime;
     }
 

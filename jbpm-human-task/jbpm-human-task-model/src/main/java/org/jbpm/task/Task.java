@@ -27,13 +27,13 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+//import org.jbpm.task.subtasks.SubTasksStrategy;
+//import org.jbpm.task.subtasks.SubTasksStrategyFactory;
 
 import org.jbpm.task.utils.CollectionUtils;
 
@@ -77,10 +77,10 @@ public class Task implements Externalizable {
 
     @Embedded
     private Deadlines            deadlines;
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "Task_Id", nullable = true)
-    private List<SubTasksStrategy> subTaskStrategies = Collections.emptyList();
+//@TODO: enable again the sub tasks 
+//    @OneToMany(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "Task_Id", nullable = true)
+//    private List<SubTasksStrategy> subTaskStrategies = Collections.emptyList();
 
     public Task() {
     }
@@ -120,12 +120,12 @@ public class Task implements Externalizable {
         } else {
             out.writeBoolean( false );
         }
-
-        out.writeInt( subTaskStrategies.size() );
-        for( SubTasksStrategy strategy : subTaskStrategies ) {
-            out.writeUTF(strategy.getName());
-            strategy.writeExternal( out );
-        }
+//@TODO: enable again the sub tasks 
+//        out.writeInt( subTaskStrategies.size() );
+//        for( SubTasksStrategy strategy : subTaskStrategies ) {
+//            out.writeUTF(strategy.getName());
+//            strategy.writeExternal( out );
+//        }
     }
 
     public void readExternal(ObjectInput in) throws IOException,
@@ -156,16 +156,16 @@ public class Task implements Externalizable {
             deadlines = new Deadlines();
             deadlines.readExternal( in );
         }
-
-        int size = in.readInt();
-        List<SubTasksStrategy> list = new ArrayList<SubTasksStrategy>(size);
-        for ( int i = 0; i < size; i++ ) {
-            String name = in.readUTF();
-            SubTasksStrategy strategy = SubTasksStrategyFactory.newStrategy(name) ;
-            strategy.readExternal( in );
-            list.add( strategy );
-        }
-       subTaskStrategies = list;
+//@TODO: enable again the sub tasks 
+//        int size = in.readInt();
+//        List<SubTasksStrategy> list = new ArrayList<SubTasksStrategy>(size);
+//        for ( int i = 0; i < size; i++ ) {
+//            String name = in.readUTF();
+//            SubTasksStrategy strategy = SubTasksStrategyFactory.newStrategy(name) ;
+//            strategy.readExternal( in );
+//            list.add( strategy );
+//        }
+//       subTaskStrategies = list;
 
     }
 
@@ -281,20 +281,20 @@ public class Task implements Externalizable {
         return ( CollectionUtils.equals( descriptions, other.descriptions ) && CollectionUtils.equals( names, other.names )
         && CollectionUtils.equals( subjects, other.subjects ));
     }
-
-    /**
-     * @return the subTaskStrategies
-     */
-    public List<SubTasksStrategy> getSubTaskStrategies() {
-        return subTaskStrategies;
-    }
-
-    /**
-     * @param subTaskStrategies the subTaskStrategies to set
-     */
-    public void setSubTaskStrategies(List<SubTasksStrategy> subTaskStrategies) {
-        this.subTaskStrategies = subTaskStrategies;
-    }
+//@TODO: enable again the sub tasks 
+//    /**
+//     * @return the subTaskStrategies
+//     */
+//    public List<SubTasksStrategy> getSubTaskStrategies() {
+//        return subTaskStrategies;
+//    }
+//
+//    /**
+//     * @param subTaskStrategies the subTaskStrategies to set
+//     */
+//    public void setSubTaskStrategies(List<SubTasksStrategy> subTaskStrategies) {
+//        this.subTaskStrategies = subTaskStrategies;
+//    }
 
    
 

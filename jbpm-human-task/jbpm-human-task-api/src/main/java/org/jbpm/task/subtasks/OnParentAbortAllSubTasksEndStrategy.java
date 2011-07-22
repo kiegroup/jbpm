@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.jbpm.task;
+package org.jbpm.task.subtasks;
 
 import java.util.List;
 import javax.persistence.Entity;
+import org.jbpm.task.Task;
 
 import org.jbpm.task.event.InternalTaskEventListener;
 import org.jbpm.task.query.TaskSummary;

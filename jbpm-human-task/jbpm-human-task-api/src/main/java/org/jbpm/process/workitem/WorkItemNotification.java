@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.task;
+package org.jbpm.process.workitem;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -27,6 +27,12 @@ import javax.persistence.EntityManagerFactory;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
+import org.jbpm.task.AccessType;
+import org.jbpm.task.Content;
+import org.jbpm.task.Notification;
+import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.Task;
+import org.jbpm.task.TaskData;
 import org.mvel2.MVEL;
 import org.mvel2.compiler.ExpressionCompiler;
 
