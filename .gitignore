@@ -21,3 +21,4 @@ jbpm-human-task/activemq-data/
 /jbpm-human-task/jbpm-human-task-api/target/
 /jbpm-human-task/jbpm-human-task-model/target/
 /jbpm-human-task/jbpm-human-task-identity/target/
+/jbpm-human-task/jbpm-human-task-impl-mina/target/
