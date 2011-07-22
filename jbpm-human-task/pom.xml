@@ -18,6 +18,7 @@
         <module>jbpm-human-task-identity</module>
         <module>jbpm-human-task-impl-mina</module>
     <module>jbpm-human-task-impl-hornetq</module>
+    <module>jbpm-human-task-impl-jms</module>
   </modules>
     
     <dependencies>
@@ -25,6 +26,7 @@
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-workitems</artifactId>
         </dependency>
+        
     </dependencies>    
     <!--    
         <dependency>
@@ -50,6 +52,12 @@
             <groupId>javax.jms</groupId>
             <artifactId>jms</artifactId>
       
+        </dependency>
+         <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-all</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.persistence</groupId>
@@ -116,12 +124,7 @@
             <artifactId>h2</artifactId>
            
         </dependency>
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-all</artifactId>
-            <version>5.2.0</version>
-            <scope>test</scope>
-        </dependency>
+       
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
