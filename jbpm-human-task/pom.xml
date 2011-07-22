@@ -13,12 +13,10 @@
     <name>jBPM :: Human Task</name>
     <packaging>pom</packaging>
     <modules>
-        
-        
-    <module>jbpm-human-task-api</module>
-  </modules>
+        <module>jbpm-human-task-api</module>
+    </modules>
     
-    <dependencies>
+    <!--dependencies>
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-workitems</artifactId>
@@ -95,7 +93,7 @@
             <groupId>org.jboss.netty</groupId>
             <artifactId>netty</artifactId>
       
-            <!--scope>test</scope-->
+            
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -110,7 +108,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <!--scope>test</scope-->
+           
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
@@ -124,7 +122,7 @@
             <version>3.0</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+    </dependencies-->
   
     <profiles>  
         <profile>  
@@ -145,8 +143,8 @@
                         <configuration>
                             <mainClass>org.jbpm.task.utils.TaskServerLauncher</mainClass>
                             
-                                <argument>-classpath</argument>
-                                <classpath/>
+                            <argument>-classpath</argument>
+                            <classpath/>
                             
                             <commandlineArgs>
                                  --impl=HORNETQ --port=9124 --users=src/test/resources/org/jbpm/task/LoadUsers.mvel --groups=src/test/resources/org/jbpm/task/LoadGroups.mvel 
@@ -177,8 +175,8 @@
                         <configuration>
                             <mainClass>org.jbpm.task.utils.TaskServerLauncher</mainClass>
                             
-                                <argument>-classpath</argument>
-                                <classpath/>
+                            <argument>-classpath</argument>
+                            <classpath/>
                             
                             <commandlineArgs>
                                  --impl=MINA --port=9124 --users=src/test/resources/org/jbpm/task/LoadUsers.mvel --groups=src/test/resources/org/jbpm/task/LoadGroups.mvel 
