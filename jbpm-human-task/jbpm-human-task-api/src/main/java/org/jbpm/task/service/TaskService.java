@@ -33,6 +33,7 @@ import javax.persistence.EntityManagerFactory;
 
 import org.drools.SystemEventListener;
 import org.jbpm.eventmessaging.EventKeys;
+import org.jbpm.process.workitem.WorkItemNotification;
 import org.jbpm.task.AccessType;
 import org.jbpm.task.AllowedToDelegate;
 import org.jbpm.task.Attachment;
@@ -58,7 +59,6 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.jbpm.task.UserInfo;
-import org.jbpm.task.WorkItemNotification;
 import org.jbpm.task.event.MessagingTaskEventListener;
 import org.jbpm.task.event.TaskEventListener;
 import org.jbpm.task.event.TaskEventSupport;

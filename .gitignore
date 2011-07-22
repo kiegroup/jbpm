@@ -19,3 +19,5 @@ bin/
 jbpm-human-task/activemq-data/
 /jbpm-human-task/jbpm-human-task-api/nbproject/private/
 /jbpm-human-task/jbpm-human-task-api/target/
+/jbpm-human-task/jbpm-human-task-model/target/
+/jbpm-human-task/jbpm-human-task-identity/target/

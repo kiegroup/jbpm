@@ -117,17 +117,17 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
         if (parentId != null) {
             taskData.setParentId(parentId);
         }
-
-        String subTaskStrategiesCommaSeparated = (String) workItem.getParameter("SubTaskStrategies");
-        if (subTaskStrategiesCommaSeparated != null && !subTaskStrategiesCommaSeparated.equals("")) {
-            String[] subTaskStrategies = subTaskStrategiesCommaSeparated.split(",");
-            List<SubTasksStrategy> strategies = new ArrayList<SubTasksStrategy>();
-            for (String subTaskStrategyString : subTaskStrategies) {
-                SubTasksStrategy subTaskStrategy = SubTasksStrategyFactory.newStrategy(subTaskStrategyString);
-                strategies.add(subTaskStrategy);
-            }
-            task.setSubTaskStrategies(strategies);
-        }
+//@TODO: enable again the sub tasks 
+//        String subTaskStrategiesCommaSeparated = (String) workItem.getParameter("SubTaskStrategies");
+//        if (subTaskStrategiesCommaSeparated != null && !subTaskStrategiesCommaSeparated.equals("")) {
+//            String[] subTaskStrategies = subTaskStrategiesCommaSeparated.split(",");
+//            List<SubTasksStrategy> strategies = new ArrayList<SubTasksStrategy>();
+//            for (String subTaskStrategyString : subTaskStrategies) {
+//                SubTasksStrategy subTaskStrategy = SubTasksStrategyFactory.newStrategy(subTaskStrategyString);
+//                strategies.add(subTaskStrategy);
+//            }
+//            task.setSubTaskStrategies(strategies);
+//        }
 
         PeopleAssignments assignments = new PeopleAssignments();
         List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();

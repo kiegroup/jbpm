@@ -38,8 +38,9 @@ import org.jbpm.task.I18NText;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Status;
-import org.jbpm.task.SubTasksStrategy;
-import org.jbpm.task.SubTasksStrategyFactory;
+//@TODO: enable again the sub tasks 
+//import org.jbpm.task.SubTasksStrategy;
+//import org.jbpm.task.SubTasksStrategyFactory;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
@@ -129,17 +130,17 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
         if (parentId != null) {
             taskData.setParentId(parentId);
         }
-
-        String subTaskStrategiesCommaSeparated = (String) workItem.getParameter("SubTaskStrategies");
-        if (subTaskStrategiesCommaSeparated != null && !subTaskStrategiesCommaSeparated.equals("")) {
-            String[] subTaskStrategies = subTaskStrategiesCommaSeparated.split(",");
-            List<SubTasksStrategy> strategies = new ArrayList<SubTasksStrategy>();
-            for (String subTaskStrategyString : subTaskStrategies) {
-                SubTasksStrategy subTaskStrategy = SubTasksStrategyFactory.newStrategy(subTaskStrategyString);
-                strategies.add(subTaskStrategy);
-            }
-            task.setSubTaskStrategies(strategies);
-        }
+//@TODO: enable again the sub tasks 
+//        String subTaskStrategiesCommaSeparated = (String) workItem.getParameter("SubTaskStrategies");
+//        if (subTaskStrategiesCommaSeparated != null && !subTaskStrategiesCommaSeparated.equals("")) {
+//            String[] subTaskStrategies = subTaskStrategiesCommaSeparated.split(",");
+//            List<SubTasksStrategy> strategies = new ArrayList<SubTasksStrategy>();
+//            for (String subTaskStrategyString : subTaskStrategies) {
+//                SubTasksStrategy subTaskStrategy = SubTasksStrategyFactory.newStrategy(subTaskStrategyString);
+//                strategies.add(subTaskStrategy);
+//            }
+//            task.setSubTaskStrategies(strategies);
+//        }
 
         PeopleAssignments assignments = new PeopleAssignments();
         List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();

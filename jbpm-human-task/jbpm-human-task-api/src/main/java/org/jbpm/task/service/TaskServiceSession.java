@@ -15,15 +15,9 @@
  */
 package org.jbpm.task.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import org.drools.RuleBase;
 import org.drools.StatefulSession;
-import org.drools.runtime.process.WorkItemManager;
-import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventKeys;
-import org.jbpm.eventmessaging.Payload;
 import org.jbpm.task.*;
 import org.jbpm.task.query.DeadlineSummary;
 import org.jbpm.task.query.TaskSummary;
@@ -34,10 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.jbpm.eventmessaging.EventTriggerTransport;
-import org.jbpm.task.event.TaskCompletedEvent;
-import org.jbpm.task.event.TaskFailedEvent;
-import org.jbpm.task.event.TaskSkippedEvent;
+import org.jbpm.task.subtasks.SubTasksStrategy;
 
 public class TaskServiceSession {
 
@@ -761,17 +752,18 @@ public class TaskServiceSession {
     }
 
     private void checkSubTaskStrategy(final Task task) {
-        for (SubTasksStrategy strategy : task.getSubTaskStrategies()) {
-            strategy.execute(this, service, task);
-        }
-
-        final Task parentTask;
-        if (task.getTaskData().getParentId() != -1) {
-            parentTask = getTask(task.getTaskData().getParentId());
-            for (SubTasksStrategy strategy : parentTask.getSubTaskStrategies()) {
-                strategy.execute(this, service, parentTask);
-            }
-        }
+        //@TODO: enable again the sub tasks 
+//        for (SubTasksStrategy strategy : task.getSubTaskStrategies()) {
+//            strategy.execute(this, service, task);
+//        }
+//
+//        final Task parentTask;
+//        if (task.getTaskData().getParentId() != -1) {
+//            parentTask = getTask(task.getTaskData().getParentId());
+//            for (SubTasksStrategy strategy : parentTask.getSubTaskStrategies()) {
+//                strategy.execute(this, service, parentTask);
+//            }
+//        }
     }
 
     /**
