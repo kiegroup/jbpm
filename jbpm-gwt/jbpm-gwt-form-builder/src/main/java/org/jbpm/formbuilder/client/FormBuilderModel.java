@@ -60,10 +60,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class FormBuilderModel implements FormBuilderService {
 
+    private static final String DEFAULT_PACKAGE_NAME = "defaultPackage";
+
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private final String contextPath;
     private final XmlParseHelper helper = new XmlParseHelper();
+    private String packageName = DEFAULT_PACKAGE_NAME;
     
     public FormBuilderModel(String contextPath) {
         this.contextPath = contextPath;
@@ -95,6 +98,10 @@ public class FormBuilderModel implements FormBuilderService {
         });
     }
     
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+    
     public FormRepresentation getForm(final String formName) throws FormBuilderException {
         final String myFormName;
         if (!formName.startsWith("formDefinition_")) { 
@@ -103,7 +110,7 @@ public class FormBuilderModel implements FormBuilderService {
             myFormName = formName;
         }
         String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
-            append("/formDefinitions/package/defaultPackage/formDefinitionId/").
+            append("/formDefinitions/package/").append(this.packageName).append("/formDefinitionId/").
             append(myFormName).append("/").toString();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
@@ -131,7 +138,7 @@ public class FormBuilderModel implements FormBuilderService {
 
     public List<FormRepresentation> getForms() throws FormBuilderException {
         String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
-            append("/formDefinitions/package/defaultPackage/").toString();
+            append("/formDefinitions/package/").append(this.packageName).append("/").toString();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
         request.setCallback(new RequestCallback() {
@@ -229,8 +236,9 @@ public class FormBuilderModel implements FormBuilderService {
     }
 
     public void saveFormItem(final FormItemRepresentation formItem, String formItemName) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
-                GWT.getModuleBaseURL() + this.contextPath + "/formItems/package/defaultPackage/");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, new StringBuilder().
+                append(GWT.getModuleBaseURL()).append(this.contextPath).append("/formItems/package/").
+                append(this.packageName).append("/").toString());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {
@@ -257,9 +265,9 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void saveForm(final FormRepresentation form) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
-                GWT.getModuleBaseURL() + this.contextPath + 
-                "/formDefinitions/package/defaultPackage/");
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, new StringBuilder(). 
+                append(GWT.getModuleBaseURL()).append(this.contextPath). 
+                append("/formDefinitions/package/").append(this.packageName).append("/").toString());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {
@@ -349,7 +357,7 @@ public class FormBuilderModel implements FormBuilderService {
     
     public void saveMenuItem(final String groupName, final FBMenuItem item) {
         RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
-                GWT.getModuleBaseURL() + this.contextPath + "/defaultPackage/menuItems/" + groupName + "/");
+                GWT.getModuleBaseURL() + this.contextPath + "/menuItems/" + groupName + "/");
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
@@ -400,9 +408,10 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void deleteForm(FormRepresentation form) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE,
-                GWT.getModuleBaseURL() + this.contextPath + 
-                "/formDefinitions/package/defaultPackage/formDefinitionId/" + form.getName());
+        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, new StringBuilder().
+                append(GWT.getModuleBaseURL()).append(this.contextPath).
+                append("/formDefinitions/package/").append(this.packageName).
+                append("/formDefinitionId/").append(form.getName()).toString());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
@@ -424,8 +433,9 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public void deleteFormItem(String formItemName, FormItemRepresentation formItem) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, 
-                GWT.getModuleBaseURL() + this.contextPath + "/formItems/package/defaultPackage/formItemName/" + formItemName);
+        RequestBuilder request = new RequestBuilder(RequestBuilder.DELETE, new StringBuilder().
+                append(GWT.getModuleBaseURL()).append(this.contextPath).append("/formItems/package/").
+                append(this.packageName).append("/formItemName/").append(formItemName).toString());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
@@ -449,7 +459,7 @@ public class FormBuilderModel implements FormBuilderService {
     
     public List<TaskRef> getExistingIoAssociations(final String filter) {
         final List<TaskRef> retval = new ArrayList<TaskRef>();
-        String url = GWT.getModuleBaseURL() + this.contextPath + "/ioAssociations/package/defaultPackage/";
+        String url = GWT.getModuleBaseURL() + this.contextPath + "/ioAssociations/package/" + this.packageName + "/";
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {

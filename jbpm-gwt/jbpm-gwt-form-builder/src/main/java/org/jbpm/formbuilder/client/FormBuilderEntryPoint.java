@@ -19,6 +19,7 @@ package org.jbpm.formbuilder.client;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -41,11 +42,13 @@ public class FormBuilderEntryPoint implements EntryPoint {
         EventBus eventBus = new SimpleEventBus();
         FormBuilderGlobals.getInstance().registerEventBus(eventBus);
         //start model
-        FormBuilderService server = new FormBuilderModel("fbapi");
+        FormBuilderModel server = new FormBuilderModel("fbapi");
         FormBuilderGlobals.getInstance().registerService(server);
         //start view and controller
         FormBuilderView view = new FormBuilderView();
-        new FormBuilderController(server, view);
-        RootPanel.get("formBuilder").add(view);
+        FormBuilderController controller = new FormBuilderController(server, view);
+        RootPanel rootPanel = RootPanel.get("formBuilder");
+        controller.setDataPanel(rootPanel);
+        controller.setViewPanel(rootPanel);
     }
 }

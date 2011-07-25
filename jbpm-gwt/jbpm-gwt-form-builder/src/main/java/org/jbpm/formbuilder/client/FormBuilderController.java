@@ -42,19 +42,28 @@ import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
+import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderController {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final FormBuilderModel model;
+    private final FormBuilderView view;
     
     /**
      * Initiates gwt-dnd drag controller and sub views and presenters
      * @param model
      * @param view
      */
-    public FormBuilderController(FormBuilderService model, FormBuilderView view) {
+    public FormBuilderController(FormBuilderModel model, FormBuilderView view) {
         super();
+        this.model = model;
+        this.view = view;
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             public void onUncaughtException(Throwable exception) {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, "An error ocurred in the UI", exception));
@@ -75,6 +84,29 @@ public class FormBuilderController {
         view.setTreeView(createTree());
     }
 
+    public void setDataPanel(RootPanel rootPanel) {
+        String innerHTML = rootPanel.getElement().getInnerHTML();
+        JSONValue json = JSONParser.parseLenient(innerHTML);
+        if (json.isObject() != null) {
+            JSONObject jsonObj = json.isObject();
+            JSONValue jsonPkg = jsonObj.get("packageName");
+            if (jsonPkg != null && jsonPkg.isString() != null) {
+                String pkgName = jsonPkg.isString().stringValue();
+                if (pkgName != null && !"".equals(pkgName)) {
+                    model.setPackageName(pkgName);
+                }
+            }
+        }
+        // TODO Process information should be taken from here.
+        rootPanel.getElement().setInnerHTML("");
+        rootPanel.getElement().getStyle().setVisibility(Visibility.VISIBLE);
+    }
+    
+    public void setViewPanel(RootPanel rootPanel) {
+        rootPanel.getElement().getStyle().setVisibility(Visibility.VISIBLE);
+        rootPanel.add(view);
+    }
+    
     private void populateRepresentationFactory(FormBuilderService model) {
         try {
             model.populateRepresentationFactory();
@@ -138,5 +170,4 @@ public class FormBuilderController {
         new TreePresenter(view);
         return view;
     }
-
 }

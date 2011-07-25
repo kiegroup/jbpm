@@ -16,11 +16,17 @@
 package org.jbpm.formbuilder.server.task;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -97,6 +103,73 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     }
 
+    public TaskRef getByUUID(String userTask, String uuid) throws TaskServiceException {
+        HttpClient client = new HttpClient();
+        GetMethod call = new GetMethod(helper.getRestBaseUrl());
+        try {
+            String auth = helper.getAuth();
+            call.setRequestHeader("Authorization", auth);
+            client.executeMethod(call);
+            PackageListDTO dto = jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.class);
+            String processUrl = null;
+            String processName = null;
+            for (PackageDTO pkg : dto.getPackage()) {
+                for (String url : pkg.getAssets()) {
+                    GetMethod subCall = new GetMethod(url);
+                    try {
+                        subCall.setRequestHeader("Authorization", auth);
+                        client.executeMethod(subCall);
+                        AssetDTO subDto = jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.class);
+                        if (subDto.getMetadata().getUuid().equals(uuid)) {
+                            processUrl = subDto.getSourceLink();
+                            processName = subDto.getMetadata().getTitle();
+                            break;
+                        }
+                    } finally {
+                        subCall.releaseConnection();
+                    }
+                }
+                //download the process in processUrl and get the right task
+                GetMethod processCall = new GetMethod(processUrl);
+                try {
+                    processCall.setRequestHeader("Authorization", auth);
+                    client.executeMethod(processCall);
+                    String processContent = processCall.getResponseBodyAsString();
+                    repo.clear();
+                    KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+                    kbuilder.add(new ByteArrayResource(processContent.getBytes()), ResourceType.BPMN2);
+                    if (!kbuilder.hasErrors()) {
+                        List<TaskRef> tasks = repo.getTasks();
+                        for (TaskRef task : tasks) {
+                            if (task.getTaskId().equals(userTask)) {
+                                task.setProcessId(processName);
+                                task.setPackageName(pkg.getTitle());
+                                return task;
+                            }
+                        }
+                    }
+                } finally {
+                    processCall.releaseConnection();
+                }
+            }
+        } catch (IOException e) {
+            throw new TaskServiceException("Couldn't read task definition " + uuid + " : " + userTask, e);
+        } finally {
+            call.releaseConnection();
+        }
+        return null;
+    }
+    
+    private <T> T jaxbTransformation(Class<T> retType, InputStream input, Class<?>... boundTypes) throws TaskServiceException {
+        try {
+            JAXBContext ctx = JAXBContext.newInstance(boundTypes);
+            Unmarshaller unmarshaller = ctx.createUnmarshaller();
+            return unmarshaller.unmarshal(new StreamSource(input), retType).getValue();
+        } catch (JAXBException e) { 
+            throw new TaskServiceException(e);
+        }
+    }
+    
     private void validateAsset(String packageName, String itemName, String dateLastModified) throws TaskServiceException {
         String name = packageName + ":" + itemName;
         if (assets.get(name) == null || !assets.get(name).equals(dateLastModified)) {

@@ -20,4 +20,6 @@ import java.util.List;
 public interface TaskDefinitionService {
 
     List<TaskRef> query(String pkgName, String filter) throws TaskServiceException;
+    
+    TaskRef getByUUID(String userTask, String uuid) throws TaskServiceException;
 }

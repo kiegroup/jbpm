@@ -46,5 +46,9 @@ public class GuvnorHelper {
             append("/org.drools.guvnor.Guvnor/api/packages/").
             append(pkgName).append("/").toString();
     }
+
+    public String getRestBaseUrl() {
+        return new StringBuilder(this.baseUrl).append("/rest/packages/").toString();
+    }
     
 }

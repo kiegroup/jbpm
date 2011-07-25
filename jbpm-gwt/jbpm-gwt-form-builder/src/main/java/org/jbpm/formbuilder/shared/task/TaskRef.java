@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class TaskRef {
 
+    private String packageName;
     private String processId;
     private String taskId;
     private List<TaskPropertyRef> inputs = new ArrayList<TaskPropertyRef>();
@@ -111,6 +112,14 @@ public class TaskRef {
     public Map<String, String> getMetaData() {
         return metaData;
     }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+    
+    public String getPackageName() {
+        return packageName;
+    }
     
     @Override
     public boolean equals(Object obj) {
@@ -118,7 +127,10 @@ public class TaskRef {
         if (obj == null) return false;
         if (!(obj instanceof TaskRef)) return false;
         TaskRef other = (TaskRef) obj;
-        boolean equals = (this.processId == null && other.processId == null) || (this.processId != null && this.processId.equals(other.processId));
+        boolean equals = (this.packageName == null && other.packageName == null) 
+        || (this.packageName != null && this.packageName.equals(other.packageName));
+        if (!equals) return equals;
+        equals = (this.processId == null && other.processId == null) || (this.processId != null && this.processId.equals(other.processId));
         if (!equals) return equals;
         equals = (this.taskId == null && other.taskId == null) || (this.taskId != null && this.taskId.equals(other.taskId));
         if (!equals) return equals;
@@ -134,7 +146,9 @@ public class TaskRef {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        int aux = this.processId == null ? 0 : this.processId.hashCode();
+        int aux = this.packageName == null ? 0 : this.packageName.hashCode();
+        result = 37 * result + aux;
+        aux = this.processId == null ? 0 : this.processId.hashCode();
         result = 37 * result + aux;
         aux = this.taskId == null ? 0 : this.taskId.hashCode();
         result = 37 * result + aux;

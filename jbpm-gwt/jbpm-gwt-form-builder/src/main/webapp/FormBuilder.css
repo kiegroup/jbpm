@@ -1,0 +1,105 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+#loading-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20000;
+    background-color: white;
+}
+
+#loading {
+    position: absolute;
+    left: 45%;
+    top: 40%;
+    padding: 2px;
+    z-index: 20001;
+    height: auto;
+}
+
+#loading a {
+    color: #225588;
+}
+
+#loading .loading-indicator {
+    background: white;
+    color: #444;
+    font: bold 13px tahoma, arial, helvetica;
+    padding: 10px;
+    margin: 0;
+    height: auto;
+}
+
+#loading-msg {
+    font: normal 10px arial, tahoma, sans-serif;
+}
+
+.x-window {
+    text-align: left;
+}
+
+.northeastCorner {
+    background-image: url(images/resizablePanel/northeastCorner.gif);
+    width: 10px;
+    height: 10px;
+    background-repeat: no-repeat;
+}
+.northwestCorner {
+    background-image: url(images/resizablePanel/northwestCorner.gif);
+    width: 10px;
+    height: 10px;
+    background-repeat: no-repeat;
+}
+.southwestCorner {
+    background-image: url(images/resizablePanel/southwestCorner.gif);
+    width: 10px;
+    height: 10px;
+    background-repeat: no-repeat;
+}
+.smallButton {
+    background-image: url(images/resizablePanel/resizeButton.gif);
+    width: 10px;
+    height: 10px;
+    background-repeat: no-repeat;
+}
+.horizontalLine {
+    background-image: url(images/resizablePanel/horizontalLine.gif);
+    height: 10px;
+    background-repeat: repeat-x;
+}
+.verticalLine {
+    background-image: url(images/resizablePanel/verticalLine.gif);
+    width: 10px;
+    background-repeat: repeat-y;
+}
+.formDisplay {
+    vertical-align: top;
+}
+
+.greenNotification {
+    color: #AADD00;
+}
+.orangeNotification {
+    color: #FF5721
+}
+.redNotification {
+    color: #FF3030;
+}
+.fbFormItemThinBorder {
+    border: 1px dotted gray;
+}
+.phantomPanel {
+    background-color: #88FFFF;
+    border: 1px dashed gray;
+}
+.even {
+    background-color: #BBBBBB;
+}
+.odd {
+    background-color: #FFFFFF;
+}

@@ -31,6 +31,7 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
         task1.addOutput("output2", "");
         tasks.add(task1);
         TaskRef task2 = new TaskRef();
+        task2.setTaskId("task2");
         task2.addInput("input3", "${hey}");
         task2.addInput("input4", "${why}");
         task2.addOutput("output3", "");
@@ -40,5 +41,17 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
     
     public List<TaskRef> query(String pkgName, String filter) {
         return new ArrayList<TaskRef>(tasks);
+    }
+    
+    public TaskRef getByUUID(String userTask, String uuid)
+            throws TaskServiceException {
+        TaskRef retval = null;
+        for (TaskRef task : tasks) {
+            if (task.getTaskId().equals(userTask)) {
+                retval = task;
+                break;
+            }
+        }
+        return retval;
     }
 }

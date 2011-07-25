@@ -19,9 +19,17 @@
    <param-value>admin</param-value>
   </init-param>
  </servlet>
+ <servlet>
+  <servlet-name>embed</servlet-name>
+  <servlet-class>org.jbpm.formbuilder.server.EmbedingServlet</servlet-class>
+ </servlet>
  <servlet-mapping>
   <servlet-name>fbapi</servlet-name>
   <url-pattern>org.jbpm.formbuilder.FormBuilder/fbapi/*</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+  <servlet-name>embed</servlet-name>
+  <url-pattern>embed</url-pattern>
  </servlet-mapping>
  <welcome-file-list>
   <welcome-file>FormBuilder.html</welcome-file>
