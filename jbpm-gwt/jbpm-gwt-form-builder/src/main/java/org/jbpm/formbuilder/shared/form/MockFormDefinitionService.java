@@ -49,6 +49,14 @@ public class MockFormDefinitionService extends AbstractBaseFormDefinitionService
         return form;
     }
     
+    public FormRepresentation getFormByUUID(String pkgName, String uuid) throws FormServiceException {
+        List<FormRepresentation> list = forms.get(pkgName);
+        if (list == null) {
+            throw new FormServiceException();
+        }
+        return list.isEmpty() ? null : list.iterator().next();
+    }
+    
     public FormItemRepresentation getFormItem(String pkgName, String formItemId)
             throws FormServiceException {
         List<Map.Entry<String, FormItemRepresentation>> list = items.get(pkgName);

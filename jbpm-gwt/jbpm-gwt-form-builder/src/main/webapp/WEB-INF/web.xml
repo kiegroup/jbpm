@@ -3,21 +3,21 @@
  xmlns="http://java.sun.com/xml/ns/j2ee"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
  <display-name>jBPM Form Builder</display-name>
+ <context-param>
+   <param-name>guvnor-base-url</param-name>
+   <param-value>http://localhost:8080/drools-guvnor</param-value>
+ </context-param>
+ <context-param>
+  <param-name>guvnor-user</param-name>
+  <param-value>admin</param-value>
+ </context-param>
+ <context-param>
+  <param-name>guvnor-password</param-name>
+  <param-value>admin</param-value>
+ </context-param>
  <servlet>
   <servlet-name>fbapi</servlet-name>
   <servlet-class>org.jbpm.formbuilder.server.FormBuilderServlet</servlet-class>
-  <init-param>
-   <param-name>guvnor-base-url</param-name>
-   <param-value>http://localhost:8080/drools-guvnor</param-value>
-  </init-param>
-  <init-param>
-   <param-name>guvnor-user</param-name>
-   <param-value>admin</param-value>
-  </init-param>
-  <init-param>
-   <param-name>guvnor-password</param-name>
-   <param-value>admin</param-value>
-  </init-param>
  </servlet>
  <servlet>
   <servlet-name>embed</servlet-name>
@@ -25,12 +25,18 @@
  </servlet>
  <servlet-mapping>
   <servlet-name>fbapi</servlet-name>
-  <url-pattern>org.jbpm.formbuilder.FormBuilder/fbapi/*</url-pattern>
+  <url-pattern>/org.jbpm.formbuilder.FormBuilder/fbapi/*</url-pattern>
  </servlet-mapping>
  <servlet-mapping>
   <servlet-name>embed</servlet-name>
-  <url-pattern>embed</url-pattern>
+  <url-pattern>/embed</url-pattern>
  </servlet-mapping>
+ <jsp-config>
+  <taglib>
+   <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+   <taglib-location>/WEB-INF/c.tld</taglib-location>
+  </taglib>
+ </jsp-config>
  <welcome-file-list>
   <welcome-file>FormBuilder.html</welcome-file>
   <welcome-file>index.html</welcome-file>

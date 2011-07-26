@@ -21,5 +21,7 @@ public interface TaskDefinitionService {
 
     List<TaskRef> query(String pkgName, String filter) throws TaskServiceException;
     
-    TaskRef getByUUID(String userTask, String uuid) throws TaskServiceException;
+    TaskRef getTaskByUUID(String pkgName, String userTask, String uuid) throws TaskServiceException;
+
+    String getContainingPackage(String uuid) throws TaskServiceException;
 }

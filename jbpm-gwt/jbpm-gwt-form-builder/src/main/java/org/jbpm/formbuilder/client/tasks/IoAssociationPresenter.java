@@ -20,6 +20,8 @@ import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
+import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
@@ -59,6 +61,13 @@ public class IoAssociationPresenter {
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             public void onSelectedTask(TaskSelectedEvent event) {
                 view.setSelectedTask(event.getSelectedTask());
+            }
+        });
+        bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
+            public void onEvent(EmbededIOReferenceEvent event) {
+                view.disableSearch();
+                bus.fireEvent(new TaskSelectedEvent(event.getIoRef()));
+                // TODO UI Components should get prepared to allow IO bindings with the task selected event.
             }
         });
     }

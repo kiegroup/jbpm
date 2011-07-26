@@ -43,7 +43,7 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
         return new ArrayList<TaskRef>(tasks);
     }
     
-    public TaskRef getByUUID(String userTask, String uuid)
+    public TaskRef getTaskByUUID(String pkgName, String userTask, String uuid)
             throws TaskServiceException {
         TaskRef retval = null;
         for (TaskRef task : tasks) {
@@ -53,5 +53,9 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
             }
         }
         return retval;
+    }
+    
+    public String getContainingPackage(String uuid) throws TaskServiceException {
+        return "defaultPackage";
     }
 }

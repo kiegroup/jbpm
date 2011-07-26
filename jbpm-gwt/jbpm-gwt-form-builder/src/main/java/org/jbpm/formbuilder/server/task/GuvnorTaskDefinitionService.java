@@ -16,17 +16,13 @@
 package org.jbpm.formbuilder.server.task;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -102,72 +98,89 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             method.releaseConnection();
         }
     }
-
-    public TaskRef getByUUID(String userTask, String uuid) throws TaskServiceException {
-        HttpClient client = new HttpClient();
-        GetMethod call = new GetMethod(helper.getRestBaseUrl());
+    
+    public String getContainingPackage(final String uuid) throws TaskServiceException {
         try {
-            String auth = helper.getAuth();
-            call.setRequestHeader("Authorization", auth);
-            client.executeMethod(call);
-            PackageListDTO dto = jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.class);
-            String processUrl = null;
-            String processName = null;
-            for (PackageDTO pkg : dto.getPackage()) {
+            return helper.getPackageNameByContentUUID(uuid);
+        } catch (JAXBException e) {
+            throw new TaskServiceException("problem querying package", e);
+        } catch (IOException e) {
+            throw new TaskServiceException("problem querying package", e);
+        }
+    }
+
+    public TaskRef getTaskByUUID(final String packageName, final String userTask, final String uuid) throws TaskServiceException {
+        HttpClient client = new HttpClient();
+        if (packageName != null) {
+            GetMethod call = new GetMethod(helper.getRestBaseUrl());
+            try {
+                String auth = helper.getAuth();
+                call.addRequestHeader("Accept", "application/xml");
+                call.addRequestHeader("Authorization", auth);
+                client.executeMethod(call);
+                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.class, PackageDTO.class);
+                String processUrl = null;
+                String processName = null;
+                String format = null;
+                PackageDTO pkg = dto.getSelectedPackage(packageName);
                 for (String url : pkg.getAssets()) {
                     GetMethod subCall = new GetMethod(url);
                     try {
                         subCall.setRequestHeader("Authorization", auth);
+                        subCall.addRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
-                        AssetDTO subDto = jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.class);
+                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.class, MetaDataDTO.class);
                         if (subDto.getMetadata().getUuid().equals(uuid)) {
                             processUrl = subDto.getSourceLink();
                             processName = subDto.getMetadata().getTitle();
+                            format = subDto.getMetadata().getFormat();
                             break;
                         }
                     } finally {
                         subCall.releaseConnection();
                     }
                 }
-                //download the process in processUrl and get the right task
-                GetMethod processCall = new GetMethod(processUrl);
-                try {
-                    processCall.setRequestHeader("Authorization", auth);
-                    client.executeMethod(processCall);
-                    String processContent = processCall.getResponseBodyAsString();
-                    repo.clear();
-                    KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-                    kbuilder.add(new ByteArrayResource(processContent.getBytes()), ResourceType.BPMN2);
-                    if (!kbuilder.hasErrors()) {
-                        List<TaskRef> tasks = repo.getTasks();
-                        for (TaskRef task : tasks) {
-                            if (task.getTaskId().equals(userTask)) {
-                                task.setProcessId(processName);
-                                task.setPackageName(pkg.getTitle());
-                                return task;
+                if (format != null && "bpmn2".equals(format)) {
+                    //download the process in processUrl and get the right task
+                    GetMethod processCall = new GetMethod(processUrl);
+                    try {
+                        processCall.setRequestHeader("Authorization", auth);
+                        client.executeMethod(processCall);
+                        String processContent = processCall.getResponseBodyAsString();
+                        repo.clear();
+                        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+                        kbuilder.add(new ByteArrayResource(processContent.getBytes()), ResourceType.BPMN2);
+                        if (!kbuilder.hasErrors()) {
+                            List<TaskRef> tasks = repo.getTasks();
+                            for (TaskRef task : tasks) {
+                                if (isReferencedTask(userTask, task)) {
+                                    task.setProcessId(processName);
+                                    task.setPackageName(pkg.getTitle());
+                                    return task;
+                                }
                             }
                         }
+                    } finally {
+                        processCall.releaseConnection();
                     }
-                } finally {
-                    processCall.releaseConnection();
                 }
+            } catch (JAXBException e) {
+                throw new TaskServiceException("Couldn't read task definition" + uuid + " : " + userTask, e);
+            } catch (IOException e) {
+                throw new TaskServiceException("Couldn't read task definition " + uuid + " : " + userTask, e);
+            } finally {
+                call.releaseConnection();
             }
-        } catch (IOException e) {
-            throw new TaskServiceException("Couldn't read task definition " + uuid + " : " + userTask, e);
-        } finally {
-            call.releaseConnection();
         }
         return null;
     }
-    
-    private <T> T jaxbTransformation(Class<T> retType, InputStream input, Class<?>... boundTypes) throws TaskServiceException {
-        try {
-            JAXBContext ctx = JAXBContext.newInstance(boundTypes);
-            Unmarshaller unmarshaller = ctx.createUnmarshaller();
-            return unmarshaller.unmarshal(new StreamSource(input), retType).getValue();
-        } catch (JAXBException e) { 
-            throw new TaskServiceException(e);
-        }
+
+    private boolean isReferencedTask(String userTask, TaskRef task) {
+        boolean emptyUserTask = userTask == null || "".equals(userTask);
+        boolean taskIsStartProcess = task.getTaskId().equals(ProcessGetInputHandler.PROCESS_INPUT_NAME);
+        boolean taskIsSearchedTask = userTask != null && task.getTaskId().equals(userTask);
+        
+        return (emptyUserTask && taskIsStartProcess) || taskIsSearchedTask;
     }
     
     private void validateAsset(String packageName, String itemName, String dateLastModified) throws TaskServiceException {

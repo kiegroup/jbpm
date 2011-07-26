@@ -250,8 +250,8 @@ public class XmlParseHelper {
         Document xml = XMLParser.parse(responseText);
         Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
         NodeList groups = xml.getElementsByTagName("menuGroup");
-        for (int jindex = 0; jindex < groups.getLength(); jindex++) {
-            Node groupNode = groups.item(jindex);
+        for (int index = 0; index < groups.getLength(); index++) {
+            Node groupNode = groups.item(index);
             String groupName = ((Element) groupNode).getAttribute("name");
             NodeList items = ((Element) groupNode).getElementsByTagName("menuItem");
             menuItems.put(groupName, readMenuItems(items, groupName));

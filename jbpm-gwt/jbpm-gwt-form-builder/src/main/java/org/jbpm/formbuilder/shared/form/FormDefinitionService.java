@@ -34,6 +34,7 @@ public interface FormDefinitionService {
     void deleteFormItem(String pkgName, String formItemId) throws FormServiceException;
     
     FormRepresentation getForm(String pkgName, String formId) throws FormServiceException;
+    FormRepresentation getFormByUUID(String packageName, String uuid) throws FormServiceException;
     FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException;
 
     FormRepresentation getAssociatedForm(String pkgName, TaskRef task) throws FormServiceException;

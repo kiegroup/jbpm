@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
@@ -29,6 +31,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.jbpm.formbuilder.server.GuvnorHelper;
+import org.jbpm.formbuilder.server.task.AssetDTO;
+import org.jbpm.formbuilder.server.task.MetaDataDTO;
+import org.jbpm.formbuilder.server.task.PackageDTO;
+import org.jbpm.formbuilder.server.task.PackageListDTO;
 import org.jbpm.formbuilder.shared.form.AbstractBaseFormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
@@ -120,6 +126,63 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         return null;
     }
 
+    public FormRepresentation getFormByUUID(String packageName, String uuid) throws FormServiceException {
+        HttpClient client = new HttpClient();
+        if (packageName != null) {
+            GetMethod call = new GetMethod(helper.getRestBaseUrl());
+            try {
+                String auth = helper.getAuth();
+                call.addRequestHeader("Accept", "application/xml");
+                call.addRequestHeader("Authorization", auth);
+                client.executeMethod(call);
+                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.class, PackageDTO.class);
+                String formDefUrl = null;
+                String format = null;
+                PackageDTO pkg = dto.getSelectedPackage(packageName);
+                for (String url : pkg.getAssets()) {
+                    GetMethod subCall = new GetMethod(url);
+                    try {
+                        subCall.setRequestHeader("Authorization", auth);
+                        subCall.addRequestHeader("Accept", "application/xml");
+                        client.executeMethod(subCall);
+                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.class, MetaDataDTO.class);
+                        if (subDto.getMetadata().getUuid().equals(uuid)) {
+                            formDefUrl = subDto.getSourceLink();
+                            format = subDto.getMetadata().getFormat();
+                            break;
+                        }
+                    } finally {
+                        subCall.releaseConnection();
+                    }
+                }
+                if (format != null && "formdef".equalsIgnoreCase(format)) {
+                    //download the process in processUrl and get the right task
+                    GetMethod processCall = new GetMethod(formDefUrl);
+                    try {
+                        processCall.setRequestHeader("Authorization", auth);
+                        client.executeMethod(processCall);
+                        String formJson = processCall.getResponseBodyAsString();
+                        if (formJson != null && !"".equals(formJson)) { 
+                            FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
+                            return decoder.decode(formJson);
+                        }
+                    } finally {
+                        processCall.releaseConnection();
+                    }
+                }
+            } catch (JAXBException e) {
+                throw new FormServiceException("Couldn't read form " + packageName + " : " + uuid, e);
+            } catch (IOException e) {
+                throw new FormServiceException("Couldn't read form " + packageName + " : " + uuid, e);
+            } catch (FormEncodingException e) {
+                throw new FormServiceException("Couldn't parse form " + packageName + " : " + uuid, e);
+            } finally {
+                call.releaseConnection();
+            }
+        }
+        return null;
+    }
+    
     public FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formItemId != null && !"".equals(formItemId)) {

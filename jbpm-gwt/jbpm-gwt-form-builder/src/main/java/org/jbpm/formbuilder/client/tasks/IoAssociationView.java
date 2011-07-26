@@ -55,4 +55,8 @@ public class IoAssociationView extends AbsolutePanel {
         resultsView.setSelectedTask(selectedTask);
         
     }
+
+    public void disableSearch() {
+        panel.remove(filterView);
+    }
 }

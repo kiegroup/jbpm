@@ -98,9 +98,9 @@ public class FormBuilderServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
         this.menuService = new GuvnorMenuService();
-        String baseUrl = config.getInitParameter("guvnor-base-url");
-        String user = config.getInitParameter("guvnor-user");
-        String pass = config.getInitParameter("guvnor-password");
+        String baseUrl = config.getServletContext().getInitParameter("guvnor-base-url");
+        String user = config.getServletContext().getInitParameter("guvnor-user");
+        String pass = config.getServletContext().getInitParameter("guvnor-password");
         this.taskService = new GuvnorTaskDefinitionService(baseUrl, user, pass);
         this.formService = new GuvnorFormDefinitionService(baseUrl, user, pass);
     }
