@@ -20,6 +20,9 @@ import java.util.Map;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class FileInputRepresentation extends FormItemRepresentation {
 
     private String name;

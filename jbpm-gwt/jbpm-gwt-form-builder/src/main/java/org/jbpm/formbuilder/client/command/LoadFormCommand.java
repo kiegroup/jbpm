@@ -43,10 +43,12 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Handles the action of loading a form
  */
+@Reflectable
 public class LoadFormCommand implements BaseCommand {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

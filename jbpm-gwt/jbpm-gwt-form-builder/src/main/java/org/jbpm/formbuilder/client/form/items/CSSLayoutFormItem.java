@@ -31,10 +31,12 @@ import com.google.gwt.dom.client.StyleElement;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form layout item. Represents a css based layout
  */
+@Reflectable
 public class CSSLayoutFormItem extends LayoutFormItem {
 
     private FlowPanel panel = new FlowPanel() {

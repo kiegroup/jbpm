@@ -22,11 +22,11 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
 
-import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -78,8 +78,7 @@ public abstract class FBValidationItem {
         try {
             String repClassName = (String) validationRep.getDataMap().get("@className");
             String className = RepresentationFactory.getItemClassName(repClassName);
-            Class<?> clazz = ReflectionHelper.loadClass(className);
-            Object obj = ReflectionHelper.newInstance(clazz);
+            Object obj = ReflectionHelper.newInstance(className);
             FBValidationItem item = (FBValidationItem) obj;
             item.populate(validationRep);
             return item;

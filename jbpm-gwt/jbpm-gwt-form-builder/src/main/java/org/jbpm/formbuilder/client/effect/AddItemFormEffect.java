@@ -33,10 +33,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Allows to add an item to a related {@link OptionsFormItem} (for example, a combobox)
  */
+@Reflectable
 public class AddItemFormEffect extends FBFormEffect {
 
     private String newLabel;

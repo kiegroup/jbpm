@@ -29,10 +29,12 @@ import org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a hidden field
  */
+@Reflectable
 public class HiddenFormItem extends FBFormItem {
 
     private Hidden hidden = new Hidden();

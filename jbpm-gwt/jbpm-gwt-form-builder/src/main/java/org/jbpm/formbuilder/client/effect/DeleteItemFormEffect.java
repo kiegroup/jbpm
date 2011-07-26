@@ -35,10 +35,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Allows to remove an item from a related {@link OptionsFormItem} (for example, a combobox)
  */
+@Reflectable
 public class DeleteItemFormEffect extends FBFormEffect {
 
     private String dropItemLabel;

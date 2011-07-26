@@ -24,10 +24,12 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * In charge of the action of undoing the last action
  */
+@Reflectable
 public class EditFormUndoCommand implements BaseCommand {
 
     private final UndoRedoManager mgr = UndoRedoManager.getInstance();

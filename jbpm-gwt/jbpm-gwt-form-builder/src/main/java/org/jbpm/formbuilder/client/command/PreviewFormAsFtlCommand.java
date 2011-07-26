@@ -15,9 +15,12 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import com.gwtent.reflection.client.Reflectable;
+
 /**
  * Handles the preview action for Freemarker
  */
+@Reflectable
 public class PreviewFormAsFtlCommand extends PreviewFormCommand {
 
     private static final String LANG = "ftl";

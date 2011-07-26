@@ -17,9 +17,12 @@ package org.jbpm.formbuilder.client.effect;
 
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.gwtent.reflection.client.Reflectable;
+
 /**
  * Allow to paste a UI component
  */
+@Reflectable
 public class PasteFormEffect extends FBFormEffect {
 
     public PasteFormEffect() {

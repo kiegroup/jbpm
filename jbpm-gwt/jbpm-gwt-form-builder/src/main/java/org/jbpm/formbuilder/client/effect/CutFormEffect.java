@@ -17,9 +17,12 @@ package org.jbpm.formbuilder.client.effect;
 
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.gwtent.reflection.client.Reflectable;
+
 /**
  * Allows the cut action from the right button menu
  */
+@Reflectable
 public class CutFormEffect extends FBFormEffect {
 
     public CutFormEffect() {

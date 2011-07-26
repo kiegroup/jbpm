@@ -34,10 +34,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * server-side form item. Represents a loop block
  */
+@Reflectable
 public class LoopBlockFormItem extends LayoutFormItem {
 
     private String variableName;

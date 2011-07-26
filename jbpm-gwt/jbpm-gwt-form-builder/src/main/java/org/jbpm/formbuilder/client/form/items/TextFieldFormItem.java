@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
 
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a text field
  */
+@Reflectable
 public class TextFieldFormItem extends FBFormItem {
 
     private final TextBox textBox = new TextBox();

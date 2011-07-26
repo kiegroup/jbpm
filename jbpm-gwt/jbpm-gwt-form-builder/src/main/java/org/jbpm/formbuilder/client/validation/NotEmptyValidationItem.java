@@ -24,7 +24,9 @@ import org.jbpm.formbuilder.shared.rep.validation.NotEmptyValidation;
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
+@Reflectable
 public class NotEmptyValidationItem extends FBValidationItem {
 
     @Override

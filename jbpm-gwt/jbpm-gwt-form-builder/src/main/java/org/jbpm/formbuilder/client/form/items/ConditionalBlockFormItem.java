@@ -33,10 +33,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * server-side form item. Represents a conditional block (if-else)
  */
+@Reflectable
 public class ConditionalBlockFormItem extends LayoutFormItem {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

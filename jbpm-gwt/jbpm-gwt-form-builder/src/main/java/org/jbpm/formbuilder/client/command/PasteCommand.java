@@ -33,10 +33,12 @@ import com.google.gwt.user.client.ui.HasOneWidget;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Handles the action of pasting a component
  */
+@Reflectable
 public class PasteCommand extends AbstractCopyPasteCommand {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

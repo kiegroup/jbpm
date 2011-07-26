@@ -21,6 +21,9 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class LoopBlockRepresentation extends FormItemRepresentation {
 
     private String inputName;

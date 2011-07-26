@@ -36,10 +36,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Allows to save a menu item from right button menu
  */
+@Reflectable
 public class SaveAsMenuOptionFormEffect extends FBFormEffect {
 
     private String newMenuOptionName;

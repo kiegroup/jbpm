@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a complete button
  */
+@Reflectable
 public class CompleteButtonFormItem extends FBFormItem {
 
     private Button button = new Button("Complete");

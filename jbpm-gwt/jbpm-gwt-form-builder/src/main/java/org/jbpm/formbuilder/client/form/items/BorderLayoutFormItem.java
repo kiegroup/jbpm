@@ -33,10 +33,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form layout item. Represents a border layout
  */
+@Reflectable
 public class BorderLayoutFormItem extends LayoutFormItem {
 
 	private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

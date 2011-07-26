@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
@@ -35,7 +36,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 
 /**
  * Decodes json to different objects on the client side
@@ -49,8 +49,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         String className = (String) data.get("@className");
         Object obj = null;
         try {
-            Class<?> clazz = ReflectionHelper.loadClass(className);
-            obj = ReflectionHelper.newInstance(clazz);
+            obj = ReflectionHelper.newInstance(className);
             if (obj instanceof Mappable) {
                 Mappable item = (Mappable) obj;
                 item.setDataMap(data);

@@ -23,6 +23,9 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class CompleteButtonRepresentation extends FormItemRepresentation {
 
     private String text;

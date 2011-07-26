@@ -40,10 +40,12 @@ import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Handles the action of deleting a form on the server.
  */
+@Reflectable
 public class DeleteFormCommand implements BaseCommand {
 
     private static final String DELETE_TYPE = DeleteFormCommand.class.getName();

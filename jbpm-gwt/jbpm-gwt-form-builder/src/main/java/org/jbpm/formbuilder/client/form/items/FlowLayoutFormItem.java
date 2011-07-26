@@ -29,10 +29,12 @@ import org.jbpm.formbuilder.shared.rep.items.FlowPanelRepresentation;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form layout item. Represents a flow layout
  */
+@Reflectable
 public class FlowLayoutFormItem extends LayoutFormItem {
 
     private FlowPanel panel = new FlowPanel() {

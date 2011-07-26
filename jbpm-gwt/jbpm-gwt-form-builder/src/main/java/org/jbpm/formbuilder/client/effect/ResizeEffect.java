@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.common.panels.ResizablePanel;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Resizes a component
  */
+@Reflectable
 public class ResizeEffect extends FBFormEffect {
 
     private int widgetWidth;

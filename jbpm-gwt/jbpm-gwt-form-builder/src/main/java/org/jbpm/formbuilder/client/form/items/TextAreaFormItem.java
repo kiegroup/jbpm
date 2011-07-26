@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation;
 
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a text area
  */
+@Reflectable
 public class TextAreaFormItem extends FBFormItem {
 
     private TextArea area = new TextArea();

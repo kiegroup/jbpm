@@ -42,6 +42,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * This class is used to store a POJO representation of
@@ -49,6 +50,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
  * items, and allow the user to use them by having it as a custom
  * menu option
  */
+@Reflectable
 public class CustomMenuItem extends FBMenuItem {
 
     private String optionName;

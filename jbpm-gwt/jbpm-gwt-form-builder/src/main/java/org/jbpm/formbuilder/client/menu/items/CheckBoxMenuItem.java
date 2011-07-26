@@ -25,8 +25,10 @@ import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
+import com.gwtent.reflection.client.Reflectable;
 
 
+@Reflectable
 public class CheckBoxMenuItem extends FBMenuItem {
 
     public CheckBoxMenuItem() {

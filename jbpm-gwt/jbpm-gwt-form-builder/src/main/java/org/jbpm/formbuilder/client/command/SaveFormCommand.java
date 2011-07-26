@@ -32,10 +32,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Handles the action of saving a form on the server
  */
+@Reflectable
 public class SaveFormCommand implements BaseCommand {
 
     private static final String SAVE_TYPE = SaveFormCommand.class.getName();

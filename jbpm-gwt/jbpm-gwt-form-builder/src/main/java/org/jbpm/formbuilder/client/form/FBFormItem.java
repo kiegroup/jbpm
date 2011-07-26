@@ -27,6 +27,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
@@ -38,7 +39,6 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -349,8 +349,7 @@ public abstract class FBFormItem extends FocusPanel {
         }
         String className = rep.getItemClassName();
         try {
-            Class<?> clazz = ReflectionHelper.loadClass(className);
-            FBFormItem item = (FBFormItem) ReflectionHelper.newInstance(clazz);
+            FBFormItem item = (FBFormItem) ReflectionHelper.newInstance(className);
             item.populate(rep);
             return item;
         } catch (Exception e) {
@@ -413,8 +412,7 @@ public abstract class FBFormItem extends FocusPanel {
             this.effects = new ArrayList<FBFormEffect>(rep.getEffectClasses().size());
             for (String className : rep.getEffectClasses()) {
                 try {
-                    Class<?> clazz = ReflectionHelper.loadClass(className);
-                    FBFormEffect effect = (FBFormEffect) ReflectionHelper.newInstance(clazz);
+                    FBFormEffect effect = (FBFormEffect) ReflectionHelper.newInstance(className);
                     this.effects.add(effect);
                 } catch (Exception e) {
                     throw new FormBuilderException("Couldn't instantiate class " + className, e);

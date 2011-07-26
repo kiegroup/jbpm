@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
 
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a file input
  */
+@Reflectable
 public class FileInputFormItem extends FBFormItem {
 
     private FileUpload fileUpload = new FileUpload();

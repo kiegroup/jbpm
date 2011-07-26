@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation;
 
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a radio button
  */
+@Reflectable
 public class RadioButtonFormItem extends FBFormItem {
 
     private RadioButton button = new RadioButton("");

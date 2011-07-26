@@ -31,10 +31,12 @@ import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.LineChart;
 import com.google.gwt.visualization.client.visualizations.LineChart.Options;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a line graph
  */
+@Reflectable
 public class LineGraphFormItem extends FBFormItem {
 
     private LineChart chart = new LineChart(DataTable.create(), Options.create());

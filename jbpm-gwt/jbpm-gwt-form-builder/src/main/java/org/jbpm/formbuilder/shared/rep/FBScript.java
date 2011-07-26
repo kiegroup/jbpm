@@ -20,6 +20,9 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class FBScript implements Mappable {
 
     private String documentation;

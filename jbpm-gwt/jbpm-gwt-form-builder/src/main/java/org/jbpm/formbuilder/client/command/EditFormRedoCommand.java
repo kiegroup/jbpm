@@ -24,10 +24,12 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Handles the redo action
  */
+@Reflectable
 public class EditFormRedoCommand implements BaseCommand {
 
     private final UndoRedoManager mgr = UndoRedoManager.getInstance();

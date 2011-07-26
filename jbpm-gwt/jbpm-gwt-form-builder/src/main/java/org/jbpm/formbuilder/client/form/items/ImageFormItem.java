@@ -29,10 +29,12 @@ import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
 
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents an image
  */
+@Reflectable
 public class ImageFormItem extends FBFormItem {
 
     private Image image = new Image();

@@ -17,10 +17,13 @@ package org.jbpm.formbuilder.client.effect;
 
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
+import com.gwtent.reflection.client.Reflectable;
+
 /**
  * Allows the copy action from the right click menu of
  * the related {@link FBFormItem}
  */
+@Reflectable
 public class CopyFormEffect extends FBFormEffect {
 
     public CopyFormEffect() {

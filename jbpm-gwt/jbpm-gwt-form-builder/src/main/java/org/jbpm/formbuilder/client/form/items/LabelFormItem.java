@@ -30,10 +30,12 @@ import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
 
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a label
  */
+@Reflectable
 public class LabelFormItem extends FBFormItem {
 
     private final Label label = new Label("Label");

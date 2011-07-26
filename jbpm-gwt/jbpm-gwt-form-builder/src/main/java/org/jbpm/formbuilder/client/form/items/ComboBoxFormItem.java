@@ -30,10 +30,12 @@ import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a combo box.
  */
+@Reflectable
 public class ComboBoxFormItem extends OptionsFormItem {
     
     private ListBox listBox = new ListBox();

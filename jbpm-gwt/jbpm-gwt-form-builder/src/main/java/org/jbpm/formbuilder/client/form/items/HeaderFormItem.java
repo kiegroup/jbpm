@@ -30,10 +30,12 @@ import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a header or title
  */
+@Reflectable
 public class HeaderFormItem extends FBFormItem {
 
 

@@ -15,7 +15,10 @@
  */
 package org.jbpm.formbuilder.shared.rep;
 
+import com.gwtent.reflection.client.Reflectable;
 
+
+@Reflectable
 public class OutputData extends Data {
 
     @Override

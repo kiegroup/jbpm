@@ -31,10 +31,12 @@ import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Allows to add validations to the related {@link FBFormItem}
  */
+@Reflectable
 public class ValidationsEffect extends FBFormEffect {
 
     private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

@@ -15,9 +15,12 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import com.gwtent.reflection.client.Reflectable;
+
 /**
  * Handles the preview action for XSL
  */
+@Reflectable
 public class PreviewFormAsXslCommand extends PreviewFormCommand {
 
     private static final String LANG = "xsl";

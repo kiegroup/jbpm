@@ -22,6 +22,9 @@ import java.util.Map;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.graph.GraphEntry;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class LineGraphRepresentation extends FormItemRepresentation {
 
     private List<List<String>> dataTable = new ArrayList<List<String>>();

@@ -37,10 +37,12 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Allows to set alignment
  */
+@Reflectable
 public class HorizontalAlignmentFormEffect extends FBFormEffect {
 
     private ListBox alignmentBox = new ListBox();

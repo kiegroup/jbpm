@@ -26,7 +26,9 @@ import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.gwtent.reflection.client.Reflectable;
 
+@Reflectable
 public class PasswordFieldMenuItem extends FBMenuItem {
 
     public PasswordFieldMenuItem() {

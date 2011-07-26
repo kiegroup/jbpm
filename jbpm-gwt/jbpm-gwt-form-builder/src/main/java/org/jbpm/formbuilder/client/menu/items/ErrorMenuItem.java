@@ -29,11 +29,13 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * This class is used to represent an error when transforming {@link MenuItemDescription}s
  * from the server.
  */
+@Reflectable
 public class ErrorMenuItem extends FBMenuItem {
 
     private final String errMsg;

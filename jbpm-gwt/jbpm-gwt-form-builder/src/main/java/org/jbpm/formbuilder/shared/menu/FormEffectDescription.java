@@ -20,6 +20,9 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.Mappable;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class FormEffectDescription implements Mappable {
 
     private String className;

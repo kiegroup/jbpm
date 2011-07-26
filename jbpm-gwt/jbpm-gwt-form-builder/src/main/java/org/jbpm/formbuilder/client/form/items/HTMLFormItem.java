@@ -30,10 +30,12 @@ import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a piece of user entered HTML
  */
+@Reflectable
 public class HTMLFormItem extends FBFormItem {
 
     private HTML html = new HTML();

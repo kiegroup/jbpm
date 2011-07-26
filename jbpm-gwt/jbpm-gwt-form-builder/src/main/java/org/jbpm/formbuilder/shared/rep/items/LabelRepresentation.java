@@ -20,6 +20,9 @@ import java.util.Map;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class LabelRepresentation extends FormItemRepresentation {
 
     private String value;

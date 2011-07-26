@@ -17,10 +17,13 @@ package org.jbpm.formbuilder.client.effect;
 
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 
+import com.gwtent.reflection.client.Reflectable;
+
 /**
  * Simple {@link FBFormEffect} implementation, simply deselects 
  * the effect's item
  */
+@Reflectable
 public class DoneEffect extends FBFormEffect {
 
     public DoneEffect() {

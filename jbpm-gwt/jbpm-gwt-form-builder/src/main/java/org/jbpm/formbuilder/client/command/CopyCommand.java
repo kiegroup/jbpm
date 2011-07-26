@@ -24,10 +24,12 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.user.client.ui.MenuItem;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Handles the action of copying a ui component
  */
+@Reflectable
 public class CopyCommand extends AbstractCopyPasteCommand {
 
     public CopyCommand() {

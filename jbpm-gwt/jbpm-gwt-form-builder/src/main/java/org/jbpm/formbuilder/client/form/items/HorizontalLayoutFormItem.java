@@ -31,10 +31,12 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentC
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents an horizontal layout
  */
+@Reflectable
 public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     private HorizontalPanel panel = new HorizontalPanel();

@@ -41,10 +41,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Allows to bind a task input or output to a given UI component
  */
+@Reflectable
 public class VarBindingEffect extends FBFormEffect {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

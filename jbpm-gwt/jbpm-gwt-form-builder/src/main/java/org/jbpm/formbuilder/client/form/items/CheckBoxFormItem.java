@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a checkbox
  */
+@Reflectable
 public class CheckBoxFormItem extends FBFormItem {
 
     private CheckBox checkBox = new CheckBox();

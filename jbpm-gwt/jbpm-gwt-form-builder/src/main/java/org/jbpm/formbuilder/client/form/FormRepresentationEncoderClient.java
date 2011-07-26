@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.form;
 import java.util.Date;
 import java.util.Map;
 
+import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.AbstractFormRepresentationEncoder;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 
 /**
  * Encodes different objects on the client side to json
@@ -43,8 +43,7 @@ public class FormRepresentationEncoderClient extends AbstractFormRepresentationE
         }
         String className = (String) objClassName;
         try {
-            Class<?> klass = ReflectionHelper.loadClass(className);
-            return ReflectionHelper.newInstance(klass);
+            return ReflectionHelper.newInstance(className);
         } catch (Exception e) {
             return null;
         }

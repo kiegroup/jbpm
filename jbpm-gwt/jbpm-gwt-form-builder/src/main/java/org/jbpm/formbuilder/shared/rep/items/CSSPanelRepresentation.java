@@ -24,6 +24,9 @@ import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class CSSPanelRepresentation extends FormItemRepresentation {
 
     private String cssClassName;

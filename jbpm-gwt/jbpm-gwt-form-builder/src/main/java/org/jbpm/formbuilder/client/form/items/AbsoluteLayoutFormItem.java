@@ -29,10 +29,12 @@ import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form layout item. Represents an absolute layout
  */
+@Reflectable
 public class AbsoluteLayoutFormItem extends LayoutFormItem {
 
     private AbsolutePanel panel = new AbsolutePanel() {

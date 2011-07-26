@@ -26,6 +26,9 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.Mappable;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class MenuItemDescription implements Mappable {
 
     private String className;

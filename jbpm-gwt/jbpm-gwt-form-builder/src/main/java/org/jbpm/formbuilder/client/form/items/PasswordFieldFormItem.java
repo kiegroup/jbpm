@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation;
 
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a password field
  */
+@Reflectable
 public class PasswordFieldFormItem extends FBFormItem {
 
     private final PasswordTextBox textBox = new PasswordTextBox();

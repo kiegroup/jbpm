@@ -21,6 +21,9 @@ import java.util.Map;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
+import com.gwtent.reflection.client.Reflectable;
+
+@Reflectable
 public class NotEmptyValidation implements FBValidation {
 
     private Map<String, Object> propertiesMap = new HashMap<String, Object>();

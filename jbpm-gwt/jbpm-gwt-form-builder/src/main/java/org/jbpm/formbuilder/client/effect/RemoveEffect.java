@@ -28,10 +28,12 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Panel;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * Removes the related {@link FBFormItem} from the UI layout
  */
+@Reflectable
 public class RemoveEffect extends FBFormEffect {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

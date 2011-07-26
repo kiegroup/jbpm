@@ -31,10 +31,12 @@ import org.jbpm.formbuilder.shared.rep.items.ServerTransformationRepresentation;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * server-side form item. Represents a piece of server script
  */
+@Reflectable
 public class ServerTransformationFormItem extends FBFormItem {
 
     private Label scriptMarker = new Label("{ script }");

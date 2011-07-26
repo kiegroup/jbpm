@@ -27,6 +27,7 @@ import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
+import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
@@ -36,7 +37,6 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-import com.google.gwt.user.client.rpc.impl.ReflectionHelper;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -365,8 +365,7 @@ public class XmlParseHelper {
             if (menuElement.hasAttribute("commandClass")) {
                 String className = menuElement.getAttribute("commandClass");
                 try {
-                    Class<?> klass = ReflectionHelper.loadClass(className);
-                    Object obj = ReflectionHelper.newInstance(klass);
+                    Object obj = ReflectionHelper.newInstance(className);
                     if (obj instanceof BaseCommand) {
                         option.setCommand((BaseCommand) obj);
                     } else {
@@ -414,8 +413,7 @@ public class XmlParseHelper {
             Node itemNode = items.item(index);
             String itemClassName = ((Element) itemNode).getAttribute("className");
             try {
-                Class<?> klass = ReflectionHelper.loadClass(itemClassName);
-                Object obj = ReflectionHelper.newInstance(klass);
+                Object obj = ReflectionHelper.newInstance(itemClassName);
                 FBMenuItem menuItem = null;
                 if (obj instanceof CustomMenuItem) {
                     CustomMenuItem customItem = (CustomMenuItem) obj;
@@ -458,8 +456,7 @@ public class XmlParseHelper {
         for (int i = 0; i < effects.getLength(); i++) {
             Node effectNode = effects.item(i);
             String effectClassName = ((Element) effectNode).getAttribute("className");
-            Class<?> clazz = ReflectionHelper.loadClass(effectClassName);
-            Object efobj = ReflectionHelper.newInstance(clazz);
+            Object efobj = ReflectionHelper.newInstance(effectClassName);
             if (efobj instanceof FBFormEffect) {
                 itemEffects.add((FBFormEffect) efobj);
             } else {

@@ -32,10 +32,12 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * UI form item. Represents a table
  */
+@Reflectable
 public class TableLayoutFormItem extends LayoutFormItem {
     
     private Grid grid = new Grid(1, 1) {
