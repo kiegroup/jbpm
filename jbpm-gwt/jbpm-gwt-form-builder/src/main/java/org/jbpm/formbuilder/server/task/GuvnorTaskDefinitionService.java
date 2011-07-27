@@ -120,7 +120,6 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 client.executeMethod(call);
                 PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.class, PackageDTO.class);
                 String processUrl = null;
-                String processName = null;
                 String format = null;
                 PackageDTO pkg = dto.getSelectedPackage(packageName);
                 for (String url : pkg.getAssets()) {
@@ -132,7 +131,6 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                         AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.class, MetaDataDTO.class);
                         if (subDto.getMetadata().getUuid().equals(uuid)) {
                             processUrl = subDto.getSourceLink();
-                            processName = subDto.getMetadata().getTitle();
                             format = subDto.getMetadata().getFormat();
                             break;
                         }
@@ -154,8 +152,6 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                             List<TaskRef> tasks = repo.getTasks();
                             for (TaskRef task : tasks) {
                                 if (isReferencedTask(userTask, task)) {
-                                    task.setProcessId(processName);
-                                    task.setPackageName(pkg.getTitle());
                                     return task;
                                 }
                             }
@@ -175,6 +171,21 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return null;
     }
 
+    public TaskRef getBPMN2Task(String bpmn2ProcessContent, String processName, String userTask)
+            throws TaskServiceException {
+        TaskRef retval = null;
+        List<TaskRef> tasks = getProcessTasks(bpmn2ProcessContent, processName);
+        if (tasks != null) {
+            for (TaskRef task : tasks) {
+                if (task.getTaskName().equals(userTask)) {
+                    retval = task;
+                    break;
+                }
+            }
+        }
+        return retval;
+    }
+    
     private boolean isReferencedTask(String userTask, TaskRef task) {
         boolean emptyUserTask = userTask == null || "".equals(userTask);
         boolean taskIsStartProcess = task.getTaskId().equals(ProcessGetInputHandler.PROCESS_INPUT_NAME);
@@ -191,7 +202,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             //repopulate processAssets
             assets.put(name, dateLastModified);
             //repopulate processIndex
-            List<TaskRef> tasks = getProcessTasks(packageName, itemName);
+            String content = getTaskDefinitionContent(packageName, itemName);
+            List<TaskRef> tasks = getProcessTasks(content, itemName);
             tasksIndex.put(itemName, tasks);
         }
     }
@@ -213,18 +225,13 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return "";
     }
     
-    private List<TaskRef> getProcessTasks(String pkgName, String processName) throws TaskServiceException {
-        String content = getTaskDefinitionContent(pkgName, processName);
+    private List<TaskRef> getProcessTasks(String bpmn2Content, String processName) throws TaskServiceException {
         repo.clear();
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         ResourceType type = processName.toLowerCase().endsWith("bpmn2") ? ResourceType.BPMN2 : ResourceType.DRF;
-        kbuilder.add(new ByteArrayResource(content.getBytes()), type);
+        kbuilder.add(new ByteArrayResource(bpmn2Content.getBytes()), type);
         if (!kbuilder.hasErrors()) {
-            List<TaskRef> tasks = repo.getTasks();
-            for (TaskRef task : tasks) {
-                task.setProcessId(processName);
-            }
-            return tasks;
+            return repo.getTasks();
         } else {
             return new ArrayList<TaskRef>();
         }

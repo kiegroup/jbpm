@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
@@ -45,29 +46,43 @@ public class EmbedingServlet extends HttpServlet {
     }
     
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String uuid = request.getParameter("uuid");
-        String userTask = request.getParameter("userTask");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String profile = request.getParameter("profile");
         String usr = request.getParameter("usr");
         String pwd = request.getParameter("pwd");
         usr = (usr == null ? this.guvnorDefaultUser : usr);
         pwd = (pwd == null ? this.guvnorDefaultPass : pwd);
+        TaskDefinitionService taskService = new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
+        FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
+        JsonObject json = new JsonObject();
+        json.addProperty("embedded", "true");
         try {
-            TaskDefinitionService taskService = new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
-            FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
-            String packageName = taskService.getContainingPackage(uuid);
-            TaskRef task = taskService.getTaskByUUID(packageName, userTask, uuid);
-            FormRepresentation form = formService.getFormByUUID(packageName, uuid);
-            JsonObject json = new JsonObject();
-            json.addProperty("embedded", Boolean.TRUE);
-            json.addProperty("uuid", uuid);
-            json.addProperty("packageName", packageName);
-            if (task != null) {
-                json.add("task", toJsonObject(task));
-            }
-            if (form != null) {
-                FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
-                json.addProperty("formjson", encoder.encode(form));
+            if ( profile != null && "designer".equals(profile)) {
+                String userTask = request.getParameter("userTask");
+                String processName = request.getParameter("processName");
+                String bpmn2Process = IOUtils.toString(request.getReader());
+                TaskRef task = taskService.getBPMN2Task(bpmn2Process, processName, userTask);
+                if (task != null) {
+                    //get associated form if it exists
+                    FormRepresentation form = formService.getAssociatedForm(task.getPackageName(), task);
+                    if (form != null) {
+                        json.addProperty("formjson", encoder.encode(form));
+                    }
+                    json.add("task", toJsonObject(task));
+                    json.addProperty("packageName", task.getPackageName());
+                }
+            } else if (profile != null && "guvnor".equals(profile)) {
+                String uuid = request.getParameter("uuid");
+                String packageName = taskService.getContainingPackage(uuid);
+                FormRepresentation form = formService.getFormByUUID(packageName, uuid);
+                json.addProperty("uuid", uuid);
+                json.addProperty("packageName", packageName);
+                if (form != null) {
+                    json.addProperty("formjson", encoder.encode(form));
+                }
+            } else {
+                throw new Exception("Unknown profile " + profile);
             }
             request.setAttribute("jsonData", new Gson().toJson(json));
             request.getRequestDispatcher("/FormBuilder.jsp").forward(request, response);
@@ -77,6 +92,8 @@ public class EmbedingServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Problem reading form from guvnor");
         } catch (FormEncodingException e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Problem encoding form");
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

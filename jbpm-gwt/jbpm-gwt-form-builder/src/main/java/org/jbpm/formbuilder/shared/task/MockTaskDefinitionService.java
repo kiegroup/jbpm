@@ -58,4 +58,9 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
     public String getContainingPackage(String uuid) throws TaskServiceException {
         return "defaultPackage";
     }
+    
+    public TaskRef getBPMN2Task(String bpmn2ProcessContent, String processName, String userTask)
+            throws TaskServiceException {
+        return getTaskByUUID(null, userTask, null);
+    }
 }

@@ -24,4 +24,6 @@ public interface TaskDefinitionService {
     TaskRef getTaskByUUID(String pkgName, String userTask, String uuid) throws TaskServiceException;
 
     String getContainingPackage(String uuid) throws TaskServiceException;
+
+    TaskRef getBPMN2Task(String bpmn2ProcessContent, String processName, String userTask) throws TaskServiceException;
 }

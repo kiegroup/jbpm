@@ -24,6 +24,7 @@ public class TaskDefinitionsSemanticModule extends BPMNSemanticModule {
     public TaskDefinitionsSemanticModule(TaskRepoHelper repo) {
         super();
         addHandler("userTask", new HumanTaskGetInformationHandler(repo));
+        addHandler("process", new ProcessGetInformationHandler(repo));
         addHandler("property", new ProcessGetInputHandler(repo));
     }
 }

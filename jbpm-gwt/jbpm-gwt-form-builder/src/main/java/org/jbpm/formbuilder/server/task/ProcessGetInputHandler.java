@@ -39,8 +39,8 @@ public class ProcessGetInputHandler extends PropertyHandler implements Handler {
     public Object start(final String uri, final String localName,
                     final Attributes attrs, final ExtensibleXmlParser parser)
                     throws SAXException {
-            final String id = attrs.getValue("id");
-            this.taskRepository.addOutput(PROCESS_INPUT_NAME, id);
-            return super.start(uri, localName, attrs, parser);
+        final String id = attrs.getValue("id");
+        this.taskRepository.addOutput(PROCESS_INPUT_NAME, id);
+        return super.start(uri, localName, attrs, parser);
     }
 }

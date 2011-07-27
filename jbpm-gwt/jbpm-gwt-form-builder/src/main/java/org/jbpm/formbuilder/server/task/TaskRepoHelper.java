@@ -28,9 +28,15 @@ public class TaskRepoHelper {
     Map<String, TaskRef> tasksMap = new HashMap<String, TaskRef>();
     
     List<TaskRef> tasks = new LinkedList<TaskRef>();
+    String procId = null;
+    String procName = null;
+    String pkgName = null;
     
     public void clear() {
         tasks.clear();
+        procId = null;
+        procName = null;
+        pkgName = null;
     }
     
     public void addTask(TaskRef task) {
@@ -45,9 +51,11 @@ public class TaskRepoHelper {
             Map<String, String> metaData = oldTask.getMetaData();
             metaData.putAll(task.getMetaData());
             oldTask.setMetaData(metaData);
-        } else {
-            tasks.add(task);
+            task = oldTask;
         }
+        task.setProcessId(this.procId);
+        task.setPackageName(this.pkgName);
+        tasks.add(task);
     }
     
     public List<TaskRef> getTasks() {
@@ -65,5 +73,26 @@ public class TaskRepoHelper {
         ref.setTaskId(processInputName);
         ref.addOutput(id, "${" + id + "}");
         tasks.add(ref);
+    }
+
+    public void setDefaultProcessId(String processId) {
+        this.procId = processId;
+        for (TaskRef task : tasks) {
+            task.setProcessId(this.procId);
+        }
+    }
+
+    public void setDefaultProcessName(String processName) {
+        this.procName = processName;
+        /*for (TaskRef task : tasks) {
+            task.setProcessName(this.procName);
+        }*/
+    }
+
+    public void setDefaultPackageName(String packageName) {
+        this.pkgName = packageName;
+        for (TaskRef task : tasks) {
+            task.setPackageName(this.pkgName);
+        }
     }
 }

@@ -63,6 +63,9 @@ public class SearchResultsView extends VerticalPanel {
             }
         }
         clear();
+        if (selectedRow == null) {
+            selectedRow = new TaskRow(selectedTask, true);
+        }
         selectedRow.getFocus().removeHandler();
         selectedRow.getBlur().removeHandler();
         selectedRow.showInputs();

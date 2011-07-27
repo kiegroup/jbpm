@@ -105,7 +105,7 @@ public class FormBuilderController {
 
     public void setDataPanel(RootPanel rootPanel) {
         String innerHTML = rootPanel.getElement().getInnerHTML();
-        JSONValue json = JSONParser.parseLenient(innerHTML);
+        JSONValue json = JSONParser.parseLenient(innerHTML); //TODO see why parser doesnt work right here
         if (json.isObject() != null) {
             JSONObject jsonObj = json.isObject();
             JSONValue jsonPkg = jsonObj.get("packageName");
@@ -115,11 +115,11 @@ public class FormBuilderController {
                     model.setPackageName(pkgName);
                 }
             }
-            if (jsonObj.get("task") != null) {
+            if (jsonObj.get("task") != null && jsonObj.get("task").isObject() != null) {
                 TaskRef task = toTask(jsonObj.get("task").isObject());
                 bus.fireEvent(new EmbededIOReferenceEvent(task));
             }
-            if (jsonObj.get("formjson") != null) {
+            if (jsonObj.get("formjson") != null && jsonObj.get("formjson").isString() != null) {
                 FormRepresentation form = toForm(jsonObj.get("formjson").isString().stringValue());
                 if (form != null) {
                     bus.fireEvent(new UpdateFormViewEvent(form));
@@ -147,17 +147,23 @@ public class FormBuilderController {
             retval = new TaskRef();
             retval.setInputs(getIOData(json.get("inputs").isArray()));
             retval.setOutputs(getIOData(json.get("outputs").isArray()));
-            JSONObject jsonMetaData = json.get("metaData").isObject();
             Map<String, String> metaData = new HashMap<String, String>();
+            JSONObject jsonMetaData = json.get("metaData") == null ? null : json.get("metaData").isObject();
             if (jsonMetaData != null) {
                 for (String key : jsonMetaData.keySet()) {
                     metaData.put(key, jsonMetaData.get(key).isString().stringValue());
                 }
             }
             retval.setMetaData(metaData);
-            retval.setPackageName(json.get("packageName").isString().stringValue());
-            retval.setProcessId(json.get("processId").isString().stringValue());
-            retval.setTaskId(json.get("taskId").isString().stringValue());
+            if (json.get("packageName") != null && json.get("packageName").isString() != null) {
+                retval.setPackageName(json.get("packageName").isString().stringValue());
+            }
+            if (json.get("processId") != null && json.get("processId").isString() != null) {
+                retval.setProcessId(json.get("processId").isString().stringValue());
+            }
+            if (json.get("taskId") != null && json.get("taskId").isString() != null) {
+                retval.setTaskId(json.get("taskId").isString().stringValue());
+            }
         }
         return retval;
     }
@@ -168,8 +174,12 @@ public class FormBuilderController {
             for (int index = 0; index < jsonIO.size(); index++) {
                 JSONObject jsonIo = jsonIO.get(index).isObject();
                 TaskPropertyRef io = new TaskPropertyRef();
-                io.setName(jsonIo.get("name").isString().stringValue());
-                io.setSourceExpresion(jsonIo.get("sourceExpresion").isString().stringValue());
+                if (jsonIo.get("name") != null && jsonIo.get("name").isString() != null) {
+                    io.setName(jsonIo.get("name").isString().stringValue());
+                }
+                if (jsonIo.get("sourceExpression") != null && jsonIo.get("sourceExpression").isString() != null) {
+                    io.setSourceExpresion(jsonIo.get("sourceExpression").isString().stringValue());
+                }
                 retval.add(io);
             }
         }
