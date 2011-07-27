@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionPresenter;
 import org.jbpm.formbuilder.client.edition.EditionView;
@@ -47,6 +47,7 @@ import org.jbpm.formbuilder.client.tree.TreeView;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
@@ -105,7 +106,7 @@ public class FormBuilderController {
 
     public void setDataPanel(RootPanel rootPanel) {
         String innerHTML = rootPanel.getElement().getInnerHTML();
-        JSONValue json = JSONParser.parseLenient(innerHTML); //TODO see why parser doesnt work right here
+        JSONValue json = JSONParser.parseStrict(innerHTML); //TODO see why parser doesnt work right here
         if (json.isObject() != null) {
             JSONObject jsonObj = json.isObject();
             JSONValue jsonPkg = jsonObj.get("packageName");
