@@ -56,7 +56,7 @@ public class EmbedingServlet extends HttpServlet {
         FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         JsonObject json = new JsonObject();
-        json.addProperty("embedded", "true");
+        json.addProperty("embedded", profile);
         try {
             if ( profile != null && "designer".equals(profile)) {
                 String userTask = request.getParameter("userTask");

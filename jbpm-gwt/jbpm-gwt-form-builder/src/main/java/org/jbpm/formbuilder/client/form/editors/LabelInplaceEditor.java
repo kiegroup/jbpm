@@ -15,8 +15,14 @@
  */
 package org.jbpm.formbuilder.client.form.editors;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.items.LabelFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
@@ -24,6 +30,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
@@ -32,6 +39,7 @@ import com.google.gwt.user.client.ui.TextBox;
  */
 public class LabelInplaceEditor extends FBInplaceEditor {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final TextBox textBox = new TextBox();
     private final FocusWrapper wrapper = new FocusWrapper();
     
@@ -52,7 +60,23 @@ public class LabelInplaceEditor extends FBInplaceEditor {
         });
         textBox.addChangeHandler(new ChangeHandler() {
             public void onChange(ChangeEvent event) {
-                item.getLabel().setText(textBox.getValue());
+                Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+                dataSnapshot.put("item", item);
+                dataSnapshot.put("oldValue", item.getLabel().getText());
+                dataSnapshot.put("newValue", textBox.getValue());
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    public void undoAction(UndoableEvent event) {
+                        LabelFormItem myItem = (LabelFormItem) event.getData("item");
+                        String value = (String) event.getData("oldValue");
+                        myItem.getLabel().setText(value);
+                    }
+                    public void onEvent(UndoableEvent event) { }
+                    public void doAction(UndoableEvent event) {
+                        LabelFormItem myItem = (LabelFormItem) event.getData("item");
+                        String value = (String) event.getData("newValue");
+                        myItem.getLabel().setText(value);
+                    }
+                }));
                 item.reset();
             }
         });
