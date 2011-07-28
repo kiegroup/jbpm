@@ -1,0 +1,61 @@
+/**
+ * Copyright 2010 JBoss Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jbpm.process.workitem.wsht.hornetq;
+
+import java.util.UUID;
+import org.drools.SystemEventListenerFactory;
+import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandler;
+import org.jbpm.process.workitem.wsht.AsyncWSHumanTaskHandlerBaseTest;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
+import org.jbpm.task.service.TaskServer;
+import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
+import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
+import org.jbpm.task.service.hornetq.HornetQTaskServer;
+
+public class AsycnWSHumanTaskHandlerHornetQTest extends AsyncWSHumanTaskHandlerBaseTest {
+
+    private TaskServer server;
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        server = new HornetQTaskServer(taskService, 5446);
+        
+        new Thread(server).start();
+        
+        System.out.println("Waiting for the HornetQTask Server to come up");
+        while (!server.isRunning()) {
+            System.out.print(".");
+            Thread.sleep(50);
+        }
+        // Each client should have an unique identifier that's why: "tasksQueue/workItemHandler"+UUID.randomUUID().toString()
+        setClient(new TaskServiceClientAsyncImpl(new HornetQTaskClientConnector("tasksQueue/workItemHandler"+UUID.randomUUID().toString(),
+                new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
+        getClient().connect("127.0.0.1", 5446);
+        
+        
+        AsyncWSHumanTaskHandler handler = new AsyncWSHumanTaskHandler();
+        handler.setClient(getClient());
+        setHandler(handler);
+    }
+
+    protected void tearDown() throws Exception {
+        ((AsyncWSHumanTaskHandler) getHandler()).dispose();
+        getClient().disconnect();
+        server.stop();
+        super.tearDown();
+    }
+}
