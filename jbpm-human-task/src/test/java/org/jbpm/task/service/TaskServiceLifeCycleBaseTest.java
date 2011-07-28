@@ -16,6 +16,7 @@
 
 package org.jbpm.task.service;
 
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +43,7 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     private static final int DEFAULT_WAIT_TIME = 5000;
 
     protected TaskServer server;
-    protected TaskClient client;
+    protected TaskServiceClientAsyncImpl client;
 
     public void testNewTaskWithNoPotentialOwners() {
         Map  vars = new HashMap();     

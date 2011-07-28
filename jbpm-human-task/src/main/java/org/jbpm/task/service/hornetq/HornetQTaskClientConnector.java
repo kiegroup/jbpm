@@ -55,6 +55,8 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 
 	private ClientProducer producer;
 	private ClientConsumer consumer;
+        
+        private boolean clientThreadRunning = false;
 
 	public HornetQTaskClientConnector(String name, BaseHornetQHandler handler) {
 		if (name == null) {
@@ -98,12 +100,14 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 				public void run() {
 					try {
 						consumer = session.createConsumer(name);
-						while (true) {
+                                                clientThreadRunning = true;
+						while (clientThreadRunning) {
 							ClientMessage serverMessage = consumer.receive();
 							if (serverMessage!=null) {
 								((HornetQTaskClientHandler)handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
 							}
 						}
+                                                System.out.println("Shutting down client thread for queue =="+ name);
 					}
 					catch (HornetQException e) {
 						if (e.getCode()!=HornetQException.OBJECT_CLOSED) {
@@ -147,6 +151,9 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 	}
 
 	public void disconnect() throws Exception {
+                if(clientThreadRunning){
+                    clientThreadRunning = false;
+                }
 		if (session!= null && !session.isClosed()) {
 			session.close();
 			producer.close();

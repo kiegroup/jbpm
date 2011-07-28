@@ -38,7 +38,7 @@ import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.service.DefaultEscalatedDeadlineHandler;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
@@ -50,7 +50,7 @@ import org.subethamail.wiser.WiserMessage;
 public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
 
 	protected TaskServer server;
-	protected TaskClient client;
+	protected TaskServiceClientAsyncImpl client;
     private Properties conf;
     private Wiser wiser;
 

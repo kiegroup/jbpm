@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.task.service.hornetq;
 
+import java.util.UUID;
 import org.drools.SystemEventListenerFactory;
 import org.drools.util.ChainedProperties;
 import org.drools.util.ClassLoaderUtil;
 import org.jbpm.task.service.IcalBaseTest;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
 import org.jbpm.task.service.hornetq.HornetQTaskServer;
@@ -30,30 +30,31 @@ import org.subethamail.wiser.Wiser;
 
 public class IcalHornetQTest extends IcalBaseTest {
 
-    @Override @BeforeClass
+    @Override
+    @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
-        
-        ChainedProperties props = new ChainedProperties("process.email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false ));
+
+        ChainedProperties props = new ChainedProperties("process.email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false));
         setEmailHost(props.getProperty("host", "locahost"));
-        setEmailPort(props.getProperty("port", "2345"));        
-        
+        setEmailPort(props.getProperty("port", "2345"));
+
         server = new HornetQTaskServer(taskService, 5446);
-        Thread thread = new Thread(server);
-        thread.start();
-		System.out.println("Waiting for the HornetQTask Server to come up");
+        new Thread(server).start();
+
+        System.out.println("Waiting for the HornetQTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
-        	Thread.sleep( 50 );
+            System.out.print(".");
+            Thread.sleep(50);
         }
 
-        client = new TaskClient(new HornetQTaskClientConnector("client 1",
-        					new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
+        client = new TaskServiceClientAsyncImpl(new HornetQTaskClientConnector("client 1"+UUID.randomUUID().toString(),
+                new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 5446);
 
         setWiser(new Wiser());
         getWiser().setHostname(getEmailHost());
-        getWiser().setPort(Integer.parseInt(getEmailPort()));         
+        getWiser().setPort(Integer.parseInt(getEmailPort()));
         getWiser().start();
     }
 
@@ -64,5 +65,4 @@ public class IcalHornetQTest extends IcalBaseTest {
         server.stop();
         getWiser().stop();
     }
-
 }

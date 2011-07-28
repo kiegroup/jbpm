@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.task.service.mina;
 
 import java.net.InetSocketAddress;
@@ -32,12 +31,10 @@ import org.jbpm.task.service.TaskClientConnector;
 public class MinaTaskClientConnector implements TaskClientConnector {
 
     protected IoSession session;
-
     protected final BaseMinaHandler handler;
-    protected final String name;   
+    protected final String name;
     protected AtomicInteger counter;
-
-    protected SocketConnector connector; 
+    protected SocketConnector connector;
     protected SocketAddress address;
 
     public MinaTaskClientConnector(String name, BaseMinaHandler handler) {
@@ -52,31 +49,31 @@ public class MinaTaskClientConnector implements TaskClientConnector {
     public boolean connect(SocketConnector connector, SocketAddress address) {
         this.connector = connector;
         this.address = address;
-        this.connector.setHandler( this.handler );
+        this.connector.setHandler(this.handler);
         return connect();
     }
 
-	public boolean connect(String address, int port) {
-		this.connector = new NioSocketConnector();
-        this.address = new InetSocketAddress( address, port );
-        this.connector.setHandler( this.handler );
+    public boolean connect(String address, int port) {
+        this.connector = new NioSocketConnector();
+        this.address = new InetSocketAddress(address, port);
+        this.connector.setHandler(this.handler);
         return connect();
-	}
+    }
 
     public boolean connect() {
         if (session != null && session.isConnected()) {
             throw new IllegalStateException(
                     "Already connected. Disconnect first.");
-        } 
+        }
 
-        if (this.connector==null) {
-        	this.connector = new NioSocketConnector();
+        if (this.connector == null) {
+            this.connector = new NioSocketConnector();
         }
-        
-        if (this.address==null) {
-        	this.address = new InetSocketAddress( "127.0.0.1", 9123);
+
+        if (this.address == null) {
+            this.address = new InetSocketAddress("127.0.0.1", 9123);
         }
-         
+
         try {
 //            SocketConnectorConfig config = new SocketConnectorConfig();
 //            if (useSsl) {
@@ -86,15 +83,15 @@ public class MinaTaskClientConnector implements TaskClientConnector {
 //                sslFilter.setUseClientMode(true);
 //                config.getFilterChain().addLast("sslFilter", sslFilter);
 //            }
-            
-            //connector.setHandler( arg0 );
-            
-            connector.getFilterChain().addLast(
-                                               "codec",
-                                               new ProtocolCodecFilter(
-                                                       new ObjectSerializationCodecFactory()));
 
-            ConnectFuture future1 = connector.connect( address );
+            //connector.setHandler( arg0 );
+
+            connector.getFilterChain().addLast(
+                    "codec",
+                    new ProtocolCodecFilter(
+                    new ObjectSerializationCodecFactory()));
+
+            ConnectFuture future1 = connector.connect(address);
             future1.join();
             if (!future1.isConnected()) {
                 return false;
@@ -108,26 +105,25 @@ public class MinaTaskClientConnector implements TaskClientConnector {
     }
 
     public void disconnect() {
-        if ( session!= null && session.isConnected() ) {
+        if (session != null && session.isConnected()) {
             session.close();
             session.getCloseFuture().join();
         }
     }
 
-	public void write(Object message) {
-		session.write(message);
-	}
+    public void write(Object message) {
+        session.write(message);
+    }
 
-	public BaseHandler getHandler() {
-		return handler;
-	}
+    public BaseHandler getHandler() {
+        return handler;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public AtomicInteger getCounter() {
-		return counter;
-	}
-
+    public AtomicInteger getCounter() {
+        return counter;
+    }
 }

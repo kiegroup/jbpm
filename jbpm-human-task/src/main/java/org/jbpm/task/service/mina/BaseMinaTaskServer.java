@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.task.service.mina;
 
 import java.io.IOException;
@@ -28,70 +27,70 @@ import org.apache.mina.filter.logging.LoggingFilter;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.jbpm.task.service.TaskServer;
 
-public class BaseMinaTaskServer extends TaskServer {
+public abstract class BaseMinaTaskServer extends TaskServer {
+
     private final int port;
-
-    IoHandlerAdapter  handler;
-
-    IoAcceptor        acceptor;
-
-    volatile boolean  running;
-    
+    IoHandlerAdapter handler;
+    IoAcceptor acceptor;
+    volatile boolean running;
     //the local interface to be used. Default is loopback. To bind all
     // interfaces, use 0.0.0.0
     String localInterface;
 
     public BaseMinaTaskServer(IoHandlerAdapter handler,
-                          int port) {
+            int port) {
         this(handler, port, "127.0.0.1");
     }
-    
-	public BaseMinaTaskServer(IoHandlerAdapter handler, int port,
-	        String localInterface) {
-		this.handler = handler;
-		this.port = port;
-		this.localInterface = localInterface;
-	}
+
+    public BaseMinaTaskServer(IoHandlerAdapter handler, int port,
+            String localInterface) {
+        this.handler = handler;
+        this.port = port;
+        this.localInterface = localInterface;
+    }
 
     public void run() {
         try {
             start();
-            while ( running ) {
-                Thread.sleep( 100 );
+            while (running) {
+                Thread.sleep(100);
             }
-        } catch ( Exception e ) {
-            throw new RuntimeException( "Server Exception with class " + getClass() + " using port " + port,
-                                        e );
+        } catch (Exception e) {
+            throw new RuntimeException("Server Exception with class " + getClass() + " using port " + port,
+                    e);
         }
     }
 
     public void start() throws IOException {
-        
+
         acceptor = new NioSocketAcceptor();
 
-        acceptor.getFilterChain().addLast( "logger",
-                                           new LoggingFilter() );
-        acceptor.getFilterChain().addLast( "codec",
-                                           new ProtocolCodecFilter( new ObjectSerializationCodecFactory() ) );
+        acceptor.getFilterChain().addLast("logger",
+                new LoggingFilter());
+        acceptor.getFilterChain().addLast("codec",
+                new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
 
-        acceptor.setHandler( handler );
-        acceptor.getSessionConfig().setReadBufferSize( 2048 );
-        acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, 10 );
-        acceptor.bind( new InetSocketAddress( localInterface, port ) );
+        acceptor.setHandler(handler);
+        acceptor.getSessionConfig().setReadBufferSize(2048);
+        acceptor.getSessionConfig().setIdleTime(IdleStatus.BOTH_IDLE, 10);
+        acceptor.bind(new InetSocketAddress(localInterface, port));
         running = true;
     }
-    
+
     public IoAcceptor getIoAcceptor() {
         return acceptor;
     }
 
     public void stop() {
-    	running = false;
+        running = false;
         acceptor.dispose();
     }
-    
+
     public boolean isRunning() {
-		return running;
-	}
+        return running;
+    }
     
+     public String getDescription() {
+        return "[Port: "+this.port+" - Address: "+this.localInterface+"]";
+    }
 }

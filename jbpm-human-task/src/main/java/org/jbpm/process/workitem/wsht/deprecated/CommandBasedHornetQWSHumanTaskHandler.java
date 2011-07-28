@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.task.service.hornetq;
+package org.jbpm.process.workitem.wsht.deprecated;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,7 +52,7 @@ import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.event.TaskFailedEvent;
 import org.jbpm.task.event.TaskSkippedEvent;
 import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
@@ -63,7 +63,7 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 
 	private String ipAddress = "127.0.0.1";
 	private int port = 5446;
-	private TaskClient client;
+	private TaskServiceClientAsyncImpl client;
 	private KnowledgeRuntime session;
 	
 	public CommandBasedHornetQWSHumanTaskHandler(KnowledgeRuntime session) {
@@ -75,13 +75,13 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 		this.port = port;
 	}
 	
-	public void setClient(TaskClient client) {
+	public void setClient(TaskServiceClientAsyncImpl client) {
 		this.client = client;
 	}
 	
 	public void connect() {
 		if (client == null) {
-			client = new TaskClient(new HornetQTaskClientConnector("tasksQueue/workItemHandler"+UUID.randomUUID().toString(), 
+			client = new TaskServiceClientAsyncImpl(new HornetQTaskClientConnector("tasksQueue/workItemHandler"+UUID.randomUUID().toString(), 
                                         new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
 			boolean connected = client.connect(ipAddress, port);
 			

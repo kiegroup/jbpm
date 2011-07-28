@@ -16,6 +16,7 @@
 
 package org.jbpm.task.service;
 
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import org.jbpm.task.query.TaskSummary;
 
 public class TaskClientHandler {
 
-	private TaskClient client;
+	private TaskServiceClientAsyncImpl client;
     private SystemEventListener systemEventListener;
 	private final Map<Integer, ResponseHandler> responseHandlers;
 
@@ -39,11 +40,11 @@ public class TaskClientHandler {
 		this.systemEventListener = systemEventListener;
     }
 
-    public TaskClient getClient() {
+    public TaskServiceClientAsyncImpl getClient() {
         return client;
     }
 
-    public void setClient(TaskClient client) {
+    public void setClient(TaskServiceClientAsyncImpl client) {
         this.client = client;
     }
 

@@ -35,4 +35,11 @@ public class MinaTaskServer extends BaseMinaTaskServer {
         super( new MinaTaskServerHandler( service, SystemEventListenerFactory.getSystemEventListener() ),
                port, localInterface );
     }
+
+    @Override
+    public String getName() {
+        return "MinaTaskServer";
+    }
+    
+    
 }

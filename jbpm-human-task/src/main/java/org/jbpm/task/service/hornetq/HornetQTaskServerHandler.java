@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.jbpm.task.service.hornetq;
 
 import java.util.HashMap;
@@ -26,22 +25,21 @@ import org.jbpm.task.service.TaskServerHandler;
 import org.jbpm.task.service.TaskService;
 
 public class HornetQTaskServerHandler {
-	
-	private TaskServerHandler handler;
-	private Map<String, ClientProducer> producers;
-	
+
+    private TaskServerHandler handler;
+    private Map<String, ClientProducer> producers;
+
     public HornetQTaskServerHandler(TaskService service, SystemEventListener systemEventListener) {
         this.handler = new TaskServerHandler(service, systemEventListener);
         this.producers = new HashMap<String, ClientProducer>();
     }
 
     public void messageReceived(ClientSession session, Object message, String destination) throws Exception {
-    	ClientProducer producer = producers.get(destination);
-    	if (producer==null) {
-    		producer = session.createProducer(destination);
-    		producers.put(destination, producer);
-    	}
-		handler.messageReceived(new HornetQSessionWriter(session, producer), message);
+        ClientProducer producer = producers.get(destination);
+        if (producer == null) {
+            producer = session.createProducer(destination);
+            producers.put(destination, producer);
+        }
+        handler.messageReceived(new HornetQSessionWriter(session, producer), message);
     }
-
 }

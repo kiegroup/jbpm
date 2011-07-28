@@ -12,4 +12,9 @@ public class JMSTaskServer extends BaseJMSTaskServer {
 	public JMSTaskServer(TaskService service, Properties connProperties, Context context) {
 		super(new JMSTaskServerHandler(service, SystemEventListenerFactory.getSystemEventListener()), connProperties, context);
 	}
+
+    @Override
+    public String getName() {
+        return "JMSTaskServer";
+    }
 }

@@ -20,7 +20,7 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
@@ -83,14 +83,14 @@ public class JMSTaskServerTest extends TestCase {
 	 * Creates a new client
 	 * @return the created client.
 	 */
-	protected TaskClient createTaskClient() {
+	protected TaskServiceClientAsyncImpl createTaskClient() {
 		Properties clientProperties = new Properties();
 		clientProperties.setProperty("JMSTaskClient.connectionFactory", "ConnectionFactory");
 		clientProperties.setProperty("JMSTaskClient.transactedQueue", "true");
 		clientProperties.setProperty("JMSTaskClient.acknowledgeMode", "AUTO_ACKNOWLEDGE");
 		clientProperties.setProperty("JMSTaskClient.queueName", "tasksQueue");
 		clientProperties.setProperty("JMSTaskClient.responseQueueName", "tasksResponseQueue");
-		TaskClient client = new TaskClient(
+		TaskServiceClientAsyncImpl client = new TaskServiceClientAsyncImpl(
 				new JMSTaskClientConnector(
 						"org.jbpm.process.workitem.wsht.WSThroughJMSHumanTaskHandler",
 						new JMSTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()),
@@ -119,7 +119,7 @@ public class JMSTaskServerTest extends TestCase {
 			Thread.sleep(100); // waits until the server finishes the startup
 		}
 		
-		TaskClient client = createTaskClient();
+		TaskServiceClientAsyncImpl client = createTaskClient();
 		
 		client.connect();
 		

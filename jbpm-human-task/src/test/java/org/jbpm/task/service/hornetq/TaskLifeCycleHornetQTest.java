@@ -17,7 +17,7 @@
 package org.jbpm.task.service.hornetq;
 
 import org.drools.SystemEventListenerFactory;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.impl.TaskServiceClientAsyncImpl;
 import org.jbpm.task.service.TaskLifeCycleBaseTest;
 import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
 import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
@@ -36,7 +36,7 @@ public class TaskLifeCycleHornetQTest extends TaskLifeCycleBaseTest {
         	System.out.print(".");
         	Thread.sleep( 50 );
         }
-		client = new TaskClient(new HornetQTaskClientConnector("client 1",
+		client = new TaskServiceClientAsyncImpl(new HornetQTaskClientConnector("client 1",
 								new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
 		client.connect("127.0.0.1", 5446);
 	}
