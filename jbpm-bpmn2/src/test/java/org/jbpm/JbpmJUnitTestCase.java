@@ -157,7 +157,7 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 		    StatefulKnowledgeSession result = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
 		    new JPAWorkingMemoryDbLogger(result);
 		    if (log == null) {
-		    	log = new JPAProcessInstanceDbLog();
+		    	log = new JPAProcessInstanceDbLog(result.getEnvironment());
 		    }
 		    return result;
 		} else {
