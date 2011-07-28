@@ -80,6 +80,10 @@ public abstract class AbstractCopyPasteCommand implements BaseCommand {
         setSelectedItem(getSelectedItem());
     }
     
+    public void setEmbeded(String profile) {
+        //shouldn't be disabled on embeded
+    }
+    
     protected static Object getMemory() {
         return memory;
     }

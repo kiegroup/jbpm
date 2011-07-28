@@ -31,6 +31,7 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
@@ -171,6 +172,7 @@ public class FormBuilderModel implements FormBuilderService {
                 for (Map.Entry<String, String> entry : repMap.entrySet()) {
                     RepresentationFactory.registerItemClassName(entry.getKey(), entry.getValue());
                 }
+                bus.fireEvent(new RepresentationFactoryPopulatedEvent());
             }
             public void onError(Request request, Throwable exception) {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read representation mappings", exception));

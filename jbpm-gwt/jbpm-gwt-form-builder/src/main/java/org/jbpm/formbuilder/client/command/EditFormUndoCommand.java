@@ -60,6 +60,10 @@ public class EditFormUndoCommand implements BaseCommand {
         this.item = item;
         checkEnabled();
     }
+    
+    public void setEmbeded(String profile) {
+        //shouldn't be disabled when embedded
+    }
 
     private void checkEnabled() {
         if (this.item != null) {

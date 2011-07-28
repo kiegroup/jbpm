@@ -20,6 +20,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -38,16 +39,37 @@ public class ToolBarView extends AbsolutePanel {
         add(hPanel);
     }
 
-    public void addButton(ImageResource imgRes, String name, ClickHandler handler) {
-        Button button = new Button();
+    public ToolRegistration addButton(ImageResource imgRes, String name, ClickHandler handler) {
+        final Button button = new Button();
         Image image = new Image(imgRes);
         image.setAltText(name);
         image.setTitle(name);
         button.setHTML(new SafeHtmlBuilder().appendHtmlConstant(image.toString()).toSafeHtml());
         button.addClickHandler(handler);
         hPanel.add(button);
+        return new ToolRegistration() {
+            public void remove() {
+                hPanel.remove(button);
+            }
+        };
     }
 
+    public ToolRegistration addMessage(String name, String value) {
+        if (value != null && !"".equals(value)) {
+            final HTML label = new HTML("<strong>" + name + ":</strong> " + value);
+            hPanel.add(label);
+            return new ToolRegistration() {
+                public void remove() {
+                    hPanel.remove(label);
+                }
+            };
+        } else {
+            return new ToolRegistration() {
+                public void remove() { }
+            };
+        }
+    }
+    
     public ToolbarDialog createToolbarDialog(String warningText) {
         return new ToolbarDialog(warningText);
     }

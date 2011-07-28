@@ -98,7 +98,19 @@ public class SaveFormCommand implements BaseCommand {
         bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
     }
 
+    private MenuItem item = null;
+    
     public void setItem(MenuItem item) {
+        this.item = item;
         item.setEnabled(true);
+    }
+    
+    public void setEmbeded(String profile) {
+        if (item != null) {
+            //When embedded on guvnor, saving is done through guvnor
+            if (profile != null && "guvnor".equals(profile)) {
+                item.getParentMenu().removeItem(item);
+            }
+        }
     }
 }

@@ -21,21 +21,23 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
+import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
+import org.jbpm.formbuilder.common.handler.ControlKeyHandler;
+import org.jbpm.formbuilder.common.handler.EventHelper;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
 import org.jbpm.formbuilder.shared.rep.OutputData;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.DOM;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -45,6 +47,8 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class FBForm extends FlowPanel implements FBCompositeItem {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
     private String name;
     private String taskId;
     private String method;
@@ -52,12 +56,11 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     private String action;
     private Map<String, InputData> inputs;
     private Map<String, OutputData> outputs;
+    private List<FBScript> onLoadScripts = new ArrayList<FBScript>();
+    private List<FBScript> onSubmitScripts = new ArrayList<FBScript>();
     
     private List<FBFormItem> formItems = new ArrayList<FBFormItem>();
     private List<FBValidationItem> validationItems = new ArrayList<FBValidationItem>();
-    
-    private List<RightClickHandler> rclickHandlers = new ArrayList<RightClickHandler>();
-    private List<ClickHandler> clickHandlers = new ArrayList<ClickHandler>();
     
     private final FormDataPopupPanel popup = new FormDataPopupPanel();
     
@@ -66,75 +69,22 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     public FBForm() {
         super();
-        sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU | Event.ONKEYPRESS);
-        addRightClickHandler(new RightClickHandler() {
+        EventHelper.addRightClickHandler(this, new RightClickHandler() {
             public void onRightClick(RightClickEvent event) {
                 popup.setPopupPosition(event.getX(), event.getY());
                 popup.show();
+            }
+        });
+        EventHelper.addKeyboardPasteHandler(this, new ControlKeyHandler() {
+            public void onKeyboardControl() {
+                FormBuilderGlobals.getInstance().paste().append(null).execute();
             }
         });
     }
     
     @Override
     public void onBrowserEvent(Event event) {
-        switch (DOM.eventGetType(event)) {
-        case Event.ONMOUSEUP:
-            event.stopPropagation();
-            event.preventDefault();
-            if (DOM.eventGetButton(event) == Event.BUTTON_LEFT) {
-                for (ClickHandler handler : clickHandlers) {
-                    ClickEvent cevent = new ClickEvent() {
-                        @Override
-                        public Object getSource() {
-                            return FBForm.this;
-                        }
-                    };
-                    cevent.setNativeEvent(event);
-                    handler.onClick(cevent);
-                }
-                super.onBrowserEvent(event);
-            } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
-                for (RightClickHandler handler : rclickHandlers) {
-                    handler.onRightClick(new RightClickEvent(event));
-                }
-            }
-            break;
-        case Event.ONDBLCLICK:
-            event.stopPropagation();
-            event.preventDefault();
-            break;
-        case Event.ONCONTEXTMENU:
-            event.stopPropagation();
-            event.preventDefault();
-            break;
-        case Event.ONKEYPRESS:
-            if (event.getCtrlKey()) {
-                event.stopPropagation();
-                event.preventDefault();
-                switch (event.getCharCode()) {
-                case 'v': case 'V': //paste
-                    FormBuilderGlobals.getInstance().paste().append(null).execute();
-                    break;
-                default: 
-                    super.onBrowserEvent(event);
-                }
-            } else {
-                super.onBrowserEvent(event);
-            }
-            break;
-        default:
-            //Do nothing
-        }//end switch
-    }
-
-    public HandlerRegistration addRightClickHandler(final RightClickHandler handler) {
-        HandlerRegistration reg = new HandlerRegistration() {
-            public void removeHandler() {
-                FBForm.this.rclickHandlers.remove(handler);
-            }
-        };
-        this.rclickHandlers.add(handler);
-        return reg;
+        EventHelper.onBrowserEvent(this, event);
     }
 
     public String getName() {
@@ -294,12 +244,13 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         rep.setOutputs(outputs);
         rep.setSaved(saved);
         rep.setLastModified(lastModified);
-        /* TODO rep.setOnLoadScript(onLoadScript);
-        rep.setOnSubmitScript(onSubmitScript); */
+        rep.setOnLoadScripts(this.onLoadScripts);
+        rep.setOnSubmitScripts(this.onSubmitScripts);
         return rep;
     }
 
     public void populate(FormRepresentation rep) throws FormBuilderException {
+        System.out.println("POPULATING FORM");
         setName(rep.getName());
         setTaskId(rep.getTaskId());
         setAction(rep.getAction());
@@ -307,11 +258,15 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         setEnctype(rep.getEnctype());
         for (FBFormItem item : new ArrayList<FBFormItem>(formItems)) {
             item.removeFromParent();
+            bus.fireEvent(new FormItemRemovedEvent(item));
         }
         
         for (FormItemRepresentation itemRep : rep.getFormItems()) {
+            System.out.println("POPULATING " + itemRep.getTypeId());
             FBFormItem item = FBFormItem.createItem(itemRep);
+            item.populate(itemRep);
             add(item);
+            bus.fireEvent(new FormItemAddedEvent(item, this));
         }
         for (FBValidation validationRep : rep.getFormValidations()) {
             FBValidationItem validation = FBValidationItem.createValidation(validationRep);
@@ -321,8 +276,19 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         setOutputs(rep.getOutputs());
         this.saved = rep.isSaved();
         this.lastModified = rep.getLastModified();
-        /* TODO setOnLoadScript(rep.getOnLoadScript());
-        setOnSubmitScript(rep.getOnSubmitScript()); */
+        this.onLoadScripts.clear();
+        if (rep.getOnLoadScripts() != null) {
+            for (FBScript onLoad : rep.getOnLoadScripts()) {
+                this.onLoadScripts.add(onLoad);
+            }
+        }
+        this.onSubmitScripts.clear();
+        if (rep.getOnSubmitScripts() != null) {
+            for (FBScript onSubmit : rep.getOnSubmitScripts()) {
+                this.onSubmitScripts.add(onSubmit);
+            }
+        }
+        System.out.println("FORM POPULATED");
     }
     
     public void addPhantom(int x, int y) {

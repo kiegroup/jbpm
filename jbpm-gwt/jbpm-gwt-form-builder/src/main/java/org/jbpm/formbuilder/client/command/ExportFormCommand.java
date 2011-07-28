@@ -50,4 +50,7 @@ public class ExportFormCommand implements BaseCommand {
         /* do nothing */
     }
 
+    public void setEmbeded(String profile) {
+        //shouldn't be disabled when embedded
+    }
 }

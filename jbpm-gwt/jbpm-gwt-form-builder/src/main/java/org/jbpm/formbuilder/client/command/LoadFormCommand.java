@@ -131,8 +131,17 @@ public class LoadFormCommand implements BaseCommand {
         bus.fireEvent(new LoadServerFormEvent());
     }
 
+    private MenuItem item = null;
+    
     public void setItem(MenuItem item) {
+        this.item = item;
         item.setEnabled(true);
     }
 
+    public void setEmbeded(String profile) {
+        //if embedded loading another form shouldn't be available
+        if (item != null) {
+            item.getParentMenu().removeItem(item);
+        }
+    }
 }

@@ -29,4 +29,6 @@ import com.google.gwt.user.client.ui.MenuItem;
 public interface BaseCommand extends Command {
 
     void setItem(MenuItem item);
+    
+    void setEmbeded(String profile);
 }

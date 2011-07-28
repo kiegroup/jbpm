@@ -24,6 +24,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
+import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionPresenter;
@@ -47,7 +49,6 @@ import org.jbpm.formbuilder.client.tree.TreeView;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
@@ -57,6 +58,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -73,13 +75,13 @@ public class FormBuilderController {
     
     /**
      * Initiates gwt-dnd drag controller and sub views and presenters
-     * @param model
-     * @param view
+     * @param fbModel
+     * @param fbView
      */
-    public FormBuilderController(FormBuilderModel model, FormBuilderView view) {
+    public FormBuilderController(final RootPanel rootPanel, FormBuilderModel fbModel, FormBuilderView fbView) {
         super();
-        this.model = model;
-        this.view = view;
+        this.model = fbModel;
+        this.view = fbView;
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             public void onUncaughtException(Throwable exception) {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, "An error ocurred in the UI", exception));
@@ -94,41 +96,67 @@ public class FormBuilderController {
         this.formExporter.start();
         
         view.setNotificationsView(createNotifications());
-        populateRepresentationFactory(model);
         view.setMenuView(createMenu(model));
         view.setEditionView(createEdition());
+        view.setTreeView(createTree());
         view.setLayoutView(createLayout());
         view.setOptionsView(createOptions(model));
         view.setIoAssociationView(createIoAssociation());
         view.setToolBarView(createToolBar());
-        view.setTreeView(createTree());
+        bus.addHandler(RepresentationFactoryPopulatedEvent.TYPE, new RepresentationFactoryPopulatedHandler() {
+            public void onEvent(RepresentationFactoryPopulatedEvent event) {
+                List<GwtEvent<?>> events = setDataPanel(rootPanel);
+                setViewPanel(rootPanel);
+                //events are fired deferred since they might need that ui components are already attached
+                fireEvents(events);
+            }
+        });
+        populateRepresentationFactory(fbModel);
     }
 
-    public void setDataPanel(RootPanel rootPanel) {
-        String innerHTML = rootPanel.getElement().getInnerHTML();
-        JSONValue json = JSONParser.parseStrict(innerHTML); //TODO see why parser doesnt work right here
-        if (json.isObject() != null) {
-            JSONObject jsonObj = json.isObject();
-            JSONValue jsonPkg = jsonObj.get("packageName");
-            if (jsonPkg != null && jsonPkg.isString() != null) {
-                String pkgName = jsonPkg.isString().stringValue();
-                if (pkgName != null && !"".equals(pkgName)) {
-                    model.setPackageName(pkgName);
-                }
-            }
-            if (jsonObj.get("task") != null && jsonObj.get("task").isObject() != null) {
-                TaskRef task = toTask(jsonObj.get("task").isObject());
-                bus.fireEvent(new EmbededIOReferenceEvent(task));
-            }
-            if (jsonObj.get("formjson") != null && jsonObj.get("formjson").isString() != null) {
-                FormRepresentation form = toForm(jsonObj.get("formjson").isString().stringValue());
-                if (form != null) {
-                    bus.fireEvent(new UpdateFormViewEvent(form));
-                }
+    private void fireEvents(List<GwtEvent<?>> events) {
+        if (events != null) {
+            for (GwtEvent<?> event : events) {
+                bus.fireEvent(event);
             }
         }
-        rootPanel.getElement().setInnerHTML("");
-        rootPanel.getElement().getStyle().setVisibility(Visibility.VISIBLE);
+    }
+    
+    private List<GwtEvent<?>> setDataPanel(RootPanel rootPanel) {
+        List<GwtEvent<?>> retval = new ArrayList<GwtEvent<?>>();
+        String innerHTML = rootPanel.getElement().getInnerHTML();
+        if (innerHTML != null && !"".equals(innerHTML)) {
+            try {
+                JSONValue json = JSONParser.parseStrict(innerHTML);
+                if (json.isObject() != null) {
+                    JSONObject jsonObj = json.isObject();
+                    JSONValue jsonPkg = jsonObj.get("packageName");
+                    if (jsonPkg != null && jsonPkg.isString() != null) {
+                        String pkgName = jsonPkg.isString().stringValue();
+                        if (pkgName != null && !"".equals(pkgName)) {
+                            model.setPackageName(pkgName);
+                        }
+                    }
+                    if (jsonObj.get("task") != null && jsonObj.get("task").isObject() != null) {
+                        TaskRef task = toTask(jsonObj.get("task").isObject());
+                        String profileName = null;
+                        if (jsonObj.get("embedded") != null && jsonObj.get("embedded").isString() != null) {
+                            profileName = jsonObj.get("embedded").isString().stringValue();
+                        }
+                        retval.add(new EmbededIOReferenceEvent(task, profileName));
+                    }
+                    if (jsonObj.get("formjson") != null && jsonObj.get("formjson").isString() != null) {
+                        FormRepresentation form = toForm(jsonObj.get("formjson").isString().stringValue());
+                        if (form != null) {
+                            retval.add(new UpdateFormViewEvent(form));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                GWT.log("Problem parsing init content", e);
+            }
+        }
+        return retval;
     }
     
     private FormRepresentation toForm(String json) {
@@ -187,7 +215,8 @@ public class FormBuilderController {
         return retval;
     }
 
-    public void setViewPanel(RootPanel rootPanel) {
+    private void setViewPanel(RootPanel rootPanel) {
+        rootPanel.getElement().setInnerHTML("");
         rootPanel.getElement().getStyle().setVisibility(Visibility.VISIBLE);
         rootPanel.add(view);
     }

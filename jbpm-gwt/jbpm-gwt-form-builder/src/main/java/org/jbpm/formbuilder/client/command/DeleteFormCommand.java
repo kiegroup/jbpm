@@ -69,8 +69,20 @@ public class DeleteFormCommand implements BaseCommand {
         bus.fireEvent(new GetFormRepresentationEvent(DELETE_TYPE));
     }
 
+    private MenuItem item = null;
+    
     public void setItem(MenuItem item) {
+        this.item = item;
         item.setEnabled(true);
+    }
+
+    public void setEmbeded(String profile) {
+        if (profile != null && "guvnor".equals(profile)) {
+            //if embedded from guvnor, deletion shouldn't be available
+            if (item != null) {
+                item.getParentMenu().removeItem(item);
+            }
+        }
     }
 
     private void showDeletePanel(final FormRepresentation form) {

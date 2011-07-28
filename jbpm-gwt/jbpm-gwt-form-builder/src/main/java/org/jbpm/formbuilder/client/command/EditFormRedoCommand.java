@@ -58,6 +58,10 @@ public class EditFormRedoCommand implements BaseCommand {
         checkEnabled();
     }
 
+    public void setEmbeded(String profile) {
+        //shouldn't be disabled when embedded
+    }
+
     public void setItem(MenuItem item) {
         this.item = item;
         checkEnabled();

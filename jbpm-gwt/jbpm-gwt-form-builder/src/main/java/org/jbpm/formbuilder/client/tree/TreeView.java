@@ -37,6 +37,11 @@ public class TreeView extends ScrollPanel {
         setWidget(tree);
     }
     
+    public void clearItems() {
+        tree.clear();
+        tree.addItem(new TreeElement());
+    }
+    
     public void addFormItem(FBFormItem item, FBCompositeItem parent) {
         TreeItem treeBranch = tree.getItem(0);
         if (parent != null && parent instanceof FBFormItem) {

@@ -19,9 +19,14 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedHandler;
+import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
+import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceHandler;
+import org.jbpm.formbuilder.client.command.BaseCommand;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.MenuItem;
 
 /**
  * Options presenter. Hears valid options from
@@ -32,14 +37,26 @@ public class OptionsPresenter {
     private final OptionsView view;
     private final EventBus bus;
     
-    public OptionsPresenter(List<MainMenuOption> menuOptions, OptionsView view) {
-        this.view = view;
+    public OptionsPresenter(List<MainMenuOption> menuOptions, OptionsView optionsView) {
+        this.view = optionsView;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
         this.view.addItems(menuOptions);
         
         bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedHandler() {
             public void onEvent(MenuOptionAddedEvent event) {
-                OptionsPresenter.this.view.addItem(event.getOption());
+                view.addItem(event.getOption());
+            }
+        });
+        bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
+            public void onEvent(EmbededIOReferenceEvent event) {
+                List<MenuItem> items = view.getItems();
+                for (MenuItem item : items) {
+                    Command cmd = item.getCommand();
+                    if (cmd != null && cmd instanceof BaseCommand) {
+                        BaseCommand baseCmd = (BaseCommand) cmd;
+                        baseCmd.setEmbeded(event.getProfileName());
+                    }
+                }
             }
         });
     }

@@ -45,9 +45,7 @@ public class FormBuilderEntryPoint implements EntryPoint {
         FormBuilderGlobals.getInstance().registerService(server);
         //start view and controller
         FormBuilderView view = new FormBuilderView();
-        FormBuilderController controller = new FormBuilderController(server, view);
         RootPanel rootPanel = RootPanel.get("formBuilder");
-        controller.setDataPanel(rootPanel);
-        controller.setViewPanel(rootPanel);
+        new FormBuilderController(rootPanel, server, view);
     }
 }

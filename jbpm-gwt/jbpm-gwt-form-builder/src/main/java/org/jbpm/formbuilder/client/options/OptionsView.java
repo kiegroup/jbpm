@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.options;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.command.BaseCommand;
@@ -30,6 +31,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 public class OptionsView extends SimplePanel {
 
     private final MenuBar bar = new MenuBar(false);
+    private final List<MenuItem> items = new ArrayList<MenuItem>(); 
     
     public OptionsView() {
         super();
@@ -45,6 +47,10 @@ public class OptionsView extends SimplePanel {
         toMenuBar(this.bar, option);
     }
 
+    public List<MenuItem> getItems() {
+        return this.items;
+    }
+    
     protected MenuBar toMenuBar(MenuBar popup, List<MainMenuOption> menu) {
         for (MainMenuOption option : menu) {
             toMenuBar(popup, option);
@@ -63,8 +69,12 @@ public class OptionsView extends SimplePanel {
             item = popup.addItem(new SafeHtmlBuilder().appendHtmlConstant(html).toSafeHtml(), cmd);
             cmd.setItem(item);
         }
-        if (item != null && !option.isEnabled()) {
-            item.setEnabled(false);
+        if (item != null) {
+            this.items.add(item);
+            if (!option.isEnabled()) {
+                item.setEnabled(false);
+            }            
         }
+        
     }
 }

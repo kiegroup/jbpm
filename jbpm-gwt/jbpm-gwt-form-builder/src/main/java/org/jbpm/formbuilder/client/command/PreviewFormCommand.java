@@ -64,6 +64,10 @@ public abstract class PreviewFormCommand implements BaseCommand {
         /* not implemented */
     }
     
+    public void setEmbeded(String profile) {
+        // shouldn't be disabled on embeded if it doesn't save
+    }
+    
     public void execute() {
         this.bus.fireEvent(new GetFormRepresentationEvent(this.saveType));
     }

@@ -29,5 +29,4 @@ public class RepresentationFactory {
     public static String getItemClassName(String repClassName) {
         return MAPPING.get(repClassName);
     }
-    
 }

@@ -9,14 +9,20 @@ public class EmbededIOReferenceEvent extends GwtEvent<EmbededIOReferenceHandler>
     public static final Type<EmbededIOReferenceHandler> TYPE = new Type<EmbededIOReferenceHandler>();
     
     private final TaskRef ioRef;
+    private final String profileName;
     
-    public EmbededIOReferenceEvent(TaskRef ioRef) {
+    public EmbededIOReferenceEvent(TaskRef ioRef, String profileName) {
         super();
         this.ioRef = ioRef;
+        this.profileName = profileName;
     }
 
     public TaskRef getIoRef() {
         return ioRef;
+    }
+    
+    public String getProfileName() {
+        return profileName;
     }
     
     @Override

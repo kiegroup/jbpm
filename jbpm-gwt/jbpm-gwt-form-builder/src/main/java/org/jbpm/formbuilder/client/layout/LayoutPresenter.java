@@ -64,12 +64,11 @@ import com.google.gwt.event.shared.EventBus;
  */
 public class LayoutPresenter {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final LayoutView layoutView;
-    private final EventBus bus;
     
     public LayoutPresenter(LayoutView view) {
         this.layoutView = view;
-        this.bus = FormBuilderGlobals.getInstance().getEventBus();
         final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
         dragController.registerDropController(new DropFormItemController(layoutView, layoutView));
         
@@ -192,7 +191,9 @@ public class LayoutPresenter {
         
         bus.addHandler(UpdateFormViewEvent.TYPE, new UpdateFormViewHandler() {
             public void onEvent(UpdateFormViewEvent event) {
+                System.out.println("UpdateFormViewHandler invoked");
                 FormRepresentation form = event.getFormRepresentation();
+                System.out.println("form = " + form);
                 try {
                     layoutView.getFormDisplay().populate(form);
                 } catch (FormBuilderException e) {
