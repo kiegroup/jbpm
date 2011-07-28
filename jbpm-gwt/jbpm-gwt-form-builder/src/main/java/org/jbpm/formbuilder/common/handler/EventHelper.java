@@ -5,7 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Widget;
@@ -16,6 +20,28 @@ public class EventHelper {
     private static final Map<Widget, List<ControlKeyHandler>> KCUT_HANDLERS = new HashMap<Widget, List<ControlKeyHandler>>();
     private static final Map<Widget, List<ControlKeyHandler>> KCOPY_HANDLERS = new HashMap<Widget, List<ControlKeyHandler>>();
     private static final Map<Widget, List<ControlKeyHandler>> KPASTE_HANDLERS = new HashMap<Widget, List<ControlKeyHandler>>();
+    private static final Map<Widget, List<BlurHandler>> BLUR_HANDLERS = new HashMap<Widget, List<BlurHandler>>();
+    private static final Map<Widget, List<FocusHandler>> FOCUS_HANDLERS = new HashMap<Widget, List<FocusHandler>>();
+
+    public static void addBlurHandler(Widget widget, BlurHandler handler) {
+        widget.sinkEvents(Event.ONBLUR);
+        List<BlurHandler> handlers = BLUR_HANDLERS.get(widget);
+        if (handlers == null) {
+            handlers = new ArrayList<BlurHandler>();
+            BLUR_HANDLERS.put(widget, handlers);
+        }
+        handlers.add(handler);
+    }
+    
+    public static void addFocusHandler(Widget widget, FocusHandler handler) {
+        widget.sinkEvents(Event.ONFOCUS);
+        List<FocusHandler> handlers = FOCUS_HANDLERS.get(widget);
+        if (handlers == null) {
+            handlers = new ArrayList<FocusHandler>();
+            FOCUS_HANDLERS.put(widget, handlers);
+        }
+        handlers.add(handler);
+    }
     
     public static void addRightClickHandler(Widget widget, RightClickHandler handler) {
         widget.sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
@@ -67,9 +93,45 @@ public class EventHelper {
         case Event.ONKEYPRESS:
             onKeyEvent(widget, event);
             break;
+        case Event.ONBLUR:
+            onBlurEvent(widget, event);
+        case Event.ONFOCUS:
+            onFocusEvent(widget, event);
         default:
             //Do nothing
         }//end switch
+    }
+    
+    protected static void onBlurEvent(final Widget widget, Event event) {
+        BlurEvent bevent = new BlurEvent() {
+            @Override
+            public Object getSource() {
+                return widget;
+            }
+        };
+        bevent.setNativeEvent(event);
+        List<BlurHandler> handlers = BLUR_HANDLERS.get(widget);
+        if (handlers != null) {
+            for (BlurHandler handler : handlers) {
+                handler.onBlur(bevent);
+            }
+        }
+    }
+    
+    protected static void onFocusEvent(final Widget widget, Event event) {
+        FocusEvent fevent = new FocusEvent() {
+            @Override
+            public Object getSource() {
+                return widget;
+            }
+        };
+        fevent.setNativeEvent(event);
+        List<FocusHandler> handlers = FOCUS_HANDLERS.get(widget);
+        if (handlers != null) {
+            for (FocusHandler handler : handlers) {
+                handler.onFocus(fevent);
+            }
+        }
     }
     
     protected static void onRightClickEvent(final Widget widget, Event event) {

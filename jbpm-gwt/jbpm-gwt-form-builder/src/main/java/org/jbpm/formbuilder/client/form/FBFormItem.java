@@ -70,7 +70,6 @@ public abstract class FBFormItem extends FocusPanel {
     public FBFormItem(List<FBFormEffect> formEffects) {
         this.effects.addAll(formEffects);
         addStyleName("fbFormItemThinBorder");
-        sinkEvents(Event.ONFOCUS | Event.ONBLUR);
         EventHelper.addRightClickHandler(this, new RightClickHandler() {
             public void onRightClick(RightClickEvent event) {
                 EffectsPopupPanel popupPanel = new EffectsPopupPanel(FBFormItem.this, true);
@@ -95,14 +94,14 @@ public abstract class FBFormItem extends FocusPanel {
                 FormBuilderGlobals.getInstance().paste().append(FBFormItem.this).execute();
             }
         });
-        addFocusHandler(new FocusHandler() {
-            public void onFocus(FocusEvent event) {
-                makeEditor();
-            }
-        });
-        addBlurHandler(new BlurHandler() {
+        EventHelper.addBlurHandler(this, new BlurHandler() {
             public void onBlur(BlurEvent event) {
                 reset();
+            }
+        });
+        EventHelper.addFocusHandler(this, new FocusHandler() {
+            public void onFocus(FocusEvent event) {
+                makeEditor();
             }
         });
     } 
@@ -147,21 +146,9 @@ public abstract class FBFormItem extends FocusPanel {
         bus.fireEvent(event);
     }
 
-    //right click handling for optional menu
-
     @Override
     public void onBrowserEvent(Event event) {
         EventHelper.onBrowserEvent(this, event);
-        /*case Event.ONFOCUS:
-            makeEditor();
-            break;
-        case Event.ONBLUR:
-            reset();
-            break;
-        default:
-            // Do nothing
-        }//end switch
-        */
     }
 
     public void addEffect(FBFormEffect effect) {
