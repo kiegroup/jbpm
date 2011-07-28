@@ -250,7 +250,6 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     }
 
     public void populate(FormRepresentation rep) throws FormBuilderException {
-        System.out.println("POPULATING FORM");
         setName(rep.getName());
         setTaskId(rep.getTaskId());
         setAction(rep.getAction());
@@ -262,7 +261,6 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         }
         
         for (FormItemRepresentation itemRep : rep.getFormItems()) {
-            System.out.println("POPULATING " + itemRep.getTypeId());
             FBFormItem item = FBFormItem.createItem(itemRep);
             item.populate(itemRep);
             add(item);
@@ -288,7 +286,6 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
                 this.onSubmitScripts.add(onSubmit);
             }
         }
-        System.out.println("FORM POPULATED");
     }
     
     public void addPhantom(int x, int y) {
