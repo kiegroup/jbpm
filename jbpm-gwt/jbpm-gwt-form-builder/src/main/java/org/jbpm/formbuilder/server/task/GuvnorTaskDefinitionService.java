@@ -82,10 +82,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                         for (TaskRef ref : entry.getValue()) {
                             if (filter == null || "".equals(filter)) {
                                 tasks.add(ref);
-                            } else {
-                                if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
-                                    tasks.add(ref);
-                                }
+                            } else if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
+                                tasks.add(ref);
                             }
                         }
                     }
@@ -231,7 +229,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         ResourceType type = processName.toLowerCase().endsWith("bpmn2") ? ResourceType.BPMN2 : ResourceType.DRF;
         kbuilder.add(new ByteArrayResource(bpmn2Content.getBytes()), type);
         if (!kbuilder.hasErrors()) {
-            return repo.getTasks();
+            return new ArrayList<TaskRef>(repo.getTasks());
         } else {
             return new ArrayList<TaskRef>();
         }

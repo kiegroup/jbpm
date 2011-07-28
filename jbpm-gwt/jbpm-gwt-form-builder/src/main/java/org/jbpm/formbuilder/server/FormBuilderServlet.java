@@ -146,7 +146,7 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.setContentType("text/xml");
                 content.append(getRepresentationMappings());
             } else { //print help
-                req.getRequestDispatcher(req.getContextPath() + "/fbapi/help.jsp").forward(req, resp);
+                req.getRequestDispatcher("/fbapi/help.jsp").forward(req, resp);
             }
             if (content.length() > 0) {
                 resp.getWriter().println(content.toString());
