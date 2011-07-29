@@ -58,8 +58,10 @@ public class ExportTemplateServlet extends HttpServlet {
                     } else {
                         templateName = form.getTaskId();
                     }
-                    templateName += "-template.ftl";
-                    formService.saveTemplate(packageName, templateName, content);
+                    if (templateName != null) {
+                        templateName += "-template.ftl";
+                        formService.saveTemplate(packageName, templateName, content);
+                    }
                 }
             } else {
                 throw new Exception("Profile not available for " + profile);
@@ -70,6 +72,6 @@ public class ExportTemplateServlet extends HttpServlet {
     }
 
     private boolean notEmpty(String value) {
-        return value != null && !"".equals(value);
+        return value != null && !"".equals(value) && !"null".equals(value);
     }
 }
