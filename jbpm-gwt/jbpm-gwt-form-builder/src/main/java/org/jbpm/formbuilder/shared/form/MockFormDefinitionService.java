@@ -165,4 +165,8 @@ public class MockFormDefinitionService extends AbstractBaseFormDefinitionService
         }
         return retval;
     }
+
+    public void saveTemplate(String packageName, String templateName, String content) throws FormServiceException {
+        // do nothing
+    }
 }

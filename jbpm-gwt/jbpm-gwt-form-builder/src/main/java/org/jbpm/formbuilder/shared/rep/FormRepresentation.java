@@ -30,6 +30,7 @@ public class FormRepresentation implements Serializable {
     
     private String name;
     private String taskId;
+    private String processName;
     private String action;
     private String method;
     private String enctype;
@@ -58,6 +59,14 @@ public class FormRepresentation implements Serializable {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+    
+    public String getProcessName() {
+        return processName;
+    }
+    
+    public void setProcessName(String processName) {
+        this.processName = processName;
     }
 
     public List<FBValidation> getFormValidations() {
@@ -173,10 +182,11 @@ public class FormRepresentation implements Serializable {
         this.saved = saved;
     }
     
-    public void populate(String name, String taskId, String action, 
-            String method, String enctype, String documentation) {
+    public void populate(String name, String taskId, String processName, 
+            String action, String method, String enctype, String documentation) {
         this.name = name;
         this.taskId = taskId;
+        this.processName = processName;
         this.action = action;
         this.method = method;
         this.enctype = enctype;
@@ -192,6 +202,8 @@ public class FormRepresentation implements Serializable {
         boolean equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
         if (!equals) return equals;
         equals = (this.taskId == null && other.taskId == null) || (this.taskId != null && this.taskId.equals(other.taskId));
+        if (!equals) return equals;
+        equals = (this.processName == null && other.processName == null) || (this.processName != null && this.processName.equals(other.processName));
         if (!equals) return equals;
         equals = (this.action == null && other.action == null) || (this.action != null && this.action.equals(other.action));
         if (!equals) return equals;
@@ -232,6 +244,8 @@ public class FormRepresentation implements Serializable {
         int aux = this.name == null ? 0 : this.name.hashCode();
         result = 37 * result + aux;
         aux = this.taskId == null ? 0 : this.taskId.hashCode();
+        result = 37 * result + aux;
+        aux = this.processName == null ? 0 : this.processName.hashCode();
         result = 37 * result + aux;
         aux = this.action == null ? 0 : this.action.hashCode();
         result = 37 * result + aux;

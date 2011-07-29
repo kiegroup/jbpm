@@ -58,6 +58,44 @@ public class EmbedingServlet extends HttpServlet {
         JsonObject json = new JsonObject();
         json.addProperty("embedded", profile);
         try {
+            if (profile != null && "guvnor".equals(profile)) {
+                String uuid = request.getParameter("uuid");
+                String packageName = taskService.getContainingPackage(uuid);
+                FormRepresentation form = formService.getFormByUUID(packageName, uuid);
+                json.addProperty("uuid", uuid);
+                json.addProperty("packageName", packageName);
+                if (form != null) {
+                    json.addProperty("formjson", encoder.encode(form));
+                }
+            }else {
+                throw new Exception("Unknown profile for POST: " + profile);
+            }
+            request.setAttribute("jsonData", new Gson().toJson(json));
+            request.getRequestDispatcher("/FormBuilder.jsp").forward(request, response);
+        } catch (TaskServiceException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Problem getting task from guvnor");
+        } catch (FormServiceException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Problem reading form from guvnor");
+        } catch (FormEncodingException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Problem encoding form");
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String profile = request.getParameter("profile");
+        String usr = request.getParameter("usr");
+        String pwd = request.getParameter("pwd");
+        usr = (usr == null ? this.guvnorDefaultUser : usr);
+        pwd = (pwd == null ? this.guvnorDefaultPass : pwd);
+        TaskDefinitionService taskService = new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
+        FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
+        JsonObject json = new JsonObject();
+        json.addProperty("embedded", profile);
+        try {
             if ( profile != null && "designer".equals(profile)) {
                 String userTask = request.getParameter("userTask");
                 String processName = request.getParameter("processName");
@@ -72,17 +110,8 @@ public class EmbedingServlet extends HttpServlet {
                     json.add("task", toJsonObject(task));
                     json.addProperty("packageName", task.getPackageName());
                 }
-            } else if (profile != null && "guvnor".equals(profile)) {
-                String uuid = request.getParameter("uuid");
-                String packageName = taskService.getContainingPackage(uuid);
-                FormRepresentation form = formService.getFormByUUID(packageName, uuid);
-                json.addProperty("uuid", uuid);
-                json.addProperty("packageName", packageName);
-                if (form != null) {
-                    json.addProperty("formjson", encoder.encode(form));
-                }
             } else {
-                throw new Exception("Unknown profile " + profile);
+                throw new Exception("Unknown profile for GET: " + profile);
             }
             request.setAttribute("jsonData", new Gson().toJson(json));
             request.getRequestDispatcher("/FormBuilder.jsp").forward(request, response);

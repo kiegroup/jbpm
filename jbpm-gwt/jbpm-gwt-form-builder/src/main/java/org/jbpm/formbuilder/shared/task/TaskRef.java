@@ -24,6 +24,7 @@ public class TaskRef {
 
     private String packageName;
     private String processId;
+    private String processName;
     private String taskId;
     private List<TaskPropertyRef> inputs = new ArrayList<TaskPropertyRef>();
     private List<TaskPropertyRef> outputs = new ArrayList<TaskPropertyRef>();
@@ -120,6 +121,14 @@ public class TaskRef {
     public String getPackageName() {
         return packageName;
     }
+
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
+    
+    public String getProcessName() {
+        return processName;
+    }
     
     @Override
     public boolean equals(Object obj) {
@@ -131,6 +140,8 @@ public class TaskRef {
         || (this.packageName != null && this.packageName.equals(other.packageName));
         if (!equals) return equals;
         equals = (this.processId == null && other.processId == null) || (this.processId != null && this.processId.equals(other.processId));
+        if (!equals) return equals;
+        equals = (this.processName == null && other.processName == null) || (this.processName != null && this.processName.equals(other.processName));
         if (!equals) return equals;
         equals = (this.taskId == null && other.taskId == null) || (this.taskId != null && this.taskId.equals(other.taskId));
         if (!equals) return equals;
@@ -149,6 +160,8 @@ public class TaskRef {
         int aux = this.packageName == null ? 0 : this.packageName.hashCode();
         result = 37 * result + aux;
         aux = this.processId == null ? 0 : this.processId.hashCode();
+        result = 37 * result + aux;
+        aux = this.processName == null ? 0 : this.processName.hashCode();
         result = 37 * result + aux;
         aux = this.taskId == null ? 0 : this.taskId.hashCode();
         result = 37 * result + aux;

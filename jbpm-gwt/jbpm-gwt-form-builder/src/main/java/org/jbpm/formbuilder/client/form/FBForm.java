@@ -51,6 +51,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     private String name;
     private String taskId;
+    private String processId;
     private String method;
     private String enctype;
     private String action;
@@ -103,6 +104,15 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     public void setTaskId(String taskId) {
         this.taskId = taskId;
         this.popup.setTaskId(taskId);
+    }
+    
+    public String getProcessId() {
+        return processId;
+    }
+    
+    public void setProcessId(String processId) {
+        this.processId = processId;
+        this.popup.setProcessId(processId);
     }
     
     public String getAction() {
@@ -231,6 +241,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         FormRepresentation rep = new FormRepresentation();
         rep.setName(name);
         rep.setTaskId(taskId);
+        rep.setProcessName(processId);
         rep.setAction(action);
         rep.setMethod(method);
         rep.setEnctype(enctype);
@@ -252,6 +263,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     public void populate(FormRepresentation rep) throws FormBuilderException {
         setName(rep.getName());
         setTaskId(rep.getTaskId());
+        setProcessId(rep.getProcessName());
         setAction(rep.getAction());
         setMethod(rep.getMethod());
         setEnctype(rep.getEnctype());

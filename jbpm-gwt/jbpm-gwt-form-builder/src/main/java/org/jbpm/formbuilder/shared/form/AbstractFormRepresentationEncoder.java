@@ -23,13 +23,14 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
     public String encode(FormRepresentation form) throws FormEncodingException {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
-        builder.append("  \"name\": \"").append(form.getName()).append("\",\n");
-        builder.append("  \"action\": \"").append(form.getAction()).append("\",\n");
-        builder.append("  \"taskId\": \"").append(form.getTaskId()).append("\",\n");
-        builder.append("  \"documentation\": \"").append(form.getDocumentation()).append("\",\n");
-        builder.append("  \"enctype\": \"").append(form.getEnctype()).append("\",\n");
+        builder.append("  \"name\": ").append(encodeString(form.getName())).append(",\n");
+        builder.append("  \"action\": ").append(encodeString(form.getAction())).append(",\n");
+        builder.append("  \"processName\": ").append(encodeString(form.getProcessName())).append(",\n");
+        builder.append("  \"taskId\": ").append(encodeString(form.getTaskId())).append(",\n");
+        builder.append("  \"documentation\": ").append(encodeString(form.getDocumentation())).append(",\n");
+        builder.append("  \"enctype\": ").append(encodeString(form.getEnctype())).append(",\n");
         builder.append("  \"lastModified\": \"").append(form.getLastModified()).append("\",\n");
-        builder.append("  \"method\": \"").append(form.getMethod()).append("\",\n");
+        builder.append("  \"method\": ").append(encodeString(form.getMethod())).append(",\n");
         builder.append("  \"formItems\": ").append(encodeList(form.getFormItems())).append(",\n");
         builder.append("  \"formValidations\": ").append(encodeList(form.getFormValidations())).append(",\n");
         builder.append("  \"inputs\": ").append(encodeInputs(form.getInputs())).append(",\n");
@@ -38,6 +39,20 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
         builder.append("  \"onSubmitScripts\": ").append(encodeList(form.getOnSubmitScripts())).append("\n");
         builder.append("}\n");
         return builder.toString();
+    }
+    
+    public String encodeString(String value) {
+        if (value == null) {
+            return "null";
+        }
+        return "\"" + value + "\"";
+    }
+    
+    public String encodeLong(Long value) {
+        if (value == null) {
+            return "null";
+        }
+        return String.valueOf(value);
     }
     
     public String encodeMenuItemsMap(Map<String, List<MenuItemDescription>> items) throws FormEncodingException {

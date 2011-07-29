@@ -131,6 +131,7 @@ public class LayoutPresenter {
             public void onSelectedTask(TaskSelectedEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldTaskID", layoutView.getFormDisplay().getTaskId());
+                dataSnapshot.put("oldProcessID", layoutView.getFormDisplay().getProcessId());
                 dataSnapshot.put("oldTaskInputs", layoutView.getFormDisplay().getInputs());
                 dataSnapshot.put("oldTaskOutputs", layoutView.getFormDisplay().getOutputs());
                 if (event.getSelectedTask() != null) {
@@ -157,6 +158,7 @@ public class LayoutPresenter {
                     dataSnapshot.put("newTaskOutputs", outputs);
                 }
                 dataSnapshot.put("newTaskID", event.getSelectedTask() == null ? null : event.getSelectedTask().getTaskId());
+                dataSnapshot.put("newProcessID", event.getSelectedTask() == null ? null : event.getSelectedTask().getProcessId());
                 dataSnapshot.put("newTaskInputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getInputs());
                 dataSnapshot.put("newTaskOutputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getOutputs());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
@@ -164,18 +166,22 @@ public class LayoutPresenter {
                     @SuppressWarnings("unchecked")
                     public void doAction(UndoableEvent event) {
                         String value = (String) event.getData("newTaskID");
+                        String procId = (String) event.getData("newProcessID");
                         List<TaskPropertyRef> inputs = (List<TaskPropertyRef>) event.getData("newTaskInputs");
                         List<TaskPropertyRef> outputs = (List<TaskPropertyRef>) event.getData("newTaskOutputs");
                         layoutView.getFormDisplay().setTaskId(value);
+                        layoutView.getFormDisplay().setProcessId(procId);
                         layoutView.getFormDisplay().setInputs(toInputs(inputs));
                         layoutView.getFormDisplay().setOutputs(toOutputs(outputs));
                     }
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
                         String value = (String) event.getData("oldTaskID");
+                        String procId = (String) event.getData("oldProcessID");
                         List<TaskPropertyRef> inputs = (List<TaskPropertyRef>) event.getData("oldTaskInputs");
                         List<TaskPropertyRef> outputs = (List<TaskPropertyRef>) event.getData("oldTaskOutputs");
                         layoutView.getFormDisplay().setTaskId(value);
+                        layoutView.getFormDisplay().setProcessId(procId);
                         layoutView.getFormDisplay().setInputs(toInputs(inputs));
                         layoutView.getFormDisplay().setOutputs(toOutputs(outputs));
                     }

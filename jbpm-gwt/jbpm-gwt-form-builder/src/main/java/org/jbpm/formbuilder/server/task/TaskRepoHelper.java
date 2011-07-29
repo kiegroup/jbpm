@@ -84,9 +84,9 @@ public class TaskRepoHelper {
 
     public void setDefaultProcessName(String processName) {
         this.procName = processName;
-        /*for (TaskRef task : tasks) {
+        for (TaskRef task : tasks) {
             task.setProcessName(this.procName);
-        }*/
+        }
     }
 
     public void setDefaultPackageName(String packageName) {

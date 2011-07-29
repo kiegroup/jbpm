@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -30,6 +31,7 @@ import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.task.AssetDTO;
 import org.jbpm.formbuilder.server.task.MetaDataDTO;
@@ -54,7 +56,6 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         this.helper = new GuvnorHelper(baseUrl, user, password);
     }
     
-    @SuppressWarnings("deprecation")
     public String saveForm(String pkgName, FormRepresentation form) throws FormServiceException {
         HttpClient client = new HttpClient();
         EntityEnclosingMethod method = null;
@@ -64,7 +65,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl); 
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
-            method.setRequestBody(encoder.encode(form));
+            method.setRequestEntity(new StringRequestEntity(encoder.encode(form), null, null));
             method.setRequestHeader("Checkin-Comment", form.getDocumentation());
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -81,7 +82,6 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         }
     }
 
-    @SuppressWarnings("deprecation")
     public String saveFormItem(String pkgName, String formItemName, FormItemRepresentation formItem) throws FormServiceException {
         HttpClient client = new HttpClient();
         String url = helper.getApiUrl(pkgName);
@@ -91,7 +91,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         EntityEnclosingMethod method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
-            method.setRequestBody(encoder.encode(formItem));
+            method.setRequestEntity(new StringRequestEntity(encoder.encode(formItem), null, null));
             method.setRequestHeader("Checkin-Comment", "Committing " + formItemName);
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -292,5 +292,52 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             }
         }
         return retval;
+    }
+    
+    public void saveTemplate(String packageName, String templateName, String content) throws FormServiceException {
+        HttpClient client = new HttpClient();
+        EntityEnclosingMethod method = null;
+        try {
+            if (templateExists(packageName, templateName)) {
+                method = new PutMethod(helper.getApiSearchUrl(packageName) + templateName);
+            } else {
+                method = new PostMethod(helper.getApiSearchUrl(packageName) + templateName);
+            }
+            method.setRequestEntity(new StringRequestEntity(content, null, null));
+            method.setRequestHeader("Authorization", helper.getAuth());
+            client.executeMethod(method);
+        } catch (IOException e) {
+            String message;
+            if (method instanceof PutMethod) {
+                message = "Problem updating template " + packageName + "/" + templateName;
+            } else {
+                message = "Problem creating template " + packageName + "/" + templateName;
+            }
+            throw new FormServiceException(message, e);
+        } finally {
+            method.releaseConnection();
+        }
+    }
+    
+    protected boolean templateExists(String pkgName, String templateName) throws FormServiceException {
+        HttpClient client = new HttpClient();
+        GetMethod method= new GetMethod(helper.getApiSearchUrl(pkgName) + templateName);
+        try {
+            method.setRequestHeader("Authorization", helper.getAuth());
+            client.executeMethod(method);
+            if (method.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
+                return false;
+            } else {
+                if (method.getStatusCode() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR && 
+                    method.getResponseBodyAsString().contains("PathNotFound")) {
+                    return false;
+                }
+                return true;
+            }
+        } catch (IOException e) {
+            throw new FormServiceException("Problem reading existing template", e);
+        } finally {
+            method.releaseConnection();
+        }
     }
 }

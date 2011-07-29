@@ -1,6 +1,7 @@
 {
     "name": "myForm",
     "action": "complete",
+    "processName": null,
     "taskId": "myTask",
     "documentation": "This is documentation",
     "enctype": "multipart/form-data",

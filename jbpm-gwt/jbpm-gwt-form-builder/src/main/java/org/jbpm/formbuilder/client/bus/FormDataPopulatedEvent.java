@@ -27,14 +27,16 @@ public class FormDataPopulatedEvent extends GwtEvent<FormDataPopulatedHandler> {
     private final String action;
     private final String method;
     private final String taskId;
+    private final String processId;
     private final String enctype;
     private final String name;
     
-    public FormDataPopulatedEvent(String action, String method, String taskId, String enctype, String name) {
+    public FormDataPopulatedEvent(String action, String method, String taskId, String processId, String enctype, String name) {
         this.name = name;
         this.action = action;
         this.method = method;
         this.taskId = taskId;
+        this.processId = processId;
         this.enctype = enctype;
     }
     
@@ -58,6 +60,10 @@ public class FormDataPopulatedEvent extends GwtEvent<FormDataPopulatedHandler> {
 
     public String getTaskId() {
         return taskId;
+    }
+    
+    public String getProcessId() {
+        return processId;
     }
 
     public String getEnctype() {

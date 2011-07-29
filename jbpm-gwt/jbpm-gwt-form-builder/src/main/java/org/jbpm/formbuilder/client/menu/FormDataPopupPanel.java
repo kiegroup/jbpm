@@ -44,6 +44,7 @@ public class FormDataPopupPanel extends PopupPanel {
     private final ListBox method = new ListBox(false);
     private final TextBox action = new TextBox();
     private final TextBox taskId = new TextBox();
+    private final TextBox processId = new TextBox();
     private final TextBox name = new TextBox();
     private final TextArea documentation = new TextArea();
     
@@ -56,7 +57,7 @@ public class FormDataPopupPanel extends PopupPanel {
 
         VerticalPanel vPanel = new VerticalPanel();
         vPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        Grid grid = new Grid(6, 2);
+        Grid grid = new Grid(7, 2);
         
         enctype.addItem("multipart/form-data");
         enctype.addItem("application/x-www-form-urlencoded");
@@ -73,6 +74,7 @@ public class FormDataPopupPanel extends PopupPanel {
             enctype.setEnabled(false);
             action.setEnabled(false);
             taskId.setEnabled(false);
+            processId.setEnabled(false);
             documentation.setCharacterWidth(30);
             documentation.setVisibleLines(4);
             grid.setWidget(0, 0, new Label("Check-In comment:"));
@@ -89,18 +91,21 @@ public class FormDataPopupPanel extends PopupPanel {
         grid.setWidget(2, 1, method);
         grid.setWidget(3, 0, new Label("Enctype:"));
         grid.setWidget(3, 1, enctype);
-        grid.setWidget(4, 0, new Label("Task ID:"));
-        grid.setWidget(4, 1, taskId);
-        grid.setWidget(5, 0, new Label("Name:"));
-        grid.setWidget(5, 1, name);
+        grid.setWidget(4, 0, new Label("Process ID:"));
+        grid.setWidget(4, 1, processId);
+        grid.setWidget(5, 0, new Label("Task ID:"));
+        grid.setWidget(5, 1, taskId);
+        grid.setWidget(6, 0, new Label("Name:"));
+        grid.setWidget(6, 1, name);
         
         vPanel.add(grid);
         HorizontalPanel buttonPanel = new HorizontalPanel();
         buttonPanel.add(new Button("Apply", new ClickHandler() {
             public void onClick(ClickEvent event) {
                 FormDataPopulatedEvent formEvent = new FormDataPopulatedEvent(action.getValue(), 
-                        method.getValue(method.getSelectedIndex()), taskId.getValue(), 
-                        enctype.getValue(enctype.getSelectedIndex()), name.getValue());
+                        method.getValue(method.getSelectedIndex()), taskId.getValue(),
+                        processId.getValue(), enctype.getValue(enctype.getSelectedIndex()), 
+                        name.getValue());
                 bus.fireEvent(formEvent);
                 hide();
             }
@@ -117,6 +122,10 @@ public class FormDataPopupPanel extends PopupPanel {
     
     public void setTaskId(String taskId) {
         this.taskId.setValue(taskId);
+    }
+    
+    public void setProcessId(String processId) {
+        this.processId.setValue(processId);
     }
 
     public void setEnctype(String enctype) {
@@ -156,6 +165,10 @@ public class FormDataPopupPanel extends PopupPanel {
     
     public String getTaskId() {
         return taskId.getValue();
+    }
+    
+    public String getProcessId() {
+        return processId.getValue();
     }
     
     public String getMethod() {

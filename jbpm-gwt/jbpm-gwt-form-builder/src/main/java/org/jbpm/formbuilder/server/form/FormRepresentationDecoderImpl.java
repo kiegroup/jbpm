@@ -102,10 +102,10 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
             if (jsonObj.get("enctype").isJsonPrimitive() && jsonObj.get("enctype").getAsJsonPrimitive().isString()) {
                 form.setEnctype(jsonObj.get("enctype").getAsString());
             }
-            if (jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isNumber()) {
-                form.setLastModified(jsonObj.get("lastModified").getAsLong());
-            } else if (jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isString()) {
                 form.setLastModified(Double.valueOf(jsonObj.get("lastModified").getAsString()).longValue());
+            } else if (jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isNumber()) {
+                form.setLastModified(jsonObj.get("lastModified").getAsNumber().longValue());
             }
             if (jsonObj.get("method").isJsonPrimitive() && jsonObj.get("method").getAsJsonPrimitive().isString()) {
                 form.setMethod(jsonObj.get("method").getAsString());

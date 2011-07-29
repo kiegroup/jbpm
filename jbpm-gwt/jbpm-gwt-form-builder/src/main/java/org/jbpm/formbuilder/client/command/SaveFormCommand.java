@@ -82,8 +82,9 @@ public class SaveFormCommand implements BaseCommand {
         String formName = panel.getFormName();
         if (formName != null && !"".equals(formName)) {
             try {
-                form.populate(panel.getFormName(), panel.getTaskId(), panel.getAction(), 
-                        panel.getMethod(), panel.getEnctype(), panel.getDocumentation());
+                form.populate(panel.getFormName(), panel.getTaskId(), panel.getProcessId(),
+                        panel.getAction(), panel.getMethod(), panel.getEnctype(), 
+                        panel.getDocumentation());
                 service.saveForm(form);
                 bus.fireEvent(new NotificationEvent(Level.INFO, "Form " + form.getName() + " saved successfully"));
             } catch (FormBuilderException e) {

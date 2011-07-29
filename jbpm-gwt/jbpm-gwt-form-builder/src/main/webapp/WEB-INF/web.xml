@@ -23,6 +23,10 @@
   <servlet-name>embed</servlet-name>
   <servlet-class>org.jbpm.formbuilder.server.EmbedingServlet</servlet-class>
  </servlet>
+ <servlet>
+  <servlet-name>exportTemplate</servlet-name>
+  <servlet-class>org.jbpm.formbuilder.server.ExportTemplateServlet</servlet-class>
+ </servlet>
  <servlet-mapping>
   <servlet-name>fbapi</servlet-name>
   <url-pattern>/org.jbpm.formbuilder.FormBuilder/fbapi/*</url-pattern>
@@ -30,6 +34,10 @@
  <servlet-mapping>
   <servlet-name>embed</servlet-name>
   <url-pattern>/embed</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+  <servlet-name>exportTemplate</servlet-name>
+  <url-pattern>/exportTemplate</url-pattern>
  </servlet-mapping>
  <jsp-config>
   <taglib>
