@@ -364,19 +364,21 @@ public class XmlParseHelper {
      * following format:
      * 
      * <code>
-     * &lt;validation className="${fbValidationItem[0].class.name}"&gt;<br>
-     * &nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
-     * &nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
+     * &lt;validations&gt;<br>
+     * &nbsp;&nbsp;&lt;validation className="${fbValidationItem[0].class.name}"&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;property key="${key[n]}" value="${value[n]}"/&gt;<br>
+     * &nbsp;&nbsp;&lt;/validation&gt;<br>
      * &nbsp;&nbsp;...<br>
-     * &nbsp;&nbsp;&lt;property key="${key[n]}" value="${value[n]}"/&gt;<br>
-     * &lt;/validation&gt;<br>
-     * ...<br>
-     * &lt;validation className="${fbValidationItem[m].class.name}"&gt;<br>
-     * &nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
-     * &nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
-     * &nbsp;&nbsp;...<br>
-     * &nbsp;&nbsp;&lt;property key="${key[n]}" value="${value[n]}"/&gt;<br>
-     * &lt;/validation&gt;<br>
+     * &nbsp;&nbsp;&lt;validation className="${fbValidationItem[m].class.name}"&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;&lt;property key="${key[p]}" value="${value[p]}"/&gt;<br>
+     * &nbsp;&nbsp;&lt;/validation&gt;<br>
+     * &lt;/validations&gt;<br>
      * </code>
      * @param responseText XML response to parse
      * @return a list of validation items
