@@ -18,6 +18,7 @@ import org.drools.audit.event.RuleFlowNodeLogEvent;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.definition.process.Node;
 import org.drools.io.ResourceFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.runtime.Environment;
@@ -36,6 +37,7 @@ import org.h2.tools.Server;
 import org.jbpm.process.audit.JPAProcessInstanceDbLog;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.audit.NodeInstanceLog;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
@@ -55,7 +57,7 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 	private JPAProcessInstanceDbLog log;
 
 	public JbpmJUnitTestCase() {
-		this(true);
+		this(false);
 	}
 	
 	public JbpmJUnitTestCase(boolean persistence) {
@@ -129,6 +131,31 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 	protected KnowledgeBase createKnowledgeBaseGuvnor(String... packages) throws Exception {
 		return createKnowledgeBaseGuvnor(false, "http://localhost:8080/drools-guvnor", "admin", "admin", packages);
 	}
+	
+	protected KnowledgeBase createKnowledgeBaseGuvnorAssets(String pkg, String...assets) throws Exception {
+	    return createKnowledgeBaseGuvnor(false, "http://localhost:8080/drools-guvnor", "admin", "admin", pkg, assets);
+	}
+	
+	protected KnowledgeBase createKnowledgeBaseGuvnor(boolean dynamic, String url, String username, 
+            String password, String pkg, String... assets) throws Exception {
+	    KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+	    String changeSet = 
+	        "<change-set xmlns='http://drools.org/drools-5.0/change-set'" + EOL +
+	        "            xmlns:xs='http://www.w3.org/2001/XMLSchema-instance'" + EOL +
+	        "            xs:schemaLocation='http://drools.org/drools-5.0/change-set http://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd' >" + EOL +
+	        "    <add>" + EOL;
+	    for(String a : assets) {
+	        if(a.indexOf(".bpmn") >= 0) {
+	            a = a.substring(0, a.indexOf(".bpmn"));
+	        } 
+	        changeSet += "        <resource source='" + url + "/rest/packages/" + pkg + "/assets/" + a + "/binary' type='BPMN2' basicAuthentication=\"enabled\" username=\"" + username + "\" password=\"" + password + "\" />" + EOL;
+	    }
+	    changeSet +=
+	        "    </add>" + EOL +
+	        "</change-set>";
+	    kbuilder.add(ResourceFactory.newByteArrayResource(changeSet.getBytes()), ResourceType.CHANGE_SET);
+	    return kbuilder.newKnowledgeBase();
+	}
 
 	protected KnowledgeBase createKnowledgeBaseGuvnor(boolean dynamic, String url, String username, 
 													  String password, String... packages) throws Exception {
@@ -138,8 +165,8 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 			"            xmlns:xs='http://www.w3.org/2001/XMLSchema-instance'" + EOL +
 			"            xs:schemaLocation='http://drools.org/drools-5.0/change-set http://anonsvn.jboss.org/repos/labs/labs/jbossrules/trunk/drools-api/src/main/resources/change-set-1.0.0.xsd' >" + EOL +
 			"    <add>" + EOL;
-		for (String p: packages) {
-			changeSet += "        <resource source='" + url + "/org.drools.guvnor.Guvnor/package/" + p + "/LATEST' type='PKG' basicAuthentication=\"enabled\" username=\"" + username + "\" password=\"" + password + "\" />" + EOL;
+		for (String p : packages) {
+			changeSet += "        <resource source='" + url + "/rest/packages/" + p + "/binary' type='PKG' basicAuthentication=\"enabled\" username=\"" + username + "\" password=\"" + password + "\" />" + EOL;
 		}
 		changeSet +=
 			"    </add>" + EOL +
@@ -157,7 +184,7 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 		    StatefulKnowledgeSession result = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
 		    new JPAWorkingMemoryDbLogger(result);
 		    if (log == null) {
-		    	log = new JPAProcessInstanceDbLog();
+		    	log = new JPAProcessInstanceDbLog(result.getEnvironment());
 		    }
 		    return result;
 		} else {
@@ -321,4 +348,99 @@ public abstract class JbpmJUnitTestCase extends TestCase {
         }
         
 	}
+	
+	public void assertProcessVarExists(ProcessInstance process, String... processVarNames) {
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        List<String> names = new ArrayList<String>();
+        for (String nodeName: processVarNames) {
+            names.add(nodeName);
+        }
+        
+        for(String pvar : instance.getVariables().keySet()) {
+            if (names.contains(pvar)) {
+                names.remove(pvar);
+            }
+        }
+        
+        if (!names.isEmpty()) {
+            String s = names.get(0);
+            for (int i = 1; i < names.size(); i++) {
+                s += ", " + names.get(i);
+            }
+            fail("Process Variable(s) do not exist: " + s);
+        }
+
+    }
+    
+    public void assertNodeExists(ProcessInstance process, String... nodeNames) {
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        List<String> names = new ArrayList<String>();
+        for (String nodeName: nodeNames) {
+            names.add(nodeName);
+        }
+        
+        for(Node node : instance.getNodeContainer().getNodes()) {
+            if (names.contains(node.getName())) {
+                names.remove(node.getName());
+            }
+        }
+        
+        if (!names.isEmpty()) {
+            String s = names.get(0);
+            for (int i = 1; i < names.size(); i++) {
+                s += ", " + names.get(i);
+            }
+            fail("Node(s) do not exist: " + s);
+        }
+    }
+    
+    public void assertNumOfIncommingConnections(ProcessInstance process, String nodeName, int num) {
+        assertNodeExists(process, nodeName);
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        for(Node node : instance.getNodeContainer().getNodes()) {
+            if(node.getName().equals(nodeName)) {
+                if(node.getIncomingConnections().size() != num) {
+                    fail("Expected incomming connections: " + num + " - found " + node.getIncomingConnections().size());
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void assertNumOfOutgoingConnections(ProcessInstance process, String nodeName, int num) {
+        assertNodeExists(process, nodeName);
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        for(Node node : instance.getNodeContainer().getNodes()) {
+            if(node.getName().equals(nodeName)) {
+                if(node.getOutgoingConnections().size() != num) {
+                    fail("Expected outgoing connections: " + num + " - found " + node.getOutgoingConnections().size());
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    
+    public void assertVersionEquals(ProcessInstance process, String version) {
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        if(!instance.getWorkflowProcess().getVersion().equals(version)) {
+            fail("Expected version: " + version + " - found " + instance.getWorkflowProcess().getVersion());
+        }
+    }
+    
+    public void assertProcessNameEquals(ProcessInstance process, String name) {
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        if(!instance.getWorkflowProcess().getName().equals(name)) {
+            fail("Expected name: " + name + " - found " + instance.getWorkflowProcess().getName());
+        }
+    }
+    
+    public void assertPackageNameEquals(ProcessInstance process, String packageName) {
+        WorkflowProcessInstanceImpl instance = (WorkflowProcessInstanceImpl) process;
+        if(!instance.getWorkflowProcess().getPackageName().equals(packageName)) {
+            fail("Expected package name: " + packageName + " - found " + instance.getWorkflowProcess().getPackageName());
+        }
+    }
+    
 }

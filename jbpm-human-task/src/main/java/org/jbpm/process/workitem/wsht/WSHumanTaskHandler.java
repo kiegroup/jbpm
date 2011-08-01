@@ -71,7 +71,6 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 		client.registerForEvent(key, false, eventResponseHandler);
 		key = new TaskEventKey(TaskSkippedEvent.class, -1);           
 		client.registerForEvent(key, false, eventResponseHandler);
-		System.out.println("Registered human task listener");
 	}
 	
 	public void setManager(WorkItemManager manager) {
@@ -169,6 +168,9 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 
 		ContentData content = null;
 		Object contentObject = workItem.getParameter("Content");
+		if (contentObject == null) {
+			contentObject = workItem.getParameters();
+		}
 		if (contentObject != null) {
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
 			ObjectOutputStream out;
@@ -183,6 +185,7 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 				e.printStackTrace();
 			}
 		}
+
 		client.addTask(task, content, null);
 	}
 	
@@ -210,7 +213,6 @@ public class WSHumanTaskHandler implements WorkItemHandler {
         public void execute(Payload payload) {
             TaskEvent event = ( TaskEvent ) payload.get();
         	long taskId = event.getTaskId();
-            System.out.println("Task completed " + taskId);
         	GetTaskResponseHandler getTaskResponseHandler =
         		new GetCompletedTaskResponseHandler(manager, client);
         	client.getTask(taskId, getTaskResponseHandler);   
