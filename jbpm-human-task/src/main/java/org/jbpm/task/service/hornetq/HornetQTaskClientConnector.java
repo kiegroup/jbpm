@@ -98,21 +98,37 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 				public void run() {
 					try {
 						consumer = session.createConsumer(name);
-						while (true) {
+					} catch (HornetQException e) {
+						logger.error("Error creating consumer. ", e);
+						throw new RuntimeException(
+								"Client Exception with class " + getClass()
+										+ " using port " + port, e);
+					}
+
+					while (true) {
+						try {
 							ClientMessage serverMessage = consumer.receive();
-							if (serverMessage!=null) {
-								((HornetQTaskClientHandler)handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
+							if (serverMessage != null) {
+								((HornetQTaskClientHandler) handler)
+										.messageReceived(
+												session,
+												readMessage(serverMessage),
+												BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
 							}
+						} catch (HornetQException e) {
+							if (e.getCode() != HornetQException.OBJECT_CLOSED) {
+								throw new RuntimeException(
+										"Client Exception with class "
+												+ getClass() + " using port "
+												+ port, e);
+							}
+							logger.info(e.getMessage());
+						} catch (Exception e) {
+							//LOG the exception and continue receiving messages.
+							logger.error(
+									"There was an exception while processing message.",
+									e);
 						}
-					}
-					catch (HornetQException e) {
-						if (e.getCode()!=HornetQException.OBJECT_CLOSED) {
-							throw new RuntimeException("Client Exception with class " + getClass() + " using port " + port, e);
-						}
-						logger.info(e.getMessage());
-					}
-					catch (Exception e) {
-						throw new RuntimeException("Client Exception with class " + getClass() + " using port " + port, e);
 					}
 				}
 			});
