@@ -119,6 +119,21 @@ public class FormBuilderServletTest extends TestCase {
         assertTrue("xml response should contain PreviewFormAsFtlCommand", xmlResponse.contains("PreviewFormAsFtlCommand"));
     }
     
+    public void testListValidations() throws Exception {
+        EasyMock.expect(req.getRequestURI()).andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/validations/").once();
+        StringWriter writer = new StringWriter();
+        EasyMock.expect(resp.getWriter()).andReturn(new PrintWriter(writer)).once();
+        resp.setContentType("text/xml");
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(req, resp);
+        servlet.doGet(req, resp);
+        EasyMock.verify(req, resp);
+        String xmlResponse = writer.toString();
+        assertNotNull("xml response should not be null", xmlResponse);
+        assertTrue("xml response should contain NotEmptyValidationItem", xmlResponse.contains("NotEmptyValidationItem"));
+    }
+    
     public void testListForms() throws Exception {
         EasyMock.expect(req.getRequestURI()).
             andReturn("/org.jbpm.formbuilder.FormBuilder/fbapi/formDefinitions/package/defaultPackage/").

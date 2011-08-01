@@ -1,5 +1,6 @@
 package org.jbpm.formbuilder.shared.menu;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ValidationDescription {
@@ -16,6 +17,9 @@ public class ValidationDescription {
     }
 
     public Map<String, String> getProperties() {
+        if (properties == null) {
+            properties = new HashMap<String, String>();
+        }
         return properties;
     }
 

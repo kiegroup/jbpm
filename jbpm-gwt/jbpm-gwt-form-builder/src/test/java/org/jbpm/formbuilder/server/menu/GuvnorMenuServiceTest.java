@@ -32,6 +32,7 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
+import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class GuvnorMenuServiceTest extends TestCase {
@@ -57,6 +58,18 @@ public class GuvnorMenuServiceTest extends TestCase {
         for (String key : items.keySet()) {
             assertNotNull("items of key " + key + " shouldn't be null", items.get(key));
             assertFalse("items of key " + key + " shouldn't be empty", items.get(key).isEmpty());
+        }
+    }
+    
+    public void testListValidations() throws Exception {
+        GuvnorMenuService service = new GuvnorMenuService();
+        List<ValidationDescription> validations = service.listValidations();
+        assertNotNull("validations shouldn't be null", validations);
+        assertFalse("validations should'nt be empty", validations.isEmpty());
+        for (ValidationDescription desc : validations) {
+            assertNotNull("validations shouldn't contain null elements", desc);
+            assertNotNull("validation className shouldn't be null", desc.getClassName());
+            assertFalse("validation className shouldn't be empty", "".equals(desc.getClassName()));
         }
     }
     
