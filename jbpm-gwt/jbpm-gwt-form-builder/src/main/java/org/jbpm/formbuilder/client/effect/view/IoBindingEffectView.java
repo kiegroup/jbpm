@@ -38,12 +38,6 @@ public class IoBindingEffectView extends PopupPanel {
         this.inputList = createVisualList(effect.getItem().getInput(), effect.getIoRef().getInputs());
         this.outputList = createVisualList(effect.getItem().getOutput(), effect.getIoRef().getOutputs());
         
-        Grid grid = new Grid(3,2);
-        grid.setWidget(0, 0, new Label("Input:"));
-        grid.setWidget(0, 1, inputList);
-        grid.setWidget(1, 0, new Label("Output:"));
-        grid.setWidget(1, 1, outputList);
-        
         Button applyButton = new Button("Apply");
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
@@ -56,6 +50,14 @@ public class IoBindingEffectView extends PopupPanel {
                 hide();
             }
         });
+        
+        Grid grid = new Grid(3,2);
+        grid.setWidget(0, 0, new Label("Input:"));
+        grid.setWidget(0, 1, inputList);
+        grid.setWidget(1, 0, new Label("Output:"));
+        grid.setWidget(1, 1, outputList);
+        grid.setWidget(2, 0, applyButton);
+        grid.setWidget(2, 1, cancelButton);
         
         VerticalPanel vPanel = new VerticalPanel();
         vPanel.add(title);

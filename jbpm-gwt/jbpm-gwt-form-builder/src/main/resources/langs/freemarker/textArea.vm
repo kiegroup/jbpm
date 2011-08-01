@@ -2,6 +2,14 @@
 #set ($colsParam = ${language.getParam("cols", $item.cols)})
 #set ($idParam = ${language.getParam("id", $item.id)})
 #set ($nameParam = ${language.getParam("name", $item.name)})
-<textarea #if($rowsParam)$rowsParam#end#if($colsParam)$colsParam#end#if($idParam)$idParam#end#if($nameParam)$nameParam#end>
-    $item.value
+#if ($item.value)
+    #set($inputValue = $item.value)
+#end
+#if($item.input)
+  #if($item.input.name)
+    #set($inputValue = "${"+$item.getInput().getName()+"}")
+  #end
+#end
+<textarea $rowsParam $colsParam $idParam $nameParam >
+    #if($inputValue)$inputValue#end
 </textarea>

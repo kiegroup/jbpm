@@ -45,14 +45,15 @@ public class EffectsPopupPanel extends PopupPanel {
                     effect.getName(), 
                     new Command() {
                         public void execute() {
+                            effect.apply(item);
                             PopupPanel popup = effect.createPanel();
                             if (popup != null) {
                                 popup.setPopupPosition(getPopupLeft(), getPopupTop() + 30);
                                 popup.show();
+                                hide();
                             } else {
                                 hide();
                             }
-                            effect.apply(item);
                         }
                     })
                 );

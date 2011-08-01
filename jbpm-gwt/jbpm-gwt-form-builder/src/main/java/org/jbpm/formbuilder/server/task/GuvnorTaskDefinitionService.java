@@ -201,8 +201,10 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             assets.put(name, dateLastModified);
             //repopulate processIndex
             String content = getTaskDefinitionContent(packageName, itemName);
-            List<TaskRef> tasks = getProcessTasks(content, itemName);
-            tasksIndex.put(itemName, tasks);
+            if (content != null && !"".equals(content)) {
+                List<TaskRef> tasks = getProcessTasks(content, itemName);
+                tasksIndex.put(itemName, tasks);
+            }
         }
     }
 

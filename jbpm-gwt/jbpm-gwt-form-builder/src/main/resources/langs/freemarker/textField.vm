@@ -10,5 +10,10 @@
     #set ($value = $item.input.value)
 #end
 #set ($input_value = ${language.getParam("value", $value)})
+#if($item.input)
+  #if($item.input.name)
+    #set($input_value = ${language.getParam("value", "${"+$item.getInput().getName()+"}")})
+  #end
+#end
 ## TODO textField.getItemValidations();
 <input type="text" #if($input_maxlength)$input_maxlength#end#if($input_id)$input_id#end#if($input_name)$input_name#end#if($input_value)$input_value#end/>

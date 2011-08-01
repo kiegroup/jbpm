@@ -39,10 +39,13 @@ import com.google.gson.JsonParser;
 public class FormRepresentationDecoderImpl implements FormRepresentationDecoder {
     
     public Object decode(Map<String, Object> data) throws FormEncodingException {
-        if (data == null) {
+        if (data == null || data.isEmpty()) {
             return null;
         }
         String className = (String) data.get("@className");
+        if (className == null) {
+            throw new FormEncodingException("@className attribute cannot be null");
+        }
         Object obj = null;
         try {
             obj = Class.forName(className).newInstance();
