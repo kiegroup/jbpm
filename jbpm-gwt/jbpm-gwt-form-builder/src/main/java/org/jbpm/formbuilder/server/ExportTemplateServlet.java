@@ -59,7 +59,7 @@ public class ExportTemplateServlet extends HttpServlet {
                         templateName = form.getTaskId();
                     }
                     if (templateName != null) {
-                        templateName += "-template.ftl";
+                        templateName += "-taskform.ftl";
                         formService.saveTemplate(packageName, templateName, content);
                     }
                 }

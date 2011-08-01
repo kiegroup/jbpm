@@ -49,6 +49,7 @@ public class MockMenuService extends AbstractBaseMenuService {
 
     private final Map<String, List<MenuItemDescription>> items = new HashMap<String, List<MenuItemDescription>>();
     private final List<MenuOptionDescription> options = new ArrayList<MenuOptionDescription>();
+    private final List<ValidationDescription> validations = new ArrayList<ValidationDescription>();
     
     public MockMenuService() {
         List<MenuItemDescription> controls = new ArrayList<MenuItemDescription>();
@@ -182,12 +183,22 @@ public class MockMenuService extends AbstractBaseMenuService {
         
         options.add(saveOption);
         options.add(editOption);
+        
+        ValidationDescription notEmptyDesc = new ValidationDescription();
+        notEmptyDesc.setClassName("org.jbpm.formbuilder.client.validation.NotEmptyValidationItem");
+        notEmptyDesc.getProperties().put("errorMessage", "Should not be empty");
+        
+        validations.add(notEmptyDesc);
     }
     
     public List<MenuOptionDescription> listOptions() {
         return options;
     }
 
+    public List<ValidationDescription> listValidations() {
+        return validations;
+    }
+    
     public Map<String, List<MenuItemDescription>> listMenuItems() {
         return new HashMap<String, List<MenuItemDescription>>(items);
     }

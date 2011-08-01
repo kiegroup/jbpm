@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
+import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
@@ -31,14 +32,13 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
-import org.jbpm.formbuilder.client.validation.NotEmptyValidationItem;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -484,9 +484,27 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public List<FBValidationItem> getExistingValidations() throws FormBuilderException {
-        // TODO actual implementation not done 
-        List<FBValidationItem> retval = new ArrayList<FBValidationItem>();
-        retval.add(new NotEmptyValidationItem());
+        final List<FBValidationItem> retval = new ArrayList<FBValidationItem>();
+        String url = GWT.getModuleBaseURL() + this.contextPath + "/validations/";
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                try {
+                    retval.addAll(helper.readValidations(response.getText()));
+                    bus.fireEvent(new ExistingValidationsResponseEvent(retval));
+                } catch (Exception e) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode validations", e));
+                }
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read validations", exception));
+            }
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read validations", e));
+        }
         return retval;
     }
 }

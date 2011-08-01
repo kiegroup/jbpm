@@ -27,6 +27,7 @@ import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
+import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
@@ -37,6 +38,10 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -354,6 +359,56 @@ public class XmlParseHelper {
         return builder.toString();
     }
     
+    /**
+     * Parses and returns a validation dto list from an XML response of the 
+     * following format:
+     * 
+     * <code>
+     * &lt;validation className="${fbValidationItem[0].class.name}"&gt;<br>
+     * &nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
+     * &nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;property key="${key[n]}" value="${value[n]}"/&gt;<br>
+     * &lt;/validation&gt;<br>
+     * ...<br>
+     * &lt;validation className="${fbValidationItem[m].class.name}"&gt;<br>
+     * &nbsp;&nbsp;&lt;property key="${key[0]}" value="${value[0]}"/&gt;<br>
+     * &nbsp;&nbsp;&lt;property key="${key[1]}" value="${value[1]}"/&gt;<br>
+     * &nbsp;&nbsp;...<br>
+     * &nbsp;&nbsp;&lt;property key="${key[n]}" value="${value[n]}"/&gt;<br>
+     * &lt;/validation&gt;<br>
+     * </code>
+     * @param responseText XML response to parse
+     * @return a list of validation items
+     */
+    public List<FBValidationItem> readValidations(String responseText) throws Exception {
+        Document xml = XMLParser.parse(responseText);
+        NodeList validationList = xml.getElementsByTagName("validation");
+        List<FBValidationItem> retval = new ArrayList<FBValidationItem>();
+        for (int index = 0; index < validationList.getLength(); index++) {
+            Element valElement = (Element) validationList.item(index);
+            String klass = valElement.getAttribute("className");
+            Object obj = ReflectionHelper.newInstance(klass);
+            if (obj instanceof FBValidationItem) {
+                FBValidationItem validItem = (FBValidationItem) obj;
+                validItem.populatePropertiesMap(readValidationMap(valElement.getElementsByTagName("property")));
+                retval.add(validItem);
+            }
+        }
+        return retval;
+    }
+    
+    private Map<String, HasValue<String>> readValidationMap(NodeList properties) {
+        Map<String, HasValue<String>> retval = new HashMap<String, HasValue<String>>();
+        for (int index = 0; index < properties.getLength(); index++) {
+            Element propElement = (Element) properties.item(index);
+            String key = propElement.getAttribute("key");
+            final String value = propElement.getAttribute("value");
+            retval.put(key, new MockHasValue(value));
+        }
+        return retval;
+    }
+    
     private List<MainMenuOption> readMenuOptions(NodeList menuOptions) {
         List<MainMenuOption> options = new ArrayList<MainMenuOption>();
         for (int index = 0; index < menuOptions.getLength(); index++) {
@@ -464,5 +519,26 @@ public class XmlParseHelper {
             }
         }
         return itemEffects;
+    }
+    
+    private class MockHasValue implements HasValue<String> {
+        
+        private final String value;
+        public MockHasValue(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+        
+        public void setValue(String value) { }
+        public void setValue(String value, boolean fireEvents) { }
+        public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler) { 
+            return new HandlerRegistration() {
+                public void removeHandler() { }
+            };
+        }
+        public void fireEvent(GwtEvent<?> event) { }
     }
 }

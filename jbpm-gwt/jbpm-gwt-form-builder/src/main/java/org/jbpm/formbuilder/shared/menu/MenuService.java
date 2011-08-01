@@ -29,4 +29,6 @@ public interface MenuService {
     void deleteMenuItem(String groupName, MenuItemDescription item) throws MenuServiceException;
 
     Map<String, String> getFormBuilderProperties() throws MenuServiceException;
+
+    List<ValidationDescription> listValidations() throws MenuServiceException;
 }

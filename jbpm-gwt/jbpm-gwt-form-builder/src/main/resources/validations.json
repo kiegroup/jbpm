@@ -1,0 +1,8 @@
+[
+    {   
+        "className": "org.jbpm.formbuilder.client.validation.NotEmptyValidationItem",
+        "properties": {
+           "errorMessage": "Should not be empty"
+        }
+    }
+]

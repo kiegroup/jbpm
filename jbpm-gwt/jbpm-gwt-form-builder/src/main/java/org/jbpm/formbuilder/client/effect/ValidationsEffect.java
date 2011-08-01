@@ -20,10 +20,12 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
+import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseEvent;
+import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.view.ValidationsEffectView;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -54,6 +56,12 @@ public class ValidationsEffect extends FBFormEffect {
                 currentValidations.clear();
                 currentValidations.addAll(event.getValidations());
                 createStyles();
+            }
+        });
+        bus.addHandler(ExistingValidationsResponseEvent.TYPE, new ExistingValidationsResponseHandler() {
+            public void onEvent(ExistingValidationsResponseEvent event) {
+                availableValidations.clear();
+                availableValidations.addAll(event.getExistingValidations());
             }
         });
     }

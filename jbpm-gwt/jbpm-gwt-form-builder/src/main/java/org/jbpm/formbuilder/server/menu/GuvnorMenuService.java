@@ -36,6 +36,7 @@ import org.jbpm.formbuilder.shared.menu.AbstractBaseMenuService;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
+import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -74,6 +75,22 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
             throw new MenuServiceException("No menu items json file found", e);
         } catch (IOException e) {
             throw new MenuServiceException("Problem reading menu items json file", e);
+        }
+        return retval;
+    }
+    
+    public List<ValidationDescription> listValidations() throws MenuServiceException {
+        Gson gson = new Gson();
+        URL url = getClass().getResource("/validations.json");
+        List<ValidationDescription> retval = null;
+        try {
+            File file = new File(url.toURI());
+            retval = gson.fromJson(new FileReader(file), 
+                    new TypeToken<List<ValidationDescription>>(){}.getType());
+        } catch (URISyntaxException e) {
+            throw new MenuServiceException("Problem finding validations json file", e); 
+        } catch (FileNotFoundException e) {
+            throw new MenuServiceException("No validations json file found", e);
         }
         return retval;
     }

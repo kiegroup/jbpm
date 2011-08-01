@@ -59,6 +59,7 @@ import org.jbpm.formbuilder.server.xml.FormPreviewParameterDTO;
 import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
 import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
+import org.jbpm.formbuilder.server.xml.ListValidationsDTO;
 import org.jbpm.formbuilder.server.xml.MenuGroupDTO;
 import org.jbpm.formbuilder.server.xml.MenuItemDTO;
 import org.jbpm.formbuilder.server.xml.MenuOptionDTO;
@@ -67,6 +68,7 @@ import org.jbpm.formbuilder.server.xml.PropertiesDTO;
 import org.jbpm.formbuilder.server.xml.PropertiesItemDTO;
 import org.jbpm.formbuilder.server.xml.PropertyDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
+import org.jbpm.formbuilder.server.xml.ValidationDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
@@ -77,6 +79,7 @@ import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
+import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
@@ -121,7 +124,7 @@ public class FormBuilderServlet extends HttpServlet {
                 content.append(listIoAssociations(getUriParameter(uri, "package"), req.getParameter("q")));
             } else if (uri.contains("/validations/")) {
                 resp.setContentType("text/xml");
-                //TODO implement listValidations
+                content.append(listValidations());
             } else if (uri.contains("/formDefinitions/")) {
                 String pkgName = getUriParameter(uri, "package");
                 String formId = getUriParameter(uri, "formDefinitionId");
@@ -156,6 +159,12 @@ public class FormBuilderServlet extends HttpServlet {
         } 
     }
 
+    private String listValidations() throws JAXBException, MenuServiceException {
+        List<ValidationDescription> validations = menuService.listValidations();
+        ListValidationsDTO dto = new ListValidationsDTO(validations);
+        return jaxbTransformation(dto, ListValidationsDTO.class, ValidationDTO.class, PropertiesItemDTO.class);
+    }
+    
     private void exportTemplateFile(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String fileName = req.getParameter("fileName");
         String formName = req.getParameter("formName");
