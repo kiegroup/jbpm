@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,7 +92,7 @@ public class ScriptingLanguage implements Language {
         try {
             File tmpFile = File.createTempFile("formBuilderTrans", ".ftl");
             FileUtils.writeStringToFile(tmpFile, fileContent);
-            return tmpFile.toURI().toURL();
+            return new URL(URLDecoder.decode(tmpFile.toURI().toString(), "UTF-8"));
         } catch (IOException e) {
             throw new LanguageException("Problem saving URL file", e);
         }
