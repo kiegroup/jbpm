@@ -173,4 +173,11 @@ public class TaskRef {
         result = 37 * result + aux;
         return result;
     }
+    
+    @Override
+    public String toString() {
+        return new StringBuilder("TaskRef[package=").append(this.packageName).
+            append(";process=").append(this.processId).
+            append(";taskName=").append(this.taskId).append("]").toString();
+    }
 }

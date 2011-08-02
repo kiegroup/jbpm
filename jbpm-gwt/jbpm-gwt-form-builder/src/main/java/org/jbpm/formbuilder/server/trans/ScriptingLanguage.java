@@ -90,7 +90,7 @@ public class ScriptingLanguage implements Language {
         try {
             File tmpFile = File.createTempFile("formBuilderTrans", ".ftl");
             FileUtils.writeStringToFile(tmpFile, fileContent);
-            return tmpFile.toURL();
+            return tmpFile.toURI().toURL();
         } catch (IOException e) {
             throw new LanguageException("Problem saving URL file", e);
         }

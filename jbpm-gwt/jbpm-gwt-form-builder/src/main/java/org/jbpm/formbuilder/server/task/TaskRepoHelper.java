@@ -42,11 +42,16 @@ public class TaskRepoHelper {
     public void addTask(TaskRef task) {
         TaskRef oldTask = tasksMap.get(task.getTaskName());
         if (oldTask != null) {
+            tasks.remove(oldTask);
             for (TaskPropertyRef input : task.getInputs()) {
-                oldTask.addInput(input.getName(), input.getSourceExpresion());
+                if (!oldTask.getInputs().contains(input)) {
+                    oldTask.addInput(input.getName(), input.getSourceExpresion());
+                }
             }
             for (TaskPropertyRef output : task.getOutputs()) {
-                oldTask.addOutput(output.getName(), output.getSourceExpresion());
+                if (!oldTask.getOutputs().contains(output)) {
+                    oldTask.addOutput(output.getName(), output.getSourceExpresion());
+                }
             }
             Map<String, String> metaData = oldTask.getMetaData();
             metaData.putAll(task.getMetaData());
@@ -56,6 +61,7 @@ public class TaskRepoHelper {
         task.setProcessId(this.procId);
         task.setPackageName(this.pkgName);
         tasks.add(task);
+        tasksMap.put(task.getTaskName(), task);
     }
     
     public List<TaskRef> getTasks() {

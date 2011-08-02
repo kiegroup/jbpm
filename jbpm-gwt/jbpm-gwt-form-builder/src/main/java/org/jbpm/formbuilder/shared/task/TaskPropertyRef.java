@@ -35,4 +35,33 @@ public class TaskPropertyRef {
     public void setSourceExpresion(String sourceExpresion) {
         this.sourceExpresion = sourceExpresion;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof TaskPropertyRef)) return false;
+        TaskPropertyRef other = (TaskPropertyRef) obj;
+        boolean equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        if (!equals) return equals;
+        equals = (this.sourceExpresion == null && other.sourceExpresion == null) || 
+            (this.sourceExpresion != null && this.sourceExpresion.equals(other.sourceExpresion));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = this.name == null ? 0 : this.name.hashCode();
+        result = 37 * result + aux;
+        aux = this.sourceExpresion == null ? 0 : this.sourceExpresion.hashCode();
+        result = 37 * result + aux;
+        return result;
+    }
+    
+    @Override
+    public String toString() {
+        return new StringBuilder("TaskPropertyRef[name=").append(this.name).
+            append(";sourceExpresion=").append(this.sourceExpresion).append("]").toString();
+    }
 }

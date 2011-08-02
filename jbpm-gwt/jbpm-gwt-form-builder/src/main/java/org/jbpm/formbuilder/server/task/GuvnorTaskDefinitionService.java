@@ -225,7 +225,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return "";
     }
     
-    private List<TaskRef> getProcessTasks(String bpmn2Content, String processName) throws TaskServiceException {
+    protected List<TaskRef> getProcessTasks(String bpmn2Content, String processName) throws TaskServiceException {
         repo.clear();
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         ResourceType type = processName.toLowerCase().endsWith("bpmn2") ? ResourceType.BPMN2 : ResourceType.DRF;
