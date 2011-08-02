@@ -32,6 +32,7 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
@@ -506,5 +507,29 @@ public class FormBuilderModel implements FormBuilderService {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read validations", e));
         }
         return retval;
+    }
+
+    public void selectIoAssociation(String pkgName, String processName, String taskName) {
+        String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
+            append("/ioAssociation/package/").append(pkgName).append("/process/").
+            append(processName).append("/task/").append(taskName).toString();
+        RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
+        request.setCallback(new RequestCallback() {
+            public void onResponseReceived(Request request, Response response) {
+                List<TaskRef> tasks = helper.readTasks(response.getText());
+                if (tasks.size() == 1) {
+                    TaskRef singleTask = tasks.iterator().next();
+                    bus.fireEvent(new TaskSelectedEvent(singleTask));
+                }
+            }
+            public void onError(Request request, Throwable exception) {
+                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read single IO", exception));
+            } 
+        });
+        try {
+            request.send();
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, "Coulnd't read single IO", e));
+        }
     }
 }

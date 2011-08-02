@@ -97,6 +97,46 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     }
     
+    public List<TaskRef> getTasksByName(String pkgName, String processName, String taskName) throws TaskServiceException {
+        List<TaskRef> retval = new ArrayList<TaskRef>();
+        HttpClient client = new HttpClient();
+        GetMethod call = new GetMethod(helper.getRestBaseUrl() + pkgName + "/assets/" + processName);
+        try {
+            String auth = helper.getAuth();
+            call.addRequestHeader("Accept", "application/xml");
+            call.addRequestHeader("Authorization", auth);
+            client.executeMethod(call);
+            AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, call.getResponseBodyAsStream(), AssetDTO.class, MetaDataDTO.class);
+            String format = subDto.getMetadata().getFormat();
+            if (format != null && "bpmn2".equals(format)) {
+                //download the process in processUrl and get the matching task
+                GetMethod processCall = new GetMethod(helper.getRestBaseUrl() + pkgName + "/assets/" + processName + "/source/");
+                try {
+                    processCall.setRequestHeader("Authorization", auth);
+                    client.executeMethod(processCall);
+                    String processContent = processCall.getResponseBodyAsString();
+                    List<TaskRef> tasks = getProcessTasks(processContent, processName + "." + format);
+                    if (tasks != null) {
+                        for (TaskRef task : tasks) {
+                            if (task.getTaskName().equals(taskName)) {
+                                retval.add(task);
+                            }
+                        }
+                    }
+                } finally {
+                    processCall.releaseConnection();
+                }
+            }
+        } catch (JAXBException e) {
+            throw new TaskServiceException("Couldn't read task definition for package=" + pkgName + ";process=" + processName + ";task=" + taskName, e);
+        } catch (IOException e) {
+            throw new TaskServiceException("Couldn't read task definition for package=" + pkgName + ";process=" + processName + ";task=" + taskName, e);
+        } finally {
+            call.releaseConnection();
+        }
+        return retval;
+    }
+    
     public String getContainingPackage(final String uuid) throws TaskServiceException {
         try {
             return helper.getPackageNameByContentUUID(uuid);

@@ -50,7 +50,7 @@ public class TreeView extends ScrollPanel {
                 treeBranch = treeBranch2;
             }
         } 
-        if (parent != null) {
+        if (parent != null && item != null) {
             treeBranch.addItem(new TreeElement(item));
             if (item instanceof FBCompositeItem) {
                 FBCompositeItem compItem = (FBCompositeItem) item;

@@ -122,6 +122,9 @@ public class FormBuilderServlet extends HttpServlet {
             } else if (uri.contains("/ioAssociations/")) {
                 resp.setContentType("text/xml");
                 content.append(listIoAssociations(getUriParameter(uri, "package"), req.getParameter("q")));
+            } else if (uri.contains("/ioAssociation/")) {
+                resp.setContentType("text/xml");
+                content.append(getIoAssociation(getUriParameter(uri, "package"), getUriParameter(uri, "process"), getUriParameter(uri, "task")));
             } else if (uri.contains("/validations/")) {
                 resp.setContentType("text/xml");
                 content.append(listValidations());
@@ -254,6 +257,12 @@ public class FormBuilderServlet extends HttpServlet {
         return url;
     }
 
+    private String getIoAssociation(String pkgName, String processName, String taskName) throws JAXBException , TaskServiceException {
+        List<TaskRef> tasks = taskService.getTasksByName(pkgName, processName, taskName);
+        ListTasksDTO dto = new ListTasksDTO(tasks);
+        return jaxbTransformation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
+    }
+    
     private String listIoAssociations(String pkgName, String filter) throws JAXBException, TaskServiceException {
         String[] filters = filter == null ? new String[0] : filter.split(" ");
         String newFilter = filters.length == 0 ? (filter == null ? "" : filter) : "";

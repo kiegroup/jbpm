@@ -16,11 +16,13 @@
 package org.jbpm.formbuilder.client.toolbar;
 
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.LoadServerFormEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
+import org.jbpm.formbuilder.client.bus.LoadServerFormEvent;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceHandler;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.command.LoadFormCommand;
 import org.jbpm.formbuilder.client.command.SaveFormCommand;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -80,10 +82,14 @@ public class ToolBarPresenter {
         bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
             public void onEvent(EmbededIOReferenceEvent event) {
                 saveRef.remove();
-                if (event.getIoRef() != null) {
-                    view.addMessage("Package", event.getIoRef().getPackageName());
-                    view.addMessage("Process", event.getIoRef().getProcessId());
-                    view.addMessage("Task name", event.getIoRef().getTaskName());
+            }
+        });
+        bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            public void onSelectedTask(TaskSelectedEvent event) {
+                if (event.getSelectedTask() != null) {
+                    view.addMessage("Package", event.getSelectedTask().getPackageName());
+                    view.addMessage("Process", event.getSelectedTask().getProcessId());
+                    view.addMessage("Task name", event.getSelectedTask().getTaskName());
                 }
             }
         });

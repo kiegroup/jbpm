@@ -43,6 +43,10 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
         return new ArrayList<TaskRef>(tasks);
     }
     
+    public List<TaskRef> getTasksByName(String pkgName, String processName, String taskName) {
+        return tasks.subList(0, 1);
+    }
+    
     public TaskRef getTaskByUUID(String pkgName, String userTask, String uuid)
             throws TaskServiceException {
         TaskRef retval = null;

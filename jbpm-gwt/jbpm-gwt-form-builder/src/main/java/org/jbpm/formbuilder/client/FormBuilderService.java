@@ -96,6 +96,15 @@ public interface FormBuilderService {
     List<TaskRef> getExistingIoAssociations(String filter) throws FormBuilderException;
 
     /**
+     * Fires a TaskSelectedEvent in case you can find the proper task in the server
+     * @param pkgName the name of the package
+     * @param processName the name of the process
+     * @param taskName the name of the task
+     * @throws FormBuilderException in case of error
+     */
+    void selectIoAssociation(String pkgName, String processName, String taskName) throws FormBuilderException;
+    
+    /**
      * Returns existing validations from the server
      * @return all existing validation types available on server side
      * @throws FormBuilderException in case of error

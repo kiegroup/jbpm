@@ -34,6 +34,7 @@ public class TaskRepoHelper {
     
     public void clear() {
         tasks.clear();
+        tasksMap.clear();
         procId = null;
         procName = null;
         pkgName = null;
@@ -71,14 +72,22 @@ public class TaskRepoHelper {
     public void addOutput(String processInputName, String id) {
         for (TaskRef task : tasks) {
             if (task.getTaskName().equals(processInputName)) {
-                task.addOutput(id, "${" + id + "}");
+                TaskPropertyRef prop = new TaskPropertyRef();
+                prop.setName(id);
+                prop.setSourceExpresion("${" + id + "}");
+                if (!task.getOutputs().contains(prop)) {
+                    task.addOutput(id, "${" + id + "}");
+                }
                 return;
             }
         }
         TaskRef ref = new TaskRef();
         ref.setTaskId(processInputName);
+        ref.setPackageName(this.pkgName);
+        ref.setProcessId(this.procId);
         ref.addOutput(id, "${" + id + "}");
         tasks.add(ref);
+        tasksMap.put(ref.getTaskName(), ref);
     }
 
     public void setDefaultProcessId(String processId) {

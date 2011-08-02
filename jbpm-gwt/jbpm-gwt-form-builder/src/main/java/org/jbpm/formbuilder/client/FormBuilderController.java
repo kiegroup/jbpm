@@ -131,13 +131,14 @@ public class FormBuilderController {
                 if (json.isObject() != null) {
                     TaskRef task = null;
                     String profileName = null;
+                    String pkgName = null;
                     JSONObject jsonObj = json.isObject();
                     if (jsonObj.get("embedded") != null && jsonObj.get("embedded").isString() != null) {
                         profileName = jsonObj.get("embedded").isString().stringValue();
                     }
                     JSONValue jsonPkg = jsonObj.get("packageName");
                     if (jsonPkg != null && jsonPkg.isString() != null) {
-                        String pkgName = jsonPkg.isString().stringValue();
+                        pkgName = jsonPkg.isString().stringValue();
                         if (pkgName != null && !"".equals(pkgName)) {
                             model.setPackageName(pkgName);
                         }
@@ -149,6 +150,9 @@ public class FormBuilderController {
                         FormRepresentation form = toForm(jsonObj.get("formjson").isString().stringValue());
                         if (form != null) {
                             retval.add(new UpdateFormViewEvent(form));
+                            if (task == null && hasTaskAssigned(form)) {
+                                model.selectIoAssociation(pkgName, form.getProcessName(), form.getTaskId());
+                            }
                         }
                     }
                     retval.add(new EmbededIOReferenceEvent(task, profileName));
@@ -158,6 +162,11 @@ public class FormBuilderController {
             }
         }
         return retval;
+    }
+    
+    private boolean hasTaskAssigned(FormRepresentation form) {
+        boolean notNull = form != null && form.getProcessName() != null && form.getTaskId() != null;
+        return notNull && !"".equals(form.getProcessName().trim()) && !"".equals(form.getTaskId().trim());
     }
     
     private FormRepresentation toForm(String json) {
