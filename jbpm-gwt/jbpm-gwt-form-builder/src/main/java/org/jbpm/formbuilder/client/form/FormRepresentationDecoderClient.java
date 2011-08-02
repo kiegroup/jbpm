@@ -90,6 +90,9 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
             if (jsonObj.get("taskId").isString() != null) {
                 form.setTaskId(jsonObj.get("taskId").isString().stringValue());
             }
+            if (jsonObj.get("processName").isString() != null) {
+                form.setProcessName(jsonObj.get("processName").isString().stringValue());
+            }
             form.setFormItems(decodeItems(jsonObj.get("formItems")));
             form.setFormValidations(decodeValidations(jsonObj.get("formValidations")));
             form.setInputs(decodeInputs(jsonObj.get("inputs")));

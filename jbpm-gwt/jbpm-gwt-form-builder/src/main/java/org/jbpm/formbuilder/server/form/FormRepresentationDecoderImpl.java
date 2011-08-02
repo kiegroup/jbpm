@@ -119,6 +119,9 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
             if (jsonObj.get("taskId").isJsonPrimitive() && jsonObj.get("taskId").getAsJsonPrimitive().isString()) {
                 form.setTaskId(jsonObj.get("taskId").getAsString());
             }
+            if (jsonObj.get("processName").isJsonPrimitive() && jsonObj.get("processName").getAsJsonPrimitive().isString()) {
+                form.setProcessName(jsonObj.get("processName").getAsString());
+            }
             form.setFormItems(decodeList(jsonObj.get("formItems"), FormItemRepresentation.class));
             form.setFormValidations(decodeList(jsonObj.get("formValidations"), FBValidation.class));
             form.setInputs(decodeStringIndexedMap(jsonObj.get("inputs"), InputData.class));

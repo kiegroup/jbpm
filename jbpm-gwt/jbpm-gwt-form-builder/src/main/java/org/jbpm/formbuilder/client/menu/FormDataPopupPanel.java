@@ -102,11 +102,10 @@ public class FormDataPopupPanel extends PopupPanel {
         HorizontalPanel buttonPanel = new HorizontalPanel();
         buttonPanel.add(new Button("Apply", new ClickHandler() {
             public void onClick(ClickEvent event) {
-                FormDataPopulatedEvent formEvent = new FormDataPopulatedEvent(action.getValue(), 
+                bus.fireEvent(new FormDataPopulatedEvent(action.getValue(), 
                         method.getValue(method.getSelectedIndex()), taskId.getValue(),
                         processId.getValue(), enctype.getValue(enctype.getSelectedIndex()), 
-                        name.getValue());
-                bus.fireEvent(formEvent);
+                        name.getValue()));
                 hide();
             }
         }));

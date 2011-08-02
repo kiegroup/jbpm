@@ -98,11 +98,13 @@ public class LayoutPresenter {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldName", layoutView.getFormDisplay().getName());
                 dataSnapshot.put("oldAction", layoutView.getFormDisplay().getAction());
+                dataSnapshot.put("oldProcessId", layoutView.getFormDisplay().getProcessId());
                 dataSnapshot.put("oldTaskId", layoutView.getFormDisplay().getTaskId());
                 dataSnapshot.put("oldMethod", layoutView.getFormDisplay().getMethod());
                 dataSnapshot.put("oldEnctype", layoutView.getFormDisplay().getEnctype());
                 dataSnapshot.put("newName", event.getName());
                 dataSnapshot.put("newAction", event.getAction());
+                dataSnapshot.put("newProcessId", event.getProcessId());
                 dataSnapshot.put("newTaskId", event.getTaskId());
                 dataSnapshot.put("newMehtod", event.getMethod());
                 dataSnapshot.put("newEnctype", event.getEnctype());
@@ -112,17 +114,19 @@ public class LayoutPresenter {
                         String name = (String) event.getData("oldName");
                         String action = (String) event.getData("oldAction");
                         String taskId = (String) event.getData("oldTaskId");
+                        String processId = (String) event.getData("oldProcessId");
                         String method = (String) event.getData("oldMethod");
                         String enctype = (String) event.getData("oldEnctype");
-                        populateFormData(action, taskId, name, method, enctype);
+                        populateFormData(action, processId, taskId, name, method, enctype);
                     }
                     public void doAction(UndoableEvent event) {
                         String name = (String) event.getData("newName");
                         String action = (String) event.getData("newAction");
                         String taskId = (String) event.getData("newTaskId");
+                        String processId = (String) event.getData("newProcessId");
                         String method = (String) event.getData("newMethod");
                         String enctype = (String) event.getData("newEnctype");
-                        populateFormData(action, taskId, name, method, enctype);
+                        populateFormData(action, processId, taskId, name, method, enctype);
                     }
                 }));
             }
@@ -235,14 +239,17 @@ public class LayoutPresenter {
         return retval;
     }
     
-    private void populateFormData(String action, String taskId,
-            String name, String method, String enctype) {
+    private void populateFormData(String action, String processId, 
+            String taskId, String name, String method, String enctype) {
         
         if (action != null && !"".equals(action)) {
             layoutView.getFormDisplay().setAction(action);
         }
         if (taskId != null && !"".equals(taskId)) {
             layoutView.getFormDisplay().setTaskId(taskId);
+        }
+        if (processId != null && !"".equals(processId)) {
+            layoutView.getFormDisplay().setProcessId(processId);
         }
         if (name != null && !"".equals(name)) {
             layoutView.getFormDisplay().setName(name);
