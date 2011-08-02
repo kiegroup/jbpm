@@ -12,7 +12,12 @@
 #set ($input_value = ${language.getParam("value", $value)})
 #if($item.input)
   #if($item.input.name)
-    #set($input_value = ${language.getParam("value", "${"+$item.getInput().getName()+"}")})
+    #set($input_value = ${language.getParam("value", "\${${item.getInput().getName()}}")})
+  #end
+#end
+#if($item.output)
+  #if($item.output.name)
+    #set($input_name = ${language.getParam("name", $item.output.name)})
   #end
 #end
 ## TODO textField.getItemValidations();

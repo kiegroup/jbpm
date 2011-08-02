@@ -71,7 +71,7 @@ public class HumanTaskGetInformationHandler extends UserTaskHandler {
         List<TaskPropertyRef> inputs = new ArrayList<TaskPropertyRef>(dataInputs.size());
         for (Map.Entry<String, String> in : dataInputs.entrySet()) {
             TaskPropertyRef prop = new TaskPropertyRef();
-            prop.setName(in.getKey());
+            prop.setName(in.getValue());
             prop.setSourceExpresion(in.getValue());
             inputs.add(prop);
         }
@@ -79,7 +79,7 @@ public class HumanTaskGetInformationHandler extends UserTaskHandler {
         List<TaskPropertyRef> outputs = new ArrayList<TaskPropertyRef>(dataOutputs.size());
         for (Map.Entry<String, String> out : dataOutputs.entrySet()) {
             TaskPropertyRef prop = new TaskPropertyRef();
-            prop.setName(out.getKey());
+            prop.setName(out.getValue());
             prop.setSourceExpresion(out.getValue());
             outputs.add(prop);
         }

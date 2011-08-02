@@ -198,7 +198,8 @@
                 { "className": "org.jbpm.formbuilder.client.effect.PasteFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.IoBindingEffect" }
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.ImageMenuItem",

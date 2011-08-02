@@ -7,7 +7,7 @@
 #end
 #if($item.input)
   #if($item.input.name)
-    #set($inputValue = "${"+$item.getInput().getName()+"}")
+    #set($inputValue = "\${${item.input.name}}")
   #end
 #end
 <textarea $rowsParam $colsParam $idParam $nameParam >

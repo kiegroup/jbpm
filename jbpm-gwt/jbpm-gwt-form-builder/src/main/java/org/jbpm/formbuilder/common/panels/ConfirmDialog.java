@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.client.toolbar;
+package org.jbpm.formbuilder.common.panels;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -25,16 +25,14 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 /**
- * Simple dialog box to show warnings
- * 
- * TODO move this to commons maybe? has no dependency whatsoever with form builer
+ * Simple confirm dialog box to show warnings
  */
-public class ToolbarDialog extends DialogBox {
+public class ConfirmDialog extends DialogBox {
 
     private final Label warning = new Label(""); 
     private final Button okButton = new Button("Continue");
     
-    public ToolbarDialog(String warningText) {
+    public ConfirmDialog(String warningText) {
         super(false, true);
         warning.setText(warningText);
         VerticalPanel panel = new VerticalPanel();

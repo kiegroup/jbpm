@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.toolbar;
 
+import org.jbpm.formbuilder.common.panels.ConfirmDialog;
+
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -70,7 +72,7 @@ public class ToolBarView extends AbsolutePanel {
         }
     }
     
-    public ToolbarDialog createToolbarDialog(String warningText) {
-        return new ToolbarDialog(warningText);
+    public ConfirmDialog createToolbarDialog(String warningText) {
+        return new ConfirmDialog(warningText);
     }
 }

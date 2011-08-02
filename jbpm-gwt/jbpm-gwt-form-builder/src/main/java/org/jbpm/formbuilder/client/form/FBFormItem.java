@@ -286,6 +286,9 @@ public abstract class FBFormItem extends FocusPanel {
     }
     
     public void setValidations(List<FBValidationItem> validations) {
+        if (validations == null) {
+            validations = new ArrayList<FBValidationItem>();
+        }
         this.validations = validations;
     }
     
@@ -347,7 +350,13 @@ public abstract class FBFormItem extends FocusPanel {
                 }
             }
         }
-        //TODO this.validations = rep.getItemValidations(); will need a translation as well?
+        this.validations.clear();
+        if (rep.getItemValidations() != null) {
+            for (FBValidation validation : rep.getItemValidations()) {
+                FBValidationItem validationItem = FBValidationItem.createValidation(validation);
+                this.validations.add(validationItem);
+            }
+        }
         this.widgetHeight = rep.getHeight();
         this.widgetWidth = rep.getWidth();
         this.input = rep.getInput();

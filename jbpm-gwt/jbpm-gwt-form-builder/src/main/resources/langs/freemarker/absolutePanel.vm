@@ -9,7 +9,7 @@
     #set ($subItem = $entry.value)
     #set ($positionX = "$entry.key.x")
     #set ($positionY = "$entry.key.y")
-    #set ($positionParam = ${language.getStyleParam("left", $positionX)} + ${language.getStyleParam("top", $positionY)})
+    #set ($positionParam = "${language.getStyleParam("left", $positionX)}${language.getStyleParam("top", $positionY)}")
     <div $positonParam>${language.translateItem($subItem)}</div>
   #end
 </div>

@@ -65,9 +65,10 @@ public class IoAssociationPresenter {
         });
         bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
             public void onEvent(EmbededIOReferenceEvent event) {
-                view.disableSearch();
-                bus.fireEvent(new TaskSelectedEvent(event.getIoRef()));
-                // TODO UI Components should get prepared to allow IO bindings with the task selected event.
+                if (event.getIoRef() != null) {
+                    view.disableSearch();
+                    bus.fireEvent(new TaskSelectedEvent(event.getIoRef()));
+                }
             }
         });
     }

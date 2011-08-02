@@ -25,6 +25,7 @@ import org.jbpm.formbuilder.client.command.LoadFormCommand;
 import org.jbpm.formbuilder.client.command.SaveFormCommand;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -60,7 +61,7 @@ public class ToolBarPresenter {
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
             public void onEvent(final GetFormRepresentationResponseEvent event) {
                 if (LOAD_TYPE.equals(event.getSaveType())) {
-                    final ToolbarDialog dialog = view.createToolbarDialog(
+                    final ConfirmDialog dialog = view.createToolbarDialog(
                             "Attention! if you continue, all data you haven't saved will be lost and " +
                             "replaced with the server information. Are you sure you want to continue?");
                     dialog.addOkButtonHandler(new ClickHandler() {

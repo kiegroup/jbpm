@@ -5,7 +5,10 @@
 #set ($styleParam = ${language.getParam("style", $style)})
 ##TODO getItemValidations
 #set ($value = $item.value) 
-#if (!($value and $value != "") and $item.input)
-    #set ($value = $item.input.name)
+#if ($item.input)
+  #if ($item.input.name)
+    #set ($aux = ${item.input.name});
+    #set ($value = "\${$aux}")
+  #end
 #end 
 <span #if($classParam)$classParam#end#if($styleParam)$styleParam#end>$value</span>

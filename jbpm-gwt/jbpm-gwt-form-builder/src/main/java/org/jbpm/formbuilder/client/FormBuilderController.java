@@ -129,7 +129,12 @@ public class FormBuilderController {
             try {
                 JSONValue json = JSONParser.parseStrict(innerHTML);
                 if (json.isObject() != null) {
+                    TaskRef task = null;
+                    String profileName = null;
                     JSONObject jsonObj = json.isObject();
+                    if (jsonObj.get("embedded") != null && jsonObj.get("embedded").isString() != null) {
+                        profileName = jsonObj.get("embedded").isString().stringValue();
+                    }
                     JSONValue jsonPkg = jsonObj.get("packageName");
                     if (jsonPkg != null && jsonPkg.isString() != null) {
                         String pkgName = jsonPkg.isString().stringValue();
@@ -138,12 +143,7 @@ public class FormBuilderController {
                         }
                     }
                     if (jsonObj.get("task") != null && jsonObj.get("task").isObject() != null) {
-                        TaskRef task = toTask(jsonObj.get("task").isObject());
-                        String profileName = null;
-                        if (jsonObj.get("embedded") != null && jsonObj.get("embedded").isString() != null) {
-                            profileName = jsonObj.get("embedded").isString().stringValue();
-                        }
-                        retval.add(new EmbededIOReferenceEvent(task, profileName));
+                        task = toTask(jsonObj.get("task").isObject());
                     }
                     if (jsonObj.get("formjson") != null && jsonObj.get("formjson").isString() != null) {
                         FormRepresentation form = toForm(jsonObj.get("formjson").isString().stringValue());
@@ -151,6 +151,7 @@ public class FormBuilderController {
                             retval.add(new UpdateFormViewEvent(form));
                         }
                     }
+                    retval.add(new EmbededIOReferenceEvent(task, profileName));
                 }
             } catch (Exception e) {
                 GWT.log("Problem parsing init content", e);

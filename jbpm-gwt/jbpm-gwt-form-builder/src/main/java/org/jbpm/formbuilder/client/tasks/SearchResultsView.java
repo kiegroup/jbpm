@@ -54,23 +54,25 @@ public class SearchResultsView extends VerticalPanel {
     }
 
     public void setSelectedTask(TaskRef selectedTask) {
-        TaskRow selectedRow = null;
-        for (Widget widget : this) {
-            TaskRow row = (TaskRow) widget;
-            if (row.getIoRef().equals(selectedTask)) {
-                selectedRow = row;
-                break;
+        if (selectedTask != null) {
+            TaskRow selectedRow = null;
+            for (Widget widget : this) {
+                TaskRow row = (TaskRow) widget;
+                if (row.getIoRef().equals(selectedTask)) {
+                    selectedRow = row;
+                    break;
+                }
             }
+            clear();
+            if (selectedRow == null) {
+                selectedRow = new TaskRow(selectedTask, true);
+            }
+            selectedRow.getFocus().removeHandler();
+            selectedRow.getBlur().removeHandler();
+            selectedRow.showInputs();
+            selectedRow.showOutputs();
+            selectedRow.showMetaData();
+            add(selectedRow);
         }
-        clear();
-        if (selectedRow == null) {
-            selectedRow = new TaskRow(selectedTask, true);
-        }
-        selectedRow.getFocus().removeHandler();
-        selectedRow.getBlur().removeHandler();
-        selectedRow.showInputs();
-        selectedRow.showOutputs();
-        selectedRow.showMetaData();
-        add(selectedRow);
     }
 }

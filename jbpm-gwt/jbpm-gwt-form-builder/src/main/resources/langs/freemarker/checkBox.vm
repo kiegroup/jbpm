@@ -2,7 +2,7 @@
 #set ($nameParam = ${language.getParam("name", $item.name)})
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
-#set ($style = $width + $height)
+#set ($style = "$width$height")
 #set ($styleParam = ${language.getParam("style", $style)})
 #set ($checked = "")
 #if ($item.checked) 
