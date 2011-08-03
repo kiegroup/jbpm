@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.server.form;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -322,23 +323,27 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     
     protected boolean templateExists(String pkgName, String templateName) throws FormServiceException {
         HttpClient client = new HttpClient();
-        GetMethod method= new GetMethod(helper.getApiSearchUrl(pkgName) + templateName);
         try {
-            method.setRequestHeader("Authorization", helper.getAuth());
-            client.executeMethod(method);
-            if (method.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
-                return false;
-            } else {
-                if (method.getStatusCode() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR && 
-                    method.getResponseBodyAsString().contains("PathNotFound")) {
+            GetMethod method= new GetMethod(helper.getApiSearchUrl(pkgName) + URLEncoder.encode(templateName, "UTF-8"));
+            try {
+                method.setRequestHeader("Authorization", helper.getAuth());
+                client.executeMethod(method);
+                if (method.getStatusCode() == HttpServletResponse.SC_NOT_FOUND) {
                     return false;
+                } else {
+                    if (method.getStatusCode() == HttpServletResponse.SC_INTERNAL_SERVER_ERROR && 
+                        method.getResponseBodyAsString().contains("PathNotFound")) {
+                        return false;
+                    }
+                    return true;
                 }
-                return true;
+            } catch (IOException e) {
+                throw new FormServiceException("Problem reading existing template", e);
+            } finally {
+                method.releaseConnection();
             }
-        } catch (IOException e) {
-            throw new FormServiceException("Problem reading existing template", e);
-        } finally {
-            method.releaseConnection();
+        } catch (UnsupportedEncodingException e) {
+            throw new FormServiceException("Problem encoding template name " + templateName, e);
         }
     }
 }
