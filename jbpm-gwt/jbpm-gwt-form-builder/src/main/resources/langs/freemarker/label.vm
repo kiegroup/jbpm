@@ -7,8 +7,8 @@
 #set ($value = $item.value) 
 #if ($item.input)
   #if ($item.input.name)
-    #set ($aux = ${item.input.name});
-    #set ($value = "\${$aux}")
+    #set ($aux = ${item.input.name})
+    #set ($value = ${language.asFtlVar($aux)})
   #end
 #end 
 <span #if($classParam)$classParam#end#if($styleParam)$styleParam#end>$value</span>

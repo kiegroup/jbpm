@@ -7,7 +7,7 @@
 #end
 #if($item.input)
   #if($item.input.name)
-    #set($inputValue = "\${${item.input.name}}")
+    #set($inputValue = ${language.asFtlVar($item.getInput().getName())})
   #end
 #end
 <textarea $rowsParam $colsParam $idParam $nameParam >

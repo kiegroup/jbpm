@@ -1,7 +1,7 @@
 #set ($idParam = ${language.getParam("id", $item.id)})
 #set ($name = $item.name)
 #if (!($name and $name != "") and $item.input and $item.input.name)
-    #set ($name = "\${${item.input.name}}")
+    #set ($name = ${language.asFtlVar($item.getInput().getName())})
 #end
 #set ($nameParam = ${language.getParam("name", $name)})
 ## TODO $item.itemValidations

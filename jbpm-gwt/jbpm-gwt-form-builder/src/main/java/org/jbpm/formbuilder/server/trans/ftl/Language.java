@@ -35,6 +35,10 @@ public class Language extends ScriptingLanguage {
             throw new LanguageException(script.getType() + " is not a supported language");
         }
     }
+    
+    public String asFtlVar(String varName) {
+        return (varName == null) ? "" : "${" + varName + "}";
+    }
 
     private String asFtlScript(FBScript script) {
         StringBuilder builder = new StringBuilder();
