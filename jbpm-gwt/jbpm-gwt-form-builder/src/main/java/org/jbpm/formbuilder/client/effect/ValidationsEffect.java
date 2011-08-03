@@ -62,6 +62,7 @@ public class ValidationsEffect extends FBFormEffect {
             public void onEvent(ExistingValidationsResponseEvent event) {
                 availableValidations.clear();
                 availableValidations.addAll(event.getExistingValidations());
+                effectView.setAvailableValidations(availableValidations);
             }
         });
     }

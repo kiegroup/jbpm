@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import java.util.Map;
+
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
@@ -26,7 +28,10 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.rep.InputData;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -49,7 +54,7 @@ public abstract class PreviewFormCommand implements BaseCommand {
                 FormRepresentation form = event.getRepresentation();
                 String type = event.getSaveType();
                 if (saveType.equals(type)) {
-                    saveForm(form);
+                    popupInputMapPanel(form);
                 }
             }
         });
@@ -86,13 +91,30 @@ public abstract class PreviewFormCommand implements BaseCommand {
         panel.show();
     }
 
-    public void saveForm(FormRepresentation form) {
+    public void popupInputMapPanel(final FormRepresentation form) {
+        Map<String, InputData> inputs = form.getInputs();
+        if (inputs == null || inputs.isEmpty()) {
+            saveForm(form, null);
+        } else {
+            final InputMapPanel popup = new InputMapPanel(inputs);
+            popup.addOkHandler(new ClickHandler() {
+                public void onClick(ClickEvent event) {
+                    saveForm(form, popup.getInputs());
+                }
+            });
+            int height = RootPanel.getBodyElement().getClientHeight();
+            int width = RootPanel.getBodyElement().getClientWidth();
+            popup.setPopupPosition((width / 2) - 150, (height / 2) - 150);
+            popup.show();
+        }
+    }
+    
+    public void saveForm(FormRepresentation form, Map<String, Object> inputMap) {
         try {
-            server.generateForm(form, this.saveType, null /* TODO need to set inputs for the preview to be as complete as possible*/);
+            server.generateForm(form, this.saveType, inputMap);
         } catch (FormBuilderException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, 
                     "Unexpected error while previewing " + this.saveType + " form", e));
         }
     }
-
 }

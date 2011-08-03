@@ -32,8 +32,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Base UI component for a validation class
- * 
- * TODO use this
  */
 public abstract class FBValidationItem {
 
