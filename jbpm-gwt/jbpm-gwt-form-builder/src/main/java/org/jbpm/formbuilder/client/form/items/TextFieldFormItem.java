@@ -125,6 +125,12 @@ public class TextFieldFormItem extends FBFormItem {
         this.name = trep.getName();
         this.id = trep.getId();
         this.maxlength = trep.getMaxLength();
+        if (trep.getWidth() != null && !"".equals(trep.getWidth())) {
+            setWidth(trep.getWidth());
+        }
+        if (trep.getHeight() != null && !"".equals(trep.getHeight())) {
+            setHeight(trep.getHeight());
+        }
         populate(this.textBox);
     }
 

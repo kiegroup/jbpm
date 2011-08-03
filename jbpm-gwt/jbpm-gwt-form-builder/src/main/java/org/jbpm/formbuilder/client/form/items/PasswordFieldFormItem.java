@@ -124,6 +124,12 @@ public class PasswordFieldFormItem extends FBFormItem {
         this.name = prep.getName();
         this.id = prep.getId();
         this.maxlength = prep.getMaxLength();
+        if (prep.getWidth() != null && !"".equals(prep.getWidth())) {
+            setWidth(prep.getWidth());
+        }
+        if (prep.getHeight() != null && !"".equals(prep.getHeight())) {
+            setHeight(prep.getHeight());
+        }
         populate(this.textBox);
     }
     

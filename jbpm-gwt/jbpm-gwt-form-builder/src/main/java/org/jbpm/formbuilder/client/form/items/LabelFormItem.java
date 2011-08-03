@@ -118,6 +118,12 @@ public class LabelFormItem extends FBFormItem {
         this.label.setText(lrep.getValue());
         this.cssClassName = lrep.getCssName();
         this.id = lrep.getId();
+        if (lrep.getWidth() != null && !"".equals(lrep.getWidth())) {
+            setWidth(lrep.getWidth());
+        }
+        if (lrep.getHeight() != null && !"".equals(lrep.getHeight())) {
+            setHeight(lrep.getHeight());
+        }
         populate(this.label);
     }
     
