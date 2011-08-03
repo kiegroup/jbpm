@@ -15,8 +15,8 @@
  */
 package org.jbpm.formbuilder.server.task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public class TaskRepoHelper {
 
     Map<String, TaskRef> tasksMap = new HashMap<String, TaskRef>();
     
-    List<TaskRef> tasks = new LinkedList<TaskRef>();
+    List<TaskRef> tasks = new ArrayList<TaskRef>();
     String procId = null;
     String procName = null;
     String pkgName = null;
@@ -45,14 +45,10 @@ public class TaskRepoHelper {
         if (oldTask != null) {
             tasks.remove(oldTask);
             for (TaskPropertyRef input : task.getInputs()) {
-                if (!oldTask.getInputs().contains(input)) {
-                    oldTask.addInput(input.getName(), input.getSourceExpresion());
-                }
+                oldTask.addInput(input.getName(), input.getSourceExpresion());
             }
             for (TaskPropertyRef output : task.getOutputs()) {
-                if (!oldTask.getOutputs().contains(output)) {
-                    oldTask.addOutput(output.getName(), output.getSourceExpresion());
-                }
+                oldTask.addOutput(output.getName(), output.getSourceExpresion());
             }
             Map<String, String> metaData = oldTask.getMetaData();
             metaData.putAll(task.getMetaData());

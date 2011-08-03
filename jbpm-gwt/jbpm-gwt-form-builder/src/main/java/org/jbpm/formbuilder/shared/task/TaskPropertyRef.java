@@ -42,7 +42,8 @@ public class TaskPropertyRef {
         if (obj == null) return false;
         if (!(obj instanceof TaskPropertyRef)) return false;
         TaskPropertyRef other = (TaskPropertyRef) obj;
-        boolean equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
+        boolean equals = (this.name == null && other.name == null) || 
+            (this.name != null && this.name.equals(other.name));
         if (!equals) return equals;
         equals = (this.sourceExpresion == null && other.sourceExpresion == null) || 
             (this.sourceExpresion != null && this.sourceExpresion.equals(other.sourceExpresion));

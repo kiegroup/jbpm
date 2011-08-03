@@ -16,8 +16,10 @@
 package org.jbpm.formbuilder.server.xml;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -42,10 +44,12 @@ public class TaskRefDTO {
         this._processId = task.getProcessId();
         this._taskName = task.getTaskName();
         this._taskId = task.getTaskId();
-        for (TaskPropertyRef ref : task.getInputs()) {
+        Set<TaskPropertyRef> uniqueInputs = new HashSet<TaskPropertyRef>(task.getInputs());
+        for (TaskPropertyRef ref : uniqueInputs) {
             _input.add(new PropertyDTO(ref));
         }
-        for (TaskPropertyRef ref : task.getOutputs()) {
+        Set<TaskPropertyRef> uniqueOutputs = new HashSet<TaskPropertyRef>(task.getOutputs());
+        for (TaskPropertyRef ref : uniqueOutputs) {
             _output.add(new PropertyDTO(ref));
         }
         for (Map.Entry<String, String> entry : task.getMetaData().entrySet()) {

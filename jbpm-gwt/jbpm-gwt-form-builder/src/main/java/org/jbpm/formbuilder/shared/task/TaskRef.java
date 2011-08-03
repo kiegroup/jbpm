@@ -55,6 +55,9 @@ public class TaskRef {
     }
     
     public boolean addInput(String key, String value) {
+        if (getInput(key) != null) {
+            return false;
+        }
         TaskPropertyRef tpRef = new TaskPropertyRef();
         tpRef.setName(key);
         tpRef.setSourceExpresion(value);
@@ -75,10 +78,13 @@ public class TaskRef {
     }
     
     public boolean addOutput(String key, String value) {
+        if (getOutput(key) != null) {
+            return false;
+        }
         TaskPropertyRef tpRef = new TaskPropertyRef();
         tpRef.setName(key);
         tpRef.setSourceExpresion(value);
-        return this.outputs.add(tpRef);
+            return this.outputs.add(tpRef);
     }
     
     public TaskPropertyRef getOutput(String key) {
@@ -136,18 +142,23 @@ public class TaskRef {
         if (obj == null) return false;
         if (!(obj instanceof TaskRef)) return false;
         TaskRef other = (TaskRef) obj;
-        boolean equals = (this.packageName == null && other.packageName == null) 
-        || (this.packageName != null && this.packageName.equals(other.packageName));
+        boolean equals = (this.packageName == null && other.packageName == null) || 
+            (this.packageName != null && this.packageName.equals(other.packageName));
         if (!equals) return equals;
-        equals = (this.processId == null && other.processId == null) || (this.processId != null && this.processId.equals(other.processId));
+        equals = (this.processId == null && other.processId == null) || 
+            (this.processId != null && this.processId.equals(other.processId));
         if (!equals) return equals;
-        equals = (this.processName == null && other.processName == null) || (this.processName != null && this.processName.equals(other.processName));
+        equals = (this.processName == null && other.processName == null) || 
+            (this.processName != null && this.processName.equals(other.processName));
         if (!equals) return equals;
-        equals = (this.taskId == null && other.taskId == null) || (this.taskId != null && this.taskId.equals(other.taskId));
+        equals = (this.taskId == null && other.taskId == null) || 
+            (this.taskId != null && this.taskId.equals(other.taskId));
         if (!equals) return equals;
-        equals = (this.inputs == null && other.inputs == null) || (this.inputs != null && this.inputs.equals(other.inputs));
+        equals = (this.inputs == null && other.inputs == null) || 
+            (this.inputs != null && this.inputs.equals(other.inputs));
         if (!equals) return equals;
-        equals = (this.outputs == null && other.outputs == null) || (this.outputs != null && this.outputs.equals(other.outputs));
+        equals = (this.outputs == null && other.outputs == null) || 
+            (this.outputs != null && this.outputs.equals(other.outputs));
         if (!equals) return equals;
         equals = (this.metaData == null && other.metaData == null) 
             || (this.metaData != null && this.metaData.entrySet().equals(other.metaData.entrySet()));
@@ -177,7 +188,12 @@ public class TaskRef {
     @Override
     public String toString() {
         return new StringBuilder("TaskRef[package=").append(this.packageName).
-            append(";process=").append(this.processId).
-            append(";taskName=").append(this.taskId).append("]").toString();
+            append(";processId=").append(this.processId).
+            append(";processName=").append(this.processName).
+            append(";taskId=").append(this.taskId).
+            append(";inputs=").append(this.inputs).
+            append(";outputs=").append(this.outputs).
+            append(";metaData=").append(this.metaData).
+        append("]").toString();
     }
 }
