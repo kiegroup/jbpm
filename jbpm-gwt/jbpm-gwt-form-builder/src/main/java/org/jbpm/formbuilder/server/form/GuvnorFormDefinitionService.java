@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.server.form;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -299,9 +300,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         EntityEnclosingMethod method = null;
         try {
             if (templateExists(packageName, templateName)) {
-                method = new PutMethod(helper.getApiSearchUrl(packageName) + templateName);
+                method = new PutMethod(helper.getApiSearchUrl(packageName) + URLEncoder.encode(templateName, "UTF-8"));
             } else {
-                method = new PostMethod(helper.getApiSearchUrl(packageName) + templateName);
+                method = new PostMethod(helper.getApiSearchUrl(packageName) + URLEncoder.encode(templateName, "UTF-8"));
             }
             method.setRequestEntity(new StringRequestEntity(content, null, null));
             method.setRequestHeader("Authorization", helper.getAuth());
