@@ -12,7 +12,8 @@
 #set ($input_value = ${language.getParam("value", $value)})
 #if($item.input)
   #if($item.input.name)
-    #set($input_value = ${language.getParam("value", ${language.asFtlVar($item.getInput().getName()})})
+    #set($aux = $item.input.name)
+    #set($input_value = ${language.getParam("value", ${language.asFtlVar($aux)})
   #end
 #end
 #if($item.output)
