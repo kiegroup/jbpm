@@ -38,8 +38,9 @@ public interface FormDefinitionService {
     FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException;
 
     FormRepresentation getAssociatedForm(String pkgName, TaskRef task) throws FormServiceException;
+    FormRepresentation createFormFromTask(TaskRef task) throws FormServiceException;
     
     void saveTemplate(String packageName, String templateName, String content) throws FormServiceException;
-
+    
     // TODO see where to put method renderTemplate(template t, Map<String, Object> inputs): html
 }

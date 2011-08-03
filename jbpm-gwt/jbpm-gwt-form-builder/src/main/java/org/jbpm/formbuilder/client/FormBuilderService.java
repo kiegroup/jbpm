@@ -140,4 +140,11 @@ public interface FormBuilderService {
      * @throws FormBuilderException in case of error.
      */
     void loadFormTemplate(FormRepresentation form, String language) throws FormBuilderException;
+    
+    /**
+     * Returns the form representation that basically describes a task
+     * @param task a task to be described
+     * @return a form representation for that task
+     */
+    FormRepresentation toBasicForm(TaskRef task);
 }

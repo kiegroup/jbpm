@@ -35,12 +35,13 @@ public class SearchResultsView extends VerticalPanel {
                 even = !even;
                 row.addRightClickHandler(new RightClickHandler() {
                     public void onRightClick(RightClickEvent event) {
-                        PopupPanel panel = new PopupPanel(true);
+                        final PopupPanel panel = new PopupPanel(true);
                         panel.setPopupPosition(event.getX(), event.getY());
                         MenuBar bar = new MenuBar();
                         bar.addItem("Select IO object", new Command() {
                             public void execute() {
                                 bus.fireEvent(new TaskSelectedEvent(row.getIoRef()));
+                                panel.hide();
                             }
                         });
                         panel.add(bar);
@@ -72,6 +73,7 @@ public class SearchResultsView extends VerticalPanel {
             selectedRow.showInputs();
             selectedRow.showOutputs();
             selectedRow.showMetaData();
+            selectedRow.enableQuickFormButton();
             add(selectedRow);
         }
     }

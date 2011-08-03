@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -159,5 +163,23 @@ public class TaskRow extends FocusPanel {
     
     protected void hideMetaData() {
         panel.remove(metaDataGrid);
+    }
+    
+    protected void enableQuickFormButton() {
+        final Button quickFormButton = new Button("Create quick form");
+        quickFormButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                ConfirmDialog conf = new ConfirmDialog("Warning: this will delete all the contents of" +
+                		" your current form to create a simple form with all inputs and outputs from " +
+                		"the task. Proceed?");
+                conf.addOkButtonHandler(new ClickHandler() {
+                    public void onClick(ClickEvent event) {
+                        FormBuilderGlobals.getInstance().getService().toBasicForm(ioRef);
+                    }
+                });
+                conf.showRelativeTo(quickFormButton);
+            }
+        });
+        panel.add(quickFormButton);
     }
 }

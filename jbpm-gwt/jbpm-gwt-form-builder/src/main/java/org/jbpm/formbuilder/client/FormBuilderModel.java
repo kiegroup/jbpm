@@ -42,6 +42,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
+import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
@@ -531,5 +532,9 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, "Coulnd't read single IO", e));
         }
+    }
+    
+    public FormRepresentation toBasicForm(TaskRef task) {
+        return new MockFormDefinitionService().createFormFromTask(task);
     }
 }
