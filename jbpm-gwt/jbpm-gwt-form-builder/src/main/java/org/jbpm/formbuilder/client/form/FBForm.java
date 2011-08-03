@@ -192,11 +192,11 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         if (this.formItems.size() == 0) {
             return 0;
         }
-        ListIterator<FBFormItem> it = this.formItems.listIterator(index - 1);
+        ListIterator<FBFormItem> it = this.formItems.listIterator(this.formItems.size() - 1);
         while (it.hasPrevious() && index > 0) {
             FBFormItem item = it.previous();
-            boolean leftOfItem = item.getAbsoluteLeft() > newItem.getDesiredX();
-            boolean aboveItem = item.getAbsoluteTop() > newItem.getDesiredY();
+            boolean leftOfItem = item.getAbsoluteLeft() > newItem.getDesiredX() && newItem.getDesiredX() > 0;
+            boolean aboveItem = item.getAbsoluteTop() > newItem.getDesiredY() && newItem.getDesiredY() > 0;
             if (aboveItem || leftOfItem) {
                 index--;
             }
@@ -276,6 +276,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
             FBFormItem item = FBFormItem.createItem(itemRep);
             item.populate(itemRep);
             add(item);
+            ensureMinimumSize(item);
             bus.fireEvent(new FormItemAddedEvent(item, this));
         }
         for (FBValidation validationRep : rep.getFormValidations()) {
@@ -296,6 +297,23 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         if (rep.getOnSubmitScripts() != null) {
             for (FBScript onSubmit : rep.getOnSubmitScripts()) {
                 this.onSubmitScripts.add(onSubmit);
+            }
+        }
+    }
+    
+    protected void ensureMinimumSize(FBFormItem item) {
+        if (item.getHeight() != null && !"".equals(item.getHeight()) && item.getHeight().endsWith("px")) {
+            int actualHeight = item.getWidget().getOffsetHeight();
+            int settedHeight = Integer.valueOf(item.getHeight().replace("px", ""));
+            if (actualHeight > 0 && settedHeight < actualHeight) {
+                item.setHeight("" + actualHeight + "px");
+            }
+        }
+        if (item.getWidth() != null && !"".equals(item.getWidth()) && item.getWidth().endsWith("px")) {
+            int actualWidth = item.getWidget().getOffsetWidth();
+            int settedWidth = Integer.valueOf(item.getWidth().replace("px", ""));
+            if (actualWidth > 0 && settedWidth < actualWidth) {
+                item.setWidth("" + actualWidth + "px");
             }
         }
     }

@@ -213,6 +213,12 @@ public class TableLayoutFormItem extends LayoutFormItem {
         populate(this.grid);
         this.grid.clear();
         super.getItems().clear();
+        if (trep.getWidth() != null) {
+            setWidth(trep.getWidth());
+        }
+        if (trep.getHeight() != null) {
+            setHeight(trep.getHeight());
+        }
         if (trep.getElements() != null) {
             for (int rowindex = 0; rowindex < trep.getElements().size(); rowindex++) {
                 List<FormItemRepresentation> row = trep.getElements().get(rowindex);

@@ -357,8 +357,8 @@ public abstract class FBFormItem extends FocusPanel {
                 this.validations.add(validationItem);
             }
         }
-        this.widgetHeight = rep.getHeight();
-        this.widgetWidth = rep.getWidth();
+        setHeight(rep.getHeight());
+        setWidth(rep.getWidth());
         this.input = rep.getInput();
         this.output = rep.getOutput();
     }

@@ -36,6 +36,8 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
     private static final String FORM_ID_PREFIX = "formDefinition_";
     private static final String ITEM_ID_PREFIX = "formItemDefinition_";
     
+    private Map<String /*className*/, List<String>> effectsForItem = new HashMap<String, List<String>>();
+    
     /**
      * @param form FormRepresentation with name to be changed
      * @return true if its an update, false if it is an insert
@@ -71,25 +73,38 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         return assetId.startsWith(FORM_ID_PREFIX);
     }
     
+    public void putEffectsForItem(String className, List<String> effectClassNames) {
+        this.effectsForItem.put(className, effectClassNames);
+    }
+    
     public FormRepresentation createFormFromTask(TaskRef task) {
         if (task == null) {
             return null;
         }
+        List<String> headerEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.HeaderMenuItem");
+        List<String> tableEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem");
+        List<String> labelEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.LabelMenuItem");
+        List<String> textfieldEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem");
+        List<String> completeButtonEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem");
         FormRepresentation form = new FormRepresentation();
         if (task.getTaskId() != null) {
             HeaderRepresentation header = new HeaderRepresentation();
             header.setValue("Task: " + task.getTaskId());
+            header.setEffectClasses(headerEffects);
             form.addFormItem(header);
         }
         List<TaskPropertyRef> inputs = task.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
             TableRepresentation tableOfInputs = new TableRepresentation(inputs.size(), 2);
+            tableOfInputs.setEffectClasses(tableEffects);
             for (int index = 0; index < inputs.size(); index++) {
                 TaskPropertyRef input = inputs.get(index);
                 LabelRepresentation labelName = new LabelRepresentation();
+                labelName.setEffectClasses(labelEffects);
                 labelName.setValue(input.getName());
                 tableOfInputs.setElement(index, 0, labelName);
                 LabelRepresentation labelValue = new LabelRepresentation();
+                labelValue.setEffectClasses(labelEffects);
                 InputData data = new InputData();
                 data.setName(input.getName());
                 data.setValue(input.getSourceExpresion());
@@ -103,9 +118,11 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
                     }
                 });
                 labelValue.setInput(data);
+                labelValue.setValue("{variable}");
                 tableOfInputs.setElement(index, 1, labelValue);
             }
             LabelRepresentation labelInputs = new LabelRepresentation();
+            labelInputs.setEffectClasses(labelEffects);
             labelInputs.setValue("Inputs:");
             form.addFormItem(labelInputs);
             form.addFormItem(tableOfInputs);
@@ -113,12 +130,15 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         List<TaskPropertyRef> outputs = task.getOutputs();
         if (outputs != null && !outputs.isEmpty()) {
             TableRepresentation tableOfOutputs = new TableRepresentation(outputs.size(), 2);
+            tableOfOutputs.setEffectClasses(tableEffects);
             for (int index = 0; index < outputs.size(); index++) {
                 TaskPropertyRef output = outputs.get(index);
                 LabelRepresentation labelName = new LabelRepresentation();
+                labelName.setEffectClasses(labelEffects);
                 labelName.setValue(output.getName());
                 tableOfOutputs.setElement(index, 0, labelName);
                 TextFieldRepresentation textField = new TextFieldRepresentation();
+                textField.setEffectClasses(textfieldEffects);
                 OutputData data = new OutputData();
                 data.setName(output.getName());
                 data.setValue(output.getSourceExpresion());
@@ -135,13 +155,21 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
                 tableOfOutputs.setElement(index, 1, textField);
             }
             LabelRepresentation labelOutputs = new LabelRepresentation();
+            labelOutputs.setEffectClasses(labelEffects);
             labelOutputs.setValue("Outputs:");
             form.addFormItem(labelOutputs);
             form.addFormItem(tableOfOutputs);
         }
         CompleteButtonRepresentation completeButton = new CompleteButtonRepresentation();
         completeButton.setText("Complete");
+        completeButton.setEffectClasses(completeButtonEffects);
         form.addFormItem(completeButton);
+        form.setAction("complete");
+        form.setEnctype("multipart/form-data");
+        form.setMethod("POST");
+        form.setName(task.getTaskId() + "AutoForm");
+        form.setProcessName(task.getProcessId());
+        form.setTaskId(task.getTaskId());
         return form;
     }
 }

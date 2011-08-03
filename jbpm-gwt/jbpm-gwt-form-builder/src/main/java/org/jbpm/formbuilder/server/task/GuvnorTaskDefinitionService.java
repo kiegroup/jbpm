@@ -17,9 +17,7 @@ package org.jbpm.formbuilder.server.task;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.xml.bind.JAXBException;
@@ -41,9 +39,6 @@ import org.jbpm.formbuilder.shared.task.TaskServiceException;
 
 public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     
-    private final Map<String /*itemName*/, String /*lastModified*/> assets = new HashMap<String, String>();
-    private final Map<String /*itemName*/, List<TaskRef>> tasksIndex = new HashMap<String, List<TaskRef>>();
-
     private final TaskRepoHelper repo = new TaskRepoHelper();
     private final TaskDefinitionsSemanticModule module = new TaskDefinitionsSemanticModule(repo);
 
@@ -77,13 +72,16 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 if (assetId.endsWith(ResourceType.BPMN2.getDefaultExtension()) || 
                         assetId.endsWith(ResourceType.DRF.getDefaultExtension()) ||
                         assetId.endsWith("bpmn2")) {
-                    validateAsset(pkgName, assetId, props.getProperty(assetId));
-                    for (Map.Entry<String, List<TaskRef>> entry : tasksIndex.entrySet()) {
-                        for (TaskRef ref : entry.getValue()) {
-                            if (filter == null || "".equals(filter)) {
-                                tasks.add(ref);
-                            } else if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
-                                tasks.add(ref);
+                    String content = getTaskDefinitionContent(pkgName, assetId);
+                    if (content != null && !"".equals(content)) {
+                        List<TaskRef> processTasks = getProcessTasks(content, assetId);
+                        if (processTasks != null) {
+                            for (TaskRef ref : processTasks) {
+                                if (filter == null || "".equals(filter)) {
+                                    tasks.add(ref);
+                                } else if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
+                                    tasks.add(ref);
+                                }
                             }
                         }
                     }
@@ -258,22 +256,6 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return (emptyUserTask && taskIsStartProcess) || taskIsSearchedTask;
     }
     
-    private void validateAsset(String packageName, String itemName, String dateLastModified) throws TaskServiceException {
-        String name = packageName + ":" + itemName;
-        if (assets.get(name) == null || !assets.get(name).equals(dateLastModified)) {
-            //clean processAssets, processIndex and processTasks for this particular item
-            tasksIndex.remove(itemName);
-            //repopulate processAssets
-            assets.put(name, dateLastModified);
-            //repopulate processIndex
-            String content = getTaskDefinitionContent(packageName, itemName);
-            if (content != null && !"".equals(content)) {
-                List<TaskRef> tasks = getProcessTasks(content, itemName);
-                tasksIndex.put(itemName, tasks);
-            }
-        }
-    }
-
     private String getTaskDefinitionContent(String pkgName, String itemName) throws TaskServiceException {
         HttpClient client = new HttpClient();
         if (itemName != null && !"".equals(itemName)) {

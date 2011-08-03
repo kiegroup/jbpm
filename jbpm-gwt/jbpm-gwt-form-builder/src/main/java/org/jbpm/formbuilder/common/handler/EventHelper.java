@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Widget;
@@ -23,7 +24,7 @@ public class EventHelper {
     private static final Map<Widget, List<BlurHandler>> BLUR_HANDLERS = new HashMap<Widget, List<BlurHandler>>();
     private static final Map<Widget, List<FocusHandler>> FOCUS_HANDLERS = new HashMap<Widget, List<FocusHandler>>();
 
-    public static void addBlurHandler(Widget widget, BlurHandler handler) {
+    public static HandlerRegistration addBlurHandler(Widget widget, final BlurHandler handler) {
         widget.sinkEvents(Event.ONBLUR);
         List<BlurHandler> handlers = BLUR_HANDLERS.get(widget);
         if (handlers == null) {
@@ -31,9 +32,15 @@ public class EventHelper {
             BLUR_HANDLERS.put(widget, handlers);
         }
         handlers.add(handler);
+        final List<BlurHandler> _handlers = handlers;
+        return new HandlerRegistration() {
+            public void removeHandler() {
+                _handlers.remove(handler);
+            }
+        };
     }
     
-    public static void addFocusHandler(Widget widget, FocusHandler handler) {
+    public static HandlerRegistration addFocusHandler(Widget widget, final FocusHandler handler) {
         widget.sinkEvents(Event.ONFOCUS);
         List<FocusHandler> handlers = FOCUS_HANDLERS.get(widget);
         if (handlers == null) {
@@ -41,9 +48,15 @@ public class EventHelper {
             FOCUS_HANDLERS.put(widget, handlers);
         }
         handlers.add(handler);
+        final List<FocusHandler> _handlers = handlers;
+        return new HandlerRegistration() {
+            public void removeHandler() {
+                _handlers.remove(handler);
+            }
+        };
     }
     
-    public static void addRightClickHandler(Widget widget, RightClickHandler handler) {
+    public static HandlerRegistration addRightClickHandler(Widget widget, final RightClickHandler handler) {
         widget.sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         List<RightClickHandler> handlers = RCLICK_HANDLERS.get(widget);
         if (handlers == null) {
@@ -51,9 +64,15 @@ public class EventHelper {
             RCLICK_HANDLERS.put(widget, handlers);
         }
         handlers.add(handler);
+        final List<RightClickHandler> _handlers = handlers;
+        return new HandlerRegistration() {
+            public void removeHandler() {
+                _handlers.remove(handler);
+            }
+        };
     }
     
-    public static void addKeyboardPasteHandler(Widget widget, ControlKeyHandler handler) {
+    public static HandlerRegistration addKeyboardPasteHandler(Widget widget, final ControlKeyHandler handler) {
         widget.sinkEvents(Event.ONKEYPRESS);
         List<ControlKeyHandler> handlers = KPASTE_HANDLERS.get(widget);
         if (handlers == null) {
@@ -61,9 +80,15 @@ public class EventHelper {
             KPASTE_HANDLERS.put(widget, handlers);
         }
         handlers.add(handler);
+        final List<ControlKeyHandler> _handlers = handlers;
+        return new HandlerRegistration() {
+            public void removeHandler() {
+                _handlers.remove(handler);
+            }
+        };
     }
     
-    public static void addKeyboardCutHandler(Widget widget, ControlKeyHandler handler) {
+    public static HandlerRegistration addKeyboardCutHandler(Widget widget, final ControlKeyHandler handler) {
         widget.sinkEvents(Event.ONKEYPRESS);
         List<ControlKeyHandler> handlers = KCUT_HANDLERS.get(widget);
         if (handlers == null) {
@@ -71,9 +96,15 @@ public class EventHelper {
             KCUT_HANDLERS.put(widget, handlers);
         }
         handlers.add(handler);
+        final List<ControlKeyHandler> _handlers = handlers;
+        return new HandlerRegistration() {
+            public void removeHandler() {
+                _handlers.remove(handler);
+            }
+        };
     }
     
-    public static void addKeyboardCopyHandler(Widget widget, ControlKeyHandler handler) {
+    public static HandlerRegistration addKeyboardCopyHandler(Widget widget, final ControlKeyHandler handler) {
         widget.sinkEvents(Event.ONKEYPRESS);
         List<ControlKeyHandler> handlers = KCOPY_HANDLERS.get(widget);
         if (handlers == null) {
@@ -81,6 +112,12 @@ public class EventHelper {
             KCOPY_HANDLERS.put(widget, handlers);
         }
         handlers.add(handler);
+        final List<ControlKeyHandler> _handlers = handlers;
+        return new HandlerRegistration() {
+            public void removeHandler() {
+                _handlers.remove(handler);
+            }
+        };
     }
     
     public static void onBrowserEvent(final Widget widget, Event event) {

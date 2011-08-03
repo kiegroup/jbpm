@@ -35,6 +35,7 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
@@ -69,6 +70,7 @@ public class FormBuilderModel implements FormBuilderService {
     
     private final String contextPath;
     private final XmlParseHelper helper = new XmlParseHelper();
+    private final MockFormDefinitionService mockFormService = new MockFormDefinitionService();
     private String packageName = DEFAULT_PACKAGE_NAME;
     
     public FormBuilderModel(String contextPath) {
@@ -196,6 +198,7 @@ public class FormBuilderModel implements FormBuilderService {
             		menuItems.putAll(helper.readMenuMap(response.getText()));
             		for (String groupName : menuItems.keySet()) {
             			for (FBMenuItem menuItem : menuItems.get(groupName)) {
+            			    populateMockFormService(menuItem);
             				bus.fireEvent(new MenuItemFromServerEvent(menuItem, groupName));
             			}
             		}
@@ -214,7 +217,18 @@ public class FormBuilderModel implements FormBuilderService {
         }
         return menuItems;
     }
-
+    
+    private void populateMockFormService(FBMenuItem item) {
+        String className = item.getClass().getName();
+        List<String> effectClassNames = new ArrayList<String>();
+        if (item.getFormEffects() != null) {
+            for (FBFormEffect effect : item.getFormEffects()) {
+                effectClassNames.add(effect.getClass().getName());
+            }
+        }
+        mockFormService.putEffectsForItem(className, effectClassNames);
+    }
+    
     public List<MainMenuOption> getMenuOptions() {
         final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuOptions/");
@@ -535,6 +549,6 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     public FormRepresentation toBasicForm(TaskRef task) {
-        return new MockFormDefinitionService().createFormFromTask(task);
+        return mockFormService.createFormFromTask(task);
     }
 }
