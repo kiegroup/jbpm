@@ -16,10 +16,8 @@
 package org.jbpm.formbuilder.server.xml;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -44,11 +42,28 @@ public class TaskRefDTO {
         this._processId = task.getProcessId();
         this._taskName = task.getTaskName();
         this._taskId = task.getTaskId();
-        Set<TaskPropertyRef> uniqueInputs = new HashSet<TaskPropertyRef>(task.getInputs());
+        List<TaskPropertyRef> allInputs = task.getInputs();
+        List<TaskPropertyRef> uniqueInputs = new ArrayList<TaskPropertyRef>();
+        List<String> inputNames = new ArrayList<String>();
+        for (TaskPropertyRef ref : allInputs) {
+            if (!inputNames.contains(ref.getName())) {
+                inputNames.add(ref.getName());
+                uniqueInputs.add(ref);
+            }
+        }
         for (TaskPropertyRef ref : uniqueInputs) {
             _input.add(new PropertyDTO(ref));
         }
-        Set<TaskPropertyRef> uniqueOutputs = new HashSet<TaskPropertyRef>(task.getOutputs());
+        
+        List<TaskPropertyRef> allOutputs = task.getOutputs();
+        List<TaskPropertyRef> uniqueOutputs = new ArrayList<TaskPropertyRef>();
+        List<String> outputNames = new ArrayList<String>();
+        for (TaskPropertyRef ref : allOutputs) {
+            if (!outputNames.contains(ref.getName())) {
+                outputNames.add(ref.getName());
+                uniqueOutputs.add(ref);
+            }
+        }
         for (TaskPropertyRef ref : uniqueOutputs) {
             _output.add(new PropertyDTO(ref));
         }
