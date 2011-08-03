@@ -97,42 +97,68 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     }
     
-    public List<TaskRef> getTasksByName(String pkgName, String processName, String taskName) throws TaskServiceException {
-        List<TaskRef> retval = new ArrayList<TaskRef>();
+    public List<TaskRef> getTasksByName(String pkgName, String processId, String taskId) throws TaskServiceException {
         HttpClient client = new HttpClient();
-        GetMethod call = new GetMethod(helper.getRestBaseUrl() + pkgName + "/assets/" + processName);
-        try {
-            String auth = helper.getAuth();
-            call.addRequestHeader("Accept", "application/xml");
-            call.addRequestHeader("Authorization", auth);
-            client.executeMethod(call);
-            AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, call.getResponseBodyAsStream(), AssetDTO.class, MetaDataDTO.class);
-            String format = subDto.getMetadata().getFormat();
-            if (format != null && "bpmn2".equals(format)) {
-                //download the process in processUrl and get the matching task
-                GetMethod processCall = new GetMethod(helper.getRestBaseUrl() + pkgName + "/assets/" + processName + "/source/");
-                try {
-                    processCall.setRequestHeader("Authorization", auth);
-                    client.executeMethod(processCall);
-                    String processContent = processCall.getResponseBodyAsString();
-                    List<TaskRef> tasks = getProcessTasks(processContent, processName + "." + format);
-                    if (tasks != null) {
-                        for (TaskRef task : tasks) {
-                            if (task.getTaskName().equals(taskName)) {
-                                retval.add(task);
+        List<TaskRef> retval = new ArrayList<TaskRef>();
+        if (pkgName != null) {
+            GetMethod call = new GetMethod(helper.getRestBaseUrl());
+            try {
+                String auth = helper.getAuth();
+                call.addRequestHeader("Accept", "application/xml");
+                call.addRequestHeader("Authorization", auth);
+                client.executeMethod(call);
+                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.class, PackageDTO.class);
+                PackageDTO pkg = dto.getSelectedPackage(pkgName);
+                List<String> urls = new ArrayList<String>();
+                for (String url : pkg.getAssets()) {
+                    GetMethod subCall = new GetMethod(url);
+                    try {
+                        subCall.setRequestHeader("Authorization", auth);
+                        subCall.addRequestHeader("Accept", "application/xml");
+                        client.executeMethod(subCall);
+                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.class, MetaDataDTO.class);
+                        if (subDto.getMetadata().getFormat().equals("bpmn2")) {
+                            urls.add(subDto.getSourceLink());
+                        }
+                    } finally {
+                        subCall.releaseConnection();
+                    }
+                }
+                for (String url : urls) {
+                    //download the process in processUrl and get the right task
+                    GetMethod processCall = new GetMethod(url);
+                    try {
+                        processCall.setRequestHeader("Authorization", auth);
+                        client.executeMethod(processCall);
+                        String processContent = processCall.getResponseBodyAsString();
+                        repo.clear();
+                        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+                        if (processContent != null && !"".equals(processContent)) {
+                            kbuilder.add(new ByteArrayResource(processContent.getBytes()), ResourceType.BPMN2);
+                            if (!kbuilder.hasErrors()) {
+                                List<TaskRef> tasks = repo.getTasks();
+                                for (TaskRef task : tasks) {
+                                    if (task.getProcessId() != null && task.getProcessId().equals(processId)) {
+                                        if (task.getTaskId() != null && task.getTaskId().equals(taskId)) {
+                                            retval.add(task);
+                                        }
+                                    }
+                                }
                             }
                         }
+                    } finally {
+                        processCall.releaseConnection();
                     }
-                } finally {
-                    processCall.releaseConnection();
                 }
+            } catch (JAXBException e) {
+                throw new TaskServiceException("Couldn't read task definition for package:" + pkgName +
+                        ", process: " + processId + ", task: " + taskId, e);
+            } catch (IOException e) {
+                throw new TaskServiceException("Couldn't read task definition for package:" + pkgName +
+                        ", process: " + processId + ", task: " + taskId, e);
+            } finally {
+                call.releaseConnection();
             }
-        } catch (JAXBException e) {
-            throw new TaskServiceException("Couldn't read task definition for package=" + pkgName + ";process=" + processName + ";task=" + taskName, e);
-        } catch (IOException e) {
-            throw new TaskServiceException("Couldn't read task definition for package=" + pkgName + ";process=" + processName + ";task=" + taskName, e);
-        } finally {
-            call.releaseConnection();
         }
         return retval;
     }
