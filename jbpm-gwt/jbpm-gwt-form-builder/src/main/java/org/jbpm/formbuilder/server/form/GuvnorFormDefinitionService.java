@@ -301,12 +301,14 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         HttpClient client = new HttpClient();
         PutMethod method = null;
         String emaNetalpmet = StringUtils.reverse(templateName);
-        templateName = emaNetalpmet.replaceFirst("ltf.", "txt.");
+        emaNetalpmet = emaNetalpmet.replaceFirst("ltf.", "txt.");
+        templateName = StringUtils.reverse(emaNetalpmet);
         try {
             ensureTamplateAsset(packageName, templateName);
-            method = new PutMethod(helper.getRestBaseUrl() + packageName + "/assets/" + URLEncoder.encode(templateName, "UTF-8") + "/source");
+            String templateBaseName = StringUtils.reverse(StringUtils.reverse(templateName).replaceFirst("txt.", ""));
+            method = new PutMethod(helper.getRestBaseUrl() + packageName + "/assets/" + URLEncoder.encode(templateBaseName, "UTF-8") + "/source");
             method.setRequestEntity(new StringRequestEntity(content, null, null));
-            method.setRequestHeader("Content-Type", "application/octet-stream");
+            method.setRequestHeader("Content-Type", "application/xml");
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
         } catch (IOException e) {
@@ -328,7 +330,8 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             PostMethod method = null;
             try {
                 String url = helper.getRestBaseUrl() + packageName + "/assets";
-                String templateUrlName = URLEncoder.encode(templateName.replace(".txt", ""), "UTF-8");
+                String templateBasicName = StringUtils.reverse(StringUtils.reverse(templateName).replaceFirst("txt.", ""));
+                String templateUrlName = URLEncoder.encode(templateBasicName, "UTF-8");
                 method = new PostMethod(url);
                 method.setRequestHeader("Authorization", helper.getAuth());
                 method.setRequestHeader("Accept", "application/atom+xml");
@@ -337,13 +340,13 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
                     "<entry xmlns=\"http://www.w3.org/2005/Atom\">" +
                         "<author><name>"+ helper.getUser() + "</name></author>" + 
                         "<id>" + url + "/" + templateUrlName + "</id>" +
-                        "<title type=\"text\">" + templateName.replace(".ftl", "") + "</title>" +
+                        "<title type=\"text\">" + templateBasicName + "</title>" +
                         "<summary type=\"text\">automatic generation</summary>" +
                         "<metadata>" +
                             "<format><value>ftl</value></format>" + //it will save it as txt, but can-t set xmlns="" yet on the atom API
                             "<state><value>Draft</value></state>" +
                             "<archived><value>false</value></archived>" +
-                        "</m:metadata>" +
+                        "</metadata>" +
                         "<content src=\"" + url + "/" + templateUrlName + "/binary\"/>" +
                     "</entry>";
                 method.setRequestEntity(new StringRequestEntity(entry, "application/atom+xml", "UTF-8"));
