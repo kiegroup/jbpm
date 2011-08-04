@@ -202,13 +202,28 @@ public class LayoutPresenter {
         bus.addHandler(UpdateFormViewEvent.TYPE, new UpdateFormViewHandler() {
             public void onEvent(UpdateFormViewEvent event) {
                 System.out.println("UpdateFormViewHandler invoked");
-                FormRepresentation form = event.getFormRepresentation();
-                System.out.println("form = " + form);
-                try {
-                    layoutView.getFormDisplay().populate(form);
-                } catch (FormBuilderException e) {
-                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't populate screen with form data", e));
-                }
+                Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+                dataSnapshot.put("newForm", event.getFormRepresentation());
+                dataSnapshot.put("oldForm", layoutView.getFormDisplay().createRepresentation());
+                bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    public void undoAction(UndoableEvent event) {
+                        FormRepresentation oldForm = (FormRepresentation) event.getData("oldForm");
+                        try {
+                            layoutView.getFormDisplay().populate(oldForm);
+                        } catch (FormBuilderException e) {
+                            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't populate screen with form data", e));
+                        }
+                    }
+                    public void onEvent(UndoableEvent event) { }
+                    public void doAction(UndoableEvent event) {
+                        FormRepresentation newForm = (FormRepresentation) event.getData("newForm");
+                        try {
+                            layoutView.getFormDisplay().populate(newForm);
+                        } catch (FormBuilderException e) {
+                            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't populate screen with form data", e));
+                        }
+                    }
+                }));
             }
         });
     }

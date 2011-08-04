@@ -268,10 +268,9 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         setMethod(rep.getMethod());
         setEnctype(rep.getEnctype());
         for (FBFormItem item : new ArrayList<FBFormItem>(formItems)) {
-            item.removeFromParent();
+            remove(item);
             bus.fireEvent(new FormItemRemovedEvent(item));
         }
-        
         for (FormItemRepresentation itemRep : rep.getFormItems()) {
             FBFormItem item = FBFormItem.createItem(itemRep);
             item.populate(itemRep);
