@@ -113,5 +113,9 @@ public class GuvnorHelper {
     public String getRestBaseUrl() {
         return new StringBuilder(this.baseUrl).append("/rest/packages/").toString();
     }
+
+    public String getUser() {
+        return this.user;
+    }
     
 }

@@ -37,6 +37,8 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormDefDTO;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
@@ -89,6 +91,7 @@ import org.jbpm.formbuilder.shared.task.TaskServiceException;
 public class FormBuilderServlet extends HttpServlet {
 
     private static final long serialVersionUID = -5961620265453738055L;
+    private static final Log log = LogFactory.getLog(FormBuilderServlet.class);
 
     MenuService menuService;
     TaskDefinitionService taskService;
@@ -158,6 +161,7 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.getWriter().println(content.toString());
             }
         } catch (Exception e) {
+            log.error("Problem during FormBuilderServlet:GET", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
     }
@@ -350,6 +354,7 @@ public class FormBuilderServlet extends HttpServlet {
                 resp.getWriter().println("<fileName>"+fileName+"</fileName>");
             }
         } catch (Exception e) {
+            log.error("Problem during FormBuilderServlet:GET", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
     }
@@ -439,6 +444,7 @@ public class FormBuilderServlet extends HttpServlet {
                 deleteFormItem(uri);
             }
         } catch (Exception e) {
+            log.error("Problem during FormBuilderServlet:GET", e);
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } 
     }

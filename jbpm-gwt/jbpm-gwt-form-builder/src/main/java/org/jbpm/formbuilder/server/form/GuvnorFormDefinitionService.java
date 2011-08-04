@@ -34,6 +34,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.task.AssetDTO;
 import org.jbpm.formbuilder.server.task.MetaDataDTO;
@@ -63,7 +64,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         EntityEnclosingMethod method = null;
         String url = helper.getApiUrl(pkgName);
         boolean isUpdate = updateFormName(form);
-        String finalUrl = url + form.getName() + ".json";
+        String finalUrl = url + form.getName() + ".formdef";
         method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl); 
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
@@ -110,7 +111,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public FormRepresentation getForm(String pkgName, String formId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formId != null && !"".equals(formId)) {
-            GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + formId + ".json");
+            GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + formId + ".formdef");
             FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
@@ -242,7 +243,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             for (Object key : props.keySet()) {
                 String assetId = key.toString();
                 if (isFormName(assetId)) {
-                    FormRepresentation form = getForm(pkgName, assetId.replace(".json", ""));
+                    FormRepresentation form = getForm(pkgName, assetId.replace(".formdef", ""));
                     forms.add(form);
                 }
             }
@@ -298,14 +299,14 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     
     public void saveTemplate(String packageName, String templateName, String content) throws FormServiceException {
         HttpClient client = new HttpClient();
-        EntityEnclosingMethod method = null;
+        PutMethod method = null;
+        String emaNetalpmet = StringUtils.reverse(templateName);
+        templateName = emaNetalpmet.replaceFirst("ltf.", "txt.");
         try {
-            if (templateExists(packageName, templateName)) {
-                method = new PutMethod(helper.getApiSearchUrl(packageName) + URLEncoder.encode(templateName, "UTF-8"));
-            } else {
-                method = new PostMethod(helper.getApiSearchUrl(packageName) + URLEncoder.encode(templateName, "UTF-8"));
-            }
+            ensureTamplateAsset(packageName, templateName);
+            method = new PutMethod(helper.getRestBaseUrl() + packageName + "/assets/" + URLEncoder.encode(templateName, "UTF-8") + "/source");
             method.setRequestEntity(new StringRequestEntity(content, null, null));
+            method.setRequestHeader("Content-Type", "application/octet-stream");
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
         } catch (IOException e) {
@@ -321,6 +322,40 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         }
     }
     
+    private void ensureTamplateAsset(String packageName, String templateName) throws FormServiceException {
+        HttpClient client = new HttpClient();
+        if (!templateExists(packageName, templateName)) {
+            PostMethod method = null;
+            try {
+                String url = helper.getRestBaseUrl() + packageName + "/assets";
+                String templateUrlName = URLEncoder.encode(templateName.replace(".txt", ""), "UTF-8");
+                method = new PostMethod(url);
+                method.setRequestHeader("Authorization", helper.getAuth());
+                method.setRequestHeader("Accept", "application/atom+xml");
+                
+                String entry = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
+                    "<entry xmlns=\"http://www.w3.org/2005/Atom\">" +
+                        "<author><name>"+ helper.getUser() + "</name></author>" + 
+                        "<id>" + url + "/" + templateUrlName + "</id>" +
+                        "<title type=\"text\">" + templateName.replace(".ftl", "") + "</title>" +
+                        "<summary type=\"text\">automatic generation</summary>" +
+                        "<metadata>" +
+                            "<format><value>ftl</value></format>" + //it will save it as txt, but can-t set xmlns="" yet on the atom API
+                            "<state><value>Draft</value></state>" +
+                            "<archived><value>false</value></archived>" +
+                        "</m:metadata>" +
+                        "<content src=\"" + url + "/" + templateUrlName + "/binary\"/>" +
+                    "</entry>";
+                method.setRequestEntity(new StringRequestEntity(entry, "application/atom+xml", "UTF-8"));
+                client.executeMethod(method);
+            } catch (IOException e) {
+                throw new FormServiceException("Couldn't create asset for template " + templateName, e);
+            } finally {
+                method.releaseConnection();
+            }
+        }
+    }
+
     protected boolean templateExists(String pkgName, String templateName) throws FormServiceException {
         HttpClient client = new HttpClient();
         try {

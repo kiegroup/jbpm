@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.server.task;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -41,21 +42,30 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     
     private final TaskRepoHelper repo = new TaskRepoHelper();
     private final TaskDefinitionsSemanticModule module = new TaskDefinitionsSemanticModule(repo);
+    private final BPMN2ProcessProvider provider = new BPMN2ProcessProvider() {
+        public void configurePackageBuilder(PackageBuilder packageBuilder) {
+            PackageBuilderConfiguration conf = packageBuilder.getPackageBuilderConfiguration();
+            if (conf.getSemanticModules().getSemanticModule(TaskDefinitionsSemanticModule.URI) == null) {
+                conf.addSemanticModule(module);
+            }
+        }
+    };
 
+    public static void main(String[] args) {
+        try {
+            String urlEncoded = URLEncoder.encode("com.sample.humantask.ftl", "UTF-8");
+            System.out.println("urlEncoded = " + urlEncoded);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+                 
+    }
+    
     private final GuvnorHelper helper;
     
     public GuvnorTaskDefinitionService(String baseUrl, String user, String password) {
         super();
         this.helper = new GuvnorHelper(baseUrl, user, password);
-        
-        BPMN2ProcessFactory.setBPMN2ProcessProvider(new BPMN2ProcessProvider() {
-            public void configurePackageBuilder(PackageBuilder packageBuilder) {
-                PackageBuilderConfiguration conf = packageBuilder.getPackageBuilderConfiguration();
-                if (conf.getSemanticModules().getSemanticModule(TaskDefinitionsSemanticModule.URI) == null) {
-                    conf.addSemanticModule(module);
-                }
-            }
-        });
     }
     
     public List<TaskRef> query(String pkgName, String filter) throws TaskServiceException {
@@ -129,18 +139,11 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                         processCall.setRequestHeader("Authorization", auth);
                         client.executeMethod(processCall);
                         String processContent = processCall.getResponseBodyAsString();
-                        repo.clear();
-                        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-                        if (processContent != null && !"".equals(processContent)) {
-                            kbuilder.add(new ByteArrayResource(processContent.getBytes()), ResourceType.BPMN2);
-                            if (!kbuilder.hasErrors()) {
-                                List<TaskRef> tasks = repo.getTasks();
-                                for (TaskRef task : tasks) {
-                                    if (task.getProcessId() != null && task.getProcessId().equals(processId)) {
-                                        if (task.getTaskId() != null && task.getTaskId().equals(taskId)) {
-                                            retval.add(task);
-                                        }
-                                    }
+                        List<TaskRef> tasks = getProcessTasks(processContent, "any.bpmn2");
+                        for (TaskRef task : tasks) {
+                            if (task.getProcessId() != null && task.getProcessId().equals(processId)) {
+                                if (task.getTaskId() != null && task.getTaskId().equals(taskId)) {
+                                    retval.add(task);
                                 }
                             }
                         }
@@ -207,15 +210,10 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                         processCall.setRequestHeader("Authorization", auth);
                         client.executeMethod(processCall);
                         String processContent = processCall.getResponseBodyAsString();
-                        repo.clear();
-                        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-                        kbuilder.add(new ByteArrayResource(processContent.getBytes()), ResourceType.BPMN2);
-                        if (!kbuilder.hasErrors()) {
-                            List<TaskRef> tasks = repo.getTasks();
-                            for (TaskRef task : tasks) {
-                                if (isReferencedTask(userTask, task)) {
-                                    return task;
-                                }
+                        List<TaskRef> tasks = getProcessTasks(processContent, "any." + format);
+                        for (TaskRef task : tasks) {
+                            if (isReferencedTask(userTask, task)) {
+                                return task;
                             }
                         }
                     } finally {
@@ -274,6 +272,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     }
     
     protected List<TaskRef> getProcessTasks(String bpmn2Content, String processName) throws TaskServiceException {
+        if (BPMN2ProcessFactory.getBPMN2ProcessProvider() != provider) {
+            BPMN2ProcessFactory.setBPMN2ProcessProvider(provider);
+        }
         repo.clear();
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         ResourceType type = processName.toLowerCase().endsWith("bpmn2") ? ResourceType.BPMN2 : ResourceType.DRF;
