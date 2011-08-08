@@ -26,7 +26,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Properties;
 
@@ -35,6 +34,7 @@ import javax.activation.DataSource;
 
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
+import org.jbpm.integration.console.shared.GuvnorConnectionUtils; 
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -79,29 +79,39 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	}
 	
 	public InputStream getTemplate(String name) {
-		InputStream result = AbstractFormDispatcher.class.getResourceAsStream("/" + name + ".ftl");
-		if (result != null) {
-			return result;
+		// try to find on classpath
+	    InputStream nameTaskformResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + "-taskform.ftl");
+		if (nameTaskformResult != null) {
+			return nameTaskformResult;
+		} else {
+		    InputStream nameResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + ".ftl");
+		    if (nameResult != null) {
+		        return nameResult;
+		    }
 		}
-		StringBuffer sb = new StringBuffer();
+		// try to find in repository
 		Properties properties = new Properties();
-		try {
-			properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
-		} catch (IOException e) {
-			throw new RuntimeException("Could not load jbpm.console.properties", e);
-		}
-		try {
-			sb.append("http://");
-			sb.append(properties.get("jbpm.console.server.host"));
-			sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port")));
-			sb.append("/drools-guvnor/org.drools.guvnor.Guvnor/package/defaultPackage/LATEST/");
-			sb.append(URLEncoder.encode(name, "UTF-8"));
-			sb.append(".drl");
-			return new URL(sb.toString()).openStream();
+        try {
+            properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load jbpm.console.properties", e);
+        }
+		
+        try {
+            GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils(properties);
+            String templateName;
+            if(guvnorUtils.templateExistsInRepo(name + "-taskform")) {
+                templateName = name + "-taskform";
+            } else if(guvnorUtils.templateExistsInRepo(name)) {
+                templateName = name;
+            } else {
+                return null;
+            }
+            return guvnorUtils.getFormTemplateFromGuvnor(templateName);
 		} catch (Throwable t) {
 			t.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 
 	protected DataHandler processTemplate(final String name, InputStream src, Map<String, Object> renderContext) {
@@ -134,5 +144,4 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 		}
 		return merged;
 	}
-
 }
