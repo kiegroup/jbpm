@@ -43,6 +43,7 @@ public class NotificationsView extends FocusPanel {
     public NotificationsView() {
         setSize("100%", "60px");
         scroll.setSize("100%", "60px");
+        scroll.addStyleName("notificationsView");
         add(scroll);
         panel.add(new HTML("<strong>" + i18n.Notifications() + "</strong>"));
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
