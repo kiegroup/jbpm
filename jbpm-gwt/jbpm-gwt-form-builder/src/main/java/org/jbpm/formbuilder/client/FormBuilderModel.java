@@ -63,7 +63,6 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-//TODO finish with I18N of this class
 public class FormBuilderModel implements FormBuilderService {
 
     private static final String DEFAULT_PACKAGE_NAME = "defaultPackage";
@@ -206,17 +205,17 @@ public class FormBuilderModel implements FormBuilderService {
             			}
             		}
             	} else {
-            		bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find menu items: response status 404"));
+            		bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindMenuItems404()));
             	}
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find menu items", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindMenuItems(), exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read menuItems", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadMenuItems(), e));
         }
         return menuItems;
     }
@@ -244,14 +243,13 @@ public class FormBuilderModel implements FormBuilderService {
             }
 
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, 
-                    "Couldn't find menu options", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindMenuOptions(), exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read menuOptions", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadMenuOptions(), e));
         }
         return currentOptions;
     }
@@ -263,25 +261,25 @@ public class FormBuilderModel implements FormBuilderService {
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "formItem already updated in server. Try refreshing your view"));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.FormItemAlreadyUpdated()));
                 } else if (response.getStatusCode() != Response.SC_CREATED) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveFormItem: HTTP " + response.getStatusCode()));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.SaveFormItemUnknownStatus(String.valueOf(response.getStatusCode()))));
                 } else {
                     String name = helper.getFormItemId(response.getText());
-                    bus.fireEvent(new NotificationEvent(Level.INFO, "Form item " + name + " saved successfully"));
+                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormItemSaved(name)));
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save form item", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSaveFormItem(), exception));
             }
         });
         try {
             request.setRequestData(helper.asXml(formItemName, formItem));
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form item " + formItemName + " to server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSendFormItem(formItemName), e));
         } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form item " + formItemName, e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntDecodeFormItem(formItemName), e));
         }
     }
     
@@ -292,9 +290,9 @@ public class FormBuilderModel implements FormBuilderService {
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_CONFLICT) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Form already updated in server. Try refreshing your form"));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.FormAlreadyUpdated()));
                 } else if (response.getStatusCode() != Response.SC_CREATED) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Unkown status for saveForm: HTTP " + response.getStatusCode()));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.SaveFormUnkwnownStatus(String.valueOf(response.getStatusCode()))));
                 } else {
                     String name = helper.getFormId(response.getText());
                     form.setLastModified(System.currentTimeMillis());
@@ -304,7 +302,7 @@ public class FormBuilderModel implements FormBuilderService {
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save form", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSaveForm(), exception));
             }
         });
         try {
@@ -312,45 +310,45 @@ public class FormBuilderModel implements FormBuilderService {
             request.setRequestData(json);
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSendForm(), e));
         } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntDecodeForm(), e));
         }
     }
     
     public void generateForm(FormRepresentation form, String language, Map<String, Object> inputs) {
         RequestBuilder request = new RequestBuilder(RequestBuilder.POST, 
-                GWT.getModuleBaseURL() + this.contextPath + 
-                "/formPreview/lang/" + language);
+                new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
+                    append("/formPreview/lang/").append(language).toString());
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 String html = response.getText();
                 bus.fireEvent(new PreviewFormResponseEvent(html));
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't preview form", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntPreviewForm(), exception));
             }
         });
         try {
             request.setRequestData(helper.asXml(form, inputs));
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSendForm(), e));
         } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntDecodeForm(), e));
         }
     }
     
     public void loadFormTemplate(final FormRepresentation form, final String language) {
-        RequestBuilder request = new RequestBuilder(RequestBuilder.POST,
-                GWT.getModuleBaseURL() + this.contextPath +
-                "/formTemplate/lang/" + language);
+        final String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath)
+                                .append("/formTemplate/lang/").append(language).toString();
+        RequestBuilder request = new RequestBuilder(RequestBuilder.POST, url);
         request.setCallback(new RequestCallback() {
             public void onResponseReceived(Request request, Response response) {
                 String fileName = helper.getFileName(response.getText());
                 FormPanel auxiliarForm = new FormPanel();
                 auxiliarForm.setMethod("get");
-                auxiliarForm.setAction(GWT.getModuleBaseURL() + contextPath + "/formTemplate/lang/" + language);
+                auxiliarForm.setAction(url);
                 Hidden hidden1 = new Hidden("fileName");
                 hidden1.setValue(fileName);
                 Hidden hidden2 = new Hidden("formName");
@@ -363,16 +361,16 @@ public class FormBuilderModel implements FormBuilderService {
                 auxiliarForm.submit();
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't export template", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntExportTemplate(), exception));
             }
         });
         try {
             request.setRequestData(helper.asXml(form, null));
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form to server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSendForm(), e));
         } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode form", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntDecodeForm(), e));
         }
     }
     
@@ -384,22 +382,22 @@ public class FormBuilderModel implements FormBuilderService {
                 int code = response.getStatusCode();
                 NotificationEvent event;
                 if (code == Response.SC_CREATED) {
-                    event = new NotificationEvent(Level.INFO, "Menu item " + item.getItemId() + " saved successfully.");
+                    event = new NotificationEvent(Level.INFO, i18n.MenuItemSaved(item.getItemId()));
                 } else {
-                    event = new NotificationEvent(Level.WARN, "Invalid status for saveMenuItem: HTTP " + code);
+                    event = new NotificationEvent(Level.WARN, i18n.SaveMenuItemInvalidStatus(String.valueOf(code)));
                 }
                 bus.fireEvent(event);
             }
 
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't generate menu item", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntGenerateMenuItem(), exception));
             }
         });
         try {
             request.setRequestData(helper.asXml(groupName, item));
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't save menu item", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSaveMenuItem(), e));
         }
     }
     
@@ -410,21 +408,21 @@ public class FormBuilderModel implements FormBuilderService {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
                 if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Error deleting menu item on server (code = " + code + ")"));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.DeleteMenuItemUnkownStatus(String.valueOf(code))));
                 } else {
-                    bus.fireEvent(new NotificationEvent(Level.INFO, "menu item deleted successfully"));
+                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.MenuItemDeleted()));
                 }
             }
 
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting menu item on server", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingMenuItem(), exception));
             }
         });
         try {
             request.setRequestData(helper.asXml(groupName, item));
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting menu item on server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingMenuItem(), e));
         }
     }
     
@@ -437,19 +435,19 @@ public class FormBuilderModel implements FormBuilderService {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
                 if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Error deleting form on server (code = " + code + ")"));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingForm(String.valueOf(code))));
                 } else {
-                    bus.fireEvent(new NotificationEvent(Level.INFO, "form deleted successfully"));
+                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormDeleted()));
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting form on server", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingForm(""), exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form " + form.getName() + " deletion to server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSendForm(), e));
         }
     }
     
@@ -461,19 +459,19 @@ public class FormBuilderModel implements FormBuilderService {
             public void onResponseReceived(Request request, Response response) {
                 int code = response.getStatusCode();
                 if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Error deleting form item on server (code = " + code + ")"));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingFormItem(String.valueOf(code))));
                 } else {
-                    bus.fireEvent(new NotificationEvent(Level.INFO, "form item deleted successfully"));
+                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormItemDeleted()));
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Error deleting form item on server", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingFormItem(""), exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't send form item " + formItemName + " deletion to server", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSendFormItem(formItemName), e));
         }
     }
     
@@ -488,7 +486,7 @@ public class FormBuilderModel implements FormBuilderService {
                 bus.fireEvent(new ExistingTasksResponseEvent(retval, filter));
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read tasks", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadTasks(), exception));
             }
         });
         try {
@@ -497,7 +495,7 @@ public class FormBuilderModel implements FormBuilderService {
             }
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read tasks", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadTasks(), e));
         }
         return retval;
     }
@@ -512,17 +510,17 @@ public class FormBuilderModel implements FormBuilderService {
                     retval.addAll(helper.readValidations(response.getText()));
                     bus.fireEvent(new ExistingValidationsResponseEvent(retval));
                 } catch (Exception e) {
-                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't decode validations", e));
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntDecodeValidations(), e));
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read validations", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadValidations(), exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read validations", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadValidations(), e));
         }
         return retval;
     }
@@ -541,13 +539,13 @@ public class FormBuilderModel implements FormBuilderService {
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read single IO", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadSingleIO(), exception));
             } 
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Coulnd't read single IO", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadSingleIO(), e));
         }
     }
     

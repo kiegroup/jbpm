@@ -25,6 +25,7 @@ import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.command.LoadFormCommand;
 import org.jbpm.formbuilder.client.command.SaveFormCommand;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.ConfirmDialog;
@@ -35,7 +36,6 @@ import com.google.gwt.event.shared.EventBus;
 
 /**
  * Toolbar presenter. Registers buttons to send {@link EventBus} notifications
- * TODO finish with I18N of this class
  */
 public class ToolBarPresenter {
 
@@ -44,18 +44,19 @@ public class ToolBarPresenter {
     
     private final ToolBarView view;
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private final ToolRegistration saveRef;
     
     public ToolBarPresenter(ToolBarView toolBarView) {
         this.view = toolBarView;
 
-        this.saveRef = this.view.addButton(FormBuilderResources.INSTANCE.saveButton(), "Save", new ClickHandler() {
+        this.saveRef = this.view.addButton(FormBuilderResources.INSTANCE.saveButton(), i18n.SaveChangesButton(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
             }
         });
-        this.view.addButton(FormBuilderResources.INSTANCE.refreshButton(), "Refresh from Server", new ClickHandler() {
+        this.view.addButton(FormBuilderResources.INSTANCE.refreshButton(), i18n.RefreshFromServerButton(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(LOAD_TYPE));
             }
@@ -64,9 +65,7 @@ public class ToolBarPresenter {
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
             public void onEvent(final GetFormRepresentationResponseEvent event) {
                 if (LOAD_TYPE.equals(event.getSaveType())) {
-                    final ConfirmDialog dialog = view.createToolbarDialog(
-                            "Attention! if you continue, all data you haven't saved will be lost and " +
-                            "replaced with the server information. Are you sure you want to continue?");
+                    final ConfirmDialog dialog = view.createToolbarDialog(i18n.RefreshButtonWarning());
                     dialog.addOkButtonHandler(new ClickHandler() {
                         public void onClick(ClickEvent clickEvent) {
                             if (LOAD_TYPE.equals(event.getSaveType())) {
@@ -88,9 +87,9 @@ public class ToolBarPresenter {
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             public void onSelectedTask(TaskSelectedEvent event) {
                 if (event.getSelectedTask() != null) {
-                    view.addMessage("Package", event.getSelectedTask().getPackageName());
-                    view.addMessage("Process", event.getSelectedTask().getProcessId());
-                    view.addMessage("Task name", event.getSelectedTask().getTaskName());
+                    view.addMessage(i18n.PackageLabel(), event.getSelectedTask().getPackageName());
+                    view.addMessage(i18n.ProcessLabel(), event.getSelectedTask().getProcessId());
+                    view.addMessage(i18n.TaskNameLabel(), event.getSelectedTask().getTaskName());
                 }
             }
         });
