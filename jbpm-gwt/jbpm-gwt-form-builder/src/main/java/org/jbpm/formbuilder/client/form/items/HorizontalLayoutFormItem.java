@@ -142,7 +142,7 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof HorizontalPanelRepresentation)) {
-            throw new FormBuilderException("rep should be of type HorizontalPanelRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "HorizontalPanelRepresentation"));
         }
         super.populate(rep);
         HorizontalPanelRepresentation hrep = (HorizontalPanelRepresentation) rep;

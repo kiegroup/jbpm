@@ -57,7 +57,8 @@ public abstract class FBValidationItem {
             representation.setDataMap(dataMap);
         } catch (FormEncodingException e) {
             FormBuilderGlobals.getInstance().getEventBus().fireEvent(
-                    new NotificationEvent(Level.ERROR, "Couldn't create validation item representation", e));
+                    new NotificationEvent(Level.ERROR, 
+                        FormBuilderGlobals.getInstance().getI18n().CouldntCreateValidation(), e));
         }
         return representation;
     }

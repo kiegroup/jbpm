@@ -120,7 +120,7 @@ public class TextAreaFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof TextAreaRepresentation)) {
-            throw new FormBuilderException("rep should be of type FormBuilderException but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "TextAreaRepresentation"));
         }
         super.populate(rep);
         TextAreaRepresentation trep = (TextAreaRepresentation) rep;

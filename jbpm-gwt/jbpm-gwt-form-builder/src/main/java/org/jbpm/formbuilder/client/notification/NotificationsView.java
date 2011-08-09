@@ -15,6 +15,12 @@
  */
 package org.jbpm.formbuilder.client.notification;
 
+import java.util.Collection;
+
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+
+import com.google.gwt.event.shared.UmbrellaException;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -26,6 +32,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class NotificationsView extends FocusPanel {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    
     private VerticalPanel panel = new VerticalPanel();
     private ScrollPanel scroll = new ScrollPanel(panel);
     
@@ -36,7 +44,7 @@ public class NotificationsView extends FocusPanel {
         setSize("100%", "60px");
         scroll.setSize("100%", "60px");
         add(scroll);
-        panel.add(new HTML("<strong>Notifications</strong>"));
+        panel.add(new HTML("<strong>" + i18n.Notifications() + "</strong>"));
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
     }
 
@@ -57,24 +65,38 @@ public class NotificationsView extends FocusPanel {
         }
         StringBuilder msg = new StringBuilder(message).append("<br/>");
         while (error != null) {
-            msg.append(error.getClass().getName()).append(": ").append(error.getLocalizedMessage()).append("<br/>");
-            StackTraceElement[] trace = error.getStackTrace();
-            for (int index = 0; trace != null && index < trace.length; index++) {
-                msg.append("&nbsp;&nbsp;&nbsp;&nbsp;").
-                    append("at ").append(trace[index].getClassName()).
-                    append(".").append(trace[index].getMethodName()).
-                    append("(").append(trace[index].getFileName()).
-                    append(":").append(trace[index].getLineNumber()).append(")<br/>");
-            }
+            msg.append(stringStackTrace(error));
+            if (error instanceof UmbrellaException) {
+                Collection<Throwable> causes = ((UmbrellaException) error).getCauses();
+                if (causes != null) {
+                    for (Throwable cause : causes) {
+                        msg.append(stringStackTrace(cause));
+                    }
+                }
+            } 
             if (error.getCause() != null && !error.equals(error.getCause())) {
                 error = error.getCause();
-                msg.append("Caused by: ");
+                msg.append(i18n.CausedBy());
             } else {
                 error = null;
             }
         }
         html.setHTML(msg.toString());
         panel.add(html);
+    }
+
+    private String stringStackTrace(Throwable error) {
+        StringBuilder msg = new StringBuilder();
+        msg.append(error.getClass().getName()).append(": ").append(error.getLocalizedMessage()).append("<br/>");
+        StackTraceElement[] trace = error.getStackTrace();
+        for (int index = 0; trace != null && index < trace.length; index++) {
+            msg.append(i18n.StackTraceLine(trace[index].getClassName(), 
+                    trace[index].getMethodName(), 
+                    trace[index].getFileName(), 
+                    String.valueOf(trace[index].getLineNumber()))).
+                append("<br/>");
+        }
+        return msg.toString();
     }
     
     public String getSavedHeight() {

@@ -50,7 +50,7 @@ public class ValidationsEffect extends FBFormEffect {
     private final ValidationsEffectView effectView = new ValidationsEffectView();
     
     public ValidationsEffect() {
-        super("Edit validations", true);
+        super(FormBuilderGlobals.getInstance().getI18n().ValidationsEffectLabel(), true);
         bus.addHandler(ValidationSavedEvent.TYPE, new ValidationSavedHandler() {
             public void onEvent(ValidationSavedEvent event) {
                 currentValidations.clear();
@@ -81,7 +81,8 @@ public class ValidationsEffect extends FBFormEffect {
             this.availableValidations = server.getExistingValidations();
             this.effectView.setAvailableValidations(this.availableValidations);
         } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.WARN, "Couldn't communicate with server", e));
+            bus.fireEvent(new NotificationEvent(Level.WARN, 
+                FormBuilderGlobals.getInstance().getI18n().CouldntConnectServer(), e));
         }
         return popup;
     }

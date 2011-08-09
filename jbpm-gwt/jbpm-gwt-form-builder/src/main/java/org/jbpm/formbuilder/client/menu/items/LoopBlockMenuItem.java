@@ -44,7 +44,7 @@ public class LoopBlockMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Loop block");
+        return new Label(i18n.MenuItemLoopBlock());
     }
 
     @Override

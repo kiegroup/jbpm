@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.InputData;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -23,8 +25,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class InputMapPanel extends PopupPanel {
 
-    private final Button okButton = new Button("Ok");
-    private final Button cancelButton = new Button("Cancel");
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final Button okButton = new Button(i18n.OkButton());
+    private final Button cancelButton = new Button(i18n.CancelButton());
     private final Map<String, InputData> inputs;
     
     private final Map<String, Object> retData = new HashMap<String, Object>();
@@ -34,7 +37,7 @@ public class InputMapPanel extends PopupPanel {
         this.inputs = inputs;
         VerticalPanel mainPanel = new VerticalPanel();
         mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-        mainPanel.add(new Label("Input Map population"));
+        mainPanel.add(new Label(i18n.InputMapPopulation()));
         mainPanel.add(createInputTable());
         mainPanel.add(createButtonPanel());
         setWidget(mainPanel);

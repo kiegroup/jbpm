@@ -7,6 +7,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.IoBindingEffect;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.Data;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
@@ -25,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class IoBindingEffectView extends PopupPanel {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final ListBox inputList;
     private final ListBox outputList;
@@ -32,19 +34,19 @@ public class IoBindingEffectView extends PopupPanel {
     
     public IoBindingEffectView(IoBindingEffect ioBindingEffect) {
         this.effect = ioBindingEffect;
-        HTML title = new HTML("<strong>Select IO config</strong>");
+        HTML title = new HTML("<strong>" + i18n.SelectIoConfig() + "</strong>");
         title.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         
         this.inputList = createVisualList(effect.getItem().getInput(), effect.getIoRef().getInputs());
         this.outputList = createVisualList(effect.getItem().getOutput(), effect.getIoRef().getOutputs());
         
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 onApplyBinding();
             }
         });
-        Button cancelButton = new Button("Cancel");
+        Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 hide();
@@ -52,9 +54,9 @@ public class IoBindingEffectView extends PopupPanel {
         });
         
         Grid grid = new Grid(3,2);
-        grid.setWidget(0, 0, new Label("Input:"));
+        grid.setWidget(0, 0, new Label(i18n.LabelInput()));
         grid.setWidget(0, 1, inputList);
-        grid.setWidget(1, 0, new Label("Output:"));
+        grid.setWidget(1, 0, new Label(i18n.LabelOutput()));
         grid.setWidget(1, 1, outputList);
         grid.setWidget(2, 0, applyButton);
         grid.setWidget(2, 1, cancelButton);

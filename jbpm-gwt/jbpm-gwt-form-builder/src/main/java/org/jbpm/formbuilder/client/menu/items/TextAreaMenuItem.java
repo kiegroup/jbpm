@@ -45,7 +45,7 @@ public class TextAreaMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Text Area");
+        return new Label(i18n.MenuItemTextArea());
     }
 
     @Override

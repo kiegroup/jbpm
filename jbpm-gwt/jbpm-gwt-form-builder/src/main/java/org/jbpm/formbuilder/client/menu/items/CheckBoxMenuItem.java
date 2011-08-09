@@ -51,7 +51,7 @@ public class CheckBoxMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Check Box");
+        return new Label(i18n.MenuItemCheckBox());
     }
 
     @Override

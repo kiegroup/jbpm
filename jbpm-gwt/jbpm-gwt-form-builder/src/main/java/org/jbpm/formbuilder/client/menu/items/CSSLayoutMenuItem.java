@@ -45,7 +45,7 @@ public class CSSLayoutMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("CSS Layout");
+        return new Label(i18n.MenuItemCSSLayout());
     }
 
     @Override

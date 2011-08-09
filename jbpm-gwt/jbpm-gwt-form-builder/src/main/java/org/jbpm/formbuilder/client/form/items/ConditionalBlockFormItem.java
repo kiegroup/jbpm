@@ -53,9 +53,7 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
                 } else if (elseBlock == null) {
                     elseBlock = item;
                 } else {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, 
-                            "You shouldn't add more than two layout components to a conditional block (one for if and one for else)")
-                    );
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ConditionalBlockFull()));
                 }
             }
             super.add(w);
@@ -114,7 +112,7 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof ConditionalBlockRepresentation)) {
-            throw new FormBuilderException("rep should be of type ConditionalBlockRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "ConditionalBlockRepresentation"));
         }
         super.populate(rep);
         ConditionalBlockRepresentation srep = (ConditionalBlockRepresentation) rep;

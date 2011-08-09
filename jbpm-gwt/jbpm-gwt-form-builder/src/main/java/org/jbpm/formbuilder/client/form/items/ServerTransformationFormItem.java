@@ -77,7 +77,7 @@ public class ServerTransformationFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof ServerTransformationRepresentation)) {
-            throw new FormBuilderException("rep should be of type ServerTransformationRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "ServerTransformationRepresentation"));
         }
         super.populate(rep);
         ServerTransformationRepresentation srep = (ServerTransformationRepresentation) rep;

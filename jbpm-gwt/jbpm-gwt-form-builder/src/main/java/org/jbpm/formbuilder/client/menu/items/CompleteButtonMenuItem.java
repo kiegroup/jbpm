@@ -41,7 +41,7 @@ public class CompleteButtonMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Complete Button");
+        return new Label(i18n.MenuItemCompleteButton());
     }
     
     @Override

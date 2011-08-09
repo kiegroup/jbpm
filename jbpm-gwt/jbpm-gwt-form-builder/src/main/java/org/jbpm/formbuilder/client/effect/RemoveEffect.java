@@ -39,7 +39,7 @@ public class RemoveEffect extends FBFormEffect {
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public RemoveEffect() {
-        super("Remove item", false);
+        super(FormBuilderGlobals.getInstance().getI18n().RemoveEffectLabel(), false);
     }
     
     @Override

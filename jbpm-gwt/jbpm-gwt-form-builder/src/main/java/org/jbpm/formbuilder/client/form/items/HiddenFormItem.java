@@ -98,7 +98,7 @@ public class HiddenFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof HiddenRepresentation)) {
-            throw new FormBuilderException("rep should be of type HiddenRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "HiddenRepresentation"));
         }
         super.populate(rep);
         HiddenRepresentation hrep = (HiddenRepresentation) rep;

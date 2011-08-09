@@ -45,7 +45,7 @@ public class BorderLayoutMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Border Layout");
+        return new Label(i18n.MenuItemBorderLayout());
     }
 
     @Override

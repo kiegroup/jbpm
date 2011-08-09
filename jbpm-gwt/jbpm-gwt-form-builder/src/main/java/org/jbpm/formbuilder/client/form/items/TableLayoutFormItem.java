@@ -153,8 +153,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
         if (!added) {
-            bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, 
-                    "Table full! Use different layouts in each cell or add more rows or columns"));
+            bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, i18n.TableFull()));
             return false;
         }
         return true;
@@ -201,7 +200,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof TableRepresentation)) {
-            throw new FormBuilderException("rep should be of type TableRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "TableRepresentation"));
         }
         super.populate(rep);
         TableRepresentation trep = (TableRepresentation) rep;

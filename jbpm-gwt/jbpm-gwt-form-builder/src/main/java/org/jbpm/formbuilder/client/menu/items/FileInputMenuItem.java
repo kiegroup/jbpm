@@ -45,7 +45,7 @@ public class FileInputMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("File Input");
+        return new Label(i18n.MenuItemFileInput());
     }
 
     @Override

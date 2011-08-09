@@ -41,7 +41,7 @@ public class PasswordFieldMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new HTML("Password Field");
+        return new HTML(i18n.MenuItemPasswordField());
     }
     
     @Override

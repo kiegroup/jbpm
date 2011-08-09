@@ -19,6 +19,7 @@ import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.command.CopyCommand;
 import org.jbpm.formbuilder.client.command.CutCommand;
 import org.jbpm.formbuilder.client.command.PasteCommand;
+import org.jbpm.formbuilder.client.messages.Constants;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
@@ -35,6 +36,8 @@ public class FormBuilderGlobals {
     private PickupDragController dragController;
     
     private FormBuilderService service;
+    
+    private Constants i18n;
 
     private FormBuilderGlobals() {
     }
@@ -67,6 +70,14 @@ public class FormBuilderGlobals {
         return service;
     }
 
+    public void registerI18n(Constants i18n) {
+        this.i18n = i18n;
+    }
+    
+    public Constants getI18n() {
+        return i18n;
+    }
+    
     private CopyCommand copy;
     private CutCommand cut;
     private PasteCommand paste;

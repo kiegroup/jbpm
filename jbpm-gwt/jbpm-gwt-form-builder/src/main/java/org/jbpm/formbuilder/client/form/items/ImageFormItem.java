@@ -104,7 +104,7 @@ public class ImageFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof ImageRepresentation)) {
-            throw new FormBuilderException("rep should be of type ImageRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "ImageRepresentation"));
         }
         super.populate(rep);
         ImageRepresentation irep = (ImageRepresentation) rep;

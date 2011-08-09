@@ -26,8 +26,9 @@ import org.jbpm.formbuilder.client.bus.LoadServerFormHandler;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -51,6 +52,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class LoadFormCommand implements BaseCommand {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final FormBuilderService service = FormBuilderGlobals.getInstance().getService();
     
@@ -62,13 +64,13 @@ public class LoadFormCommand implements BaseCommand {
                     try {
                         service.getForm(formName);
                     } catch (FormBuilderException e) {
-                        bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't load form " + formName, e));
+                        bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntLoadForm(formName), e));
                     }
                 } else {
                     try {
                         service.getForms();
                     } catch (FormBuilderException e) {
-                        bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't retrieve all forms", e));
+                        bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntLoadAllForms(), e));
                     }
                 }
             }
@@ -98,11 +100,11 @@ public class LoadFormCommand implements BaseCommand {
         final PopupPanel panel = new PopupPanel(false, true);
         VerticalPanel vPanel = new VerticalPanel();
         HorizontalPanel selectPanel = new HorizontalPanel();
-        selectPanel.add(new Label("Select a Form:"));
+        selectPanel.add(new Label(i18n.SelectAFormLabel()"Select a Form:"));
         selectPanel.add(names);
         vPanel.add(selectPanel);
         HorizontalPanel buttonPanel = new HorizontalPanel();
-        Button loadButton = new Button("Load");
+        Button loadButton = new Button(i18n.LoadButton());
         loadButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 String formName = names.getValue(names.getSelectedIndex());
@@ -110,7 +112,7 @@ public class LoadFormCommand implements BaseCommand {
                 panel.hide();
             }
         });
-        Button cancelButton = new Button("Cancel");
+        Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 panel.hide();

@@ -1,5 +1,8 @@
 package org.jbpm.formbuilder.client.tasks;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Anchor;
@@ -9,6 +12,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class SearchFilterView extends VerticalPanel {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final SimpleSearchView simple = new SimpleSearchView();
     private final AdvancedSearchView advanced = new AdvancedSearchView();
     
@@ -17,17 +21,17 @@ public class SearchFilterView extends VerticalPanel {
     
     public SearchFilterView() {
         setSize("100%", "90px");
-        toogleAnchor = new Anchor("Advanced Search");
+        toogleAnchor = new Anchor(i18n.AdvancedSearch());
         toogleAnchor.setHref("javascript:void(0);");
         toogleAnchor.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (getWidget(0) == simple) {
                     remove(simple);
-                    toogleAnchor.setText("Simple Search");
+                    toogleAnchor.setText(i18n.SimpleSearch());
                     insert(advanced, getWidgetIndex(tooglePanel));
                 } else {
                     remove(advanced);
-                    toogleAnchor.setText("Advanced Search");
+                    toogleAnchor.setText(i18n.AdvancedSearch());
                     insert(simple, getWidgetIndex(tooglePanel));
                 }
             }

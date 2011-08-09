@@ -45,7 +45,7 @@ public class FlowLayoutMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Flow Layout");
+        return new Label(i18n.MenuItemFlowLayout());
     }
 
     @Override

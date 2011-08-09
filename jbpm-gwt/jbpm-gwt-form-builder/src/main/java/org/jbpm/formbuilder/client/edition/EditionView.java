@@ -22,6 +22,7 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
@@ -42,6 +43,7 @@ import com.google.gwt.user.client.ui.TextBox;
 public class EditionView extends ScrollPanel {
 
     private SimplePanel panel = new SimplePanel();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     
     public EditionView() {
         setSize("100%", "100%");
@@ -57,8 +59,8 @@ public class EditionView extends ScrollPanel {
         final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         final Map<String, Object> map = itemSelected.getFormItemPropertiesMap();
         final Grid grid = new Grid(map.size() + 2, 2);
-        grid.setWidget(0, 0, new HTML("<strong>Property Name</strong>"));
-        grid.setWidget(0, 1, new HTML("<strong>Property Value</strong>"));
+        grid.setWidget(0, 0, new HTML("<strong>" + i18n.EditionPropertyName() + "</strong>"));
+        grid.setWidget(0, 1, new HTML("<strong>" + i18n.EditionPropertyValue() + "</strong>"));
         int index = 1;
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             grid.setWidget(index, 0, new Label(entry.getKey()));
@@ -67,7 +69,7 @@ public class EditionView extends ScrollPanel {
             grid.setWidget(index, 1, textBox);
             index++;
         }
-        Button saveButton = new Button("Save changes");
+        Button saveButton = new Button(i18n.SaveChangesButton());
         saveButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
@@ -91,7 +93,7 @@ public class EditionView extends ScrollPanel {
             }
         });
         
-        Button resetButton = new Button("Reset changes");
+        Button resetButton = new Button(i18n.ResetChangesButton());
         resetButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();

@@ -7,6 +7,7 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
@@ -18,7 +19,8 @@ import com.google.gwt.event.shared.EventBus;
 public class FormExporter {
 
     private static final String EXPORT_TYPE = FormExporter.class.getName();
-    
+
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public FormExporter() {
@@ -45,7 +47,7 @@ public class FormExporter {
             String formAsJson = encoder.encode(form);
             setClientExportForm(formAsJson);
         } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't export form representation as json", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntExportAsJson(), e));
         }
     }
 

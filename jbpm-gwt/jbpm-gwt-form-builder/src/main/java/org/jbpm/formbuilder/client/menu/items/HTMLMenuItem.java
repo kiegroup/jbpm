@@ -45,7 +45,7 @@ public class HTMLMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("HTML script");
+        return new Label(i18n.MenuItemHTMLScript());
     }
 
     @Override

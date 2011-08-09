@@ -23,6 +23,7 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -42,6 +43,7 @@ public class SaveFormCommand implements BaseCommand {
 
     private static final String SAVE_TYPE = SaveFormCommand.class.getName();
     
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final FormBuilderService service = FormBuilderGlobals.getInstance().getService();
     
@@ -86,12 +88,12 @@ public class SaveFormCommand implements BaseCommand {
                         panel.getAction(), panel.getMethod(), panel.getEnctype(), 
                         panel.getDocumentation());
                 service.saveForm(form);
-                bus.fireEvent(new NotificationEvent(Level.INFO, "Form " + form.getName() + " saved successfully"));
+                bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormSavedSuccessfully(form.getName())));
             } catch (FormBuilderException e) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem saving form " + form.getName(), e));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemSavingForm(form.getName()), e));
             }
         } else {
-            bus.fireEvent(new NotificationEvent(Level.WARN, "Cannot save form until a form name is defined"));
+            bus.fireEvent(new NotificationEvent(Level.WARN, i18n.DefineFormNameFirst()));
         }
     }
     

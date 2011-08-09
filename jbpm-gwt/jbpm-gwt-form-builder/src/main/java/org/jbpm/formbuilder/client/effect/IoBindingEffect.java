@@ -46,7 +46,7 @@ public class IoBindingEffect extends FBFormEffect {
     private TaskPropertyRef output = null;
     
     public IoBindingEffect() {
-        super("Edit variables associated with this item", true);
+        super(FormBuilderGlobals.getInstance().getI18n().IoBindingEffectLabel(), true);
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             public void onSelectedTask(TaskSelectedEvent event) {
                 if (event.getSelectedTask() != null) {

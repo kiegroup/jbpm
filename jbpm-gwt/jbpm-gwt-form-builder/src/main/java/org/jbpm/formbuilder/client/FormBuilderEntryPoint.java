@@ -16,9 +16,11 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -31,15 +33,18 @@ public class FormBuilderEntryPoint implements EntryPoint {
     /**
      * Does the following steps to start the app:
      * 1 - Registers an event bus
-     * 2 - Starts a client service resolver and registers it
-     * 3 - Creates a FormBuilderView instance
-     * 4 - Creates a FormBuilderController instance
-     * 5 - adds the FormBuilderView instance to the main view
+     * 2-  Registers i18n modules
+     * 3 - Starts a client service resolver and registers it
+     * 4 - Creates a FormBuilderView instance
+     * 5 - Creates a FormBuilderController instance that adds all to the main view
      */
     public void onModuleLoad() {
         //register event bus
         EventBus eventBus = new SimpleEventBus();
         FormBuilderGlobals.getInstance().registerEventBus(eventBus);
+        //register i18n module
+        Constants constants = GWT.create(Constants.class);
+        FormBuilderGlobals.getInstance().registerI18n(constants);
         //start model
         FormBuilderModel server = new FormBuilderModel("fbapi");
         FormBuilderGlobals.getInstance().registerService(server);

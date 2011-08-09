@@ -21,6 +21,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -46,10 +47,15 @@ import com.gwtent.reflection.client.Reflectable;
 public class HorizontalAlignmentFormEffect extends FBFormEffect {
 
     private ListBox alignmentBox = new ListBox();
-    private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public HorizontalAlignmentFormEffect() {
-        super("Horizontal Alignment", true);
+        super(FormBuilderGlobals.getInstance().getI18n().HorizontalAlignment(), true);
+        alignmentBox.addItem(i18n.AlignLeft(), i18n.AlignLeft());
+        alignmentBox.addItem(i18n.AlignRight(), i18n.AlignRight());
+        alignmentBox.addItem(i18n.AlignCenter(), i18n.AlignCenter());
+        alignmentBox.addItem(i18n.AlignJustify(), i18n.AlignJustify());
     }
     
     @Override
@@ -60,13 +66,13 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
         if (widget instanceof HasHorizontalAlignment) {
             HasHorizontalAlignment hw = (HasHorizontalAlignment) widget;
             HorizontalAlignmentConstant align = null;
-            if ("left".equals(value)) {
+            if (i18n.AlignLeft().equals(value)) {
                 align = HasHorizontalAlignment.ALIGN_LEFT;
-            } else if ("right".equals(value)) {
+            } else if (i18n.AlignRight().equals(value)) {
                 align = HasHorizontalAlignment.ALIGN_RIGHT;
-            } else if ("center".equals(value)) {
+            } else if (i18n.AlignCenter().equals(value)) {
                 align = HasHorizontalAlignment.ALIGN_CENTER;
-            } else if ("justify".equals(value)) {
+            } else if (i18n.AlignJustify().equals(value)) {
                 align = HasHorizontalAlignment.ALIGN_JUSTIFY;
             }
             Map<String, Object> dataSnapshot = new HashMap<String, Object>();
@@ -101,12 +107,17 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
     }
     
     @Override
+    public boolean isValidForItem(FBFormItem item) {
+        return item.getWidget() != null && item.getWidget() instanceof HasHorizontalAlignment; 
+    }
+    
+    @Override
     public PopupPanel createPanel() {
         final PopupPanel panel = new PopupPanel();
         panel.setSize("300px", "200px");
         VerticalPanel vPanel = new VerticalPanel();
         HorizontalPanel hPanel = new HorizontalPanel();
-        hPanel.add(new Label("Alignment:"));
+        hPanel.add(new Label(i18n.Alignment()));
         alignmentBox.addChangeHandler(new ChangeHandler() {
             public void onChange(ChangeEvent event) {
                 HorizontalAlignmentFormEffect.this.createStyles();
@@ -114,7 +125,7 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
             };
         });
         hPanel.add(alignmentBox);
-        Button fontSizeButton = new Button("Apply");
+        Button fontSizeButton = new Button(i18n.ConfirmButton());
         fontSizeButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 HorizontalAlignmentFormEffect.this.createStyles();

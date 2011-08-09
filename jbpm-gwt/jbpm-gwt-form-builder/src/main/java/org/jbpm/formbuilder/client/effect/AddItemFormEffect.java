@@ -22,6 +22,7 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -41,11 +42,13 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class AddItemFormEffect extends FBFormEffect {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    
     private String newLabel;
     private String newValue;
     
     public AddItemFormEffect() {
-        super("Add item to list", true);
+        super(FormBuilderGlobals.getInstance().getI18n().AddItemFormEffectLabel(), true);
     }
     
     public String getNewLabel() {
@@ -81,14 +84,14 @@ public class AddItemFormEffect extends FBFormEffect {
         panel.setSize("150px", "100px");
         VerticalPanel vPanel = new VerticalPanel();
         HorizontalPanel hPanel1 = new HorizontalPanel();
-        hPanel1.add(new Label("New Item Label:"));
+        hPanel1.add(new Label(i18n.NewItemLabel()));
         final TextBox labelBox = new TextBox();
         hPanel1.add(labelBox);
         HorizontalPanel hPanel2 = new HorizontalPanel();
-        hPanel2.add(new Label("New Item Value:"));
+        hPanel2.add(new Label(i18n.NewItemValue()));
         final TextBox valueBox = new TextBox();
         hPanel2.add(valueBox);
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();

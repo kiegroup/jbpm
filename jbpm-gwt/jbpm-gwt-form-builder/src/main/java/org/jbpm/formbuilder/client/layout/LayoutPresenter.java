@@ -42,6 +42,7 @@ import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
@@ -64,6 +65,7 @@ import com.google.gwt.event.shared.EventBus;
  */
 public class LayoutPresenter {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final LayoutView layoutView;
     
@@ -201,7 +203,6 @@ public class LayoutPresenter {
         
         bus.addHandler(UpdateFormViewEvent.TYPE, new UpdateFormViewHandler() {
             public void onEvent(UpdateFormViewEvent event) {
-                System.out.println("UpdateFormViewHandler invoked");
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("newForm", event.getFormRepresentation());
                 dataSnapshot.put("oldForm", layoutView.getFormDisplay().createRepresentation());
@@ -211,7 +212,7 @@ public class LayoutPresenter {
                         try {
                             layoutView.getFormDisplay().populate(oldForm);
                         } catch (FormBuilderException e) {
-                            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't populate screen with form data", e));
+                            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntPopulateWithForm(), e));
                         }
                     }
                     public void onEvent(UndoableEvent event) { }
@@ -220,7 +221,7 @@ public class LayoutPresenter {
                         try {
                             layoutView.getFormDisplay().populate(newForm);
                         } catch (FormBuilderException e) {
-                            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't populate screen with form data", e));
+                            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntPopulateWithForm(), e));
                         }
                     }
                 }));

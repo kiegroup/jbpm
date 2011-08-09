@@ -116,7 +116,7 @@ public class PasswordFieldFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof PasswordFieldRepresentation)) {
-            throw new FormBuilderException("rep should be of type PasswordBuilderException but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "PasswordFieldRepresentation"));
         }
         super.populate(rep);
         PasswordFieldRepresentation prep = (PasswordFieldRepresentation) rep;

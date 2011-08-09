@@ -176,12 +176,23 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
                 this.formItems.add(formItem);
                 super.add(w);
             } else {
-                this.formItems.set(index, formItem);
-                super.insert(w, index);
+                insert(w, index);
             }
         } else {
             super.add(w);
         }
+    }
+    
+    @Override
+    public void insert(Widget widget, int beforeIndex) {
+        if (widget instanceof FBFormItem) {
+            List<FBFormItem> posteriorItems = new ArrayList<FBFormItem>(
+                    this.formItems.subList(beforeIndex, this.formItems.size()));
+            this.formItems.removeAll(posteriorItems);
+            this.formItems.add((FBFormItem) widget);
+            this.formItems.addAll(posteriorItems);
+        }
+        super.insert(widget, beforeIndex);
     }
     
     protected int getItemPosition(FBFormItem newItem) {

@@ -50,7 +50,7 @@ public class HeaderMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Header");
+        return new Label(i18n.MenuItemHeader());
     }
 
     @Override

@@ -18,14 +18,15 @@ package org.jbpm.formbuilder.client.tasks;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
@@ -37,8 +38,9 @@ import com.google.gwt.event.shared.EventBus;
 public class IoAssociationPresenter {
     
     private final IoAssociationView view;
-    private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
     
+    private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public IoAssociationPresenter(IoAssociationView tasksView) {
@@ -49,7 +51,7 @@ public class IoAssociationPresenter {
                 try {
                     model.getExistingIoAssociations(filter);
                 } catch (Exception e) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, "Couldn't populate autocomplete", e));
+                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.CouldntPopulateAutocomplete(), e));
                 }
             }
         });

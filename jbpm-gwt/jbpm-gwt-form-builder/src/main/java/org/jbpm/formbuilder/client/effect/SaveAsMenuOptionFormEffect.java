@@ -25,6 +25,7 @@ import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -46,7 +47,8 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
 
     private String newMenuOptionName;
     private String groupName;
-    private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public SaveAsMenuOptionFormEffect() {
         super("Save as menu option", true);
@@ -97,12 +99,12 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
         Grid grid = new Grid(2, 2);
         final TextBox optionNameBox = new TextBox();
         final TextBox groupNameBox = new TextBox();
-        grid.setWidget(0, 0, new Label("Option Name:"));
+        grid.setWidget(0, 0, new Label(i18n.MenuOptionName()));
         grid.setWidget(0, 1, optionNameBox);
-        grid.setWidget(1, 0, new Label("Group Name:"));
+        grid.setWidget(1, 0, new Label(i18n.MenuOptionGroup()));
         grid.setWidget(1, 1, groupNameBox);
         
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 setNewMenuOptionName(optionNameBox.getValue());

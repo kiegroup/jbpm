@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -34,16 +36,17 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ValidationEditionPanel extends VerticalPanel {
     
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Grid editionGrid = new Grid(1, 1);
     private final Map<String, HasValue<String>> validationProperties = new HashMap<String, HasValue<String>>();
-    private final Button okButton = new Button("Ok");
+    private final Button okButton = new Button(i18n.OkButton());
     
     private FBValidationItem currentValidation = null;
     
     public ValidationEditionPanel() {
         add(editionGrid);
         HorizontalPanel hPanel = new HorizontalPanel();
-        Button resetButton = new Button("Reset");
+        Button resetButton = new Button(i18n.ResetButton());
         resetButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 setVisible(false);

@@ -100,7 +100,7 @@ public class FileInputFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof FileInputRepresentation)) {
-            throw new FormBuilderException("rep should be of type FileInputRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "FileInputRepresentation"));
         }
         super.populate(rep);
         FileInputRepresentation frep = (FileInputRepresentation) rep;

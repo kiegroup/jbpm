@@ -26,7 +26,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class PasteFormEffect extends FBFormEffect {
 
     public PasteFormEffect() {
-        super("Paste", false);
+        super(FormBuilderGlobals.getInstance().getI18n().PasteFormEffectLabel(), false);
     }
     
     @Override

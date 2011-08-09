@@ -27,7 +27,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class CopyFormEffect extends FBFormEffect {
 
     public CopyFormEffect() {
-        super("Copy", false);
+        super(FormBuilderGlobals.getInstance().getI18n().CopyFormEffectLabel(), false);
     }
 
     @Override

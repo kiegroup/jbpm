@@ -117,7 +117,7 @@ public class TextFieldFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof TextFieldRepresentation)) {
-            throw new FormBuilderException("rep should be of type TextFieldRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "TextFieldRepresentation"));
         }
         super.populate(rep);
         TextFieldRepresentation trep = (TextFieldRepresentation) rep;

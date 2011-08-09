@@ -45,7 +45,7 @@ public class ImageMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Image");
+        return new Label(i18n.MenuItemImage());
     }
 
     @Override

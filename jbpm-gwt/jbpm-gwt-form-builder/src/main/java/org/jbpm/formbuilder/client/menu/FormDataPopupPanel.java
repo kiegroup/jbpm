@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.menu;
 
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -38,6 +39,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FormDataPopupPanel extends PopupPanel {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private final ListBox enctype = new ListBox(false);
@@ -77,7 +79,7 @@ public class FormDataPopupPanel extends PopupPanel {
             processId.setEnabled(false);
             documentation.setCharacterWidth(30);
             documentation.setVisibleLines(4);
-            grid.setWidget(0, 0, new Label("Check-In comment:"));
+            grid.setWidget(0, 0, new Label(i18n.CheckInComment()));
             grid.setWidget(0, 1, documentation);
         } else {
             grid.setWidget(0, 0, new HTML("&nbsp;"));
@@ -85,22 +87,22 @@ public class FormDataPopupPanel extends PopupPanel {
         }
         
         
-        grid.setWidget(1, 0, new Label("Action:"));
+        grid.setWidget(1, 0, new Label(i18n.FormAction()));
         grid.setWidget(1, 1, action);
-        grid.setWidget(2, 0, new Label("Method:"));
+        grid.setWidget(2, 0, new Label(i18n.FormMethod()));
         grid.setWidget(2, 1, method);
-        grid.setWidget(3, 0, new Label("Enctype:"));
+        grid.setWidget(3, 0, new Label(i18n.FormEnctype()));
         grid.setWidget(3, 1, enctype);
-        grid.setWidget(4, 0, new Label("Process ID:"));
+        grid.setWidget(4, 0, new Label(i18n.FormProcessId()));
         grid.setWidget(4, 1, processId);
-        grid.setWidget(5, 0, new Label("Task ID:"));
+        grid.setWidget(5, 0, new Label(i18n.FormTaskId()));
         grid.setWidget(5, 1, taskId);
-        grid.setWidget(6, 0, new Label("Name:"));
+        grid.setWidget(6, 0, new Label(i18n.FormName()));
         grid.setWidget(6, 1, name);
         
         vPanel.add(grid);
         HorizontalPanel buttonPanel = new HorizontalPanel();
-        buttonPanel.add(new Button("Apply", new ClickHandler() {
+        buttonPanel.add(new Button(i18n.ConfirmButton(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new FormDataPopulatedEvent(action.getValue(), 
                         method.getValue(method.getSelectedIndex()), taskId.getValue(),
@@ -109,7 +111,7 @@ public class FormDataPopupPanel extends PopupPanel {
                 hide();
             }
         }));
-        buttonPanel.add(new Button("Cancel", new ClickHandler() {
+        buttonPanel.add(new Button(i18n.CancelButton(), new ClickHandler() {
             public void onClick(ClickEvent event) {
                 hide();
             }

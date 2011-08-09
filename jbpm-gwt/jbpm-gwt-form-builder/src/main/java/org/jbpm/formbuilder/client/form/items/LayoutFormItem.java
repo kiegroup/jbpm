@@ -35,7 +35,7 @@ import com.google.gwt.user.client.ui.Widget;
 public abstract class LayoutFormItem extends FBFormItem implements FBCompositeItem {
 
     private List<FBFormItem> items = new ArrayList<FBFormItem>();
-
+    
     public LayoutFormItem() {
         this(new ArrayList<FBFormEffect>());
     }

@@ -26,7 +26,9 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -54,6 +56,8 @@ import com.google.gwt.xml.client.XMLParser;
  */
 public class XmlParseHelper {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    
     /**
      * Method to output xml from a form item and is name with the following format:
      * <code>
@@ -219,7 +223,7 @@ public class XmlParseHelper {
                     retval.add(form);
                 } catch (FormEncodingException e) {
                     FormRepresentation error = new FormRepresentation();
-                    error.setName("ERROR: " + e.getLocalizedMessage());
+                    error.setName(i18n.Error(e.getLocalizedMessage()));
                     retval.add(error);
                 }
             }
@@ -426,11 +430,11 @@ public class XmlParseHelper {
                     if (obj instanceof BaseCommand) {
                         option.setCommand((BaseCommand) obj);
                     } else {
-                        option.setHtml(option.getHtml()+ "(typeError: " + className + " is invalid)");
+                        option.setHtml(option.getHtml()+ "(" + i18n.NotOfType(className, "BaseCommand") + ")");
                         option.setEnabled(false);
                     }
                 } catch (Exception e) {
-                    option.setHtml(option.getHtml() + "(error: " + e.getLocalizedMessage() + ")");
+                    option.setHtml(option.getHtml() + i18n.Error(e.getLocalizedMessage()));
                     option.setEnabled(false);
                 }
             } else {
@@ -482,7 +486,7 @@ public class XmlParseHelper {
                 } else if (obj instanceof FBMenuItem) {
                     menuItem = (FBMenuItem) obj;
                 } else {
-                    throw new Exception(itemClassName + " not of type FBMenuItem");
+                    throw new Exception(i18n.NotOfType(itemClassName, "FBMenuItem"));
                 }
                 NodeList effects = ((Element) itemNode).getElementsByTagName("effect");
                 for (FBFormEffect effect : readItemEffects(effects)) {
@@ -517,7 +521,7 @@ public class XmlParseHelper {
             if (efobj instanceof FBFormEffect) {
                 itemEffects.add((FBFormEffect) efobj);
             } else {
-                throw new Exception(effectClassName + " not a valid FBFormEffect type");
+                throw new Exception(i18n.NotOfType(effectClassName, "FBFormEffect"));
             }
         }
         return itemEffects;

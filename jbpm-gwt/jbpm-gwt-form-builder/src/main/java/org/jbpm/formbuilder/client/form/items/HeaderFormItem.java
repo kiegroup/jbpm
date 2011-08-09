@@ -25,6 +25,8 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
 
@@ -38,8 +40,8 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class HeaderFormItem extends FBFormItem {
 
-
-    private final HTML header = new HTML("<h1>Header</h1>");
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final HTML header = new HTML("<h1>" + i18n.MenuItemHeader() + "</h1>");
     
     private String id;
     private String name;
@@ -122,7 +124,7 @@ public class HeaderFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof HeaderRepresentation)) {
-            throw new FormBuilderException("rep should be of type LabelRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "HeaderRepresentation"));
         }
         super.populate(rep);
         HeaderRepresentation hrep = (HeaderRepresentation) rep;

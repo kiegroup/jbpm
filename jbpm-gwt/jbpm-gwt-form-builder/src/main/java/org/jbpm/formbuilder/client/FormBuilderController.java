@@ -35,6 +35,7 @@ import org.jbpm.formbuilder.client.layout.LayoutPresenter;
 import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.MenuPresenter;
 import org.jbpm.formbuilder.client.menu.MenuView;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.notification.NotificationsPresenter;
 import org.jbpm.formbuilder.client.notification.NotificationsView;
 import org.jbpm.formbuilder.client.options.OptionsPresenter;
@@ -68,6 +69,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class FormBuilderController {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final FormBuilderModel model;
     private final FormBuilderView view;
     
@@ -84,7 +86,7 @@ public class FormBuilderController {
         this.view = fbView;
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             public void onUncaughtException(Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "An error ocurred in the UI", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorInTheUI(), exception));
             }
         });
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
@@ -175,7 +177,7 @@ public class FormBuilderController {
         try {
             form = decoder.decode(json);
         } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't load form from embeded option", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntLoadFromEmbeded(), e));
         }
         return form;
     }
@@ -235,7 +237,7 @@ public class FormBuilderController {
         try {
             model.populateRepresentationFactory();
         } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem obtaining representation - ui component mapping", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemLoadingRepresentationFactory(), e));
         }
     }
 
@@ -250,7 +252,7 @@ public class FormBuilderController {
         try {
             new MenuPresenter(model.getMenuItems(), view);
         } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem creating menu items", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemCreatingMenuItems(), e));
         }
         return view;
     }
@@ -266,7 +268,7 @@ public class FormBuilderController {
         try {
             new OptionsPresenter(model.getMenuOptions(), view);
         } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem creating menu options", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemCreatingMenuOptions(), e));
         }
         return view;
     }

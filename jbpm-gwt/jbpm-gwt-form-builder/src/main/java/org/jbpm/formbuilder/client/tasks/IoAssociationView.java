@@ -17,6 +17,8 @@ package org.jbpm.formbuilder.client.tasks;
 
 import java.util.List;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -35,13 +37,14 @@ public class IoAssociationView extends AbsolutePanel {
 
     private VerticalPanel panel = new VerticalPanel();
     
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final SearchFilterView filterView = new SearchFilterView();
     private final SearchResultsView resultsView = new SearchResultsView();
     
     public IoAssociationView() {
         setSize("100%", "100%");
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-        panel.add(new Label("Search IO associations"));
+        panel.add(new Label(i18n.SearchIOAssociations()));
         panel.add(filterView);
         panel.add(resultsView);
         add(new ScrollPanel(panel));

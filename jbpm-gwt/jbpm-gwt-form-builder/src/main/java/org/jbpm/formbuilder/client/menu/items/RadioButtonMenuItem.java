@@ -45,7 +45,7 @@ public class RadioButtonMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Radio buttons");
+        return new Label(i18n.MenuItemRadioButton());
     }
 
     @Override

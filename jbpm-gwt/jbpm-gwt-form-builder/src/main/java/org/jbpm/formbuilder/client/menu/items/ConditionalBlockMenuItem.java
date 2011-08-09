@@ -44,7 +44,7 @@ public class ConditionalBlockMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Conditional Block");
+        return new Label(i18n.MenuItemConditionalBlock());
     }
 
     @Override

@@ -18,6 +18,8 @@ package org.jbpm.formbuilder.client.effect.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,16 +41,17 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
 
     private List<SelectionHandler<FBValidationItem>> tableHandlers = new ArrayList<SelectionHandler<FBValidationItem>>();
     
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Grid validationsTable = new Grid(1,1);
     private final List<FBValidationItem> currentValidations = new ArrayList<FBValidationItem>();
-    private final Button removeButton = new Button("Remove");
-    private final Button moveUpButton = new Button("Move up");
-    private final Button moveDownButton = new Button("Move down");
+    private final Button removeButton = new Button(i18n.ValidationRemove());
+    private final Button moveUpButton = new Button(i18n.ValidationMoveUp());
+    private final Button moveDownButton = new Button(i18n.ValidationModeDown());
     
     private FBValidationItem selectedValidation = null;
     
     public ValidationTablePanel() {
-        validationsTable.setWidget(0, 0, new HTML("<strong>CurrentValdations</strong>"));
+        validationsTable.setWidget(0, 0, new HTML("<strong>" + i18n.CurrentValidations() + "</strong>"));
         validationsTable.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 for (Widget widget : validationsTable) {

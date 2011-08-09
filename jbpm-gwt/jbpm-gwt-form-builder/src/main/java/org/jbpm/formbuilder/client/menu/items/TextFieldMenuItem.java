@@ -41,7 +41,7 @@ public class TextFieldMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new HTML("<strong>TextField</strong>");
+        return new HTML("<strong>" + i18n.MenuItemTextField() + "</strong>");
     }
     
     @Override

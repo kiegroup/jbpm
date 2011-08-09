@@ -23,6 +23,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
 
@@ -36,7 +38,8 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class CompleteButtonFormItem extends FBFormItem {
 
-    private Button button = new Button("Complete");
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private Button button = new Button(i18n.CompleteButton());
 
     private String innerText;
     private String name;
@@ -106,7 +109,7 @@ public class CompleteButtonFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof CompleteButtonRepresentation)) {
-            throw new FormBuilderException("rep should be of type CompleteButtonRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "CompleteButtonRepresentation"));
         }
         super.populate(rep);
         CompleteButtonRepresentation crep = (CompleteButtonRepresentation) rep;

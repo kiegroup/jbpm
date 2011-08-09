@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.HasDragHandle;
 import com.google.gwt.resources.client.ImageResource;
@@ -39,6 +41,7 @@ import com.google.gwt.user.client.ui.Widget;
 public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle {
     
     private FocusPanel shim = new FocusPanel();
+    protected Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final List<FBFormEffect> formEffects;
     
     public FBMenuItem() {

@@ -85,7 +85,7 @@ public class LoopBlockFormItem extends LayoutFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof LoopBlockRepresentation)) {
-            throw new FormBuilderException("rep should be of type LoopBlockRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "LoopBlockRepresentation"));
         }
         super.populate(rep);
         LoopBlockRepresentation lrep = (LoopBlockRepresentation) rep;
@@ -131,7 +131,7 @@ public class LoopBlockFormItem extends LayoutFormItem {
             loopBlock.setWidget(item);
             return super.add(item);
         } else {
-            bus.fireEvent(new NotificationEvent(Level.WARN, "Loop block can only contain one item"));
+            bus.fireEvent(new NotificationEvent(Level.WARN, i18n.LoopBlockFull()));
             return false;
         }
     }

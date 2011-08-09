@@ -44,7 +44,7 @@ public class ServerTransformationMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Server script");
+        return new Label(i18n.MenuItemServerScript());
     }
 
     @Override

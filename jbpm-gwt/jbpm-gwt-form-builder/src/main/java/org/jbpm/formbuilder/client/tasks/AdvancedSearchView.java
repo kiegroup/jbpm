@@ -1,6 +1,7 @@
 package org.jbpm.formbuilder.client.tasks;
 
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -13,13 +14,15 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 
+//TODO finish with I18N of this class
 public class AdvancedSearchView extends Grid {
+    
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private final TextBox queryName = new TextBox();
     private final ListBox queryType = new ListBox();
-    private final Button searchButton = new Button("Search");
-    
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Button searchButton = new Button(i18n.SearchButton());
     
     public AdvancedSearchView() {
         super(3, 2);

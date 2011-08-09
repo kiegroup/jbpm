@@ -109,7 +109,7 @@ public class RadioButtonFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof RadioButtonRepresentation)) {
-            throw new FormBuilderException("rep should be of type RadioButtonRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "RadioButtonRepresentation"));
         }
         super.populate(rep);
         RadioButtonRepresentation rrep = (RadioButtonRepresentation) rep;

@@ -120,7 +120,7 @@ public class LineGraphFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof LineGraphRepresentation)) {
-            throw new FormBuilderException("rep should be of type LineGraphRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "LineGraphRepresentation"));
         }
         super.populate(rep);
         LineGraphRepresentation grep = (LineGraphRepresentation) rep;

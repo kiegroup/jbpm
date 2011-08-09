@@ -18,6 +18,7 @@ package org.jbpm.formbuilder.client.effect.view;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.bus.ui.ItemValidationsEditedEvent;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
@@ -34,6 +35,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class ValidationsEffectView extends VerticalPanel {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
 
     private PopupPanel parentPopup = null;
@@ -76,7 +78,7 @@ public class ValidationsEffectView extends VerticalPanel {
 
     private Panel createButtonsPanel() {
         HorizontalPanel panel = new HorizontalPanel();
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 bus.fireEventFromSource(new ItemValidationsEditedEvent(validationTablePanel.getCurrentValidations()), ValidationsEffectView.this);
@@ -85,7 +87,7 @@ public class ValidationsEffectView extends VerticalPanel {
                 }
             }
         });
-        Button cancelButton = new Button("Cancel");
+        Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 if (parentPopup != null) {

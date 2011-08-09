@@ -109,7 +109,7 @@ public class FlowLayoutFormItem extends LayoutFormItem {
 	@Override
 	public void populate(FormItemRepresentation rep) throws FormBuilderException {
 		if (!(rep instanceof FlowPanelRepresentation)) {
-            throw new FormBuilderException("rep should be of type FlowPanelRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "FlowPanelRepresentation"));
         }
         super.populate(rep);
         FlowPanelRepresentation frep = (FlowPanelRepresentation) rep;

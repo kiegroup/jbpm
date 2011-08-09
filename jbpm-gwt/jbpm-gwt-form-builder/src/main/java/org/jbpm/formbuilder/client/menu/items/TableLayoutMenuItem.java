@@ -50,7 +50,7 @@ public class TableLayoutMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Table layout");
+        return new Label(i18n.MenuItemTableLayout());
     }
 
     @Override

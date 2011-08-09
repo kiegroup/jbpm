@@ -116,7 +116,7 @@ public class CSSLayoutFormItem extends LayoutFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof CSSPanelRepresentation)) {
-            throw new FormBuilderException("rep should be of type CSSPanelRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "CSSPanelRepresentation"));
         }
         super.populate(rep);
         CSSPanelRepresentation crep = (CSSPanelRepresentation) rep;

@@ -144,7 +144,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	@Override
 	public void populate(FormItemRepresentation rep) throws FormBuilderException {
 		if (!(rep instanceof BorderPanelRepresentation)) {
-            throw new FormBuilderException("rep should be of type BorderPanelRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "BorderPanelRepresentation"));
         }
         super.populate(rep);
         BorderPanelRepresentation brep = (BorderPanelRepresentation) rep;
@@ -251,8 +251,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 			currentPosition = null;
 			return super.add(item);
 		} else {
-			bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, 
-            	"Border layout position already pouplated! Use different coordinates"));
+			bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, i18n.BorderLayoutPositionPopulated()));
 			return false;
 		}
 	}

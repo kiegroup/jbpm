@@ -45,7 +45,7 @@ public class LineGraphMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Line Graph");
+        return new Label(i18n.MenuItemLineGraph());
     }
 
     @Override

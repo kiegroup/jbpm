@@ -96,7 +96,7 @@ public class HTMLFormItem extends FBFormItem {
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
         if (!(rep instanceof HTMLRepresentation)) {
-            throw new FormBuilderException("rep should be of type TextFieldRepresentation but is of type " + rep.getClass().getName());
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "HTMLRepresentation"));
         }
         super.populate(rep);
         HTMLRepresentation hrep = (HTMLRepresentation) rep;

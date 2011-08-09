@@ -32,12 +32,13 @@ import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
+import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
@@ -62,11 +63,13 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+//TODO finish with I18N of this class
 public class FormBuilderModel implements FormBuilderService {
 
     private static final String DEFAULT_PACKAGE_NAME = "defaultPackage";
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     
     private final String contextPath;
     private final XmlParseHelper helper = new XmlParseHelper();
@@ -125,12 +128,12 @@ public class FormBuilderModel implements FormBuilderService {
                     list.addAll(helper.readForms(response.getText()));
                     bus.fireEvent(new LoadServerFormResponseEvent(list.isEmpty() ? null : list.iterator().next()));
                 } else {
-                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find form " + formName + ": response status 404"));
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindForm404(formName)));
                 }
             }
             
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find form " + formName, exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindForm(formName), exception));
             }
         });
         try {
@@ -152,11 +155,11 @@ public class FormBuilderModel implements FormBuilderService {
                     list.addAll(helper.readForms(response.getText()));
                     bus.fireEvent(new LoadServerFormResponseEvent(list));
                 } else {
-                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find forms: response status 404"));
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindForms404()));
                 }
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't find forms", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindForms(), exception));
             }
         });
         try {
@@ -179,13 +182,13 @@ public class FormBuilderModel implements FormBuilderService {
                 bus.fireEvent(new RepresentationFactoryPopulatedEvent());
             }
             public void onError(Request request, Throwable exception) {
-                bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read representation mappings", exception));
+                bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadRepresentationMappings(), exception));
             }
         });
         try {
             request.send();
         } catch (RequestException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, "Couldn't read representation mappings", e));
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadRepresentationMappings(), e));
         }
     }
     

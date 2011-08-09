@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.handler.EventHelper;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
@@ -23,6 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class TaskRow extends FocusPanel {
     
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final List<HandlerRegistration> rclickRegs = new ArrayList<HandlerRegistration>();
 
     private final TaskRef ioRef;
@@ -38,8 +41,8 @@ public class TaskRow extends FocusPanel {
     public TaskRow(TaskRef ioRef, boolean even) {
         this.ioRef = ioRef;
         addStyleName(even ? "even" : "odd");
-        panel.add(new Label("Process ID: " + ioRef.getProcessId()));
-        panel.add(new Label("Task ID: " + ioRef.getTaskId()));
+        panel.add(new Label(i18n.FormProcessId() + " " + ioRef.getProcessId()));
+        panel.add(new Label(i18n.FormTaskId() + " " + ioRef.getTaskId()));
         this.focus = addFocusHandler(new FocusHandler() {
             public void onFocus(FocusEvent event) {
                 showInputs();
@@ -93,34 +96,40 @@ public class TaskRow extends FocusPanel {
     
     protected void showInputs() {
         List<TaskPropertyRef> inputs = this.ioRef.getInputs();
-        inputsGrid.resize(inputs.size(), 2);
+        inputsGrid.resize(inputs.size(), 4);
         for (int index = 0; index < inputs.size(); index++) {
             TaskPropertyRef input = inputs.get(index);
-            inputsGrid.setWidget(index, 0, new HTML("<strong>input name:</strong>" + input.getName()));
-            inputsGrid.setWidget(index, 1, new HTML("<strong>input expression:</strong>" + input.getSourceExpresion()));
+            inputsGrid.setWidget(index, 0, new HTML("<strong>" + i18n.InputNameLabel() + ":</strong>"));
+            inputsGrid.setWidget(index, 1, new Label(input.getName()));
+            inputsGrid.setWidget(index, 2, new HTML("<strong>" + i18n.InputExpressionLabel() + ":</strong>"));
+            inputsGrid.setWidget(index, 3, new Label(input.getSourceExpresion()));
         }
         panel.add(inputsGrid);
     }
     
     protected void showOutputs() {
         List<TaskPropertyRef> outputs = this.ioRef.getOutputs();
-        outputsGrid.resize(outputs.size(), 2);
+        outputsGrid.resize(outputs.size(), 4);
         for (int index = 0; index < outputs.size(); index++) {
             TaskPropertyRef output = outputs.get(index);
-            outputsGrid.setWidget(index, 0, new HTML("<strong>output name:</strong>" + output.getName()));
-            outputsGrid.setWidget(index, 1, new HTML("<strong>output expression:</strong>" + output.getSourceExpresion()));
+            outputsGrid.setWidget(index, 0, new HTML("<strong>" + i18n.OutputNameLabel() + ":</strong>"));
+            outputsGrid.setWidget(index, 1, new Label(output.getName()));
+            outputsGrid.setWidget(index, 2, new HTML("<strong>" + i18n.OutputExpressionLabel() + ":</strong>"));
+            outputsGrid.setWidget(index, 3, new Label(output.getSourceExpresion()));
         }
         panel.add(outputsGrid);
     }
     
     protected void showMetaData() {
         Map<String, String> metaData = this.ioRef.getMetaData();
-        metaDataGrid.resize(metaData.size(), 2);
+        metaDataGrid.resize(metaData.size(), 4);
         List<Map.Entry<String, String>> entries = new ArrayList<Map.Entry<String, String>>(metaData.entrySet());
         for (int index = 0; index < entries.size(); index++) {
             Map.Entry<String, String> entry = entries.get(index);
-            metaDataGrid.setWidget(index, 0, new HTML("<strong>meta data name:</strong>" + entry.getKey()));
-            metaDataGrid.setWidget(index, 1, new HTML("<strong>meta data value:</strong>" + entry.getValue()));
+            metaDataGrid.setWidget(index, 0, new HTML("<strong>" + i18n.MetaDataNameLabel() + ":</strong>"));
+            metaDataGrid.setWidget(index, 1, new Label(entry.getKey()));
+            metaDataGrid.setWidget(index, 2, new HTML("<strong>" + i18n.MetaDataValueLabel() + ":</strong>"));
+            metaDataGrid.setWidget(index, 3, new Label(entry.getValue()));
         }
         panel.add(metaDataGrid);
     }

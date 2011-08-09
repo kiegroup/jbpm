@@ -57,7 +57,7 @@ public class ErrorMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Error: " + errMsg);
+        return new Label(i18n.Error(errMsg));
     }
 
     @Override

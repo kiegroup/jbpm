@@ -50,7 +50,7 @@ public class ComboBoxMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Combo Box");
+        return new Label(i18n.MenuItemComboBox());
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -44,10 +45,11 @@ import com.gwtent.reflection.client.Reflectable;
 public class DeleteItemFormEffect extends FBFormEffect {
 
     private String dropItemLabel;
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public DeleteItemFormEffect() {
-        super("Delete item from list", true);
+        super(FormBuilderGlobals.getInstance().getI18n().DeleteItemFormEffectLabel(), true);
     }
 
     public void setDropItemLabel(String dropItemLabel) {
@@ -85,7 +87,7 @@ public class DeleteItemFormEffect extends FBFormEffect {
         panel.setSize("150px", "66px");
         VerticalPanel vPanel = new VerticalPanel();
         HorizontalPanel hPanel1 = new HorizontalPanel();
-        hPanel1.add(new Label("Label to delete:"));
+        hPanel1.add(new Label(FormBuilderGlobals.getInstance().getI18n().LabelToDelete()));
         final TextBox labelBox = new TextBox();
         labelBox.addChangeHandler(new ChangeHandler() {
             public void onChange(ChangeEvent event) {
@@ -93,7 +95,7 @@ public class DeleteItemFormEffect extends FBFormEffect {
             }
         });
         hPanel1.add(labelBox);
-        Button applyButton = new Button("Apply");
+        Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 undoableEffect(panel, labelBox.getValue());

@@ -21,12 +21,13 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.messages.Constants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -50,6 +51,7 @@ public class DeleteFormCommand implements BaseCommand {
 
     private static final String DELETE_TYPE = DeleteFormCommand.class.getName();
     
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final FormBuilderService service = FormBuilderGlobals.getInstance().getService();
     
@@ -89,10 +91,9 @@ public class DeleteFormCommand implements BaseCommand {
         final PopupPanel panel = new PopupPanel();
         if (form.isSaved()) {
             VerticalPanel vpanel = new VerticalPanel();
-            vpanel.add(new Label("Warning! You will delete form " + form.getName() + " from the server. " +
-                    "Are you sure you want to continue?"));
+            vpanel.add(new Label(i18n.WarningDeleteForm(form.getName())));
             HorizontalPanel hpanel = new HorizontalPanel();
-            Button confirmButton = new Button("Confirm");
+            Button confirmButton = new Button(i18n.ConfirmButton());
             confirmButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     deleteForm(form);
@@ -100,7 +101,7 @@ public class DeleteFormCommand implements BaseCommand {
                 }
             });
             hpanel.add(confirmButton);
-            Button cancelButton = new Button("Cancel");
+            Button cancelButton = new Button(i18n.CancelButton());
             cancelButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     panel.hide();
@@ -111,8 +112,8 @@ public class DeleteFormCommand implements BaseCommand {
             panel.setWidget(vpanel);
         } else {
             VerticalPanel vpanel = new VerticalPanel();
-            vpanel.add(new Label("Form was never saved"));
-            Button closeButton = new Button("Close");
+            vpanel.add(new Label(i18n.FormWasNeverSaved()));
+            Button closeButton = new Button(i18n.CloseButton());
             closeButton.addClickHandler(new ClickHandler() {
                 public void onClick(ClickEvent event) {
                     panel.hide();
@@ -136,7 +137,7 @@ public class DeleteFormCommand implements BaseCommand {
                     try {
                         service.saveForm(form);
                     } catch (FormBuilderException e) {
-                        bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem restoring form", e));
+                        bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemRestoringForm(), e));
                     }
                 }
             }
@@ -147,7 +148,7 @@ public class DeleteFormCommand implements BaseCommand {
                     service.deleteForm(form);
                 } catch (FormBuilderException e) {
                     event.setData("form", null);
-                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem deleting form", e));
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemDeletingForm(), e));
                 }
             }
         }));

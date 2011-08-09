@@ -45,7 +45,7 @@ public class AbsoluteLayoutMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label("Absolute Layout");
+        return new Label(i18n.MenuItemAbsoluteLayout());
     }
 
     @Override

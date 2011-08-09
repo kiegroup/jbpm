@@ -77,7 +77,8 @@ public class TreeElement extends FocusPanel {
                 this.img = new Image(FormBuilderResources.INSTANCE.treeLeaf());
             }
         } else {
-            throw new IllegalArgumentException("formItem shouldn't be null");
+            throw new IllegalArgumentException(
+                FormBuilderGlobals.getInstance().getI18n().FormItemShouldntBeNull());
         }
         panel.add(this.img);
         panel.add(this.itemName);

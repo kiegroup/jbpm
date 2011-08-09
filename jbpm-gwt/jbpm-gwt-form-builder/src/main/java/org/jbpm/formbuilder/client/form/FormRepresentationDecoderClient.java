@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
@@ -42,6 +44,8 @@ import com.google.gwt.json.client.JSONValue;
  */
 public class FormRepresentationDecoderClient implements FormRepresentationDecoder {
 
+    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    
     public Object decode(Map<String, Object> data) throws FormEncodingException {
         if (data == null) {
             return null;
@@ -54,10 +58,10 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
                 Mappable item = (Mappable) obj;
                 item.setDataMap(data);
             } else {
-                throw new FormEncodingException("Type " + obj.getClass().getName() + " cannot be casted to FormItemRepresentation");
+                throw new FormEncodingException(i18n.CannotCastTo(obj.getClass().getName(), "FormItemRepresentation"));
             }
         } catch (Exception e) {
-            throw new FormEncodingException("Couldn't instantiate class " + className, e);
+            throw new FormEncodingException(i18n.CouldntInstantiateClass(className), e);
         }
         return obj;
     }
@@ -137,7 +141,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
             Map<String, Object> dataMap = asMap(jsonObj);
             return (FormItemRepresentation) decode(dataMap);
         } else {
-            throw new FormEncodingException("Expected json object but found " + jsonValue);
+            throw new FormEncodingException(i18n.ExpectedJsonObject(String.valueOf(jsonValue)));
         }
     }
     

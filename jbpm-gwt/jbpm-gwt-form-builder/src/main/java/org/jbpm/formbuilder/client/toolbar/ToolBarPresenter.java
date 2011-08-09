@@ -35,6 +35,7 @@ import com.google.gwt.event.shared.EventBus;
 
 /**
  * Toolbar presenter. Registers buttons to send {@link EventBus} notifications
+ * TODO finish with I18N of this class
  */
 public class ToolBarPresenter {
 
