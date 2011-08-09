@@ -100,7 +100,7 @@ public class LoadFormCommand implements BaseCommand {
         final PopupPanel panel = new PopupPanel(false, true);
         VerticalPanel vPanel = new VerticalPanel();
         HorizontalPanel selectPanel = new HorizontalPanel();
-        selectPanel.add(new Label(i18n.SelectAFormLabel()"Select a Form:"));
+        selectPanel.add(new Label(i18n.SelectAFormLabel()));
         selectPanel.add(names);
         vPanel.add(selectPanel);
         HorizontalPanel buttonPanel = new HorizontalPanel();

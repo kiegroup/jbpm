@@ -28,7 +28,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class DoneEffect extends FBFormEffect {
 
     public DoneEffect() {
-        super(FormBuilderGlobals.getInstance().getI18n().DoneEffectLabel()"Done", false);
+        super(FormBuilderGlobals.getInstance().getI18n().DoneEffectLabel(), false);
     }
     
     @Override
