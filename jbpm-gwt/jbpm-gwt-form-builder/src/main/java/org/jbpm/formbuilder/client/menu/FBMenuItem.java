@@ -72,6 +72,7 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
         return getClass().getName();
     }
     
+    @Override
     public Widget getDragHandle() {
         return shim;
     }

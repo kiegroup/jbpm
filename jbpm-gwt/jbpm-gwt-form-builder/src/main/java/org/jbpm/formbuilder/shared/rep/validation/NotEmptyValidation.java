@@ -28,20 +28,24 @@ public class NotEmptyValidation implements FBValidation {
 
     private Map<String, Object> propertiesMap = new HashMap<String, Object>();
     
+    @Override
     public boolean isValid(FormItemRepresentation item) {
         return item != null && item.getInput() != null && item.getInput().getValue() != null && !item.getInput().getValue().trim().equals("");
     }
     
+    @Override
     public String getValidationId() {
         return "notEmpty";
     }
 
+    @Override
     public FBValidation cloneValidation() {
         NotEmptyValidation validation = new NotEmptyValidation();
         validation.setDataMap(getDataMap());
         return validation;
     }
 
+    @Override
     public Map<String, Object> getDataMap() {
         if (!propertiesMap.containsKey("@className") ||
                 !NotEmptyValidation.class.getName().equals(propertiesMap.get("@className"))) {
@@ -50,6 +54,7 @@ public class NotEmptyValidation implements FBValidation {
         return propertiesMap;
     }
 
+    @Override
     public void setDataMap(Map<String, Object> dataMap) {
         if (dataMap == null) {
             dataMap = new HashMap<String, Object>();        }

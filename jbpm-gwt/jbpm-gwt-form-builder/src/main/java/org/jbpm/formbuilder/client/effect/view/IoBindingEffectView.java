@@ -57,12 +57,14 @@ public class IoBindingEffectView extends PopupPanel {
         
         Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 onApplyBinding();
             }
         });
         Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }
@@ -99,12 +101,15 @@ public class IoBindingEffectView extends PopupPanel {
         }
         dataSnapshot.put("oldOutput", effect.getOutput());
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) { }
+            @Override
             public void undoAction(UndoableEvent event) {
                 effect.setInput((TaskPropertyRef) event.getData("oldInput"));
                 effect.setOutput((TaskPropertyRef) event.getData("oldOutput"));
                 effect.fire();
             }
+            @Override
             public void doAction(UndoableEvent event) {
                 effect.setInput((TaskPropertyRef) event.getData("newInput"));
                 effect.setOutput((TaskPropertyRef) event.getData("newOutput"));

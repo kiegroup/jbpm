@@ -46,6 +46,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
 
     private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
     
+    @Override
     public Object decode(Map<String, Object> data) throws FormEncodingException {
         if (data == null) {
             return null;
@@ -66,6 +67,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         return obj;
     }
     
+    @Override
     public FormRepresentation decode(String code) throws FormEncodingException {
         FormRepresentation form = new FormRepresentation();
         JSONValue json = JSONParser.parseLenient(code);
@@ -107,6 +109,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
         return form;
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, List<MenuItemDescription>> decodeMenuItemsMap(String json) throws FormEncodingException {
     	JSONObject jsonObj = JSONParser.parseLenient(json).isObject();
@@ -133,7 +136,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
     	return retval;
     }
 
-    
+    @Override
     public FormItemRepresentation decodeItem(String json) throws FormEncodingException {
         JSONValue jsonValue = JSONParser.parseLenient(json);
         if (jsonValue.isObject() != null) {

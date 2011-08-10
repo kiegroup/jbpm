@@ -80,13 +80,15 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
             dataSnapshot.put("newAlignment", align);
             dataSnapshot.put("hwidget", hw);
             bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                @Override
                 public void onEvent(UndoableEvent event) {  }
+                @Override
                 public void undoAction(UndoableEvent event) {
                     HorizontalAlignmentConstant oldAlignment = (HorizontalAlignmentConstant) event.getData("oldAlignment");
                     HasHorizontalAlignment hwidget = (HasHorizontalAlignment) event.getData("hwidget");
                     hwidget.setHorizontalAlignment(oldAlignment);
                 }
-                
+                @Override
                 public void doAction(UndoableEvent event) {
                     HorizontalAlignmentConstant newAlignment = (HorizontalAlignmentConstant) event.getData("newAlignment");
                     HasHorizontalAlignment hwidget = (HasHorizontalAlignment) event.getData("hwidget");
@@ -119,6 +121,7 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
         HorizontalPanel hPanel = new HorizontalPanel();
         hPanel.add(new Label(i18n.Alignment()));
         alignmentBox.addChangeHandler(new ChangeHandler() {
+            @Override
             public void onChange(ChangeEvent event) {
                 HorizontalAlignmentFormEffect.this.createStyles();
                 panel.hide();
@@ -127,6 +130,7 @@ public class HorizontalAlignmentFormEffect extends FBFormEffect {
         hPanel.add(alignmentBox);
         Button fontSizeButton = new Button(i18n.ConfirmButton());
         fontSizeButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 HorizontalAlignmentFormEffect.this.createStyles();
                 panel.hide();

@@ -48,12 +48,14 @@ public class ValidationEditionPanel extends VerticalPanel {
         HorizontalPanel hPanel = new HorizontalPanel();
         Button resetButton = new Button(i18n.ResetButton());
         resetButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 setVisible(false);
             }
         });
         hPanel.add(resetButton);
         okButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 setVisible(false);
             }

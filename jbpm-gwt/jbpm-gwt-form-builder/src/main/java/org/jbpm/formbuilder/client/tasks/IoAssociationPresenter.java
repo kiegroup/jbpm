@@ -46,6 +46,7 @@ public class IoAssociationPresenter {
     public IoAssociationPresenter(IoAssociationView tasksView) {
         this.view = tasksView;
         bus.addHandler(TaskNameFilterEvent.TYPE, new TaskNameFilterHandler() {
+            @Override
             public void onEvent(TaskNameFilterEvent event) {
                 String filter = event.getTaskNameFilter();
                 try {
@@ -56,16 +57,19 @@ public class IoAssociationPresenter {
             }
         });
         bus.addHandler(ExistingTasksResponseEvent.TYPE, new ExistingTasksResponseHandler() {
+            @Override
             public void onEvent(ExistingTasksResponseEvent event) {
                 view.setTasks(event.getTasks());
             }
         });
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            @Override
             public void onSelectedTask(TaskSelectedEvent event) {
                 view.setSelectedTask(event.getSelectedTask());
             }
         });
         bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
+            @Override
             public void onEvent(EmbededIOReferenceEvent event) {
                 if (event.getIoRef() != null) {
                     view.disableSearch();

@@ -38,29 +38,36 @@ public class EditFormUndoCommand implements BaseCommand {
     public EditFormUndoCommand() {
         EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {
                 checkEnabled();
             }
+            @Override
             public void undoAction(UndoableEvent event) {   }
+            @Override
             public void doAction(UndoableEvent event) {  }
         });
         bus.addHandler(UndoRedoEvent.TYPE, new UndoRedoHandler() {
-           public void onEvent(UndoRedoEvent event) {
-               checkEnabled();
-           }
+            @Override
+            public void onEvent(UndoRedoEvent event) {
+                checkEnabled();
+            }
         });
     }
     
+    @Override
     public void execute() {
         mgr.undo();
         checkEnabled();
     }
 
+    @Override
     public void setItem(MenuItem item) {
         this.item = item;
         checkEnabled();
     }
     
+    @Override
     public void setEmbeded(String profile) {
         //shouldn't be disabled when embedded
     }

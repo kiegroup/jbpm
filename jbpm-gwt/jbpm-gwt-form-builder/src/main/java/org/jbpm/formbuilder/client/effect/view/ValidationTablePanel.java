@@ -53,6 +53,7 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
     public ValidationTablePanel() {
         validationsTable.setWidget(0, 0, new HTML("<strong>" + i18n.CurrentValidations() + "</strong>"));
         validationsTable.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 for (Widget widget : validationsTable) {
                     widget.removeStyleName("selectedValidationRow");
@@ -81,11 +82,13 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
         add(validationsTable);
         HorizontalPanel tableButtonsPanel = new HorizontalPanel();
         removeButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 removeValidation(selectedValidation);
             }
         });
         moveUpButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 moveSelectedValidation(true);
                 moveDownButton.setEnabled(currentValidations.indexOf(selectedValidation) > 0);
@@ -93,6 +96,7 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
             }
         });
         moveDownButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 moveSelectedValidation(false);
                 moveDownButton.setEnabled(currentValidations.indexOf(selectedValidation) > 0);
@@ -112,8 +116,10 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
         this.selectedValidation = validation;
     }
     
+    @Override
     public HandlerRegistration addSelectionHandler(final SelectionHandler<FBValidationItem> handler) {
         HandlerRegistration handlerRegistration = new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 if (tableHandlers.contains(handler)) {
                     tableHandlers.remove(handler);

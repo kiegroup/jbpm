@@ -84,6 +84,7 @@ public class TreeElement extends FocusPanel {
         panel.add(this.itemName);
         sinkEvents(Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 if (item != null) {
                     bus.fireEvent(new FormItemSelectionEvent(item, true));
@@ -92,6 +93,7 @@ public class TreeElement extends FocusPanel {
         });
         add(panel);
         addRightClickHandler(new RightClickHandler() {
+            @Override
             public void onRightClick(RightClickEvent event) {
                 if (item != null) {
                     EffectsPopupPanel popupPanel = new EffectsPopupPanel(item, true);
@@ -106,6 +108,7 @@ public class TreeElement extends FocusPanel {
     
     public HandlerRegistration addRightClickHandler(final RightClickHandler handler) {
         HandlerRegistration reg = new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 TreeElement.this.rclickHandlers.remove(handler);
             }

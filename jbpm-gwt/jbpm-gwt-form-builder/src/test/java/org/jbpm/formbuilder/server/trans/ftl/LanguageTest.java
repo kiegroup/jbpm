@@ -53,6 +53,9 @@ public class LanguageTest extends TestCase {
         form.addFormItem(checkbox);
         URL url = lang.translateForm(form);
         String script = FileUtils.readFileToString(new File(url.getFile()));
-        System.out.println("script = " + script);
+        assertNotNull("script shouldn't be null", script);
+        assertTrue("script should contain checkbox", script.contains("checkbox"));
+        assertTrue("script should contain select", script.contains("select"));
+        assertTrue("script should contain taskNameXXX", script.contains("taskNameXXX"));
     }
 }

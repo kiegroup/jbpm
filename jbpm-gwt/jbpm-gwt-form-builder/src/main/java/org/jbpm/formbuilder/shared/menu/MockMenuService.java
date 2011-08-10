@@ -191,26 +191,32 @@ public class MockMenuService extends AbstractBaseMenuService {
         validations.add(notEmptyDesc);
     }
     
+    @Override
     public List<MenuOptionDescription> listOptions() {
         return options;
     }
 
+    @Override
     public List<ValidationDescription> listValidations() {
         return validations;
     }
     
+    @Override
     public Map<String, List<MenuItemDescription>> listMenuItems() {
         return new HashMap<String, List<MenuItemDescription>>(items);
     }
 
+    @Override
     public void saveMenuItem(String groupName, MenuItemDescription item) {
         addToMap(groupName, item, items);
     }
 
+    @Override
     public void deleteMenuItem(String groupName, MenuItemDescription item) {
         removeFromMap(groupName, item, items);
     }
     
+    @Override
     public Map<String, String> getFormBuilderProperties() throws MenuServiceException {
         Map<String, String> retval = new HashMap<String, String>();
         retval.put("org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation", 

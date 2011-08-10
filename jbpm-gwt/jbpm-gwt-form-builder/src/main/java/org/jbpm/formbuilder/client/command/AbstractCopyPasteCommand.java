@@ -41,6 +41,7 @@ public abstract class AbstractCopyPasteCommand implements BaseCommand {
     
     public AbstractCopyPasteCommand() {   
         bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionHandler() {
+            @Override
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
                     setSelectedItem(event.getFormItemSelected());
@@ -75,11 +76,13 @@ public abstract class AbstractCopyPasteCommand implements BaseCommand {
         bus.fireEvent(new UndoableEvent(dataSnapshot, handler));
     }
     
+    @Override
     public void setItem(MenuItem item) {
         this.menuItem = item;
         setSelectedItem(getSelectedItem());
     }
     
+    @Override
     public void setEmbeded(String profile) {
         //shouldn't be disabled on embeded
     }

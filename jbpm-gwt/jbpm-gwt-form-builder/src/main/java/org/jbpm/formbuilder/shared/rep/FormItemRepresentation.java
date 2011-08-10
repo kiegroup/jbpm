@@ -103,6 +103,7 @@ public abstract class FormItemRepresentation implements Mappable {
         return effectClasses.add(clazz.getName());
     }
 
+    @Override
     public Map<String, Object> getDataMap() {
     	Map<String, Object> data = new HashMap<String, Object>();
     	
@@ -124,6 +125,7 @@ public abstract class FormItemRepresentation implements Mappable {
     	return data;
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();

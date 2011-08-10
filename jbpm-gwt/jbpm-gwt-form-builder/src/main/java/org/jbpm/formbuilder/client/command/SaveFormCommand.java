@@ -50,6 +50,7 @@ public class SaveFormCommand implements BaseCommand {
     public SaveFormCommand() {
         super();
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            @Override
             public void onEvent(GetFormRepresentationResponseEvent event) {
                 if (SAVE_TYPE.equals(event.getSaveType())) {
                     FormRepresentation form = event.getRepresentation();
@@ -73,6 +74,7 @@ public class SaveFormCommand implements BaseCommand {
                     RootPanel.getBodyElement().getClientHeight() / 2 - 150);
             panel.show();
             panel.addCloseHandler(new CloseHandler<PopupPanel>() {
+                @Override
                 public void onClose(CloseEvent<PopupPanel> event) {
                     saveForm(panel, form);
                 }
@@ -97,17 +99,20 @@ public class SaveFormCommand implements BaseCommand {
         }
     }
     
+    @Override
     public void execute() {
         bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
     }
 
     private MenuItem item = null;
     
+    @Override
     public void setItem(MenuItem item) {
         this.item = item;
         item.setEnabled(true);
     }
     
+    @Override
     public void setEmbeded(String profile) {
         if (item != null) {
             //When embedded on guvnor, saving is done through guvnor

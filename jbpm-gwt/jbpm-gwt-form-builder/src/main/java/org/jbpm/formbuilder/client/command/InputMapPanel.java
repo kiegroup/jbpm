@@ -68,6 +68,7 @@ public class InputMapPanel extends PopupPanel {
             final TextBox inputText = new TextBox();
             inputText.setValue(input.getValue());
             inputText.addChangeHandler(new ChangeHandler() {
+                @Override
                 public void onChange(ChangeEvent event) {
                     input.setValue(inputText.getValue());
                     populateRetData(input);
@@ -89,11 +90,13 @@ public class InputMapPanel extends PopupPanel {
     private HorizontalPanel createButtonPanel() {
         HorizontalPanel buttons = new HorizontalPanel();
         okButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }
         });
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }

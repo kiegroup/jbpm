@@ -61,6 +61,7 @@ public abstract class Data implements Mappable {
         this.formatter = formatter;
     }
     
+    @Override
     public Map<String, Object> getDataMap() {
     	Map<String, Object> data = new HashMap<String, Object>();
     	data.put("@className", getClass().getName());
@@ -71,6 +72,7 @@ public abstract class Data implements Mappable {
         return data;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();

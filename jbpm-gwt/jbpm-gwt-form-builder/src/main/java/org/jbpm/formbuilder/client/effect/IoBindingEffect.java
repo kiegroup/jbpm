@@ -48,6 +48,7 @@ public class IoBindingEffect extends FBFormEffect {
     public IoBindingEffect() {
         super(FormBuilderGlobals.getInstance().getI18n().IoBindingEffectLabel(), true);
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            @Override
             public void onSelectedTask(TaskSelectedEvent event) {
                 if (event.getSelectedTask() != null) {
                     ioRef = event.getSelectedTask();
@@ -70,9 +71,11 @@ public class IoBindingEffect extends FBFormEffect {
             in.setValue(this.input.getSourceExpresion());
             in.setMimeType("multipart/form-data");
             in.setFormatter(new Formatter() {
+                @Override
                 public Object format(Object object) {
                     return object;
                 }
+                @Override
                 public Map<String, Object> getDataMap() {
                 	return new HashMap<String, Object>();
                 }
@@ -86,9 +89,11 @@ public class IoBindingEffect extends FBFormEffect {
             out.setValue(this.output.getSourceExpresion());
             out.setMimeType("multipart/form-data");
             out.setFormatter(new Formatter() {
+                @Override
                 public Object format(Object object) {
                     return object;
                 }
+                @Override
                 public Map<String, Object> getDataMap() {
                 	return new HashMap<String, Object>();
                 }

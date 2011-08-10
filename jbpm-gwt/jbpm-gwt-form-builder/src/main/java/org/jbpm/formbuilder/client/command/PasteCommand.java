@@ -53,11 +53,13 @@ public class PasteCommand extends AbstractCopyPasteCommand {
         menuItem.setEnabled(AbstractCopyPasteCommand.getMemory() != null);
     }
     
+    @Override
     public void execute() {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("itemToHold", getSelectedItem() == null ? getFormDisplay() : getSelectedItem());
         dataSnapshot.put("memory", AbstractCopyPasteCommand.getMemory());
         fireUndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void doAction(UndoableEvent event) {
                 Widget itemToHold = (Widget) event.getData("itemToHold");
                 Object obj = event.getData("memory");
@@ -81,7 +83,9 @@ public class PasteCommand extends AbstractCopyPasteCommand {
                     bus.fireEvent(new FormItemAddedEvent(itemToPaste, itemToHold == null ? getFormDisplay() : itemToHold));
                 }
             }
+            @Override
             public void onEvent(UndoableEvent event) { }
+            @Override
             public void undoAction(UndoableEvent event) {
                 FBFormItem itemToHold = (FBFormItem) event.getData("itemToHold");
                 Object obj = event.getData("memory");

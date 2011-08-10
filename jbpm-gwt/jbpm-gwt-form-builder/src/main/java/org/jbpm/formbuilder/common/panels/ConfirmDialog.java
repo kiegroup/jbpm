@@ -40,11 +40,13 @@ public class ConfirmDialog extends DialogBox {
         HorizontalPanel buttons = new HorizontalPanel();
         Button cancelButton = new Button("Cancel");
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }
         });
         okButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }

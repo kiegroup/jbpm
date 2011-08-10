@@ -37,6 +37,7 @@ public class NotificationsPresenter {
     public NotificationsPresenter(NotificationsView notifView) {
         this.view = notifView;
         bus.addHandler(NotificationEvent.TYPE, new NotificationHandler() {
+            @Override
             public void onEvent(NotificationEvent event) {
                 String colorCss = view.getColorCss(event.getLevel().name());
                 String message = event.getMessage();
@@ -45,12 +46,14 @@ public class NotificationsPresenter {
             }
         });
         view.addFocusHandler(new FocusHandler() {
+            @Override
             public void onFocus(FocusEvent event) {
                 view.saveHeight();
                 view.setHeight("300px");
             }
         });
         view.addBlurHandler(new BlurHandler() {
+            @Override
             public void onBlur(BlurEvent event) {
                 view.setHeight(view.getSavedHeight());
             }

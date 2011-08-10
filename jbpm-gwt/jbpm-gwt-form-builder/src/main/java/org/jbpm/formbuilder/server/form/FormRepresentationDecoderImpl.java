@@ -38,6 +38,7 @@ import com.google.gson.JsonParser;
 
 public class FormRepresentationDecoderImpl implements FormRepresentationDecoder {
     
+    @Override
     public Object decode(Map<String, Object> data) throws FormEncodingException {
         if (data == null || data.isEmpty()) {
             return null;
@@ -65,6 +66,7 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
         return obj;
     }
     
+    @Override
     @SuppressWarnings("unchecked")
     public Map<String, List<MenuItemDescription>> decodeMenuItemsMap(String json) throws FormEncodingException {
     	JsonObject jsonObj = new JsonParser().parse(json).getAsJsonObject();
@@ -91,6 +93,7 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
     	return retval;
     }
     
+    @Override
     public FormRepresentation decode(String code) throws FormEncodingException {
         FormRepresentation form = new FormRepresentation();
         JsonElement json = new JsonParser().parse(code);
@@ -132,8 +135,8 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
         return form;
     }
     
-    public FormItemRepresentation decodeItem(String json)
-            throws FormEncodingException {
+    @Override
+    public FormItemRepresentation decodeItem(String json) throws FormEncodingException {
         JsonElement jsonValue = new JsonParser().parse(json);
         if (jsonValue.isJsonObject()) {
             JsonObject jsonObj = jsonValue.getAsJsonObject();

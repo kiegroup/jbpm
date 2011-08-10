@@ -39,14 +39,17 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
         tasks.add(task2);
     }
     
+    @Override
     public List<TaskRef> query(String pkgName, String filter) {
         return new ArrayList<TaskRef>(tasks);
     }
     
+    @Override
     public List<TaskRef> getTasksByName(String pkgName, String processName, String taskName) {
         return tasks.subList(0, 1);
     }
     
+    @Override
     public TaskRef getTaskByUUID(String pkgName, String userTask, String uuid)
             throws TaskServiceException {
         TaskRef retval = null;
@@ -59,10 +62,12 @@ public class MockTaskDefinitionService implements TaskDefinitionService {
         return retval;
     }
     
+    @Override
     public String getContainingPackage(String uuid) throws TaskServiceException {
         return "defaultPackage";
     }
     
+    @Override
     public TaskRef getBPMN2Task(String bpmn2ProcessContent, String processName, String userTask)
             throws TaskServiceException {
         return getTaskByUUID(null, userTask, null);

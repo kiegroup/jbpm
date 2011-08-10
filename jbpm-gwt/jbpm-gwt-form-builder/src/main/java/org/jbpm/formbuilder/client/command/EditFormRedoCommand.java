@@ -38,19 +38,24 @@ public class EditFormRedoCommand implements BaseCommand {
     public EditFormRedoCommand() {
         EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {  
                 checkEnabled();
             }
+            @Override
             public void doAction(UndoableEvent event) {  }
+            @Override
             public void undoAction(UndoableEvent event) {  }
         });
         bus.addHandler(UndoRedoEvent.TYPE, new UndoRedoHandler() {
+            @Override
             public void onEvent(UndoRedoEvent event) {
                 checkEnabled();
             }
          });
     }
     
+    @Override
     public void execute() {
         if (mgr.canRedo()) {
             mgr.redo();
@@ -58,10 +63,12 @@ public class EditFormRedoCommand implements BaseCommand {
         checkEnabled();
     }
 
+    @Override
     public void setEmbeded(String profile) {
         //shouldn't be disabled when embedded
     }
 
+    @Override
     public void setItem(MenuItem item) {
         this.item = item;
         checkEnabled();

@@ -49,13 +49,16 @@ public class RemoveEffect extends FBFormEffect {
         dataSnapshot.put("itemParent", getItem().getParent());
         dataSnapshot.put("item", getItem());
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {  }
+            @Override
             public void undoAction(UndoableEvent event) {
                 Panel panel = (Panel) event.getData("itemParent");
                 FBFormItem item = (FBFormItem) event.getData("item");
                 panel.add(item);
                 bus.fireEvent(new FormItemAddedEvent(item, panel));
             }
+            @Override
             public void doAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("item");
                 item.removeFromParent();

@@ -53,11 +53,13 @@ public class ServerScriptEditor extends FBInplaceEditor {
         this.editionArea.setVisibleLines(10);
         this.editionArea.setValue(item.getScriptContent());
         editionArea.addBlurHandler(new BlurHandler() {
+            @Override
             public void onBlur(BlurEvent event) {
                 wrapper.setValue(false);
             }
         });
         editionArea.addFocusHandler(new FocusHandler() {
+            @Override
             public void onFocus(FocusEvent event) {
                 wrapper.setValue(true);
             }
@@ -81,12 +83,14 @@ public class ServerScriptEditor extends FBInplaceEditor {
         HorizontalPanel panel = new HorizontalPanel();
         panel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         okButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 item.setScriptContent(editionArea.getValue());
                 item.reset();
             }
         });
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 item.reset();
             }

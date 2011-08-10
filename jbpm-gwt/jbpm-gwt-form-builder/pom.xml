@@ -91,14 +91,14 @@
       <version>3.1.0</version>
       <!-- temporal fix. Should change soon enough -->
       <scope>system</scope>
-      <systemPath>${basedir}/lib/gwt-dnd-3.1.0.jar</systemPath>
+      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwt-dnd-3.1.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.gwtent</groupId>
       <artifactId>gwtent.parent</artifactId>
       <version>1.0.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/lib/gwtent.jar</systemPath>
+      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwtent.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.google.gwt.google-apis</groupId>

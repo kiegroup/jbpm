@@ -48,11 +48,14 @@ public class DisposeDropController extends SimpleDropController {
         dataSnapshot.put("draggableObject", context.draggable);
         dataSnapshot.put("panel", panel);
         this.bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {  }
+            @Override
             public void undoAction(UndoableEvent event) {
                 Panel panel = (Panel) event.getData("panel");
                 panel.add((Widget) event.getData("draggableObject"));
             }
+            @Override
             public void doAction(UndoableEvent event) {
                 Widget widget = (Widget) event.getData("draggableObject");
                 widget.removeFromParent();

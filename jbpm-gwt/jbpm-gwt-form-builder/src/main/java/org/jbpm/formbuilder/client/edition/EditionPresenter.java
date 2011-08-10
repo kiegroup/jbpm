@@ -37,6 +37,7 @@ public class EditionPresenter {
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
         
         this.bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionHandler() {
+            @Override
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
                     Widget parent = editView.getParent();

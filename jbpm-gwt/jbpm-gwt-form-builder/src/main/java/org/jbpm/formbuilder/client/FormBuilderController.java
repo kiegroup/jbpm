@@ -85,6 +85,7 @@ public class FormBuilderController {
         this.model = fbModel;
         this.view = fbView;
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+            @Override
             public void onUncaughtException(Throwable exception) {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorInTheUI(), exception));
             }
@@ -106,6 +107,7 @@ public class FormBuilderController {
         view.setIoAssociationView(createIoAssociation());
         view.setToolBarView(createToolBar());
         bus.addHandler(RepresentationFactoryPopulatedEvent.TYPE, new RepresentationFactoryPopulatedHandler() {
+            @Override
             public void onEvent(RepresentationFactoryPopulatedEvent event) {
                 List<GwtEvent<?>> events = setDataPanel(rootPanel);
                 setViewPanel(rootPanel);

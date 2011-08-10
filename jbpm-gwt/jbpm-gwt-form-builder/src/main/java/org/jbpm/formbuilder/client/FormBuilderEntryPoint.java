@@ -38,6 +38,7 @@ public class FormBuilderEntryPoint implements EntryPoint {
      * 4 - Creates a FormBuilderView instance
      * 5 - Creates a FormBuilderController instance that adds all to the main view
      */
+    @Override
     public void onModuleLoad() {
         //register event bus
         EventBus eventBus = new SimpleEventBus();

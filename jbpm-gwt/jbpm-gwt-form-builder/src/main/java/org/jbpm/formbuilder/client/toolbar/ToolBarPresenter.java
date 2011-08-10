@@ -52,21 +52,25 @@ public class ToolBarPresenter {
         this.view = toolBarView;
 
         this.saveRef = this.view.addButton(FormBuilderResources.INSTANCE.saveButton(), i18n.SaveChangesButton(), new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
             }
         });
         this.view.addButton(FormBuilderResources.INSTANCE.refreshButton(), i18n.RefreshFromServerButton(), new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(LOAD_TYPE));
             }
         });
         
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            @Override
             public void onEvent(final GetFormRepresentationResponseEvent event) {
                 if (LOAD_TYPE.equals(event.getSaveType())) {
                     final ConfirmDialog dialog = view.createToolbarDialog(i18n.RefreshButtonWarning());
                     dialog.addOkButtonHandler(new ClickHandler() {
+                        @Override
                         public void onClick(ClickEvent clickEvent) {
                             if (LOAD_TYPE.equals(event.getSaveType())) {
                                 if (event.getRepresentation().isSaved()) {
@@ -80,11 +84,13 @@ public class ToolBarPresenter {
             }
         });
         bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
+            @Override
             public void onEvent(EmbededIOReferenceEvent event) {
                 saveRef.remove();
             }
         });
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            @Override
             public void onSelectedTask(TaskSelectedEvent event) {
                 if (event.getSelectedTask() != null) {
                     view.addMessage(i18n.PackageLabel(), event.getSelectedTask().getPackageName());

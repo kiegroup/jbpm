@@ -52,6 +52,7 @@ public abstract class PreviewFormCommand implements BaseCommand {
     public PreviewFormCommand(final String saveType) {
         this.saveType = saveType;
         this.bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            @Override
             public void onEvent(GetFormRepresentationResponseEvent event) {
                 FormRepresentation form = event.getRepresentation();
                 String type = event.getSaveType();
@@ -61,20 +62,24 @@ public abstract class PreviewFormCommand implements BaseCommand {
             }
         });
         this.bus.addHandler(PreviewFormResponseEvent.TYPE, new PreviewFormResponseHandler() {
+            @Override
             public void onServerResponse(PreviewFormResponseEvent event) {
                 refreshPopup(event.getHtml());
             }
         });
     }
     
+    @Override
     public void setItem(MenuItem item) {
         /* not implemented */
     }
     
+    @Override
     public void setEmbeded(String profile) {
         // shouldn't be disabled on embeded if it doesn't save
     }
     
+    @Override
     public void execute() {
         this.bus.fireEvent(new GetFormRepresentationEvent(this.saveType));
     }
@@ -100,6 +105,7 @@ public abstract class PreviewFormCommand implements BaseCommand {
         } else {
             final InputMapPanel popup = new InputMapPanel(inputs);
             popup.addOkHandler(new ClickHandler() {
+                @Override
                 public void onClick(ClickEvent event) {
                     saveForm(form, popup.getInputs());
                 }

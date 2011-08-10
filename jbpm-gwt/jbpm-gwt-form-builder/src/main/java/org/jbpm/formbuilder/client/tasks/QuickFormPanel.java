@@ -64,11 +64,13 @@ public class QuickFormPanel extends PopupPanel {
         HorizontalPanel buttons = new HorizontalPanel();
         Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }
         });
         okButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 TaskRef trimmedIo = new TaskRef();
                 trimmedIo.setPackageName(row.getIoRef().getPackageName());
@@ -96,6 +98,7 @@ public class QuickFormPanel extends PopupPanel {
                 HorizontalPanel hPanel = new HorizontalPanel();
                 CheckBox checkBox = new CheckBox();
                 checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                    @Override
                     public void onValueChange(ValueChangeEvent<Boolean> event) {
                         Boolean val = event.getValue();
                         if (val == null || val == false) {

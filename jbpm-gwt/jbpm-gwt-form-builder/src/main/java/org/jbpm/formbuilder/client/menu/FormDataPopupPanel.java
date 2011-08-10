@@ -103,6 +103,7 @@ public class FormDataPopupPanel extends PopupPanel {
         vPanel.add(grid);
         HorizontalPanel buttonPanel = new HorizontalPanel();
         buttonPanel.add(new Button(i18n.ConfirmButton(), new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new FormDataPopulatedEvent(action.getValue(), 
                         method.getValue(method.getSelectedIndex()), taskId.getValue(),
@@ -112,6 +113,7 @@ public class FormDataPopupPanel extends PopupPanel {
             }
         }));
         buttonPanel.add(new Button(i18n.CancelButton(), new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 hide();
             }

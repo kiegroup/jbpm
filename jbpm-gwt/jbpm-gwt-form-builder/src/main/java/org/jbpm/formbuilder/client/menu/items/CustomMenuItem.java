@@ -92,18 +92,22 @@ public class CustomMenuItem extends FBMenuItem {
           } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
               final PopupPanel removePanel = new PopupPanel(true);
               MenuItem removeItem = new MenuItem(i18n.RemoveMenuItem(), new Command() {
+                  @Override
                   public void execute() {
                       Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                       dataSnapshot.put("menuItem", CustomMenuItem.this);
                       dataSnapshot.put("groupName", groupName);
                       final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
                       bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
-                          public void onEvent(UndoableEvent event) { }                        
+                          @Override
+                          public void onEvent(UndoableEvent event) { }
+                          @Override
                           public void undoAction(UndoableEvent event) {
                               FBMenuItem item = (FBMenuItem) event.getData("menuItem");
                               String group = (String) event.getData("groupName");
                               bus.fireEvent(new MenuItemAddedEvent(item, group));
                           }
+                          @Override
                           public void doAction(UndoableEvent event) {
                               FBMenuItem item = (FBMenuItem) event.getData("menuItem");
                               String group = (String) event.getData("groupName");

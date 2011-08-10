@@ -71,6 +71,7 @@ public class EditionView extends ScrollPanel {
         }
         Button saveButton = new Button(i18n.SaveChangesButton());
         saveButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 Map<String, Object> newItems = asPropertiesMap(grid);
@@ -78,12 +79,15 @@ public class EditionView extends ScrollPanel {
                 dataSnapshot.put("newItems", newItems);
                 dataSnapshot.put("itemSelected", itemSelected);
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void onEvent(UndoableEvent event) {  }
+                    @Override
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
                         FBFormItem itemSelected = (FBFormItem) event.getData("itemSelected");
                         itemSelected.saveValues((Map<String, Object>) event.getData("oldItems"));
                     }
+                    @Override
                     @SuppressWarnings("unchecked")
                     public void doAction(UndoableEvent event) {
                         FBFormItem itemSelected = (FBFormItem) event.getData("itemSelected");
@@ -95,18 +99,22 @@ public class EditionView extends ScrollPanel {
         
         Button resetButton = new Button(i18n.ResetChangesButton());
         resetButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("newItems", asPropertiesMap(grid));
                 dataSnapshot.put("fakeItemSelected", itemSelected.cloneItem());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void onEvent(UndoableEvent event) {  }
+                    @Override
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
                         FBFormItem itemSelected = (FBFormItem) event.getData("fakeItemSelected");
                         itemSelected.saveValues((Map<String, Object>) event.getData("newItems"));
                         populate(itemSelected);
                     }
+                    @Override
                     public void doAction(UndoableEvent event) {
                         FBFormItem itemSelected = (FBFormItem) event.getData("fakeItemSelected");
                         populate(itemSelected);

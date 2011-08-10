@@ -44,6 +44,7 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         super(formEffects);
     }
     
+    @Override
     public List<FBFormItem> getItems() {
         return items;
     }
@@ -52,6 +53,7 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
     	return this.items.remove(item);
     }
     
+    @Override
     public void setItems(List<FBFormItem> items) {
         this.items = items;
     }
@@ -93,21 +95,29 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         return items.add(item);
     }
 
+    @Override
+    public abstract void add(PhantomPanel phantom, int x, int y);
+
     public FBFormItem insert(int index, FBFormItem newItem) {
         FBFormItem item = null;
-        if (items.get(index) == null || isWhiteSpace(items.get(index))) {
-            item = items.set(index, newItem);
-        } else {
+        if (index == items.size()) {
             item = newItem;
-            for (; index < items.size() ; index++) {
-                item = items.set(index, item);
+            add(item);
+        } else {
+            if (items.get(index) == null || isWhiteSpace(items.get(index))) {
+                item = items.set(index, newItem);
+            } else {
+                item = newItem;
+                for (; index < items.size() ; index++) {
+                    item = items.set(index, item);
+                }
+                items.add(item);
             }
-            items.add(item);
-        }
-        Panel panel = getPanel();
-        if (panel instanceof InsertPanel) {
-            InsertPanel iPanel = (InsertPanel) panel;
-            iPanel.insert(newItem, index);
+            Panel panel = getPanel();
+            if (panel instanceof InsertPanel) {
+                InsertPanel iPanel = (InsertPanel) panel;
+                iPanel.insert(newItem, index);
+            }
         }
         return item;
     }
@@ -134,11 +144,13 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         return null;
     }
     
+    @Override
     public void addPhantom(int x, int y) {
         PhantomPanel phantom = new PhantomPanel();
         phantom.selfInsert(this, x, y, getItems());
     }
     
+    @Override
     public int clearPhantom() {
         return PhantomPanel.selfClear(getPanel());
     }

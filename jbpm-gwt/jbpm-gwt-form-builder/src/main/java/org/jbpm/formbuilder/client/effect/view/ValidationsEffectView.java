@@ -46,6 +46,7 @@ public class ValidationsEffectView extends VerticalPanel {
     
     public ValidationsEffectView() {
         validationListPanel.onAdd(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 FBValidationItem validation = validationListPanel.getValidationSelection();
                 if (validation != null) {
@@ -55,12 +56,14 @@ public class ValidationsEffectView extends VerticalPanel {
             }
         });
         validationEditionPanel.onCommitEdition(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 FBValidationItem validation = validationEditionPanel.getCurrentValidation();
                 validationTablePanel.addValidation(validation);
             }
         });
         validationTablePanel.addSelectionHandler(new SelectionHandler<FBValidationItem>() {
+            @Override
             public void onSelection(SelectionEvent<FBValidationItem> event) {
                 FBValidationItem item = event.getSelectedItem();
                 validationEditionPanel.setCurrentValidation(item);
@@ -80,6 +83,7 @@ public class ValidationsEffectView extends VerticalPanel {
         HorizontalPanel panel = new HorizontalPanel();
         Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 bus.fireEventFromSource(new ItemValidationsEditedEvent(validationTablePanel.getCurrentValidations()), ValidationsEffectView.this);
                 if (parentPopup != null) {
@@ -89,6 +93,7 @@ public class ValidationsEffectView extends VerticalPanel {
         });
         Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 if (parentPopup != null) {
                     parentPopup.hide();

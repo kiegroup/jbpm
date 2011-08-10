@@ -93,6 +93,7 @@ public class AddItemFormEffect extends FBFormEffect {
         hPanel2.add(valueBox);
         Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("labelBoxValue", labelBox.getValue());
@@ -100,12 +101,15 @@ public class AddItemFormEffect extends FBFormEffect {
                 dataSnapshot.put("item", getItem());
                 EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void onEvent(UndoableEvent event) {  }
+                    @Override
                     public void undoAction(UndoableEvent event) {
                         String label = (String) event.getData("labelBoxValue");
                         FBFormItem item = (FBFormItem) event.getData("item");
                         revertStyles(label, item);
                     }
+                    @Override
                     public void doAction(UndoableEvent event) {
                         String newLabel = (String) event.getData("labelBoxValue");
                         String newValue = (String) event.getData("valueBoxValue");

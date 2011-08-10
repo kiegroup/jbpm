@@ -59,6 +59,7 @@ public class TaskRow extends FocusPanel {
         panel.add(new Label(i18n.FormProcessId() + " " + ioRef.getProcessId()));
         panel.add(new Label(i18n.FormTaskId() + " " + ioRef.getTaskId()));
         this.focus = addFocusHandler(new FocusHandler() {
+            @Override
             public void onFocus(FocusEvent event) {
                 showInputs();
                 showOutputs();
@@ -66,6 +67,7 @@ public class TaskRow extends FocusPanel {
             }
         });
         this.blur = addBlurHandler(new BlurHandler() {
+            @Override
             public void onBlur(BlurEvent event) {
                 hideInputs();
                 hideOutputs();

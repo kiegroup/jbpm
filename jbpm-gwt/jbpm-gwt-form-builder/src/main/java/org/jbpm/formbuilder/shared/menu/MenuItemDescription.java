@@ -68,6 +68,7 @@ public class MenuItemDescription implements Mappable {
         this.effects = effects;
     }
     
+    @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("className", this.className);
@@ -85,6 +86,7 @@ public class MenuItemDescription implements Mappable {
         return data;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         this.className = (String) data.get("className");

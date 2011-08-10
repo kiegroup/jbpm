@@ -39,6 +39,7 @@ public class SearchFilterView extends VerticalPanel {
         toogleAnchor = new Anchor(i18n.AdvancedSearch());
         toogleAnchor.setHref("javascript:void(0);");
         toogleAnchor.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 if (getWidget(0) == simple) {
                     remove(simple);

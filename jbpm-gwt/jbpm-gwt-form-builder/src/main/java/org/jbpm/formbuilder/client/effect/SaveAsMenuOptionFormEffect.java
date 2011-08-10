@@ -75,13 +75,16 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
         dataSnapshot.put("menuItem", menuItem);
         dataSnapshot.put("groupName", groupName);
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {  }
+            @Override
             public void undoAction(UndoableEvent event) {
                 FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
                 String groupName = (String) event.getData("groupName");
                 MenuItemRemoveEvent mevent = new MenuItemRemoveEvent(menuItem, groupName);
                 FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
+            @Override
             public void doAction(UndoableEvent event) {
                 FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
                 String groupName = (String) event.getData("groupName");
@@ -106,6 +109,7 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
         
         Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 setNewMenuOptionName(optionNameBox.getValue());
                 setGroupName(groupNameBox.getValue());

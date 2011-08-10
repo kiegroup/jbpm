@@ -534,17 +534,23 @@ public class XmlParseHelper {
             this.value = value;
         }
 
+        @Override
         public String getValue() {
             return value;
         }
         
+        @Override
         public void setValue(String value) { }
+        @Override
         public void setValue(String value, boolean fireEvents) { }
+        @Override
         public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler) { 
             return new HandlerRegistration() {
+                @Override
                 public void removeHandler() { }
             };
         }
+        @Override
         public void fireEvent(GwtEvent<?> event) { }
     }
 }

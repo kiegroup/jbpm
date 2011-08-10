@@ -22,6 +22,7 @@ import org.jbpm.formbuilder.server.render.RendererException;
 
 public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
 
+    @Override
     public Object render(URL url, Map<String, Object> inputData) throws RendererException {
         throw new UnsupportedOperationException("Can't run PHP on Java (yet)");
     }

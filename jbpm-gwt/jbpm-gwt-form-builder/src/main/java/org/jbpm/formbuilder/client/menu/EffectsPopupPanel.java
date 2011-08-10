@@ -44,6 +44,7 @@ public class EffectsPopupPanel extends PopupPanel {
                 bar.addItem(new MenuItem(
                     effect.getName(), 
                     new Command() {
+                        @Override
                         public void execute() {
                             effect.apply(item);
                             PopupPanel popup = effect.createPanel();

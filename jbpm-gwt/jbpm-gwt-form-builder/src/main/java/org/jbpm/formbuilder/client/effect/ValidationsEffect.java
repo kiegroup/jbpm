@@ -52,6 +52,7 @@ public class ValidationsEffect extends FBFormEffect {
     public ValidationsEffect() {
         super(FormBuilderGlobals.getInstance().getI18n().ValidationsEffectLabel(), true);
         bus.addHandler(ValidationSavedEvent.TYPE, new ValidationSavedHandler() {
+            @Override
             public void onEvent(ValidationSavedEvent event) {
                 currentValidations.clear();
                 currentValidations.addAll(event.getValidations());
@@ -59,6 +60,7 @@ public class ValidationsEffect extends FBFormEffect {
             }
         });
         bus.addHandler(ExistingValidationsResponseEvent.TYPE, new ExistingValidationsResponseHandler() {
+            @Override
             public void onEvent(ExistingValidationsResponseEvent event) {
                 availableValidations.clear();
                 availableValidations.addAll(event.getExistingValidations());

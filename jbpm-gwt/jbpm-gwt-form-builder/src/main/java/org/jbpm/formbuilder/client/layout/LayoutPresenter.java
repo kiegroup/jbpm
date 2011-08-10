@@ -75,6 +75,7 @@ public class LayoutPresenter {
         dragController.registerDropController(new DropFormItemController(layoutView, layoutView));
         
         this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutHandler() {
+            @Override
             public void onEvent(RegisterLayoutEvent event) {
                 LayoutFormItem item = event.getLayout();
                 dragController.registerDropController(new DropFormItemController(item, layoutView));
@@ -82,6 +83,7 @@ public class LayoutPresenter {
         });
         
         this.bus.addHandler(GetFormRepresentationEvent.TYPE, new GetFormRepresentationHandler() {
+            @Override
             public void onEvent(GetFormRepresentationEvent event) {
                 FBForm formDisplay = layoutView.getFormDisplay();
                 FormRepresentation rep = formDisplay.createRepresentation();
@@ -90,12 +92,14 @@ public class LayoutPresenter {
         });
         
         this.bus.addHandler(GetFormDisplayEvent.TYPE, new GetFormDisplayHandler() {
+            @Override
             public void onEvent(GetFormDisplayEvent event) {
                 event.setFormDisplay(layoutView.getFormDisplay());
             }
         });
         
         this.bus.addHandler(FormDataPopulatedEvent.TYPE, new FormDataPopulatedHandler() {
+            @Override
             public void onEvent(FormDataPopulatedEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldName", layoutView.getFormDisplay().getName());
@@ -111,7 +115,9 @@ public class LayoutPresenter {
                 dataSnapshot.put("newMehtod", event.getMethod());
                 dataSnapshot.put("newEnctype", event.getEnctype());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void onEvent(UndoableEvent event) {  }
+                    @Override
                     public void undoAction(UndoableEvent event) {
                         String name = (String) event.getData("oldName");
                         String action = (String) event.getData("oldAction");
@@ -121,6 +127,7 @@ public class LayoutPresenter {
                         String enctype = (String) event.getData("oldEnctype");
                         populateFormData(action, processId, taskId, name, method, enctype);
                     }
+                    @Override
                     public void doAction(UndoableEvent event) {
                         String name = (String) event.getData("newName");
                         String action = (String) event.getData("newAction");
@@ -134,6 +141,7 @@ public class LayoutPresenter {
             }
         });
         this.bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
+            @Override
             public void onSelectedTask(TaskSelectedEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("oldTaskID", layoutView.getFormDisplay().getTaskId());
@@ -168,7 +176,9 @@ public class LayoutPresenter {
                 dataSnapshot.put("newTaskInputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getInputs());
                 dataSnapshot.put("newTaskOutputs", event.getSelectedTask() == null ? null : event.getSelectedTask().getOutputs());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void onEvent(UndoableEvent event) { }
+                    @Override
                     @SuppressWarnings("unchecked")
                     public void doAction(UndoableEvent event) {
                         String value = (String) event.getData("newTaskID");
@@ -180,6 +190,7 @@ public class LayoutPresenter {
                         layoutView.getFormDisplay().setInputs(toInputs(inputs));
                         layoutView.getFormDisplay().setOutputs(toOutputs(outputs));
                     }
+                    @Override
                     @SuppressWarnings("unchecked")
                     public void undoAction(UndoableEvent event) {
                         String value = (String) event.getData("oldTaskID");
@@ -196,17 +207,20 @@ public class LayoutPresenter {
         });
         
         bus.addHandler(FormSavedEvent.TYPE, new FormSavedHandler() {
+            @Override
             public void onEvent(FormSavedEvent event) {
                 layoutView.getFormDisplay().setSaved(true);
             }
         });
         
         bus.addHandler(UpdateFormViewEvent.TYPE, new UpdateFormViewHandler() {
+            @Override
             public void onEvent(UpdateFormViewEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("newForm", event.getFormRepresentation());
                 dataSnapshot.put("oldForm", layoutView.getFormDisplay().createRepresentation());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void undoAction(UndoableEvent event) {
                         FormRepresentation oldForm = (FormRepresentation) event.getData("oldForm");
                         try {
@@ -215,7 +229,9 @@ public class LayoutPresenter {
                             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntPopulateWithForm(), e));
                         }
                     }
+                    @Override
                     public void onEvent(UndoableEvent event) { }
+                    @Override
                     public void doAction(UndoableEvent event) {
                         FormRepresentation newForm = (FormRepresentation) event.getData("newForm");
                         try {

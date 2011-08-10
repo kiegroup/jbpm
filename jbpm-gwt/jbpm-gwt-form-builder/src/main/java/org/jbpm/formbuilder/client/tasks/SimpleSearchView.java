@@ -37,6 +37,7 @@ public class SimpleSearchView extends HorizontalPanel {
         searchQuery.setWidth("150px");
         searchButton.setWidth("70px");
         searchButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 String query = searchQuery.getValue();
                 bus.fireEvent(new TaskNameFilterEvent(query));

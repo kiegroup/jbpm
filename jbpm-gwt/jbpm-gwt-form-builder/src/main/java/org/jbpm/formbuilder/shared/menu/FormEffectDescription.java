@@ -35,12 +35,14 @@ public class FormEffectDescription implements Mappable {
         this.className = className;
     }
     
+    @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> dataMap = new HashMap<String, Object>();
         dataMap.put("className", this.className);
         return dataMap;
     }
     
+    @Override
     public void setDataMap(Map<String, Object> dataMap) {
         this.className = (String) dataMap.get("className");
     }

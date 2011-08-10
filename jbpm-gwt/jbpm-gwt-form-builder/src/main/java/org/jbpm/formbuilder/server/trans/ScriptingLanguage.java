@@ -50,15 +50,18 @@ public class ScriptingLanguage implements Language {
         engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".root", folderFileLocation);
         engine.init();
     }
-    
+
+    @Override
     public String getLanguage() {
         return language;
     }
     
+    @Override
     public String translateItem(FormItemRepresentation item) throws LanguageException {
         return runVelocityScript(item, item.getTypeId());
     }
 
+    @Override
     public URL translateForm(FormRepresentation form) throws LanguageException {
         return saveToURL(runVelocityScript(form, "form"));
     }

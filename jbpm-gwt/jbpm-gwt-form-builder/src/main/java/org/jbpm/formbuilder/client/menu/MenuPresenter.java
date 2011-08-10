@@ -64,6 +64,7 @@ public class MenuPresenter {
         }
         
         this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
+            @Override
             public void onEvent(MenuItemAddedEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
@@ -71,6 +72,7 @@ public class MenuPresenter {
             }
         });
         this.bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveHandler() {
+            @Override
             public void onEvent(MenuItemRemoveEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
@@ -78,6 +80,7 @@ public class MenuPresenter {
             }
         });
         this.bus.addHandler(MenuItemFromServerEvent.TYPE, new MenuItemFromServerHandler() {
+            @Override
             public void onEvent(MenuItemFromServerEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();

@@ -48,29 +48,35 @@ public class HeaderInplaceEditor extends FBInplaceEditor {
         editPanel.setBorderWidth(1);
         textBox.setValue(item.getHeader().getText());
         textBox.addBlurHandler(new BlurHandler() {
+            @Override
             public void onBlur(BlurEvent event) {
                 wrapper.setValue(false);
                 item.reset();
             }
         });
         textBox.addFocusHandler(new FocusHandler() {
+            @Override
             public void onFocus(FocusEvent event) {
                 wrapper.setValue(true);
             }
         });
         textBox.addChangeHandler(new ChangeHandler() {
+            @Override
             public void onChange(ChangeEvent event) {
                 Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                 dataSnapshot.put("item", item);
                 dataSnapshot.put("oldValue", item.getHeader().getText());
                 dataSnapshot.put("newValue", textBox.getValue());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                    @Override
                     public void undoAction(UndoableEvent event) {
                         HeaderFormItem myItem = (HeaderFormItem) event.getData("item");
                         String value = (String) event.getData("oldValue");
                         myItem.setContent("<h1>" + value + "</h1>");
                     }
+                    @Override
                     public void onEvent(UndoableEvent event) { }
+                    @Override
                     public void doAction(UndoableEvent event) {
                         HeaderFormItem myItem = (HeaderFormItem) event.getData("item");
                         String value = (String) event.getData("newValue");

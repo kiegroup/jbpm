@@ -24,6 +24,7 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
@@ -43,7 +44,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Grid grid = new Grid(1, 1) {
         @Override
         public boolean remove(Widget widget) {
-            if (widget instanceof FBFormItem) {
+            System.out.println("Grid.remove()");
+            if (widget instanceof FBFormItem || widget instanceof PhantomPanel) {
                 return TableLayoutFormItem.this.remove(widget);
             } else {
                 return super.remove(widget);
@@ -132,13 +134,12 @@ public class TableLayoutFormItem extends LayoutFormItem {
         map.put("rows", this.rows);
         return map;
     }
-
+    
     @Override
     public boolean add(FBFormItem child) {
         boolean added = false;
         for (int i = 0; i < grid.getRowCount() && !added; i++) {
             for (int j = 0; j < grid.getColumnCount() && !added; j++) {
-                //WARN dom used: seems the only way of fixing deleted cell bug
                 if (grid.getWidget(i, j) == null || isWhiteSpace(grid.getWidget(i, j))) {
                     added = true;
                     int index = (i * grid.getColumnCount()) + j;
@@ -160,18 +161,38 @@ public class TableLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
+    public void add(PhantomPanel phantom, int x, int y) {
+        boolean added = false;
+        for (int i = 0; i < grid.getRowCount() && !added; i++) {
+            for (int j = 0; j < grid.getColumnCount() && !added; j++) {
+                if (grid.getWidget(i, j) == null || isWhiteSpace(grid.getWidget(i, j))) {
+                    added = true;
+                    grid.setWidget(i, j, phantom);
+                }
+            }
+        }
+    }
+    
+    @Override
     public boolean remove(Widget child) {
+        System.out.println("TableLayoutFormItem.remove("+child.getClass().getName()+")");
         boolean removed = false;
-        if (child instanceof FBFormItem) {
-            for (int i = 0; i < grid.getRowCount(); i++) {
-                for (int j = 0; j < grid.getColumnCount(); j++) {
+        if (child instanceof FBFormItem || child instanceof PhantomPanel) {
+            int i = 0, j = 0;
+            boolean done = false;
+            for (; i < grid.getRowCount() && !done; i++) {
+                for (; j < grid.getColumnCount() && !done; j++) {
                     if (grid.getWidget(i, j) != null && grid.getWidget(i, j).equals(child)) {
-                        removed = super.remove(child);
-                        ////WARN dom used: seems the only way of fixing deleted cell bug
-                        grid.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");
-                        break;
+                        done = true;
                     }
                 }
+            }
+            if (done) {
+                if (child instanceof FBFormItem) {
+                    removed = super.remove(child);
+                }
+                //WARN dom used: seems the only way of fixing deleted cell bug
+                grid.getCellFormatter().getElement(i, j).setInnerHTML("&nbsp;");
             }
         } else {
             removed = super.remove(child);
@@ -188,8 +209,9 @@ public class TableLayoutFormItem extends LayoutFormItem {
         for (int index = 0; index < this.columns * this.rows; index++) {
             int column = index%this.columns;
             int row = index/this.columns;
-            FBFormItem item = (FBFormItem) grid.getWidget(row, column);
-            if (item != null) {
+            Widget widget = grid.getWidget(row, column);
+            if (widget != null && widget instanceof FBFormItem) {
+                FBFormItem item = (FBFormItem) widget;
                 FormItemRepresentation subRep = item.getRepresentation();
                 rep.setElement(row, column, subRep);
             }

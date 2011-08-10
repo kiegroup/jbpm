@@ -404,6 +404,7 @@ public class FormBuilderServletTest extends TestCase {
         builder.append("</menuItem>\n");
         final String xml = builder.toString();
         EasyMock.expect(req.getReader()).andAnswer(new IAnswer<BufferedReader>() {
+                    @Override
                     public BufferedReader answer() throws Throwable {
                         byte[] byteArray = xml.getBytes();
                         ByteArrayInputStream bin = new ByteArrayInputStream(byteArray);

@@ -65,12 +65,14 @@ public class AdvancedSearchView extends Grid {
         setWidget(1, 1, queryName);
         setWidget(2, 0, new HTML("&nbsp;"));
         queryType.addChangeHandler(new ChangeHandler() {
+            @Override
             public void onChange(ChangeEvent event) {
                 String value = queryType.getValue(queryType.getSelectedIndex());
                 fireTypeSelection(value);
             }
         });
         searchButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 String query = queryName.getValue();
                 if (queryType.getSelectedIndex() > 0) {
@@ -80,6 +82,7 @@ public class AdvancedSearchView extends Grid {
             }
         });
         querySubType.addChangeHandler(new ChangeHandler() {
+            @Override
             public void onChange(ChangeEvent event) {
                 int index = querySubType.getSelectedIndex();
                 if (index > 0) {
@@ -92,6 +95,7 @@ public class AdvancedSearchView extends Grid {
             }
         });
         bus.addHandler(ExistingTasksResponseEvent.TYPE, new ExistingTasksResponseHandler() {
+            @Override
             public void onEvent(ExistingTasksResponseEvent event) {
                 if (event.getSource() == null || event.getSource() != AdvancedSearchView.this) {
                     List<TaskRef> tasks = event.getTasks();

@@ -16,7 +16,6 @@
 package org.jbpm.formbuilder.server.task;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -43,6 +42,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     private final TaskRepoHelper repo = new TaskRepoHelper();
     private final TaskDefinitionsSemanticModule module = new TaskDefinitionsSemanticModule(repo);
     private final BPMN2ProcessProvider provider = new BPMN2ProcessProvider() {
+        @Override
         public void configurePackageBuilder(PackageBuilder packageBuilder) {
             PackageBuilderConfiguration conf = packageBuilder.getPackageBuilderConfiguration();
             if (conf.getSemanticModules().getSemanticModule(TaskDefinitionsSemanticModule.URI) == null) {
@@ -51,16 +51,6 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     };
 
-    public static void main(String[] args) {
-        try {
-            String urlEncoded = URLEncoder.encode("com.sample.humantask.ftl", "UTF-8");
-            System.out.println("urlEncoded = " + urlEncoded);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-                 
-    }
-    
     private final GuvnorHelper helper;
     
     public GuvnorTaskDefinitionService(String baseUrl, String user, String password) {
@@ -68,6 +58,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         this.helper = new GuvnorHelper(baseUrl, user, password);
     }
     
+    @Override
     public List<TaskRef> query(String pkgName, String filter) throws TaskServiceException {
         HttpClient client = new HttpClient();
         GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName));
@@ -105,6 +96,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     }
     
+    @Override
     public List<TaskRef> getTasksByName(String pkgName, String processId, String taskId) throws TaskServiceException {
         HttpClient client = new HttpClient();
         List<TaskRef> retval = new ArrayList<TaskRef>();
@@ -164,6 +156,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return retval;
     }
     
+    @Override
     public String getContainingPackage(final String uuid) throws TaskServiceException {
         try {
             return helper.getPackageNameByContentUUID(uuid);
@@ -174,6 +167,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     }
 
+    @Override
     public TaskRef getTaskByUUID(final String packageName, final String userTask, final String uuid) throws TaskServiceException {
         HttpClient client = new HttpClient();
         if (packageName != null) {
@@ -231,6 +225,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return null;
     }
 
+    @Override
     public TaskRef getBPMN2Task(String bpmn2ProcessContent, String processName, String userTask)
             throws TaskServiceException {
         TaskRef retval = null;

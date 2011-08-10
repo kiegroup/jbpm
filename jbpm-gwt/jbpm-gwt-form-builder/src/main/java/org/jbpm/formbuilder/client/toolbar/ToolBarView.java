@@ -50,6 +50,7 @@ public class ToolBarView extends AbsolutePanel {
         button.addClickHandler(handler);
         hPanel.add(button);
         return new ToolRegistration() {
+            @Override
             public void remove() {
                 hPanel.remove(button);
             }
@@ -61,12 +62,14 @@ public class ToolBarView extends AbsolutePanel {
             final HTML label = new HTML("<strong>" + name + ":</strong> " + value);
             hPanel.add(label);
             return new ToolRegistration() {
+                @Override
                 public void remove() {
                     hPanel.remove(label);
                 }
             };
         } else {
             return new ToolRegistration() {
+                @Override
                 public void remove() { }
             };
         }

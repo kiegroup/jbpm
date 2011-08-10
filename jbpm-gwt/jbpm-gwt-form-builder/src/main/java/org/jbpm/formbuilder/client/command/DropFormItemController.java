@@ -65,7 +65,9 @@ public class DropFormItemController extends AbstractDropController {
             dataSnapshot.put("x", x);
             dataSnapshot.put("y", y);
             this.bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+                @Override
                 public void onEvent(UndoableEvent event) {  }
+                @Override
                 public void undoAction(UndoableEvent event) {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
                     Integer x = (Integer) event.getData("x");
@@ -74,6 +76,7 @@ public class DropFormItemController extends AbstractDropController {
                     panel.remove(formItem);
                     bus.fireEvent(new FormItemRemovedEvent(formItem));
                 }
+                @Override
                 public void doAction(UndoableEvent event) {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
                     FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");

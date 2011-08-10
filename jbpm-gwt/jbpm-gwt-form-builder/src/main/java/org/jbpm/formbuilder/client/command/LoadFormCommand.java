@@ -58,6 +58,7 @@ public class LoadFormCommand implements BaseCommand {
     
     public LoadFormCommand() {
         bus.addHandler(LoadServerFormEvent.TYPE, new LoadServerFormHandler() {
+            @Override
             public void onEvent(LoadServerFormEvent event) {
                 String formName = event.getFormName();
                 if (formName != null) {
@@ -76,10 +77,11 @@ public class LoadFormCommand implements BaseCommand {
             }
         });
         bus.addHandler(LoadServerFormResponseEvent.TYPE, new LoadServerFormResponseHandler() {
+            @Override
             public void onListForms(LoadServerFormResponseEvent event) {
                 popupFormSelection(event.getList());
             }
-            
+            @Override
             public void onGetForm(LoadServerFormResponseEvent event) {
                 populateFormView(event.getForm());
             }
@@ -106,6 +108,7 @@ public class LoadFormCommand implements BaseCommand {
         HorizontalPanel buttonPanel = new HorizontalPanel();
         Button loadButton = new Button(i18n.LoadButton());
         loadButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 String formName = names.getValue(names.getSelectedIndex());
                 populateFormView(formMap.get(formName));
@@ -114,6 +117,7 @@ public class LoadFormCommand implements BaseCommand {
         });
         Button cancelButton = new Button(i18n.CancelButton());
         cancelButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 panel.hide();
             }
@@ -129,17 +133,20 @@ public class LoadFormCommand implements BaseCommand {
         panel.show();
     }
     
+    @Override
     public void execute() {
         bus.fireEvent(new LoadServerFormEvent());
     }
 
     private MenuItem item = null;
     
+    @Override
     public void setItem(MenuItem item) {
         this.item = item;
         item.setEnabled(true);
     }
 
+    @Override
     public void setEmbeded(String profile) {
         //if embedded loading another form shouldn't be available
         if (item != null) {

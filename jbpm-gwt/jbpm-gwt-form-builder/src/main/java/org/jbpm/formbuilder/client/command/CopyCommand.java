@@ -42,11 +42,13 @@ public class CopyCommand extends AbstractCopyPasteCommand {
         menuItem.setEnabled(getSelectedItem() != null);
     }
     
+    @Override
     public void execute() {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("selectedItem", getSelectedItem());
         dataSnapshot.put("oldMemory", AbstractCopyPasteCommand.getMemory());
         fireUndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void doAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("selectedItem");
                 if (item == null) {
@@ -56,11 +58,13 @@ public class CopyCommand extends AbstractCopyPasteCommand {
                 }
                 FormBuilderGlobals.getInstance().paste().enable();
             }
+            @Override
             public void undoAction(UndoableEvent event) {
                 Object oldMemory = event.getData("oldMemory");
                 AbstractCopyPasteCommand.setMemory(oldMemory);
                 FormBuilderGlobals.getInstance().paste().enable();
             }
+            @Override
             public void onEvent(UndoableEvent event) { }
         });
     }

@@ -24,6 +24,7 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.BorderPanelRepresentation;
@@ -190,61 +191,55 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 		return grid;
 	}
 	
+	private int getRow(Position pos) {
+	    int row = 0;
+	    switch (pos) {
+	    case NORTH:
+	    case NORTHEAST:
+	    case NORTHWEST:
+            ensureRows();
+            row = 0;
+            break;
+	    case SOUTH:
+        case SOUTHEAST:
+        case SOUTHWEST:
+            ensureRows();
+            row = 2;
+            break;
+        default: //CENTER
+            row = getMiddleRow();
+            break;
+        }
+	    return row;
+	}
+	
+	private int getColumn(Position pos) {
+	    int col = 0;
+	    switch (pos) {
+        case EAST:
+        case NORTHEAST:
+        case SOUTHEAST:
+            ensureColumns();
+            col = 0;
+            break;
+        case WEST:
+        case SOUTHWEST:
+        case NORTHWEST:
+            ensureColumns();
+            col = 2;
+            break;
+        default: //CENTER
+            col = getMiddleColumn();
+            break;
+        }
+	    return col;
+	}
+	
 	@Override
 	public boolean add(FBFormItem item) {
 		currentPosition = obtainPosition(item.getDesiredX(), item.getDesiredY());
-		int row = 0;
-		int col = 0;
-		switch (currentPosition) {
-		case NORTH:
-			ensureRows();
-			col = getMiddleColumn();
-			row = 0;
-			break;
-		case NORTHEAST:
-			ensureRows();
-			ensureColumns();
-			col = 0;
-			row = 0;
-			break;
-		case EAST:
-			ensureColumns();
-			row = getMiddleRow();
-			col = 2;
-			break;
-		case SOUTHEAST:
-			ensureColumns();
-			ensureRows();
-			row = 2;
-			col = 2;
-			break;
-		case SOUTH:
-			ensureRows();
-			row = 2;
-			col = getMiddleColumn();
-			break;
-		case SOUTHWEST:
-			ensureRows();
-			ensureColumns();
-			row = 2;
-			col = 0;
-			break;
-		case WEST:
-			ensureColumns();
-			row = getMiddleRow();
-			col = 0;
-			break;
-		case NORTHWEST:
-			ensureColumns();
-			ensureRows();
-			col = 0;
-			row = 0;
-			break;
-		default: //CENTER
-			row = getMiddleRow();
-			col = getMiddleColumn();
-			break;
-		}
+		int row = getRow(currentPosition);
+		int col = getColumn(currentPosition);
 		if (locations.get(currentPosition) == null) {
 			grid.setWidget(row, col, item);
 			locations.put(currentPosition, item);
@@ -254,6 +249,14 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 			bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, i18n.BorderLayoutPositionPopulated()));
 			return false;
 		}
+	}
+	
+	@Override
+	public void add(PhantomPanel phantom, int x, int y) {
+	    Position pos = obtainPosition(x, y);
+	    if (locations.get(pos) == null) {
+	        grid.setWidget(getRow(pos), getColumn(pos), phantom);
+	    }
 	}
 
 	private int getMiddleRow() {

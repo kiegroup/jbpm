@@ -73,6 +73,7 @@ public abstract class FBFormItem extends FocusPanel {
         this.effects.addAll(formEffects);
         addStyleName("fbFormItemThinBorder");
         EventHelper.addRightClickHandler(this, new RightClickHandler() {
+            @Override
             public void onRightClick(RightClickEvent event) {
                 EffectsPopupPanel popupPanel = new EffectsPopupPanel(FBFormItem.this, true);
                 if (getFormEffects() != null && !getFormEffects().isEmpty()) {
@@ -82,26 +83,31 @@ public abstract class FBFormItem extends FocusPanel {
             }
         });
         EventHelper.addKeyboardCopyHandler(this, new ControlKeyHandler() {
+            @Override
             public void onKeyboardControl() {
                 FormBuilderGlobals.getInstance().copy().append(FBFormItem.this).execute();
             }
         });
         EventHelper.addKeyboardCutHandler(this, new ControlKeyHandler() {
+            @Override
             public void onKeyboardControl() {
                 FormBuilderGlobals.getInstance().cut().append(FBFormItem.this).execute();
             }
         });
         EventHelper.addKeyboardPasteHandler(this, new ControlKeyHandler() {
+            @Override
             public void onKeyboardControl() {
                 FormBuilderGlobals.getInstance().paste().append(FBFormItem.this).execute();
             }
         });
         EventHelper.addBlurHandler(this, new BlurHandler() {
+            @Override
             public void onBlur(BlurEvent event) {
                 reset();
             }
         });
         EventHelper.addFocusHandler(this, new FocusHandler() {
+            @Override
             public void onFocus(FocusEvent event) {
                 makeEditor();
             }

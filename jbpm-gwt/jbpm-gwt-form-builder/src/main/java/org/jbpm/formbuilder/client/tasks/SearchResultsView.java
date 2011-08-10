@@ -51,11 +51,13 @@ public class SearchResultsView extends VerticalPanel {
                 final TaskRow row = new TaskRow(task, even);
                 even = !even;
                 row.addRightClickHandler(new RightClickHandler() {
+                    @Override
                     public void onRightClick(RightClickEvent event) {
                         final PopupPanel panel = new PopupPanel(true);
                         panel.setPopupPosition(event.getX(), event.getY());
                         MenuBar bar = new MenuBar(true);
                         bar.addItem(i18n.SelectIOObjectCommand(), new Command() {
+                            @Override
                             public void execute() {
                                 bus.fireEvent(new TaskSelectedEvent(row.getIoRef()));
                                 panel.hide();
@@ -92,11 +94,13 @@ public class SearchResultsView extends VerticalPanel {
             selectedRow.clearRightClickHandlers();
             final TaskRow row = selectedRow;
             selectedRow.addRightClickHandler(new RightClickHandler() {
+                @Override
                 public void onRightClick(final RightClickEvent event) {
                     final PopupPanel panel = new PopupPanel(true);
                     panel.setPopupPosition(event.getX(), event.getY());
                     MenuBar bar = new MenuBar(true);
                     bar.addItem(i18n.QuickFormIOObjectCommand(), new Command() {
+                        @Override
                         public void execute() {
                             PopupPanel conf = new QuickFormPanel(row);
                             conf.setPopupPosition(event.getX(), event.getY());

@@ -71,12 +71,14 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     public FBForm() {
         super();
         EventHelper.addRightClickHandler(this, new RightClickHandler() {
+            @Override
             public void onRightClick(RightClickEvent event) {
                 popup.setPopupPosition(event.getX(), event.getY());
                 popup.show();
             }
         });
         EventHelper.addKeyboardPasteHandler(this, new ControlKeyHandler() {
+            @Override
             public void onKeyboardControl() {
                 FormBuilderGlobals.getInstance().paste().append(null).execute();
             }
@@ -142,10 +144,12 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         this.popup.setMethod(method);
     }
     
+    @Override
     public List<FBFormItem> getItems() {
         return formItems;
     }
 
+    @Override
     public void setItems(List<FBFormItem> items) {
         this.formItems = items;
     }
@@ -181,6 +185,11 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         } else {
             super.add(w);
         }
+    }
+    
+    @Override
+    public void add(PhantomPanel phantom, int x, int y) {
+        super.add(phantom);
     }
     
     @Override
@@ -328,11 +337,13 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         }
     }
     
+    @Override
     public void addPhantom(int x, int y) {
         PhantomPanel phantom = new PhantomPanel();
         phantom.selfInsert(this, x, y, getItems());
     }
     
+    @Override
     public int clearPhantom() {
         return PhantomPanel.selfClear(this);
     }

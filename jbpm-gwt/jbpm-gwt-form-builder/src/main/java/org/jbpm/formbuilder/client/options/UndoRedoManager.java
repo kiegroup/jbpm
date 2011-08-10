@@ -50,10 +50,13 @@ public class UndoRedoManager {
      */
     private UndoRedoManager() {
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {
                 syncAdd(event);
             }
+            @Override
             public void undoAction(UndoableEvent event) { }
+            @Override
             public void doAction(UndoableEvent event) { }
         });
     }

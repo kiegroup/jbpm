@@ -90,6 +90,7 @@ public class DeleteItemFormEffect extends FBFormEffect {
         hPanel1.add(new Label(FormBuilderGlobals.getInstance().getI18n().LabelToDelete()));
         final TextBox labelBox = new TextBox();
         labelBox.addChangeHandler(new ChangeHandler() {
+            @Override
             public void onChange(ChangeEvent event) {
                 undoableEffect(panel, labelBox.getValue());
             }
@@ -97,6 +98,7 @@ public class DeleteItemFormEffect extends FBFormEffect {
         hPanel1.add(labelBox);
         Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 undoableEffect(panel, labelBox.getValue());
             }
@@ -112,13 +114,16 @@ public class DeleteItemFormEffect extends FBFormEffect {
         dataSnapshot.put("deletedLabel", label);
         dataSnapshot.put("deletedValue", getValue(label));
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) {  }
+            @Override
             public void undoAction(UndoableEvent event) {
                 String label = (String) event.getData("deletedLabel");
                 String value = (String) event.getData("deletedValue");
                 revertStyles(label, value);
                 panel.hide();
             }
+            @Override
             public void doAction(UndoableEvent event) {
                 String label = (String) event.getData("deletedLabel");
                 DeleteItemFormEffect.this.setDropItemLabel(label);

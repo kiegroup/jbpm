@@ -81,6 +81,7 @@ public class FBScript implements Mappable {
         this.invokeFunction = invokeFunction;
     }
 
+    @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("@className", getClass().getName());
@@ -93,6 +94,7 @@ public class FBScript implements Mappable {
         return data;
     }
 
+    @Override
     public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
         this.documentation = (String) dataMap.get("documentation");
         this.id = (String) dataMap.get("id");

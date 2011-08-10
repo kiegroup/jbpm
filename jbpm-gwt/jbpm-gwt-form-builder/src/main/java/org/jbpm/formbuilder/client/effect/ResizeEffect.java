@@ -51,6 +51,7 @@ public class ResizeEffect extends FBFormEffect {
         Widget actualWidget = getItem().getWidget();
         ResizablePanel resizable = new ResizablePanel(actualWidget, widgetWidth, widgetHeight);
         resizable.addResizeHandler(new ResizeEventHandler() {
+            @Override
             public void onResize(ResizeEvent event) {
                 undoableEvent(event, getItem());
                 getItem().clear();
@@ -71,13 +72,16 @@ public class ResizeEffect extends FBFormEffect {
         dataSnapshot.put("newWidth", "" + event.getWidth() + "px");
         dataSnapshot.put("newHeight", "" + event.getHeight() + "px");
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void onEvent(UndoableEvent event) { /* do nothing */ }
+            @Override
             public void undoAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("item");
                 String oldWidth = (String) event.getData("oldWidth");
                 String oldHeight = (String) event.getData("oldHeight");
                 item.setSize(oldWidth, oldHeight);
             }
+            @Override
             public void doAction(UndoableEvent event) {
                 FBFormItem item = (FBFormItem) event.getData("item");
                 String newWidth = (String) event.getData("newWidth");

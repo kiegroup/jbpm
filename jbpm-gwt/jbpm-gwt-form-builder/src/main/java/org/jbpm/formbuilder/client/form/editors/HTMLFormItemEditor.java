@@ -51,11 +51,13 @@ public class HTMLFormItemEditor extends FBInplaceEditor {
         HorizontalPanel buttonPanel = new HorizontalPanel();
         editorArea.setValue(this.formItem.getHtmlContent());
         editorArea.addBlurHandler(new BlurHandler() {
+            @Override
             public void onBlur(BlurEvent event) {
                 wrapper.setValue(false);
             }
         });
         editorArea.addFocusHandler(new FocusHandler() {
+            @Override
             public void onFocus(FocusEvent event) {
                 wrapper.setValue(true);
             }
@@ -83,6 +85,7 @@ public class HTMLFormItemEditor extends FBInplaceEditor {
     
     private Button createDoneButton() {
         this.doneButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 if (textButton.isEnabled()) {
                     String htmlContent = editorArea.getValue();
@@ -98,6 +101,7 @@ public class HTMLFormItemEditor extends FBInplaceEditor {
     }
     private Button createHtmlButton() {
         this.htmlButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 formItem.setTextContent(editorArea.getValue());
                 editorArea.setValue(formItem.getHtmlContent());
@@ -110,6 +114,7 @@ public class HTMLFormItemEditor extends FBInplaceEditor {
 
     private Button createTextButton() {
         this.textButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 formItem.setHtmlContent(editorArea.getValue());
                 editorArea.setValue(formItem.getTextContent());

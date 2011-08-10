@@ -58,6 +58,7 @@ public class DeleteFormCommand implements BaseCommand {
     public DeleteFormCommand() {
         super();
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            @Override
             public void onEvent(GetFormRepresentationResponseEvent event) {
                 if (DELETE_TYPE.equals(event.getSaveType())) {
                     FormRepresentation form = event.getRepresentation();
@@ -67,17 +68,20 @@ public class DeleteFormCommand implements BaseCommand {
         });
     }
 
+    @Override
     public void execute() {
         bus.fireEvent(new GetFormRepresentationEvent(DELETE_TYPE));
     }
 
     private MenuItem item = null;
     
+    @Override
     public void setItem(MenuItem item) {
         this.item = item;
         item.setEnabled(true);
     }
 
+    @Override
     public void setEmbeded(String profile) {
         if (profile != null && "guvnor".equals(profile)) {
             //if embedded from guvnor, deletion shouldn't be available
@@ -95,6 +99,7 @@ public class DeleteFormCommand implements BaseCommand {
             HorizontalPanel hpanel = new HorizontalPanel();
             Button confirmButton = new Button(i18n.ConfirmButton());
             confirmButton.addClickHandler(new ClickHandler() {
+                @Override
                 public void onClick(ClickEvent event) {
                     deleteForm(form);
                     panel.hide();
@@ -103,6 +108,7 @@ public class DeleteFormCommand implements BaseCommand {
             hpanel.add(confirmButton);
             Button cancelButton = new Button(i18n.CancelButton());
             cancelButton.addClickHandler(new ClickHandler() {
+                @Override
                 public void onClick(ClickEvent event) {
                     panel.hide();
                 }
@@ -115,6 +121,7 @@ public class DeleteFormCommand implements BaseCommand {
             vpanel.add(new Label(i18n.FormWasNeverSaved()));
             Button closeButton = new Button(i18n.CloseButton());
             closeButton.addClickHandler(new ClickHandler() {
+                @Override
                 public void onClick(ClickEvent event) {
                     panel.hide();
                 }
@@ -131,6 +138,7 @@ public class DeleteFormCommand implements BaseCommand {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("form", form);
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
             public void undoAction(UndoableEvent event) {
                 FormRepresentation form = (FormRepresentation) event.getData("form");
                 if (form != null) {
@@ -141,7 +149,9 @@ public class DeleteFormCommand implements BaseCommand {
                     }
                 }
             }
+            @Override
             public void onEvent(UndoableEvent event) { }
+            @Override
             public void doAction(UndoableEvent event) {
                 FormRepresentation form = (FormRepresentation) event.getData("form");
                 try {

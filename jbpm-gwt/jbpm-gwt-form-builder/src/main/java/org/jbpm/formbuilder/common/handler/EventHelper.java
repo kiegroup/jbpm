@@ -49,6 +49,7 @@ public class EventHelper {
         handlers.add(handler);
         final List<BlurHandler> _handlers = handlers;
         return new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 _handlers.remove(handler);
             }
@@ -65,6 +66,7 @@ public class EventHelper {
         handlers.add(handler);
         final List<FocusHandler> _handlers = handlers;
         return new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 _handlers.remove(handler);
             }
@@ -81,6 +83,7 @@ public class EventHelper {
         handlers.add(handler);
         final List<RightClickHandler> _handlers = handlers;
         return new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 _handlers.remove(handler);
             }
@@ -97,6 +100,7 @@ public class EventHelper {
         handlers.add(handler);
         final List<ControlKeyHandler> _handlers = handlers;
         return new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 _handlers.remove(handler);
             }
@@ -113,6 +117,7 @@ public class EventHelper {
         handlers.add(handler);
         final List<ControlKeyHandler> _handlers = handlers;
         return new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 _handlers.remove(handler);
             }
@@ -129,6 +134,7 @@ public class EventHelper {
         handlers.add(handler);
         final List<ControlKeyHandler> _handlers = handlers;
         return new HandlerRegistration() {
+            @Override
             public void removeHandler() {
                 _handlers.remove(handler);
             }

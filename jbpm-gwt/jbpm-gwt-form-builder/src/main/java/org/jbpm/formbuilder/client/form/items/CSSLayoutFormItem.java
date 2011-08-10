@@ -23,6 +23,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.CSSPanelRepresentation;
 
@@ -164,5 +165,10 @@ public class CSSLayoutFormItem extends LayoutFormItem {
     public boolean add(FBFormItem item) {
         panel.add(item);
         return super.add(item);
+    }
+    
+    @Override
+    public void add(PhantomPanel phantom, int x, int y) {
+        // TODO implement phantom insertion
     }
 }

@@ -40,6 +40,7 @@ public class ExportFormCommand implements BaseCommand {
     public ExportFormCommand(String language) {
         this.language = language;
         this.bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
+            @Override
             public void onEvent(GetFormRepresentationResponseEvent event) {
                 FormRepresentation form = event.getRepresentation();
                 String type = event.getSaveType();
@@ -58,14 +59,17 @@ public class ExportFormCommand implements BaseCommand {
         }
     }
     
+    @Override
     public void execute() {
         this.bus.fireEvent(new GetFormRepresentationEvent(this.saveType));
     }
 
+    @Override
     public void setItem(MenuItem item) {
         /* do nothing */
     }
 
+    @Override
     public void setEmbeded(String profile) {
         //shouldn't be disabled when embedded
     }

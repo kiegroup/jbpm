@@ -38,12 +38,14 @@ public class TreePresenter {
     public TreePresenter(TreeView treeView) {
         this.view = treeView;
         bus.addHandler(FormItemRemovedEvent.TYPE, new FormItemRemovedHandler() {
+            @Override
             public void onEvent(FormItemRemovedEvent event) {
                 FBFormItem item = event.getFormItem();
                 view.removeFormItem(item);
             }
         });
         bus.addHandler(FormItemAddedEvent.TYPE, new FormItemAddedHandler() {
+            @Override
             public void onEvent(FormItemAddedEvent event) {
                 FBFormItem item = event.getFormItem();
                 Widget parent = event.getFormItemHolder();

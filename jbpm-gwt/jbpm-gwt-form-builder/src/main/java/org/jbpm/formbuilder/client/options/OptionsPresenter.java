@@ -43,11 +43,13 @@ public class OptionsPresenter {
         this.view.addItems(menuOptions);
         
         bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedHandler() {
+            @Override
             public void onEvent(MenuOptionAddedEvent event) {
                 view.addItem(event.getOption());
             }
         });
         bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
+            @Override
             public void onEvent(EmbededIOReferenceEvent event) {
                 List<MenuItem> items = view.getItems();
                 for (MenuItem item : items) {

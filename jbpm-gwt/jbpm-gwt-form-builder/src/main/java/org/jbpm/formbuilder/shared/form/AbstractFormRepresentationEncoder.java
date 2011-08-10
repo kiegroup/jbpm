@@ -35,6 +35,7 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
         return "yyyy-MM-dd'T'HH:mm:ssZ";
     }
     
+    @Override
     public String encode(FormRepresentation form) throws FormEncodingException {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
@@ -70,6 +71,7 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
         return String.valueOf(value);
     }
     
+    @Override
     public String encodeMenuItemsMap(Map<String, List<MenuItemDescription>> items) throws FormEncodingException {
         Map<String, Object> dataMap = new HashMap<String, Object>();
         if (items == null) {
@@ -85,6 +87,7 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
         return jsonFromMap(dataMap);
     }
     
+    @Override
     public String encode(FormItemRepresentation item) throws FormEncodingException {
         if (item == null) { 
             return "null";

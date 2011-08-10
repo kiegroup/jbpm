@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -43,43 +45,49 @@ public class PhantomPanel extends SimplePanel {
     
     public void selfInsert(Panel panel, int x, int y, List<FBFormItem> items) {
         boolean placed = false;
+        FBFormItem previousCandidate = null;
         for (FBFormItem item : items) {
             int left = item.getAbsoluteLeft();
             int right = left + item.getOffsetWidth();
             int top = item.getAbsoluteTop();
             int bottom = top + item.getOffsetHeight();
-            if (x > left && x > right && y > top && y < bottom) {
-                //inside this panel
-                insert(panel, item);
+            if (x > left && x < right && y > top && y < bottom) {
+                //inside this panel (or its sub panels)
+                insert(panel, item, x, y);
+                placed = true;
+                break;
+            } else if (x > left && y > top && y < bottom) {
+                previousCandidate = item;
+            } else if (previousCandidate != null) {
+                insert(panel, previousCandidate, x, y);
                 placed = true;
                 break;
             }
-            //TODO see how to place yourself in correct position of the panel
         }
-        if (!placed) {
-            int right = panel.getAbsoluteLeft() + panel.getOffsetWidth();
-            int bottom = panel.getAbsoluteTop() + panel.getOffsetHeight();
-            if (x > right || y > bottom) {
-                panel.add(this);
-            }
+        if (!placed && panel instanceof FBCompositeItem) {
+            ((FBCompositeItem) panel).add(this, x, y);
         }
     }
     
-    protected void insert(Panel panel, Widget beforeWidget) {
+    protected void insert(Panel panel, Widget beforeWidget, int x, int y) {
         Iterator<Widget> iter = panel.iterator();
         while (iter.hasNext()) {
             Widget widget = iter.next();
             if (widget == beforeWidget) { //supposed to be the same object
-                List<Widget> nextWidgets = new ArrayList<Widget>();
-                iter.remove();
-                nextWidgets.add(widget);
-                while (iter.hasNext()) {
-                    nextWidgets.add(iter.next());
+                if (widget instanceof FBCompositeItem) {
+                    ((FBCompositeItem) widget).addPhantom(x, y);
+                } else {
+                    List<Widget> nextWidgets = new ArrayList<Widget>();
                     iter.remove();
-                }
-                panel.add(this);
-                for (Widget movedWidget : nextWidgets) {
-                    panel.add(movedWidget);
+                    nextWidgets.add(widget);
+                    while (iter.hasNext()) {
+                        nextWidgets.add(iter.next());
+                        iter.remove();
+                    }
+                    panel.add(this);
+                    for (Widget movedWidget : nextWidgets) {
+                        panel.add(movedWidget);
+                    }
                 }
                 return;
             }
@@ -89,19 +97,29 @@ public class PhantomPanel extends SimplePanel {
     
     public static int selfClear(Panel panel) {
         int index = 0;
-        Widget childToRemove = null;
-        for (Widget child : panel) {
-            if (child instanceof PhantomPanel) {
-                childToRemove = child;
-                break;
+        Widget childToRemove;
+        do {
+            childToRemove = null;
+            for (Widget child : panel) {
+                if (child instanceof PhantomPanel) {
+                    childToRemove = child;
+                    break;
+                } else if (child instanceof LayoutFormItem) {
+                    index = clear((LayoutFormItem) child);
+                    break;
+                }
+                index++;
             }
-            index++;
-        }
-        if (childToRemove == null) {
-            index = -1;
-        } else {
-            panel.remove(childToRemove);
-        }
+            if (childToRemove == null) {
+                index = -1;
+            } else {
+                panel.remove(childToRemove);
+            }
+        } while (childToRemove != null);
         return index;
+    }
+    
+    protected static int clear(LayoutFormItem item) {
+        return (item != null && item.getPanel() != null) ? selfClear(item.getPanel()) : 0;
     }
 }

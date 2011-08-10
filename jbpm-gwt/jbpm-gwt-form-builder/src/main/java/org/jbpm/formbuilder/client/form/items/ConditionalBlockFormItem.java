@@ -25,6 +25,7 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ConditionalBlockRepresentation;
@@ -151,4 +152,14 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
         return display;
     }
 
+    @Override
+    public void add(PhantomPanel phantom, int x, int y) {
+        // TODO implement phantom insertion
+    }
+    
+    @Override
+    public boolean add(FBFormItem item) {
+        // TODO implement adding on display
+        return super.add(item);
+    }
 }

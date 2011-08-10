@@ -39,11 +39,13 @@ public class FBMenuGroupPanel extends SimplePanel {
         this.expandButton.setWidth("100%");
         this.collapseButton.setWidth("100%");
         this.expandButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 expand();
             }
         });
         this.collapseButton.addClickHandler(new ClickHandler() {
+            @Override
             public void onClick(ClickEvent event) {
                 collapse();
             }
