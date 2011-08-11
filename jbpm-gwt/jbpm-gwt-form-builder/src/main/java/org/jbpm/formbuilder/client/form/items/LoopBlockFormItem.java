@@ -139,12 +139,16 @@ public class LoopBlockFormItem extends LayoutFormItem {
     
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        // TODO implement phantom insertion
+        if (loopBlock.getWidget() == null) {
+            loopBlock.setWidget(phantom);
+        }
     }
 
     @Override
     public void replacePhantom(FBFormItem item) {
-        // TODO Auto-generated method stub
-        
+        if (loopBlock.getWidget() == null || loopBlock.getWidget() instanceof PhantomPanel) {
+            loopBlock.remove(loopBlock.getWidget());
+            loopBlock.setWidget(item);
+        }
     }
 }

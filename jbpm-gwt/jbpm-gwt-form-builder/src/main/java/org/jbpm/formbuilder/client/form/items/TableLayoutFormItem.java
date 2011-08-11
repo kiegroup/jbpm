@@ -47,7 +47,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
             if (widget instanceof FBFormItem) {
                 return TableLayoutFormItem.this.remove(widget);
             } else if (widget instanceof PhantomPanel) {
-                System.out.println("remove phantom (from Grid)");
                 boolean retval = false;
                 int row = 0, column = 0;
                 while (row < super.getRowCount() && !retval) {
@@ -62,11 +61,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 if (retval) {
                     if (super.getWidget(row, column) != null) {
                         super.getWidget(row, column).getElement().getParentElement().setInnerHTML("&nbsp;");
-                        /*////WARN dom used: seems the only way of fixing deleted cell bug
-                        Element parent = super.getWidget(row, column).getElement().getParentElement();
-                        Element element = super.getWidget(row, column).getElement();
-                        parent.setInnerHTML("&nbsp;");
-                        element.removeFromParent();*/
                     }
                 }
                 return retval;
@@ -244,7 +238,6 @@ public class TableLayoutFormItem extends LayoutFormItem {
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (grid.getWidget(i, j) != null && grid.getWidget(i, j).equals(child)) {
-                        System.out.println("Found it at " + i + ":" + j);
                         removed = super.remove(child);
                         ////WARN dom used: seems the only way of fixing deleted cell bug
                         grid.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");

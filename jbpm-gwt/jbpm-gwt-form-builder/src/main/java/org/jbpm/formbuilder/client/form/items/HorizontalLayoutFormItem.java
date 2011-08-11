@@ -201,12 +201,24 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        // TODO implement phantom insertion
+        this.panel.add(phantom);
     }
     
     @Override
     public void replacePhantom(FBFormItem item) {
-        // TODO Auto-generated method stub
-        
+        PhantomPanel phantom = null;
+        for (Widget widget : this.panel) {
+            if (widget instanceof PhantomPanel) {
+                phantom = (PhantomPanel) widget;
+                break;
+            }
+        }
+        if (phantom == null) {
+            add(item);
+        } else {
+            int index = this.panel.getWidgetIndex(phantom);
+            this.panel.remove(phantom);
+            super.insert(index, item);
+        }
     }
 }

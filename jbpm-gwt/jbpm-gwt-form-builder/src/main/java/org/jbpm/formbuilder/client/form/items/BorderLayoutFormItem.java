@@ -261,8 +261,17 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	
 	@Override
 	public void replacePhantom(FBFormItem item) {
-	    // TODO Auto-generated method stub
-	    
+	    currentPosition = obtainPosition(item.getDesiredX(), item.getDesiredY());
+        int row = getRow(currentPosition);
+        int col = getColumn(currentPosition);
+        if (locations.get(currentPosition) == null) {
+            grid.setWidget(row, col, item);
+            locations.put(currentPosition, item);
+            currentPosition = null;
+            super.add(item);
+        } else {
+            bus.fireEvent(new NotificationEvent(NotificationEvent.Level.WARN, i18n.BorderLayoutPositionPopulated()));
+        }
 	}
 	
 	private int getMiddleRow() {

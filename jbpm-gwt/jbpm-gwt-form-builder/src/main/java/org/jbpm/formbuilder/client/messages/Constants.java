@@ -90,6 +90,8 @@ public interface Constants extends Messages {
     String CurrentValidations();
     String BorderLayoutPositionPopulated();
     String ConditionalBlockFull();
+    String IfBlockLabel();
+    String ElseBlockLabel();
     String LoopBlockFull();
     String TableFull();
     String InputMapPopulation();

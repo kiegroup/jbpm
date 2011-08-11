@@ -30,9 +30,10 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ConditionalBlockRepresentation;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -44,22 +45,7 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
-    private VerticalPanel display = new VerticalPanel() {
-        @Override
-        public void add(Widget w) {
-            if (w instanceof FBFormItem) {
-                FBFormItem item = (FBFormItem) w;
-                if (ifBlock == null) {
-                    ifBlock = item;
-                } else if (elseBlock == null) {
-                    elseBlock = item;
-                } else {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ConditionalBlockFull()));
-                }
-            }
-            super.add(w);
-        }
-        
+    private Grid display = new Grid(2, 1) {
         @Override
         public boolean remove(Widget w) {
             if (w == ifBlock) {
@@ -83,6 +69,7 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
     public ConditionalBlockFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         display.setBorderWidth(1);
+        display.add(null);
         display.setStyleName("conditionalBlockBorder");
         display.setSize("100%", "50px");
         add(display);
@@ -154,17 +141,47 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
 
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        // TODO implement phantom insertion
+        Element ifDisplay = display.getCellFormatter().getElement(0, 0);
+        if (x > ifDisplay.getAbsoluteLeft() && x < ifDisplay.getAbsoluteRight() 
+         && y > ifDisplay.getAbsoluteTop() && y < ifDisplay.getAbsoluteBottom()) {
+            display.setWidget(0, 0, phantom);
+        }
+        Element elseDisplay = display.getCellFormatter().getElement(0, 1);
+        if (x > elseDisplay.getAbsoluteLeft() && x < elseDisplay.getAbsoluteRight() 
+         && y > elseDisplay.getAbsoluteTop() && y < elseDisplay.getAbsoluteBottom()) {
+            display.setWidget(0, 1, phantom);
+        }
     }
     
     @Override
     public boolean add(FBFormItem item) {
-        // TODO implement adding on display
-        return super.add(item);
+        boolean retval = false;
+        if (ifBlock != null && elseBlock != null) {
+            bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ConditionalBlockFull()));
+        } else if (ifBlock == null && elseBlock == null) {
+            ifBlock = item;
+            display.setWidget(0, 0, item);
+            retval = true;
+        } else if (ifBlock != null && elseBlock == null) {
+            elseBlock = item;
+            display.setWidget(0, 1, item);
+            retval = true;
+        } else if (ifBlock == null && elseBlock != null) {
+            ifBlock = item;
+            display.setWidget(0, 1, item);
+            retval = true;
+        }
+        return retval;
     }
     
     @Override
     public void replacePhantom(FBFormItem item) {
-        // TODO Auto-generated method stub
+        if (display.getWidget(0, 0) != null && display.getWidget(0, 0) instanceof PhantomPanel) {
+            ifBlock = item;
+            display.setWidget(0, 0, item);
+        } else if (display.getWidget(0, 1) != null && display.getWidget(0, 1) instanceof PhantomPanel) {
+            elseBlock = item;
+            display.setWidget(0, 1, item);
+        }
     }
 }

@@ -159,13 +159,23 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
         return ap;
     }
 
+    private String oldStyleName = null;
+    
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        // TODO implement phantom insertion
+        String styleName = phantom.getStyleName();
+        oldStyleName = getStyleName();
+        setStyleName(styleName);
     }
 
     @Override
     public void replacePhantom(FBFormItem item) {
-        // TODO Auto-generated method stub
+        if (oldStyleName == null) {
+            removeStyleName(getStyleName());
+        } else {
+            setStyleName(oldStyleName);
+        }
+        oldStyleName = null;
+        add(item);
     }
 }

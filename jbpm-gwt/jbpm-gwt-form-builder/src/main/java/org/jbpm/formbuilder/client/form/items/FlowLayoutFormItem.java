@@ -160,12 +160,34 @@ public class FlowLayoutFormItem extends LayoutFormItem {
 	
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        // TODO implement phantom insertion
+        for (int index = 0; index < panel.getWidgetCount(); index++) {
+            Widget item = panel.getWidget(index);
+            int left = item.getAbsoluteLeft();
+            int right = left + item.getOffsetWidth();
+            int top = item.getAbsoluteTop();
+            int bottom = top + item.getOffsetHeight();
+            if (x > left && x < right && y > top && y < bottom) {
+                panel.insert(phantom, index);
+                break;
+            }
+        }
     }
 
     @Override
     public void replacePhantom(FBFormItem item) {
-        // TODO Auto-generated method stub
-        
+        PhantomPanel phantom = null;
+        for (Widget widget : panel) {
+            if (widget instanceof PhantomPanel) {
+                phantom = (PhantomPanel) widget;
+                break;
+            }
+        }
+        if (phantom != null) {
+            int index = panel.getWidgetIndex(phantom);
+            super.insert(index, item);
+            remove(phantom);
+        } else {
+            add(item);
+        }
     }
 }

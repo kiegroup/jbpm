@@ -106,7 +106,6 @@ public class DropFormItemController extends AbstractDropController {
 
     @Override
     public void onEnter(DragContext context) {
-        System.out.println("onEnter");
         super.onEnter(context);
         clearPhantoms();
         addPhantoms(context);
@@ -114,7 +113,6 @@ public class DropFormItemController extends AbstractDropController {
 
     @Override
     public void onMove(DragContext context) {
-        System.out.println("onMove");
         super.onMove(context);
         clearPhantoms();
         addPhantoms(context);
@@ -122,7 +120,6 @@ public class DropFormItemController extends AbstractDropController {
     
     @Override
     public void onLeave(DragContext context) {
-        System.out.println("onLeave");
         super.onLeave(context);
         clearPhantoms();
     }
@@ -140,7 +137,6 @@ public class DropFormItemController extends AbstractDropController {
         int y = context.mouseY;
         if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
             Panel panel = layoutView.getUnderlyingLayout(x, y);
-            System.out.println("panel class: " + panel.getClass().getName());
             if (panel instanceof FBCompositeItem) {
                 FBCompositeItem container = (FBCompositeItem) panel;
                 phantoms.add(new PhantomPanel(container, x, y));
