@@ -29,6 +29,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Panel;
@@ -50,7 +51,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 boolean retval = false;
                 int row = 0, column = 0;
                 while (row < super.getRowCount() && !retval) {
-                    for (; column < super.getColumnCount() && !retval; column++) {
+                    for (column = 0; column < super.getColumnCount() && !retval; column++) {
                         if (super.getWidget(row, column) != null && isPhantom(super.getWidget(row, column))) {
                             retval = true;
                             break;
@@ -179,21 +180,21 @@ public class TableLayoutFormItem extends LayoutFormItem {
     
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        boolean found = false;
         int row = 0, column = 0;
-        while (!found && row < grid.getRowCount()) {
-            for (; column < grid.getColumnCount() & !found; column++) {
-                if (grid.getWidget(row, column) == null || 
-                    isWhiteSpace(grid.getWidget(row, column)) || 
-                    isPhantom(grid.getWidget(row, column))) {
-                    found = true;
-                    break;
-                } else if (isPhantom(grid.getWidget(row, column))) {
+        boolean found = false;
+        while (row < grid.getRowCount() && !found) {
+            for (column = 0; column < grid.getColumnCount() && !found; column++) {
+                Element cellElement = grid.getCellFormatter().getElement(row, column);
+                if (x > cellElement.getAbsoluteLeft() && x < cellElement.getAbsoluteRight() &&
+                    y > cellElement.getAbsoluteTop() && y < cellElement.getAbsoluteBottom() &&
+                    (grid.getWidget(row, column) == null || isWhiteSpace(grid.getWidget(row, column)) || isPhantom(grid.getWidget(row, column)))) {
                     found = true;
                     break;
                 }
             }
-            if (found) break; else row++;
+            if (!found) {
+                row++;
+            }
         }
         if (found && !isPhantom(grid.getWidget(row, column))) {
             grid.setWidget(row, column, phantom);
@@ -209,8 +210,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
         boolean found = false;
         int row = 0, column = 0;
         while (row < grid.getRowCount()) {
-            for (; column < grid.getColumnCount() && !found; column++) {
-                if (grid.getWidget(row, column) != null && grid.getWidget(row, column) instanceof PhantomPanel) {
+            for (column = 0; column < grid.getColumnCount() && !found; column++) {
+                if (isPhantom(grid.getWidget(row, column))) {
                     found= true;
                     break;
                 }
@@ -220,7 +221,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
         if (found) {
             int index = (row * grid.getColumnCount()) + column;
             if (super.size() > index) { 
-                super.insert(index-1, item);
+                super.insert(index, item); //TODO index-1 was used before. Check which is valuable
             } else {
                 super.add(item);
             }

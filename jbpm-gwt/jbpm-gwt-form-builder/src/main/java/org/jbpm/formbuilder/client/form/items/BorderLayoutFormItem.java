@@ -220,13 +220,13 @@ public class BorderLayoutFormItem extends LayoutFormItem {
         case NORTHEAST:
         case SOUTHEAST:
             ensureColumns();
-            col = 0;
+            col = 2;
             break;
         case WEST:
         case SOUTHWEST:
         case NORTHWEST:
             ensureColumns();
-            col = 2;
+            col = 0;
             break;
         default: //CENTER
             col = getMiddleColumn();
