@@ -201,7 +201,7 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
 
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        this.panel.add(phantom);
+        this.panel.add(phantom); //TODO add positional insertion
     }
     
     @Override
