@@ -203,4 +203,10 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     public void add(PhantomPanel phantom, int x, int y) {
         // TODO implement phantom insertion
     }
+    
+    @Override
+    public void replacePhantom(FBFormItem item) {
+        // TODO Auto-generated method stub
+        
+    }
 }

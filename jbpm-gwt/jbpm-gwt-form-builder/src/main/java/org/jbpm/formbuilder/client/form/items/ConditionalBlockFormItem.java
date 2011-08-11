@@ -162,4 +162,9 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
         // TODO implement adding on display
         return super.add(item);
     }
+    
+    @Override
+    public void replacePhantom(FBFormItem item) {
+        // TODO Auto-generated method stub
+    }
 }

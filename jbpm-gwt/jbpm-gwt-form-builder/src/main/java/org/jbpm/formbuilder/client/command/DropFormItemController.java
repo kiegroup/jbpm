@@ -15,15 +15,19 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
+import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
@@ -41,13 +45,13 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class DropFormItemController extends AbstractDropController {
 
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final List<PhantomPanel> phantoms = new ArrayList<PhantomPanel>();
     private final LayoutView layoutView;
-    private final EventBus bus;
     
     public DropFormItemController(Widget dropTarget, LayoutView layoutView) {
         super(dropTarget);
         this.layoutView = layoutView;
-        this.bus = FormBuilderGlobals.getInstance().getEventBus();
     }
     
     @Override
@@ -86,22 +90,12 @@ public class DropFormItemController extends AbstractDropController {
                         Panel panel = layoutView.getUnderlyingLayout(x, y);
                         if (panel instanceof FBForm) {
                             FBForm formDisplay = (FBForm) panel;
-                            int position = formDisplay.clearPhantom();
                             formDisplay.remove(menuItem);
-                            if (position >= 0) {
-                                formDisplay.insert(formItem, position);
-                            } else {
-                                formDisplay.add(formItem);
-                            }
+                            formDisplay.replacePhantom(formItem);
                         } else {
                             LayoutFormItem layoutItem = (LayoutFormItem) panel.getParent();
-                            int position = layoutItem.clearPhantom();
                             layoutItem.remove(menuItem);
-                            if (position >= 0) {
-                                layoutItem.insert(position, formItem);
-                            } else {
-                                layoutItem.add(formItem);
-                            }
+                            layoutItem.replacePhantom(formItem);
                         }
                         bus.fireEvent(new FormItemAddedEvent(formItem, panel));
                     }
@@ -112,12 +106,15 @@ public class DropFormItemController extends AbstractDropController {
 
     @Override
     public void onEnter(DragContext context) {
+        System.out.println("onEnter");
         super.onEnter(context);
+        clearPhantoms();
         addPhantoms(context);
     }
 
     @Override
     public void onMove(DragContext context) {
+        System.out.println("onMove");
         super.onMove(context);
         clearPhantoms();
         addPhantoms(context);
@@ -125,27 +122,16 @@ public class DropFormItemController extends AbstractDropController {
     
     @Override
     public void onLeave(DragContext context) {
+        System.out.println("onLeave");
         super.onLeave(context);
         clearPhantoms();
     }
     
     protected void clearPhantoms() {
-        FBForm form = layoutView.getFormDisplay();
-        form.clearPhantom();
-        for (FBFormItem item : form.getItems()) {
-            if (item instanceof LayoutFormItem) {
-                clearPhantoms((LayoutFormItem) item);
-            }
+        for (PhantomPanel phantom : phantoms) {
+            phantom.removeFromParent();
         }
-    }
-    
-    protected void clearPhantoms(LayoutFormItem item) {
-        item.clearPhantom();
-        for (FBFormItem subItem : item.getItems()) {
-            if (subItem instanceof LayoutFormItem) {
-                clearPhantoms((LayoutFormItem) subItem);
-            }
-        }
+        phantoms.clear();
     }
     
     protected void addPhantoms(DragContext context) {
@@ -154,12 +140,13 @@ public class DropFormItemController extends AbstractDropController {
         int y = context.mouseY;
         if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
             Panel panel = layoutView.getUnderlyingLayout(x, y);
-            if (panel instanceof FBForm) {
-                FBForm formDisplay = (FBForm) panel;
-                formDisplay.addPhantom(x, y);
-            } else {
-                LayoutFormItem layoutItem = (LayoutFormItem) panel.getParent();
-                layoutItem.addPhantom(x, y);
+            System.out.println("panel class: " + panel.getClass().getName());
+            if (panel instanceof FBCompositeItem) {
+                FBCompositeItem container = (FBCompositeItem) panel;
+                phantoms.add(new PhantomPanel(container, x, y));
+            } else if (panel.getParent() instanceof FBCompositeItem) {
+                FBCompositeItem container = (FBCompositeItem) panel.getParent();
+                phantoms.add(new PhantomPanel(container, x, y));
             }
         }
     }

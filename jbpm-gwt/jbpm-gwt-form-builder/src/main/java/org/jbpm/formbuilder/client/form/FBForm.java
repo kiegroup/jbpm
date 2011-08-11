@@ -189,7 +189,17 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        super.add(phantom);
+        for (int index = 0; index < getWidgetCount(); index++) {
+            Widget item = getWidget(index);
+            int left = item.getAbsoluteLeft();
+            int right = left + item.getOffsetWidth();
+            int top = item.getAbsoluteTop();
+            int bottom = top + item.getOffsetHeight();
+            if (x > left && x < right && y > top && y < bottom) {
+                insert(phantom, index);
+                break;
+            }
+        }
     }
     
     @Override
@@ -338,13 +348,20 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     }
     
     @Override
-    public void addPhantom(int x, int y) {
-        PhantomPanel phantom = new PhantomPanel();
-        phantom.selfInsert(this, x, y, getItems());
-    }
-    
-    @Override
-    public int clearPhantom() {
-        return PhantomPanel.selfClear(this);
+    public void replacePhantom(FBFormItem item) {
+        PhantomPanel phantom = null;
+        for (Widget widget : this) {
+            if (widget instanceof PhantomPanel) {
+                phantom = (PhantomPanel) widget;
+                break;
+            }
+        }
+        if (phantom != null) {
+            int index = getWidgetIndex(phantom);
+            insert(item, index);
+            remove(phantom);
+        } else {
+            add(item);
+        }
     }
 }

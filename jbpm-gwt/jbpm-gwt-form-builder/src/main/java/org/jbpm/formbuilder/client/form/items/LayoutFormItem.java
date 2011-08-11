@@ -143,15 +143,4 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         }
         return null;
     }
-    
-    @Override
-    public void addPhantom(int x, int y) {
-        PhantomPanel phantom = new PhantomPanel();
-        phantom.selfInsert(this, x, y, getItems());
-    }
-    
-    @Override
-    public int clearPhantom() {
-        return PhantomPanel.selfClear(getPanel());
-    }
 }

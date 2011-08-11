@@ -258,7 +258,13 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	        grid.setWidget(getRow(pos), getColumn(pos), phantom);
 	    }
 	}
-
+	
+	@Override
+	public void replacePhantom(FBFormItem item) {
+	    // TODO Auto-generated method stub
+	    
+	}
+	
 	private int getMiddleRow() {
 		int row = 0;
 		if (grid.getRowCount() == 3) {

@@ -44,9 +44,32 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Grid grid = new Grid(1, 1) {
         @Override
         public boolean remove(Widget widget) {
-            System.out.println("Grid.remove()");
-            if (widget instanceof FBFormItem || widget instanceof PhantomPanel) {
+            if (widget instanceof FBFormItem) {
                 return TableLayoutFormItem.this.remove(widget);
+            } else if (widget instanceof PhantomPanel) {
+                System.out.println("remove phantom (from Grid)");
+                boolean retval = false;
+                int row = 0, column = 0;
+                while (row < super.getRowCount() && !retval) {
+                    for (; column < super.getColumnCount() && !retval; column++) {
+                        if (super.getWidget(row, column) != null && isPhantom(super.getWidget(row, column))) {
+                            retval = true;
+                            break;
+                        }
+                    }
+                    if (retval) break; else row++; 
+                }
+                if (retval) {
+                    if (super.getWidget(row, column) != null) {
+                        super.getWidget(row, column).getElement().getParentElement().setInnerHTML("&nbsp;");
+                        /*////WARN dom used: seems the only way of fixing deleted cell bug
+                        Element parent = super.getWidget(row, column).getElement().getParentElement();
+                        Element element = super.getWidget(row, column).getElement();
+                        parent.setInnerHTML("&nbsp;");
+                        element.removeFromParent();*/
+                    }
+                }
+                return retval;
             } else {
                 return super.remove(widget);
             }
@@ -162,37 +185,72 @@ public class TableLayoutFormItem extends LayoutFormItem {
     
     @Override
     public void add(PhantomPanel phantom, int x, int y) {
-        boolean added = false;
-        for (int i = 0; i < grid.getRowCount() && !added; i++) {
-            for (int j = 0; j < grid.getColumnCount() && !added; j++) {
-                if (grid.getWidget(i, j) == null || isWhiteSpace(grid.getWidget(i, j))) {
-                    added = true;
-                    grid.setWidget(i, j, phantom);
+        boolean found = false;
+        int row = 0, column = 0;
+        while (!found && row < grid.getRowCount()) {
+            for (; column < grid.getColumnCount() & !found; column++) {
+                if (grid.getWidget(row, column) == null || 
+                    isWhiteSpace(grid.getWidget(row, column)) || 
+                    isPhantom(grid.getWidget(row, column))) {
+                    found = true;
+                    break;
+                } else if (isPhantom(grid.getWidget(row, column))) {
+                    found = true;
+                    break;
                 }
             }
+            if (found) break; else row++;
+        }
+        if (found && !isPhantom(grid.getWidget(row, column))) {
+            grid.setWidget(row, column, phantom);
+        }
+    }
+    
+    protected boolean isPhantom(Widget widget) {
+        return widget != null && widget instanceof PhantomPanel;
+    }
+    
+    @Override
+    public void replacePhantom(FBFormItem item) {
+        boolean found = false;
+        int row = 0, column = 0;
+        while (row < grid.getRowCount()) {
+            for (; column < grid.getColumnCount() && !found; column++) {
+                if (grid.getWidget(row, column) != null && grid.getWidget(row, column) instanceof PhantomPanel) {
+                    found= true;
+                    break;
+                }
+            }
+            if (found) break; else row++;
+        }
+        if (found) {
+            int index = (row * grid.getColumnCount()) + column;
+            if (super.size() > index) { 
+                super.insert(index-1, item);
+            } else {
+                super.add(item);
+            }
+            grid.setWidget(row, column, null);
+            grid.setWidget(row, column, item);
+        } else {
+            add(item);
         }
     }
     
     @Override
     public boolean remove(Widget child) {
-        System.out.println("TableLayoutFormItem.remove("+child.getClass().getName()+")");
         boolean removed = false;
-        if (child instanceof FBFormItem || child instanceof PhantomPanel) {
-            int i = 0, j = 0;
-            boolean done = false;
-            for (; i < grid.getRowCount() && !done; i++) {
-                for (; j < grid.getColumnCount() && !done; j++) {
+        if (child instanceof FBFormItem) {
+            for (int i = 0; i < grid.getRowCount(); i++) {
+                for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (grid.getWidget(i, j) != null && grid.getWidget(i, j).equals(child)) {
-                        done = true;
+                        System.out.println("Found it at " + i + ":" + j);
+                        removed = super.remove(child);
+                        ////WARN dom used: seems the only way of fixing deleted cell bug
+                        grid.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");
+                        break;
                     }
                 }
-            }
-            if (done) {
-                if (child instanceof FBFormItem) {
-                    removed = super.remove(child);
-                }
-                //WARN dom used: seems the only way of fixing deleted cell bug
-                grid.getCellFormatter().getElement(i, j).setInnerHTML("&nbsp;");
             }
         } else {
             removed = super.remove(child);
