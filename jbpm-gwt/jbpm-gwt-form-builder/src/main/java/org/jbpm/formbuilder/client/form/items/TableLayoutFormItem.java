@@ -221,7 +221,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
         if (found) {
             int index = (row * grid.getColumnCount()) + column;
             if (super.size() > index) { 
-                super.insert(index, item); //TODO index-1 was used before. Check which is valuable
+                super.insert(index, item);
             } else {
                 super.add(item);
             }
