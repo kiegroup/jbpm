@@ -521,7 +521,7 @@ public class FormBuilderModel implements FormBuilderService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 retval.addAll(helper.readTasks(response.getText()));
-                bus.fireEvent(new ExistingTasksResponseEvent(retval, filter));
+                bus.fireEventFromSource(new ExistingTasksResponseEvent(retval, filter), FormBuilderModel.this);
             }
             @Override
             public void onError(Request request, Throwable exception) {

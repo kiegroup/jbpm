@@ -56,12 +56,14 @@ public class IoAssociationPresenter {
                 }
             }
         });
-        bus.addHandler(ExistingTasksResponseEvent.TYPE, new ExistingTasksResponseHandler() {
-            @Override
+        ExistingTasksResponseHandler handler = new ExistingTasksResponseHandler() {
+        	@Override
             public void onEvent(ExistingTasksResponseEvent event) {
                 view.setTasks(event.getTasks());
             }
-        });
+        };
+        bus.addHandlerToSource(ExistingTasksResponseEvent.TYPE, model, handler);
+        bus.addHandlerToSource(ExistingTasksResponseEvent.TYPE, view.getSearch().getAdvancedView(), handler);
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             @Override
             public void onSelectedTask(TaskSelectedEvent event) {

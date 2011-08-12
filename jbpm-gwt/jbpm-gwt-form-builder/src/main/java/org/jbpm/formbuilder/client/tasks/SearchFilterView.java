@@ -58,4 +58,12 @@ public class SearchFilterView extends VerticalPanel {
         add(simple);
         add(tooglePanel);
     }
+
+	public AdvancedSearchView getAdvancedView() {
+		return advanced;
+	}
+	
+	public SimpleSearchView getSimpleView() {
+		return simple;
+	}
 }

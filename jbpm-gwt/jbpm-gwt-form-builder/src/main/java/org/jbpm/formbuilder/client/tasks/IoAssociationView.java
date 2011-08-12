@@ -62,4 +62,8 @@ public class IoAssociationView extends AbsolutePanel {
     public void disableSearch() {
         panel.remove(filterView);
     }
+
+	public SearchFilterView getSearch() {
+		return filterView;
+	}
 }

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
@@ -94,27 +95,26 @@ public class AdvancedSearchView extends Grid {
                 }
             }
         });
-        bus.addHandler(ExistingTasksResponseEvent.TYPE, new ExistingTasksResponseHandler() {
+        FormBuilderService server = FormBuilderGlobals.getInstance().getService();
+        bus.addHandlerToSource(ExistingTasksResponseEvent.TYPE, server, new ExistingTasksResponseHandler() {
             @Override
             public void onEvent(ExistingTasksResponseEvent event) {
-                if (event.getSource() == null || event.getSource() != AdvancedSearchView.this) {
-                    List<TaskRef> tasks = event.getTasks();
-                    Map<String, String> valueNames = new HashMap<String, String>();
-                    processes.clear();
-                    if (tasks != null) {
-                        for (TaskRef task : tasks) {
-                            String processId = task.getProcessId();
-                            valueNames.put(task.getProcessId(), task.getProcessName() + " (" + task.getProcessId() + ")");
-                            List<TaskRef> processTasks = processes.get(processId);
-                            if (processTasks == null) {
-                                processTasks = new ArrayList<TaskRef>();
-                            }
-                            processTasks.add(task);
-                            processes.put(processId, processTasks);
+                List<TaskRef> tasks = event.getTasks();
+                Map<String, String> valueNames = new HashMap<String, String>();
+                processes.clear();
+                if (tasks != null) {
+                    for (TaskRef task : tasks) {
+                        String processId = task.getProcessId();
+                        valueNames.put(task.getProcessId(), task.getProcessName() + " (" + task.getProcessId() + ")");
+                        List<TaskRef> processTasks = processes.get(processId);
+                        if (processTasks == null) {
+                            processTasks = new ArrayList<TaskRef>();
                         }
-                        for (Map.Entry<String, List<TaskRef>> entry : processes.entrySet()) {
-                            querySubType.addItem(valueNames.get(entry.getKey()), entry.getKey());
-                        }
+                        processTasks.add(task);
+                        processes.put(processId, processTasks);
+                    }
+                    for (Map.Entry<String, List<TaskRef>> entry : processes.entrySet()) {
+                        querySubType.addItem(valueNames.get(entry.getKey()), entry.getKey());
                     }
                 }
             }
