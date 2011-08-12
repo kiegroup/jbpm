@@ -26,40 +26,34 @@ public interface FormBuilderResources extends ClientBundle {
 
     FormBuilderResources INSTANCE = GWT.create( FormBuilderResources.class );
     
-    @Source("images/completeButton.gif")
+    @Source("images/completeButton.png")
     ImageResource completeButton();
     
-    @Source("images/textField.gif")
+    @Source("images/textField.png")
     ImageResource textField();
     
-    @Source("images/passwordField.gif")
+    @Source("images/passwordField.png")
     ImageResource passwordField();
     
     @Source("images/label.gif")
     ImageResource label();
 
-    @Source("images/comboBox.gif")
+    @Source("images/comboBox.png")
     ImageResource comboBox();
     
-    @Source("images/done_icon.gif")
-    ImageResource doneIcon();
-    
-    @Source("images/remove_icon.gif")
-    ImageResource removeIcon();
-
-    @Source("images/error_icon.gif")
+    @Source("images/error_icon.png")
     ImageResource errorIcon();
 
     @Source("images/horizontal_layout_icon.gif")
     ImageResource horizontalLayoutIcon();
     
-    @Source("images/table_layout_icon.gif")
+    @Source("images/table_layout_icon.png")
     ImageResource tableLayoutIcon();
 
-    @Source("images/border_layout_icon.gif")
+    @Source("images/border_layout_icon.png")
 	ImageResource borderLayoutIcon();
 
-    @Source("images/header.gif")
+    @Source("images/header.png")
     ImageResource header();
 
     @Source("images/textArea.gif")
@@ -68,13 +62,13 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/hidden.gif")
     ImageResource hidden();
 
-    @Source("images/checkBox.gif")
+    @Source("images/checkBox.png")
     ImageResource checkBox();
 
-    @Source("images/fileInput.gif")
+    @Source("images/fileInput.png")
     ImageResource fileInput();
 
-    @Source("images/image.gif")
+    @Source("images/image.png")
     ImageResource image();
 
     @Source("images/html.gif")
@@ -89,16 +83,16 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/question.gif")
     ImageResource questionIcon();
 
-    @Source("images/absolute_layout_icon.gif")
+    @Source("images/absolute_layout_icon.png")
     ImageResource absoluteLayoutIcon();
 
-    @Source("images/css_layout_icon.gif")
+    @Source("images/css_layout_icon.png")
     ImageResource cssLayoutIcon();
     
-    @Source("images/conditional_block.gif")
+    @Source("images/conditional_block.png")
     ImageResource conditionalBlock();
     
-    @Source("images/loop_block.gif")
+    @Source("images/loop_block.png")
     ImageResource loopBlock();
     
     @Source("images/transformation_block.gif")
@@ -110,15 +104,15 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/refresh_button.gif")
     ImageResource refreshButton();
 
-    @Source("images/flow_layout_icon.gif")
+    @Source("images/flow_layout_icon.png")
 	ImageResource flowLayoutIcon();
 
     @Source("images/lineGraph.gif")
     ImageResource lineGraph();
 
-    @Source("images/treeFolder.gif")
+    @Source("images/treeFolder.png")
     ImageResource treeFolder();
 
-    @Source("images/treeLeaf.gif")
+    @Source("images/treeLeaf.png")
     ImageResource treeLeaf();
 }
