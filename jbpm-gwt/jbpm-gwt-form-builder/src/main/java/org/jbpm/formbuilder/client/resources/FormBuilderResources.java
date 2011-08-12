@@ -80,7 +80,7 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/radioButton.gif")
     ImageResource radioButton();
 
-    @Source("images/question.gif")
+    @Source("images/question.png")
     ImageResource questionIcon();
 
     @Source("images/absolute_layout_icon.png")
@@ -98,16 +98,16 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/transformation_block.gif")
     ImageResource transformationBlock();
 
-    @Source("images/save_button.gif")
+    @Source("images/save_button.png")
     ImageResource saveButton();
 
-    @Source("images/refresh_button.gif")
+    @Source("images/refresh_button.png")
     ImageResource refreshButton();
 
     @Source("images/flow_layout_icon.png")
 	ImageResource flowLayoutIcon();
 
-    @Source("images/lineGraph.gif")
+    @Source("images/lineGraph.png")
     ImageResource lineGraph();
 
     @Source("images/treeFolder.png")
