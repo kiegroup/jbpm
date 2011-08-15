@@ -33,6 +33,7 @@ public class PhantomPanel extends SimplePanel {
         setStyleName("phantomPanel");
         setWidget(DUMMY_LABEL);
         setSize("100%", "5px");
+        System.out.println("container class: " + container.getClass().getName());
         container.add(this, x, y);
     }
 }

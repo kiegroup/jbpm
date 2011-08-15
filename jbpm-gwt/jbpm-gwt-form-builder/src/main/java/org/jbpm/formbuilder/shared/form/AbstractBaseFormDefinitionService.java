@@ -97,15 +97,18 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         List<TaskPropertyRef> inputs = task.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
             TableRepresentation tableOfInputs = new TableRepresentation(inputs.size(), 2);
+            tableOfInputs.setHeight("" + (inputs.size() * 30) + "px");
             tableOfInputs.setEffectClasses(tableEffects);
             for (int index = 0; index < inputs.size(); index++) {
                 TaskPropertyRef input = inputs.get(index);
                 LabelRepresentation labelName = new LabelRepresentation();
                 labelName.setEffectClasses(labelEffects);
                 labelName.setValue(input.getName());
+                labelName.setWidth("100px");
                 tableOfInputs.setElement(index, 0, labelName);
                 LabelRepresentation labelValue = new LabelRepresentation();
                 labelValue.setEffectClasses(labelEffects);
+                labelValue.setWidth("200px");
                 InputData data = new InputData();
                 data.setName(input.getName());
                 data.setValue(input.getSourceExpresion());
@@ -133,14 +136,17 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         List<TaskPropertyRef> outputs = task.getOutputs();
         if (outputs != null && !outputs.isEmpty()) {
             TableRepresentation tableOfOutputs = new TableRepresentation(outputs.size(), 2);
+            tableOfOutputs.setHeight("" + (outputs.size() * 30) + "px");
             tableOfOutputs.setEffectClasses(tableEffects);
             for (int index = 0; index < outputs.size(); index++) {
                 TaskPropertyRef output = outputs.get(index);
                 LabelRepresentation labelName = new LabelRepresentation();
                 labelName.setEffectClasses(labelEffects);
                 labelName.setValue(output.getName());
+                labelName.setWidth("100px");
                 tableOfOutputs.setElement(index, 0, labelName);
                 TextFieldRepresentation textField = new TextFieldRepresentation();
+                textField.setWidth("200px");
                 textField.setEffectClasses(textfieldEffects);
                 OutputData data = new OutputData();
                 data.setName(output.getName());

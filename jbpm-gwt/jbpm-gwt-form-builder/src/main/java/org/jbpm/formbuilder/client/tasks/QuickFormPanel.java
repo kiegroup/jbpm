@@ -87,15 +87,15 @@ public class QuickFormPanel extends PopupPanel {
         buttons.add(okButton);
         buttons.add(cancelButton);
         vPanel.add(buttons);
-        setSize("300px", "500px");
+        setSize("300px", "300px");
         setWidget(vPanel);
     }
     
     private Grid toGrid(List<TaskPropertyRef> ioList, final List<TaskPropertyRef> selectedIos) {
-        Grid grid = new Grid(ioList == null ? 1 : ioList.size(), 1);
+        Grid grid = new Grid(ioList == null ? 1 : ioList.size(), 2);
         if (ioList != null) {
-            for (final TaskPropertyRef io : ioList) {
-                HorizontalPanel hPanel = new HorizontalPanel();
+            for (int index = 0; index < ioList.size(); index++) {
+                final TaskPropertyRef io = ioList.get(index);
                 CheckBox checkBox = new CheckBox();
                 checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                     @Override
@@ -114,7 +114,8 @@ public class QuickFormPanel extends PopupPanel {
                 });
                 checkBox.setValue(Boolean.TRUE);
                 selectedIos.add(io);
-                hPanel.add(new Label(io.getName()));
+                grid.setWidget(index, 0, checkBox);
+                grid.setWidget(index, 1, new Label(io.getName()));
             }
         }
         return grid;

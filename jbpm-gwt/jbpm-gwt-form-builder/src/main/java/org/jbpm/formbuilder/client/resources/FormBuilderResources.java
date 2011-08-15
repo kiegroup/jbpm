@@ -35,7 +35,7 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/passwordField.png")
     ImageResource passwordField();
     
-    @Source("images/label.gif")
+    @Source("images/label.png")
     ImageResource label();
 
     @Source("images/comboBox.png")
@@ -44,7 +44,7 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/error_icon.png")
     ImageResource errorIcon();
 
-    @Source("images/horizontal_layout_icon.gif")
+    @Source("images/horizontal_layout_icon.png")
     ImageResource horizontalLayoutIcon();
     
     @Source("images/table_layout_icon.png")
@@ -56,10 +56,10 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/header.png")
     ImageResource header();
 
-    @Source("images/textArea.gif")
+    @Source("images/textArea.png")
     ImageResource textArea();
 
-    @Source("images/hidden.gif")
+    @Source("images/hidden.png")
     ImageResource hidden();
 
     @Source("images/checkBox.png")
@@ -71,13 +71,13 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/image.png")
     ImageResource image();
 
-    @Source("images/html.gif")
+    @Source("images/html.png")
     ImageResource html();
 
     @Source("images/default_image_en.jpg")
     ImageResource defaultImage();
 
-    @Source("images/radioButton.gif")
+    @Source("images/radioButton.png")
     ImageResource radioButton();
 
     @Source("images/question.png")
@@ -95,7 +95,7 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/loop_block.png")
     ImageResource loopBlock();
     
-    @Source("images/transformation_block.gif")
+    @Source("images/transformation_block.png")
     ImageResource transformationBlock();
 
     @Source("images/save_button.png")
