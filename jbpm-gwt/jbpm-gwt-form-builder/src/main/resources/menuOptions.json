@@ -54,5 +54,8 @@
                 "commandClass": "org.jbpm.formbuilder.client.command.ExportFormAsXulForPhpCommand"
             }
         ]
+    },
+    {   "html": "Language",
+        "commandClass": "org.jbpm.formbuilder.client.command.LanguageCommand"
     }
 ]

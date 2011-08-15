@@ -137,6 +137,8 @@ public interface Constants extends Messages {
     String NotEmptyValidationName();
     
     String WarningDeleteForm(String formName);
+    String WarningLocaleReload();
+    String LocaleDefault();
     String RepNotOfType(String repClass, String expectedClass);
     String EditionPropertyName();
     String EditionPropertyValue();
