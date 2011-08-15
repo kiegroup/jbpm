@@ -196,15 +196,12 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
             int top = item.getAbsoluteTop();
             int bottom = top + item.getOffsetHeight();
             if (x > left && x < right && y > top && y < bottom) {
-                System.out.println("insert(index) index:" + index);
                 insert(phantom, index);
                 break;
             } else if (x > right && y > top && y < bottom && index < (getWidgetCount() - 1)) {
-                System.out.println("insert(index+1) index:" + index);
                 insert(phantom, index + 1);
                 break;
             } else if (index == (getWidgetCount() - 1)) {
-                System.out.println("add() index:" + index);
                 add(phantom);
                 break;
             }
