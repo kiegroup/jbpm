@@ -36,7 +36,7 @@ public class SearchFilterView extends VerticalPanel {
     
     public SearchFilterView() {
         setSize("100%", "90px");
-        toogleAnchor = new Anchor(i18n.AdvancedSearch());
+        toogleAnchor = new Anchor(i18n.SimpleSearch());
         toogleAnchor.setHref("javascript:void(0);");
         toogleAnchor.addClickHandler(new ClickHandler() {
             @Override
@@ -55,7 +55,7 @@ public class SearchFilterView extends VerticalPanel {
         tooglePanel.setWidth("100%");
         tooglePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         tooglePanel.add(toogleAnchor);
-        add(simple);
+        add(advanced);
         add(tooglePanel);
     }
 

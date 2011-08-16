@@ -32,9 +32,7 @@ public class LanguageCommand implements BaseCommand {
     public void setItem(final MenuItem item) {
         MenuBar subMenu = new MenuBar(true);
         String[] availableLocaleNames = LocaleInfo.getAvailableLocaleNames();
-        System.out.println("availableLocales = " + availableLocaleNames);
         for (final String localeName : availableLocaleNames) {
-            System.out.println("localeName = " + localeName);
             String html = LocaleInfo.getLocaleNativeDisplayName(localeName);
             if (html == null || "".equals(html)) {
                 html = i18n.LocaleDefault();

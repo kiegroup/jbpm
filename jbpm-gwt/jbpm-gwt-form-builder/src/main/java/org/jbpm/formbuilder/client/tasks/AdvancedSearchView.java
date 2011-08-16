@@ -60,9 +60,9 @@ public class AdvancedSearchView extends Grid {
         queryType.addItem("");
         queryType.addItem(i18n.BPMN2IOReferences(), BPMN2_TYPE);
         queryType.addItem(i18n.FileIOReferences(), FILE_TYPE);
-        setWidget(0, 0, new Label("Type:"));
+        setWidget(0, 0, new Label(i18n.TypeLabel()));
         setWidget(0, 1, queryType);
-        setWidget(1, 0, new Label("Query:"));
+        setWidget(1, 0, new Label(i18n.QueryLabel()));
         setWidget(1, 1, queryName);
         setWidget(2, 0, new HTML("&nbsp;"));
         queryType.addChangeHandler(new ChangeHandler() {
@@ -100,12 +100,10 @@ public class AdvancedSearchView extends Grid {
             @Override
             public void onEvent(ExistingTasksResponseEvent event) {
                 List<TaskRef> tasks = event.getTasks();
-                Map<String, String> valueNames = new HashMap<String, String>();
                 processes.clear();
                 if (tasks != null) {
                     for (TaskRef task : tasks) {
                         String processId = task.getProcessId();
-                        valueNames.put(task.getProcessId(), task.getProcessName() + " (" + task.getProcessId() + ")");
                         List<TaskRef> processTasks = processes.get(processId);
                         if (processTasks == null) {
                             processTasks = new ArrayList<TaskRef>();
@@ -114,7 +112,7 @@ public class AdvancedSearchView extends Grid {
                         processes.put(processId, processTasks);
                     }
                     for (Map.Entry<String, List<TaskRef>> entry : processes.entrySet()) {
-                        querySubType.addItem(valueNames.get(entry.getKey()), entry.getKey());
+                        querySubType.addItem(entry.getKey(), entry.getKey());
                     }
                 }
             }
@@ -123,6 +121,7 @@ public class AdvancedSearchView extends Grid {
     }
     
     public void fireTypeSelection(String value) {
+        bus.fireEvent(new TaskNameFilterEvent("iotype:"+value));
         if (value == null || "".equals(value)) {
             setWidget(1, 0, new Label(i18n.QueryLabel()));
             setWidget(1, 1, queryName);

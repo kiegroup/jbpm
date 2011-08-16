@@ -108,6 +108,7 @@ public interface Constants extends Messages {
     String BPMN2IOReferences();
     String FileIOReferences();
     String QueryLabel();
+    String TypeLabel();
     String ProcessesLabel();
     
     String MenuItemAbsoluteLayout();
