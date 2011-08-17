@@ -220,7 +220,7 @@ public abstract class MapPersistenceTest {
                                                                           workName ) );
 
         StatefulKnowledgeSession crmPersistentSession = createSession( kbase );
-        ChrashingWorkItemHandler handler = new ChrashingWorkItemHandler();
+        CrashingWorkItemHandler handler = new CrashingWorkItemHandler();
         crmPersistentSession.getWorkItemManager()
                 .registerWorkItemHandler( workName,
                                           handler );
@@ -229,8 +229,13 @@ public abstract class MapPersistenceTest {
             crmPersistentSession.startProcess( processId );
             Assert.fail();
         } catch ( RuntimeException re ) {
+            if( re.getMessage() == null ) { 
+                Assert.fail( "Process did NOT crash because of " + CrashingWorkItemHandler.class.getSimpleName() + "!" );
+            }
+            if( ! re.getMessage().equals(CrashingWorkItemHandler.EXCEPTION_MESSAGE) ) { 
+                Assert.fail( "Process did NOT crash because of " + CrashingWorkItemHandler.class.getSimpleName() + "!" );
+            }
         }
-        
         Assert.assertEquals( knowledgeSessionsCountBeforeTest + 1, getKnowledgeSessionsCount() );
         Assert.assertEquals( processInstancesBeforeTest, getProcessInstancesCount() );
     }
@@ -253,7 +258,7 @@ public abstract class MapPersistenceTest {
 
         StatefulKnowledgeSession ksession = createSession(kbase);
 
-        ChrashingWorkItemHandler handler = new ChrashingWorkItemHandler();
+        CrashingWorkItemHandler handler = new CrashingWorkItemHandler();
 
         ksession.getWorkItemManager().registerWorkItemHandler(workName, handler);
 
@@ -300,13 +305,15 @@ public abstract class MapPersistenceTest {
         }
     }
 
-    private static class ChrashingWorkItemHandler
+    protected static class CrashingWorkItemHandler
         implements
         WorkItemHandler {
-
+        
+        public static String EXCEPTION_MESSAGE = "I die";
+        
         public void executeWorkItem(WorkItem workItem,
                                     WorkItemManager manager) {
-            throw new RuntimeException( "I die" );
+            throw new RuntimeException( EXCEPTION_MESSAGE );
         }
 
         public void abortWorkItem(WorkItem workItem,
