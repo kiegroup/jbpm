@@ -12,6 +12,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.transaction.UserTransaction;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
@@ -60,6 +61,10 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
 
 	private PoolingDataSource ds1;
 	private EntityManagerFactory emf;
+	private SessionConfiguration config;
+	private Environment env;
+   
+    private static Logger logger = Logger.getLogger(SingleSessionCommandServiceTest.class);
     
     static {
 		DOMConfigurator.configure(SingleSessionCommandServiceTest.class.getResource("/log4j.xml"));
@@ -70,6 +75,9 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         
         ds1.init();
         emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
+        
+        config = createSessionConfiguration();
+        env = createEnvironment();
     }
 
     protected void tearDown() {
@@ -77,17 +85,16 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
         ds1.close();
     }
 
-    public void testPersistenceWorkItems() throws Exception {
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        Collection<KnowledgePackage> kpkgs = getProcessWorkItems();
-        kbase.addKnowledgePackages( kpkgs );
-
+    /**
+     * Create a default session configuration containing the following properties: <ul>
+     * <li>drools.commandService</li>
+     * <li>drools.processInstanceManagerFactory</li>
+     * <li>drools.workItemManagerFactory</li>
+     * <li>drools.processSignalManagerFactory<li>
+     * </ul>
+     * @return SessionConfiguration
+     */
+    private static SessionConfiguration createSessionConfiguration() { 
         Properties properties = new Properties();
         properties.setProperty( "drools.commandService",
                                 SingleSessionCommandService.class.getName() );
@@ -101,226 +108,222 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
                                 JpaJDKTimerService.class.getName() );
         SessionConfiguration config = new SessionConfiguration( properties );
 
-        SingleSessionCommandService service = new SingleSessionCommandService( kbase,
-                                                                               config,
-                                                                               env );
-        int sessionId = service.getSessionId();
-
+        return config;
+    }
+   
+    /**
+     * Create an environment for use during process execution 
+     *  with the appropriate EntityManagerFactory and TransactionManager values.
+     * @return Environment
+     */
+    private Environment createEnvironment() { 
+        Environment env = KnowledgeBaseFactory.newEnvironment();
+        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY, emf );
+        env.set( EnvironmentName.TRANSACTION_MANAGER,
+                 TransactionManagerServices.getTransactionManager() );
+        return env;
+    }
+   
+    /**
+     * Start the test process (which has a processId of "org.drools.test.TestProcess" )
+     * @param service A SingleSessionCommandService to execute the StartProcessCommand
+     * @return the processInstance of the started process.
+     */
+    private static ProcessInstance startTestProcess(SingleSessionCommandService service) { 
         StartProcessCommand startProcessCommand = new StartProcessCommand();
         startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
         ProcessInstance processInstance = service.execute( startProcessCommand );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.info( "Started process instance " + processInstance.getId() );
+        return processInstance;
+    }
+    
+    /**
+     * Retrieve a ProcessInstance using the GetProcessInstanceCommand 
+     * @param processInstanceId the id the process to retrieve
+     * @param service a SingleSessionCommandService object to execute the GetProcessInstanceCommand 
+     * @return The requested ProcessInstance
+     */
+    private static ProcessInstance getProcessInstance( long processInstanceId, SingleSessionCommandService service) { 
+        GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
+        getProcessInstanceCommand.setProcessInstanceId( processInstanceId );
+        return service.execute( getProcessInstanceCommand );
+    }
+  
+    /**
+     * Methods to test/make sure that a ProcessInstance is null
+     */
+    
+    private static void testNullProcessInstance( final ProcessInstance processInstance, SingleSessionCommandService service) { 
+        ProcessInstance nullProcessInstance = getProcessInstance(processInstance.getId(), service);
+        assertNotNull( nullProcessInstance );
+    }
+    
+    private SingleSessionCommandService testNullProcessInstance( final ProcessInstance processInstance, final int sessionId, final KnowledgeBase kbase) { 
+        SingleSessionCommandService service 
+            = new SingleSessionCommandService( sessionId, kbase, config, env );
+        
+        ProcessInstance nullProcessInstance = getProcessInstance(processInstance.getId(), service);
+        assertNotNull( nullProcessInstance );
+        return service;
+    }
+    
+    private void testNullProcessInstanceAndDisposeService( final ProcessInstance processInstance, int sessionId, KnowledgeBase kbase) { 
+        SingleSessionCommandService service = testNullProcessInstance(processInstance, sessionId, kbase);
+        service.dispose();
+    }
+   
+    
+    private SingleSessionCommandService getServiceAndExecuteCompleteWorkItem( WorkItem workItem, int sessionId, KnowledgeBase kbase ) { 
+        SingleSessionCommandService service = new SingleSessionCommandService( sessionId, kbase, config, env );
+        executeCompleteWorkItem(workItem, service);
+        return service;
+    }
+    
+    /**
+     * Methods to execute a workItem
+     */
+    
+    private void executeCompleteWorkItem( WorkItem workItem, SingleSessionCommandService service ) { 
+        CompleteWorkItemCommand completeWorkItemCommand = new CompleteWorkItemCommand();
+        completeWorkItemCommand.setWorkItemId( workItem.getId() );
+        service.execute( completeWorkItemCommand );
+    }
+   
+    /**
+     * The tests!
+     */
+    
+    
+    public void testPersistenceWorkItems() throws Exception {
+        // setup: add the specific knowledge base that we want
+        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        Collection<KnowledgePackage> kpkgs = getProcessWorkItems();
+        kbase.addKnowledgePackages( kpkgs );
 
+        SingleSessionCommandService service = new SingleSessionCommandService( kbase, config, env );
+        int sessionId = service.getSessionId();
+
+        // start the test process
+        ProcessInstance processInstance = startTestProcess(service);
+
+        // test that the workItem we retrieve is NOT null
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
-        assertNotNull( processInstance );
-        service.dispose();
-
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        CompleteWorkItemCommand completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
-
+        // test that the process instance is null
+        testNullProcessInstanceAndDisposeService(processInstance, sessionId, kbase);
+ 
+        // execute the workItem and test that the workItem is NOT null afterwards
+        service = getServiceAndExecuteCompleteWorkItem(workItem, sessionId, kbase);
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
-        assertNotNull( processInstance );
-        service.dispose();
+        // test that the process instance is null
+        testNullProcessInstanceAndDisposeService(processInstance, sessionId, kbase);
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
-
+        // execute the workItem again and test that the workItem is NOT null afterwards
+        service = getServiceAndExecuteCompleteWorkItem(workItem, sessionId, kbase);
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
-        assertNotNull( processInstance );
-        service.dispose();
+        // test that the process instance is null
+        testNullProcessInstanceAndDisposeService(processInstance, sessionId, kbase);
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
-
+        // execute the workItem again and test that the workItem is null afterwards
+        service = getServiceAndExecuteCompleteWorkItem(workItem, sessionId, kbase);
         workItem = handler.getWorkItem();
         assertNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
+        // Test that the process instance is null
+
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
+        processInstance = getProcessInstance(processInstance.getId(), service);
         assertNull( processInstance );
-        service.dispose();
     }
 
     public void testPersistenceWorkItemsUserTransaction() throws Exception {
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-
+        // setup: add the specific knowledge base that we want
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessWorkItems();
         kbase.addKnowledgePackages( kpkgs );
 
-        Properties properties = new Properties();
-        properties.setProperty( "drools.commandService",
-                                SingleSessionCommandService.class.getName() );
-        properties.setProperty( "drools.processInstanceManagerFactory",
-                                JPAProcessInstanceManagerFactory.class.getName() );
-        properties.setProperty( "drools.workItemManagerFactory",
-                                JPAWorkItemManagerFactory.class.getName() );
-        properties.setProperty( "drools.processSignalManagerFactory",
-                                JPASignalManagerFactory.class.getName() );
-        properties.setProperty( "drools.timerService",
-                                JpaJDKTimerService.class.getName() );
-        SessionConfiguration config = new SessionConfiguration( properties );
-
-        SingleSessionCommandService service = new SingleSessionCommandService( kbase,
-                                                                               config,
-                                                                               env );
+        SingleSessionCommandService service = new SingleSessionCommandService( kbase, config, env );
         int sessionId = service.getSessionId();
-
+        
+        // start the test process
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
-        StartProcessCommand startProcessCommand = new StartProcessCommand();
-        startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
-        ProcessInstance processInstance = service.execute( startProcessCommand );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        ProcessInstance processInstance = startTestProcess(service);
         ut.commit();
 
+        // make sure that the workItem is NOT null
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // test that the process instance is null
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
-        assertNotNull( processInstance );
+        testNullProcessInstance(processInstance, service);
         ut.commit();
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // execute the workItem again and test that the workItem is null afterwards
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        CompleteWorkItemCommand completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
+        executeCompleteWorkItem(workItem, service);
         ut.commit();
 
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // test that the process instance is null
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
+        processInstance = getProcessInstance(processInstance.getId(), service);
         ut.commit();
         assertNotNull( processInstance );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // execute the workItem again and test that the workItem is null afterwards
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
+        executeCompleteWorkItem(workItem, service);
         ut.commit();
 
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // test that the process instance is null
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
+        processInstance = getProcessInstance(processInstance.getId(), service);
         ut.commit();
         assertNotNull( processInstance );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // execute the workItem again and test that the workItem is null afterwards
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
+        executeCompleteWorkItem(workItem, service);
         ut.commit();
 
         workItem = handler.getWorkItem();
         assertNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // test that the process instance is null
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
         ut.begin();
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
+        processInstance = getProcessInstance(processInstance.getId(), service);
         ut.commit();
         assertNull( processInstance );
         service.dispose();
@@ -400,85 +403,49 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
     }
 
     public void testPersistenceSubProcess() {
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
 
-        Properties properties = new Properties();
-        properties.setProperty( "drools.commandService",
-                                SingleSessionCommandService.class.getName() );
-        properties.setProperty( "drools.processInstanceManagerFactory",
-                                JPAProcessInstanceManagerFactory.class.getName() );
-        properties.setProperty( "drools.workItemManagerFactory",
-                                JPAWorkItemManagerFactory.class.getName() );
-        properties.setProperty( "drools.processSignalManagerFactory",
-                                JPASignalManagerFactory.class.getName() );
-        properties.setProperty( "drools.timerService",
-                                JpaJDKTimerService.class.getName() );
-        SessionConfiguration config = new SessionConfiguration( properties );
-
+        // setup: add the specific knowledge base that we want
         RuleBase ruleBase = RuleBaseFactory.newRuleBase();
         Package pkg = getProcessSubProcess();
         ruleBase.addPackage( pkg );
 
-        SingleSessionCommandService service = new SingleSessionCommandService( ruleBase,
-                                                                               config,
-                                                                               env );
+        SingleSessionCommandService service = new SingleSessionCommandService( ruleBase, config, env );
         int sessionId = service.getSessionId();
-        StartProcessCommand startProcessCommand = new StartProcessCommand();
-        startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
-        RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) service.execute( startProcessCommand );
-        System.out.println( "Started process instance " + processInstance.getId() );
-        long processInstanceId = processInstance.getId();
+        
+        // start the test process
+        RuleFlowProcessInstance processInstance = (RuleFlowProcessInstance) startTestProcess(service);
 
+        // make sure that the workItem is NOT null
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
         assertNotNull( workItem );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-        		                                   ruleBase,
-                                                   config,
-                                                   env );
-        GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstanceId );
-        processInstance = (RuleFlowProcessInstance) service.execute( getProcessInstanceCommand );
-        assertNotNull( processInstance );
+        // test that the process instance is null
+        service = new SingleSessionCommandService( sessionId, ruleBase, config, env );
+        testNullProcessInstance(processInstance, service);
 
         Collection<NodeInstance> nodeInstances = processInstance.getNodeInstances();
-        assertEquals( 1,
-                      nodeInstances.size() );
+        assertEquals( 1, nodeInstances.size() );
+        
+        // test that the subProcessInstance is null
         SubProcessNodeInstance subProcessNodeInstance = (SubProcessNodeInstance) nodeInstances.iterator().next();
-        long subProcessInstanceId = subProcessNodeInstance.getProcessInstanceId();
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( subProcessInstanceId );
-        RuleFlowProcessInstance subProcessInstance = (RuleFlowProcessInstance) service.execute( getProcessInstanceCommand );
+        RuleFlowProcessInstance subProcessInstance = (RuleFlowProcessInstance) getProcessInstance(subProcessNodeInstance.getProcessInstanceId(), service);
         assertNotNull( subProcessInstance );
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   ruleBase,
-                                                   config,
-                                                   env );
-        CompleteWorkItemCommand completeWorkItemCommand = new CompleteWorkItemCommand();
-        completeWorkItemCommand.setWorkItemId( workItem.getId() );
-        service.execute( completeWorkItemCommand );
+        // execute the workItem
+        service = new SingleSessionCommandService( sessionId, ruleBase, config, env );
+        executeCompleteWorkItem(workItem, service);
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   ruleBase,
-                                                   config,
-                                                   env );
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( subProcessInstanceId );
-        subProcessInstance = (RuleFlowProcessInstance) service.execute( getProcessInstanceCommand );
+        // test that the subProcessInstance is null
+        service = new SingleSessionCommandService( sessionId, ruleBase, config, env );
+        subProcessInstance = (RuleFlowProcessInstance) getProcessInstance(subProcessInstance.getId(), service);
         assertNull( subProcessInstance );
 
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstanceId );
-        processInstance = (RuleFlowProcessInstance) service.execute( getProcessInstanceCommand );
+        // test that the process instance is null
+        processInstance = (RuleFlowProcessInstance) getProcessInstance(processInstance.getId(), service);
         assertNull( processInstance );
         service.dispose();
     }
@@ -574,58 +541,30 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
     }
 
     public void testPersistenceTimer() throws Exception {
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-
-        Properties properties = new Properties();
-        properties.setProperty( "drools.commandService",
-                                SingleSessionCommandService.class.getName() );
-        properties.setProperty( "drools.processInstanceManagerFactory",
-                                JPAProcessInstanceManagerFactory.class.getName() );
-        properties.setProperty( "drools.workItemManagerFactory",
-                                JPAWorkItemManagerFactory.class.getName() );
-        properties.setProperty( "drools.processSignalManagerFactory",
-                                JPASignalManagerFactory.class.getName() );
-        properties.setProperty( "drools.timerService",
-                                JpaJDKTimerService.class.getName() );
-        SessionConfiguration config = new SessionConfiguration( properties );
-
+        // setup: add the specific knowledge base that we want
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessTimer();
         kbase.addKnowledgePackages( kpkgs );
 
-        SingleSessionCommandService service = new SingleSessionCommandService( kbase,
-                                                                               config,
-                                                                               env );
+        SingleSessionCommandService service = new SingleSessionCommandService( kbase, config, env );
         int sessionId = service.getSessionId();
-        StartProcessCommand startProcessCommand = new StartProcessCommand();
-        startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
-        ProcessInstance processInstance = service.execute( startProcessCommand );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        
+        // start the test process
+        ProcessInstance processInstance = startTestProcess(service);
         service.dispose();
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
-        assertNotNull( processInstance );
-        service.dispose();
-
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
+        // test that the process instance is null
+        testNullProcessInstanceAndDisposeService(processInstance, sessionId, kbase);
+       
+        // wait for the timer to complete
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
+        
         Thread.sleep( 3000 );
-        getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
+
+        // test that the process instance is null
+        processInstance = getProcessInstance(processInstance.getId(), service);
         assertNull( processInstance );
+        service.dispose();
     }
 
     @SuppressWarnings("unused")
@@ -680,47 +619,23 @@ public class SingleSessionCommandServiceTest extends JbpmTestCase {
     }
 
     public void testPersistenceTimer2() throws Exception {
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-
-        Properties properties = new Properties();
-        properties.setProperty( "drools.commandService",
-                                SingleSessionCommandService.class.getName() );
-        properties.setProperty( "drools.processInstanceManagerFactory",
-                                JPAProcessInstanceManagerFactory.class.getName() );
-        properties.setProperty( "drools.workItemManagerFactory",
-                                JPAWorkItemManagerFactory.class.getName() );
-        properties.setProperty( "drools.processSignalManagerFactory",
-                                JPASignalManagerFactory.class.getName() );
-        properties.setProperty( "drools.timerService",
-								JpaJDKTimerService.class.getName() );
-        SessionConfiguration config = new SessionConfiguration( properties );
-
+        // setup: add the specific knowledge base that we want
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessTimer2();
         kbase.addKnowledgePackages( kpkgs );
 
-        SingleSessionCommandService service = new SingleSessionCommandService( kbase,
-                                                                               config,
-                                                                               env );
+        SingleSessionCommandService service = new SingleSessionCommandService( kbase, config, env );
         int sessionId = service.getSessionId();
-        StartProcessCommand startProcessCommand = new StartProcessCommand();
-        startProcessCommand.setProcessId( "org.drools.test.TestProcess" );
-        ProcessInstance processInstance = service.execute( startProcessCommand );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        
+        // start the test process 
+        ProcessInstance processInstance = startTestProcess(service);
 
+        // Wait for the timer to finish
         Thread.sleep( 2000 );
 
-        service = new SingleSessionCommandService( sessionId,
-                                                   kbase,
-                                                   config,
-                                                   env );
-        GetProcessInstanceCommand getProcessInstanceCommand = new GetProcessInstanceCommand();
-        getProcessInstanceCommand.setProcessInstanceId( processInstance.getId() );
-        processInstance = service.execute( getProcessInstanceCommand );
+        // test that the process instance is null
+        service = new SingleSessionCommandService( sessionId, kbase, config, env );
+        processInstance = getProcessInstance(processInstance.getId(), service);
         assertNull( processInstance );
     }
 

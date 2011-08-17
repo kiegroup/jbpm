@@ -18,4 +18,5 @@ bin/
 *.tlog
 
 # Test info
-/settings*.xml
+/settings-db.xml
+lib-jdbc

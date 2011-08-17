@@ -6,12 +6,13 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 
 /**
  *
- * @author salaboy
  */
 @Entity
+@SequenceGenerator(name="myEntityMethodsIdSeq", sequenceName="MYENTITY_METHODS_ID_SEQ")
 public class MyEntityMethods implements Serializable {
 	private static final long serialVersionUID = 510l;
 	
@@ -28,7 +29,8 @@ public class MyEntityMethods implements Serializable {
     /**
      * @return the id
      */
-    @Id @GeneratedValue(strategy=GenerationType.AUTO)
+    @Id 
+    @GeneratedValue(strategy=GenerationType.AUTO, generator="myEntityMethodsIdSeq" )
     public Long getId() {
         return id;
     }
