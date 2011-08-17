@@ -24,10 +24,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
+@SequenceGenerator(name="nodeInstanceeLogIdSeq", sequenceName="NODEINSTANCEELOG_ID_SEQ")
 public class NodeInstanceLog implements Serializable {
     
 	public static final int TYPE_ENTER = 0;
@@ -36,7 +38,7 @@ public class NodeInstanceLog implements Serializable {
 	private static final long serialVersionUID = 510l;
 	
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator="nodeInstanceeLogIdSeq")
 	private long id;
     private int type;
     private long processInstanceId;

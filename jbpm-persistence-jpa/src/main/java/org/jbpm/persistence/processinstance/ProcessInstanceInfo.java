@@ -19,6 +19,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.PreUpdate;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
 import javax.persistence.Version;
 
@@ -36,10 +37,11 @@ import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 
 @Entity
+@SequenceGenerator(name="procInstInfoIdSeq", sequenceName="PROCESSINSTANCEINFO_ID_SEQ")
 public class ProcessInstanceInfo{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator="procInstInfoIdSeq")
     @Column(name = "InstanceId")
     private Long                              processInstanceId;
 

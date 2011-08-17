@@ -6,18 +6,19 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 
 /**
  *
- * @author salaboy
  */
 @Entity
+@SequenceGenerator(name="myEntityIdSeq", sequenceName="MYENTITY_ID_SEQ")
 public class MyEntity implements Serializable {
 
 
 	private static final long serialVersionUID = 510l;
 	
-	@Id @GeneratedValue(strategy=GenerationType.AUTO)
+	@Id @GeneratedValue(strategy=GenerationType.AUTO, generator="myEntityIdSeq")
     private Long id;
     private String test;
 
