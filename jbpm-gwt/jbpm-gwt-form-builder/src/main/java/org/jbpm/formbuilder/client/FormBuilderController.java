@@ -28,25 +28,17 @@ import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
-import org.jbpm.formbuilder.client.edition.EditionPresenter;
-import org.jbpm.formbuilder.client.edition.EditionView;
+import org.jbpm.formbuilder.client.edition.EditionViewImpl;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
-import org.jbpm.formbuilder.client.layout.LayoutPresenter;
-import org.jbpm.formbuilder.client.layout.LayoutView;
-import org.jbpm.formbuilder.client.menu.MenuPresenter;
-import org.jbpm.formbuilder.client.menu.MenuView;
-import org.jbpm.formbuilder.client.messages.Constants;
-import org.jbpm.formbuilder.client.notification.NotificationsPresenter;
-import org.jbpm.formbuilder.client.notification.NotificationsView;
-import org.jbpm.formbuilder.client.options.OptionsPresenter;
-import org.jbpm.formbuilder.client.options.OptionsView;
+import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
+import org.jbpm.formbuilder.client.menu.MenuViewImpl;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
+import org.jbpm.formbuilder.client.notification.NotificationsViewImpl;
+import org.jbpm.formbuilder.client.options.OptionsViewImpl;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.tasks.IoAssociationPresenter;
-import org.jbpm.formbuilder.client.tasks.IoAssociationView;
-import org.jbpm.formbuilder.client.toolbar.ToolBarPresenter;
-import org.jbpm.formbuilder.client.toolbar.ToolBarView;
-import org.jbpm.formbuilder.client.tree.TreePresenter;
-import org.jbpm.formbuilder.client.tree.TreeView;
+import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
+import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
+import org.jbpm.formbuilder.client.tree.TreeViewImpl;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
@@ -69,7 +61,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class FormBuilderController {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final FormBuilderModel model;
     private final FormBuilderView view;
     
@@ -98,14 +90,16 @@ public class FormBuilderController {
         this.formExporter = new FormExporter();
         this.formExporter.start();
         
-        view.setNotificationsView(createNotifications());
-        view.setMenuView(createMenu(model));
-        view.setEditionView(createEdition());
-        view.setTreeView(createTree());
-        view.setLayoutView(createLayout());
-        view.setOptionsView(createOptions(model));
-        view.setIoAssociationView(createIoAssociation());
-        view.setToolBarView(createToolBar());
+        view.setNotificationsView(new NotificationsViewImpl());
+        view.setMenuView(new MenuViewImpl());
+        model.getMenuItems();
+        view.setEditionView(new EditionViewImpl());
+        view.setTreeView(new TreeViewImpl());
+        view.setLayoutView(new LayoutViewImpl());
+        view.setOptionsView(new OptionsViewImpl());
+        model.getMenuOptions();
+        view.setIoAssociationView(new IoAssociationViewImpl());
+        view.setToolBarView(new ToolBarViewImpl());
         bus.addHandler(RepresentationFactoryPopulatedEvent.TYPE, new RepresentationFactoryPopulatedHandler() {
             @Override
             public void onEvent(RepresentationFactoryPopulatedEvent event) {
@@ -241,61 +235,5 @@ public class FormBuilderController {
         } catch (FormBuilderException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemLoadingRepresentationFactory(), e));
         }
-    }
-
-    private EditionView createEdition() {
-        EditionView view = new EditionView();
-        new EditionPresenter(view);
-        return view;
-    }
-
-    private MenuView createMenu(FormBuilderService model) {
-        MenuView view = new MenuView();
-        try {
-            new MenuPresenter(model.getMenuItems(), view);
-        } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemCreatingMenuItems(), e));
-        }
-        return view;
-    }
-
-    private LayoutView createLayout() {
-        LayoutView view = new LayoutView();
-        new LayoutPresenter(view);
-        return view;
-    }
-    
-    private OptionsView createOptions(FormBuilderService model) {
-        OptionsView view = new OptionsView();
-        try {
-            new OptionsPresenter(model.getMenuOptions(), view);
-        } catch (FormBuilderException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ProblemCreatingMenuOptions(), e));
-        }
-        return view;
-    }
-    
-    private IoAssociationView createIoAssociation() {
-        IoAssociationView view = new IoAssociationView();
-        new IoAssociationPresenter(view);
-        return view;
-    }
-    
-    private ToolBarView createToolBar() {
-        ToolBarView view = new ToolBarView();
-        new ToolBarPresenter(view);
-        return view;
-    }
-    
-    private NotificationsView createNotifications() {
-        NotificationsView view = new NotificationsView();
-        new NotificationsPresenter(view);
-        return view;
-    }
-    
-    private TreeView createTree() {
-        TreeView view = new TreeView();
-        new TreePresenter(view);
-        return view;
     }
 }

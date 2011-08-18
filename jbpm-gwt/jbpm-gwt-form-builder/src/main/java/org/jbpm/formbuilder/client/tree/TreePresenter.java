@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Widget;
  * Tree presenter. Handles notifications of form items added and removed
  * and tells the view to update itself
  */
-public class TreePresenter {
+public class TreePresenter implements TreeView.Presenter {
 
     private final TreeView view;
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();

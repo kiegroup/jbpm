@@ -23,7 +23,7 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.EffectsPopupPanel;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.ControlKeyHandler;
@@ -52,7 +52,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public abstract class FBFormItem extends FocusPanel {
 
-    protected final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    protected final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private List<FBValidationItem> validations = new ArrayList<FBValidationItem>();
     
     private List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
@@ -289,7 +289,7 @@ public abstract class FBFormItem extends FocusPanel {
             item.populate(rep);
             return item;
         } catch (Exception e) {
-            Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+            I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
             throw new FormBuilderException(i18n.CouldntInstantiateClass(className), e);
         }
     }
@@ -355,7 +355,7 @@ public abstract class FBFormItem extends FocusPanel {
                     FBFormEffect effect = (FBFormEffect) ReflectionHelper.newInstance(className);
                     this.effects.add(effect);
                 } catch (Exception e) {
-                    Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+                    I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
                     throw new FormBuilderException(i18n.CouldntInstantiateClass(className), e);
                 }
             }

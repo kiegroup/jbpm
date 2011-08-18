@@ -28,7 +28,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.FlowPanelRepresentation;
 
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -148,7 +148,7 @@ public class FlowLayoutFormItem extends LayoutFormItem {
 	}
 
 	@Override
-	public Panel getPanel() {
+	public HasWidgets getPanel() {
 		return this.panel;
 	}
 	

@@ -29,8 +29,8 @@ import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
 
 import com.google.gwt.i18n.client.HasDirection.Direction;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -120,7 +120,7 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public Panel getPanel() {
+    public HasWidgets getPanel() {
         return panel;
     }
 

@@ -32,7 +32,7 @@ import org.jbpm.formbuilder.shared.rep.items.BorderPanelRepresentation.Position;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -187,7 +187,7 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	}
 
 	@Override
-	public Panel getPanel() {
+	public HasWidgets getPanel() {
 		return grid;
 	}
 	

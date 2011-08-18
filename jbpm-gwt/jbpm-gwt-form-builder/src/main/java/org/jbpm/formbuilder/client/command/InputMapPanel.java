@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.InputData;
 
@@ -40,7 +40,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class InputMapPanel extends PopupPanel {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Button okButton = new Button(i18n.OkButton());
     private final Button cancelButton = new Button(i18n.CancelButton());
     private final Map<String, InputData> inputs;

@@ -16,7 +16,7 @@
  */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -44,7 +44,7 @@ public class FormBuilderEntryPoint implements EntryPoint {
         EventBus eventBus = new SimpleEventBus();
         FormBuilderGlobals.getInstance().registerEventBus(eventBus);
         //register i18n module
-        Constants constants = GWT.create(Constants.class);
+        I18NConstants constants = GWT.create(I18NConstants.class);
         FormBuilderGlobals.getInstance().registerI18n(constants);
         //start model
         FormBuilderModel server = new FormBuilderModel("fbapi");

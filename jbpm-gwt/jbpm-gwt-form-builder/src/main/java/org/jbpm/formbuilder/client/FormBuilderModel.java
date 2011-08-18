@@ -38,7 +38,7 @@ import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
@@ -68,7 +68,7 @@ public class FormBuilderModel implements FormBuilderService {
     private static final String DEFAULT_PACKAGE_NAME = "defaultPackage";
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     
     private final String contextPath;
     private final XmlParseHelper helper = new XmlParseHelper();

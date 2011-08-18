@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -44,7 +44,7 @@ import com.google.gwt.json.client.JSONValue;
  */
 public class FormRepresentationDecoderClient implements FormRepresentationDecoder {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     
     @Override
     public Object decode(Map<String, Object> data) throws FormEncodingException {

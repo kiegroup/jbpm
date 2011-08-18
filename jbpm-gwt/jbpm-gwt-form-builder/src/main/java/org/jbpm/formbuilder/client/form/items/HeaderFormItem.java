@@ -25,7 +25,7 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
@@ -40,7 +40,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class HeaderFormItem extends FBFormItem {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final HTML header = new HTML("<h1>" + i18n.MenuItemHeader() + "</h1>");
     
     private String id;

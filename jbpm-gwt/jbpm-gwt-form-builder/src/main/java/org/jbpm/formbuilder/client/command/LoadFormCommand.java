@@ -28,7 +28,7 @@ import org.jbpm.formbuilder.client.bus.LoadServerFormResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -52,7 +52,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class LoadFormCommand implements BaseCommand {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final FormBuilderService service = FormBuilderGlobals.getInstance().getService();
     

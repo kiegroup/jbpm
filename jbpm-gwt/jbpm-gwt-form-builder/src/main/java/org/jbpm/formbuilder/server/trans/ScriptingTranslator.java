@@ -32,7 +32,7 @@ import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
-public class ScriptingLanguage implements Language {
+public class ScriptingTranslator implements Translator {
 
     private final VelocityEngine engine = new VelocityEngine();
     private final Map<URL, Template> templates = new HashMap<URL, Template>();
@@ -40,7 +40,7 @@ public class ScriptingLanguage implements Language {
     private final String language;
     private final String folderLocation;
     
-    public ScriptingLanguage(String language, String folderClassPathLocation) {
+    public ScriptingTranslator(String language, String folderClassPathLocation) {
         this.language = language;
         this.folderLocation = folderClassPathLocation;
         String url = getClass().getResource(folderClassPathLocation + "form.vm").toExternalForm();

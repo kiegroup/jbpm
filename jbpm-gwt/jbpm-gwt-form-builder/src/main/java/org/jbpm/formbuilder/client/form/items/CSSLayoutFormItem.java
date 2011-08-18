@@ -30,7 +30,7 @@ import org.jbpm.formbuilder.shared.rep.items.CSSPanelRepresentation;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.StyleElement;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -157,7 +157,7 @@ public class CSSLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public Panel getPanel() {
+    public HasWidgets getPanel() {
         return this.panel;
     }
     

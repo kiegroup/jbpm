@@ -16,7 +16,7 @@
 package org.jbpm.formbuilder.client.menu;
 
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class FormDataPopupPanel extends PopupPanel {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private final ListBox enctype = new ListBox(false);

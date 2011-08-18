@@ -22,7 +22,7 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -45,7 +45,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class DeleteItemFormEffect extends FBFormEffect {
 
     private String dropItemLabel;
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public DeleteItemFormEffect() {

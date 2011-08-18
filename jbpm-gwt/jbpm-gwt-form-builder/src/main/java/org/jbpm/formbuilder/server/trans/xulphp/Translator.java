@@ -18,13 +18,13 @@ package org.jbpm.formbuilder.server.trans.xulphp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jbpm.formbuilder.server.trans.ScriptingLanguage;
+import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
 
-public class Language extends ScriptingLanguage {
+public class Translator extends ScriptingTranslator {
 
     private static final String LANG = "xulphp";
 
-    public Language() {
+    public Translator() {
         super(LANG, "/langs/xulphp/");
     }
     

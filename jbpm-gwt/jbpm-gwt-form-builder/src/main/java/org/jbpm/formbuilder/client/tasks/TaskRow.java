@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.handler.EventHelper;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
@@ -40,7 +40,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class TaskRow extends FocusPanel {
     
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final List<HandlerRegistration> rclickRegs = new ArrayList<HandlerRegistration>();
 
     private final TaskRef ioRef;

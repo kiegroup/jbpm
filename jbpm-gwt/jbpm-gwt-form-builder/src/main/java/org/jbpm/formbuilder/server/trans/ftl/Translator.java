@@ -16,15 +16,15 @@
 package org.jbpm.formbuilder.server.trans.ftl;
 
 import org.jbpm.formbuilder.server.trans.LanguageException;
-import org.jbpm.formbuilder.server.trans.LanguageFactory;
-import org.jbpm.formbuilder.server.trans.ScriptingLanguage;
+import org.jbpm.formbuilder.server.trans.TranslatorFactory;
+import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
 import org.jbpm.formbuilder.shared.rep.FBScript;
 
-public class Language extends ScriptingLanguage {
+public class Translator extends ScriptingTranslator {
 
     private static final String LANG = "ftl";
 
-    public Language() {
+    public Translator() {
         super(LANG, "/langs/freemarker/");
     }
 
@@ -55,6 +55,6 @@ public class Language extends ScriptingLanguage {
     }
     
     public boolean isClientScript(FBScript script) {
-        return LanguageFactory.getInstance().isClientSide(script.getType());
+        return TranslatorFactory.getInstance().isClientSide(script.getType());
     }
 }

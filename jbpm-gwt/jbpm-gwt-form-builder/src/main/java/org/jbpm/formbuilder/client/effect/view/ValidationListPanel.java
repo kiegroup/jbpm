@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
@@ -32,7 +32,7 @@ import com.google.gwt.user.client.ui.ListBox;
 public class ValidationListPanel extends HorizontalPanel {
 
     private static final String NULL_VALIDATION = "...";
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Button addValidationButton = new Button(i18n.AddValidationButton());
     private final ListBox validationsAvailableList = new ListBox();
     

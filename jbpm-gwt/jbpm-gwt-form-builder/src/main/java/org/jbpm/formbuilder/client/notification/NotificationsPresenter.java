@@ -15,21 +15,17 @@
  */
 package org.jbpm.formbuilder.client.notification;
 
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent; 
 import org.jbpm.formbuilder.client.bus.ui.NotificationHandler;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.shared.EventBus;
 
 /**
  * Notifications presenter. Adds messages to
  * the view when a notification happens
  */
-public class NotificationsPresenter {
+public class NotificationsPresenter implements NotificationsView.Presenter {
 
     private final NotificationsView view;
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
@@ -43,19 +39,6 @@ public class NotificationsPresenter {
                 String message = event.getMessage();
                 Throwable error = event.getError();
                 view.append(colorCss, message, error);
-            }
-        });
-        view.addFocusHandler(new FocusHandler() {
-            @Override
-            public void onFocus(FocusEvent event) {
-                view.saveHeight();
-                view.setHeight("300px");
-            }
-        });
-        view.addBlurHandler(new BlurHandler() {
-            @Override
-            public void onBlur(BlurEvent event) {
-                view.setHeight(view.getSavedHeight());
             }
         });
     }

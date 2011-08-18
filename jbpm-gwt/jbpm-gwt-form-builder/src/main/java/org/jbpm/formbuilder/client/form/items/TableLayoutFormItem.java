@@ -32,7 +32,7 @@ import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -93,7 +93,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public Panel getPanel() {
+    public HasWidgets getPanel() {
         return grid;
     }
     

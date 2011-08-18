@@ -24,7 +24,7 @@ import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -46,7 +46,7 @@ public class AdvancedSearchView extends Grid {
     private static final String BPMN2_TYPE = "bpmn2";
     
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private final Map<String, List<TaskRef>> processes = new HashMap<String, List<TaskRef>>();
     

@@ -1,6 +1,6 @@
 package org.jbpm.formbuilder.client.command;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 
@@ -16,7 +16,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class LanguageCommand implements BaseCommand {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     
     @Override
     public void execute() {

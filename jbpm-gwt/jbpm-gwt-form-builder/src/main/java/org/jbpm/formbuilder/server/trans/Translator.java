@@ -40,7 +40,7 @@ import org.jbpm.formbuilder.shared.rep.FormRepresentation;
  *  radioButton: RadioButtonRepresentation
  *  absolutePanel: AbsolutePanelRepresentation
 */
-public interface Language {
+public interface Translator {
 
     String getLanguage();
     

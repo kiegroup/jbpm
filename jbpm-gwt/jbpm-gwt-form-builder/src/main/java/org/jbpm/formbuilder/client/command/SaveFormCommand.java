@@ -23,7 +23,7 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -43,7 +43,7 @@ public class SaveFormCommand implements BaseCommand {
 
     private static final String SAVE_TYPE = SaveFormCommand.class.getName();
     
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final FormBuilderService service = FormBuilderGlobals.getInstance().getService();
     

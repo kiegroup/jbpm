@@ -16,13 +16,13 @@
  */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.edition.EditionView;
-import org.jbpm.formbuilder.client.layout.LayoutView;
-import org.jbpm.formbuilder.client.menu.MenuView;
-import org.jbpm.formbuilder.client.notification.NotificationsView;
-import org.jbpm.formbuilder.client.options.OptionsView;
-import org.jbpm.formbuilder.client.tasks.IoAssociationView;
-import org.jbpm.formbuilder.client.toolbar.ToolBarView;
+import org.jbpm.formbuilder.client.edition.EditionViewImpl;
+import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
+import org.jbpm.formbuilder.client.menu.MenuViewImpl;
+import org.jbpm.formbuilder.client.notification.NotificationsViewImpl;
+import org.jbpm.formbuilder.client.options.OptionsViewImpl;
+import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
+import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -69,37 +69,37 @@ public class FormBuilderView extends AbsolutePanel {
             ioAssociationView != null && notificationsView != null;
     }
 
-    public void setMenuView(MenuView menuView) {
+    public void setMenuView(MenuViewImpl menuView) {
         this.menuView = menuView;
         checkBinding();
     }
     
-    public void setEditionView(EditionView editionView) {
+    public void setEditionView(EditionViewImpl editionView) {
         this.editionView = editionView;
         checkBinding();
     }
 
-    public void setLayoutView(LayoutView layoutView) {
+    public void setLayoutView(LayoutViewImpl layoutView) {
         this.layoutView = layoutView;
         checkBinding();
     }
     
-    public void setOptionsView(OptionsView optionsView) {
+    public void setOptionsView(OptionsViewImpl optionsView) {
         this.optionsView = optionsView;
         checkBinding();
     }
     
-    public void setIoAssociationView(IoAssociationView ioAssociationView) {
+    public void setIoAssociationView(IoAssociationViewImpl ioAssociationView) {
         this.ioAssociationView = ioAssociationView;
         checkBinding();
     }
     
-    public void setToolBarView(ToolBarView toolBarView) {
+    public void setToolBarView(ToolBarViewImpl toolBarView) {
         this.toolBarView = toolBarView;
         checkBinding();
     }
     
-    public void setNotificationsView(NotificationsView notificationsView) {
+    public void setNotificationsView(NotificationsViewImpl notificationsView) {
         this.notificationsView = notificationsView;
         checkBinding();
     }

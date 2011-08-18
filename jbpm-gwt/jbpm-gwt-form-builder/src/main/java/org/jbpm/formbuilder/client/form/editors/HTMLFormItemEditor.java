@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.client.form.editors;
 
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.items.HTMLFormItem;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.BlurEvent;
@@ -37,7 +37,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class HTMLFormItemEditor extends FBInplaceEditor {
 
     private final HTMLFormItem formItem;
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private VerticalPanel panel = new VerticalPanel();
     private TextArea editorArea = new TextArea();
     private Button htmlButton = new Button(i18n.HTMLEditorHTML());

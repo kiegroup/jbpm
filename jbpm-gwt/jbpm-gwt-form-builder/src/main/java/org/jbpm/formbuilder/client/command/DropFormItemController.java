@@ -36,7 +36,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.AbstractDropController;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -76,7 +76,7 @@ public class DropFormItemController extends AbstractDropController {
                     FBFormItem formItem = (FBFormItem) event.getData("formItem");
                     Integer x = (Integer) event.getData("x");
                     Integer y = (Integer) event.getData("y");
-                    Panel panel = layoutView.getUnderlyingLayout(x, y);
+                    HasWidgets panel = layoutView.getUnderlyingLayout(x, y);
                     panel.remove(formItem);
                     bus.fireEvent(new FormItemRemovedEvent(formItem));
                 }
@@ -87,17 +87,17 @@ public class DropFormItemController extends AbstractDropController {
                     Integer x = (Integer) event.getData("x");
                     Integer y = (Integer) event.getData("y");
                     if (formItem != null) {
-                        Panel panel = layoutView.getUnderlyingLayout(x, y);
+                        HasWidgets panel = layoutView.getUnderlyingLayout(x, y);
                         if (panel instanceof FBForm) {
                             FBForm formDisplay = (FBForm) panel;
                             formDisplay.remove(menuItem);
                             formDisplay.replacePhantom(formItem);
                         } else {
-                            LayoutFormItem layoutItem = (LayoutFormItem) panel.getParent();
+                            LayoutFormItem layoutItem = (LayoutFormItem) ((Widget) panel).getParent();
                             layoutItem.remove(menuItem);
                             layoutItem.replacePhantom(formItem);
                         }
-                        bus.fireEvent(new FormItemAddedEvent(formItem, panel));
+                        bus.fireEvent(new FormItemAddedEvent(formItem, (Widget) panel));
                     }
                 }
             }));
@@ -136,12 +136,12 @@ public class DropFormItemController extends AbstractDropController {
         int x = context.mouseX;
         int y = context.mouseY;
         if (drag != null && drag instanceof FBMenuItem) { //when you add a component from the menu
-            Panel panel = layoutView.getUnderlyingLayout(x, y);
+            HasWidgets panel = layoutView.getUnderlyingLayout(x, y);
             if (panel instanceof FBCompositeItem) {
                 FBCompositeItem container = (FBCompositeItem) panel;
                 phantoms.add(new PhantomPanel(container, x, y));
-            } else if (panel.getParent() instanceof FBCompositeItem) {
-                FBCompositeItem container = (FBCompositeItem) panel.getParent();
+            } else if (((Widget) panel).getParent() instanceof FBCompositeItem) {
+                FBCompositeItem container = (FBCompositeItem) ((Widget) panel).getParent();
                 phantoms.add(new PhantomPanel(container, x, y));
             }
         }

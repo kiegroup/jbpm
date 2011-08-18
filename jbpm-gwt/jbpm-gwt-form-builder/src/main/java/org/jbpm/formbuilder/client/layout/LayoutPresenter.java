@@ -42,7 +42,7 @@ import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
@@ -65,14 +65,14 @@ import com.google.gwt.event.shared.EventBus;
  */
 public class LayoutPresenter {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final LayoutView layoutView;
     
     public LayoutPresenter(LayoutView view) {
         this.layoutView = view;
         final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
-        dragController.registerDropController(new DropFormItemController(layoutView, layoutView));
+        dragController.registerDropController(new DropFormItemController(layoutView.asWidget(), layoutView));
         
         this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutHandler() {
             @Override

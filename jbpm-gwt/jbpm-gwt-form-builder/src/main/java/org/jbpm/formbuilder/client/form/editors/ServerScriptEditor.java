@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.client.form.editors;
 
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.items.ServerTransformationFormItem;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.BlurEvent;
@@ -39,7 +39,7 @@ public class ServerScriptEditor extends FBInplaceEditor {
 
     private final ServerTransformationFormItem item;
     
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Button cancelButton = new Button(i18n.CancelButton());
     private final Button okButton = new Button(i18n.OkButton());
     private final TextArea editionArea = new TextArea();

@@ -25,8 +25,8 @@ import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.PhantomPanel;
 
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.InsertPanel;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -113,7 +113,7 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
                 }
                 items.add(item);
             }
-            Panel panel = getPanel();
+            HasWidgets panel = getPanel();
             if (panel instanceof InsertPanel) {
                 InsertPanel iPanel = (InsertPanel) panel;
                 iPanel.insert(newItem, index);
@@ -126,12 +126,12 @@ public abstract class LayoutFormItem extends FBFormItem implements FBCompositeIt
         return widget.getElement().getParentElement().getInnerHTML().equals("&nbsp;");
     }
     
-    public abstract Panel getPanel();
+    public abstract HasWidgets getPanel();
     
-    public Panel getUnderlyingLayout(int x, int y) {
+    public HasWidgets getUnderlyingLayout(int x, int y) {
         for (FBFormItem item : items) {
             if (item instanceof LayoutFormItem) {
-                Panel newLayout = ((LayoutFormItem) item).getUnderlyingLayout(x, y);
+                HasWidgets newLayout = ((LayoutFormItem) item).getUnderlyingLayout(x, y);
                 if (newLayout != null) {
                     return newLayout;
                 }

@@ -52,9 +52,9 @@ import org.jbpm.formbuilder.server.render.Renderer;
 import org.jbpm.formbuilder.server.render.RendererException;
 import org.jbpm.formbuilder.server.render.RendererFactory;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
-import org.jbpm.formbuilder.server.trans.Language;
+import org.jbpm.formbuilder.server.trans.Translator;
 import org.jbpm.formbuilder.server.trans.LanguageException;
-import org.jbpm.formbuilder.server.trans.LanguageFactory;
+import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.server.xml.FormEffectDTO;
 import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
 import org.jbpm.formbuilder.server.xml.FormPreviewParameterDTO;
@@ -256,7 +256,7 @@ public class FormBuilderServlet extends HttpServlet {
         String json = dto.getRepresentation();
         FormRepresentation form = decoder.decode(json);
         dto.setForm(form);
-        Language translator = LanguageFactory.getInstance().getLanguage(language);
+        Translator translator = TranslatorFactory.getInstance().getTranslator(language);
         URL url = translator.translateForm(form);
         return url;
     }

@@ -20,7 +20,7 @@ import java.util.List;
 import org.jbpm.formbuilder.client.command.BaseCommand;
 
 /**
- * Command nesting for a menu option. Used by {@link OptionsView} to show menu bar items
+ * Command nesting for a menu option. Used by {@link OptionsViewImpl} to show menu bar items
  */
 public class MainMenuOption {
 

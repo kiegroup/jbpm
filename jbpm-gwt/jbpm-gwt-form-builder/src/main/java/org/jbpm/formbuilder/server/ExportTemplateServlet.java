@@ -29,8 +29,8 @@ import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.task.ProcessGetInputHandler;
-import org.jbpm.formbuilder.server.trans.Language;
-import org.jbpm.formbuilder.server.trans.LanguageFactory;
+import org.jbpm.formbuilder.server.trans.Translator;
+import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
@@ -64,7 +64,7 @@ public class ExportTemplateServlet extends HttpServlet {
                 String packageName = taskService.getContainingPackage(uuid);
                 FormRepresentation form = formService.getFormByUUID(packageName, uuid);
                 if (notEmpty(form.getProcessName()) || notEmpty(form.getTaskId())) {
-                    Language translator = LanguageFactory.getInstance().getLanguage("ftl");
+                    Translator translator = TranslatorFactory.getInstance().getTranslator("ftl");
                     URL url = translator.translateForm(form);
                     String content = IOUtils.toString(url.openStream());
                     String templateName = "";

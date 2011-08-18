@@ -15,9 +15,6 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
-import java.util.List;
-import java.util.Map;
-
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
@@ -44,7 +41,7 @@ public class MenuPresenter {
     private final MenuView view;
     private final PickupDragController dragController;
     
-    public MenuPresenter(Map<String, List<FBMenuItem>> itemsMap, MenuView menuView) {
+    public MenuPresenter(MenuView menuView) {
         super();
         this.view = menuView;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
@@ -55,14 +52,7 @@ public class MenuPresenter {
         dragController.setBehaviorMultipleSelection(false);
         dragController.setConstrainWidgetToBoundaryPanel(false);
         dragController.addDragHandler(new DragHandlerAdapter());
-        for (String key : itemsMap.keySet()) {
-            String accordionName = key;
-            List<FBMenuItem> items = itemsMap.get(key);
-            for (FBMenuItem item : items) {
-                this.view.addItem(accordionName, item);
-            }
-        }
-        
+
         this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
             @Override
             public void onEvent(MenuItemAddedEvent event) {

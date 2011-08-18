@@ -115,4 +115,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/treeLeaf.png")
     ImageResource treeLeaf();
+
+    @Source("images/tabbed_layout_icon.png")
+    ImageResource tabbedLayoutIcon();
 }

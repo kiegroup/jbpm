@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.client.effect.view;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
@@ -41,7 +41,7 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
 
     private List<SelectionHandler<FBValidationItem>> tableHandlers = new ArrayList<SelectionHandler<FBValidationItem>>();
     
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Grid validationsTable = new Grid(1,1);
     private final List<FBValidationItem> currentValidations = new ArrayList<FBValidationItem>();
     private final Button removeButton = new Button(i18n.ValidationRemove());

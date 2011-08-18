@@ -28,7 +28,7 @@ import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -145,7 +145,7 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public Panel getPanel() {
+    public HasWidgets getPanel() {
         return this.panel;
     }
 

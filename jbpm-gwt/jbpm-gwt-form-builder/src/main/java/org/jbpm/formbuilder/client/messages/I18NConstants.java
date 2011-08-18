@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.client.messages;
 
 import com.google.gwt.i18n.client.Messages;
 
-public interface Constants extends Messages {
+public interface I18NConstants extends Messages {
 
     String ErrorInTheUI();
     String CouldntLoadFromEmbeded();
@@ -111,6 +111,7 @@ public interface Constants extends Messages {
     String TypeLabel();
     String ProcessesLabel();
     
+    String MenuItemTabbedLayout();
     String MenuItemAbsoluteLayout();
     String MenuItemBorderLayout();
     String MenuItemCheckBox();

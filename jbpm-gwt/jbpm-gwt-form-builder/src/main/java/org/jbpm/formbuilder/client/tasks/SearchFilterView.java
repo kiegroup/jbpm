@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.tasks;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class SearchFilterView extends VerticalPanel {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final SimpleSearchView simple = new SimpleSearchView();
     private final AdvancedSearchView advanced = new AdvancedSearchView();
     

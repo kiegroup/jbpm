@@ -26,21 +26,27 @@ import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.common.handler.RightClickEvent;
+import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * Tasks presenter. Handles server querying of existing tasks 
  * and view population
  */
-public class IoAssociationPresenter {
+public class IoAssociationPresenter implements IoAssociationView.Presenter {
     
     private final IoAssociationView view;
     
     private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public IoAssociationPresenter(IoAssociationView tasksView) {
@@ -77,6 +83,52 @@ public class IoAssociationPresenter {
                     view.disableSearch();
                     bus.fireEvent(new TaskSelectedEvent(event.getIoRef()));
                 }
+            }
+        });
+    }
+    
+    @Override
+    public TaskRow newTaskRow(final TaskRef task, boolean even) {
+        TaskRow row = new TaskRow(task, even);
+        row.addRightClickHandler(new RightClickHandler() {
+            @Override
+            public void onRightClick(RightClickEvent event) {
+                final PopupPanel panel = new PopupPanel(true);
+                panel.setPopupPosition(event.getX(), event.getY());
+                MenuBar bar = new MenuBar(true);
+                bar.addItem(i18n.SelectIOObjectCommand(), new Command() {
+                    @Override
+                    public void execute() {
+                        bus.fireEvent(new TaskSelectedEvent(task));
+                        panel.hide();
+                    }
+                });
+                panel.add(bar);
+                panel.show();
+            }
+        });
+        return row;
+    }
+    
+    @Override
+    public void addQuickFormHandling(final TaskRow row) {
+        row.addRightClickHandler(new RightClickHandler() {
+            @Override
+            public void onRightClick(final RightClickEvent event) {
+                final PopupPanel panel = new PopupPanel(true);
+                panel.setPopupPosition(event.getX(), event.getY());
+                MenuBar bar = new MenuBar(true);
+                bar.addItem(i18n.QuickFormIOObjectCommand(), new Command() {
+                    @Override
+                    public void execute() {
+                        PopupPanel conf = new QuickFormPanel(row);
+                        conf.setPopupPosition(event.getX(), event.getY());
+                        conf.show();
+                        panel.hide();
+                    }
+                });
+                panel.add(bar);
+                panel.show();
             }
         });
     }

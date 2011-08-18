@@ -15,18 +15,22 @@
  */
 package org.jbpm.formbuilder.client.edition;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionHandler;
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Populates edition panel when a form item is selected
  */
-public class EditionPresenter {
+public class EditionPresenter implements EditionView.Presenter {
 
     private final EditionView editView;
     private final EventBus bus;
@@ -40,15 +44,57 @@ public class EditionPresenter {
             @Override
             public void onEvent(FormItemSelectionEvent event) {
                 if (event.isSelected()) {
-                    Widget parent = editView.getParent();
-                    while (!(parent instanceof TabLayoutPanel)) {
-                        parent = parent.getParent();
-                    }
-                    TabLayoutPanel tab = (TabLayoutPanel) parent;
-                    tab.selectTab(editView);
+                    editView.selectTab();
                     editView.populate(event.getFormItemSelected());
                 }
             }
         });
+    }
+
+    @Override
+    public void onSaveChanges(Map<String, Object> oldProps, Map<String, Object> newProps, FBFormItem itemSelected) {
+        Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+        dataSnapshot.put("oldItems", oldProps);
+        dataSnapshot.put("newItems", newProps);
+        dataSnapshot.put("itemSelected", itemSelected);
+        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
+            public void onEvent(UndoableEvent event) {  }
+            @Override
+            @SuppressWarnings("unchecked")
+            public void undoAction(UndoableEvent event) {
+                FBFormItem itemSelected = (FBFormItem) event.getData("itemSelected");
+                itemSelected.saveValues((Map<String, Object>) event.getData("oldItems"));
+            }
+            @Override
+            @SuppressWarnings("unchecked")
+            public void doAction(UndoableEvent event) {
+                FBFormItem itemSelected = (FBFormItem) event.getData("itemSelected");
+                itemSelected.saveValues((Map<String, Object>) event.getData("newItems"));
+            }
+        }));
+    }
+    
+    @Override
+    public void onResetChanges(FBFormItem fakeItem, Map<String, Object> newItems) {
+        Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+        dataSnapshot.put("newItems", newItems);
+        dataSnapshot.put("fakeItemSelected", fakeItem);
+        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
+            public void onEvent(UndoableEvent event) {  }
+            @Override
+            @SuppressWarnings("unchecked")
+            public void undoAction(UndoableEvent event) {
+                FBFormItem itemSelected = (FBFormItem) event.getData("fakeItemSelected");
+                itemSelected.saveValues((Map<String, Object>) event.getData("newItems"));
+                editView.populate(itemSelected);
+            }
+            @Override
+            public void doAction(UndoableEvent event) {
+                FBFormItem itemSelected = (FBFormItem) event.getData("fakeItemSelected");
+                editView.populate(itemSelected);
+            }
+        }));
     }
 }

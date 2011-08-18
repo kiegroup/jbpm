@@ -32,15 +32,14 @@ import com.google.gwt.user.client.ui.MenuItem;
  * Options presenter. Hears valid options from
  * the server and populates the view
  */
-public class OptionsPresenter {
+public class OptionsPresenter implements OptionsView.Presenter {
 
     private final OptionsView view;
     private final EventBus bus;
     
-    public OptionsPresenter(List<MainMenuOption> menuOptions, OptionsView optionsView) {
+    public OptionsPresenter(OptionsView optionsView) {
         this.view = optionsView;
         this.bus = FormBuilderGlobals.getInstance().getEventBus();
-        this.view.addItems(menuOptions);
         
         bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedHandler() {
             @Override

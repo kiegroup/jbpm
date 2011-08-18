@@ -15,13 +15,13 @@
  */
 package org.jbpm.formbuilder.server.trans.xsl;
 
-import org.jbpm.formbuilder.server.trans.ScriptingLanguage;
+import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
 
-public class Language extends ScriptingLanguage {
+public class Translator extends ScriptingTranslator {
 
     private static final String LANG = "xsl";
 
-    public Language() {
+    public Translator() {
         super(LANG, "/langs/xsl/");
     }
     

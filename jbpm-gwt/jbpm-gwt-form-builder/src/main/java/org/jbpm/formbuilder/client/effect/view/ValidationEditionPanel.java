@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
@@ -36,7 +36,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ValidationEditionPanel extends VerticalPanel {
     
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final Grid editionGrid = new Grid(1, 1);
     private final Map<String, HasValue<String>> validationProperties = new HashMap<String, HasValue<String>>();
     private final Button okButton = new Button(i18n.OkButton());

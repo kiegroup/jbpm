@@ -25,7 +25,7 @@ import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.command.LoadFormCommand;
 import org.jbpm.formbuilder.client.command.SaveFormCommand;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.ConfirmDialog;
@@ -44,7 +44,7 @@ public class ToolBarPresenter {
     
     private final ToolBarView view;
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private final ToolRegistration saveRef;
     
@@ -68,7 +68,7 @@ public class ToolBarPresenter {
             @Override
             public void onEvent(final GetFormRepresentationResponseEvent event) {
                 if (LOAD_TYPE.equals(event.getSaveType())) {
-                    final ConfirmDialog dialog = view.createToolbarDialog(i18n.RefreshButtonWarning());
+                    final ConfirmDialog dialog = new ConfirmDialog(i18n.RefreshButtonWarning());
                     dialog.addOkButtonHandler(new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent clickEvent) {

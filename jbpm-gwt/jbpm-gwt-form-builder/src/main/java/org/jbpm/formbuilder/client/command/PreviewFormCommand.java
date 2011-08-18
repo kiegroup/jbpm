@@ -26,7 +26,7 @@ import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.messages.Constants;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
@@ -44,7 +44,7 @@ import com.google.gwt.user.client.ui.RootPanel;
  */
 public abstract class PreviewFormCommand implements BaseCommand {
 
-    private final Constants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     protected final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     private final String saveType;

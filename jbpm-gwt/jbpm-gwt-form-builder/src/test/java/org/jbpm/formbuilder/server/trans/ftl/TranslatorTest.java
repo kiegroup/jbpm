@@ -28,10 +28,10 @@ import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
 
-public class LanguageTest extends TestCase {
+public class TranslatorTest extends TestCase {
 
     public void testFormBasic() throws Exception {
-        Language lang = new Language();
+        Translator lang = new Translator();
         FormRepresentation form = new FormRepresentation();
         form.setTaskId("taskNameXXX");
         ComboBoxRepresentation combo = new ComboBoxRepresentation();

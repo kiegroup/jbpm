@@ -1,4 +1,15 @@
 {   "Layout Components": [ 
+        {   "className": "org.jbpm.formbuilder.client.menu.items.TabbedLayoutMenuItem",
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CutFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.PasteFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
+        },
         {   "className": "org.jbpm.formbuilder.client.menu.items.HorizontalLayoutMenuItem",
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
