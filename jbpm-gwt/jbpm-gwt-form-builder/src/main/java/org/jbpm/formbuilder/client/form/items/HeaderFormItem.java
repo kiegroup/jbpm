@@ -54,7 +54,7 @@ public class HeaderFormItem extends FBFormItem {
     public HeaderFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         add(getHeader());
-        setWidth("100%");
+        setWidth("99%");
         setHeight("30px");
         getHeader().setSize(getWidth(), getHeight());
     }
