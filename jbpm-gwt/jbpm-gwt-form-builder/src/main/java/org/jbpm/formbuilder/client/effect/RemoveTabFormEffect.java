@@ -1,18 +1,78 @@
 package org.jbpm.formbuilder.client.effect;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.FlowLayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.TabbedLayoutFormItem;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.common.panels.ConfirmDialog;
+
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class RemoveTabFormEffect extends FBFormEffect {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
     public RemoveTabFormEffect() {
-        super("TODO", false); //TODO implement
+        super(FormBuilderGlobals.getInstance().getI18n().RemoveTabEffectLabel(), true);
     }
     
     @Override
     protected void createStyles() {
-        // TODO Auto-generated method stub
-
+        final Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+        dataSnapshot.put("selectedX", getParent().getAbsoluteLeft());
+        dataSnapshot.put("selectedY", getParent().getAbsoluteTop());
+        dataSnapshot.put("item", getItem());
+        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
+            public void undoAction(UndoableEvent event) {
+                TabbedLayoutFormItem item = (TabbedLayoutFormItem) event.getData("item");
+                Integer selectedX = (Integer) event.getData("selectedX");
+                Integer selectedY = (Integer) event.getData("selectedY");
+                FBFormItem[] deletedTab = (FBFormItem[]) event.getData("deletedTab");
+                int tabNumber = item.getTabForCoordinates(selectedX, selectedY);
+                item.insertTab(tabNumber, (TabbedLayoutFormItem.TabLabelFormItem) deletedTab[0], (FlowLayoutFormItem) deletedTab[1]);
+            }
+            @Override
+            public void onEvent(UndoableEvent event) { }
+            @Override
+            public void doAction(UndoableEvent event) {
+                TabbedLayoutFormItem item = (TabbedLayoutFormItem) event.getData("item");
+                Integer selectedX = (Integer) event.getData("selectedX");
+                Integer selectedY = (Integer) event.getData("selectedY");
+                int tabNumber = item.getTabForCoordinates(selectedX, selectedY);
+                FBFormItem[] deletedTab = item.removeTab(tabNumber);
+                event.setData("deletedTab", deletedTab);
+            }
+        }));
+    }
+    
+    @Override
+    public boolean isValidForItem(FBFormItem item) {
+        return super.isValidForItem(item) && item instanceof TabbedLayoutFormItem;
+    }
+    
+    @Override
+    public PopupPanel createPanel() {
+        ConfirmDialog dialog = new ConfirmDialog(i18n.RemoveTabWarning());
+        dialog.addOkButtonHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                createStyles();
+            }
+        });
+        return dialog;
     }
 
 }

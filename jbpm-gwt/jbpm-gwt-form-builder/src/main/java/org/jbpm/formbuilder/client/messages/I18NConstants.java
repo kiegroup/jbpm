@@ -138,6 +138,7 @@ public interface I18NConstants extends Messages {
     
     String NotEmptyValidationName();
     
+    String RemoveTabWarning();
     String RemoveRowWarning();
     String RemoveColumnWarning();
     String WarningDeleteForm(String formName);
@@ -194,6 +195,8 @@ public interface I18NConstants extends Messages {
     String AlignCenter();
     String AlignJustify();
     
+    String AddTabEffectLabel();
+    String RemoveTabEffectLabel();
     String AddColumnEffectLabel();
     String RemoveColumnEffectLabel();
     String MoveItemEffectLabel();

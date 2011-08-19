@@ -27,7 +27,7 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
     private String tabWidth;
     private String id;
     
-    class TabLabelFormItem extends LabelFormItem {
+    public class TabLabelFormItem extends LabelFormItem {
 
         public TabLabelFormItem(List<FBFormEffect> formEffects) {
             super(formEffects);
@@ -249,4 +249,58 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
     public Widget cloneDisplay() {
         return ((TabbedLayoutFormItem)cloneItem()).panel;
     }
+    
+    public int getTabForCoordinates(int x, int y) {
+        int tabNumber = 0;
+        while (tabNumber < panel.getWidgetCount()) {
+            Widget widget = this.panel.getTabWidget(tabNumber);
+            int left = widget.getAbsoluteLeft();
+            int top = widget.getAbsoluteTop();
+            int right = left + widget.getOffsetWidth();
+            int bottom = top + widget.getOffsetHeight();
+            if (x > left && x < right && y > top && y < bottom) {
+                return tabNumber;
+            }
+            tabNumber++;
+        }
+        return panel.getSelectedIndex();
+    }
+
+    public FBFormItem[] removeTab(int tabNumber) {
+        FBFormItem[] retval = new FBFormItem[] { 
+                titles.get(tabNumber), 
+                tabs.get(tabNumber) 
+        };
+        titles.remove(tabNumber);
+        tabs.remove(tabNumber);
+        this.panel.remove(tabNumber);
+        return retval;
+    }
+
+    public void insertTab(int tabNumber, TabLabelFormItem label, FlowLayoutFormItem panel) {
+        if (label == null) {
+            label = new TabLabelFormItem(getFormEffects());
+            label.getLabel().setText("Tab " + (tabNumber + 1));
+            if (this.tabWidth != null && !"".equals(tabWidth)) {
+                label.setWidth(this.tabWidth);
+            }
+        }
+        if (panel == null) {
+            panel = new FlowLayoutFormItem(getFormEffects());
+            if (this.cssClassName != null && !"".equals(this.cssClassName)) {
+                panel.setStyleName(this.cssClassName);
+            }
+        }
+        this.panel.insert(panel, label, tabNumber);
+        List<TabLabelFormItem> nextLabels = this.titles.subList(tabNumber, this.titles.size() - 1);
+        this.titles.removeAll(nextLabels);
+        this.titles.add(label);
+        this.titles.addAll(nextLabels);
+        List<FlowLayoutFormItem> nextPanels = this.tabs.subList(tabNumber, this.tabs.size() - 1);
+        this.tabs.removeAll(nextPanels);
+        this.tabs.add(panel);
+        this.tabs.addAll(nextPanels);
+    }
+    
+    
 }
