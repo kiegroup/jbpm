@@ -1,18 +1,76 @@
 package org.jbpm.formbuilder.client.effect;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
+import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.TableLayoutFormItem;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.common.panels.ConfirmDialog;
+
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class RemoveColumnFormEffect extends FBFormEffect {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
     public RemoveColumnFormEffect() {
-        super("TODO", false); //TODO implement
+        super(FormBuilderGlobals.getInstance().getI18n().RemoveColumnEffectLabel(), true);
     }
     
     @Override
     protected void createStyles() {
-        // TODO Auto-generated method stub
-
+        final Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+        dataSnapshot.put("selectedX", getParent().getAbsoluteLeft());
+        dataSnapshot.put("item", getItem());
+        bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void undoAction(UndoableEvent event) {
+                TableLayoutFormItem item = (TableLayoutFormItem) event.getData("item");
+                Integer selectedX = (Integer) event.getData("selectedX");
+                List<FBFormItem> deletedColumn = (List<FBFormItem>) event.getData("deletedColumn");
+                int colNumber = item.getColumnForXCoordinate(selectedX);
+                item.addColumn(colNumber);
+                item.insertColumnElements(colNumber, deletedColumn);
+            }
+            @Override
+            public void onEvent(UndoableEvent event) { }
+            @Override
+            public void doAction(UndoableEvent event) {
+                TableLayoutFormItem item = (TableLayoutFormItem) event.getData("item");
+                Integer selectedX = (Integer) event.getData("selectedX");
+                int colNumber = item.getColumnForXCoordinate(selectedX);
+                List<FBFormItem> deletedColumn = item.removeColumn(colNumber);
+                event.setData("deletedColumn", deletedColumn);
+            }
+        }));
     }
 
+    @Override
+    public boolean isValidForItem(FBFormItem item) {
+        return super.isValidForItem(item) && item instanceof TableLayoutFormItem;
+    }
+
+    @Override
+    public PopupPanel createPanel() {
+        ConfirmDialog dialog = new ConfirmDialog(i18n.RemoveColumnWarning());
+        dialog.addOkButtonHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                createStyles();
+            }
+        });
+        return dialog;
+    }
 }

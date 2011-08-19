@@ -6,7 +6,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class I18NFormEffect extends FBFormEffect {
 
     public I18NFormEffect() {
-        super("TODO", false); //TODO implement
+        super("Internationalize", false); //TODO implement
     }
     
     @Override

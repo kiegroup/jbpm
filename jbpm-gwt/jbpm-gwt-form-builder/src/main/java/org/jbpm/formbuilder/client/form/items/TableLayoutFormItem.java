@@ -233,7 +233,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
         grid.insertRow(beforeRowNumber);
     }
     
-    public void insertRowElements(int rowNumber, List<FBFormItem> deletedRow) {
+    public void insertRowElements(int rowNumber, List<FBFormItem> rowItems) {
         FBFormItem prevItem = null;
         for (int i = rowNumber - 1; i > 0 && prevItem == null; i--) {
             for (int j = grid.getColumnCount(); j > 0 && prevItem == null; j--) {
@@ -243,18 +243,46 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 }
             }
         }
-        int index = super.getItems().indexOf(prevItem);
+        int index = prevItem == null ? -1 : super.getItems().indexOf(prevItem);
         int colNumber = 0;
-        for (FBFormItem newItem : deletedRow) {
+        for (FBFormItem newItem : rowItems) {
             if (newItem != null) {
-                super.insert(index, newItem);
+                if (index < 0) {
+                    super.add(newItem);
+                } else {
+                    super.insert(index, newItem);
+                }
                 index++;
                 grid.setWidget(rowNumber, colNumber, newItem);
             }
             colNumber++;
         }
     }
-
+    
+    public void insertColumnElements(int colNumber, List<FBFormItem> columnItems) {
+        int rowNumber = 0;
+        for (FBFormItem newItem : columnItems) {
+            FBFormItem prevItem = null;
+            for (int i = grid.getRowCount(); i > 0 && prevItem == null; i--) {
+                for (int j = colNumber - 1; j > 0 && prevItem == null; j--) {
+                    Widget widget = grid.getWidget(i, j);
+                    if (widget != null && widget instanceof FBFormItem) {
+                        prevItem = (FBFormItem) widget;
+                    }
+                }
+            }
+            int index = prevItem == null ? -1 : super.getItems().indexOf(prevItem);
+            if (newItem != null) {
+                if (index < 0) {
+                    super.add(newItem);
+                } else {
+                    super.insert(index, newItem);
+                }
+                grid.setWidget(rowNumber, colNumber, newItem);
+            }
+            rowNumber++;
+        }
+    }
     
     public int getColumnForXCoordinate(int x) {
         if (grid.getRowCount() > 0) {
@@ -266,6 +294,40 @@ public class TableLayoutFormItem extends LayoutFormItem {
             }
         }
         return -1;
+    }
+    
+    public void addColumn(int beforeColumnNumber) {
+        if (beforeColumnNumber < grid.getColumnCount()) {
+            grid.resizeColumns(grid.getColumnCount() + 1);
+            for (int row = 0; row < grid.getRowCount(); row++) {
+                for (int column = grid.getColumnCount() - 1; column > beforeColumnNumber; column++) {
+                    Widget widget = grid.getWidget(row, column - 1);
+                    grid.setWidget(row, column, widget);
+                    grid.getWidget(row, column - 1).getElement().getParentElement().setInnerHTML("&nbsp;");
+                }
+            }
+        }
+    }
+    
+    public List<FBFormItem> removeColumn(int columnNumber) {
+        List<FBFormItem> retval = null;
+        if (columnNumber < grid.getColumnCount()) {
+            retval = new ArrayList<FBFormItem>(grid.getRowCount());
+            for (int row = 0; row < grid.getRowCount(); row++) {
+                for (int column = columnNumber + 1; column < grid.getColumnCount(); column++) {
+                    Widget widget = grid.getWidget(row, column);
+                    if (column == columnNumber + 1 && widget instanceof FBFormItem) {
+                        retval.add((FBFormItem) widget);
+                    } else if (column == columnNumber + 1) {
+                        retval.add(null);
+                    }
+                    grid.setWidget(row, column - 1, widget);
+                    remove(widget);
+                }
+            }
+            grid.resizeColumns(grid.getColumnCount() - 1);
+        }
+        return retval;
     }
     
     protected boolean isPhantom(Widget widget) {

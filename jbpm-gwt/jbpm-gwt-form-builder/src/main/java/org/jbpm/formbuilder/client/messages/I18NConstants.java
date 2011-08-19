@@ -138,6 +138,8 @@ public interface I18NConstants extends Messages {
     
     String NotEmptyValidationName();
     
+    String RemoveRowWarning();
+    String RemoveColumnWarning();
     String WarningDeleteForm(String formName);
     String WarningLocaleReload();
     String LocaleDefault();
@@ -192,6 +194,8 @@ public interface I18NConstants extends Messages {
     String AlignCenter();
     String AlignJustify();
     
+    String AddColumnEffectLabel();
+    String RemoveColumnEffectLabel();
     String MoveItemEffectLabel();
     String AddRowEffectLabel();
     String RemoveRowEffectLabel();

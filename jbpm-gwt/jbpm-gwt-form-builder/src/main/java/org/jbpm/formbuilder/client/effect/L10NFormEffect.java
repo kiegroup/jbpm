@@ -6,7 +6,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class L10NFormEffect extends FBFormEffect {
 
     public L10NFormEffect() {
-        super("TODO", false); //TODO implement
+        super("Apply locale formatting", false); //TODO implement
     }
     
     @Override

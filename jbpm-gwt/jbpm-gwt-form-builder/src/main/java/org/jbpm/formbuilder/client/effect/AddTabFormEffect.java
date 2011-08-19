@@ -3,9 +3,9 @@ package org.jbpm.formbuilder.client.effect;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class NewTabFormEffect extends FBFormEffect {
+public class AddTabFormEffect extends FBFormEffect {
 
-    public NewTabFormEffect() {
+    public AddTabFormEffect() {
         super("TODO", false); //TODO implement
     }    
     

@@ -8,18 +8,24 @@ import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.TableLayoutFormItem;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class RemoveRowFormEffect extends FBFormEffect {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     public RemoveRowFormEffect() {
-        super(FormBuilderGlobals.getInstance().getI18n().RemoveRowEffectLabel(), false);
+        super(FormBuilderGlobals.getInstance().getI18n().RemoveRowEffectLabel(), true);
     }
     
     @Override
@@ -54,5 +60,17 @@ public class RemoveRowFormEffect extends FBFormEffect {
     @Override
     public boolean isValidForItem(FBFormItem item) {
         return super.isValidForItem(item) && item instanceof TableLayoutFormItem;
+    }
+
+    @Override
+    public PopupPanel createPanel() {
+        ConfirmDialog dialog = new ConfirmDialog(i18n.RemoveRowWarning());
+        dialog.addOkButtonHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                createStyles();
+            }
+        });
+        return dialog;
     }
 }
