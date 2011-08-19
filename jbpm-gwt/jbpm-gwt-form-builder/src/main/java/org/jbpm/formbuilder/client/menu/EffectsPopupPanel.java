@@ -46,7 +46,7 @@ public class EffectsPopupPanel extends PopupPanel {
                     new Command() {
                         @Override
                         public void execute() {
-                            effect.apply(item);
+                            effect.apply(item, EffectsPopupPanel.this);
                             PopupPanel popup = effect.createPanel();
                             if (popup != null) {
                                 popup.setPopupPosition(getPopupLeft(), getPopupTop() + 30);

@@ -201,6 +201,73 @@ public class TableLayoutFormItem extends LayoutFormItem {
         }
     }
     
+    public int getRowForYCoordinate(int y) {
+        for (int row = 0; row < grid.getRowCount(); row++) {
+            Element rowElement = grid.getRowFormatter().getElement(row);
+            if (y > rowElement.getAbsoluteTop() && y < rowElement.getAbsoluteBottom()) {
+                return row;
+            }
+        }
+        return -1;
+    }
+    
+    public List<FBFormItem> removeRow(int rowNumber) {
+        List<FBFormItem> retval = null;
+        if (rowNumber < grid.getRowCount()) {
+            retval = new ArrayList<FBFormItem>(grid.getColumnCount());
+            for (int column = 0; column < grid.getColumnCount(); column++) {
+                Widget widget = grid.getWidget(rowNumber, column);
+                if (widget instanceof FBFormItem) {
+                    retval.add((FBFormItem) widget);
+                } else {
+                    retval.add(null);
+                }
+                grid.remove(widget);
+            }
+            grid.removeRow(rowNumber);
+        }
+        return retval;
+    }
+    
+    public void addRow(int beforeRowNumber) {
+        grid.insertRow(beforeRowNumber);
+    }
+    
+    public void insertRowElements(int rowNumber, List<FBFormItem> deletedRow) {
+        FBFormItem prevItem = null;
+        for (int i = rowNumber - 1; i > 0 && prevItem == null; i--) {
+            for (int j = grid.getColumnCount(); j > 0 && prevItem == null; j--) {
+                Widget widget = grid.getWidget(i, j);
+                if (widget != null && widget instanceof FBFormItem) {
+                    prevItem = (FBFormItem) widget;
+                }
+            }
+        }
+        int index = super.getItems().indexOf(prevItem);
+        int colNumber = 0;
+        for (FBFormItem newItem : deletedRow) {
+            if (newItem != null) {
+                super.insert(index, newItem);
+                index++;
+                grid.setWidget(rowNumber, colNumber, newItem);
+            }
+            colNumber++;
+        }
+    }
+
+    
+    public int getColumnForXCoordinate(int x) {
+        if (grid.getRowCount() > 0) {
+            for (int column = 0; column < grid.getColumnCount(); column++) {
+                Element cellElement = grid.getCellFormatter().getElement(0, column);
+                if (x > cellElement.getAbsoluteLeft() && x < cellElement.getAbsoluteRight()) {
+                    return column;
+                }
+            }
+        }
+        return -1;
+    }
+    
     protected boolean isPhantom(Widget widget) {
         return widget != null && widget instanceof PhantomPanel;
     }

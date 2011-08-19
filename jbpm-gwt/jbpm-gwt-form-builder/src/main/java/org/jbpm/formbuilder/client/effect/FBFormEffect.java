@@ -28,6 +28,7 @@ public abstract class FBFormEffect {
 
     private FBFormItem item;
     private Widget widget;
+    private PopupPanel parent;
     
     private final String name;
     private final boolean hasSubMenu;
@@ -45,8 +46,9 @@ public abstract class FBFormEffect {
         return name;
     }
     
-    public void apply(FBFormItem item) {
+    public void apply(FBFormItem item, PopupPanel panel) {
         item.addEffect(this);
+        setParent(panel);
         this.item = item;
         if (!hasSubMenu) {
             createStyles();
@@ -85,7 +87,15 @@ public abstract class FBFormEffect {
     public void setWidget(Widget widget) {
         this.widget = widget;
     }
-    
+
+    public PopupPanel getParent() {
+        return parent;
+    }
+
+    public void setParent(PopupPanel parent) {
+        this.parent = parent;
+    }
+
     /**
      * Use this method to obtain the UI GWT component
      * represented by the {@link FBFormItem} this 
@@ -111,6 +121,6 @@ public abstract class FBFormEffect {
      * @return wether its a valid effect for the given item or not
      */
     public boolean isValidForItem(FBFormItem item) {
-        return true;
+        return item != null;
     }
 }

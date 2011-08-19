@@ -192,6 +192,9 @@ public interface I18NConstants extends Messages {
     String AlignCenter();
     String AlignJustify();
     
+    String MoveItemEffectLabel();
+    String AddRowEffectLabel();
+    String RemoveRowEffectLabel();
     String DoneEffectLabel();
     String IoBindingEffectLabel();
     String RemoveEffectLabel();
