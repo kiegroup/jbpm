@@ -22,9 +22,48 @@ import com.gwtent.reflection.client.Reflectable;
 public class TabbedLayoutFormItem extends LayoutFormItem {
 
     private final List<FlowLayoutFormItem> tabs = new ArrayList<FlowLayoutFormItem>();
-    private final List<LabelFormItem> titles = new ArrayList<LabelFormItem>();
+    private final List<TabLabelFormItem> titles = new ArrayList<TabLabelFormItem>();
     private String cssClassName;
+    private String tabWidth;
     private String id;
+    
+    class TabLabelFormItem extends LabelFormItem {
+
+        public TabLabelFormItem(List<FBFormEffect> formEffects) {
+            super(formEffects);
+        }
+
+        @Override
+        public FBFormItem cloneItem() {
+            LabelFormItem supItem = (LabelFormItem) super.cloneItem();
+            TabLabelFormItem clone = new TabLabelFormItem(getFormEffects());
+            try {
+                clone.populate(supItem.getRepresentation());
+            } catch (FormBuilderException e) { }
+            return clone;
+        }
+        
+        @Override
+        public void saveValues(Map<String, Object> propertiesMap) {
+            super.saveValues(propertiesMap);
+            String width = extractString(propertiesMap.get("width"));
+            String height = extractString(propertiesMap.get("height"));
+            if (width != null && !"".equals(width)) {
+                //all tabs have the same size
+                for (TabLabelFormItem item : titles) {
+                    item.setWidth(width);
+                    TabbedLayoutFormItem.this.tabWidth = width;
+                }
+            }
+            if (height != null && !"".equals(height)) {
+                //all tabs have the same size
+                for (TabLabelFormItem item : titles) {
+                    item.setHeight(height);
+                }
+            }
+        }
+        
+    }
     
     private TabLayoutPanel panel = new TabLayoutPanel(21, Unit.PX) {
         @Override
@@ -38,13 +77,13 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
     
     public TabbedLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        LabelFormItem tab1 = new LabelFormItem(getFormEffects());
+        TabLabelFormItem tab1 = new TabLabelFormItem(getFormEffects());
         tab1.getLabel().setText("Tab 1");
         panel.add(new FlowLayoutFormItem(getFormEffects()), tab1);
-        LabelFormItem tab2 = new LabelFormItem(getFormEffects());
+        TabLabelFormItem tab2 = new TabLabelFormItem(getFormEffects());
         tab2.getLabel().setText("Tab 2");
         panel.add(new FlowLayoutFormItem(getFormEffects()), tab2);
-        LabelFormItem tab3 = new LabelFormItem(getFormEffects());
+        TabLabelFormItem tab3 = new TabLabelFormItem(getFormEffects());
         tab3.getLabel().setText("Tab 3");
         panel.add(new FlowLayoutFormItem(getFormEffects()), tab3);
         setSize("300px", "400px");
@@ -105,7 +144,7 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         if (numberOfTabs > panel.getWidgetCount()) {
             int qtyToAdd = numberOfTabs - panel.getWidgetCount();
             while (qtyToAdd > 0) {
-                LabelFormItem label = new LabelFormItem(getFormEffects());
+                TabLabelFormItem label = new TabLabelFormItem(getFormEffects());
                 FlowLayoutFormItem flow = new FlowLayoutFormItem(getFormEffects());
                 label.getLabel().setText("Tab " + panel.getWidgetCount());
                 panel.add(flow, label);
@@ -144,9 +183,13 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         panel.clear();
         for (int index = 0; index < this.titles.size() && index < this.tabs.size(); index++) {
             FlowLayoutFormItem flow = this.tabs.get(index);
-            LabelFormItem label = this.titles.get(index);
+            TabLabelFormItem label = this.titles.get(index);
             if (flow != null && label != null) {
-                panel.add(flow.cloneItem(), label.cloneItem());
+                FlowLayoutFormItem newFlow = (FlowLayoutFormItem) flow.cloneItem();
+                if (this.cssClassName != null && !"".equals(this.cssClassName)) {
+                    newFlow.setStyleName(this.cssClassName);
+                }
+                panel.add(newFlow, label.cloneItem());
             }
         }
     }
@@ -156,8 +199,8 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         TabbedLayoutFormItem clone = new TabbedLayoutFormItem(getFormEffects());
         clone.id = this.id;
         clone.cssClassName = this.cssClassName;
-        for (LabelFormItem label : this.titles) {
-            clone.titles.add((LabelFormItem) label.cloneItem());
+        for (TabLabelFormItem label : this.titles) {
+            clone.titles.add((TabLabelFormItem) label.cloneItem());
         }
         for (FlowLayoutFormItem flow : this.tabs) {
             clone.tabs.add((FlowLayoutFormItem) flow.cloneItem());
@@ -183,13 +226,20 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         TabbedPanelRepresentation trep = (TabbedPanelRepresentation) rep;
         this.cssClassName = trep.getCssClassName();
         this.id = trep.getId();
+        this.tabWidth = trep.getTabWidth();
         this.titles.clear();
         for (TabbedPanelRepresentation.IndexedString title : trep.getTabTitles()) {
-            LabelFormItem label = new LabelFormItem(getFormEffects());
+            TabLabelFormItem label = new TabLabelFormItem(getFormEffects());
             label.getLabel().setText(title.getString());
+            if (this.tabWidth != null && !"".equals(tabWidth)) {
+                label.setWidth(this.tabWidth);
+            }
             FormItemRepresentation subRep = trep.getTabContents().get(title);
-            FBFormItem subItem = FBFormItem.createItem(subRep);
-            this.tabs.add((FlowLayoutFormItem) subItem);
+            FlowLayoutFormItem subItem = (FlowLayoutFormItem) FBFormItem.createItem(subRep);
+            if (this.cssClassName != null && !"".equals(this.cssClassName)) {
+                subItem.setStyleName(this.cssClassName);
+            }
+            this.tabs.add(subItem);
             this.titles.add(label);
         }
         populate(this.panel);

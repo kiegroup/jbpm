@@ -58,6 +58,7 @@ public class TabbedPanelRepresentation extends FormItemRepresentation {
     private Map<IndexedString, FormItemRepresentation> tabContents = new HashMap<IndexedString, FormItemRepresentation>();
     private String cssClassName;
     private String id;
+    private String tabWidth;
     
     public TabbedPanelRepresentation() {
         super("tabbedPanel");
@@ -113,12 +114,21 @@ public class TabbedPanelRepresentation extends FormItemRepresentation {
         this.id = id;
     }
 
+    public String getTabWidth() {
+        return tabWidth;
+    }
+
+    public void setTabWidth(String tabWidth) {
+        this.tabWidth = tabWidth;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.cssClassName = (String) data.get("cssClassName");
         this.id = (String) data.get("id");
+        this.tabWidth = (String) data.get("tabWidth");
         this.tabTitles.clear();
         List<Object> tabTitles = (List<Object>) data.get("tabTitles");
         List<Object> tabContents = (List<Object>) data.get("tabContents");
@@ -143,6 +153,7 @@ public class TabbedPanelRepresentation extends FormItemRepresentation {
         Map<String, Object> data = super.getDataMap();
         data.put("cssClassName", this.cssClassName);
         data.put("id", this.id);
+        data.put("tabWidth", this.tabWidth);
         List<Object> tabTitlesMap = new ArrayList<Object>();
         for (IndexedString inStr : this.tabTitles) {
             Map<String, Object> inStrMap = new HashMap<String, Object>();
@@ -171,6 +182,8 @@ public class TabbedPanelRepresentation extends FormItemRepresentation {
             (this.cssClassName != null && this.cssClassName.equals(other.cssClassName));
         if (!equals) return equals;
         equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
+        if (!equals) return equals;
+        equals = (this.tabWidth == null && other.tabWidth == null) || (this.tabWidth != null && this.tabWidth.equals(other.tabWidth));
         if (!equals) return equals;
         equals = (this.tabTitles == null && other.tabTitles == null) || (this.tabTitles != null && this.tabTitles.equals(other.tabTitles));
         if (!equals) return equals;
