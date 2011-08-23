@@ -140,7 +140,7 @@ public class RESTMenuService {
         try {
             Map<String, String> props = menuService.getFormBuilderProperties();
             PropertiesDTO dto = new PropertiesDTO(props);
-            return Response.ok(dto).build();
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
             return Response.serverError().build();
         }
