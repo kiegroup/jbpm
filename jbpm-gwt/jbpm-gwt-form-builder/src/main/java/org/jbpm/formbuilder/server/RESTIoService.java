@@ -8,6 +8,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
@@ -50,7 +51,7 @@ public class RESTIoService {
         try {
             List<TaskRef> tasks = taskService.query(pkgName, newFilter);
             ListTasksDTO dto = new ListTasksDTO(tasks);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (TaskServiceException e) {
             builder = Response.serverError();
         }
@@ -64,7 +65,7 @@ public class RESTIoService {
         try {
             List<TaskRef> tasks = taskService.getTasksByName(pkgName, procName, taskName);
             ListTasksDTO dto = new ListTasksDTO(tasks);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (TaskServiceException e) {
             builder = Response.serverError();
         }

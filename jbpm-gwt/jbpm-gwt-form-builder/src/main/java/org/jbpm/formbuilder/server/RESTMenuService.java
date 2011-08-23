@@ -74,7 +74,7 @@ public class RESTMenuService {
         try {
             List<ValidationDescription> validations = menuService.listValidations();
             ListValidationsDTO dto = new ListValidationsDTO(validations);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (MenuServiceException e) {
             builder = Response.serverError();
         }

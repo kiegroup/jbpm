@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.FileUtils;
+import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.form.ListFormsDTO;
@@ -62,7 +63,7 @@ public class RESTFormService {
         try {
             List<FormRepresentation> forms = formService.getForms(pkgName);
             ListFormsDTO dto = new ListFormsDTO(forms);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (FormServiceException e) {
             builder = Response.serverError();
         } catch (FormEncodingException e) {
@@ -77,7 +78,7 @@ public class RESTFormService {
         try {
             FormRepresentation form = formService.getForm(pkgName, formId);
             ListFormsDTO dto = new ListFormsDTO(form);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (FormServiceException e) {
             builder = Response.serverError();
         } catch (FormEncodingException e) {
@@ -88,6 +89,7 @@ public class RESTFormService {
     
     @POST @Path("/definitions/package/{pkgName}")
     @Consumes("text/plain")
+    @DoNotUseJAXBProvider
     public Response saveForm(String jsonBody, @PathParam("pkgName") String pkgName) {
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         try {
@@ -118,7 +120,7 @@ public class RESTFormService {
         try {
             Map<String, FormItemRepresentation> formItems = formService.getFormItems(pkgName);
             ListFormsItemsDTO dto = new ListFormsItemsDTO(formItems);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (FormServiceException e) {
             builder = Response.serverError();
         } catch (FormEncodingException e) {
@@ -133,7 +135,7 @@ public class RESTFormService {
         try {
             FormItemRepresentation formItem = formService.getFormItem(pkgName, formItemId);
             ListFormsItemsDTO dto = new ListFormsItemsDTO(formItemId, formItem);
-            builder = Response.ok(dto);
+            builder = Response.ok(dto, MediaType.APPLICATION_XML);
         } catch (FormServiceException e) {
             builder = Response.serverError();
         } catch (FormEncodingException e) {
@@ -144,6 +146,7 @@ public class RESTFormService {
     
     @POST @Path("/items/package/{pkgName}/name/{fItemName}")
     @Consumes("text/plain")
+    @DoNotUseJAXBProvider
     public Response saveFormItem(String jsonBody,
             @PathParam("pkgName") String pkgName, 
             @PathParam("fItemName") String formItemName) {
