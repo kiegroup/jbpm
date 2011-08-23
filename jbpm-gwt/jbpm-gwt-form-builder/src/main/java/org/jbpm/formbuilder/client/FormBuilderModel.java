@@ -16,7 +16,6 @@
 package org.jbpm.formbuilder.client;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,23 +111,16 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     @Override
-    public FormRepresentation getForm(final String formName) throws FormBuilderException {
-        final String myFormName;
-        if (!formName.startsWith("formDefinition_")) { 
-            myFormName = "formDefinition_" + formName;
-        } else {
-            myFormName = formName;
-        }
+    public void getForm(final String formName) throws FormBuilderException {
         String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
             append("/formDefinitions/package/").append(this.packageName).append("/formDefinitionId/").
-            append(myFormName).append("/").toString();
+            append(formName).append("/").toString();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
-        final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
         request.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                    list.addAll(helper.readForms(response.getText()));
+                    List<FormRepresentation> list = helper.readForms(response.getText());
                     bus.fireEvent(new LoadServerFormResponseEvent(list.isEmpty() ? null : list.iterator().next()));
                 } else {
                     bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindForm404(formName)));
@@ -144,20 +136,18 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             throw new FormBuilderException(e);
         }
-        return list.isEmpty() ? null : list.iterator().next();
     }
 
     @Override
-    public List<FormRepresentation> getForms() throws FormBuilderException {
+    public void getForms() throws FormBuilderException {
         String url = new StringBuilder(GWT.getModuleBaseURL()).append(this.contextPath).
             append("/formDefinitions/package/").append(this.packageName).append("/").toString();
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
-        final List<FormRepresentation> list = new ArrayList<FormRepresentation>();
         request.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == Response.SC_OK) {
-                    list.addAll(helper.readForms(response.getText()));
+                    List<FormRepresentation> list = helper.readForms(response.getText());
                     bus.fireEvent(new LoadServerFormResponseEvent(list));
                 } else {
                     bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindForms404()));
@@ -173,7 +163,6 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             throw new FormBuilderException(e);
         }
-        return list;
     }
     
     @Override
@@ -202,14 +191,13 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     @Override
-    public Map<String, List<FBMenuItem>> getMenuItems() {
-        final Map<String, List<FBMenuItem>> menuItems = new HashMap<String, List<FBMenuItem>>();
+    public void getMenuItems() {
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuItems/");
         request.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
             	if (response.getStatusCode() == Response.SC_OK) {
-            		menuItems.putAll(helper.readMenuMap(response.getText()));
+            	    Map<String, List<FBMenuItem>> menuItems = helper.readMenuMap(response.getText());
             		for (String groupName : menuItems.keySet()) {
             			for (FBMenuItem menuItem : menuItems.get(groupName)) {
             			    populateMockFormService(menuItem);
@@ -230,7 +218,6 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadMenuItems(), e));
         }
-        return menuItems;
     }
     
     private void populateMockFormService(FBMenuItem item) {
@@ -245,13 +232,12 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     @Override
-    public List<MainMenuOption> getMenuOptions() {
-        final List<MainMenuOption> currentOptions = new ArrayList<MainMenuOption>();
+    public void getMenuOptions() {
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, GWT.getModuleBaseURL() + this.contextPath + "/menuOptions/");
         request.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                currentOptions.addAll(helper.readMenuOptions(response.getText()));
+                List<MainMenuOption> currentOptions = helper.readMenuOptions(response.getText());
                 for (MainMenuOption option : currentOptions) {
                     bus.fireEvent(new MenuOptionAddedEvent(option));
                 }
@@ -266,7 +252,6 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadMenuOptions(), e));
         }
-        return currentOptions;
     }
     
     @Override
@@ -513,14 +498,13 @@ public class FormBuilderModel implements FormBuilderService {
     }
     
     @Override
-    public List<TaskRef> getExistingIoAssociations(final String filter) {
-        final List<TaskRef> retval = new ArrayList<TaskRef>();
+    public void getExistingIoAssociations(final String filter) {
         String url = GWT.getModuleBaseURL() + this.contextPath + "/ioAssociations/package/" + this.packageName + "/";
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         request.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                retval.addAll(helper.readTasks(response.getText()));
+                List<TaskRef> retval = helper.readTasks(response.getText());
                 bus.fireEventFromSource(new ExistingTasksResponseEvent(retval, filter), FormBuilderModel.this);
             }
             @Override
@@ -536,19 +520,17 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadTasks(), e));
         }
-        return retval;
     }
     
     @Override
-    public List<FBValidationItem> getExistingValidations() throws FormBuilderException {
-        final List<FBValidationItem> retval = new ArrayList<FBValidationItem>();
+    public void getExistingValidations() throws FormBuilderException {
         String url = GWT.getModuleBaseURL() + this.contextPath + "/validations/";
         RequestBuilder request = new RequestBuilder(RequestBuilder.GET, url);
         request.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 try {
-                    retval.addAll(helper.readValidations(response.getText()));
+                    List<FBValidationItem> retval = helper.readValidations(response.getText());
                     bus.fireEvent(new ExistingValidationsResponseEvent(retval));
                 } catch (Exception e) {
                     bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntDecodeValidations(), e));
@@ -564,7 +546,6 @@ public class FormBuilderModel implements FormBuilderService {
         } catch (RequestException e) {
             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntReadValidations(), e));
         }
-        return retval;
     }
 
     @Override

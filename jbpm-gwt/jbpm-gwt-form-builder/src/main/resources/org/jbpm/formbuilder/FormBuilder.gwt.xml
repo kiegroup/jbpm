@@ -13,6 +13,7 @@
   <inherits name="com.google.gwt.json.JSON" />
   <inherits name="com.google.gwt.uibinder.UiBinder"/>
   <inherits name="com.google.gwt.visualization.Visualization"/>
+  <inherits name="org.fusesource.restygwt.RestyGWT" />
   <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
   <inherits name="com.gwtent.GwtEnt" />
   <inherits name="com.google.gwt.junit.JUnit" />
@@ -32,19 +33,10 @@
   <!-- inherits name="pl.balon.gwt.diagrams.Diagrams" / -->
   <!-- inherits name="org.cobogw.gwt.user.User" / -->
 
-  <!-- Here we put different locales (translations) There are of the form 
-    values="xx_YY" - which match to Constants_xx_YY.properties which contain 
-    the content. You then access then in the timetime app via &locale=xx_YY at 
-    the end of the URL. <extend-property name="locale" values="fr"/> -->
-
-  <!-- extend-property name="locale" values="es_ES" />
-  <extend-property name="locale" values="zh_CN" />
+  <!-- extend-property name="locale" values="zh_CN" />
   <extend-property name="locale" values="ja_JP" />
   <extend-property name="locale" values="pt_BR" />
   <extend-property name="locale" values="fr_FR" / -->
-
-  <!-- servlet path="/formBuilder" class="org.jbpm.formbuilder.server.FormBuilderServlet" />
-  <servlet path="/api" class="org.jbpm.formbuilder.server.RestAPIServlet" / -->
 
   <!-- Deferred binding to handle different check-box behaviours -->
   <!-- <replace-with class="org.drools.guvnor.client.widgets.decoratedgrid.CheckboxCellImpl">

@@ -15,12 +15,9 @@
  */
 package org.jbpm.formbuilder.client;
 
-import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.options.MainMenuOption;
-import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
@@ -36,7 +33,7 @@ public interface FormBuilderService {
      * @return a map of groups with its lists of menu items.
      * @throws FormBuilderException in case of error.
      */
-    Map<String, List<FBMenuItem>> getMenuItems() throws FormBuilderException;
+    void getMenuItems() throws FormBuilderException;
     
     /**
      * Gets a list of menu options, generally for a menu bar. Each option has a name, and 
@@ -44,7 +41,7 @@ public interface FormBuilderService {
      * @return a list of menu options.
      * @throws FormBuilderException in case of error.
      */
-    List<MainMenuOption> getMenuOptions() throws FormBuilderException;
+    void getMenuOptions() throws FormBuilderException;
     
     /**
      * Saves a form on the server
@@ -107,7 +104,7 @@ public interface FormBuilderService {
      * @return all best fit task definition references to the filter
      * @throws FormBuilderException in case of error
      */
-    List<TaskRef> getExistingIoAssociations(String filter) throws FormBuilderException;
+    void getExistingIoAssociations(String filter) throws FormBuilderException;
 
     /**
      * Fires a TaskSelectedEvent in case you can find the proper task in the server
@@ -123,7 +120,7 @@ public interface FormBuilderService {
      * @return all existing validation types available on server side
      * @throws FormBuilderException in case of error
      */
-    List<FBValidationItem> getExistingValidations() throws FormBuilderException;
+    void getExistingValidations() throws FormBuilderException;
 
     /**
      * Returns a single form
@@ -131,14 +128,14 @@ public interface FormBuilderService {
      * @return the requested form
      * @throws FormBuilderException in case of error.
      */
-    FormRepresentation getForm(String formName) throws FormBuilderException;
+    void getForm(String formName) throws FormBuilderException;
     
     /**
      * Returns all forms
      * @return all existing forms
      * @throws FormBuilderException in case of error.
      */
-    List<FormRepresentation> getForms() throws FormBuilderException;
+    void getForms() throws FormBuilderException;
     
     /**
      * Populates the {@link RepresentationFactory} with the form items and representations

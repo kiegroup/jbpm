@@ -47,7 +47,7 @@ public class FormBuilderEntryPoint implements EntryPoint {
         I18NConstants constants = GWT.create(I18NConstants.class);
         FormBuilderGlobals.getInstance().registerI18n(constants);
         //start model
-        FormBuilderModel server = new FormBuilderModel("fbapi");
+        RestyFormBuilderModel server = new RestyFormBuilderModel("rest");
         FormBuilderGlobals.getInstance().registerService(server);
         //start view and controller
         FormBuilderView view = new FormBuilderView();

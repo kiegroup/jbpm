@@ -62,7 +62,7 @@ public class FormBuilderController {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final FormBuilderModel model;
+    private final RestyFormBuilderModel model;
     private final FormBuilderView view;
     
     private final FormExporter formExporter;
@@ -72,7 +72,7 @@ public class FormBuilderController {
      * @param fbModel
      * @param fbView
      */
-    public FormBuilderController(final RootPanel rootPanel, FormBuilderModel fbModel, FormBuilderView fbView) {
+    public FormBuilderController(final RootPanel rootPanel, RestyFormBuilderModel fbModel, FormBuilderView fbView) {
         super();
         this.model = fbModel;
         this.view = fbView;

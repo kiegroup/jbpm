@@ -80,8 +80,14 @@ public class ValidationsEffect extends FBFormEffect {
         popup.setWidget(this.effectView);
         this.effectView.setParentPopup(popup);
         try {
-            this.availableValidations = server.getExistingValidations();
-            this.effectView.setAvailableValidations(this.availableValidations);
+            server.getExistingValidations();
+            bus.addHandler(ExistingValidationsResponseEvent.TYPE, new ExistingValidationsResponseHandler() {
+                @Override
+                public void onEvent(ExistingValidationsResponseEvent event) {
+                    availableValidations = event.getExistingValidations();
+                    effectView.setAvailableValidations(availableValidations);
+                }
+            });
         } catch (FormBuilderException e) {
             bus.fireEvent(new NotificationEvent(Level.WARN, 
                 FormBuilderGlobals.getInstance().getI18n().CouldntConnectServer(), e));
