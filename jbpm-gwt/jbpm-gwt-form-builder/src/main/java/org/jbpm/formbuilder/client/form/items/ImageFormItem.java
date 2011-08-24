@@ -181,5 +181,6 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem {
     @Override
     public Format getFormat() {
         // ignore
+        return null;
     }
 }

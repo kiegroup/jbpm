@@ -20,19 +20,33 @@
 #end 
 <\#macro printi18nheader label>
     #if ($item.format)
+      #set($valueFormatted = '${value}')
+      #set($labelFormatted = '${label}')
       #if ($item.format == "currency")
-        <\#if \${value}> \${value?string.currency} <\#else> \${label?string.currency} </\#if>
-      #elseif ($item.format == "number")
-        <\#if \${value}> \${value?string.number} <\#else> \${label?string.number} </\#if>
-      #elseif ($item.format == "date")
-        <\#if \${value}> \${value?string.short} <\#else> \${label?string.short} </\#if>
-      #elseif ($item.format == "datetime")
-        <\#if \${value}> \${value?string.short_short} <\#else> \${label?string.short_short} </\#if>
-      #elseif ($item.format == "percent")
-        <\#if \${value}> \${value?string.percent} <\#else> \${label?string.percent} </\#if>
-      #elseif ($item.format == "integer")
-        <\#if \${value}> \${value?string("0")} <\#else> \${label?string("0")} </\#if>
+        #set ($valueFormatted = '${value?string.currency}')
+        #set ($labelFormatted = '${label?string.currency}')
       #end
+      #if ($item.format == "number")
+        #set($valueFormatted = '${value?string.number}')
+        #set($labelFormatted = '${label?string.number}')
+      #end
+      #if ($item.format == "date")
+        #set($valueFormatted = '${value?string.short}')
+        #set($labelFormatted = '${label?string.short}')
+      #end
+      #if ($item.format == "datetime")
+        #set($valueFormatted = '${value?string.short_short}')
+        #set($labelFormatted = '${label?string.short_short}')
+      #end
+      #if ($item.format == "percent")
+        #set($valueFormatted = '${value?string.percent}')
+        #set($labelFormatted = '${label?string.percent}')
+      #end
+      #if ($item.format == "integer")
+        #set($valueFormatted = '${value?string("0")}')
+        #set($labelFormatted = '${label?string("0")}')
+      #end
+      <\#if \${value}> $valueFormatted \<\#else> $labelFormatted </\#if>
     #else
       <\#if \${value}> \${value} <\#else> \${label} </\#if>
     #end

@@ -20,22 +20,26 @@
 <\#macro printi18ncbutton text>
     <\#if \${value}?length > 0 && \${value}>
       #if ($item.format)
-        #if ($item.format == "currency")\${value?string.currency}#end
-        #if ($item.format == "number")\${value?string.number}#end
-        #if ($item.format == "date")\${value?string.short}#end
-        #if ($item.format == "datetime")\${value?string.short_short}#end
-        #if ($item.format == "percent")\${value?string.percent}#end
-        #if ($item.format == "integer")\${value?string("0")}#end
-      #else \${value} #end
+        #set ($valueFormatted = '${value}')
+        #if ($item.format == "currency")#set($valueFormatted='${value?string.currency}')#end
+        #if ($item.format == "number")#set($valueFormatted='${value?string.number}')#end
+        #if ($item.format == "date")#set($valueFormatted='${value?string.short}')#end
+        #if ($item.format == "datetime")#set($valueFormatted='${value?string.short_short}')#end
+        #if ($item.format == "percent")#set($valueFormatted='${value?string.percent}')#end
+        #if ($item.format == "integer")#set($valueFormatted='${value?string("0")}')#end
+        $valueFormatted
+      #end
     <\#else> 
       #if ($item.format)
-        #if ($item.format == "currency")\${text?string.currency}#end
-        #if ($item.format == "number")\${text?string.number}#end
-        #if ($item.format == "date")\${text?string.short}#end
-        #if ($item.format == "datetime")\${text?string.short_short}#end
-        #if ($item.format == "percent")\${text?string.percent}#end
-        #if ($item.format == "integer")\${text?string("0")}#end
-      #else \${text} #end
+        #set ($valueFormatted = '${text}')
+        #if ($item.format == "currency")#set($valueFormatted='${text?string.currency}')#end
+        #if ($item.format == "number")#set($valueFormatted='${text?string.number}')#end
+        #if ($item.format == "date")#set($valueFormatted='${text?string.short}')#end
+        #if ($item.format == "datetime")#set($valueFormatted='${text?string.short_short}')#end
+        #if ($item.format == "percent")#set($valueFormatted='${text?string.percent}')#end
+        #if ($item.format == "integer")#set($valueFormatted='${text?string("0")}')#end
+        $valueFormatted
+      #end
     </\#if>
 </\#macro>
 <input type="submit" #if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end<@printi18ncbutton text="#if($valueParam)$valueParam#end"/> />
