@@ -24,6 +24,8 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
+import org.jbpm.formbuilder.client.form.I18NFormItem;
+import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.form.editors.LabelInplaceEditor;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
@@ -36,10 +38,11 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form item. Represents a label
  */
 @Reflectable
-public class LabelFormItem extends FBFormItem {
+public class LabelFormItem extends FBFormItem implements I18NFormItem  {
 
     private final Label label = new Label("Label");
     
+    private final I18NUtils utils = new I18NUtils();
     private String id;
     private String cssClassName;
 
@@ -105,6 +108,7 @@ public class LabelFormItem extends FBFormItem {
         rep.setValue(this.label.getText());
         rep.setCssName(this.cssClassName);
         rep.setId(this.id);
+        rep.setI18n(getI18nMap());
         return rep;
     }
     
@@ -124,6 +128,7 @@ public class LabelFormItem extends FBFormItem {
         if (lrep.getHeight() != null && !"".equals(lrep.getHeight())) {
             setHeight(lrep.getHeight());
         }
+        saveI18nMap(lrep.getI18n());
         populate(this.label);
     }
     
@@ -136,6 +141,7 @@ public class LabelFormItem extends FBFormItem {
         clone.setWidth(this.getWidth());
         clone.getLabel().setText(this.label.getText());
         clone.populate(clone.label);
+        clone.saveI18nMap(getI18nMap());
         return clone;
     }
     
@@ -144,5 +150,29 @@ public class LabelFormItem extends FBFormItem {
         Label lb = new Label();
         populate(lb);
         return lb;
+    }
+    
+    @Override
+    public boolean containsLocale(String localeName) {
+        return utils.containsLocale(localeName);
+    }
+    
+    @Override
+    public String getI18n(String key) {
+        return utils.getI18n(key);
+    }
+    
+    @Override
+    public Map<String, String> getI18nMap() {
+        return utils.getI18nMap();
+    }
+    
+    @Override
+    public void saveI18nMap(Map<String, String> i18nMap) {
+        String defaultI18n = i18nMap.get("default");
+        if (defaultI18n != null && !"".equals(defaultI18n)) {
+            this.label.setText(defaultI18n);
+        }
+        utils.saveI18nMap(i18nMap);
     }
 }

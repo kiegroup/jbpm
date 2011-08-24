@@ -2,10 +2,23 @@
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
 #set ($sytle = "$width$height")
+<#assign localeData=[
+#for ($entry in ${item.getI18n().entrySet()})
+    "${entry.getKey()}" => "${entry.getValue()}",
+#end
+    "LAST_ELEMENT_KEY", "LAST_ELEMENT_VALUE"
+] >
+<#assign value = \${localeData[\${$locale}]} >
 #set ($styleParam = ${language.getParam("style", $style)})
 ##TODO getItemValidations
 #set ($value = $item.value) 
-#if (!($value and $value != "") and $item.input)
-    #set ($value = $item.input.name)
+#if ($item.input)
+  #if ($item.input.name)
+    #set ($aux = ${item.input.name})
+    #set ($value = ${language.asFtlVar($aux)})
+  #end
 #end 
-<h1 #if($classParam)$classParam#end#if($styleParam)$styleParam#end>$value</h1>
+<#macro printi18nheader label>
+    <#if \${value}> \${value} <#else> \${label} </#if>
+</#macro>
+<h1 #if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nheader label="#if($value)$value#end" /></h1>

@@ -195,6 +195,7 @@ public interface I18NConstants extends Messages {
     String AlignCenter();
     String AlignJustify();
     
+    String InternationalizeEffectLabel();
     String AddTabEffectLabel();
     String RemoveTabEffectLabel();
     String AddColumnEffectLabel();

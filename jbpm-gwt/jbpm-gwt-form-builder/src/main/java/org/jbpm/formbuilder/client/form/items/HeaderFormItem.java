@@ -24,6 +24,8 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
+import org.jbpm.formbuilder.client.form.I18NFormItem;
+import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
@@ -38,10 +40,11 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form item. Represents a header or title
  */
 @Reflectable
-public class HeaderFormItem extends FBFormItem {
+public class HeaderFormItem extends FBFormItem implements I18NFormItem {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final HTML header = new HTML("<h1>" + i18n.MenuItemHeader() + "</h1>");
+    private final I18NUtils utils = new I18NUtils();
     
     private String id;
     private String name;
@@ -118,6 +121,7 @@ public class HeaderFormItem extends FBFormItem {
         rep.setStyleClass(this.cssClassName);
         rep.setCssId(this.id);
         rep.setCssName(this.name);
+        rep.setI18n(getI18nMap());
         return rep;
     }
     
@@ -130,6 +134,7 @@ public class HeaderFormItem extends FBFormItem {
         HeaderRepresentation hrep = (HeaderRepresentation) rep;
         this.cssClassName = hrep.getCssName();
         this.id = hrep.getCssId();
+        saveI18nMap(hrep.getI18n());
         if (hrep.getValue().startsWith("<h1>")) {
             setContent(hrep.getValue());
         } else {
@@ -144,6 +149,7 @@ public class HeaderFormItem extends FBFormItem {
         clone.id = this.id;
         clone.name = this.name;
         clone.setContent(this.header.getHTML());
+        clone.saveI18nMap(getI18nMap());
         clone.populate(this.header);
         return clone;
     }
@@ -153,5 +159,29 @@ public class HeaderFormItem extends FBFormItem {
         HTML html = new HTML(this.header.getHTML());
         populate(html);
         return html;
+    }
+
+    @Override
+    public boolean containsLocale(String localeName) {
+        return utils.containsLocale(localeName);
+    }
+    
+    @Override
+    public String getI18n(String key) {
+        return utils.getI18n(key);
+    }
+    
+    @Override
+    public Map<String, String> getI18nMap() {
+        return utils.getI18nMap();
+    }
+    
+    @Override
+    public void saveI18nMap(Map<String, String> i18nMap) {
+        String defaultI18n = i18nMap.get("default");
+        if (defaultI18n != null && !"".equals(defaultI18n)) {
+            this.header.setHTML("<h1>" + defaultI18n + "</h1>");
+        }
+        utils.saveI18nMap(i18nMap);
     }
 }

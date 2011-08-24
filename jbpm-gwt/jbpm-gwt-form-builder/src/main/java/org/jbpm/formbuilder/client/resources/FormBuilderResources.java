@@ -118,4 +118,7 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/tabbed_layout_icon.png")
     ImageResource tabbedLayoutIcon();
+
+    @Source("images/remove_small_icon.png")
+    ImageResource removeSmallIcon();
 }

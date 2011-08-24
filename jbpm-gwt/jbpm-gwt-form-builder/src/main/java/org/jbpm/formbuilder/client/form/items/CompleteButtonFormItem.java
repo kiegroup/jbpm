@@ -23,6 +23,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.I18NFormItem;
+import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
@@ -36,10 +38,11 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form item. Represents a complete button
  */
 @Reflectable
-public class CompleteButtonFormItem extends FBFormItem {
+public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private Button button = new Button(i18n.CompleteButton());
+    private final I18NUtils utils = new I18NUtils();
 
     private String innerText;
     private String name;
@@ -103,6 +106,7 @@ public class CompleteButtonFormItem extends FBFormItem {
         rep.setText(this.innerText);
         rep.setName(this.name);
         rep.setId(this.id);
+        rep.setI18n(getI18nMap());
         return rep;
     }
     
@@ -116,6 +120,7 @@ public class CompleteButtonFormItem extends FBFormItem {
         this.innerText = crep.getText();
         this.name = crep.getName();
         this.id = crep.getId();
+        this.saveI18nMap(crep.getI18n());
         populate(this.button);
     }
     
@@ -127,6 +132,7 @@ public class CompleteButtonFormItem extends FBFormItem {
         clone.setWidth(this.getWidth());
         clone.id = this.id;
         clone.innerText = this.innerText;
+        clone.saveI18nMap(getI18nMap());
         clone.name = this.name;
         clone.populate(clone.button);
         return clone;
@@ -137,5 +143,30 @@ public class CompleteButtonFormItem extends FBFormItem {
         Button bt = new Button();
         populate(bt);
         return bt;
+    }
+    
+    @Override
+    public boolean containsLocale(String localeName) {
+        return utils.containsLocale(localeName);
+    }
+    
+    @Override
+    public String getI18n(String key) {
+        return utils.getI18n(key);
+    }
+    
+    @Override
+    public Map<String, String> getI18nMap() {
+        return utils.getI18nMap();
+    }
+    
+    @Override
+    public void saveI18nMap(Map<String, String> i18nMap) {
+        String defaultI18n = i18nMap.get("default");
+        if (defaultI18n != null && !"".equals(defaultI18n)) {
+            this.innerText = defaultI18n;
+            populate(this.button);
+        }
+        utils.saveI18nMap(i18nMap);
     }
 }

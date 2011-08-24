@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.shared.rep.items;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -29,6 +30,7 @@ public class HeaderRepresentation extends FormItemRepresentation {
     private String styleClass;
     private String cssId;
     private String cssName;
+    private Map<String, String> i18n = new HashMap<String, String>();
 
     public HeaderRepresentation() {
         super("header");
@@ -66,6 +68,14 @@ public class HeaderRepresentation extends FormItemRepresentation {
         this.cssName = cssName;
     }
     
+    public Map<String, String> getI18n() {
+        return i18n;
+    }
+    
+    public void setI18n(Map<String, String> i18n) {
+        this.i18n = i18n;
+    }
+    
     @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = super.getDataMap();
@@ -73,6 +83,7 @@ public class HeaderRepresentation extends FormItemRepresentation {
         data.put("styleClass", this.styleClass);
         data.put("cssId", this.cssId);
         data.put("cssName", this.cssName);
+        data.put("i18n", this.i18n);
         return data;
     }
     
@@ -83,6 +94,10 @@ public class HeaderRepresentation extends FormItemRepresentation {
         this.styleClass = (String) data.get("styleClass");
         this.cssId = (String) data.get("cssId");
         this.cssName = (String) data.get("cssName");
+        @SuppressWarnings("unchecked")
+        Map<String, String> i18nMap = (Map<String, String>) data.get("i18n");
+        this.i18n = new HashMap<String, String>();
+        this.i18n.putAll(i18nMap);
     }
 
     
@@ -98,6 +113,8 @@ public class HeaderRepresentation extends FormItemRepresentation {
         equals = (this.cssId == null && other.cssId == null) || (this.cssId != null && this.cssId.equals(other.cssId));
         if (!equals) return equals;
         equals = (this.cssName == null && other.cssName == null) || (this.cssName != null && this.cssName.equals(other.cssName));
+        if (!equals) return equals;
+        equals = (this.i18n == null && other.i18n == null) || (this.i18n != null && this.i18n.entrySet().equals(other.i18n.entrySet()));
         return equals;
     }
     
@@ -111,6 +128,8 @@ public class HeaderRepresentation extends FormItemRepresentation {
         aux = this.cssId == null ? 0 : this.cssId.hashCode();
         result = 37 * result + aux;
         aux = this.cssName == null ? 0 : this.cssName.hashCode();
+        result = 37 * result + aux;
+        aux = this.i18n == null ? 0 : this.i18n.hashCode();
         result = 37 * result + aux;
         return result;
     }

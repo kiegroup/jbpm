@@ -23,6 +23,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.I18NFormItem;
+import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
@@ -35,9 +37,10 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form item. Represents an image
  */
 @Reflectable
-public class ImageFormItem extends FBFormItem {
+public class ImageFormItem extends FBFormItem implements I18NFormItem {
 
     private Image image = new Image();
+    private final I18NUtils utils = new I18NUtils();
     
     private String altText;
     private String url;
@@ -69,6 +72,9 @@ public class ImageFormItem extends FBFormItem {
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
         this.altText = extractString(asPropertiesMap.get("altText"));
+        Map<String, String> i18nMap = getI18nMap();
+        i18nMap.put("default", this.altText);
+        saveI18nMap(i18nMap);
         this.setHeight(extractString(asPropertiesMap.get("height")));
         this.setWidth(extractString(asPropertiesMap.get("width")));
         this.url = extractString(asPropertiesMap.get("url"));
@@ -98,6 +104,7 @@ public class ImageFormItem extends FBFormItem {
         rep.setAltText(this.altText);
         rep.setUrl(this.url);
         rep.setId(this.id);
+        rep.setI18n(getI18nMap());
         return rep;
     }
     
@@ -111,6 +118,13 @@ public class ImageFormItem extends FBFormItem {
         this.altText = irep.getAltText();
         this.url = irep.getUrl();
         this.id = irep.getId();
+        saveI18nMap(irep.getI18n());
+        if (this.altText == null || "".equals(this.altText)) {
+            String i18nAltText = getI18n("default");
+            if (i18nAltText != null) {
+                this.altText = i18nAltText;
+            }
+        }
         populate(this.image);
     }
 
@@ -121,6 +135,7 @@ public class ImageFormItem extends FBFormItem {
         clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.url = this.url;
+        clone.utils.saveI18nMap(getI18nMap());
         clone.setWidth(this.getWidth());
         clone.populate(clone.image);
         return clone;
@@ -131,5 +146,30 @@ public class ImageFormItem extends FBFormItem {
         Image im = new Image();
         populate(im);
         return im;
+    }
+    
+    @Override
+    public boolean containsLocale(String localeName) {
+        return utils.containsLocale(localeName);
+    }
+    
+    @Override
+    public String getI18n(String key) {
+        return utils.getI18n(key);
+    }
+    
+    @Override
+    public Map<String, String> getI18nMap() {
+        return utils.getI18nMap();
+    }
+    
+    @Override
+    public void saveI18nMap(Map<String, String> i18nMap) {
+        String defaultI18n = i18nMap.get("default");
+        if (defaultI18n != null && !"".equals(defaultI18n)) {
+            this.altText = defaultI18n;
+        }
+
+        utils.saveI18nMap(i18nMap);
     }
 }
