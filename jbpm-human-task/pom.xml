@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.jboss.seam</groupId>
       <artifactId>jboss-seam</artifactId>
-      <version>2.1.0.GA</version>
+      <version>2.2.2.Final</version>
     </dependency>
     <dependency>
       <groupId>org.subethamail</groupId>
