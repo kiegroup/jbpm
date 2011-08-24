@@ -21,23 +21,23 @@
     <\#if \${value}?length > 0 && \${value}>
       #if ($item.format)
         #set ($valueFormatted = '${value}')
-        #if ($item.format == "currency")#set($valueFormatted='${value?string.currency}')#end
-        #if ($item.format == "number")#set($valueFormatted='${value?string.number}')#end
-        #if ($item.format == "date")#set($valueFormatted='${value?string.short}')#end
-        #if ($item.format == "datetime")#set($valueFormatted='${value?string.short_short}')#end
-        #if ($item.format == "percent")#set($valueFormatted='${value?string.percent}')#end
-        #if ($item.format == "integer")#set($valueFormatted='${value?string("0")}')#end
+        #if ($item.format == "CURRENCY")#set($valueFormatted='${value?string.currency}')#end
+        #if ($item.format == "NUMBER")#set($valueFormatted='${value?string.number}')#end
+        #if ($item.format == "DATE")#set($valueFormatted='${value?string.short}')#end
+        #if ($item.format == "DATETIME")#set($valueFormatted='${value?string.short_short}')#end
+        #if ($item.format == "PERCENT")#set($valueFormatted='${value?string.percent}')#end
+        #if ($item.format == "INTEGER")#set($valueFormatted='${value?string("0")}')#end
         $valueFormatted
       #end
     <\#else> 
       #if ($item.format)
         #set ($valueFormatted = '${text}')
-        #if ($item.format == "currency")#set($valueFormatted='${text?string.currency}')#end
-        #if ($item.format == "number")#set($valueFormatted='${text?string.number}')#end
-        #if ($item.format == "date")#set($valueFormatted='${text?string.short}')#end
-        #if ($item.format == "datetime")#set($valueFormatted='${text?string.short_short}')#end
-        #if ($item.format == "percent")#set($valueFormatted='${text?string.percent}')#end
-        #if ($item.format == "integer")#set($valueFormatted='${text?string("0")}')#end
+        #if ($item.format == "CURRENCY")#set($valueFormatted='${text?string.currency}')#end
+        #if ($item.format == "NUMBER")#set($valueFormatted='${text?string.number}')#end
+        #if ($item.format == "DATE")#set($valueFormatted='${text?string.short}')#end
+        #if ($item.format == "DATETIME")#set($valueFormatted='${text?string.short_short}')#end
+        #if ($item.format == "PERCENT")#set($valueFormatted='${text?string.percent}')#end
+        #if ($item.format == "INTEGER")#set($valueFormatted='${text?string("0")}')#end
         $valueFormatted
       #end
     </\#if>

@@ -2,13 +2,13 @@
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
 #set ($sytle = "$width$height")
-<\#assign localeData=[
+<#assign localeData=[
 #foreach ($entry in ${item.getI18n().entrySet()})
     "${entry.getKey()}" => "${entry.getValue()}",
 #end
     "LAST_ELEMENT_KEY", "LAST_ELEMENT_VALUE"
 ] >
-<\#assign value = \${localeData[\${$locale}]} >
+<#assign value = \${localeData[\${$locale}]} >
 #set ($styleParam = ${language.getParam("style", $style)})
 ##TODO getItemValidations
 #set ($value = $item.value) 
@@ -22,27 +22,27 @@
     #if ($item.format)
       #set($valueFormatted = '${value}')
       #set($labelFormatted = '${label}')
-      #if ($item.format == "currency")
+      #if ($item.format == "CURRENCY")
         #set ($valueFormatted = '${value?string.currency}')
         #set ($labelFormatted = '${label?string.currency}')
       #end
-      #if ($item.format == "number")
+      #if ($item.format == "NUMBER")
         #set($valueFormatted = '${value?string.number}')
         #set($labelFormatted = '${label?string.number}')
       #end
-      #if ($item.format == "date")
+      #if ($item.format == "DATE")
         #set($valueFormatted = '${value?string.short}')
         #set($labelFormatted = '${label?string.short}')
       #end
-      #if ($item.format == "datetime")
+      #if ($item.format == "DATETIME")
         #set($valueFormatted = '${value?string.short_short}')
         #set($labelFormatted = '${label?string.short_short}')
       #end
-      #if ($item.format == "percent")
+      #if ($item.format == "PERCENT")
         #set($valueFormatted = '${value?string.percent}')
         #set($labelFormatted = '${label?string.percent}')
       #end
-      #if ($item.format == "integer")
+      #if ($item.format == "INTEGER")
         #set($valueFormatted = '${value?string("0")}')
         #set($labelFormatted = '${label?string("0")}')
       #end
