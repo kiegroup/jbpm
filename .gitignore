@@ -24,3 +24,4 @@ bin/
 /jbpm-human-task/jbpm-human-task-impl-hornetq/target/
 /jbpm-human-task/jbpm-human-task-jms/target/
 /jbpm-human-task/jbpm-human-task-impl-jms/target/
+/jbpm-human-task/jbpm-human-task-impl-jms/activemq-data/
