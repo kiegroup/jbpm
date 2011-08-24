@@ -19,6 +19,22 @@
   #end
 #end 
 <\#macro printi18nlabel label>
-    <\#if \${value}> \${value} <\#else> \${label} </\#if>
+    #if ($item.format)
+      #if ($item.format == "currency")
+        <\#if \${value}> \${value?string.currency} <\#else> \${label?string.currency} </\#if>
+      #elseif ($item.format == "number")
+        <\#if \${value}> \${value?string.number} <\#else> \${label?string.number} </\#if>
+      #elseif ($item.format == "date")
+        <\#if \${value}> \${value?string.short} <\#else> \${label?string.short} </\#if>
+      #elseif ($item.format == "datetime")
+        <\#if \${value}> \${value?string.short_short} <\#else> \${label?string.short_short} </\#if>
+      #elseif ($item.format == "percent")
+        <\#if \${value}> \${value?string.percent} <\#else> \${label?string.percent} </\#if>
+      #elseif ($item.format == "integer")
+        <\#if \${value}> \${value?string("0")} <\#else> \${label?string("0")} </\#if>
+      #end
+    #else
+      <\#if \${value}> \${value} <\#else> \${label} </\#if>
+    #end
 </\#macro>
 <span #if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nlabel label="#if($value)$value#end" /></span>

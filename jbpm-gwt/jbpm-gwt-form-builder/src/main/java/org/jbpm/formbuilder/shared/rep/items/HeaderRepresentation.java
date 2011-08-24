@@ -31,6 +31,7 @@ public class HeaderRepresentation extends FormItemRepresentation {
     private String cssId;
     private String cssName;
     private Map<String, String> i18n = new HashMap<String, String>();
+    private String format;
 
     public HeaderRepresentation() {
         super("header");
@@ -76,6 +77,14 @@ public class HeaderRepresentation extends FormItemRepresentation {
         this.i18n = i18n;
     }
     
+    public String getFormat() {
+        return format;
+    }
+    
+    public void setFormat(String format) {
+        this.format = format;
+    }
+    
     @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = super.getDataMap();
@@ -84,6 +93,7 @@ public class HeaderRepresentation extends FormItemRepresentation {
         data.put("cssId", this.cssId);
         data.put("cssName", this.cssName);
         data.put("i18n", this.i18n);
+        data.put("format", this.format);
         return data;
     }
     
@@ -100,6 +110,7 @@ public class HeaderRepresentation extends FormItemRepresentation {
             this.i18n = new HashMap<String, String>();
             this.i18n.putAll(i18nMap);
         }
+        this.format = (String) data.get("format");
     }
 
     
@@ -117,6 +128,8 @@ public class HeaderRepresentation extends FormItemRepresentation {
         equals = (this.cssName == null && other.cssName == null) || (this.cssName != null && this.cssName.equals(other.cssName));
         if (!equals) return equals;
         equals = (this.i18n == null && other.i18n == null) || (this.i18n != null && this.i18n.entrySet().equals(other.i18n.entrySet()));
+        if (!equals) return equals;
+        equals = (this.format == null && other.format == null) || (this.format != null && this.format.equals(other.format));
         return equals;
     }
     
@@ -132,6 +145,8 @@ public class HeaderRepresentation extends FormItemRepresentation {
         aux = this.cssName == null ? 0 : this.cssName.hashCode();
         result = 37 * result + aux;
         aux = this.i18n == null ? 0 : this.i18n.hashCode();
+        result = 37 * result + aux;
+        aux = this.format == null ? 0 : this.format.hashCode();
         result = 37 * result + aux;
         return result;
     }

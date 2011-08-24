@@ -122,6 +122,7 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
         rep.setCssId(this.id);
         rep.setCssName(this.name);
         rep.setI18n(getI18nMap());
+        rep.setFormat(getFormat() == null ? null : getFormat().toString());
         return rep;
     }
     
@@ -140,6 +141,9 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
         } else {
             setContent("<h1>" + hrep.getValue() + "</h1>");
         }
+        if (hrep.getFormat() != null && !"".equals(hrep.getFormat())) {
+            setFormat(Format.valueOf(hrep.getFormat()));
+        }
     }
     
     @Override
@@ -150,6 +154,7 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
         clone.name = this.name;
         clone.setContent(this.header.getHTML());
         clone.saveI18nMap(getI18nMap());
+        clone.setFormat(getFormat());
         clone.populate(this.header);
         return clone;
     }
@@ -183,5 +188,15 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
             this.header.setHTML("<h1>" + defaultI18n + "</h1>");
         }
         utils.saveI18nMap(i18nMap);
+    }
+    
+    @Override
+    public Format getFormat() {
+        return utils.getFormat();
+    }
+    
+    @Override
+    public void setFormat(Format format) {
+        utils.setFormat(format);
     }
 }

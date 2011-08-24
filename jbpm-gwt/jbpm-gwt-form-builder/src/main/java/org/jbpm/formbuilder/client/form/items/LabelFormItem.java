@@ -109,6 +109,7 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
         rep.setCssName(this.cssClassName);
         rep.setId(this.id);
         rep.setI18n(getI18nMap());
+        rep.setFormat(getFormat() == null ? null : getFormat().toString());
         return rep;
     }
     
@@ -129,6 +130,9 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
             setHeight(lrep.getHeight());
         }
         saveI18nMap(lrep.getI18n());
+        if (lrep.getFormat() != null && !"".equals(lrep.getFormat())) {
+            setFormat(Format.valueOf(lrep.getFormat()));
+        }
         populate(this.label);
     }
     
@@ -142,6 +146,7 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
         clone.getLabel().setText(this.label.getText());
         clone.populate(clone.label);
         clone.saveI18nMap(getI18nMap());
+        clone.setFormat(getFormat());
         return clone;
     }
     
@@ -174,5 +179,15 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
             this.label.setText(defaultI18n);
         }
         utils.saveI18nMap(i18nMap);
+    }
+    
+    @Override
+    public Format getFormat() {
+        return utils.getFormat();
+    }
+    
+    @Override
+    public void setFormat(Format format) {
+        utils.setFormat(format);
     }
 }

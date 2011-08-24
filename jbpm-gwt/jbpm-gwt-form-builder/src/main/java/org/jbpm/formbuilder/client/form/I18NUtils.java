@@ -6,6 +6,7 @@ import java.util.Map;
 public class I18NUtils implements I18NFormItem {
 
     private final Map<String, String> i18nMap = new HashMap<String, String>();
+    private Format format;
     
     @Override
     public boolean containsLocale(String localeName) {
@@ -28,4 +29,13 @@ public class I18NUtils implements I18NFormItem {
         return this.i18nMap.get(key);
     }
 
+    @Override
+    public Format getFormat() {
+        return format;
+    }
+    
+    @Override
+    public void setFormat(Format format) {
+        this.format = format;
+    }
 }

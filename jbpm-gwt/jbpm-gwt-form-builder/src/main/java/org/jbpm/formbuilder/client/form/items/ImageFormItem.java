@@ -135,7 +135,7 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem {
         clone.setHeight(this.getHeight());
         clone.id = this.id;
         clone.url = this.url;
-        clone.utils.saveI18nMap(getI18nMap());
+        clone.saveI18nMap(getI18nMap());
         clone.setWidth(this.getWidth());
         clone.populate(clone.image);
         return clone;
@@ -171,5 +171,15 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem {
         }
 
         utils.saveI18nMap(i18nMap);
+    }
+    
+    @Override
+    public void setFormat(Format format) {
+        // ignore
+    }
+    
+    @Override
+    public Format getFormat() {
+        // ignore
     }
 }

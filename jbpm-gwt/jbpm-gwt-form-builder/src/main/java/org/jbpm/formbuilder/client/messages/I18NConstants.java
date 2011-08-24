@@ -160,6 +160,7 @@ public interface I18NConstants extends Messages {
     String QuickFormOutputsToBeAdded();
     String QuickFormWarning();
     
+    String AddLocaleButton();
     String CompleteButton();
     String ConfirmButton();
     String CancelButton();
@@ -195,6 +196,9 @@ public interface I18NConstants extends Messages {
     String AlignCenter();
     String AlignJustify();
     
+    String LocalesLabel();
+    String MessagesLabel();
+    String ApplyLocaleFormattingLabel();
     String InternationalizeEffectLabel();
     String AddTabEffectLabel();
     String RemoveTabEffectLabel();
@@ -222,4 +226,11 @@ public interface I18NConstants extends Messages {
     String FormProcessId();
     String FormTaskId();
     String FormName();
+    
+    String FormatAsLabel();
+    String CurrencyFormatLabel();
+    String NumberFormatLabel();
+    String DateFormatLabel();
+    String PercentFormatLabel();
+    String IntegerFormatLabel();
 }

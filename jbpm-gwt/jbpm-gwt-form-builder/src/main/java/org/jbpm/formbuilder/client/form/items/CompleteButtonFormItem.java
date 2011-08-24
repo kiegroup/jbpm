@@ -107,6 +107,7 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
         rep.setName(this.name);
         rep.setId(this.id);
         rep.setI18n(getI18nMap());
+        rep.setFormat(getFormat() == null ? null : getFormat().toString());
         return rep;
     }
     
@@ -121,6 +122,9 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
         this.name = crep.getName();
         this.id = crep.getId();
         this.saveI18nMap(crep.getI18n());
+        if (crep.getFormat() != null && !"".equals(crep.getFormat())) {
+            this.setFormat(Format.valueOf(crep.getFormat()));
+        }
         populate(this.button);
     }
     
@@ -135,6 +139,7 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
         clone.saveI18nMap(getI18nMap());
         clone.name = this.name;
         clone.populate(clone.button);
+        clone.setFormat(getFormat());
         return clone;
     }
     
@@ -169,4 +174,14 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
         }
         utils.saveI18nMap(i18nMap);
     }
+    
+    @Override
+    public Format getFormat() {
+        return utils.getFormat();
+    }
+    
+    @Override
+    public void setFormat(Format format) {
+        utils.setFormat(format);
+    };
 }

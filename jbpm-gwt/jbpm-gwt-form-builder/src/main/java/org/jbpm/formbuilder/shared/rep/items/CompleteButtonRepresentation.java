@@ -34,6 +34,7 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
     private String id;
     private FBScript onClickScript;
     private Map<String, String> i18n = new HashMap<String, String>();
+    private String format;
     
     public CompleteButtonRepresentation() {
         super("completeButton");
@@ -82,6 +83,14 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
         this.i18n = i18n;
     }
     
+    public String getFormat() {
+        return format;
+    }
+    
+    public void setFormat(String format) {
+        this.format = format;
+    }
+    
     @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = super.getDataMap();
@@ -90,6 +99,7 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
         data.put("id", this.id);
         data.put("onClickScript", this.onClickScript == null ? null : this.onClickScript.getDataMap());
         data.put("i18n", this.i18n);
+        data.put("format", this.format);
         return data;
     }
     
@@ -105,6 +115,7 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
             this.i18n = new HashMap<String, String>();
             this.i18n.putAll(i18nMap);
         }
+        this.format = (String) data.get("format");
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         this.onClickScript = (FBScript) decoder.decode((Map<String, Object>) data.get("onClickScript"));
     }
@@ -124,6 +135,8 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
             (this.onClickScript != null && this.onClickScript.equals(other.onClickScript));
         if (!equals) return equals;
         equals = (this.i18n == null && other.i18n == null) || (this.i18n != null && this.i18n.entrySet().equals(other.i18n.entrySet()));
+        if (!equals) return equals;
+        equals = (this.format == null && other.format == null) || (this.format != null && this.format.equals(other.format));
         return equals;
     }
     
@@ -139,6 +152,8 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
         aux = this.onClickScript == null ? 0 : this.onClickScript.hashCode();
         result = 37 * result + aux;
         aux = this.i18n == null ? 0 : this.i18n.hashCode();
+        result = 37 * result + aux;
+        aux = this.format == null ? 0 : this.format.hashCode();
         result = 37 * result + aux;
         return result;
     }

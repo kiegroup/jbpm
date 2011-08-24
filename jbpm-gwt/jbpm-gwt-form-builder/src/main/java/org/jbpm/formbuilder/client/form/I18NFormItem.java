@@ -4,6 +4,12 @@ import java.util.Map;
 
 public interface I18NFormItem {
 
+    enum Format { CURRENCY, NUMBER, DATE, PERCENT, INTEGER };
+    
+    void setFormat(Format format);
+    
+    Format getFormat();
+    
     boolean containsLocale(String localeName);
     
     void saveI18nMap(Map<String, String> i18nMap);
