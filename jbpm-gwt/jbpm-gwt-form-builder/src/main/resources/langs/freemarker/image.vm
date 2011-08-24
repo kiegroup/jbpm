@@ -1,20 +1,20 @@
 #set ($altParam = ${language.getParam("alt", $item.altText)})
 #set ($titleParam = ${language.getParam("title", $item.altText)})
-<#assign localeData=[
-#for ($entry in ${item.getI18n().entrySet()})
+<\#assign localeData=[
+#foreach ($entry in ${item.getI18n().entrySet()})
     "${entry.getKey()}" => "${entry.getValue()}",
 #end
     "LAST_ELEMENT_KEY", "LAST_ELEMENT_VALUE"
 ] >
-<#assign value = \${localeData[\${$locale}]} >
+<\#assign value = \${localeData[\${$locale}]} >
 #set ($idParam = ${language.getParam("id", $item.id)})
 #set ($heightParam = ${language.getParam("height", $item.height)})
 #set ($widthParam = ${language.getParam("width", $item.width)})
 #set ($srcParam = ${language.getParam("src", $item.src)})
-<#macro printi18nimg text>
-    <#if \${text}?contains("alt=") && !(\${value})>
-    <#else> alt="\${value}" </#if>
-    <#if \${text}?contains("title=") && !(\${value})>
-    <#else> title="\${value}" </#if>
-</#macro>
+<\#macro printi18nimg text>
+    <\#if \${text}?contains("alt=") && !(\${value})>
+    <\#else> alt="\${value}" </\#if>
+    <\#if \${text}?contains("title=") && !(\${value})>
+    <\#else> title="\${value}" </\#if>
+</\#macro>
 <img <@printi18nimg text="#if($altParam)$altParam#end#if($titleParam)$titleParam#end" />#if($idParam)$idParam#end#if($heightParam)$heightParam#end#if($widthParam)$widthParam#end#if($srcParam)$srcParam#end />

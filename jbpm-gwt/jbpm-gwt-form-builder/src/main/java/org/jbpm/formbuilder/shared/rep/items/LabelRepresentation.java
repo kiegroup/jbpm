@@ -85,8 +85,10 @@ public class LabelRepresentation extends FormItemRepresentation {
         this.cssName = (String) data.get("cssName");
         @SuppressWarnings("unchecked")
         Map<String, String> i18nMap = (Map<String, String>) data.get("i18n");
-        this.i18n = new HashMap<String, String>();
-        this.i18n.putAll(i18nMap);
+        if (i18nMap != null) {
+            this.i18n = new HashMap<String, String>();
+            this.i18n.putAll(i18nMap);
+        }
     }
     
     @Override

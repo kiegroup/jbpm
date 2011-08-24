@@ -101,8 +101,10 @@ public class CompleteButtonRepresentation extends FormItemRepresentation {
         this.name = (String) data.get("name");
         this.id = (String) data.get("id");
         Map<String, String> i18nMap = (Map<String, String>) data.get("i18n");
-        this.i18n = new HashMap<String, String>();
-        this.i18n.putAll(i18nMap);
+        if (i18nMap != null) {
+            this.i18n = new HashMap<String, String>();
+            this.i18n.putAll(i18nMap);
+        }
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         this.onClickScript = (FBScript) decoder.decode((Map<String, Object>) data.get("onClickScript"));
     }

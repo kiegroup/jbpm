@@ -7,21 +7,21 @@
 #if (($name and $name != "") and $item.output and $item.output.name and $item.output.name != "")
     #set ($name = $item.ouptput.name)
 #end
-<#assign localeData=[
-#for ($entry in ${item.getI18n().entrySet()})
+<\#assign localeData=[
+#foreach ($entry in ${item.getI18n().entrySet()})
     "${entry.getKey()}" => "${entry.getValue()}",
 #end
     "LAST_ELEMENT_KEY", "LAST_ELEMENT_VALUE"
 ] >
-<#assign value = \${localeData[\${$locale}]} >
+<\#assign value = \${localeData[\${$locale}]} >
 ## TODO completeButton.getOnClickScript(); should be loaded first
 #set ($nameParam = ${language.getParam("name", $name)})
 #set ($valueParam = ${language.getParam("value", $item.text)})
-<#macro printi18ncbutton text>
-    <#if \${value}?length > 0 && \${value}> 
+<\#macro printi18ncbutton text>
+    <\#if \${value}?length > 0 && \${value}> 
         \${value} 
-    <#else> 
+    <\#else> 
         \${text} 
-    </#if>
-</#macro>
+    </\#if>
+</\#macro>
 <input type="submit" #if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end<@printi18ncbutton text="#if($valueParam)$valueParam#end"/> />
