@@ -54,7 +54,9 @@ public class ConditionalBlockMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new ConditionalBlockFormItem(getFormEffects());
+        ConditionalBlockFormItem item = new ConditionalBlockFormItem(getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

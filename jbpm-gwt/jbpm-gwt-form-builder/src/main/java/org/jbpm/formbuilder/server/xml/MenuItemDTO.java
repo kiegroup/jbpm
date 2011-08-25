@@ -32,6 +32,7 @@ public class MenuItemDTO {
     private String _optionName;
     private String _itemJson;
     private List<FormEffectDTO> _effect = new ArrayList<FormEffectDTO>();
+    private List<String> _allowedEvent = new ArrayList<String>();
 
     public MenuItemDTO() {
         // jaxb needs a default constructor
@@ -42,6 +43,9 @@ public class MenuItemDTO {
         this._optionName = item.getName();
         for (FormEffectDescription eff : item.getEffects()) {
             _effect.add(new FormEffectDTO(eff));
+        }
+        if (item.getAllowedEvents() != null) {
+            _allowedEvent.addAll(item.getAllowedEvents());
         }
         try {
             String json = FormEncodingFactory.getEncoder().encode(item.getItemRepresentation());
@@ -78,6 +82,15 @@ public class MenuItemDTO {
         this._effect = effect;
     }
 
+    @XmlElement
+    public List<String> getAllowedEvent() {
+        return _allowedEvent;
+    }
+    
+    public void setAllowedEvent(List<String> allowedEvent) {
+        this._allowedEvent = allowedEvent;
+    }
+    
     @XmlAttribute
     public String getOptionName() {
         return _optionName;

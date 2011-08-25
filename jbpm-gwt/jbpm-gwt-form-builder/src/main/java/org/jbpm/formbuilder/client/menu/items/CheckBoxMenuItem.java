@@ -56,6 +56,8 @@ public class CheckBoxMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new CheckBoxFormItem(super.getFormEffects());
+        CheckBoxFormItem item = new CheckBoxFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 }

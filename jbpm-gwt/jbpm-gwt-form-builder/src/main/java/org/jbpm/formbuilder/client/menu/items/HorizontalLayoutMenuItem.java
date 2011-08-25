@@ -55,7 +55,9 @@ public class HorizontalLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new HorizontalLayoutFormItem(super.getFormEffects());
+        HorizontalLayoutFormItem item = new HorizontalLayoutFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

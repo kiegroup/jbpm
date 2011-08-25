@@ -56,6 +56,8 @@ public class PasswordFieldMenuItem extends FBMenuItem {
     
     @Override
     public FBFormItem buildWidget() {
-        return new PasswordFieldFormItem(super.getFormEffects());
+        PasswordFieldFormItem item = new PasswordFieldFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 }

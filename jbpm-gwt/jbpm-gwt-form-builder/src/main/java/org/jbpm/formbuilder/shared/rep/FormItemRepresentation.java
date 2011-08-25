@@ -25,7 +25,8 @@ import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 
 public abstract class FormItemRepresentation implements Mappable {
-    
+
+    private Map<String, FBScript> eventActions = new HashMap<String, FBScript>(); //TODO all vm files need to handle this variable
     private List<FBValidation> itemValidations = new ArrayList<FBValidation>();
     private OutputData output;
     private InputData input;
@@ -41,6 +42,14 @@ public abstract class FormItemRepresentation implements Mappable {
     public FormItemRepresentation(String typeId) {
         this.typeId = typeId;
         this.itemClassName = RepresentationFactory.getItemClassName(getClass().getName());
+    }
+    
+    public void setEventActions(Map<String, FBScript> eventActions) {
+        this.eventActions = eventActions;
+    }
+    
+    public Map<String, FBScript> getEventActions() {
+        return eventActions;
     }
 
     public List<FBValidation> getItemValidations() {
@@ -122,6 +131,17 @@ public abstract class FormItemRepresentation implements Mappable {
         data.put("width", this.width);
         data.put("height", this.height);
         data.put("typeId", this.typeId);
+        Map<String, Object> eventActionsMap = new HashMap<String, Object>();
+        if (this.eventActions != null) {
+            for (Map.Entry<String, FBScript> entry : this.eventActions.entrySet()) {
+                FBScript script = entry.getValue();
+                if (script != null) {
+                    Map<String, Object> scriptMap = script.getDataMap();
+                    eventActionsMap.put(entry.getKey(), scriptMap);
+                }
+            }
+        }
+        data.put("eventActions", eventActionsMap);
     	return data;
     }
     
@@ -143,6 +163,18 @@ public abstract class FormItemRepresentation implements Mappable {
         if (effectClassesObj != null) {
             for (Object obj : effectClassesObj) {
                 effectClasses.add(obj.toString());
+            }
+        }
+        this.eventActions.clear();
+        Map<String, Object> eventActionsMap = (Map<String, Object>) data.get("eventActions");
+        if (eventActionsMap != null) {
+            for (Map.Entry<String, Object> entry : eventActionsMap.entrySet()) {
+                Map<String, Object> scriptMap = (Map<String, Object>) entry.getValue();
+                if (scriptMap != null) {
+                    FBScript script = new FBScript();
+                    script.setDataMap(scriptMap);
+                    this.eventActions.put(entry.getKey(), script);
+                }
             }
         }
         this.output = (OutputData) decoder.decode((Map<String, Object>) data.get("output"));
@@ -173,6 +205,8 @@ public abstract class FormItemRepresentation implements Mappable {
         if (!equals) return equals;
         equals = (this.height == null && other.height == null) || (this.height != null && this.height.equals(other.height));
         if (!equals) return equals;
+        equals = (this.eventActions == null && other.eventActions == null) ||
+            (this.eventActions !=  null && this.eventActions.entrySet().equals(other.eventActions.entrySet()));
         return equals;
     }
     
@@ -192,6 +226,8 @@ public abstract class FormItemRepresentation implements Mappable {
         aux = this.width == null ? 0 : this.width.hashCode();
         result = 37 * result + aux;
         aux = this.height == null ? 0 : this.height.hashCode();
+        result = 37 * result + aux;
+        aux = this.eventActions == null ? 0 : this.eventActions.hashCode();
         result = 37 * result + aux;
         return result;
     }

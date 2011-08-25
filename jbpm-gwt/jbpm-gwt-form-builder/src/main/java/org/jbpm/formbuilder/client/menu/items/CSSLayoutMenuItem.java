@@ -55,7 +55,9 @@ public class CSSLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new CSSLayoutFormItem(getFormEffects());
+        CSSLayoutFormItem item = new CSSLayoutFormItem(getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

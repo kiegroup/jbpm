@@ -54,7 +54,9 @@ public class LoopBlockMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new LoopBlockFormItem(getFormEffects());
+        LoopBlockFormItem item = new LoopBlockFormItem(getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

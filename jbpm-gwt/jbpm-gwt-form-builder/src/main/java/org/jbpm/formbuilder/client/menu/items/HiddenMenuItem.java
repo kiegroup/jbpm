@@ -55,7 +55,9 @@ public class HiddenMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new HiddenFormItem(super.getFormEffects());
+        HiddenFormItem item = new HiddenFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

@@ -55,7 +55,9 @@ public class FlowLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new FlowLayoutFormItem(getFormEffects());
+        FlowLayoutFormItem item = new FlowLayoutFormItem(getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

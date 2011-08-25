@@ -55,7 +55,9 @@ public class TableLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new TableLayoutFormItem(super.getFormEffects());
+        TableLayoutFormItem item = new TableLayoutFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

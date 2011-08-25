@@ -56,6 +56,8 @@ public class CompleteButtonMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new CompleteButtonFormItem(super.getFormEffects());
+        CompleteButtonFormItem item = new CompleteButtonFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 }

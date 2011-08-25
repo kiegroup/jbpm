@@ -55,7 +55,9 @@ public class LineGraphMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new LineGraphFormItem(getFormEffects());
+        LineGraphFormItem item = new LineGraphFormItem(getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

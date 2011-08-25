@@ -55,7 +55,9 @@ public class HTMLMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new HTMLFormItem(super.getFormEffects());
+        HTMLFormItem item = new HTMLFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

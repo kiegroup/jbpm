@@ -55,7 +55,9 @@ public class FileInputMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new FileInputFormItem(super.getFormEffects());
+        FileInputFormItem item = new FileInputFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
     

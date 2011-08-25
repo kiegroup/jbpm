@@ -54,7 +54,9 @@ public class ServerTransformationMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new ServerTransformationFormItem(getFormEffects());
+        ServerTransformationFormItem item = new ServerTransformationFormItem(getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

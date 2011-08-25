@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.form;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import org.jbpm.formbuilder.common.handler.EventHelper;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
+import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FBValidation;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.InputData;
@@ -54,7 +56,7 @@ public abstract class FBFormItem extends FocusPanel {
 
     protected final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private List<FBValidationItem> validations = new ArrayList<FBValidationItem>();
-    
+    private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();
     private List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
     
     private int desiredX;
@@ -276,6 +278,7 @@ public abstract class FBFormItem extends FocusPanel {
         for (FBFormEffect effect : getFormEffects()) {
             rep.addEffectClass(effect.getClass());
         }
+        rep.setEventActions(getEventActions());
         return rep;
     }
     
@@ -304,7 +307,18 @@ public abstract class FBFormItem extends FocusPanel {
     public List<FBValidationItem> getValidations() {
         return validations;
     }
+    
+    public void setEventActions(Map<String, FBScript> eventActions) {
+        if (eventActions == null) {
+            eventActions = new HashMap<String, FBScript>();
+        }
+        this.eventActions = eventActions;
+    }
 
+    public Map<String, FBScript> getEventActions() {
+        return eventActions;
+    }
+    
     /**
      * If you wish that on clicking your UI component, it becomes replaced by
      * a custom editor, this is where you must create it
@@ -371,6 +385,7 @@ public abstract class FBFormItem extends FocusPanel {
         setWidth(rep.getWidth());
         this.input = rep.getInput();
         this.output = rep.getOutput();
+        this.eventActions = rep.getEventActions();
     }
     
     /**

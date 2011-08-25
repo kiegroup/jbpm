@@ -185,6 +185,7 @@ public class CustomMenuItem extends FBMenuItem {
             for (FBFormEffect effect : getFormEffects()) {
                 item.addEffect(effect);
             }
+            item.setEventActions(getAllowedEventsAsMap());
             return item;
         } catch (FormBuilderException e) {
             return new ErrorMenuItem(e.getLocalizedMessage()).buildWidget();

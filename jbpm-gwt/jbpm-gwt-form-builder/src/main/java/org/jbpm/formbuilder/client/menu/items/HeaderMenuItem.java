@@ -55,7 +55,9 @@ public class HeaderMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        return new HeaderFormItem(super.getFormEffects());
+        HeaderFormItem item = new HeaderFormItem(super.getFormEffects());
+        item.setEventActions(getAllowedEventsAsMap());
+        return item;
     }
 
 }

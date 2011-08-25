@@ -492,12 +492,25 @@ public class XmlParseHelper {
                 for (FBFormEffect effect : readItemEffects(effects)) {
                     menuItem.addEffect(effect);
                 }
+                NodeList allowedEvents = ((Element) itemNode).getElementsByTagName("allowedEvent");
+                for (String allowedEventName : readAllowedEvents(allowedEvents)) {
+                    menuItem.addAllowedEvent(allowedEventName);
+                }
                 menuItems.add(menuItem);
             } catch (Exception e) {
                 menuItems.add(new ErrorMenuItem(e.getLocalizedMessage()));
             }
         }
         return menuItems;
+    }
+    
+    private List<String> readAllowedEvents(NodeList allowedEvents) {
+        List<String> retval = new ArrayList<String>();
+        for (int index = 0; index < allowedEvents.getLength(); index++) {
+            Node node = allowedEvents.item(index);
+            retval.add(node.getFirstChild().getNodeValue());
+        }
+        return retval;
     }
     
     private FormItemRepresentation makeRepresentation(Node itemNode) throws FormEncodingException {

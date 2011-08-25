@@ -16,12 +16,15 @@
 package org.jbpm.formbuilder.client.menu;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.shared.rep.FBScript;
 
 import com.allen_sauer.gwt.dnd.client.HasDragHandle;
 import com.google.gwt.resources.client.ImageResource;
@@ -43,6 +46,7 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     private FocusPanel shim = new FocusPanel();
     protected I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final List<FBFormEffect> formEffects;
+    private final List<String> allowedEvents = new ArrayList<String>();
     
     public FBMenuItem() {
         this(new ArrayList<FBFormEffect>());
@@ -153,4 +157,20 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
      * @return a {@link FBFormItem} instance.
      */
     public abstract FBFormItem buildWidget();
+
+    public void addAllowedEvent(String allowedEventName) {
+        allowedEvents.add(allowedEventName);
+    }
+    
+    public List<String> getAllowedEvents() {
+        return allowedEvents;
+    }
+    
+    public Map<String, FBScript> getAllowedEventsAsMap() {
+        Map<String, FBScript> map = new HashMap<String, FBScript>();
+        for (String evtName : allowedEvents) {
+            map.put(evtName, null);
+        }
+        return map;
+    }
 }

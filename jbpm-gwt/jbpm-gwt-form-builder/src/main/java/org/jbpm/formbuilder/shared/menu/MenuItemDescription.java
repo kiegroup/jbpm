@@ -35,6 +35,7 @@ public class MenuItemDescription implements Mappable {
     private String name;
     private FormItemRepresentation itemRepresentation;
     private List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
+    private List<String> allowedEvents = new ArrayList<String>();
     
     public String getClassName() {
         return className;
@@ -68,6 +69,14 @@ public class MenuItemDescription implements Mappable {
         this.effects = effects;
     }
     
+    public List<String> getAllowedEvents() {
+        return allowedEvents;
+    }
+    
+    public void setAllowedEvents(List<String> allowedEvents) {
+        this.allowedEvents = allowedEvents;
+    }
+    
     @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = new HashMap<String, Object>();
@@ -83,6 +92,7 @@ public class MenuItemDescription implements Mappable {
             }
             data.put("effects", effectsMap);
         }
+        data.put("allowedEvents", this.allowedEvents);
         return data;
     }
 
@@ -99,6 +109,13 @@ public class MenuItemDescription implements Mappable {
                 FormEffectDescription effect = new FormEffectDescription();
                 effect.setDataMap(effectDataMap);
                 this.effects.add(effect);
+            }
+        }
+        List<Object> allowedEventsList = (List<Object>) data.get("allowedEvents");
+        if (allowedEventsList != null) {
+            this.allowedEvents.clear();
+            for (Object obj : allowedEventsList) {
+                this.allowedEvents.add(obj.toString());
             }
         }
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
@@ -120,6 +137,9 @@ public class MenuItemDescription implements Mappable {
             (this.itemRepresentation != null && this.itemRepresentation.equals(other.itemRepresentation));
         if (!equals) return equals;
         equals = (this.effects == null && other.effects == null) || (this.effects != null && this.effects.equals(other.effects));
+        if (!equals) return equals;
+        equals = (this.allowedEvents == null && other.allowedEvents == null) || 
+            (this.allowedEvents != null && this.allowedEvents.equals(other.allowedEvents));
         return equals;
     }
     
@@ -133,6 +153,8 @@ public class MenuItemDescription implements Mappable {
         aux = this.itemRepresentation == null ? 0 : this.itemRepresentation.hashCode();
         result = 37 * result + aux;
         aux = this.effects == null ? 0 : this.effects.hashCode();
+        result = 37 * result + aux;
+        aux = this.allowedEvents == null ? 0 : this.allowedEvents.hashCode();
         result = 37 * result + aux;
         return result;
     }
