@@ -2,6 +2,7 @@
 #set ($height = ${language.getStyleParam("height", $item.height)})
 #set ($sytle = "$width$height")
 #set ($styleParam = ${language.getParam("style", $style)})
-<div #if($styleParam)$styleParam#end>
+#set ($oneventxParam = ${language.getOnEventParams($item)})
+<div #if($oneventxParam)$oneventxParam#end#if($styleParam)$styleParam#end>
     $item.content
 </div>

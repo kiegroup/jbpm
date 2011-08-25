@@ -49,6 +49,10 @@ public class EventHandlingFormEffect extends FBFormEffect {
 
     @Override
     public PopupPanel createPanel() {
+        this.eventActions.clear();
+        for (String evtName : getPossibleEvents()) {
+            this.eventActions.put(evtName, null);
+        }
         return new EventHandlingEffectView(this);
     }
     
@@ -70,7 +74,7 @@ public class EventHandlingFormEffect extends FBFormEffect {
         if (eventActions != null) {
             return new ArrayList<String>(eventActions.keySet());
         }
-        return null;
+        return new ArrayList<String>();
     }
     
     public void storeEventAction(String eventName, String scriptContent) {

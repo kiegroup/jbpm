@@ -51,4 +51,5 @@
       <\#if \${value}> \${value} <\#else> \${label} </\#if>
     #end
 </\#macro>
-<span #if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nlabel label="#if($value)$value#end" /></span>
+#set ($oneventxParam = ${language.getOnEventParams($item)})
+<span #if($oneventxParam)$oneventxParam#end#if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nlabel label="#if($value)$value#end" /></span>

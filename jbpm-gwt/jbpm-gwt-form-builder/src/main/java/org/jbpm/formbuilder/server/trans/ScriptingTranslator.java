@@ -65,7 +65,7 @@ public class ScriptingTranslator implements Translator {
     public URL translateForm(FormRepresentation form) throws LanguageException {
         return saveToURL(runVelocityScript(form, "form"));
     }
-
+    
     /*
      * utilitary methods
      */
@@ -122,5 +122,9 @@ public class ScriptingTranslator implements Translator {
             builder.append(paramName).append(": ").append(paramValue).append("; ");
         }
         return builder.toString();
+    }
+
+    public String getOnEventParams(FormItemRepresentation item) {
+        return ""; //TODO implement
     }
 }

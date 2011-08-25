@@ -26,7 +26,7 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 
 public abstract class FormItemRepresentation implements Mappable {
 
-    private Map<String, FBScript> eventActions = new HashMap<String, FBScript>(); //TODO all vm files need to handle this variable
+    private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();
     private List<FBValidation> itemValidations = new ArrayList<FBValidation>();
     private OutputData output;
     private InputData input;

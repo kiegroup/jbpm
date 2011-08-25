@@ -1,6 +1,7 @@
 #set ($rowsParam = ${language.getParam("rows", $item.rows)})
 #set ($colsParam = ${language.getParam("cols", $item.cols)})
 #set ($idParam = ${language.getParam("id", $item.id)})
+#set ($oneventxParam = ${language.getOnEventParams($item)})
 #set ($nameParam = ${language.getParam("name", $item.name)})
 #if ($item.value)
     #set($inputValue = $item.value)
@@ -10,6 +11,6 @@
     #set($inputValue = ${language.asFtlVar($item.getInput().getName())})
   #end
 #end
-<textarea $rowsParam $colsParam $idParam $nameParam >
+<textarea #if($oneventxParam)$oneventxParam#end#if($rowsParam)$rowsParam#end#if($colsParam)$colsParam#end#if($idParam)$idParam#end#if($nameParam)$nameParam#end >
     #if($inputValue)$inputValue#end
 </textarea>

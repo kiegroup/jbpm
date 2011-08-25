@@ -4,7 +4,8 @@
 #set ($style = "$width$height")
 #set ($styleParam = ${language.getParam("style", $style)})
 #set ($entries = ${item.items.entrySet()})
-<div #if($idParam)$idParam#end#if($styleParam)$styleParam#end>
+#set ($oneventxParam = ${language.getOnEventParams($item)})
+<div #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end>
   #foreach ($entry in $entries)
     #set ($subItem = $entry.value)
     #set ($positionX = "$entry.key.x")

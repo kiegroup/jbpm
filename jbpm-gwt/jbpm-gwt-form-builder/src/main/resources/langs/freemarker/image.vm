@@ -17,4 +17,5 @@
     <\#if \${text}?contains("title=") && !(\${value})>
     <\#else> title="\${value}" </\#if>
 </\#macro>
-<img <@printi18nimg text="#if($altParam)$altParam#end#if($titleParam)$titleParam#end" />#if($idParam)$idParam#end#if($heightParam)$heightParam#end#if($widthParam)$widthParam#end#if($srcParam)$srcParam#end />
+#set ($oneventxParam = ${language.getOnEventParams($item)})
+<img #if($oneventxParam)$oneventxParam#end<@printi18nimg text="#if($altParam)$altParam#end#if($titleParam)$titleParam#end" />#if($idParam)$idParam#end#if($heightParam)$heightParam#end#if($widthParam)$widthParam#end#if($srcParam)$srcParam#end />

@@ -42,4 +42,5 @@
       #end
     </\#if>
 </\#macro>
-<input type="submit" #if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end<@printi18ncbutton text="#if($valueParam)$valueParam#end"/> />
+#set ($oneventxParam = ${language.getOnEventParams($item)})
+<input type="submit" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end<@printi18ncbutton text="#if($valueParam)$valueParam#end"/> />
