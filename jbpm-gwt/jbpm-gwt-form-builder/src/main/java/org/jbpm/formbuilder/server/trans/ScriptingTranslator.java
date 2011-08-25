@@ -29,6 +29,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
+import org.jbpm.formbuilder.shared.rep.FBScript;
 import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
@@ -125,6 +126,16 @@ public class ScriptingTranslator implements Translator {
     }
 
     public String getOnEventParams(FormItemRepresentation item) {
-        return ""; //TODO implement
+        Map<String, FBScript> actions = item.getEventActions();
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, FBScript> entry : actions.entrySet()) {
+            String attrName = entry.getKey();
+            FBScript script = entry.getValue();
+            if (script != null) {
+                String attrContent = script.getContent().replaceAll("\n", " ");
+                builder.append(getParam(attrName, attrContent)).append(' ');
+            }
+        }
+        return builder.toString();
     }
 }
