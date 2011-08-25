@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.shared.rep.FBValidation;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.gwtent.reflection.client.Reflectable;
 
@@ -29,8 +28,8 @@ public class NotEmptyValidation implements FBValidation {
     private Map<String, Object> propertiesMap = new HashMap<String, Object>();
     
     @Override
-    public boolean isValid(FormItemRepresentation item) {
-        return item != null && item.getInput() != null && item.getInput().getValue() != null && !item.getInput().getValue().trim().equals("");
+    public boolean isValid(Object item) {
+        return item != null && !"".equals(item.toString());
     }
     
     @Override

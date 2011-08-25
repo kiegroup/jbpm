@@ -137,6 +137,9 @@ public interface I18NConstants extends Messages {
     String MenuItemLineGraph();
     
     String NotEmptyValidationName();
+    String EqualToValidationName();
+    String SmallerThanValidationName();
+    String BiggerThanValidationName();
     
     String RemoveTabWarning();
     String RemoveRowWarning();
