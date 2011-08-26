@@ -73,7 +73,8 @@ public class RESTFormService {
     }
     
     @GET @Path("/definitions/package/{pkgName}")
-    public Response getForms(@PathParam("pkgName") String pkgName) {
+    public Response getForms(@PathParam("pkgName") String pkgName, @Context ServletContext context) {
+        setContext(context);
         ResponseBuilder builder = Response.noContent();
         try {
             List<FormRepresentation> forms = formService.getForms(pkgName);
@@ -88,7 +89,8 @@ public class RESTFormService {
     }
     
     @GET @Path("/definitions/package/{pkgName}/id/{formId}")
-    public Response getForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId) {
+    public Response getForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId, @Context ServletContext context) {
+        setContext(context);
         ResponseBuilder builder = Response.noContent();
         try {
             FormRepresentation form = formService.getForm(pkgName, formId);
@@ -105,7 +107,8 @@ public class RESTFormService {
     @POST @Path("/definitions/package/{pkgName}")
     @Consumes("text/plain")
     @DoNotUseJAXBProvider
-    public Response saveForm(String jsonBody, @PathParam("pkgName") String pkgName) {
+    public Response saveForm(String jsonBody, @PathParam("pkgName") String pkgName, @Context ServletContext context) {
+        setContext(context);
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         try {
             FormRepresentation form = decoder.decode(jsonBody);
@@ -120,7 +123,8 @@ public class RESTFormService {
     }
     
     @DELETE @Path("/definitions/package/{pkgName}/id/{formId}") 
-    public Response deleteForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId) {
+    public Response deleteForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId, @Context ServletContext context) {
+        setContext(context);
         try {
             formService.deleteForm(pkgName, formId);
             return Response.ok().build();
@@ -130,7 +134,8 @@ public class RESTFormService {
     }
 
     @GET @Path("/items/package/{pkgName}")
-    public Response getFormItems(@PathParam("pkgName") String pkgName) {
+    public Response getFormItems(@PathParam("pkgName") String pkgName, @Context ServletContext context) {
+        setContext(context);
         ResponseBuilder builder = Response.noContent();
         try {
             Map<String, FormItemRepresentation> formItems = formService.getFormItems(pkgName);
@@ -145,7 +150,8 @@ public class RESTFormService {
     }
     
     @GET @Path("/items/package/{pkgName}/id/{fItemId}") 
-    public Response getFormItem(@PathParam("pkgName") String pkgName, @PathParam("fItemId") String formItemId) {
+    public Response getFormItem(@PathParam("pkgName") String pkgName, @PathParam("fItemId") String formItemId, @Context ServletContext context) {
+        setContext(context);
         ResponseBuilder builder = Response.noContent();
         try {
             FormItemRepresentation formItem = formService.getFormItem(pkgName, formItemId);
@@ -164,7 +170,8 @@ public class RESTFormService {
     @DoNotUseJAXBProvider
     public Response saveFormItem(String jsonBody,
             @PathParam("pkgName") String pkgName, 
-            @PathParam("fItemName") String formItemName) {
+            @PathParam("fItemName") String formItemName, @Context ServletContext context) {
+        setContext(context);
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         try {
             FormItemRepresentation item = decoder.decodeItem(jsonBody);
@@ -179,7 +186,8 @@ public class RESTFormService {
     }
 
     @DELETE @Path("/items/package/{pkgName}/name/{fItemName}")
-    public Response deleteFormItem(@PathParam("pkgName")String pkgName, @PathParam("fItemName") String formItemName) {
+    public Response deleteFormItem(@PathParam("pkgName")String pkgName, @PathParam("fItemName") String formItemName, @Context ServletContext context) {
+        setContext(context);
         try {
             formService.deleteFormItem(pkgName, formItemName);
             return Response.ok().build();
@@ -189,12 +197,14 @@ public class RESTFormService {
     }
     
     @POST @Path("/preview/lang/{language}")
-    public Response getFormPreview(FormPreviewDTO dto, @PathParam("language") String language) {
+    public Response getFormPreview(FormPreviewDTO dto, @PathParam("language") String language, @Context ServletContext context) {
+        setContext(context);
         try {
             URL url = createTemplate(language, dto);
             Map<String, Object> inputs = dto.getInputsAsMap();
             Renderer renderer = RendererFactory.getInstance().getRenderer(language);
-            return Response.ok(renderer.render(url, inputs), MediaType.TEXT_HTML).build();
+            Object html = renderer.render(url, inputs);
+            return Response.ok(html, MediaType.TEXT_HTML).build();
         } catch (FormEncodingException e) {
             return Response.serverError().build();
         } catch (LanguageException e) {
@@ -205,7 +215,8 @@ public class RESTFormService {
     }
     
     @POST @Path("/template/lang/{language}")
-    public Response getFormTemplate(FormPreviewDTO dto, @PathParam("language") String language) {
+    public Response getFormTemplate(FormPreviewDTO dto, @PathParam("language") String language, @Context ServletContext context) {
+        setContext(context);
         try {
             URL url = createTemplate(language, dto);
             String fileName = url.getFile();
@@ -230,7 +241,8 @@ public class RESTFormService {
     @GET @Path("/template/lang/{language}")
     public Response getExportTemplate(@QueryParam("fileName") String fileName,
             @QueryParam("formName") String formName,
-            @PathParam("language") String language) {
+            @PathParam("language") String language, @Context ServletContext context) {
+        setContext(context);
         File file = new File(fileName);
         String headerValue = new StringBuilder("attachment; filename=\"").
             append(formName).append('.').append(language).

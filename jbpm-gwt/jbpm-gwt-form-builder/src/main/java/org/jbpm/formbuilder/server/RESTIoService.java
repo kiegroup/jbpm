@@ -52,7 +52,8 @@ public class RESTIoService {
     }
     
     @GET @Path("/package/{pkgName}")
-    public Response getIoAssociations(@QueryParam("q") String filter, @PathParam("pkgName") String pkgName) {
+    public Response getIoAssociations(@QueryParam("q") String filter, @PathParam("pkgName") String pkgName, @Context ServletContext context) {
+        setContext(context);
         String[] filters = filter == null ? new String[0] : filter.split(" ");
         String newFilter = filters.length == 0 ? (filter == null ? "" : filter) : "";
         for (String subFilter : filters) {
@@ -75,7 +76,9 @@ public class RESTIoService {
     
     @GET @Path("/package/{pkgName}/process/{procName}/task/{taskName}")
     public Response getIoAssociation(@PathParam("pkgName") String pkgName, 
-            @PathParam("procName") String procName, @PathParam("taskName") String taskName) {
+            @PathParam("procName") String procName, @PathParam("taskName") String taskName,
+            @Context ServletContext context) {
+        setContext(context);
         ResponseBuilder builder = Response.noContent();
         try {
             List<TaskRef> tasks = taskService.getTasksByName(pkgName, procName, taskName);

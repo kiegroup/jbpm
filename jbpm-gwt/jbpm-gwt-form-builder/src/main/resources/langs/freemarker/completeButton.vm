@@ -7,39 +7,46 @@
 #if (($name and $name != "") and $item.output and $item.output.name and $item.output.name != "")
     #set ($name = $item.ouptput.name)
 #end
-<\#assign localeData=[
-#foreach ($entry in ${item.getI18n().entrySet()})
+<#assign value="">
+<\#if $locale??>
+  <#assign $localeData=[
+  #foreach ($entry in ${item.getI18n().entrySet()})
     "${entry.getKey()}" => "${entry.getValue()}",
-#end
+  #end
     "LAST_ELEMENT_KEY", "LAST_ELEMENT_VALUE"
-] >
-<\#assign value = \${localeData[\${$locale}]} >
+  ] >
+  #set($i18nval = '$localeData[$locale]')
+  <\#if ${i18nval}??>
+    <#assign $value = $i18nval >
+  </\#if>
+</\#if>
 ## TODO completeButton.getOnClickScript(); should be loaded first
 #set ($nameParam = ${language.getParam("name", $name)})
 #set ($valueParam = ${language.getParam("value", $item.text)})
 <\#macro printi18ncbutton text>
-    <\#if \${value}?length > 0 && \${value}>
+    #set($condition = '$value?? && $value?length > 0')
+    <\#if $condition>
+      #set ($valueFormatted = '${value}')
       #if ($item.format)
-        #set ($valueFormatted = '${value}')
         #if ($item.format == "CURRENCY")#set($valueFormatted='${value?string.currency}')#end
         #if ($item.format == "NUMBER")#set($valueFormatted='${value?string.number}')#end
         #if ($item.format == "DATE")#set($valueFormatted='${value?string.short}')#end
         #if ($item.format == "DATETIME")#set($valueFormatted='${value?string.short_short}')#end
         #if ($item.format == "PERCENT")#set($valueFormatted='${value?string.percent}')#end
         #if ($item.format == "INTEGER")#set($valueFormatted='${value?string("0")}')#end
-        $valueFormatted
       #end
-    <\#else> 
+      $valueFormatted
+    <\#else>
+      #set ($valueFormatted = '${text}') 
       #if ($item.format)
-        #set ($valueFormatted = '${text}')
         #if ($item.format == "CURRENCY")#set($valueFormatted='${text?string.currency}')#end
         #if ($item.format == "NUMBER")#set($valueFormatted='${text?string.number}')#end
         #if ($item.format == "DATE")#set($valueFormatted='${text?string.short}')#end
         #if ($item.format == "DATETIME")#set($valueFormatted='${text?string.short_short}')#end
         #if ($item.format == "PERCENT")#set($valueFormatted='${text?string.percent}')#end
         #if ($item.format == "INTEGER")#set($valueFormatted='${text?string("0")}')#end
-        $valueFormatted
       #end
+      $valueFormatted
     </\#if>
 </\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})

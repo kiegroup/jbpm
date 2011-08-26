@@ -2,13 +2,19 @@
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
 #set ($sytle = "$width$height")
-<#assign localeData=[
-#foreach ($entry in ${item.getI18n().entrySet()})
+<#assign value="">
+<\#if $locale??>
+  <#assign $localeData=[
+  #foreach ($entry in ${item.getI18n().entrySet()})
     "${entry.getKey()}" => "${entry.getValue()}",
-#end
+  #end
     "LAST_ELEMENT_KEY", "LAST_ELEMENT_VALUE"
-] >
-<#assign value = \${localeData[\${$locale}]} >
+  ] >
+  #set($i18nval = '$localeData[$locale]')
+  <\#if ${i18nval}??>
+    <#assign $value = $i18nval >
+  </\#if>
+</\#if>
 #set ($styleParam = ${language.getParam("style", $style)})
 ##TODO getItemValidations
 #set ($value = $item.value) 
@@ -19,9 +25,9 @@
   #end
 #end 
 <\#macro printi18nheader label>
+    #set($valueFormatted = '${value}')
+    #set($labelFormatted = '${label}')
     #if ($item.format)
-      #set($valueFormatted = '${value}')
-      #set($labelFormatted = '${label}')
       #if ($item.format == "CURRENCY")
         #set ($valueFormatted = '${value?string.currency}')
         #set ($labelFormatted = '${label?string.currency}')
@@ -46,10 +52,8 @@
         #set($valueFormatted = '${value?string("0")}')
         #set($labelFormatted = '${label?string("0")}')
       #end
-      <\#if \${value}> $valueFormatted \<\#else> $labelFormatted </\#if>
-    #else
-      <\#if \${value}> \${value} <\#else> \${label} </\#if>
     #end
+    <\#if \$value??> $valueFormatted <\#else> $labelFormatted </\#if>
 </\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})
 <h1 #if($oneventxParam)$oneventxParam#end#if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nheader label="#if($value)$value#end" /></h1>

@@ -63,7 +63,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public String saveForm(String pkgName, FormRepresentation form) throws FormServiceException {
         HttpClient client = new HttpClient();
         EntityEnclosingMethod method = null;
-        String url = helper.getApiUrl(pkgName);
+        String url = helper.getApiSearchUrl(pkgName);
         boolean isUpdate = updateFormName(form);
         String finalUrl = url + form.getName() + ".formdef";
         method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl); 
@@ -89,7 +89,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     @Override
     public String saveFormItem(String pkgName, String formItemName, FormItemRepresentation formItem) throws FormServiceException {
         HttpClient client = new HttpClient();
-        String url = helper.getApiUrl(pkgName);
+        String url = helper.getApiSearchUrl(pkgName);
         StringBuilder builder = new StringBuilder();
         boolean isUpdate = updateItemName(formItemName, builder);
         String finalUrl = url + builder.toString() + ".json";

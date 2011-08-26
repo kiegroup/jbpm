@@ -109,7 +109,6 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public void getMenuItems() {
         Resource resource = new Resource(this.contextPath + "/menu/items/");
-        System.out.println("url menuItems = " + resource.getUri());
         resource.get().send(new SimpleTextCallback(i18n.CouldntFindMenuItems()) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -131,7 +130,6 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public void getMenuOptions() {
         Resource resource = new Resource(this.contextPath + "/menu/options/");
-        System.out.println("url menuItems = " + resource.getUri());
         resource.get().send(new SimpleTextCallback(i18n.CouldntFindMenuOptions()) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -239,7 +237,8 @@ public class RestyFormBuilderModel implements FormBuilderService {
                 append("/form/preview/lang/").append(language).toString());
         try {
             String xml = helper.asXml(form, inputs);
-            resource.post().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntPreviewForm()) {
+            resource.post().header(Resource.HEADER_ACCEPT, "text/html").
+                xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntPreviewForm()) {
                 @Override
                 public void onSuccess(Method method, String htmlResponse) {
                     bus.fireEvent(new PreviewFormResponseEvent(htmlResponse));
@@ -375,7 +374,6 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public void populateRepresentationFactory() {
         String url = this.contextPath + "/menu/mappings";
-        System.out.println("url menuItems = " + url);
         Resource resource = new Resource(url);
         resource.get().send(new SimpleTextCallback(i18n.CouldntReadRepresentationMappings()) {
             @Override
