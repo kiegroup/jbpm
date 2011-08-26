@@ -140,6 +140,12 @@ public interface I18NConstants extends Messages {
     String EqualToValidationName();
     String SmallerThanValidationName();
     String BiggerThanValidationName();
+    String ANDValidationName();
+    String ORValidationName();
+    String XORValidationName();
+    String IsNumberValidationName();
+    String IsIntegerValidationName();
+    String IsEmailValidationName();
     
     String RemoveTabWarning();
     String RemoveRowWarning();
@@ -236,4 +242,7 @@ public interface I18NConstants extends Messages {
     String DateFormatLabel();
     String PercentFormatLabel();
     String IntegerFormatLabel();
+    String AddButton();
+    String RemoveButton();
+    String SelectValidationFirstWarning();
 }

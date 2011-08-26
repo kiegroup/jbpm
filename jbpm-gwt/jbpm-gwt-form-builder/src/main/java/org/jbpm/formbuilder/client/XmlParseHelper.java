@@ -30,6 +30,7 @@ import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
+import org.jbpm.formbuilder.client.validation.OtherValidationsAware;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
@@ -399,6 +400,12 @@ public class XmlParseHelper {
                 FBValidationItem validItem = (FBValidationItem) obj;
                 validItem.populatePropertiesMap(readValidationMap(valElement.getElementsByTagName("property")));
                 retval.add(validItem);
+            }
+        }
+        for (FBValidationItem item : retval) {
+            if (item instanceof OtherValidationsAware) {
+                OtherValidationsAware aware = (OtherValidationsAware) item;
+                aware.setExistingValidations(retval);
             }
         }
         return retval;

@@ -11,7 +11,9 @@ import org.jbpm.formbuilder.shared.rep.validation.SmallerThanValidation;
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
+@Reflectable
 public class SmallerThanValidationItem extends FBValidationItem {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();

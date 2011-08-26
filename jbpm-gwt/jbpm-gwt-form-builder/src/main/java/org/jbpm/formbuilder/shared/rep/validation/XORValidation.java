@@ -2,7 +2,6 @@ package org.jbpm.formbuilder.shared.rep.validation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -15,21 +14,21 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class XORValidation implements FBValidation {
 
-    //TODO create the FBValidationItem associated with this FBValidation
     private Map<String, Object> propertiesMap = new HashMap<String, Object>();
     private List<FBValidation> validations = new ArrayList<FBValidation>();
     
     @Override
     public boolean isValid(Object obj) {
+        int trueCount = 0;
         if (validations != null && !validations.isEmpty()) {
-            Iterator<FBValidation> iterator = validations.iterator();
-            boolean retval = true && iterator.next().isValid(obj);
-            while (iterator.hasNext()) {
-                retval = retval ^ iterator.next().isValid(obj);
+            for (FBValidation subValidation : validations) {
+                boolean result = subValidation.isValid(obj);
+                if (result) {
+                    trueCount++;
+                }
             }
-            return retval;
         }
-        return true;
+        return trueCount == 1;
     }
 
     @Override
@@ -77,5 +76,16 @@ public class XORValidation implements FBValidation {
         validation.validations.addAll(validations);
         validation.propertiesMap.putAll(propertiesMap);
         return validation;
+    }
+    
+    public void addValidation(FBValidation validation) {
+        if (this.validations == null) {
+            this.validations = new ArrayList<FBValidation>();
+        }
+        this.validations.add(validation);
+    }
+    
+    public List<FBValidation> getValidations() {
+        return validations;
     }
 }

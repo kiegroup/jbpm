@@ -15,7 +15,6 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class ORValidation implements FBValidation {
 
-    //TODO create the FBValidationItem associated with this FBValidation
     private Map<String, Object> propertiesMap = new HashMap<String, Object>();
     private List<FBValidation> validations = new ArrayList<FBValidation>();
     
@@ -77,5 +76,16 @@ public class ORValidation implements FBValidation {
         validation.validations.addAll(validations);
         validation.propertiesMap.putAll(propertiesMap);
         return validation;
+    }
+
+    public void addValidation(FBValidation validation) {
+        if (this.validations == null) {
+            this.validations = new ArrayList<FBValidation>();
+        }
+        this.validations.add(validation);
+    }
+    
+    public List<FBValidation> getValidations() {
+        return validations;
     }
 }
