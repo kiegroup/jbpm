@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -35,7 +34,14 @@ import javax.activation.DataSource;
 
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import freemarker.cache.ClassTemplateLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
+import freemarker.cache.URLTemplateLoader;
+import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
@@ -44,6 +50,62 @@ import freemarker.template.Template;
  */
 public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 
+	private static final String TEMPLATE_EXTENSION = ".ftl";
+	private static final Logger LOG = LoggerFactory.getLogger(AbstractFormDispatcher.class);
+	
+	protected Configuration cfg;
+	
+	public AbstractFormDispatcher(){
+		cfg = new Configuration();
+		cfg.setObjectWrapper(new DefaultObjectWrapper());
+//		TODO Disable cache?
+		cfg.setTemplateUpdateDelay(0);
+		cfg.setLocalizedLookup(false);
+		
+		URLTemplateLoader utl = new URLTemplateLoader() {
+			
+			@Override
+			protected URL getURL(String name) {
+				if(name.endsWith(TEMPLATE_EXTENSION)){
+					name =  name.substring(0, name.lastIndexOf(TEMPLATE_EXTENSION));
+				}
+				
+				StringBuffer sb = new StringBuffer();
+				Properties properties = new Properties();
+				try {
+					properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
+				} catch (IOException e) {
+					throw new RuntimeException("Could not load jbpm.console.properties", e);
+				}
+				try {
+					sb.append("http://");
+					sb.append(properties.get("jbpm.console.server.host"));
+					sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port")));
+					sb.append("/drools-guvnor/org.drools.guvnor.Guvnor/package/defaultPackage/LATEST/");
+					sb.append(URLEncoder.encode(name, "UTF-8"));
+					sb.append(".drl");
+					return new URL(sb.toString());
+				} catch (Throwable t) {
+					t.printStackTrace();
+				}
+				return null;
+			}
+		};
+		
+		ClassTemplateLoader ctl = new ClassTemplateLoader(getClass(), "/"){
+		
+			@Override
+			protected URL getURL(String name) {
+				return super.getURL(name.endsWith(TEMPLATE_EXTENSION) ? name : name + TEMPLATE_EXTENSION);
+			}
+			
+		};
+		
+		TemplateLoader[] loaders = new TemplateLoader[] { ctl, utl };
+		MultiTemplateLoader mtl = new MultiTemplateLoader(loaders);
+		cfg.setTemplateLoader(mtl);
+	}
+	
 	public URL getDispatchUrl(FormAuthorityRef ref) {
 		StringBuffer sb = new StringBuffer();
 		Properties properties = new Properties();
@@ -78,39 +140,17 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 			"Unknown form authority type: " + ref.getType());
 	}
 	
-	public InputStream getTemplate(String name) {
-		InputStream result = AbstractFormDispatcher.class.getResourceAsStream("/" + name + ".ftl");
-		if (result != null) {
-			return result;
-		}
-		StringBuffer sb = new StringBuffer();
-		Properties properties = new Properties();
+	protected DataHandler processTemplate(final String name, Map<String, Object> renderContext) {
+		Template temp = null;
 		try {
-			properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
-		} catch (IOException e) {
-			throw new RuntimeException("Could not load jbpm.console.properties", e);
+			temp = cfg.getTemplate(name);
+		} catch (IOException ioex) {
+			LOG.warn("Error trying to get template {}", name, ioex);
+			return null;
 		}
-		try {
-			sb.append("http://");
-			sb.append(properties.get("jbpm.console.server.host"));
-			sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port")));
-			sb.append("/drools-guvnor/org.drools.guvnor.Guvnor/package/defaultPackage/LATEST/");
-			sb.append(URLEncoder.encode(name, "UTF-8"));
-			sb.append(".drl");
-			return new URL(sb.toString()).openStream();
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-		return null;
-	}
-
-	protected DataHandler processTemplate(final String name, InputStream src, Map<String, Object> renderContext) {
+		
 		DataHandler merged = null;
 		try {
-			freemarker.template.Configuration cfg = new freemarker.template.Configuration();
-			cfg.setObjectWrapper(new DefaultObjectWrapper());
-			cfg.setTemplateUpdateDelay(0);
-			Template temp = new Template(name, new InputStreamReader(src), cfg);
 			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			Writer out = new OutputStreamWriter(bout);
 			temp.process(renderContext, out);

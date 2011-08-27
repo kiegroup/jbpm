@@ -18,7 +18,6 @@ package org.jbpm.integration.console.forms;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -99,10 +98,6 @@ public class TaskFormDispatcher extends AbstractFormDispatcher {
 				name = text.getText();
 			}
 		}
-		InputStream template = getTemplate(name);
-		if (template == null) {
-			template = TaskFormDispatcher.class.getResourceAsStream("/DefaultTask.ftl");
-		}
 
 		// merge template with process variables
 		Map<String, Object> renderContext = new HashMap<String, Object>();
@@ -116,7 +111,14 @@ public class TaskFormDispatcher extends AbstractFormDispatcher {
 				}
 			}
 		}
-		return processTemplate(name, template, renderContext);
+		
+		DataHandler handler = processTemplate(name, renderContext);
+				
+		if(handler == null){
+			handler = processTemplate("DefaultTask.ftl", renderContext);
+		}
+		
+		return handler;
 	}
 
 }
