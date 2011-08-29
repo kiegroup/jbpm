@@ -14,13 +14,15 @@
   <packaging>pom</packaging>
 
   <name>jBPM GWT multiproject</name>
-  
+  <description>jBPM GWT multiproject</description>
+
   <modules>
     <module>jbpm-gwt-core</module>
     <module>jbpm-gwt-form</module>
     <module>jbpm-gwt-graph</module>
     <module>jbpm-gwt-console</module>
     <module>jbpm-gwt-console-server</module>
+    <module>jbpm-gwt-shared</module>
   </modules>
 
 </project>

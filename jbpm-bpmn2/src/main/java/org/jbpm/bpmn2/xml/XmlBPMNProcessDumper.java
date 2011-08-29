@@ -186,7 +186,6 @@ public class XmlBPMNProcessDumper {
         }
         // TODO: package, version
         xmlDump.append(">" + EOL + EOL);
-        visitLanes(process, xmlDump);
         visitHeader(process, xmlDump, metaDataType);
         visitNodes(process, xmlDump, metaDataType);
         visitConnections(process.getNodes(), xmlDump, metaDataType);
@@ -356,6 +355,7 @@ public class XmlBPMNProcessDumper {
         if (variableScope != null) {
             visitVariables(variableScope.getVariables(), xmlDump);
         }
+        visitLanes(process, xmlDump);
     }
 
     public static void visitVariables(List<Variable> variables,

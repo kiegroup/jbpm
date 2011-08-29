@@ -32,7 +32,7 @@
           </execution>
         </executions>
         <configuration>
-          <finalName>jbpm-${project.version}</finalName>
+          <finalName>jbpm-${jbpm.version}</finalName>
           <descriptors>
             <descriptor>src/main/assembly/pre-bin.xml</descriptor>
             <descriptor>src/main/assembly/bin.xml</descriptor>
@@ -41,6 +41,7 @@
             <descriptor>src/main/assembly/installer.xml</descriptor>
             <descriptor>src/main/assembly/docs-build.xml</descriptor>
             <descriptor>src/main/assembly/docs.xml</descriptor>
+            <descriptor>src/main/assembly/examples.xml</descriptor>
           </descriptors>
           <!--<appendAssemblyId>false</appendAssemblyId>-->
         </configuration>
@@ -57,7 +58,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-flow</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
     <dependency>
@@ -67,7 +67,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-flow-builder</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
     <dependency>
@@ -77,7 +76,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-persistence-jpa</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
     <dependency>
@@ -87,7 +85,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-bpmn2</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
     <dependency>
@@ -97,7 +94,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-bam</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
     <dependency>
@@ -107,7 +103,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-human-task</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
     <dependency>
@@ -117,7 +112,6 @@
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-workitems</artifactId>-->
-      <!--<version>${project.version}</version>-->
       <!--<classifier>sources</classifier>-->
     <!--</dependency>-->
 

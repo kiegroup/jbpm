@@ -16,7 +16,7 @@
   <property name="eclipse.workspace.dir" value="${install.home}/workspace"/>
 
   <property name="jboss.download.url" value="http://downloads.sourceforge.net/jboss/jboss-${jboss.server.version}.zip"/>
-  <property name="h2.download.url" value="http://repository.jboss.org/maven2/com/h2database/h2/1.2.124/h2-1.2.124.jar"/>
+  <property name="h2.download.url" value="http://repo1.maven.org/maven2/com/h2database/h2/1.2.124/h2-1.2.124.jar"/>
   <property name="slf4j.download.url" value="http://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/1.5.11/slf4j-jdk14-1.5.11.jar"/>
   <property name="birt.download.url" value="http://www.eclipse.org/downloads/download.php?file=/birt/downloads/drops/R-R1-2_3_2_2-200906011507/birt-runtime-2_3_2_2.zip&amp;url=http://download.eclipse.org/birt/downloads/drops/R-R1-2_3_2_2-200906011507/birt-runtime-2_3_2_2.zip&amp;mirror_id=1"/>
 	
@@ -209,7 +209,7 @@
   <target name="download.jBPM.eclipse" depends="download.jBPM.eclipse.check" if="jBPM.eclipse.not.available">
     <echo message="Getting jBPM Eclipse ..." />
     <mkdir dir="${install.home}/lib"/>
-    <get src="http://community.jboss.org/servlet/JiveServlet/download/15922-6-25925/jbpm-5.0.0-eclipse-all.zip" dest="${install.home}/lib/jbpm-${jBPM.version}-eclipse-all.zip"  />
+    <get src="http://sourceforge.net/projects/jbpm/files/jBPM%205/jbpm-5.1.0.Final/jbpm-5.1.0.Final-eclipse-all.zip/download" dest="${install.home}/lib/jbpm-${jBPM.version}-eclipse-all.zip"  />
   </target>
 
   <!-- Download Drools Eclipse plugins -->
@@ -407,7 +407,10 @@
 
   <!-- Install Demo -->
   <target name="install.demo" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.eclipse,install.jBPM-eclipse.into.eclipse,install.jBPM.runtime,install.drools-eclipse.into.eclipse" />
-
+  
+  <!-- Install Demo (No Eclipse) -->
+  <target name="install.demo.noeclipse" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM.runtime" />
+  
   <!-- ############ START/STOP ############ -->
 
   <!-- Start H2 server -->
@@ -430,14 +433,14 @@
   <target name="start.jboss">
     <property name="jboss.full.path.win" location="${jboss.home}/bin/run.bat" />
     <exec executable="${jboss.full.path.win}" spawn="yes"
-          os="Windows 7,Windows Vista,Windows XP,Windows 2000,Windows 2003">
+          osfamily="windows">
       <env key="JAVA_OPTS" value="-XX:MaxPermSize=256m -Xms256m -Xmx512m" />
       <arg value="-b" />
       <arg value="${jboss.bind.address}" />
       <arg value="-Djbpm.console.directory=${install.home}/sample/evaluation/src/main/resources" />
     </exec>
     <property name="jboss.full.path.linux" location="${jboss.home}/bin/run.sh" />
-    <exec executable="${jboss.full.path.linux}" spawn="yes" os="Linux,Mac OS X">
+    <exec executable="${jboss.full.path.linux}" spawn="yes" osfamily="unix">
       <env key="JAVA_OPTS" value="-XX:MaxPermSize=256m -Xms256m -Xmx512m" />
       <arg value="-b" />
       <arg value="${jboss.bind.address}" />
@@ -452,12 +455,12 @@
   <!-- Stop JBoss AS -->
   <target name="stop.jboss">
     <exec executable="${jboss.home}/bin/shutdown.bat"
-          os="Windows 7,Windows Vista,Windows XP,Windows 2000,Windows 2003">
+          osfamily="windows">
       <arg value="-s" />
       <arg value="jnp://${jboss.bind.address}:1099" />
       <arg value="-S" />
     </exec>
-    <exec executable="${jboss.home}/bin/shutdown.sh" os="Linux,Mac OS X">
+    <exec executable="${jboss.home}/bin/shutdown.sh" osfamily="unix">
       <arg value="-s" />
       <arg value="jnp://${jboss.bind.address}:1099" />
       <arg value="-S" />
@@ -468,7 +471,7 @@
   <target name="start.eclipse">
     <exec executable="${eclipse.home}/eclipse.exe"
           spawn="yes"
-          os="Windows 7,Windows Vista,Windows XP,Windows 2000,Windows 2003">
+          osfamily="windows">
       <arg value="-data" />
       <arg value="${eclipse.workspace.dir}" />
       <arg value="-plugincustomization" />
@@ -481,8 +484,8 @@
       <arg value="./eclipse.preferences.ini" />
     </exec>
   	<chmod perm="a+x" file="./generate.mac.eclipse.preferences.sh" />
-    <exec executable="./generate.mac.eclipse.preferences.sh" os="Mac OS X"/>
-    <exec executable="${eclipse.home}/Eclipse.app/Contents/MacOS/eclipse" spawn="yes" os="Mac OS X">
+    <exec executable="./generate.mac.eclipse.preferences.sh" osfamily="mac"/>
+    <exec executable="${eclipse.home}/Eclipse.app/Contents/MacOS/eclipse" spawn="yes" osfamily="mac">
       <arg value="-data" />
       <arg value="../../../../${eclipse.workspace.dir}" />
       <arg value="-plugincustomization" />
@@ -513,6 +516,10 @@
 
   <!-- Start Demo -->
   <target name="start.demo" depends="start.h2,start.jboss,start.eclipse,start.human.task" />
+  
+  <!-- Start Demo (No Eclipse)--> 
+  <target name="start.demo.noeclipse" depends="start.h2,start.jboss,start.human.task" />	
+  
   <!-- Stop Demo -->
   <target name="stop.demo" depends="stop.h2,stop.jboss" />
 
@@ -532,7 +539,9 @@
     <delete dir="${eclipse.workspace.dir}"/>
   </target>
 
-  <!-- Stop Demo -->
+  <!-- Clean Demo -->
   <target name="clean.demo" depends="clean.jboss,clean.eclipse" />
+  <!-- Clean Demo (No Eclipse) -->
+  <target name="clean.demo.noeclipse" depends="clean.jboss" />
 	
 </project>
