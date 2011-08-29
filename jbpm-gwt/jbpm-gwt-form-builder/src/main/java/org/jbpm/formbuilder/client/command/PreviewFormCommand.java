@@ -34,7 +34,7 @@ import org.jbpm.formbuilder.shared.api.InputData;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -64,7 +64,7 @@ public abstract class PreviewFormCommand implements BaseCommand {
         this.bus.addHandler(PreviewFormResponseEvent.TYPE, new PreviewFormResponseHandler() {
             @Override
             public void onServerResponse(PreviewFormResponseEvent event) {
-                refreshPopup(event.getHtml());
+                refreshPopup(event.getUrl());
             }
         });
     }
@@ -84,9 +84,9 @@ public abstract class PreviewFormCommand implements BaseCommand {
         this.bus.fireEvent(new GetFormRepresentationEvent(this.saveType));
     }
 
-    protected void refreshPopup(String html) {
+    protected void refreshPopup(String url) {
         PopupPanel panel = new PopupPanel(true);
-        HTML content = new HTML(html);
+        Frame content = new Frame(url);
         panel.setWidget(content);
         int height = RootPanel.getBodyElement().getClientHeight();
         int width = RootPanel.getBodyElement().getClientWidth();

@@ -21,15 +21,15 @@ public class PreviewFormResponseEvent extends GwtEvent<PreviewFormResponseHandle
 
     public static final Type<PreviewFormResponseHandler> TYPE = new Type<PreviewFormResponseHandler>();
     
-    private final String html;
+    private final String url;
     
-    public PreviewFormResponseEvent(String html) {
+    public PreviewFormResponseEvent(String url) {
         super();
-        this.html = html;
+        this.url = url;
     }
 
-    public String getHtml() {
-        return html;
+    public String getUrl() {
+        return url;
     }
     
     @Override

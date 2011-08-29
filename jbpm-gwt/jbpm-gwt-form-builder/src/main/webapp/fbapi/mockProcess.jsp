@@ -1,9 +1,8 @@
 <%@page import="java.util.Enumeration"%>
 <% String action = (String) request.getAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.action"); %>
-<% String language = (String) request.getAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.language"); %>
 <html>
   <body>
-    <h1>Results from submission</h1>
+    <h1>Results from submission of action <%=action%></h1>
     <% Enumeration e1 = request.getAttributeNames(); %>
     <h4>Attributes</h4>
     <table>

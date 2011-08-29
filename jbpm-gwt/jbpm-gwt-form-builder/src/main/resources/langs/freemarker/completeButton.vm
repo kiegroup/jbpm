@@ -22,7 +22,6 @@
 </\#if>
 ## TODO completeButton.getOnClickScript(); should be loaded first
 #set ($nameParam = ${language.getParam("name", $name)})
-#set ($valueParam = ${language.getParam("value", $item.text)})
 <\#macro printi18ncbutton text>
     #set($condition = '$value?? && $value?length > 0')
     <\#if $condition>
@@ -50,4 +49,4 @@
     </\#if>
 </\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})
-<input type="submit" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end<@printi18ncbutton text="#if($valueParam)$valueParam#end"/> />
+<input type="submit" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end value="<@printi18ncbutton text="${item.text}"/>" />

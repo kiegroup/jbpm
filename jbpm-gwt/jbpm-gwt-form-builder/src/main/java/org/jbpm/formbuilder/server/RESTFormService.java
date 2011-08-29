@@ -199,7 +199,8 @@ public class RESTFormService {
             Map<String, Object> inputs = dto.getInputsAsMap();
             Renderer renderer = RendererFactory.getInstance().getRenderer(language);
             Object html = renderer.render(url, inputs);
-            return Response.ok(html, MediaType.TEXT_HTML).build();
+            String htmlUrl = createHtmlTemplate(html, language, context);
+            return Response.ok(htmlUrl, MediaType.TEXT_PLAIN).build();
         } catch (FormEncodingException e) {
             return error(e);
         } catch (LanguageException e) {
@@ -223,21 +224,53 @@ public class RESTFormService {
         }
     }
     
-    @POST @Path("/template/lang/{language}/{action}")
-    public void processFormTemplate(@PathParam("language") String language,
+    @POST @Path("/template/file/{action}")
+    public void processFormTemplate(
             @PathParam("action") String action,
             @Context ServletContext context, 
             @Context HttpServletRequest request,
             @Context HttpServletResponse response) {
         try {
             request.setAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.action", action);
-            request.setAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.language", language);
-            context.getRequestDispatcher("/fbapi/mockProcess.jsp").forward(request, response);
+            //TODO read multipart request and populate request accordingly for display
+            String queryString = request.getQueryString();
+            if (queryString == null) {
+                queryString = "?";
+            }
+            if (!queryString.startsWith("?")) {
+                queryString = "?" + queryString;
+            }
+            context.getRequestDispatcher("/fbapi/mockProcess.jsp" + queryString).forward(request, response);
         } catch (Exception e) {
             error(e);
         }
     }
 
+    @GET @Path("/template/file/{file}.temp")
+    public Response getHtmlTemplate(@PathParam("file") String fileName) {
+        try {
+            File file = new File(System.getProperty("java.io.tmpdir") + File.separator + fileName + ".temp");
+            String content = FileUtils.readFileToString(file);
+            return Response.ok(content, MediaType.TEXT_HTML).build();
+        } catch (IOException e) {
+            return error(e);
+        }
+    }
+    
+    private String createHtmlTemplate(Object html, String language, ServletContext context) {
+        String contextPath = context.getContextPath();
+        try {
+            File file = File.createTempFile("createHtmlTemplate", ".temp");
+            FileUtils.writeStringToFile(file, html.toString());
+            String url = contextPath + "/rest/form/template/file/" + file.getName();
+            return url;
+        } catch (IOException e) {
+            log.error("Problem writing html template", e);
+            return "";
+        }
+    }
+    
+    
     private URL createTemplate(String language, FormPreviewDTO dto) throws FormEncodingException, LanguageException {
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         String json = dto.getRepresentation();

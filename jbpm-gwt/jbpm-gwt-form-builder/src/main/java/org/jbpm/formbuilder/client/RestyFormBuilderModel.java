@@ -230,11 +230,11 @@ public class RestyFormBuilderModel implements FormBuilderService {
         Resource resource = new Resource(URLBuilder.generateFormURL(this.contextPath, language));
         try {
             String xml = helper.asXml(form, inputs);
-            resource.post().header(Resource.HEADER_ACCEPT, "text/html").
+            resource.post().header(Resource.HEADER_ACCEPT, Resource.CONTENT_TYPE_TEXT).
                 xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntPreviewForm()) {
                 @Override
-                public void onSuccess(Method method, String htmlResponse) {
-                    bus.fireEvent(new PreviewFormResponseEvent(htmlResponse));
+                public void onSuccess(Method method, String urlResponse) {
+                    bus.fireEvent(new PreviewFormResponseEvent(urlResponse));
                 }
             });
         } catch (FormEncodingException e) {
