@@ -232,74 +232,6 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 
 	    }
 
-
-	public Class<?> generateNodeFor() {
-		return org.drools.definition.process.Process.class;
-	}
-	
-	public static void linkConnections(NodeContainer nodeContainer, List<SequenceFlow> connections) {
-		if (connections != null) {
-			for (SequenceFlow connection: connections) {
-				String sourceRef = connection.getSourceRef();
-				String targetRef = connection.getTargetRef();
-				Node source = null;
-				Node target = null;
-				try {
-    				// remove starting _
-    				sourceRef = sourceRef.substring(1);
-    				// remove ids of parent nodes
-    				sourceRef = sourceRef.substring(sourceRef.lastIndexOf("-") + 1);
-    				source = nodeContainer.getNode(new Integer(sourceRef));
-				} catch (NumberFormatException e) {
-				    // try looking for a node with same "UniqueId" (in metadata)
-				    for (Node node: nodeContainer.getNodes()) {
-				        if (connection.getSourceRef().equals(node.getMetaData().get("UniqueId"))) {
-				            source = node;
-				            break;
-				        }
-				    }
-                    if (source == null) {
-                        throw new IllegalArgumentException("Could not find source node for connection:" + connection.getSourceRef());
-                    }
-                }
-
-                if (linksWithSharedNames.size() < 2) {
-                    throw new IllegalArgumentException(
-                            "There should be at least 2 link events to make a connection");
-                }
-
-                linksWithSharedNames.remove(throwLink);
-
-                // Make the connections
-                Node t = findNodeByIdOrUniqueIdInMetadata(process,
-                        throwLink.getUniqueId());
-
-                // connect throw to catch
-                for (IntermediateLink catchLink : linksWithSharedNames) {
-
-                    Node c = findNodeByIdOrUniqueIdInMetadata(process,
-                            catchLink.getUniqueId());
-                    if (t != null && c != null) {
-                        Connection result = new ConnectionImpl(t,
-                                NodeImpl.CONNECTION_DEFAULT_TYPE, c,
-                                NodeImpl.CONNECTION_DEFAULT_TYPE);
-                        result.setMetaData("linkNodeHidden", "yes");
-                    }
-                }
-
-                // Remove processed links
-                links.remove(throwLink);
-                links.removeAll(linksWithSharedNames);
-            }
-
-            if (links.size() > 0) {
-                throw new IllegalArgumentException(links.size()
-                        + " links were not processed");
-            }
-
-        }
-    }
-
     public Class<?> generateNodeFor() {
         return org.drools.definition.process.Process.class;
     }
@@ -352,36 +284,6 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                 }
             }
         }
-    }
-
-    private static Node findNodeByIdOrUniqueIdInMetadata(
-            NodeContainer nodeContainer, String targetRef) {
-
-        try {
-            // remove starting _
-            String targetId = targetRef.substring(1);
-            // remove ids of parent nodes
-            targetId = targetId.substring(targetId.lastIndexOf("-") + 1);
-            return nodeContainer.getNode(new Integer(targetId));
-        } catch (NumberFormatException e) {
-            // try looking for a node with same "UniqueId" (in metadata)
-            Node targetNode = null;
-            for (Node node : nodeContainer.getNodes()) {
-                if (targetRef.equals(node.getMetaData().get("UniqueId"))) {
-                    targetNode = node;
-                    break;
-                }
-            }
-
-            if (targetNode != null) {
-                return targetNode;
-            } else {
-                throw new IllegalArgumentException(
-                        "Could not find target node for connection:"
-                                + targetRef);
-            }
-        }
-
     }
 
     public static void linkBoundaryEvents(NodeContainer nodeContainer) {
