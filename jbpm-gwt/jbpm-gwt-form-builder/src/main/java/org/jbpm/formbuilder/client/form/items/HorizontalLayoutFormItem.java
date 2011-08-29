@@ -24,8 +24,8 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.PhantomPanel;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.HorizontalPanelRepresentation;
 
 import com.google.gwt.i18n.client.HasDirection.Direction;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;

@@ -25,7 +25,7 @@ import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;

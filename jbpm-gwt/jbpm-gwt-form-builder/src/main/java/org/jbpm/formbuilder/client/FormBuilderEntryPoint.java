@@ -21,7 +21,6 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
 
@@ -41,8 +40,7 @@ public class FormBuilderEntryPoint implements EntryPoint {
     @Override
     public void onModuleLoad() {
         //register event bus
-        EventBus eventBus = new SimpleEventBus();
-        FormBuilderGlobals.getInstance().registerEventBus(eventBus);
+        FormBuilderGlobals.getInstance().registerEventBus(new SimpleEventBus());
         //register i18n module
         I18NConstants constants = GWT.create(I18NConstants.class);
         FormBuilderGlobals.getInstance().registerI18n(constants);

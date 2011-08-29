@@ -25,8 +25,8 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.editors.HTMLFormItemEditor;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.HTMLRepresentation;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;

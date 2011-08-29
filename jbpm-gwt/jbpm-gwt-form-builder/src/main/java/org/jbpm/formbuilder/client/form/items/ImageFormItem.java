@@ -26,8 +26,8 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.ImageRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.ImageRepresentation;
 
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;

@@ -26,9 +26,9 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.BorderPanelRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.BorderPanelRepresentation.Position;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.BorderPanelRepresentation;
+import org.jbpm.formbuilder.shared.api.items.BorderPanelRepresentation.Position;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Grid;

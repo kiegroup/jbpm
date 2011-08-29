@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -32,10 +34,11 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
@@ -48,13 +51,13 @@ import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.server.trans.Translator;
 import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 @Path("/form")
 public class RESTFormService {
@@ -75,33 +78,29 @@ public class RESTFormService {
     @GET @Path("/definitions/package/{pkgName}")
     public Response getForms(@PathParam("pkgName") String pkgName, @Context ServletContext context) {
         setContext(context);
-        ResponseBuilder builder = Response.noContent();
         try {
             List<FormRepresentation> forms = formService.getForms(pkgName);
             ListFormsDTO dto = new ListFormsDTO(forms);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         } catch (FormEncodingException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @GET @Path("/definitions/package/{pkgName}/id/{formId}")
     public Response getForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId, @Context ServletContext context) {
         setContext(context);
-        ResponseBuilder builder = Response.noContent();
         try {
             FormRepresentation form = formService.getForm(pkgName, formId);
             ListFormsDTO dto = new ListFormsDTO(form);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         } catch (FormEncodingException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @POST @Path("/definitions/package/{pkgName}")
@@ -116,9 +115,9 @@ public class RESTFormService {
             return Response.ok("<formId>"+formId+"</formId>", MediaType.APPLICATION_XML).
                 status(Status.CREATED).build();
         } catch (FormEncodingException e) {
-            return Response.serverError().build();
+            return error(e);
         } catch (FormServiceException e) {
-            return Response.serverError().build();
+            return error(e);
         }
     }
     
@@ -129,40 +128,36 @@ public class RESTFormService {
             formService.deleteForm(pkgName, formId);
             return Response.ok().build();
         } catch (FormServiceException e) {
-            return Response.noContent().build();
+            return error(e);
         }
     }
 
     @GET @Path("/items/package/{pkgName}")
     public Response getFormItems(@PathParam("pkgName") String pkgName, @Context ServletContext context) {
         setContext(context);
-        ResponseBuilder builder = Response.noContent();
         try {
             Map<String, FormItemRepresentation> formItems = formService.getFormItems(pkgName);
             ListFormsItemsDTO dto = new ListFormsItemsDTO(formItems);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         } catch (FormEncodingException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @GET @Path("/items/package/{pkgName}/id/{fItemId}") 
     public Response getFormItem(@PathParam("pkgName") String pkgName, @PathParam("fItemId") String formItemId, @Context ServletContext context) {
         setContext(context);
-        ResponseBuilder builder = Response.noContent();
         try {
             FormItemRepresentation formItem = formService.getFormItem(pkgName, formItemId);
             ListFormsItemsDTO dto = new ListFormsItemsDTO(formItemId, formItem);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         } catch (FormEncodingException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @POST @Path("/items/package/{pkgName}/name/{fItemName}")
@@ -179,9 +174,9 @@ public class RESTFormService {
             return Response.ok("<formItemId>"+formItemId+"</formItemId>", 
                     MediaType.APPLICATION_XML).status(Status.CREATED).build();
         } catch (FormEncodingException e) {
-            return Response.serverError().build();
+            return error(e);
         } catch (FormServiceException e) {
-            return Response.serverError().build();
+            return error(e);
         }
     }
 
@@ -206,11 +201,11 @@ public class RESTFormService {
             Object html = renderer.render(url, inputs);
             return Response.ok(html, MediaType.TEXT_HTML).build();
         } catch (FormEncodingException e) {
-            return Response.serverError().build();
+            return error(e);
         } catch (LanguageException e) {
-            return Response.serverError().build();
+            return error(e);
         } catch (RendererException e) {
-            return Response.serverError().build();
+            return error(e);
         }
     }
     
@@ -222,9 +217,24 @@ public class RESTFormService {
             String fileName = url.getFile();
             return Response.ok("<fileName>"+fileName+"</fileName>", MediaType.APPLICATION_XML).build();
         } catch (FormEncodingException e) {
-            return Response.serverError().build();
+            return error(e);
         } catch (LanguageException e) {
-            return Response.serverError().build();
+            return error(e);
+        }
+    }
+    
+    @POST @Path("/template/lang/{language}/{action}")
+    public void processFormTemplate(@PathParam("language") String language,
+            @PathParam("action") String action,
+            @Context ServletContext context, 
+            @Context HttpServletRequest request,
+            @Context HttpServletResponse response) {
+        try {
+            request.setAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.action", action);
+            request.setAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.language", language);
+            context.getRequestDispatcher("/fbapi/mockProcess.jsp").forward(request, response);
+        } catch (Exception e) {
+            error(e);
         }
     }
 
@@ -254,5 +264,12 @@ public class RESTFormService {
         } catch (IOException e) {
             return Response.serverError().build();
         }
+    }
+    
+    private static final Log log = LogFactory.getLog(RESTFormService.class);
+    
+    Response error(Exception e) {
+        log.error("Error on REST service: ", e);
+        return Response.serverError().build();
     }
 }

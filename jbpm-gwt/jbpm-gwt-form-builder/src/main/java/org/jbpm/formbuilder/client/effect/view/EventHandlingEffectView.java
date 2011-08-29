@@ -22,7 +22,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.effect.EventHandlingFormEffect;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FBScript;
+import org.jbpm.formbuilder.shared.api.FBScript;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

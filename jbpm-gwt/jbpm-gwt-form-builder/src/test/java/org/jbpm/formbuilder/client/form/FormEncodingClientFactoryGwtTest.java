@@ -15,9 +15,9 @@
  */
 package org.jbpm.formbuilder.client.form;
 
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 import com.google.gwt.junit.client.GWTTestCase;
 

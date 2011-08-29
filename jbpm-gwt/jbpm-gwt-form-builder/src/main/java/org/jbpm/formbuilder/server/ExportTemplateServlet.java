@@ -31,9 +31,9 @@ import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.task.ProcessGetInputHandler;
 import org.jbpm.formbuilder.server.trans.Translator;
 import org.jbpm.formbuilder.server.trans.TranslatorFactory;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 
 public class ExportTemplateServlet extends HttpServlet {

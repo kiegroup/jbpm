@@ -5,8 +5,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
-import org.jbpm.formbuilder.shared.rep.validation.EqualToValidation;
+import org.jbpm.formbuilder.shared.api.FBValidation;
+import org.jbpm.formbuilder.shared.api.validation.EqualToValidation;
 
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.TextBox;

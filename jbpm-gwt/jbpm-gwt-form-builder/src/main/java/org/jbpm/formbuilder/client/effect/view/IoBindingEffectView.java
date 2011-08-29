@@ -24,7 +24,7 @@ import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.IoBindingEffect;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.Data;
+import org.jbpm.formbuilder.shared.api.Data;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
 import com.google.gwt.event.dom.client.ClickEvent;

@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.client.bus;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.shared.rep.FBScript;
+import org.jbpm.formbuilder.shared.api.FBScript;
 
 import com.google.gwt.event.shared.GwtEvent;
 

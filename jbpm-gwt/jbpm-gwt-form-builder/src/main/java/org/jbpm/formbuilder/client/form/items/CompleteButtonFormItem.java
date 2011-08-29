@@ -27,8 +27,8 @@ import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;

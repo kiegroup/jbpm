@@ -32,12 +32,12 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.OtherValidationsAware;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 

@@ -29,8 +29,8 @@ import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;

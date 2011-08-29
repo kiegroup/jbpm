@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.server.trans.ftl;
 import org.jbpm.formbuilder.server.trans.LanguageException;
 import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
-import org.jbpm.formbuilder.shared.rep.FBScript;
+import org.jbpm.formbuilder.shared.api.FBScript;
 
 public class Translator extends ScriptingTranslator {
 

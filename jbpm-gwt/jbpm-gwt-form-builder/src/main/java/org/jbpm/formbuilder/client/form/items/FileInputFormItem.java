@@ -23,8 +23,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.FileInputRepresentation;
 
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.Widget;

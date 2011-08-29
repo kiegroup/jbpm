@@ -27,13 +27,13 @@ import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.ValidationDescription;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 public class GuvnorMenuServiceTest extends TestCase {
 

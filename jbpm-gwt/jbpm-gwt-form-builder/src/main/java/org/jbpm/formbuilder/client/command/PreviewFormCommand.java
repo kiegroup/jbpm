@@ -28,8 +28,8 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.InputData;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.InputData;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

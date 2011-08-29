@@ -40,14 +40,14 @@ import org.jbpm.formbuilder.server.task.AssetDTO;
 import org.jbpm.formbuilder.server.task.MetaDataDTO;
 import org.jbpm.formbuilder.server.task.PackageDTO;
 import org.jbpm.formbuilder.server.task.PackageListDTO;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.AbstractBaseFormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionService {

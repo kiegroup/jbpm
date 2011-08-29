@@ -27,8 +27,8 @@ import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.form.editors.LabelInplaceEditor;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.LabelRepresentation;
 
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;

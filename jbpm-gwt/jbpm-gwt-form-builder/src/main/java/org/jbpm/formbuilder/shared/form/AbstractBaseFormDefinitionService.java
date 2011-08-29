@@ -19,15 +19,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.Formatter;
-import org.jbpm.formbuilder.shared.rep.InputData;
-import org.jbpm.formbuilder.shared.rep.OutputData;
-import org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.LabelRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.TableRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.Formatter;
+import org.jbpm.formbuilder.shared.api.InputData;
+import org.jbpm.formbuilder.shared.api.OutputData;
+import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
+import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;
+import org.jbpm.formbuilder.shared.api.items.LabelRepresentation;
+import org.jbpm.formbuilder.shared.api.items.TableRepresentation;
+import org.jbpm.formbuilder.shared.api.items.TextFieldRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 

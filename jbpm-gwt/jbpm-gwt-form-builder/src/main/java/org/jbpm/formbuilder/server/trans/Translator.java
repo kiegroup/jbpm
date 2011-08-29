@@ -17,8 +17,8 @@ package org.jbpm.formbuilder.server.trans;
 
 import java.net.URL;
 
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 /*
  *  form: FormRepresentation

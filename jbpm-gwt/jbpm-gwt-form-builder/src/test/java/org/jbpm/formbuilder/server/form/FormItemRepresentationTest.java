@@ -25,7 +25,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 
 public class FormItemRepresentationTest extends TestCase {
 

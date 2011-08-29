@@ -22,12 +22,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.InputData;
+import org.jbpm.formbuilder.shared.api.Mappable;
+import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.InputData;
-import org.jbpm.formbuilder.shared.rep.Mappable;
-import org.jbpm.formbuilder.shared.rep.OutputData;
 
 public abstract class AbstractFormRepresentationEncoder implements FormRepresentationEncoder {
 

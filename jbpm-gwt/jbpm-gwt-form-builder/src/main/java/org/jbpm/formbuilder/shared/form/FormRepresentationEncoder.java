@@ -18,9 +18,9 @@ package org.jbpm.formbuilder.shared.form;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 public interface FormRepresentationEncoder {
 

@@ -39,10 +39,10 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
 import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
 import org.jbpm.formbuilder.client.tree.TreeViewImpl;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 

@@ -30,7 +30,7 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;

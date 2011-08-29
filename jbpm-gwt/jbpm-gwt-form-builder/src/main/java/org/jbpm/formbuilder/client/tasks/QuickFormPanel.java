@@ -22,7 +22,7 @@ import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 

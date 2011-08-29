@@ -22,10 +22,10 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 
 public class FormEncodingServerFactoryTest extends TestCase {
 

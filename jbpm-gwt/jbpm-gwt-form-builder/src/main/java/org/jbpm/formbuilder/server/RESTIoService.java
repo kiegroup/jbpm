@@ -25,8 +25,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
@@ -63,15 +64,13 @@ public class RESTIoService {
                 newFilter += subFilter + " ";
             }
         }
-        ResponseBuilder builder = Response.noContent();
         try {
             List<TaskRef> tasks = taskService.query(pkgName, newFilter);
             ListTasksDTO dto = new ListTasksDTO(tasks);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (TaskServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @GET @Path("/package/{pkgName}/process/{procName}/task/{taskName}")
@@ -79,14 +78,19 @@ public class RESTIoService {
             @PathParam("procName") String procName, @PathParam("taskName") String taskName,
             @Context ServletContext context) {
         setContext(context);
-        ResponseBuilder builder = Response.noContent();
         try {
             List<TaskRef> tasks = taskService.getTasksByName(pkgName, procName, taskName);
             ListTasksDTO dto = new ListTasksDTO(tasks);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (TaskServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
+    }
+
+    private static final Log log = LogFactory.getLog(RESTIoService.class);
+
+    Response error(Exception e) {
+        log.error("Error on REST service: ", e);
+        return Response.serverError().build();
     }
 }

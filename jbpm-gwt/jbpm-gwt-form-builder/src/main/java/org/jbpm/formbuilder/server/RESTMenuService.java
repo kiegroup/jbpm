@@ -25,9 +25,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.SaveMenuItemDTO;
@@ -37,6 +38,7 @@ import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
 import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
 import org.jbpm.formbuilder.server.xml.ListValidationsDTO;
 import org.jbpm.formbuilder.server.xml.PropertiesDTO;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
@@ -46,7 +48,6 @@ import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 import org.jbpm.formbuilder.shared.menu.ValidationDescription;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 @Path("/menu")
 public class RESTMenuService {
@@ -59,41 +60,35 @@ public class RESTMenuService {
     
     @GET @Path("/items") 
     public Response listMenuItems() {
-        ResponseBuilder builder = Response.noContent();
         try {
             Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
             ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
 
     @GET @Path("/options")
     public Response listMenuOptions() {
-        ResponseBuilder builder = Response.noContent();
         try {
             List<MenuOptionDescription> options = menuService.listOptions();
             ListOptionsDTO dto = new ListOptionsDTO(options);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @GET @Path("/validations")
     public Response getValidations() {
-        ResponseBuilder builder = Response.noContent();
         try {
             List<ValidationDescription> validations = menuService.listValidations();
             ListValidationsDTO dto = new ListValidationsDTO(validations);
-            builder = Response.ok(dto, MediaType.APPLICATION_XML);
+            return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            builder = Response.serverError();
+            return error(e);
         }
-        return builder.build();
     }
     
     @POST @Path("/items")
@@ -146,6 +141,7 @@ public class RESTMenuService {
             menuService.deleteMenuItem(dto.getGroupName(), menuItem);
             return Response.status(Status.ACCEPTED).build();
         } catch (MenuServiceException e) {
+            log.error("Couldn't delete menu item " + dto.getGroupName() + ":" + dto.getName(), e);
             return Response.status(Status.CONFLICT).build();
         }
     }
@@ -157,7 +153,14 @@ public class RESTMenuService {
             PropertiesDTO dto = new PropertiesDTO(props);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            return Response.serverError().build();
+            return error(e);
         }
+    }
+    
+    private static final Log log = LogFactory.getLog(RESTMenuService.class);
+
+    Response error(Exception e) {
+        log.error("Error on REST service: ", e);
+        return Response.serverError().build();
     }
 }

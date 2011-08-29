@@ -44,9 +44,9 @@ import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.InputData;
-import org.jbpm.formbuilder.shared.rep.OutputData;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.InputData;
+import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;

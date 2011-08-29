@@ -32,11 +32,11 @@ import org.jbpm.formbuilder.common.handler.EventHelper;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
-import org.jbpm.formbuilder.shared.rep.FBScript;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.InputData;
-import org.jbpm.formbuilder.shared.rep.OutputData;
+import org.jbpm.formbuilder.shared.api.FBScript;
+import org.jbpm.formbuilder.shared.api.FBValidation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.InputData;
+import org.jbpm.formbuilder.shared.api.OutputData;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;

@@ -24,7 +24,7 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-import org.jbpm.formbuilder.shared.rep.FBScript;
+import org.jbpm.formbuilder.shared.api.FBScript;
 
 import com.allen_sauer.gwt.dnd.client.HasDragHandle;
 import com.google.gwt.resources.client.ImageResource;

@@ -24,9 +24,9 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.ComboBoxRepresentation;
+import org.jbpm.formbuilder.shared.api.items.OptionRepresentation;
 
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;

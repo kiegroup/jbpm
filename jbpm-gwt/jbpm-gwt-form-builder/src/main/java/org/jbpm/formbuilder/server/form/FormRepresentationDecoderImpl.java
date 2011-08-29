@@ -20,16 +20,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.api.FBScript;
+import org.jbpm.formbuilder.shared.api.FBValidation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.InputData;
+import org.jbpm.formbuilder.shared.api.Mappable;
+import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.rep.FBScript;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.InputData;
-import org.jbpm.formbuilder.shared.rep.Mappable;
-import org.jbpm.formbuilder.shared.rep.OutputData;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

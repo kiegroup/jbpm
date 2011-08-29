@@ -2,9 +2,9 @@ package org.jbpm.formbuilder.server.form;
 
 import junit.framework.TestCase;
 
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 public class FormDefinitionServiceTest extends TestCase {

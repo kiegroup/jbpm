@@ -23,8 +23,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.LineGraphRepresentation;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.LineGraphRepresentation;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;

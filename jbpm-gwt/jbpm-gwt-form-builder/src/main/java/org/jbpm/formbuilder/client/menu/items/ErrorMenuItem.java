@@ -23,8 +23,8 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;

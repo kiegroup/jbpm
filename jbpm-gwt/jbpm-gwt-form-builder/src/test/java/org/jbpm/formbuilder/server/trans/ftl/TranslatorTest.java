@@ -23,10 +23,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation;
-import org.jbpm.formbuilder.shared.rep.items.OptionRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.items.CheckBoxRepresentation;
+import org.jbpm.formbuilder.shared.api.items.ComboBoxRepresentation;
+import org.jbpm.formbuilder.shared.api.items.OptionRepresentation;
 
 public class TranslatorTest extends TestCase {
 

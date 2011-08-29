@@ -23,9 +23,9 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
+import org.jbpm.formbuilder.shared.api.FBValidation;
+import org.jbpm.formbuilder.shared.api.RepresentationFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.rep.FBValidation;
-import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
 
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.Widget;

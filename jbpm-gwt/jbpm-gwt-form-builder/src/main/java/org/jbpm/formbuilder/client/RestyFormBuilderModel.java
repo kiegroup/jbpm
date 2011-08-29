@@ -43,12 +43,12 @@ import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.api.RepresentationFactory;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
-import org.jbpm.formbuilder.shared.rep.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.rep.FormRepresentation;
-import org.jbpm.formbuilder.shared.rep.RepresentationFactory;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.core.client.GWT;
@@ -108,7 +108,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
     
     @Override
     public void getMenuItems() {
-        Resource resource = new Resource(this.contextPath + "/menu/items/");
+        Resource resource = new Resource(URLBuilder.getMenuItemsURL(this.contextPath));
         resource.get().send(new SimpleTextCallback(i18n.CouldntFindMenuItems()) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -129,7 +129,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void getMenuOptions() {
-        Resource resource = new Resource(this.contextPath + "/menu/options/");
+        Resource resource = new Resource(URLBuilder.getMenuOptionsURL(this.contextPath));
         resource.get().send(new SimpleTextCallback(i18n.CouldntFindMenuOptions()) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -143,8 +143,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void saveForm(final FormRepresentation form) {
-        Resource resource = new Resource(new StringBuilder().append(this.contextPath).
-                append("/form/definitions/package/").append(this.packageName).toString());
+        Resource resource = new Resource(URLBuilder.saveFormURL(this.contextPath, this.packageName));
         try {
             String json = FormEncodingFactory.getEncoder().encode(form);
             resource.post().text(json).send(new SimpleTextCallback(i18n.CouldntSaveForm()) {
@@ -171,8 +170,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void saveFormItem(FormItemRepresentation formItem, String formItemName) {
-        Resource resource = new Resource(new StringBuilder().append(this.contextPath).
-                append("/form/items/package/").append(this.packageName).toString());
+        Resource resource = new Resource(URLBuilder.saveFormItemURL(this.contextPath, this.packageName));
         try {
             String xml = helper.asXml(formItemName, formItem);
             resource.post().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntSaveFormItem()) {
@@ -196,9 +194,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void deleteForm(FormRepresentation form)  {
-        Resource resource = new Resource(new StringBuilder().append(this.contextPath).
-                append("/form/definitions/package/").append(this.packageName).
-                append("/id/").append(form.getName()).toString());
+        Resource resource = new Resource(URLBuilder.deleteFormURL(this.contextPath, this.packageName, form.getName()));
         resource.delete().send(new SimpleTextCallback(i18n.ErrorDeletingForm("")) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -214,9 +210,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void deleteFormItem(String formItemName, FormItemRepresentation formItem) {
-        Resource resource = new Resource(new StringBuilder().
-                append(this.contextPath).append("/formItems/package/").append(this.packageName).
-                append("/formItemName/").append(formItemName).toString());
+        Resource resource = new Resource(URLBuilder.deleteFormItemURL(this.contextPath, this.packageName, formItemName));
         resource.delete().send(new SimpleTextCallback(i18n.ErrorDeletingFormItem("")) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -233,8 +227,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public void generateForm(FormRepresentation form, String language,
             Map<String, Object> inputs) {
-        Resource resource = new Resource(new StringBuilder().append(this.contextPath).
-                append("/form/preview/lang/").append(language).toString());
+        Resource resource = new Resource(URLBuilder.generateFormURL(this.contextPath, language));
         try {
             String xml = helper.asXml(form, inputs);
             resource.post().header(Resource.HEADER_ACCEPT, "text/html").
@@ -251,7 +244,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void saveMenuItem(String groupName, final FBMenuItem item) {
-        Resource resource = new Resource(this.contextPath + "/menu/items");
+        Resource resource = new Resource(URLBuilder.getMenuItemsURL(this.contextPath));
         String xml = helper.asXml(groupName, item);
         resource.post().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntGenerateMenuItem()) {
             @Override
@@ -270,7 +263,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void deleteMenuItem(String groupName, FBMenuItem item) {
-        Resource resource = new Resource(this.contextPath + "/menu/items");
+        Resource resource = new Resource(URLBuilder.getMenuItemsURL(this.contextPath));
         String xml = helper.asXml(groupName, item);
         resource.delete().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.ErrorDeletingMenuItem()) {
             @Override
@@ -287,7 +280,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void getExistingIoAssociations(final String filter) {
-        String url = this.contextPath + "/io/package/" + this.packageName + "/";
+        String url = URLBuilder.getIoAssociationsURL(this.contextPath, this.packageName);
         Resource resource = new Resource(url);
         if (filter != null && !"".equals(filter)) {
             resource = resource.addQueryParam("q", filter);
@@ -303,9 +296,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void selectIoAssociation(String pkgName, String processName, String taskName) {
-        String url = new StringBuilder().append(this.contextPath).append("/io/package/").
-            append(pkgName).append("/process/").append(processName).append("/task/").append(taskName).
-            toString();
+        String url = URLBuilder.getIoAssociationURL(this.contextPath, pkgName, processName, taskName);
         Resource resource = new Resource(url);
         resource.get().send(new SimpleTextCallback(i18n.CouldntReadSingleIO()) {
             @Override
@@ -321,7 +312,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void getExistingValidations() {
-        Resource resource = new Resource(this.contextPath + "/menu/validations/");
+        Resource resource = new Resource(URLBuilder.getValidationsURL(this.contextPath));
         resource.get().send(new SimpleTextCallback(i18n.CouldntReadValidations()) {
             @Override
             public void onSuccess(Method method, String response) {
@@ -337,8 +328,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void getForm(final String formName) {
-        String url = new StringBuilder(this.contextPath).append("/form/definitions/package/").
-            append(this.packageName).append("/id/").append(formName).toString();
+        String url = URLBuilder.getFormURL(this.contextPath, this.packageName, formName);
         Resource resource = new Resource(url);
         resource.get().send(new SimpleTextCallback(i18n.CouldntFindForm(formName)) {
             @Override
@@ -355,8 +345,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void getForms() {
-        String url = new StringBuilder(this.contextPath).append("/form/definitions/package/").
-            append(this.packageName).append("/").toString();
+        String url = URLBuilder.getFormsURL(this.contextPath, this.packageName);
         Resource resource = new Resource(url);
         resource.get().send(new SimpleTextCallback(i18n.CouldntFindForms()) {
             @Override
@@ -373,7 +362,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void populateRepresentationFactory() {
-        String url = this.contextPath + "/menu/mappings";
+        String url = URLBuilder.getRepresentationMappingsURL(this.contextPath);
         Resource resource = new Resource(url);
         resource.get().send(new SimpleTextCallback(i18n.CouldntReadRepresentationMappings()) {
             @Override
@@ -389,8 +378,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void loadFormTemplate(final FormRepresentation form, String language) {
-        final String url = new StringBuilder(this.contextPath).append("/form/template/lang/").
-            append(language).toString();
+        final String url = URLBuilder.loadFormTemplateURL(this.contextPath, language);
         Resource resource = new Resource(url);
         try {
             String xml = helper.asXml(form, null);

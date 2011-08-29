@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.shared.menu;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.shared.rep.Mappable;
+import org.jbpm.formbuilder.shared.api.Mappable;
 
 import com.gwtent.reflection.client.Reflectable;
 
