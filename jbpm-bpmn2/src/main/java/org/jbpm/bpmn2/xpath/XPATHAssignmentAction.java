@@ -94,6 +94,10 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
             source = ((WorkItem) workItem).getResult(sourceExpr);
         }
         
+        if(source == null && sourceExpr!=null && sourceExpr.startsWith("\"")) {
+        		source = sourceExpr.substring(1, sourceExpr.length()-1);
+        }
+        
         
         // this is the only way to change the reference itself, 
         // otherwise change only in whatever is being pointed to
@@ -113,7 +117,7 @@ public class XPATHAssignmentAction implements AssignmentAction, Externalizable {
         // create temp as per bpm-1534, 
         // as the target may be target of many assignments and need a container to hold nodelists etc
         
-        if(!(source instanceof String) && target == null ) {
+        if(target == null ) {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
             //quirky
