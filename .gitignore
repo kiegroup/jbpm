@@ -19,3 +19,10 @@ bin/
 
 # Test info
 /settings*.xml
+/jbpm-human-task/jbpm-human-task-api/target/
+/jbpm-human-task/jbpm-human-task-impl-mina/target/
+/jbpm-human-task/jbpm-human-task-impl-hornetq/target/
+/jbpm-human-task/jbpm-human-task-jms/target/
+/jbpm-human-task/jbpm-human-task-impl-jms/target/
+/jbpm-human-task/jbpm-human-task-impl-jms/activemq-data/
+/jbpm-human-task/jbpm-human-task/target/
