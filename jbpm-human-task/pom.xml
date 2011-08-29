@@ -8,12 +8,12 @@
         <version>5.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>jbpm-human-task</artifactId>
+    <artifactId>jbpm-human-task-parent</artifactId>
 
-    <name>jBPM :: Human Task</name>
+    <name>jBPM :: Human Task Parent</name>
     <packaging>pom</packaging>
     <modules>
-        <module>jbpm-human-task-api</module>
+        <module>jbpm-human-task</module>
         <module>jbpm-human-task-impl-mina</module>
         <module>jbpm-human-task-impl-hornetq</module>
         <module>jbpm-human-task-impl-jms</module>
