@@ -22,31 +22,27 @@
 </\#if>
 ## TODO completeButton.getOnClickScript(); should be loaded first
 #set ($nameParam = ${language.getParam("name", $name)})
+#set($condition = '$value?? && $value?length > 0')
 <\#macro printi18ncbutton text>
-    #set($condition = '$value?? && $value?length > 0')
-    <\#if $condition>
-      #set ($valueFormatted = '${value}')
-      #if ($item.format)
-        #if ($item.format == "CURRENCY")#set($valueFormatted='${value?string.currency}')#end
-        #if ($item.format == "NUMBER")#set($valueFormatted='${value?string.number}')#end
-        #if ($item.format == "DATE")#set($valueFormatted='${value?string.short}')#end
-        #if ($item.format == "DATETIME")#set($valueFormatted='${value?string.short_short}')#end
-        #if ($item.format == "PERCENT")#set($valueFormatted='${value?string.percent}')#end
-        #if ($item.format == "INTEGER")#set($valueFormatted='${value?string("0")}')#end
-      #end
-      $valueFormatted
-    <\#else>
-      #set ($valueFormatted = '${text}') 
-      #if ($item.format)
-        #if ($item.format == "CURRENCY")#set($valueFormatted='${text?string.currency}')#end
-        #if ($item.format == "NUMBER")#set($valueFormatted='${text?string.number}')#end
-        #if ($item.format == "DATE")#set($valueFormatted='${text?string.short}')#end
-        #if ($item.format == "DATETIME")#set($valueFormatted='${text?string.short_short}')#end
-        #if ($item.format == "PERCENT")#set($valueFormatted='${text?string.percent}')#end
-        #if ($item.format == "INTEGER")#set($valueFormatted='${text?string("0")}')#end
-      #end
-      $valueFormatted
-    </\#if>
-</\#macro>
+#set ($valueFormatted = '${value}')
+<\#if $condition>#if ($item.format)
+#if ($item.format == "CURRENCY")#set($valueFormatted='${value?string.currency}')#end
+#if ($item.format == "NUMBER")#set($valueFormatted='${value?string.number}')#end
+#if ($item.format == "DATE")#set($valueFormatted='${value?string.short}')#end
+#if ($item.format == "DATETIME")#set($valueFormatted='${value?string.short_short}')#end
+#if ($item.format == "PERCENT")#set($valueFormatted='${value?string.percent}')#end
+#if ($item.format == "INTEGER")#set($valueFormatted='${value?string("0")}')#end
+#end
+$valueFormatted<\#else>
+#set ($valueFormatted = '${text}') 
+#if ($item.format)
+#if ($item.format == "CURRENCY")#set($valueFormatted='${text?string.currency}')#end
+#if ($item.format == "NUMBER")#set($valueFormatted='${text?string.number}')#end
+#if ($item.format == "DATE")#set($valueFormatted='${text?string.short}')#end
+#if ($item.format == "DATETIME")#set($valueFormatted='${text?string.short_short}')#end
+#if ($item.format == "PERCENT")#set($valueFormatted='${text?string.percent}')#end
+#if ($item.format == "INTEGER")#set($valueFormatted='${text?string("0")}')#end
+#end
+$valueFormatted</\#if></\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})
 <input type="submit" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end value="<@printi18ncbutton text="${item.text}"/>" />

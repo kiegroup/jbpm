@@ -36,6 +36,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -232,7 +235,18 @@ public class RESTFormService {
             @Context HttpServletResponse response) {
         try {
             request.setAttribute("org.jbpm.formbuilder.server.REST.processFormTemplate.action", action);
-            //TODO read multipart request and populate request accordingly for display
+            if (ServletFileUpload.isMultipartContent(request)) {
+                //read multipart request and populate request accordingly for display
+                int maxMemorySize = 240000;
+                File tmpDirectory = new File(System.getProperty("java.io.tmpdir"));
+                DiskFileItemFactory factory = new DiskFileItemFactory(maxMemorySize, tmpDirectory);
+                ServletFileUpload upload = new ServletFileUpload(factory);
+                List<?> files = upload.parseRequest(request);
+                for (Object obj : files) {
+                    FileItem item = (FileItem) obj;
+                    request.setAttribute(item.getFieldName(), item.getString());
+                }
+            }
             String queryString = request.getQueryString();
             if (queryString == null) {
                 queryString = "?";
