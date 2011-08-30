@@ -219,53 +219,53 @@ public class MockMenuService extends AbstractBaseMenuService {
     @Override
     public Map<String, String> getFormBuilderProperties() throws MenuServiceException {
         Map<String, String> retval = new HashMap<String, String>();
-        retval.put("org.jbpm.formbuilder.shared.rep.items.AbsolutePanelRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.AbsolutePanelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.AbsoluteLayoutFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.BorderPanelRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.BorderPanelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.BorderLayoutFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.CheckBoxRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.CheckBoxRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.CheckBoxFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.ComboBoxRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.ComboBoxRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.ComboBoxFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.CompleteButtonRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.CompleteButtonFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.ConditionalBlockRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.ConditionalBlockRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.ConditionalBlockFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.CSSPanelRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.CSSPanelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.CSSLayoutFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.FileInputRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.FileInputRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.FileInputFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.FlowPanelRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.FlowPanelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.FlowLayoutFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.HeaderRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.HeaderRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.HeaderFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.HiddenRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.HiddenRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.HiddenFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.HorizontalPanelRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.HorizontalPanelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.HorizontalLayoutFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.HTMLRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.HTMLRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.HTMLFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.ImageRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.ImageRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.ImageFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.LabelRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.LabelRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.LabelFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.LineGraphRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.LineGraphRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.LineGraphFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.LoopBlockRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.LoopBlockRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.LoopBlockFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.PasswordFieldRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.PasswordFieldRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.PasswordFieldFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.RadioButtonRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.RadioButtonRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.RadioButtonFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.ServerTransformationRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.ServerTransformationRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.ServerTransformationFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.TableRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.TableRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.TableLayoutFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.TextAreaRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.TextAreaRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.TextAreaFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.items.TextFieldRepresentation", 
+        retval.put("org.jbpm.formbuilder.shared.api.items.TextFieldRepresentation", 
                 "org.jbpm.formbuilder.client.form.items.TextFieldFormItem");
-        retval.put("org.jbpm.formbuilder.shared.rep.validation.NotEmptyValidation", 
+        retval.put("org.jbpm.formbuilder.shared.api.validation.NotEmptyValidation", 
                 "org.jbpm.formbuilder.client.validation.NotEmptyValidationItem");
         return retval;
     }

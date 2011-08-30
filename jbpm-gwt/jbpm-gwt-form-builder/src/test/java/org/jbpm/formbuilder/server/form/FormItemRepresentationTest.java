@@ -32,12 +32,12 @@ public class FormItemRepresentationTest extends TestCase {
     public void testGetData() throws Exception {
         //get class names
         List<String> classNames = new ArrayList<String>();
-        URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/rep/items/");
+        URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/api/items/");
         File file = new File(dir.getFile());
         String[] classFiles = file.list();
         for (String classFile : classFiles) {
             if (!classFile.contains("$")) {
-                classNames.add("org.jbpm.formbuilder.shared.rep.items." + classFile.replace(".class", ""));
+                classNames.add("org.jbpm.formbuilder.shared.api.items." + classFile.replace(".class", ""));
             }
         }
         //get classes
