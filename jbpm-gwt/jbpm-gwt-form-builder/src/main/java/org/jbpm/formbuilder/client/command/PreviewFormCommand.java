@@ -17,8 +17,10 @@ package org.jbpm.formbuilder.client.command;
 
 import java.util.Map;
 
+import org.gwt.mosaic.ui.client.WindowPanel;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.FormBuilderService;
+import org.jbpm.formbuilder.client.UIUtils;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
@@ -36,7 +38,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -64,7 +65,9 @@ public abstract class PreviewFormCommand implements BaseCommand {
         this.bus.addHandler(PreviewFormResponseEvent.TYPE, new PreviewFormResponseHandler() {
             @Override
             public void onServerResponse(PreviewFormResponseEvent event) {
-                refreshPopup(event.getUrl());
+                if (event.getPreviewType().equals(saveType)) {
+                    refreshPopup(event.getUrl());
+                }
             }
         });
     }
@@ -85,17 +88,18 @@ public abstract class PreviewFormCommand implements BaseCommand {
     }
 
     protected void refreshPopup(String url) {
-        PopupPanel panel = new PopupPanel(true);
+        WindowPanel window = UIUtils.createWindow("Preview as " + this.saveType);
+        window.getDesktopPanel().addStyleName("formDisplay");
         Frame content = new Frame(url);
-        panel.setWidget(content);
+        window.setWidget(content);
         int height = RootPanel.getBodyElement().getClientHeight();
         int width = RootPanel.getBodyElement().getClientWidth();
         int left = RootPanel.getBodyElement().getAbsoluteLeft();
         int top = RootPanel.getBodyElement().getAbsoluteTop();
-        panel.setPixelSize(width - 200, height - 200);
         content.setPixelSize(width - 200, height - 200);
-        panel.setPopupPosition(left + 100, top + 100);
-        panel.show();
+        window.showModal();
+        window.setPopupPosition(left + 100, top + 100);
+        window.setPixelSize(width - 200, height - 200);
     }
 
     public void popupInputMapPanel(final FormRepresentation form) {

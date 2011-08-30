@@ -31,7 +31,7 @@ import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionViewImpl;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
-import org.jbpm.formbuilder.client.menu.MenuViewImpl;
+import org.jbpm.formbuilder.client.menu.AnimatedMenuViewImpl;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.notification.NotificationsViewImpl;
 import org.jbpm.formbuilder.client.options.OptionsViewImpl;
@@ -91,7 +91,7 @@ public class FormBuilderController {
         this.formExporter.start();
         
         view.setNotificationsView(new NotificationsViewImpl());
-        view.setMenuView(new MenuViewImpl());
+        view.setMenuView(new AnimatedMenuViewImpl());
         model.getMenuItems();
         view.setEditionView(new EditionViewImpl());
         view.setTreeView(new TreeViewImpl());

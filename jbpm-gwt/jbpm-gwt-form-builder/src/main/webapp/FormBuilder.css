@@ -157,3 +157,16 @@
   cursor: default;
   background: #bcbcbc;
 }
+
+.gwt-StackPanel .gwt-StackPanelItem {
+  border-style:solid solid none;
+  cursor:pointer;
+  font-size:10pt;
+  width: 100%;
+  font-weight:bold;
+}
+
+.gwt-StackPanel {
+  border-bottom:1px solid #BBBBBB;
+  width:100%;
+}

@@ -31,6 +31,9 @@
   <inherits name="org.fusesource.restygwt.RestyGWT" />
   <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
   <inherits name="com.gwtent.GwtEnt" />
+  <inherits name="org.gwt.beansbinding.BeansBinding" />
+  <inherits name="org.gwt.mosaic.core.Core" />
+  <inherits name="org.gwt.mosaic.ui.UI" />
   <inherits name="com.google.gwt.junit.JUnit" />
 
   <extend-property name="locale" values="es_ES" />

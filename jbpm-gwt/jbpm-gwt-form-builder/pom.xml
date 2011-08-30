@@ -82,6 +82,21 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.gwtmosaic</groupId>
+      <artifactId>gwt-mosaic</artifactId>
+      <version>0.4.0-rc4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.gwtmosaic</groupId>
+      <artifactId>gwt-beans-binding</artifactId>
+      <version>0.4.0-rc4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gwtx</groupId>
+      <artifactId>gwtx</artifactId>
+      <version>1.5.3</version>
+    </dependency>
+    <dependency>
       <groupId>org.drools</groupId>
       <artifactId>droolsjbpm-ide-common</artifactId>
     </dependency>

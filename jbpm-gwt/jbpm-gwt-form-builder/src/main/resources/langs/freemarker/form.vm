@@ -1,4 +1,14 @@
 <html>
+  <head>
+    <style type="text/css">
+        body {
+            color: #000000;
+            background-color: #FFFFFF;
+            position: static;
+        }
+    </style>
+</head>
+  </head>
   <body>
     #set ($invokeOnLoad = "")
     #foreach ($script in $item.onLoadScripts)

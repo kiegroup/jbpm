@@ -1,5 +1,4 @@
 /**
-
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +14,6 @@
  * limitations under the License.
  */
 package org.jbpm.formbuilder.client;
-
-import org.jbpm.formbuilder.client.edition.EditionViewImpl;
-import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
-import org.jbpm.formbuilder.client.menu.MenuViewImpl;
-import org.jbpm.formbuilder.client.notification.NotificationsViewImpl;
-import org.jbpm.formbuilder.client.options.OptionsViewImpl;
-import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
-import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -69,37 +60,37 @@ public class FormBuilderView extends AbsolutePanel {
             ioAssociationView != null && notificationsView != null;
     }
 
-    public void setMenuView(MenuViewImpl menuView) {
+    public void setMenuView(ScrollPanel menuView) {
         this.menuView = menuView;
         checkBinding();
     }
     
-    public void setEditionView(EditionViewImpl editionView) {
+    public void setEditionView(ScrollPanel editionView) {
         this.editionView = editionView;
         checkBinding();
     }
 
-    public void setLayoutView(LayoutViewImpl layoutView) {
+    public void setLayoutView(ScrollPanel layoutView) {
         this.layoutView = layoutView;
         checkBinding();
     }
     
-    public void setOptionsView(OptionsViewImpl optionsView) {
+    public void setOptionsView(SimplePanel optionsView) {
         this.optionsView = optionsView;
         checkBinding();
     }
     
-    public void setIoAssociationView(IoAssociationViewImpl ioAssociationView) {
+    public void setIoAssociationView(AbsolutePanel ioAssociationView) {
         this.ioAssociationView = ioAssociationView;
         checkBinding();
     }
     
-    public void setToolBarView(ToolBarViewImpl toolBarView) {
+    public void setToolBarView(AbsolutePanel toolBarView) {
         this.toolBarView = toolBarView;
         checkBinding();
     }
     
-    public void setNotificationsView(NotificationsViewImpl notificationsView) {
+    public void setNotificationsView(FocusPanel notificationsView) {
         this.notificationsView = notificationsView;
         checkBinding();
     }

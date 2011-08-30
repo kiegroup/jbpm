@@ -225,7 +225,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
     }
 
     @Override
-    public void generateForm(FormRepresentation form, String language,
+    public void generateForm(FormRepresentation form, final String language,
             Map<String, Object> inputs) {
         Resource resource = new Resource(URLBuilder.generateFormURL(this.contextPath, language));
         try {
@@ -234,7 +234,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
                 xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntPreviewForm()) {
                 @Override
                 public void onSuccess(Method method, String urlResponse) {
-                    bus.fireEvent(new PreviewFormResponseEvent(urlResponse));
+                    bus.fireEvent(new PreviewFormResponseEvent(urlResponse, language));
                 }
             });
         } catch (FormEncodingException e) {

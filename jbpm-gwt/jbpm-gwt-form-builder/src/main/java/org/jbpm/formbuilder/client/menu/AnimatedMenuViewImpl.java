@@ -15,30 +15,30 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.gwt.mosaic.ui.client.layout.BoxLayout;
+
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.StackPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-/**
- * menu view. Displays the menu items accordion
- */
-public class MenuViewImpl extends ScrollPanel implements MenuView {
+public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
 
-    private Map<String, FBMenuGroupPanel> accordion = new HashMap<String, FBMenuGroupPanel>();
-    
-    private VerticalPanel panel = new VerticalPanel();
     private PickupDragController dragController;
     
-    public MenuViewImpl() {
-        setSize("100%", "100%");
-        panel.setSize("100%", "100%");
-        panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+    private Map<String, List<FBMenuItem>> items = new HashMap<String, List<FBMenuItem>>();
+    private Map<String, VerticalPanel> displays = new HashMap<String, VerticalPanel>();
+    
+    private StackPanel panel = new StackPanel();
+    
+    public AnimatedMenuViewImpl() {
+        setLayoutData(new BoxLayout(BoxLayout.Orientation.VERTICAL));
         add(panel);
-        
         new MenuPresenter(this);
     }
     
@@ -46,27 +46,31 @@ public class MenuViewImpl extends ScrollPanel implements MenuView {
     public void setDragController(PickupDragController dragController) {
         this.dragController = dragController;
     }
-    
+
     @Override
     public void addItem(String group, FBMenuItem item) {
-        if (accordion.get(group) == null) {
-            FBMenuPanel menuPanel = new FBMenuPanel(this.dragController);
-            FBMenuGroupPanel groupPanel = new FBMenuGroupPanel(group, menuPanel);
-            accordion.put(group, groupPanel);
-            panel.add(groupPanel);
+        if (items.get(group) == null) {
+            items.put(group, new ArrayList<FBMenuItem>());
+            VerticalPanel listDisplay = new VerticalPanel();
+            panel.add(listDisplay, group);
+            displays.put(group, listDisplay);
         }
-        accordion.get(group).add(item);
+        this.dragController.makeDraggable(item);
+        this.displays.get(group).add(item);
+        this.items.get(group).add(item);
     }
 
     @Override
     public void removeItem(String group, FBMenuItem item) {
-        if (accordion.get(group) != null) {
-            FBMenuGroupPanel groupPanel = accordion.get(group);
-            groupPanel.remove(item);
-            if (!groupPanel.hasWidgets()) {
-                accordion.remove(groupPanel);
-                panel.remove(groupPanel);
+        List<FBMenuItem> groupItems = items.get(group);
+        if (groupItems != null) {
+            groupItems.remove(item);
+            VerticalPanel display = displays.get(group);
+            display.remove(item);
+            if (groupItems.isEmpty()) {
+                panel.remove(display);
             }
         }
     }
+
 }
