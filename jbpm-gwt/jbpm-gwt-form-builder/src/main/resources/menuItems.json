@@ -1,6 +1,8 @@
 {   "Layout Components": [ 
         {   "className": "org.jbpm.formbuilder.client.menu.items.TabbedLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -10,11 +12,15 @@
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveTabFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.AddTabFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.HorizontalLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -28,7 +34,9 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.BorderLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -42,7 +50,9 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.CSSLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -56,7 +66,9 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.FlowLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -70,7 +82,9 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.TableLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -80,11 +94,17 @@
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.AddRowFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.AddColumnFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveRowFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveColumnFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.AbsoluteLayoutMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -100,7 +120,10 @@
      ],
      "Control Components": [
         {   "className": "org.jbpm.formbuilder.client.menu.items.ComboBoxMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus", 
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup", 
+                "onkeydown", "onkeypress", "onkeyup" 
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -118,7 +141,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -134,7 +160,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.PasswordFieldMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -150,7 +179,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -168,7 +200,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.TextAreaMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -184,7 +219,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.HiddenMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -200,7 +238,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.FileInputMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -216,7 +257,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.CheckBoxMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -232,7 +276,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.RadioButtonMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", onselect"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -250,7 +297,9 @@
      ],
      "Visual Components": [
         {   "className": "org.jbpm.formbuilder.client.menu.items.HeaderMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -266,7 +315,9 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.LabelMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -283,7 +334,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.ImageMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onabort", "onclick", "ondblclick", 
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover",
+                "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -298,7 +352,10 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.HTMLMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onabort", "onclick", "ondblclick", 
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover",
+                "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -312,7 +369,7 @@
             ]
         },
         {   "className": "org.jbpm.formbuilder.client.menu.items.LineGraphMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "onfocus", "onblur" ],
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -328,7 +385,7 @@
      ],
      "Server Components": [
      	{	"className": "org.jbpm.formbuilder.client.menu.items.LoopBlockMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ ],
      		"effects": [
      			{ "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
      			{ "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -342,7 +399,7 @@
      		]
      	},
      	{	"className": "org.jbpm.formbuilder.client.menu.items.ConditionalBlockMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ ],
      		"effects": [
      			{ "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
      			{ "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -356,7 +413,7 @@
      		]
      	},
      	{	"className": "org.jbpm.formbuilder.client.menu.items.ServerTransformationMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ ],
      		"effects": [
      			{ "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
      			{ "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
@@ -372,7 +429,9 @@
      ],
      "My Components": [
      	{   "className": "org.jbpm.formbuilder.client.menu.items.CustomMenuItem",
-            "allowedEvents": [ "onclick", "onchange", "onfocus", "onblur" ],
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
      		"name": "Login template",
             "effects": [
                 { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
@@ -382,9 +441,12 @@
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.I18NFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
-                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
+                { "className": "org.jbpm.formbuilder.client.effect.AddRowFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.AddColumnFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveRowFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveColumnFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ],
             "itemRepresentation": {
 	            "width": "100%",
@@ -445,3 +507,4 @@
         }
      ]
  }
+ 
