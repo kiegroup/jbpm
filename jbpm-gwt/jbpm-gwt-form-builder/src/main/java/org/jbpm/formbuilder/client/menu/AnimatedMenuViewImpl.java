@@ -38,6 +38,7 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
     
     public AnimatedMenuViewImpl() {
         setLayoutData(new BoxLayout(BoxLayout.Orientation.VERTICAL));
+        
         add(panel);
         new MenuPresenter(this);
     }
