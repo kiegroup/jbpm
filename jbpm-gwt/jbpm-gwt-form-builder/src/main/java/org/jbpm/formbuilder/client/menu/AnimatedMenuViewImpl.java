@@ -21,25 +21,30 @@ import java.util.List;
 import java.util.Map;
 
 import org.gwt.mosaic.ui.client.layout.BoxLayout;
+import org.gwt.mosaic.ui.client.layout.BoxLayoutData;
+import org.gwt.mosaic.ui.client.layout.LayoutPanel;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.StackPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
 
     private PickupDragController dragController;
     
     private Map<String, List<FBMenuItem>> items = new HashMap<String, List<FBMenuItem>>();
-    private Map<String, VerticalPanel> displays = new HashMap<String, VerticalPanel>();
+    private Map<String, FBMenuPanel> displays = new HashMap<String, FBMenuPanel>();
     
     private StackPanel panel = new StackPanel();
     
     public AnimatedMenuViewImpl() {
-        setLayoutData(new BoxLayout(BoxLayout.Orientation.VERTICAL));
+        LayoutPanel layoutPanel = new LayoutPanel(new BoxLayout(BoxLayout.Orientation.VERTICAL));
+        layoutPanel.setLayoutData(new BoxLayoutData(BoxLayoutData.FillStyle.BOTH));
+        layoutPanel.setAnimationEnabled(true);
+        panel.setStylePrimaryName("fbStackPanel");
+        layoutPanel.add(panel);
+        add(layoutPanel);
         
-        add(panel);
         new MenuPresenter(this);
     }
     
@@ -52,11 +57,10 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
     public void addItem(String group, FBMenuItem item) {
         if (items.get(group) == null) {
             items.put(group, new ArrayList<FBMenuItem>());
-            VerticalPanel listDisplay = new VerticalPanel();
+            FBMenuPanel listDisplay = new FBMenuPanel(dragController);
             panel.add(listDisplay, group);
             displays.put(group, listDisplay);
         }
-        this.dragController.makeDraggable(item);
         this.displays.get(group).add(item);
         this.items.get(group).add(item);
     }
@@ -66,8 +70,8 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
         List<FBMenuItem> groupItems = items.get(group);
         if (groupItems != null) {
             groupItems.remove(item);
-            VerticalPanel display = displays.get(group);
-            display.remove(item);
+            FBMenuPanel display = displays.get(group);
+            display.fullRemove(item);
             if (groupItems.isEmpty()) {
                 panel.remove(display);
             }

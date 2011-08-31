@@ -158,15 +158,18 @@
   background: #bcbcbc;
 }
 
-.gwt-StackPanel .gwt-StackPanelItem {
-  border-style:solid solid none;
-  cursor:pointer;
-  font-size:10pt;
-  width: 100%;
-  font-weight:bold;
+.fbStackPanel .gwt-StackPanelItem {
+    background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+    border-color:#BBBBBB #BBBBBB -moz-use-text-color;
+    border-style:solid solid none;
+    border-width:1px 1px 0;
+    cursor:pointer;
+    font-size:10pt;
+    font-weight:bold;
+    padding:3px;
 }
 
-.gwt-StackPanel {
+.fbStackPanel {
   border-bottom:1px solid #BBBBBB;
   width:100%;
 }

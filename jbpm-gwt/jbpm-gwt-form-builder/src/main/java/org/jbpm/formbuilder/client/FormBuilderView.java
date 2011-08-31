@@ -19,7 +19,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -41,7 +41,7 @@ public class FormBuilderView extends AbsolutePanel {
     @UiField(provided=true) ScrollPanel layoutView;
     @UiField(provided=true) AbsolutePanel toolBarView;
     @UiField(provided=true) AbsolutePanel ioAssociationView;
-    @UiField(provided=true) FocusPanel notificationsView;
+    @UiField(provided=true) Panel notificationsView;
 
     protected final void checkBinding() {
         if (timeToBind()) {
@@ -90,7 +90,7 @@ public class FormBuilderView extends AbsolutePanel {
         checkBinding();
     }
     
-    public void setNotificationsView(FocusPanel notificationsView) {
+    public void setNotificationsView(Panel notificationsView) {
         this.notificationsView = notificationsView;
         checkBinding();
     }

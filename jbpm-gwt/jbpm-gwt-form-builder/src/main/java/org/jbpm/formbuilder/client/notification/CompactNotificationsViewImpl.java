@@ -20,56 +20,51 @@ import java.util.Collection;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.UmbrellaException;
-import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-/**
- * Notifications view. Shows a list of messages with color
- */
-public class NotificationsViewImpl extends FocusPanel implements NotificationsView {
+public class CompactNotificationsViewImpl extends SimplePanel implements NotificationsView {
 
-    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     
-    private VerticalPanel panel = new VerticalPanel();
-    private ScrollPanel scroll = new ScrollPanel(panel);
+    private final VerticalPanel panel = new VerticalPanel();
+    private final ScrollPanel scroll = new ScrollPanel(panel);
     
-    private String currentHeight;
-    private String savedHeight;
-    
-    public NotificationsViewImpl() {
-        setSize("100%", "60px");
-        scroll.setSize("100%", "60px");
-        scroll.addStyleName("notificationsView");
-        add(scroll);
-        panel.add(new HTML("<strong>" + i18n.Notifications() + "</strong>"));
+    public CompactNotificationsViewImpl() {
+        Button show = new Button();
+        DOM.setStyleAttribute(show.getElement(), "align", "left");
+        DOM.setStyleAttribute(show.getElement(), "textAlign", "left");
+        show.setWidth("100%");
+        show.setStylePrimaryName("fbStackPanel");
+        show.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                scroll.setVisible(!scroll.isVisible());
+            }
+        });
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
+        scroll.addStyleName("notificationsView");
+        scroll.setSize("100%", "200px");
         
-        addFocusHandler(new FocusHandler() {
-            @Override
-            public void onFocus(FocusEvent event) {
-                saveHeight();
-                setHeight("300px");
-            }
-        });
-        
-        addBlurHandler(new BlurHandler() {
-            @Override
-            public void onBlur(BlurEvent event) {
-                setHeight(getSavedHeight());
-            }
-        });
+        VerticalPanel vPanel = new VerticalPanel();
+        vPanel.setWidth("100%");
+        show.setHTML("<strong>" + i18n.Notifications() + "</strong>");
+        scroll.setVisible(false);
+        vPanel.add(show);
+        vPanel.add(scroll);
+        setWidget(vPanel);
         
         new NotificationsPresenter(this);
     }
-
+    
     @Override
     public String getColorCss(String name) {
         String colorCss = "greenNotification";
@@ -107,6 +102,9 @@ public class NotificationsViewImpl extends FocusPanel implements NotificationsVi
         }
         html.setHTML(msg.toString());
         panel.add(html);
+        if (!scroll.isVisible()) {
+            scroll.setVisible(true);
+        }
     }
 
     private String stringStackTrace(Throwable error) {
@@ -121,20 +119,5 @@ public class NotificationsViewImpl extends FocusPanel implements NotificationsVi
                 append("<br/>");
         }
         return msg.toString();
-    }
-    
-    public String getSavedHeight() {
-        return savedHeight;
-    }
-    
-    @Override
-    public void setHeight(String height) {
-        super.setHeight(height);
-        scroll.setHeight(height);
-        this.currentHeight = height;
-    }
-    
-    public void saveHeight() {
-        this.savedHeight = this.currentHeight;
     }
 }

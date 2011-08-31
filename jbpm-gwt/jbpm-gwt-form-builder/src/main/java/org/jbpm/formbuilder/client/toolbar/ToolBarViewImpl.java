@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.toolbar;
 
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -34,7 +35,7 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
     
     public ToolBarViewImpl() {
         setSize("100%", "100%");
-        hPanel.setSize("100%", "100%");
+        hPanel.setSize("100%", "10px");
         hPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         add(hPanel);
         
@@ -45,14 +46,22 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
     public ToolRegistration addButton(ImageResource imgRes, String name, ClickHandler handler) {
         final Button button = new Button();
         Image image = new Image(imgRes);
+        button.getElement().getStyle().setMargin(0, Unit.PX);
+        button.getElement().getStyle().setPadding(0, Unit.PX);
+        button.setTitle(name);
+        button.setSize("29px", "25px");
+        image.getElement().getStyle().setMargin(0, Unit.PX);
+        image.getElement().getStyle().setPadding(0, Unit.PX);
         image.setAltText(name);
         image.setTitle(name);
         button.setHTML(new SafeHtmlBuilder().appendHtmlConstant(image.toString()).toSafeHtml());
         button.addClickHandler(handler);
         hPanel.add(button);
+        hPanel.setPixelSize(hPanel.getOffsetWidth() + 34, hPanel.getOffsetHeight());
         return new ToolRegistration() {
             @Override
             public void remove() {
+                hPanel.setPixelSize(hPanel.getOffsetWidth() - 34, hPanel.getOffsetHeight());
                 hPanel.remove(button);
             }
         };
@@ -63,9 +72,11 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
         if (value != null && !"".equals(value)) {
             final HTML label = new HTML("<strong>" + name + ":</strong> " + value);
             hPanel.add(label);
+            hPanel.setPixelSize(hPanel.getOffsetWidth() + label.getOffsetWidth() + 5, hPanel.getOffsetHeight());
             return new ToolRegistration() {
                 @Override
                 public void remove() {
+                    hPanel.setPixelSize(hPanel.getOffsetWidth() - label.getOffsetWidth() - 5, hPanel.getOffsetHeight());
                     hPanel.remove(label);
                 }
             };

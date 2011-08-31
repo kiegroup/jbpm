@@ -86,7 +86,9 @@ public class ToolBarPresenter {
         bus.addHandler(EmbededIOReferenceEvent.TYPE, new EmbededIOReferenceHandler() {
             @Override
             public void onEvent(EmbededIOReferenceEvent event) {
-                saveRef.remove();
+                if (event.getProfileName() != null) {
+                    saveRef.remove();
+                }
             }
         });
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {

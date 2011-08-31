@@ -33,7 +33,7 @@ import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
 import org.jbpm.formbuilder.client.menu.AnimatedMenuViewImpl;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.notification.NotificationsViewImpl;
+import org.jbpm.formbuilder.client.notification.CompactNotificationsViewImpl;
 import org.jbpm.formbuilder.client.options.OptionsViewImpl;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
@@ -90,7 +90,7 @@ public class FormBuilderController {
         this.formExporter = new FormExporter();
         this.formExporter.start();
         
-        view.setNotificationsView(new NotificationsViewImpl());
+        view.setNotificationsView(new CompactNotificationsViewImpl());
         view.setMenuView(new AnimatedMenuViewImpl());
         model.getMenuItems();
         view.setEditionView(new EditionViewImpl());
