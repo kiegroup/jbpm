@@ -27,6 +27,7 @@ import org.gwt.mosaic.ui.client.layout.LayoutPanel;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.StackPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
 
@@ -35,7 +36,16 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
     private Map<String, List<FBMenuItem>> items = new HashMap<String, List<FBMenuItem>>();
     private Map<String, FBMenuPanel> displays = new HashMap<String, FBMenuPanel>();
     
-    private StackPanel panel = new StackPanel();
+    private StackPanel panel = new StackPanel() {
+        @Override
+        public void showStack(int index) {
+            super.showStack(index);
+            FBMenuPanel panel = (FBMenuPanel) getWidget(index);
+            for (Widget widget : panel) {
+                dragController.makeDraggable(widget);
+            }
+        };
+    };
     
     public AnimatedMenuViewImpl() {
         LayoutPanel layoutPanel = new LayoutPanel(new BoxLayout(BoxLayout.Orientation.VERTICAL));
@@ -71,7 +81,7 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
         if (groupItems != null) {
             groupItems.remove(item);
             FBMenuPanel display = displays.get(group);
-            display.fullRemove(item);
+            display.remove(item);
             if (groupItems.isEmpty()) {
                 panel.remove(display);
             }

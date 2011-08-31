@@ -174,11 +174,13 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
     
     @Override
     public void saveI18nMap(Map<String, String> i18nMap) {
-        String defaultI18n = i18nMap.get("default");
-        if (defaultI18n != null && !"".equals(defaultI18n)) {
-            this.label.setText(defaultI18n);
+        if (i18nMap != null) {
+            String defaultI18n = i18nMap.get("default");
+            if (defaultI18n != null && !"".equals(defaultI18n)) {
+                this.label.setText(defaultI18n);
+            }
+            utils.saveI18nMap(i18nMap);
         }
-        utils.saveI18nMap(i18nMap);
     }
     
     @Override

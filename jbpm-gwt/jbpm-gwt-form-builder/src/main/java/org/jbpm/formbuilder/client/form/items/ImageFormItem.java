@@ -165,12 +165,14 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem {
     
     @Override
     public void saveI18nMap(Map<String, String> i18nMap) {
-        String defaultI18n = i18nMap.get("default");
-        if (defaultI18n != null && !"".equals(defaultI18n)) {
-            this.altText = defaultI18n;
+        if (i18nMap != null) {
+            String defaultI18n = i18nMap.get("default");
+            if (defaultI18n != null && !"".equals(defaultI18n)) {
+                this.altText = defaultI18n;
+            }
+    
+            utils.saveI18nMap(i18nMap);
         }
-
-        utils.saveI18nMap(i18nMap);
     }
     
     @Override

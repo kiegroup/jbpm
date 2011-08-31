@@ -183,11 +183,13 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
     
     @Override
     public void saveI18nMap(Map<String, String> i18nMap) {
-        String defaultI18n = i18nMap.get("default");
-        if (defaultI18n != null && !"".equals(defaultI18n)) {
-            this.header.setHTML("<h1>" + defaultI18n + "</h1>");
+        if (i18nMap != null) {
+            String defaultI18n = i18nMap.get("default");
+            if (defaultI18n != null && !"".equals(defaultI18n)) {
+                this.header.setHTML("<h1>" + defaultI18n + "</h1>");
+            }
+            utils.saveI18nMap(i18nMap);
         }
-        utils.saveI18nMap(i18nMap);
     }
     
     @Override

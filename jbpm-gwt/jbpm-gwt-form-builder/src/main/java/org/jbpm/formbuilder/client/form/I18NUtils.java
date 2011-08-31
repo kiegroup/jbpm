@@ -31,7 +31,9 @@ public class I18NUtils implements I18NFormItem {
     @Override
     public void saveI18nMap(Map<String, String> i18nMap) {
         this.i18nMap.clear();
-        this.i18nMap.putAll(i18nMap);
+        if (i18nMap != null) {
+            this.i18nMap.putAll(i18nMap);
+        }
     }
 
     @Override

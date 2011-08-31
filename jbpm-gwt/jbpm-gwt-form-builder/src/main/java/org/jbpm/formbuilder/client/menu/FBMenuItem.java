@@ -78,6 +78,10 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     
     @Override
     public Widget getDragHandle() {
+        if (!shim.isAttached() && isAttached()) {
+            shim.setPixelSize(getOffsetWidth(), getOffsetHeight());
+            add(shim, 0, 0);
+        }
         return shim;
     }
     
@@ -111,10 +115,16 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
     @Override
     protected void onLoad() {
       super.onLoad();
-      shim.setPixelSize(getOffsetWidth(), getOffsetHeight());
+      int height = getOffsetHeight();
+      int width = getOffsetWidth();
+      if (height == 0 && width == 0) {
+          height = 18;
+          width = 210;
+      }
+      shim.setPixelSize(width, height);
       add(shim, 0, 0);
     }
-
+    
     /**
      * Remove the shim to allow the widget to size itself when reattached.
      */
@@ -123,7 +133,7 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
       super.onUnload();
       shim.removeFromParent();
     }
-
+    
     public void addEffect(FBFormEffect effect) {
         this.formEffects.add(effect);
     }
