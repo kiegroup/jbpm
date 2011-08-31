@@ -88,6 +88,8 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         List<String> textfieldEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.TextFieldMenuItem");
         List<String> completeButtonEffects = this.effectsForItem.get("org.jbpm.formbuilder.client.menu.items.CompleteButtonMenuItem");
         FormRepresentation form = new FormRepresentation();
+        form.setInputs(toInputDataMap(task.getInputs()));
+        form.setOutputs(toOutputDataMap(task.getOutputs()));
         if (task.getTaskId() != null) {
             HeaderRepresentation header = new HeaderRepresentation();
             header.setValue("Task: " + task.getTaskId());
@@ -182,5 +184,25 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         form.setProcessName(task.getProcessId());
         form.setTaskId(task.getTaskId());
         return form;
+    }
+    
+    protected Map<String, InputData> toInputDataMap(List<TaskPropertyRef> inputs) {
+        Map<String, InputData> retval = new HashMap<String, InputData>();
+        for (TaskPropertyRef ref : inputs) {
+            InputData in = new InputData();
+            in.setName(ref.getName());
+            retval.put(ref.getName(), in);
+        }
+        return retval;
+    }
+    
+    protected Map<String, OutputData> toOutputDataMap(List<TaskPropertyRef> outputs) {
+        Map<String, OutputData> retval = new HashMap<String, OutputData>();
+        for (TaskPropertyRef ref : outputs) {
+            OutputData out = new OutputData();
+            out.setName(ref.getName());
+            retval.put(ref.getName(), out);
+        }
+        return retval;
     }
 }
