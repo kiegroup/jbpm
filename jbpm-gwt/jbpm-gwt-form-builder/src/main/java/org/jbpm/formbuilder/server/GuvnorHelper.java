@@ -98,12 +98,6 @@ public class GuvnorHelper {
         return basic;
     }
     
-    public String getApiUrl(String pkgName) {
-        return new StringBuilder(this.baseUrl).
-            append("/org.drools.guvnor.Guvnor/api/package/").
-            append(pkgName).append("/").toString();
-    }
-
     public String getApiSearchUrl(String pkgName) {
         return new StringBuilder(this.baseUrl).
             append("/org.drools.guvnor.Guvnor/api/packages/").

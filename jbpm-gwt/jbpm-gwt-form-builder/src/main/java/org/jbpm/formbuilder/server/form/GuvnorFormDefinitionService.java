@@ -64,7 +64,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         HttpClient client = new HttpClient();
         EntityEnclosingMethod method = null;
         String url = helper.getApiSearchUrl(pkgName);
-        boolean isUpdate = updateFormName(form);
+        boolean isUpdate = getForm(pkgName, form.getName()) != null;
         String finalUrl = url + form.getName() + ".formdef";
         method = isUpdate ? new PutMethod(finalUrl) : new PostMethod(finalUrl); 
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
@@ -114,7 +114,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public FormRepresentation getForm(String pkgName, String formId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formId != null && !"".equals(formId)) {
-            GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + formId + ".formdef");
+            GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName) + formId + ".formdef");
             FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
@@ -194,7 +194,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formItemId != null && !"".equals(formItemId)) {
-            GetMethod method = new GetMethod(helper.getApiUrl(pkgName) + formItemId + ".json");
+            GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName) + formItemId + ".json");
             FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
@@ -215,7 +215,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     @Override
     public Map<String, FormItemRepresentation> getFormItems(String pkgName) throws FormServiceException {
         HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(helper.getApiUrl(pkgName));
+        GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName));
         try {
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -240,7 +240,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     @Override
     public List<FormRepresentation> getForms(String pkgName) throws FormServiceException {
         HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(helper.getApiUrl(pkgName));
+        GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName));
         try {
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -266,7 +266,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public void deleteForm(String pkgName, String formId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formId != null && !"".equals(formId)) {
-            DeleteMethod method = new DeleteMethod(helper.getApiUrl(pkgName) + formId);
+            DeleteMethod method = new DeleteMethod(helper.getApiSearchUrl(pkgName) + formId);
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);
@@ -282,7 +282,7 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public void deleteFormItem(String pkgName, String formItemId) throws FormServiceException {
         HttpClient client = new HttpClient();
         if (formItemId != null && !"".equals(formItemId)) {
-            DeleteMethod method = new DeleteMethod(helper.getApiUrl(pkgName) + formItemId);
+            DeleteMethod method = new DeleteMethod(helper.getApiSearchUrl(pkgName) + formItemId);
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);

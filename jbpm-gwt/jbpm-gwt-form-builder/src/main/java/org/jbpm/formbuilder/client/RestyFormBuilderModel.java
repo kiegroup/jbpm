@@ -419,6 +419,9 @@ public class RestyFormBuilderModel implements FormBuilderService {
                 effectClassNames.add(effect.getClass().getName());
             }
         }
+        if (item.getAllowedEvents() != null) {
+            mockFormService.putActionsForItem(className, item.getAllowedEvents());
+        }
         mockFormService.putEffectsForItem(className, effectClassNames);
     }
 }

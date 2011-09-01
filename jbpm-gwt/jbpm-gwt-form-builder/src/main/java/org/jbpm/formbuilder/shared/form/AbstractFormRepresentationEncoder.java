@@ -207,7 +207,14 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
     private String jsonFromValue(Object obj) {
         StringBuilder builder = new StringBuilder();
         if (obj instanceof String) {
-            builder.append("\"").append(obj).append("\"");
+            StringBuilder string = new StringBuilder();
+            for (int index = 0; index < obj.toString().length(); index++) {
+                if (obj.toString().charAt(index) == '\"') {
+                    string.append('\\');
+                }
+                string.append(obj.toString().charAt(index));
+            }
+            builder.append("\"").append(string).append("\"");
         } else if (obj instanceof Date) {
             builder.append("\"").append(formatDate((Date) obj)).append("\"");
         } else {
