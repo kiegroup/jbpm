@@ -245,4 +245,6 @@ public interface I18NConstants extends Messages {
     String AddButton();
     String RemoveButton();
     String SelectValidationFirstWarning();
+    String UndoButton();
+    String RedoButton();
 }

@@ -26,6 +26,7 @@ import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.command.LoadFormCommand;
 import org.jbpm.formbuilder.client.command.SaveFormCommand;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
+import org.jbpm.formbuilder.client.options.UndoRedoManager;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.ConfirmDialog;
@@ -45,6 +46,7 @@ public class ToolBarPresenter {
     private final ToolBarView view;
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final UndoRedoManager mgr = UndoRedoManager.getInstance();
 
     private final ToolRegistration saveRef;
     
@@ -61,6 +63,18 @@ public class ToolBarPresenter {
             @Override
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(LOAD_TYPE));
+            }
+        });
+        this.view.addButton(FormBuilderResources.INSTANCE.undoButton(), i18n.UndoButton(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                mgr.undo();
+            }
+        });
+        this.view.addButton(FormBuilderResources.INSTANCE.redoButton(), i18n.RedoButton(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                mgr.redo();
             }
         });
         

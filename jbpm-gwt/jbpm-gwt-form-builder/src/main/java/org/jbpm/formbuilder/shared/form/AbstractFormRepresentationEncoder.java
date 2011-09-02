@@ -214,7 +214,7 @@ public abstract class AbstractFormRepresentationEncoder implements FormRepresent
                 }
                 string.append(obj.toString().charAt(index));
             }
-            builder.append("\"").append(string).append("\"");
+            builder.append("\"").append(string.toString()).append("\"");
         } else if (obj instanceof Date) {
             builder.append("\"").append(formatDate((Date) obj)).append("\"");
         } else {

@@ -51,7 +51,9 @@ public class IoAssociationViewImpl extends AbsolutePanel implements IoAssociatio
         panel.add(new Label(i18n.SearchIOAssociations()));
         panel.add(filterView);
         panel.add(resultsView);
-        add(new ScrollPanel(panel));
+        ScrollPanel scroll = new ScrollPanel(panel);
+        scroll.setSize("99%", "99%");
+        add(scroll);
     }
     
     @Override

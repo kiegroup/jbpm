@@ -39,8 +39,8 @@ public class FormBuilderView extends AbsolutePanel {
     @UiField(provided=true) ScrollPanel menuView;
     @UiField(provided=true) ScrollPanel editionView;
     @UiField(provided=true) ScrollPanel layoutView;
-    @UiField(provided=true) AbsolutePanel toolBarView;
-    @UiField(provided=true) AbsolutePanel ioAssociationView;
+    @UiField(provided=true) Panel toolBarView;
+    @UiField(provided=true) Panel ioAssociationView;
     @UiField(provided=true) Panel notificationsView;
 
     protected final void checkBinding() {
@@ -80,12 +80,12 @@ public class FormBuilderView extends AbsolutePanel {
         checkBinding();
     }
     
-    public void setIoAssociationView(AbsolutePanel ioAssociationView) {
+    public void setIoAssociationView(Panel ioAssociationView) {
         this.ioAssociationView = ioAssociationView;
         checkBinding();
     }
     
-    public void setToolBarView(AbsolutePanel toolBarView) {
+    public void setToolBarView(Panel toolBarView) {
         this.toolBarView = toolBarView;
         checkBinding();
     }

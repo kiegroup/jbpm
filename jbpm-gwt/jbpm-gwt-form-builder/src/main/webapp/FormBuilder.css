@@ -110,23 +110,26 @@
     background-color: #BBBBBB;
 }
 .mainWrapper {
-    background-color: #EFEFEF;
+    color: #000000;
 }
 .notificationsView DIV {
     width: 100%;
     background-color: #EFEFEF;
 }
 .toolBarViewWrapper {
-    background-color: #E3E3E3;
-    border-bottom: 1px solid #BBBBBB;
+    background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+    border: 1px solid grey;
+    border-bottom: none;
+    border-left: none;
 }
 .layoutViewWrapper {
     border: 1px solid grey;
+    border-bottom: none;
+    border-left: none;
 }
 .toolViewWrapper {
     border: 1px solid grey;
-    background-color: #E3E3E3;
-    border-bottom: 1px solid #BBBBBB;
+    border-top: none;
 }
 .toolView {
 }
@@ -136,26 +139,36 @@
 .toolView .gwt-TabLayoutPanelContent {
   border-color: #bcbcbc;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   overflow: hidden;
   padding: 6px;
 }
 
 .toolView .gwt-TabLayoutPanelTab {
-  margin-left: 2px;
-  padding: 3px 5px 3px 5px;
+  background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+  border-color:#BBBBBB #BBBBBB -moz-use-text-color;
+  border-style:solid solid none;
+  border-width:1px 1px 0;
   cursor: pointer;
   cursor: hand;
-  color: black;
+  margin-left: 2px;
+  padding: 3px 5px 3px 5px;
+  color: grey;
   font-weight: bold;
   text-align: center;
-  background: #e3e3e3;
-  border: 1px solid gray;
 }
 
 .toolView .gwt-TabLayoutPanelTab-selected {
+  background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+  border-color:#BBBBBB #BBBBBB -moz-use-text-color;
+  border-style:solid solid none;
+  border-width:1px 1px 0;
   cursor: default;
-  background: #bcbcbc;
+  margin-left: 2px;
+  padding: 3px 5px 3px 5px;
+  color: black;
+  font-weight: bold;
+  text-align: center;
 }
 
 .fbStackPanel .gwt-StackPanelItem {
@@ -169,7 +182,20 @@
     padding:3px;
 }
 
+.fbStackPanel .gwt-StackPanelContent {
+    background-color: #FFFFFF;
+}
+
 .fbStackPanel {
   border-bottom:1px solid #BBBBBB;
   width:100%;
+  height: 100%;
+}
+
+.backgroundWrapper {
+    background-image: url(images/header_background.png);
+    background-repeat: repeat-x;
+    background-color: #edf0f4; 
+    height: 99%;
+    width: 99%;
 }

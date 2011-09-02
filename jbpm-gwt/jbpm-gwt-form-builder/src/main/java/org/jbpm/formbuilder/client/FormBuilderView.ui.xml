@@ -2,12 +2,12 @@
 
   <g:HTMLPanel height="100%" width="100%" stylePrimaryName="backgroundWrapper">
     <table cellpadding="0" cellspacing="0" border="0" class="mainWrapper">
-      <tr height="30">
-        <td colspan="2"><g:SimplePanel height="30px" width="100%" ui:field="optionsView"/></td>
+      <tr height="25">
+        <td colspan="2"><g:SimplePanel height="25px" width="100%" ui:field="optionsView"/></td>
       </tr>
       <tr height="400">
         <td width="230" class="toolViewWrapper">
-          <g:TabLayoutPanel width="230px" height="400px" barHeight="30" barUnit="PX" stylePrimaryName="toolView">
+          <g:TabLayoutPanel width="230px" height="400px" barHeight="25" barUnit="PX" stylePrimaryName="toolView">
             <g:tab selected="true">
               <g:header>Menu</g:header>
               <g:ScrollPanel height="360px" width="220px" ui:field="menuView"/>
@@ -22,15 +22,15 @@
             </g:tab>
             <g:tab>
               <g:header>IO Data</g:header>
-              <g:AbsolutePanel height="100%" width="220px" ui:field="ioAssociationView"/>
+              <g:Panel height="100%" width="220px" ui:field="ioAssociationView"/>
             </g:tab>
           </g:TabLayoutPanel>
         </td>
         <td width="760">
-          <table>
+          <table cellpadding="0" cellspacing="0">
             <tr>
               <td height="25" width="760" class="toolBarViewWrapper">
-                <g:AbsolutePanel height="25px" width="760px" ui:field="toolBarView"/>
+                <g:Panel height="25px" width="760px" ui:field="toolBarView"/>
               </td>
             </tr>
             <tr>

@@ -69,7 +69,6 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
     public ConditionalBlockFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         display.setBorderWidth(1);
-        display.add(null);
         display.setStyleName("conditionalBlockBorder");
         display.setSize("100%", "50px");
         add(display);
@@ -145,10 +144,10 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
          && y > ifDisplay.getAbsoluteTop() && y < ifDisplay.getAbsoluteBottom()) {
             display.setWidget(0, 0, phantom);
         }
-        Element elseDisplay = display.getCellFormatter().getElement(0, 1);
+        Element elseDisplay = display.getCellFormatter().getElement(1, 0);
         if (x > elseDisplay.getAbsoluteLeft() && x < elseDisplay.getAbsoluteRight() 
          && y > elseDisplay.getAbsoluteTop() && y < elseDisplay.getAbsoluteBottom()) {
-            display.setWidget(0, 1, phantom);
+            display.setWidget(1, 0, phantom);
         }
     }
     
@@ -163,11 +162,11 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
             retval = true;
         } else if (ifBlock != null && elseBlock == null) {
             elseBlock = item;
-            display.setWidget(0, 1, item);
+            display.setWidget(1, 0, item);
             retval = true;
         } else if (ifBlock == null && elseBlock != null) {
             ifBlock = item;
-            display.setWidget(0, 1, item);
+            display.setWidget(1, 0, item);
             retval = true;
         }
         return retval;
@@ -178,9 +177,9 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
         if (display.getWidget(0, 0) != null && display.getWidget(0, 0) instanceof PhantomPanel) {
             ifBlock = item;
             display.setWidget(0, 0, item);
-        } else if (display.getWidget(0, 1) != null && display.getWidget(0, 1) instanceof PhantomPanel) {
+        } else if (display.getWidget(1, 0) != null && display.getWidget(1, 0) instanceof PhantomPanel) {
             elseBlock = item;
-            display.setWidget(0, 1, item);
+            display.setWidget(1, 0, item);
         }
     }
 }

@@ -121,4 +121,10 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/remove_small_icon.png")
     ImageResource removeSmallIcon();
+
+    @Source("images/undo_button.png")
+    ImageResource undoButton();
+    
+    @Source("images/redo_button.png")
+    ImageResource redoButton();
 }
