@@ -156,12 +156,12 @@ public interface I18NConstants extends Messages {
     String RepNotOfType(String repClass, String expectedClass);
     String EditionPropertyName();
     String EditionPropertyValue();
-    String InputNameLabel();
-    String InputExpressionLabel();
-    String OutputNameLabel();
-    String OutputExpressionLabel();
-    String MetaDataNameLabel();
-    String MetaDataValueLabel();
+    String InputsLabel();
+    String NoInputsLabel();
+    String OutputsLabel();
+    String NoOutputsLabel();
+    String MetaDataLabel();
+    String NoMetaDataLabel();
     String NoIoRefsFound();
     String SelectIOObjectCommand();
     String QuickFormIOObjectCommand();

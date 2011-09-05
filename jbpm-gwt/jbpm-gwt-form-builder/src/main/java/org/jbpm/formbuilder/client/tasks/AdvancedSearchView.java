@@ -82,6 +82,7 @@ public class AdvancedSearchView extends Grid {
                 bus.fireEvent(new TaskNameFilterEvent(query));
             }
         });
+        querySubType.setWidth("150px");
         querySubType.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {

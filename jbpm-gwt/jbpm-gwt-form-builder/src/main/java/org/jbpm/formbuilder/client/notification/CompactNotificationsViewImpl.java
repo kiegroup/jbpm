@@ -19,14 +19,19 @@ import java.util.Collection;
 
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.UmbrellaException;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -37,6 +42,7 @@ public class CompactNotificationsViewImpl extends SimplePanel implements Notific
     
     private final VerticalPanel panel = new VerticalPanel();
     private final ScrollPanel scroll = new ScrollPanel(panel);
+    private final Image arrowImage = new Image();
     
     public CompactNotificationsViewImpl() {
         Button show = new Button();
@@ -48,21 +54,35 @@ public class CompactNotificationsViewImpl extends SimplePanel implements Notific
             @Override
             public void onClick(ClickEvent event) {
                 scroll.setVisible(!scroll.isVisible());
+                arrowImage.setResource(scroll.isVisible() ? FormBuilderResources.INSTANCE.arrowDown() : FormBuilderResources.INSTANCE.arrowUp());
             }
         });
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
         scroll.addStyleName("notificationsView");
         scroll.setSize("100%", "200px");
-        
+        arrowImage.setResource(FormBuilderResources.INSTANCE.arrowDown());
         VerticalPanel vPanel = new VerticalPanel();
         vPanel.setWidth("100%");
-        show.setHTML("<strong>" + i18n.Notifications() + "</strong>");
+        Grid table = getButtonText();
+        show.setHTML(new SafeHtmlBuilder().appendHtmlConstant(table.toString()).toSafeHtml());
         scroll.setVisible(false);
         vPanel.add(show);
         vPanel.add(scroll);
         setWidget(vPanel);
-        
         new NotificationsPresenter(this);
+    }
+
+    private Grid getButtonText() {
+        Grid buttonText = new Grid(1, 2);
+        buttonText.getCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT);
+        buttonText.getCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+        buttonText.setWidget(0, 0, new HTML("<strong>" + i18n.Notifications() + "</strong>"));
+        buttonText.setWidth("100%");
+        buttonText.setBorderWidth(0);
+        buttonText.setCellPadding(0);
+        buttonText.setCellSpacing(0);
+        buttonText.setWidget(0, 1, arrowImage);
+        return buttonText;
     }
     
     @Override

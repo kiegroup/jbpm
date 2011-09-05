@@ -81,7 +81,7 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
         if (groupItems != null) {
             groupItems.remove(item);
             FBMenuPanel display = displays.get(group);
-            display.remove(item);
+            display.fullRemove(item);
             if (groupItems.isEmpty()) {
                 panel.remove(display);
             }

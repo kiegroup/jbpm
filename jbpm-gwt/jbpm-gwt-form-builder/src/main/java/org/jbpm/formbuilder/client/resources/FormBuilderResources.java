@@ -127,4 +127,16 @@ public interface FormBuilderResources extends ClientBundle {
     
     @Source("images/redo_button.png")
     ImageResource redoButton();
+    
+    @Source("images/arrow_up.png")
+    ImageResource arrowUp();
+
+    @Source("images/arrow_down.png")
+    ImageResource arrowDown();
+    
+    @Source("images/arrow_left.png")
+    ImageResource arrowLeft();
+    
+    @Source("images/arrow_right.png")
+    ImageResource arrowRight();
 }

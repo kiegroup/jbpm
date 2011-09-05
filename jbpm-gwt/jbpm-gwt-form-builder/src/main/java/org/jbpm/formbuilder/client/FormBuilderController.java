@@ -92,17 +92,17 @@ public class FormBuilderController {
         
         view.setNotificationsView(new CompactNotificationsViewImpl());
         view.setMenuView(new AnimatedMenuViewImpl());
-        model.getMenuItems();
         view.setEditionView(new EditionViewImpl());
         view.setTreeView(new TreeViewImpl());
         view.setLayoutView(new LayoutViewImpl());
         view.setOptionsView(new OptionsViewImpl());
-        model.getMenuOptions();
         view.setIoAssociationView(new IoAssociationViewImpl());
         view.setToolBarView(new ToolBarViewImpl());
         bus.addHandler(RepresentationFactoryPopulatedEvent.TYPE, new RepresentationFactoryPopulatedHandler() {
             @Override
             public void onEvent(RepresentationFactoryPopulatedEvent event) {
+                model.getMenuItems();
+                model.getMenuOptions();
                 List<GwtEvent<?>> events = setDataPanel(rootPanel);
                 setViewPanel(rootPanel);
                 //events are fired deferred since they might need that ui components are already attached

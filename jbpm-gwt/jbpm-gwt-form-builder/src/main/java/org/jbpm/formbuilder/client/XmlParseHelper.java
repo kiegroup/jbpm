@@ -110,6 +110,9 @@ public class XmlParseHelper {
         } catch (FormEncodingException e) {
             builder.append("<clone error=\"true\">Exception:").append(e.getMessage()).append("</clone>");
         }
+        for (String key : item.getAllowedEvents()) {
+            builder.append("<allowedEvent>").append(key).append("</allowedEvent>");
+        }
         for (FBFormEffect effect : item.getFormEffects()) {
             builder.append("<effect className=\"").append(effect.getClass().getName()).append("\" />");
         }
@@ -218,7 +221,7 @@ public class XmlParseHelper {
         if (list != null) {
             for (int index = 0; index < list.getLength(); index++) {
                 Node node = list.item(index);
-                String json = node.getFirstChild().getNodeValue();
+                String json = getText(node);
                 try {
                     FormRepresentation form = decoder.decode(json);
                     retval.add(form);
@@ -455,7 +458,7 @@ public class XmlParseHelper {
     private String textOfFirstNode(String responseText, String tagName) {
         Document xml = XMLParser.parse(responseText);
         Node node = xml.getElementsByTagName(tagName).item(0);
-        return node.getFirstChild().getNodeValue();
+        return getText(node);
     }
 
     private List<TaskPropertyRef> extractTaskIO(NodeList ioList) {
@@ -515,7 +518,7 @@ public class XmlParseHelper {
         List<String> retval = new ArrayList<String>();
         for (int index = 0; index < allowedEvents.getLength(); index++) {
             Node node = allowedEvents.item(index);
-            retval.add(node.getFirstChild().getNodeValue());
+            retval.add(getText(node));
         }
         return retval;
     }
@@ -525,11 +528,20 @@ public class XmlParseHelper {
         FormItemRepresentation rep = null;
         if (list.getLength() > 0) {
             Node node = list.item(0);
-            String json = node.getFirstChild().getNodeValue();
+            String json = getText(node);
             FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             rep = (FormItemRepresentation) decoder.decodeItem(json);
         }
         return rep;
+    }
+    
+    private String getText(Node node) {
+        NodeList list = node.getChildNodes();
+        StringBuilder builder = new StringBuilder();
+        for (int index = 0; index < list.getLength(); index++) {
+            builder.append(list.item(index).getNodeValue());
+        }
+        return builder.toString();
     }
 
     private List<FBFormEffect> readItemEffects(NodeList effects) throws Exception {

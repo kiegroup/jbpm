@@ -29,6 +29,7 @@ import org.jbpm.formbuilder.server.xml.FormEffectDTO;
     private String _name;
     private String _clone;
     private List<FormEffectDTO> _effect = new ArrayList<FormEffectDTO>();
+    private List<String> _allowedEvent = new ArrayList<String>();
     
     public SaveMenuItemDTO() {
         // jaxb needs a default constructor
@@ -69,6 +70,13 @@ import org.jbpm.formbuilder.server.xml.FormEffectDTO;
     public void setEffect(List<FormEffectDTO> effect) {
         this._effect = effect;
     }
-    
-    
+
+    @XmlElement
+    public List<String> getAllowedEvent() {
+        return _allowedEvent;
+    }
+
+    public void setAllowedEvent(List<String> allowedEvent) {
+        this._allowedEvent = allowedEvent;
+    }
 }

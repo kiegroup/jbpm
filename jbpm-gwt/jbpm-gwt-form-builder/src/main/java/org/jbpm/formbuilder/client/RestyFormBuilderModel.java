@@ -53,6 +53,9 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
@@ -195,33 +198,49 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public void deleteForm(FormRepresentation form)  {
         Resource resource = new Resource(URLBuilder.deleteFormURL(this.contextPath, this.packageName, form.getName()));
-        resource.delete().send(new SimpleTextCallback(i18n.ErrorDeletingForm("")) {
-            @Override
-            public void onSuccess(Method method, String response) {
-                int code = method.getResponse().getStatusCode();
-                if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingForm(String.valueOf(code))));
-                } else {
-                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormDeleted()));
+        try {
+            resource.delete().send(new RequestCallback() {
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingForm(""), exception));
                 }
-            }
-        });
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    int code = response.getStatusCode();
+                    if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
+                        bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingForm(String.valueOf(code))));
+                    } else {
+                        bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormDeleted()));
+                    }
+                }
+            });
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingForm(""), e));
+        }
     }
 
     @Override
     public void deleteFormItem(String formItemName, FormItemRepresentation formItem) {
         Resource resource = new Resource(URLBuilder.deleteFormItemURL(this.contextPath, this.packageName, formItemName));
-        resource.delete().send(new SimpleTextCallback(i18n.ErrorDeletingFormItem("")) {
-            @Override
-            public void onSuccess(Method method, String response) {
-                int code = method.getResponse().getStatusCode();
-                if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingFormItem(String.valueOf(code))));
-                } else {
-                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormItemDeleted()));
+        try {
+            resource.delete().send(new RequestCallback() {
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingFormItem(""), exception));
                 }
-            }
-        });
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    int code = response.getStatusCode();
+                    if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
+                        bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingFormItem(String.valueOf(code))));
+                    } else {
+                        bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FormItemDeleted()));
+                    }
+                }
+            });
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingFormItem(""), e));
+        }
     }
 
     @Override
@@ -246,36 +265,52 @@ public class RestyFormBuilderModel implements FormBuilderService {
     public void saveMenuItem(String groupName, final FBMenuItem item) {
         Resource resource = new Resource(URLBuilder.getMenuItemsURL(this.contextPath));
         String xml = helper.asXml(groupName, item);
-        resource.post().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntGenerateMenuItem()) {
-            @Override
-            public void onSuccess(Method method, String response) {
-                int code = method.getResponse().getStatusCode();
-                NotificationEvent event;
-                if (code == Response.SC_CREATED) {
-                    event = new NotificationEvent(Level.INFO, i18n.MenuItemSaved(item.getItemId()));
-                } else {
-                    event = new NotificationEvent(Level.WARN, i18n.SaveMenuItemInvalidStatus(String.valueOf(code)));
+        try {
+            resource.post().xml(XMLParser.parse(xml)).expect(-1).send(new RequestCallback() {
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntGenerateMenuItem(), exception));
                 }
-                bus.fireEvent(event);
-            }
-        });
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    int code = response.getStatusCode();
+                    NotificationEvent event;
+                    if (code == Response.SC_CREATED) {
+                        event = new NotificationEvent(Level.INFO, i18n.MenuItemSaved(item.getItemId()));
+                    } else {
+                        event = new NotificationEvent(Level.WARN, i18n.SaveMenuItemInvalidStatus(String.valueOf(code)));
+                    }
+                    bus.fireEvent(event);
+                }
+            });
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntSaveMenuItem(), e));
+        }
     }
 
     @Override
     public void deleteMenuItem(String groupName, FBMenuItem item) {
         Resource resource = new Resource(URLBuilder.getMenuItemsURL(this.contextPath));
         String xml = helper.asXml(groupName, item);
-        resource.delete().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.ErrorDeletingMenuItem()) {
-            @Override
-            public void onSuccess(Method method, String response) {
-                int code = method.getResponse().getStatusCode();
-                if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
-                    bus.fireEvent(new NotificationEvent(Level.WARN, i18n.DeleteMenuItemUnkownStatus(String.valueOf(code))));
-                } else {
-                    bus.fireEvent(new NotificationEvent(Level.INFO, i18n.MenuItemDeleted()));
+        try {
+            resource.delete().xml(XMLParser.parse(xml)).send(new RequestCallback() {
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingMenuItem(), exception));
                 }
-            }
-        });
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    int code = response.getStatusCode();
+                    if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
+                        bus.fireEvent(new NotificationEvent(Level.WARN, i18n.DeleteMenuItemUnkownStatus(String.valueOf(code))));
+                    } else {
+                        bus.fireEvent(new NotificationEvent(Level.INFO, i18n.MenuItemDeleted()));
+                    }
+                }
+            });
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingMenuItem(), e));
+        }
     }
 
     @Override

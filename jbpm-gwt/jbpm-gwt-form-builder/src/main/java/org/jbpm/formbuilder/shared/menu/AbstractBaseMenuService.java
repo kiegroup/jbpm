@@ -27,7 +27,14 @@ public abstract class AbstractBaseMenuService implements MenuService {
         if (customItems == null) {
             customItems = new ArrayList<MenuItemDescription>();
         }
-        customItems.remove(item);
+        MenuItemDescription serverItem = null;
+        for (MenuItemDescription subItem : customItems) {
+            if (subItem.getName().equals(item.getName())) {
+                serverItem = subItem;
+                break;
+            }
+        }
+        customItems.remove(serverItem);
         if (customItems.isEmpty()) {
             items.remove(group);
         } else {

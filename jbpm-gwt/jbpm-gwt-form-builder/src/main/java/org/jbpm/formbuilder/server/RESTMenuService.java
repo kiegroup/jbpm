@@ -94,7 +94,7 @@ public class RESTMenuService {
     @POST @Path("/items")
     public Response saveMenuItem(SaveMenuItemDTO dto) {
         try {
-            MenuItemDescription menuItem = toMenuItemDescription(dto);
+            MenuItemDescription menuItem = toMenuItemDescription(dto, true);
             menuService.saveMenuItem(dto.getGroupName(), menuItem);
             return Response.status(Status.CREATED).build();
         } catch (MenuServiceException e) {
@@ -102,40 +102,57 @@ public class RESTMenuService {
         }
     }
 
-    private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto) throws MenuServiceException {
+    private MenuItemDescription toMenuItemDescription(SaveMenuItemDTO dto, boolean strict) throws MenuServiceException {
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         String json = dto.getClone();
         MenuItemDescription menuItem = new MenuItemDescription();
         try {
             FormItemRepresentation item = decoder.decodeItem(json);
-            menuItem.setClassName(CustomMenuItem.class.getName());
             menuItem.setItemRepresentation(item);
-            menuItem.setName(dto.getName());
-            List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
-            if (dto.getEffect() != null) {
-                for (FormEffectDTO effectDto : dto.getEffect()) {
-                    FormEffectDescription effect = new FormEffectDescription();
-                    effect.setClassName(effectDto.getClassName());
-                    effects.add(effect);
-                }
-            }
-            menuItem.setEffects(effects);
         } catch (FormEncodingException e) {
-            throw new MenuServiceException("Couldn't load formRepresentation from dto", e); 
+            if (strict) {
+                throw new MenuServiceException("Couldn't load formRepresentation from dto", e);
+            }
+            menuItem.setItemRepresentation(null);
         }
+        menuItem.setClassName(CustomMenuItem.class.getName());
+        menuItem.setName(dto.getName());
+        List<FormEffectDescription> effects = new ArrayList<FormEffectDescription>();
+        if (dto.getEffect() != null) {
+            for (FormEffectDTO effectDto : dto.getEffect()) {
+                FormEffectDescription effect = new FormEffectDescription();
+                effect.setClassName(effectDto.getClassName());
+                effects.add(effect);
+            }
+        }
+        menuItem.setEffects(effects);
+        List<String> allowedEvents = new ArrayList<String>();
+        if (dto.getAllowedEvent() != null) {
+            for (String evtName : dto.getAllowedEvent()) {
+                allowedEvents.add(evtName);
+            }
+        }
+        menuItem.setAllowedEvents(allowedEvents);
         return menuItem;
     }
     
     @DELETE @Path("/items")
     public Response deleteMenuItem(SaveMenuItemDTO dto) {
         try {
-            MenuItemDescription menuItem = toMenuItemDescription(dto);
+            MenuItemDescription menuItem = toMenuItemDescription(dto, false);
             Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
             List<MenuItemDescription> group = items.get(dto.getGroupName());
             if (group == null || group.isEmpty()) {
                 return Response.noContent().build();
             }
-            if (!group.contains(menuItem)) {
+            boolean found = false;
+            for (MenuItemDescription desc : group) {
+                if (desc.getName().equals(dto.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
                 return Response.status(Status.CONFLICT).build();
             }
             menuService.deleteMenuItem(dto.getGroupName(), menuItem);

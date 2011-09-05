@@ -140,6 +140,7 @@ public interface FormBuilderService {
     /**
      * Populates the {@link RepresentationFactory} with the form items and representations
      * that belong to them.
+     * @param callback callback to tell the client what to do once it finishes
      * @throws FormBuilderException in case of error.
      */
     void populateRepresentationFactory() throws FormBuilderException;

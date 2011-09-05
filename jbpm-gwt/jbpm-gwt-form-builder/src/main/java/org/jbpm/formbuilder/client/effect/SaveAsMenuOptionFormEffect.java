@@ -71,6 +71,11 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
                 formItem.getFormEffects(), 
                 groupName
         );
+        if (formItem.getEventActions() != null) {
+            for (String evtName : formItem.getEventActions().keySet()) {
+                menuItem.addAllowedEvent(evtName);
+            }
+        }
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("menuItem", menuItem);
         dataSnapshot.put("groupName", groupName);
