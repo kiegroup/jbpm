@@ -300,10 +300,16 @@ public class TableLayoutFormItem extends LayoutFormItem {
         if (beforeColumnNumber < grid.getColumnCount()) {
             grid.resizeColumns(grid.getColumnCount() + 1);
             for (int row = 0; row < grid.getRowCount(); row++) {
-                for (int column = grid.getColumnCount() - 1; column > beforeColumnNumber; column++) {
-                    Widget widget = grid.getWidget(row, column - 1);
-                    grid.setWidget(row, column, widget);
-                    grid.getWidget(row, column - 1).getElement().getParentElement().setInnerHTML("&nbsp;");
+                for (int column = grid.getColumnCount() - 1; column > beforeColumnNumber && column < grid.getColumnCount(); column++) {
+                    if (column > 0) {
+                        Widget widget = grid.getWidget(row, column - 1);
+                        if (widget != null) {
+                            grid.setWidget(row, column, widget);
+                            if (grid.getWidget(row, column - 1) != null) {
+                                grid.getWidget(row, column - 1).getElement().getParentElement().setInnerHTML("&nbsp;");
+                            }
+                        }
+                    }
                 }
             }
         }
