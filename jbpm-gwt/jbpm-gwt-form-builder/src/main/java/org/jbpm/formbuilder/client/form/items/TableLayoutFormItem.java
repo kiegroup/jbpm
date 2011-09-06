@@ -225,12 +225,14 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 grid.remove(widget);
             }
             grid.removeRow(rowNumber);
+            this.rows--;
         }
         return retval;
     }
     
     public void addRow(int beforeRowNumber) {
         grid.insertRow(beforeRowNumber);
+        this.rows++;
     }
     
     public void insertRowElements(int rowNumber, List<FBFormItem> rowItems) {
@@ -298,6 +300,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     
     public void addColumn(int beforeColumnNumber) {
         if (beforeColumnNumber < grid.getColumnCount()) {
+            this.columns++;
             grid.resizeColumns(grid.getColumnCount() + 1);
             for (int row = 0; row < grid.getRowCount(); row++) {
                 for (int column = grid.getColumnCount() - 1; column > beforeColumnNumber && column < grid.getColumnCount(); column++) {
@@ -332,6 +335,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 }
             }
             grid.resizeColumns(grid.getColumnCount() - 1);
+            this.columns--;
         }
         return retval;
     }

@@ -26,6 +26,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextArea;
@@ -62,6 +63,7 @@ public class HTMLFormItemEditor extends FBInplaceEditor {
                 wrapper.setValue(true);
             }
         });
+        editorArea.unsinkEvents(Event.ONKEYPRESS | Event.ONMOUSEUP | Event.ONDBLCLICK | Event.ONCONTEXTMENU);
         this.htmlButton.setEnabled(false);
         buttonPanel.add(createTextButton());
         buttonPanel.add(createHtmlButton());
