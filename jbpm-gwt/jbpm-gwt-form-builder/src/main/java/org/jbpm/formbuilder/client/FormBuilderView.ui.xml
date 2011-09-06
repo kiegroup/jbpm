@@ -5,20 +5,20 @@
       <tr height="25">
         <td colspan="2"><g:SimplePanel styleName="optionsViewWrapper" height="25px" width="100%" ui:field="optionsView"/></td>
       </tr>
-      <tr height="400">
+      <tr id="mainRowWrapper">
         <td width="230" class="toolViewWrapper">
-          <g:TabLayoutPanel width="230px" height="400px" barHeight="25" barUnit="PX" stylePrimaryName="toolView">
+          <g:TabLayoutPanel width="230px" height="100%" barHeight="25" barUnit="PX" stylePrimaryName="toolView">
             <g:tab selected="true">
               <g:header>Menu</g:header>
-              <g:ScrollPanel height="360px" width="220px" ui:field="menuView"/>
+              <g:ScrollPanel height="100%" width="220px" ui:field="menuView"/>
             </g:tab>
             <g:tab>
               <g:header>Tree</g:header>
-              <g:ScrollPanel height="360px" width="220px" ui:field="treeView"/>
+              <g:ScrollPanel height="100%" width="220px" ui:field="treeView"/>
             </g:tab>
             <g:tab>
               <g:header>Edition</g:header>
-              <g:ScrollPanel height="360px" width="220px" ui:field="editionView"/>
+              <g:ScrollPanel height="100%" width="220px" ui:field="editionView"/>
             </g:tab>
             <g:tab>
               <g:header>IO Data</g:header>
@@ -34,15 +34,15 @@
               </td>
             </tr>
             <tr>
-              <td height="375" width="760" class="layoutViewWrapper">
-                <g:ScrollPanel height="375px" width="760px" ui:field="layoutView"/>
+              <td height="100%" width="760" class="layoutViewWrapper">
+                <g:ScrollPanel height="100%" width="760px" ui:field="layoutView"/>
               </td>
             </tr>
           </table>
         </td>
       </tr>
-      <tr>
-        <td colspan="2" height="25" class="notificationsViewWrapper">
+      <tr id="notificationsRowWrapper" >
+        <td colspan="2" class="notificationsViewWrapper">
           <g:Panel height="25px" width="100%" ui:field="notificationsView"/>
         </td>
       </tr>

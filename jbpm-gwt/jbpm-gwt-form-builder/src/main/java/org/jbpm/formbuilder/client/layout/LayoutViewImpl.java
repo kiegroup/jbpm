@@ -30,6 +30,7 @@ public class LayoutViewImpl extends ScrollPanel implements LayoutView {
     private FBForm formDisplay = new FBForm();
     
     public LayoutViewImpl() {
+        setStyleName("formDisplay");
         formDisplay.setStyleName("formDisplay");
         formDisplay.setSize("100%", "100%");
         add(formDisplay);

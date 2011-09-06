@@ -16,8 +16,10 @@
 package org.jbpm.formbuilder.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -49,6 +51,14 @@ public class FormBuilderView extends AbsolutePanel {
             setSize("100%", "100%");
             widget.setSize("100%", "100%");
             add(widget);
+            int fullHeight = Window.getClientHeight();
+            String height = "" + (fullHeight - 80) + "px";
+            String smallerHeight = "" + (fullHeight - 105) + "px";
+            treeView.setHeight(height);
+            menuView.setHeight(height);
+            editionView.setHeight(height);
+            ioAssociationView.setHeight(height);
+            layoutView.setHeight(smallerHeight);
         }
     }
 
@@ -98,5 +108,34 @@ public class FormBuilderView extends AbsolutePanel {
     public void setTreeView(ScrollPanel treeView) {
         this.treeView = treeView;
         checkBinding();
+    }
+    
+    public void toggleNotifications(boolean visibleNotifications) {
+        int fullHeight = Window.getClientHeight();
+        if (visibleNotifications) {
+            String sheight = "" + (fullHeight - 350) + "px";
+            String smallerHeight = "" + (fullHeight - 375) + "px";
+            this.notificationsView.setHeight("300px");
+            Document.get().getElementById("mainRowWrapper").setPropertyString("height", sheight);
+            Document.get().getElementById("notificationsRowWrapper").setPropertyString("height", "300px");
+            treeView.setHeight(sheight);
+            menuView.setHeight(sheight);
+            editionView.setHeight(sheight);
+            ioAssociationView.setHeight(sheight);
+            layoutView.setHeight(smallerHeight);
+            visibleNotifications = false;
+        } else {
+            this.notificationsView.setHeight("25px");
+            String sheight = "" + (fullHeight - 80) + "px";
+            String smallerHeight = "" + (fullHeight - 105) + "px";
+            Document.get().getElementById("mainRowWrapper").setPropertyString("height", sheight);
+            Document.get().getElementById("notificationsRowWrapper").setPropertyString("height", "25px");
+            treeView.setHeight(sheight);
+            menuView.setHeight(sheight);
+            editionView.setHeight(sheight);
+            ioAssociationView.setHeight(sheight);
+            layoutView.setHeight(smallerHeight);
+            visibleNotifications = true;
+        }
     }
 }

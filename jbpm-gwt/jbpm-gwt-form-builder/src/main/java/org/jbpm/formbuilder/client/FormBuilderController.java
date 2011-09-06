@@ -24,6 +24,8 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleHandler;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
@@ -107,6 +109,12 @@ public class FormBuilderController {
                 setViewPanel(rootPanel);
                 //events are fired deferred since they might need that ui components are already attached
                 fireEvents(events);
+            }
+        });
+        bus.addHandler(NotificationsVisibleEvent.TYPE, new NotificationsVisibleHandler() {
+            @Override
+            public void onEvent(NotificationsVisibleEvent event) {
+                view.toggleNotifications(event.isVisible());
             }
         });
         populateRepresentationFactory(fbModel);

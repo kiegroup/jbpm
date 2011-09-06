@@ -17,13 +17,16 @@ package org.jbpm.formbuilder.client.notification;
 
 import java.util.Collection;
 
+import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.UmbrellaException;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
@@ -38,7 +41,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class CompactNotificationsViewImpl extends SimplePanel implements NotificationsView {
 
-    private I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private final VerticalPanel panel = new VerticalPanel();
     private final ScrollPanel scroll = new ScrollPanel(panel);
@@ -54,7 +58,10 @@ public class CompactNotificationsViewImpl extends SimplePanel implements Notific
             @Override
             public void onClick(ClickEvent event) {
                 scroll.setVisible(!scroll.isVisible());
-                arrowImage.setResource(scroll.isVisible() ? FormBuilderResources.INSTANCE.arrowDown() : FormBuilderResources.INSTANCE.arrowUp());
+                ImageResource down = FormBuilderResources.INSTANCE.arrowDown();
+                ImageResource up = FormBuilderResources.INSTANCE.arrowUp();
+                arrowImage.setResource(scroll.isVisible() ? down : up);
+                bus.fireEvent(new NotificationsVisibleEvent(scroll.isVisible()));
             }
         });
         panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);

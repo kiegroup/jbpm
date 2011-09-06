@@ -112,6 +112,12 @@
 .mainWrapper {
     color: #000000;
 }
+#mainRowWrapper {
+    height: 90%;
+}
+#notificationsRowWrapper {
+    height: 25px;
+}
 .notificationsView DIV {
     width: 100%;
     background-color: #EFEFEF;
