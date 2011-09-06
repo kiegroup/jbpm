@@ -31,9 +31,11 @@ public class ANDValidationItem extends FBValidationItem implements OtherValidati
     @Override
     public FBValidation createValidation() {
         ANDValidation validation = getRepresentation(new ANDValidation());
-        for (FBValidationItem subValidationItem : subValidations.getItems()) {
-            FBValidation subValidation = subValidationItem.createValidation();
-            validation.addValidation(subValidation);
+        if (subValidations != null && subValidations.getItems() != null) {
+            for (FBValidationItem subValidationItem : subValidations.getItems()) {
+                FBValidation subValidation = subValidationItem.createValidation();
+                validation.addValidation(subValidation);
+            }
         }
         return validation;
     }

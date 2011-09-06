@@ -209,3 +209,8 @@
 .optionsViewWrapper .gwt-MenuBar-horizontal .gwt-MenuItem {
     color: #000000;
 }
+
+.selectedValidationRow {
+    color: #FFFFFF;
+    background-color: #0000FF;
+}

@@ -20,8 +20,10 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
+import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.HasSelectionHandlers;
@@ -29,10 +31,9 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -42,11 +43,8 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
     private List<SelectionHandler<FBValidationItem>> tableHandlers = new ArrayList<SelectionHandler<FBValidationItem>>();
     
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final Grid validationsTable = new Grid(1,1);
+    private final Grid validationsTable = new Grid(1,4);
     private final List<FBValidationItem> currentValidations = new ArrayList<FBValidationItem>();
-    private final Button removeButton = new Button(i18n.ValidationRemove());
-    private final Button moveUpButton = new Button(i18n.ValidationMoveUp());
-    private final Button moveDownButton = new Button(i18n.ValidationModeDown());
     
     private FBValidationItem selectedValidation = null;
     
@@ -65,51 +63,15 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
                         selectedWidget.removeStyleName("selectedValidationRow");
                         setCurrentValidation(null);
                         fireSelectedValidation();
-                        removeButton.setEnabled(false);
-                        moveUpButton.setEnabled(false);
-                        moveDownButton.setEnabled(false);
                     } else {
                         selectedWidget.addStyleName("selectedValidationRow");
                         setCurrentValidation(currentValidations.get(row - 1));
                         fireSelectedValidation();
-                        removeButton.setEnabled(true);
-                        moveUpButton.setEnabled(currentValidations.size() > 1);
-                        moveDownButton.setEnabled(currentValidations.size() > 1);
                     }
                 }
             }
         });
         add(validationsTable);
-        HorizontalPanel tableButtonsPanel = new HorizontalPanel();
-        removeButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                removeValidation(selectedValidation);
-            }
-        });
-        moveUpButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                moveSelectedValidation(true);
-                moveDownButton.setEnabled(currentValidations.indexOf(selectedValidation) > 0);
-                moveUpButton.setEnabled(currentValidations.indexOf(selectedValidation) < currentValidations.size());
-            }
-        });
-        moveDownButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                moveSelectedValidation(false);
-                moveDownButton.setEnabled(currentValidations.indexOf(selectedValidation) > 0);
-                moveUpButton.setEnabled(currentValidations.indexOf(selectedValidation) < currentValidations.size());
-            }
-        });
-        tableButtonsPanel.add(removeButton);
-        tableButtonsPanel.add(moveUpButton);
-        tableButtonsPanel.add(moveDownButton);
-        removeButton.setEnabled(false);
-        moveUpButton.setEnabled(false);
-        moveDownButton.setEnabled(false);
-        add(tableButtonsPanel);
     }
     
     public void setCurrentValidation(FBValidationItem validation) {
@@ -144,11 +106,43 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
         SelectionEvent.fire(this, this.selectedValidation);
     }
     
-    public void addValidation(FBValidationItem validation) {
+    public void addValidation(final FBValidationItem validation) {
         if (!currentValidations.contains(validation)) {
             int rowCount = validationsTable.getRowCount();
             validationsTable.resizeRows(rowCount + 1);
             validationsTable.setWidget(rowCount, 0, new Label(validation.getName()));
+            final Image upLink = new Image(FormBuilderResources.INSTANCE.arrowUp());
+            upLink.getElement().getStyle().setCursor(Cursor.POINTER);
+            final Image downLink = new Image(FormBuilderResources.INSTANCE.arrowDown());
+            downLink.getElement().getStyle().setCursor(Cursor.POINTER);
+            final Image removeLink = new Image(FormBuilderResources.INSTANCE.removeSmallIcon());
+            removeLink.getElement().getStyle().setCursor(Cursor.POINTER);
+            removeLink.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    int row = currentValidations.indexOf(validation) + 1;
+                    removeValidation(validation, row);
+                }
+            });
+            upLink.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    moveSelectedValidation(true);
+                    downLink.setVisible(currentValidations.indexOf(validation) > 0);
+                    upLink.setVisible(currentValidations.indexOf(validation) < currentValidations.size());
+                }
+            });
+            downLink.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    moveSelectedValidation(false);
+                    downLink.setVisible(currentValidations.indexOf(validation) > 0);
+                    upLink.setVisible(currentValidations.indexOf(validation) < currentValidations.size());
+                }
+            });
+            validationsTable.setWidget(rowCount, 1, upLink);
+            validationsTable.setWidget(rowCount, 2, downLink);
+            validationsTable.setWidget(rowCount, 3, removeLink);
             currentValidations.add(validation);
             if (!isVisible()) {
                 setVisible(true);
@@ -160,23 +154,51 @@ public class ValidationTablePanel extends VerticalPanel implements HasSelectionH
         return validationsTable.getCellForEvent(event).getRowIndex();
     }
     
-    public void removeValidation(FBValidationItem validation) {
-        currentValidations.remove(validation);
+    public void removeValidation(FBValidationItem validation, int row) {
+        if (row >= 0) {
+            currentValidations.remove(validation);
+            validationsTable.removeRow(row);
+        }
     }
     
     public void moveSelectedValidation(boolean up) {
         int index = currentValidations.indexOf(selectedValidation);
-        if (up) {
-            FBValidationItem supValidation = currentValidations.get(index + 1);
-            currentValidations.set(index + 1, selectedValidation);
-            currentValidations.set(index, supValidation);
-        } else {
-            FBValidationItem subValidation = currentValidations.get(index - 1);
-            currentValidations.set(index - 1, selectedValidation);
-            currentValidations.set(index, subValidation);
+        if (index >= 0) {
+            if (up && index + 1 < currentValidations.size()) {
+                FBValidationItem supValidation = currentValidations.get(index + 1);
+                currentValidations.set(index + 1, selectedValidation);
+                currentValidations.set(index, supValidation);
+            } else if (!up && index -1 > 0) {
+                FBValidationItem subValidation = currentValidations.get(index - 1);
+                currentValidations.set(index - 1, selectedValidation);
+                currentValidations.set(index, subValidation);
+            }
+            moveValidationOnTable(index, up);
         }
     }
 
+    private void moveValidationOnTable(int index, boolean up) {
+        if (up && index + 2 < validationsTable.getRowCount()) {
+            for (int i = 0; i < validationsTable.getColumnCount(); i++) {
+                Widget move = validationsTable.getWidget(index + 1, i);
+                Widget res = validationsTable.getWidget(index + 2, i);
+                validationsTable.remove(move);
+                validationsTable.remove(res);
+                validationsTable.setWidget(index + 1, i, res);
+                validationsTable.setWidget(index + 2, i, move);
+            }
+        } else if (!up && index > 0) {
+            for (int i = 0; i < validationsTable.getColumnCount(); i++) {
+                Widget move = validationsTable.getWidget(index + 1, i);
+                Widget res = validationsTable.getWidget(index, i);
+                validationsTable.remove(move);
+                validationsTable.remove(res);
+                validationsTable.setWidget(index + 1, i, res);
+                validationsTable.setWidget(index, i, move);
+            }
+        }
+    }
+    
     public List<FBValidationItem> getCurrentValidations() {
         return currentValidations;
     }

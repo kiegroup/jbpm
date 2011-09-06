@@ -31,9 +31,11 @@ public class XORValidationItem  extends FBValidationItem implements OtherValidat
     @Override
     public FBValidation createValidation() {
         XORValidation validation = getRepresentation(new XORValidation());
-        for (FBValidationItem subValidationItem : subValidations.getItems()) {
-            FBValidation subValidation = subValidationItem.createValidation();
-            validation.addValidation(subValidation);
+        if (subValidations != null && subValidations.getItems() != null) {
+            for (FBValidationItem subValidationItem : subValidations.getItems()) {
+                FBValidation subValidation = subValidationItem.createValidation();
+                validation.addValidation(subValidation);
+            }
         }
         return validation;
     }

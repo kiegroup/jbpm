@@ -31,9 +31,11 @@ public class ORValidationItem extends FBValidationItem implements OtherValidatio
     @Override
     public FBValidation createValidation() {
         ORValidation validation = getRepresentation(new ORValidation());
-        for (FBValidationItem subValidationItem : subValidations.getItems()) {
-            FBValidation subValidation = subValidationItem.createValidation();
-            validation.addValidation(subValidation);
+        if (subValidations != null && subValidations.getItems() != null) {
+            for (FBValidationItem subValidationItem : subValidations.getItems()) {
+                FBValidation subValidation = subValidationItem.createValidation();
+                validation.addValidation(subValidation);
+            }
         }
         return validation;
     }

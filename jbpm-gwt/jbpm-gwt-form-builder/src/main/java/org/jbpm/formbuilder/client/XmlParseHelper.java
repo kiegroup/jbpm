@@ -41,10 +41,8 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.HasValue;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -420,7 +418,9 @@ public class XmlParseHelper {
             Element propElement = (Element) properties.item(index);
             String key = propElement.getAttribute("key");
             final String value = propElement.getAttribute("value");
-            retval.put(key, new MockHasValue(value));
+            TextBox text = new TextBox();
+            text.setValue(value);
+            retval.put(key, text);
         }
         return retval;
     }
@@ -557,32 +557,5 @@ public class XmlParseHelper {
             }
         }
         return itemEffects;
-    }
-    
-    private class MockHasValue implements HasValue<String> {
-        
-        private final String value;
-        public MockHasValue(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String getValue() {
-            return value;
-        }
-        
-        @Override
-        public void setValue(String value) { }
-        @Override
-        public void setValue(String value, boolean fireEvents) { }
-        @Override
-        public HandlerRegistration addValueChangeHandler(ValueChangeHandler<String> handler) { 
-            return new HandlerRegistration() {
-                @Override
-                public void removeHandler() { }
-            };
-        }
-        @Override
-        public void fireEvent(GwtEvent<?> event) { }
     }
 }
