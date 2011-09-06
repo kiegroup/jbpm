@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="<%=request.getContextPath()%>/FormBuilder.css" title="Form Builder (test page)" type="text/css">
   </head>
   <body oncontextmenu="return false;">
+   <center>
     <!-- for google chart apis -->
     <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -13,5 +14,6 @@
     <!-- END for google chart apis -->
     <script language="javascript" src="<%=request.getContextPath()%>/org.jbpm.formbuilder.FormBuilder/org.jbpm.formbuilder.FormBuilder.nocache.js"></script>
     <div id="formBuilder" style="visibility: collapse;"><%=(String) request.getAttribute("jsonData")%></div>
+   </center>
   </body>
 </html>

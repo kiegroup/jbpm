@@ -173,7 +173,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
 
     @Override
     public void saveFormItem(FormItemRepresentation formItem, String formItemName) {
-        Resource resource = new Resource(URLBuilder.saveFormItemURL(this.contextPath, this.packageName));
+        Resource resource = new Resource(URLBuilder.saveFormItemURL(this.contextPath, this.packageName, formItemName));
         try {
             String xml = helper.asXml(formItemName, formItem);
             resource.post().xml(XMLParser.parse(xml)).send(new SimpleTextCallback(i18n.CouldntSaveFormItem()) {
@@ -266,7 +266,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
         Resource resource = new Resource(URLBuilder.getMenuItemsURL(this.contextPath));
         String xml = helper.asXml(groupName, item);
         try {
-            resource.post().xml(XMLParser.parse(xml)).expect(-1).send(new RequestCallback() {
+            resource.post().xml(XMLParser.parse(xml)).expect(201,409).send(new RequestCallback() {
                 @Override
                 public void onError(Request request, Throwable exception) {
                     bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntGenerateMenuItem(), exception));

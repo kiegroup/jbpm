@@ -164,7 +164,7 @@ public class RESTFormService {
     }
     
     @POST @Path("/items/package/{pkgName}/name/{fItemName}")
-    @Consumes("text/plain")
+    @Consumes("*/*")
     @DoNotUseJAXBProvider
     public Response saveFormItem(String jsonBody,
             @PathParam("pkgName") String pkgName, 

@@ -84,6 +84,7 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
             display.fullRemove(item);
             if (groupItems.isEmpty()) {
                 panel.remove(display);
+                panel.showStack(0);
             }
         }
     }
