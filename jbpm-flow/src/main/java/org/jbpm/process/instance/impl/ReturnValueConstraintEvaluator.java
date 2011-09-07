@@ -144,6 +144,7 @@ public class ReturnValueConstraintEvaluator
         this.priority = in.readInt();
         this.dialect = in.readUTF();
         this.type = (String) in.readObject();
+        this.isDefault = (boolean) in.readBoolean();
 
     }
 
@@ -158,6 +159,7 @@ public class ReturnValueConstraintEvaluator
         out.writeInt( this.priority );
         out.writeUTF( dialect );
         out.writeObject( type );
+        out.writeBoolean(isDefault);
     }
 
     public void setMetaData(String name, Object value) {
