@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,6 +36,7 @@ public class FormBuilderResteasy extends Application {
         singletons.add(new RESTMenuService());
         singletons.add(new RESTFormService());
         singletons.add(new RESTIoService());
+        singletons.add(new RESTFileService());
         singletons.add(new XmlJAXBContextFinder());
         singletons.add(new JAXBXmlRootElementProvider());
     }

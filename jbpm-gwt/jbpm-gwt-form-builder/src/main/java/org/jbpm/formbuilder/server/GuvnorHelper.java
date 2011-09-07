@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -111,5 +111,4 @@ public class GuvnorHelper {
     public String getUser() {
         return this.user;
     }
-    
 }

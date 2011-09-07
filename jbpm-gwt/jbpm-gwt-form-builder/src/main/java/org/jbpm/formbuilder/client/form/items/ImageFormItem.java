@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.HasSourceReference;
 import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
@@ -37,7 +38,7 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form item. Represents an image
  */
 @Reflectable
-public class ImageFormItem extends FBFormItem implements I18NFormItem {
+public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSourceReference {
 
     private Image image = new Image();
     private final I18NUtils utils = new I18NUtils();
@@ -184,5 +185,16 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem {
     public Format getFormat() {
         // ignore
         return null;
+    }
+    
+    @Override
+    public void setSourceReference(String sourceReference) {
+        this.url = sourceReference;
+        this.image.setUrl(this.url);
+    }
+    
+    @Override
+    public String getSourceReference() {
+        return this.url;
     }
 }

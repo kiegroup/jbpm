@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
@@ -37,7 +35,7 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
 
 @Path("/io")
-public class RESTIoService {
+public class RESTIoService extends RESTBaseService {
 
     private TaskDefinitionService taskService;
     
@@ -69,7 +67,7 @@ public class RESTIoService {
             ListTasksDTO dto = new ListTasksDTO(tasks);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (TaskServiceException e) {
-            return error(e);
+            return error("Problem getting io associations for package " + pkgName + " with filter " + filter, e);
         }
     }
     
@@ -83,14 +81,7 @@ public class RESTIoService {
             ListTasksDTO dto = new ListTasksDTO(tasks);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (TaskServiceException e) {
-            return error(e);
+            return error("Problem getting io association for package " + pkgName + ", process " + procName + ", task " + taskName, e);
         }
-    }
-
-    private static final Log log = LogFactory.getLog(RESTIoService.class);
-
-    Response error(Exception e) {
-        log.error("Error on REST service: ", e);
-        return Response.serverError().build();
     }
 }

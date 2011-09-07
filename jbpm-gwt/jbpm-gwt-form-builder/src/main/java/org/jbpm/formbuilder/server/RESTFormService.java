@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,8 +40,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
@@ -63,7 +61,7 @@ import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 
 @Path("/form")
-public class RESTFormService {
+public class RESTFormService extends RESTBaseService {
 
     private FormDefinitionService formService;
     
@@ -86,9 +84,9 @@ public class RESTFormService {
             ListFormsDTO dto = new ListFormsDTO(forms);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem reading forms of package " + pkgName, e);
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem decoding forms of package " + pkgName, e);
         }
     }
     
@@ -100,9 +98,9 @@ public class RESTFormService {
             ListFormsDTO dto = new ListFormsDTO(form);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem reading form " + formId, e);
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem decoding form " + formId, e);
         }
     }
     
@@ -118,9 +116,9 @@ public class RESTFormService {
             return Response.ok("<formId>"+formId+"</formId>", MediaType.APPLICATION_XML).
                 status(Status.CREATED).build();
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem decoding form", e);
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem saving form", e);
         }
     }
     
@@ -131,7 +129,7 @@ public class RESTFormService {
             formService.deleteForm(pkgName, formId);
             return Response.ok().build();
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem deleting form " + formId, e);
         }
     }
 
@@ -143,9 +141,9 @@ public class RESTFormService {
             ListFormsItemsDTO dto = new ListFormsItemsDTO(formItems);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem getting form items of package " + pkgName, e);
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem decoding form items of package " + pkgName, e);
         }
     }
     
@@ -157,9 +155,9 @@ public class RESTFormService {
             ListFormsItemsDTO dto = new ListFormsItemsDTO(formItemId, formItem);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem reading form item " + formItemId, e);
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem decoding form item " + formItemId, e);
         }
     }
     
@@ -177,9 +175,9 @@ public class RESTFormService {
             return Response.ok("<formItemId>"+formItemId+"</formItemId>", 
                     MediaType.APPLICATION_XML).status(Status.CREATED).build();
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem encoding form item", e);
         } catch (FormServiceException e) {
-            return error(e);
+            return error("Problem saving form item", e);
         }
     }
 
@@ -205,11 +203,13 @@ public class RESTFormService {
             String htmlUrl = createHtmlTemplate(html, language, context);
             return Response.ok(htmlUrl, MediaType.TEXT_PLAIN).build();
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem encoding form preview", e);
         } catch (LanguageException e) {
-            return error(e);
+            return error("Problem transforming form preview to " + language + " language", e);
         } catch (RendererException e) {
-            return error(e);
+            return error("Problem rendering form preview in " + language + " language", e);
+        } catch (IOException e) {
+            return error("Problem writing form preview in " + language + " language", e);
         }
     }
     
@@ -221,9 +221,9 @@ public class RESTFormService {
             String fileName = url.getFile();
             return Response.ok("<fileName>"+fileName+"</fileName>", MediaType.APPLICATION_XML).build();
         } catch (FormEncodingException e) {
-            return error(e);
+            return error("Problem encoding form for templating", e);
         } catch (LanguageException e) {
-            return error(e);
+            return error("Problem transforming form to " + language + " language", e);
         }
     }
     
@@ -256,7 +256,7 @@ public class RESTFormService {
             }
             context.getRequestDispatcher("/fbapi/mockProcess.jsp" + queryString).forward(request, response);
         } catch (Exception e) {
-            error(e);
+            error("Couldn't process form template", e);
         }
     }
 
@@ -267,21 +267,16 @@ public class RESTFormService {
             String content = FileUtils.readFileToString(file);
             return Response.ok(content, MediaType.TEXT_HTML).build();
         } catch (IOException e) {
-            return error(e);
+            return error("Problem reading html template for file " + fileName, e);
         }
     }
     
-    private String createHtmlTemplate(Object html, String language, ServletContext context) {
+    private String createHtmlTemplate(Object html, String language, ServletContext context) throws IOException {
         String contextPath = context.getContextPath();
-        try {
-            File file = File.createTempFile("createHtmlTemplate", ".temp");
-            FileUtils.writeStringToFile(file, html.toString());
-            String url = contextPath + "/rest/form/template/file/" + file.getName();
-            return url;
-        } catch (IOException e) {
-            log.error("Problem writing html template", e);
-            return "";
-        }
+        File file = File.createTempFile("createHtmlTemplate", ".temp");
+        FileUtils.writeStringToFile(file, html.toString());
+        String url = contextPath + "/rest/form/template/file/" + file.getName();
+        return url;
     }
     
     
@@ -311,12 +306,5 @@ public class RESTFormService {
         } catch (IOException e) {
             return Response.serverError().build();
         }
-    }
-    
-    private static final Log log = LogFactory.getLog(RESTFormService.class);
-    
-    Response error(Exception e) {
-        log.error("Error on REST service: ", e);
-        return Response.serverError().build();
     }
 }

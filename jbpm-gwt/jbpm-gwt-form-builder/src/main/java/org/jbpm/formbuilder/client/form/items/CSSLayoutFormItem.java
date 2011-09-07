@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.HasSourceReference;
 import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.CSSPanelRepresentation;
@@ -38,7 +39,7 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form layout item. Represents a css based layout
  */
 @Reflectable
-public class CSSLayoutFormItem extends LayoutFormItem {
+public class CSSLayoutFormItem extends LayoutFormItem implements HasSourceReference {
 
     private FlowPanel panel = new FlowPanel() {
         @Override
@@ -195,5 +196,16 @@ public class CSSLayoutFormItem extends LayoutFormItem {
             this.panel.remove(phantom);
             super.insert(index, item);
         }
+    }
+    
+    @Override
+    public void setSourceReference(String sourceReference) {
+        this.cssStylesheetUrl = sourceReference;
+        this.link.setHref(this.cssStylesheetUrl);
+    }
+    
+    @Override
+    public String getSourceReference() {
+        return this.cssStylesheetUrl;
     }
 }

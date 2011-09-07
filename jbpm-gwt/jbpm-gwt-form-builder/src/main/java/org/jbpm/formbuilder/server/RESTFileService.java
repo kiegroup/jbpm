@@ -1,9 +1,22 @@
+/*
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -24,12 +37,10 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 
 @Path("/files")
-public class RESTFileService {
+public class RESTFileService extends RESTBaseService {
 
     private GuvnorFileService fileService = null;
     
@@ -57,16 +68,14 @@ public class RESTFileService {
                 FileItem item = (FileItem) files.iterator().next();
                 byte[] content = IOUtils.toByteArray(item.getInputStream());
                 String fileName = item.getName();
-                fileService.storeFile(packageName, fileName, content);
-                return Response.created(new URI(request.getRequestURI())).build();
+                String expositionUrl = fileService.storeFile(packageName, fileName, content);
+                return Response.ok(expositionUrl, MediaType.TEXT_PLAIN).build();
             } catch (GuvnorFileException e) {
                 return error("Problem storing file to guvnor", e);
             } catch (IOException e) {
                 return error("Problem reading input of file", e);
             } catch (FileUploadException e) {
                 return error("Problem reading upload of file", e);
-            } catch (URISyntaxException e) {
-                return error("Probem with URI syntax", e);
             }
         } else {
             return error("Must be a multipart form data post", null);
@@ -88,7 +97,7 @@ public class RESTFileService {
     public Response getFiles(@Context HttpServletRequest request, @PathParam("pkgName") String packageName, @QueryParam("type") String fileType) {
         setContext(request.getSession().getServletContext());
         try {
-            List<String> files = fileService.loadFiles(packageName, fileType);
+            List<String> files = fileService.loadFilesByType(packageName, fileType);
             FileListDTO dto = new FileListDTO(files);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (GuvnorFileException e) {
@@ -99,19 +108,11 @@ public class RESTFileService {
     @GET @Path("/package/{pkgName}/{fileName}")
     public Response getFile(@Context HttpServletRequest request, @PathParam("pkgName") String packageName, @PathParam("fileName") String fileName) {
         setContext(request.getSession().getServletContext());
-        
-        return null; //TODO
-    }
-
-    private static final Log log = LogFactory.getLog(RESTFormService.class);
-    
-    Response error(String errormsg, Exception e) {
-        String msg = "Error on REST service: " + errormsg;
-        if (e == null) {
-            log.error(msg);
-        } else {
-            log.error(msg, e);
+        try {
+            byte[] content = fileService.loadFile(packageName, fileName);
+            return Response.ok(content, MediaType.APPLICATION_OCTET_STREAM).build();
+        } catch (GuvnorFileException e) {
+            return error("Problem loading file " + fileName, e);
         }
-        return Response.serverError().build();
     }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -226,6 +226,7 @@ public interface I18NConstants extends Messages {
     String DeleteItemFormEffectLabel();
     String ValidationsEffectLabel();
     String AddItemFormEffectLabel();
+    String UploadEffectLabel();
     String LabelToDelete();
     
     String CheckInComment();

@@ -1,5 +1,4 @@
-/**
-
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package org.jbpm.formbuilder.client.bus;
+ */
+package org.jbpm.formbuilder.client.bus;
 
 import com.google.gwt.event.shared.EventHandler;
 

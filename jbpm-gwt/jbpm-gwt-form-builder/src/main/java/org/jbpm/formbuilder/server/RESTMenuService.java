@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +27,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.SaveMenuItemDTO;
@@ -50,7 +48,7 @@ import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 @Path("/menu")
-public class RESTMenuService {
+public class RESTMenuService extends RESTBaseService {
 
     private final MenuService menuService = new GuvnorMenuService();
     
@@ -65,7 +63,7 @@ public class RESTMenuService {
             ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            return error(e);
+            return error("Problem reading menu items", e);
         }
     }
 
@@ -76,7 +74,7 @@ public class RESTMenuService {
             ListOptionsDTO dto = new ListOptionsDTO(options);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            return error(e);
+            return error("Problem reading menu options", e);
         }
     }
     
@@ -87,7 +85,7 @@ public class RESTMenuService {
             ListValidationsDTO dto = new ListValidationsDTO(validations);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            return error(e);
+            return error("Problem reading validations", e);
         }
     }
     
@@ -158,7 +156,7 @@ public class RESTMenuService {
             menuService.deleteMenuItem(dto.getGroupName(), menuItem);
             return Response.status(Status.ACCEPTED).build();
         } catch (MenuServiceException e) {
-            log.error("Couldn't delete menu item " + dto.getGroupName() + ":" + dto.getName(), e);
+            error("Couldn't delete menu item " + dto.getGroupName() + ":" + dto.getName(), e);
             return Response.status(Status.CONFLICT).build();
         }
     }
@@ -170,14 +168,7 @@ public class RESTMenuService {
             PropertiesDTO dto = new PropertiesDTO(props);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (MenuServiceException e) {
-            return error(e);
+            return error("Problem reading form builder properties", e);
         }
-    }
-    
-    private static final Log log = LogFactory.getLog(RESTMenuService.class);
-
-    Response error(Exception e) {
-        log.error("Error on REST service: ", e);
-        return Response.serverError().build();
     }
 }

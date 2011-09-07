@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -159,4 +159,6 @@ public interface FormBuilderService {
      * @return a form representation for that task
      */
     FormRepresentation toBasicForm(TaskRef task);
+
+    String getUploadFileURL();
 }

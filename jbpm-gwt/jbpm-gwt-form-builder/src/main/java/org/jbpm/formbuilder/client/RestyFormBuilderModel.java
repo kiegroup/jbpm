@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -444,6 +444,11 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public FormRepresentation toBasicForm(TaskRef task) {
         return mockFormService.createFormFromTask(task);
+    }
+
+    @Override
+    public String getUploadFileURL() {
+        return URLBuilder.uploadFileURL(this.contextPath, this.packageName);
     }
     
     private void populateMockFormService(FBMenuItem item) {
