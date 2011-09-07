@@ -61,6 +61,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.UploadFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
             ]
@@ -347,6 +348,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.I18NFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.UploadFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
