@@ -28,7 +28,7 @@ import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.CSSPanelRepresentation;
 
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.StyleElement;
+import com.google.gwt.dom.client.LinkElement;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,7 +49,7 @@ public class CSSLayoutFormItem extends LayoutFormItem {
             return super.remove(w);
         }
     };
-    private StyleElement style = Document.get().createStyleElement(); 
+    private LinkElement link = Document.get().createLinkElement(); 
 
     private String cssStylesheetUrl;
     private String cssClassName;
@@ -63,8 +63,10 @@ public class CSSLayoutFormItem extends LayoutFormItem {
         super(formEffects);
         setSize("190px", "90px");
         panel.setSize(getWidth(), getHeight());
-        this.style.setPropertyString("language", "text/css");
-        panel.getElement().insertFirst(this.style);
+        this.link.setRel("Stylesheet");
+        this.link.setType("text/css");
+        this.link.setMedia("screen");
+        panel.getElement().insertFirst(this.link);
         add(panel);
     }
 
@@ -74,6 +76,8 @@ public class CSSLayoutFormItem extends LayoutFormItem {
         map.put("cssStylesheetUrl", this.cssStylesheetUrl);
         map.put("cssClassName", this.cssClassName);
         map.put("id", this.id);
+        map.put("width", getWidth());
+        map.put("height", getHeight());
         return map;
     }
 
@@ -82,10 +86,13 @@ public class CSSLayoutFormItem extends LayoutFormItem {
         this.cssStylesheetUrl = extractString(map.get("cssStylesheetUrl"));
         this.cssClassName = extractString(map.get("cssClassName"));
         this.id = extractString(map.get("id"));
-        populate(this.panel, this.style);
+        setHeight(extractString(map.get("height")));
+        setWidth(extractString(map.get("width")));
+        
+        populate(this.panel, this.link);
     }
 
-    private void populate(FlowPanel panel, StyleElement style) {
+    private void populate(FlowPanel panel, LinkElement style) {
         if (getHeight() != null) {
             panel.setHeight(getHeight());
         }
@@ -96,7 +103,7 @@ public class CSSLayoutFormItem extends LayoutFormItem {
             panel.setWidth(getWidth());
         }
         if (this.cssStylesheetUrl != null) {
-            style.setPropertyString("src", this.cssStylesheetUrl);
+            style.setHref(this.cssStylesheetUrl);
         }
     }
     
@@ -124,7 +131,7 @@ public class CSSLayoutFormItem extends LayoutFormItem {
         this.cssClassName = crep.getCssClassName();
         this.id = crep.getId();
         super.getItems().clear();
-        populate(this.panel, this.style);
+        populate(this.panel, this.link);
         if (crep.getItems() != null) {
             for (FormItemRepresentation item : crep.getItems()) {
                 add(super.createItem(item));
@@ -138,7 +145,7 @@ public class CSSLayoutFormItem extends LayoutFormItem {
         clone.cssClassName = this.cssClassName;
         clone.cssStylesheetUrl = this.cssStylesheetUrl;
         clone.id = this.id;
-        clone.populate(clone.panel, clone.style);
+        clone.populate(clone.panel, clone.link);
         for (FBFormItem item : getItems()) {
             clone.add(item.cloneItem());
         }
@@ -148,8 +155,8 @@ public class CSSLayoutFormItem extends LayoutFormItem {
     @Override
     public Widget cloneDisplay() {
         FlowPanel fp = new FlowPanel();
-        fp.getElement().insertFirst(this.style.cloneNode(false));
-        populate(fp, this.style);
+        fp.getElement().insertFirst(this.link.cloneNode(false));
+        populate(fp, this.link);
         for (FBFormItem item : getItems()) {
             fp.add(item.cloneDisplay());
         }

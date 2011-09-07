@@ -140,6 +140,7 @@ public class ComboBoxFormItem extends OptionsFormItem {
             OptionRepresentation opt = new OptionRepresentation();
             opt.setLabel(label);
             opt.setValue(this.items.get(label));
+            elements.add(opt);
         }
         rep.setElements(elements);
         rep.setName(this.name);
