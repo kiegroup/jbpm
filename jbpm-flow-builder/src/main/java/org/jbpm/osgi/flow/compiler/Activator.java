@@ -16,14 +16,14 @@ public class Activator
     BundleActivator {
 
     private ServiceRegistration processBuilderReg;
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     public void start(BundleContext bc) throws Exception {
-		this.logger.debug("registering flow compiler services");
+        this.logger.debug("registering flow compiler services");
         this.processBuilderReg = bc.registerService( new String[]{ ProcessBuilderFactoryService.class.getName(), Service.class.getName()},
                                                                    new ProcessBuilderFactoryServiceImpl(),
                                                                    new Hashtable() );
-		this.logger.debug("flow compiler services registered");
+        this.logger.debug("flow compiler services registered");
     }
 
     public void stop(BundleContext bc) throws Exception {

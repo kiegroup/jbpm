@@ -34,10 +34,10 @@ public class Activator
     BundleActivator {
     private ServiceRegistration processRuntimeReg;
     private ServiceRegistration processRuntimeReg2;
-	private Logger logger = LoggerFactory.getLogger(getClass());
+    private Logger logger = LoggerFactory.getLogger(getClass());
     
     public void start(BundleContext bc) throws Exception {
-		this.logger.debug("registering flow core services");
+        this.logger.debug("registering flow core services");
         this.processRuntimeReg = bc.registerService( new String[]{ ProcessRuntimeFactoryService.class.getName(), Service.class.getName()},
                                                                    new ProcessRuntimeFactoryServiceImpl(),
                                                                    new Hashtable() );
@@ -45,7 +45,7 @@ public class Activator
                                                                    new ProcessMarshallerFactoryServiceImpl(),
                                                                    new Hashtable() );
         
-		this.logger.debug("flow core services registered");
+        this.logger.debug("flow core services registered");
     }
 
     public void stop(BundleContext bc) throws Exception {
