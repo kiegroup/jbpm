@@ -197,4 +197,15 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSource
     public String getSourceReference() {
         return this.url;
     }
+    
+    @Override
+    public List<String> getAllowedTypes() {
+        ArrayList<String> retval = new ArrayList<String>();
+        retval.add("image/jpeg");
+        retval.add("image/jpg");
+        retval.add("image/png");
+        retval.add("image/gif");
+        retval.add("image/svg");
+        return retval;
+    }
 }

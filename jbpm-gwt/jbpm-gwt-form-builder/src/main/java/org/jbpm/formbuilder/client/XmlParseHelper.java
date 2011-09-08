@@ -507,7 +507,7 @@ public class XmlParseHelper {
                 }
                 menuItems.add(menuItem);
             } catch (Exception e) {
-                menuItems.add(new ErrorMenuItem(e.getLocalizedMessage()));
+                menuItems.add(new ErrorMenuItem(e.getMessage()));
             }
         }
         return menuItems;

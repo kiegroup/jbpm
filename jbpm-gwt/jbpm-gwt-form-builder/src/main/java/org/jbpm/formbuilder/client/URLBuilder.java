@@ -81,7 +81,7 @@ public class URLBuilder {
     }
 
     protected static String uploadFileURL(String contextPath, String packageName) {
-        return new StringBuilder(contextPath).append("/files/").append(packageName).toString();
+        return new StringBuilder(contextPath).append("/files/package/").append(packageName).toString();
     }
 
     private static String encode(String string) { 

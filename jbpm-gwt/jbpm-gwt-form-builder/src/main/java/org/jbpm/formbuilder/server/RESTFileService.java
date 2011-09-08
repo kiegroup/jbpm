@@ -52,19 +52,21 @@ public class RESTFileService extends RESTBaseService {
     }
     
     @POST @Path("/package/{pkgName}")
-    @Consumes("*/*")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @DoNotUseJAXBProvider
     public Response saveFile(@PathParam("pkgName") String packageName, @Context HttpServletRequest request) {
         setContext(request.getSession().getServletContext());
         if (ServletFileUpload.isMultipartContent(request)) {
             //read multipart request and populate request accordingly for display
-            int maxMemorySize = 240000;
+            int maxMemorySize = 2400000;
             File tmpDirectory = new File(System.getProperty("java.io.tmpdir"));
             DiskFileItemFactory factory = new DiskFileItemFactory(maxMemorySize, tmpDirectory);
             ServletFileUpload upload = new ServletFileUpload(factory);
             try {
                 List<?> files = upload.parseRequest(request);
-                assert (files != null && !files.isEmpty()) : "there should be one file at least";
+                if (files == null || files.isEmpty()) {
+                    return error("there should be one file at least", null);
+                }
                 FileItem item = (FileItem) files.iterator().next();
                 byte[] content = IOUtils.toByteArray(item.getInputStream());
                 String fileName = item.getName();

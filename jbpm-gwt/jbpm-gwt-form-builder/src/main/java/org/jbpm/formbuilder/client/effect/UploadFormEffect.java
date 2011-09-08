@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.effect;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -27,7 +28,9 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.gwtent.reflection.client.Reflectable;
 
+@Reflectable
 public class UploadFormEffect extends FBFormEffect {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
@@ -78,5 +81,13 @@ public class UploadFormEffect extends FBFormEffect {
     @Override
     public PopupPanel createPanel() {
         return new UploadFormEffectView(this);
+    }
+
+    /**
+     * @return
+     */
+    public List<String> getAllowedTypes() {
+        HasSourceReference item = (HasSourceReference) getItem();
+        return item.getAllowedTypes();
     }
 }

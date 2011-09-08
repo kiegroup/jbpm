@@ -248,4 +248,6 @@ public interface I18NConstants extends Messages {
     String SelectValidationFirstWarning();
     String UndoButton();
     String RedoButton();
+    String SelectAFile();
+    String CouldntUploadFile();
 }

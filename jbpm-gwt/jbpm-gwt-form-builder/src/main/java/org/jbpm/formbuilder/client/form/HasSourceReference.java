@@ -15,9 +15,13 @@
  */
 package org.jbpm.formbuilder.client.form;
 
+import java.util.List;
+
 public interface HasSourceReference {
 
     void setSourceReference(String sourceReference);
     
     String getSourceReference();
+    
+    List<String> getAllowedTypes();
 }

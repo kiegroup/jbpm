@@ -422,7 +422,7 @@ public class RestyFormBuilderModel implements FormBuilderService {
                 public void onSuccess(Method method, String response) {
                     String fileName = helper.getFileName(response);
                     FormPanel auxiliarForm = new FormPanel();
-                    auxiliarForm.setMethod("get");
+                    auxiliarForm.setMethod(FormPanel.METHOD_GET);
                     auxiliarForm.setAction(url);
                     Hidden hidden1 = new Hidden("fileName");
                     hidden1.setValue(fileName);

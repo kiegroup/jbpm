@@ -49,7 +49,11 @@ public class GuvnorFileService {
     public String stripFileExtension(String fileName) {
         int dotInd = fileName.lastIndexOf('.');
         // if dot is in the first position, we are dealing with a hidden file rather than an extension
-        return (dotInd > 0) ? fileName.substring(0, dotInd) : fileName;
+        String assetName = (dotInd > 0) ? fileName.substring(0, dotInd) : fileName;
+        if (!assetName.endsWith("-upfile")) {
+            assetName += "-upfile";
+        }
+        return assetName;
     }
     
     public String storeFile(String packageName, String fileName, byte[] content) throws GuvnorFileException {
@@ -97,7 +101,9 @@ public class GuvnorFileService {
 
     public void deleteFile(String packageName, String fileName) throws GuvnorFileException {
         HttpClient client = new HttpClient();
-        DeleteMethod deleteAsset = new DeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + fileName);
+        String assetName = stripFileExtension(fileName);
+        String assetType = extractFileExtension(fileName);
+        DeleteMethod deleteAsset = new DeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
         try {
             deleteAsset.addRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(deleteAsset);
