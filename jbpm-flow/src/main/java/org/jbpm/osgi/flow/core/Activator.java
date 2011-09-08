@@ -26,16 +26,18 @@ import org.jbpm.process.instance.ProcessRuntimeFactoryServiceImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Activator
     implements
     BundleActivator {
     private ServiceRegistration processRuntimeReg;
-    
     private ServiceRegistration processRuntimeReg2;
+	private Logger logger = LoggerFactory.getLogger(getClass());
     
     public void start(BundleContext bc) throws Exception {
-        System.out.println( "registering flow core services" );
+		this.logger.debug("registering flow core services");
         this.processRuntimeReg = bc.registerService( new String[]{ ProcessRuntimeFactoryService.class.getName(), Service.class.getName()},
                                                                    new ProcessRuntimeFactoryServiceImpl(),
                                                                    new Hashtable() );
@@ -43,7 +45,7 @@ public class Activator
                                                                    new ProcessMarshallerFactoryServiceImpl(),
                                                                    new Hashtable() );
         
-        System.out.println( "flow core services registered" );
+		this.logger.debug("flow core services registered");
     }
 
     public void stop(BundleContext bc) throws Exception {
