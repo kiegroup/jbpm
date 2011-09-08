@@ -131,6 +131,7 @@ public class CSSLayoutFormItem extends LayoutFormItem implements HasSourceRefere
         CSSPanelRepresentation crep = (CSSPanelRepresentation) rep;
         this.cssClassName = crep.getCssClassName();
         this.id = crep.getId();
+        this.cssStylesheetUrl = crep.getCssStylesheetUrl();
         super.getItems().clear();
         populate(this.panel, this.link);
         if (crep.getItems() != null) {

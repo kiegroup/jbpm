@@ -75,7 +75,7 @@ public class GuvnorFileService {
             } finally {
                 create.releaseConnection();
             }
-            return (this.baseUrl + "/org.drools.guvnor.Guvnor/api/packages/" + packageName + "/" + fileName);
+            return (this.baseUrl + "/org.drools.guvnor.Guvnor/api/packages/" + packageName + "/" + assetName + "." + assetExt);
         } catch (Exception e) {
             throw new GuvnorFileException("Problem storing file", e);
         }
@@ -102,7 +102,7 @@ public class GuvnorFileService {
     public void deleteFile(String packageName, String fileName) throws GuvnorFileException {
         HttpClient client = new HttpClient();
         String assetName = stripFileExtension(fileName);
-        String assetType = extractFileExtension(fileName);
+        //String assetType = extractFileExtension(fileName);
         DeleteMethod deleteAsset = new DeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
         try {
             deleteAsset.addRequestHeader("Authorization", helper.getAuth());
