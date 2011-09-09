@@ -45,4 +45,5 @@ $valueFormatted<\#else>
 #end
 $valueFormatted</\#if></\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})
-<input type="submit" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end value="<@printi18ncbutton text="${item.text}"/>" />
+#set ($defaultButtonText = "Complete")
+<input type="submit" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($styleParam)$styleParam#end#if($nameParam)$nameParam#end value="<@printi18ncbutton text="#if(${item.text})${item.text}#else$defaultButtonText#end"/>" />

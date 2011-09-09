@@ -44,7 +44,11 @@
     <form #if($onSubmitParam)$onSubmitParam#end#if($onLoadParam)$onLoadParam#end#if($nameParam)$nameParam#end#if($actionParam)$actionParam#end#if($methodParam)$methodParam#end#if($enctypeParam)$enctypeParam#end>
         <#-- taskId: $item.taskId -->
       #foreach ($subItem in $item.formItems)
-        ${language.translateItem($subItem)}
+        #set ($subWidthParam = ${language.getStyleParam("width", $item.width)})
+        #set ($subHeightParam = ${language.getStyleParam("height", $item.height)})
+        #set ($subStyle = "$subWidthParam$subHeightParam")
+        #set ($styleParam = ${language.getParam("style", $subStyle)})
+        <div #if($styleParam)$styleParam)#end>${language.translateItem($subItem)}</div>
       #end
     </form>
   </body>
