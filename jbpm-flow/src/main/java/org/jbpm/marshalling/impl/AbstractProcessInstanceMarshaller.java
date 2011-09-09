@@ -383,9 +383,9 @@ public abstract class AbstractProcessInstanceMarshaller implements
         if (ruleBase != null) {
             processInstance.setProcess(process);
         }
+        processInstance.setKnowledgeRuntime(wm.getKnowledgeRuntime());
         processInstance.setState(stream.readInt());
         long nodeInstanceCounter = stream.readLong();
-        processInstance.setKnowledgeRuntime(wm.getKnowledgeRuntime());
 
         int nbSwimlanes = stream.readInt();
         if (nbSwimlanes > 0) {
