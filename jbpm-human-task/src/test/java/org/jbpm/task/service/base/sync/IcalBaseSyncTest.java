@@ -35,8 +35,6 @@ import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.service.TaskServer;
-import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
@@ -86,13 +84,10 @@ public abstract class IcalBaseSyncTest extends BaseTest {
         Task task = (Task) eval( new StringReader( str ),
                                  vars );
         client.addTask( task, null );
-
         long taskId = task.getId();
-        
         
         client.claim( taskId,
                       users.get( "steve" ).getId());
-        
 
         assertEquals( 2,
                       getWiser().getMessages().size() );
@@ -193,13 +188,10 @@ public abstract class IcalBaseSyncTest extends BaseTest {
         Task task = (Task) eval( new StringReader( str ),
                                  vars );
         client.addTask( task, null );
-
         long taskId = task.getId();
 
-        BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
         client.claim( taskId,
                       users.get( "steve" ).getId() );
-        responseHandler.waitTillDone( 5000 );
 
         assertEquals( 1,
                       getWiser().getMessages().size() );
@@ -271,7 +263,6 @@ public abstract class IcalBaseSyncTest extends BaseTest {
         Task task = (Task) eval( new StringReader( str ),
                                  vars );
         client.addTask( task, null );
-
         long taskId = task.getId();
 
         
@@ -344,14 +335,11 @@ public abstract class IcalBaseSyncTest extends BaseTest {
         Task task = (Task) eval( new StringReader( str ),
                                  vars );
         client.addTask( task, null );
-
+        
         long taskId = task.getId();
 
-        BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
         client.claim( taskId,
                       users.get( "steve" ).getId() );
-
-        responseHandler.waitTillDone( 5000 );
 
         assertEquals( 0,
                       getWiser().getMessages().size() );        
