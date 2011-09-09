@@ -135,6 +135,7 @@ public interface I18NConstants extends Messages {
     String MenuItemPasswordField();
     String MenuItemLoopBlock();
     String MenuItemLineGraph();
+    String MenuItemRichTextEditor();
     
     String NotEmptyValidationName();
     String EqualToValidationName();

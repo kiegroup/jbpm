@@ -139,4 +139,7 @@ public interface FormBuilderResources extends ClientBundle {
     
     @Source("images/arrow_right.png")
     ImageResource arrowRight();
+
+    @Source("images/richTextEditor.png")
+    ImageResource richTextEditor();
 }
