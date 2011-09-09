@@ -50,6 +50,9 @@ public class SplitInstance extends NodeInstanceImpl {
     }
 
     public void internalTrigger(final NodeInstance from, String type) {
+    	   if (type == null ) {
+    		   type = org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE;
+    	   }
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "A Split only accepts default incoming connections!");

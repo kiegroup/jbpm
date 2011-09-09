@@ -11,6 +11,7 @@ import org.drools.WorkingMemory;
 import org.drools.common.AbstractWorkingMemory;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.common.InternalRuleBase;
+import org.drools.definition.process.Node;
 import org.drools.definition.process.Process;
 import org.drools.event.ProcessEventSupport;
 import org.drools.event.RuleFlowGroupDeactivatedEvent;
@@ -222,9 +223,9 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     
     private void initProcessEventListener(Process process) {
     	if ( process instanceof RuleFlowProcess ) {
-            StartNode startNode = ((RuleFlowProcess) process).getStart();
-            if (startNode != null) {
-                List<Trigger> triggers = startNode.getTriggers();
+            Node startNode = ((RuleFlowProcess) process).getStart();
+            if (startNode != null && startNode instanceof StartNode) {
+                List<Trigger> triggers = ((StartNode) startNode).getTriggers();
                 if ( triggers != null ) {
                     for ( Trigger trigger : triggers ) {
                         if ( trigger instanceof EventTrigger ) {

@@ -23,6 +23,7 @@ import org.jbpm.process.core.context.swimlane.SwimlaneContext;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.workflow.core.impl.NodeContainerImpl;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
+import org.jbpm.workflow.core.node.Split;
 import org.jbpm.workflow.core.node.StartNode;
 
 public class RuleFlowProcess extends WorkflowProcessImpl {
@@ -61,16 +62,16 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
         return new WorkflowProcessNodeContainer();
     }
     
-    public StartNode getStart() {
+    public Node getStart() {
         Node[] nodes = getNodes();
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof StartNode) {
-                return (StartNode) nodes[i];
+            if (nodes[i] instanceof StartNode || (nodes[i].getIncomingConnections().isEmpty() && nodes[i] instanceof Split)) {
+                return nodes[i];
             }
         }
         return null;
     }
-
+    
     private class WorkflowProcessNodeContainer extends NodeContainerImpl {
         
         private static final long serialVersionUID = 510l;

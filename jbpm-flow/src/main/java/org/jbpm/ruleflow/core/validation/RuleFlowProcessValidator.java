@@ -117,10 +117,10 @@ public class RuleFlowProcessValidator implements ProcessValidator {
         endNodeFound = false;
         final Node[] nodes = process.getNodes();
         validateNodes(nodes, errors, process);
-        if (!startNodeFound && !process.isDynamic()) {
-            errors.add(new ProcessValidationErrorImpl(process,
-                    "Process has no start node."));
-        }
+//        if (!startNodeFound && !process.isDynamic()) {
+//            errors.add(new ProcessValidationErrorImpl(process,
+//                    "Process has no start node."));
+//        }
         if (!endNodeFound) {
             errors.add(new ProcessValidationErrorImpl(process,
                     "Process has no end node."));
@@ -196,7 +196,7 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                                     + node.getId() + "] has no type."));
                 }
                 if (split.getFrom() == null
-                        && !acceptsNoIncomingConnections(node)) {
+                        && !acceptsNoIncomingConnections(node) && split.getType() != Split.TYPE_XAND) {
                     errors.add(new ProcessValidationErrorImpl(process,
                             "Split node '" + node.getName() + "' ["
                                     + node.getId()
