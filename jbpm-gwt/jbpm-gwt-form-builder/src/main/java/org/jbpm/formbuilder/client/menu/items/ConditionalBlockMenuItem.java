@@ -49,14 +49,12 @@ public class ConditionalBlockMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new ConditionalBlockMenuItem(getFormEffects());
+        return clone(new ConditionalBlockMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        ConditionalBlockFormItem item = new ConditionalBlockFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new ConditionalBlockFormItem());
     }
 
 }

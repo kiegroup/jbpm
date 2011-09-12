@@ -49,14 +49,12 @@ public class ServerTransformationMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new ServerTransformationMenuItem(getFormEffects());
+        return clone(new ServerTransformationMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        ServerTransformationFormItem item = new ServerTransformationFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new ServerTransformationFormItem());
     }
 
 }

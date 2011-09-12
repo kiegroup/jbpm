@@ -89,7 +89,7 @@ public class FormBuilderController {
         FormBuilderGlobals.getInstance().registerDragController(dragController);
         
         this.formExporter = new FormExporter();
-        this.formExporter.start();
+        this.formExporter.serialize();//this.formExporter.start();
         
         view.setNotificationsView(new CompactNotificationsViewImpl());
         view.setMenuView(new AnimatedMenuViewImpl());

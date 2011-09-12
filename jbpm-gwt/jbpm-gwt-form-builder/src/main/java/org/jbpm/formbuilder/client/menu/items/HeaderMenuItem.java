@@ -40,7 +40,7 @@ public class HeaderMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new HeaderMenuItem(super.getFormEffects());
+        return clone(new HeaderMenuItem());
     }
 
     @Override
@@ -55,9 +55,7 @@ public class HeaderMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        HeaderFormItem item = new HeaderFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new HeaderFormItem());
     }
 
 }

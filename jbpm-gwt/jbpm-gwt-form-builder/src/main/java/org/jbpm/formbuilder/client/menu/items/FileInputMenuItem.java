@@ -50,14 +50,12 @@ public class FileInputMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new FileInputMenuItem(super.getFormEffects());
+        return clone(new FileInputMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        FileInputFormItem item = new FileInputFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new FileInputFormItem());
     }
 
     

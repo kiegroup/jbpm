@@ -40,7 +40,7 @@ public class HorizontalLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new HorizontalLayoutMenuItem(super.getFormEffects());
+        return clone(new HorizontalLayoutMenuItem());
     }
 
     @Override
@@ -55,9 +55,7 @@ public class HorizontalLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        HorizontalLayoutFormItem item = new HorizontalLayoutFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new HorizontalLayoutFormItem());
     }
 
 }

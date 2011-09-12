@@ -51,13 +51,11 @@ public class TextFieldMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new TextFieldMenuItem(super.getFormEffects());
+        return clone(new TextFieldMenuItem());
     }
     
     @Override
     public FBFormItem buildWidget() {
-        TextFieldFormItem item = new TextFieldFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new TextFieldFormItem());
     }
 }

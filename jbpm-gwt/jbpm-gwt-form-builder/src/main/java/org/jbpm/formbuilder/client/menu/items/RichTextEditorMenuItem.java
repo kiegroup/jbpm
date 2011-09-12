@@ -51,14 +51,12 @@ public class RichTextEditorMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new RichTextEditorMenuItem(getFormEffects());
+        return clone(new RichTextEditorMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        RichTextEditorFormItem item = new RichTextEditorFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new RichTextEditorFormItem());
     }
 
 }

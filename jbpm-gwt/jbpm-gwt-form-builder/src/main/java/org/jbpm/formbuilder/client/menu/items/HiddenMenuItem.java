@@ -50,14 +50,12 @@ public class HiddenMenuItem extends FBMenuItem {
     
     @Override
     public FBMenuItem cloneWidget() {
-        return new HiddenMenuItem(super.getFormEffects());
+        return clone(new HiddenMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        HiddenFormItem item = new HiddenFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new HiddenFormItem());
     }
 
 }

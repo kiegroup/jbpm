@@ -51,14 +51,12 @@ public class TabbedLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new TabbedLayoutMenuItem(getFormEffects());
+        return clone(new TabbedLayoutMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        TabbedLayoutFormItem item = new TabbedLayoutFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new TabbedLayoutFormItem());
     }
 
 }

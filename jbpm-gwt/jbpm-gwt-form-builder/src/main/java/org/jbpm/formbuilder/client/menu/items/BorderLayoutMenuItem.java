@@ -50,14 +50,12 @@ public class BorderLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new BorderLayoutMenuItem(getFormEffects());
+        return clone(new BorderLayoutMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        BorderLayoutFormItem item = new BorderLayoutFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new BorderLayoutFormItem());
     }
 
 }

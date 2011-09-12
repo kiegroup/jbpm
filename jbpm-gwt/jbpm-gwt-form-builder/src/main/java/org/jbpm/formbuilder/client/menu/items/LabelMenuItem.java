@@ -51,13 +51,11 @@ public class LabelMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new LabelMenuItem(super.getFormEffects());
+        return clone(new LabelMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        LabelFormItem item = new LabelFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new LabelFormItem());
     }
 }

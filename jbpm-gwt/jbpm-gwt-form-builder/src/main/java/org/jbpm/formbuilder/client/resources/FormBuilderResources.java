@@ -142,4 +142,19 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/richTextEditor.png")
     ImageResource richTextEditor();
+
+    @Source("images/hiddenFieldIcon.png")
+    ImageResource hiddenFieldIcon();
+
+    @Source("images/client_script.png")
+    ImageResource clientScript();
+
+    @Source("images/clientScriptIcon.png")
+    ImageResource clientScriptIcon();
+
+    @Source("images/calendar.png")
+    ImageResource calendar();
+
+    @Source("images/calendarSquare.png")
+    ImageResource calendarSquare();
 }

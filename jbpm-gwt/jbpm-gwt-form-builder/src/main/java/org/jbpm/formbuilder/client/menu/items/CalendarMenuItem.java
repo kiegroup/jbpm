@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 JBoss Inc 
+ * Copyright 2011 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 package org.jbpm.formbuilder.client.menu.items;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.items.TableLayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.CalendarFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
@@ -28,34 +29,34 @@ import com.google.gwt.user.client.ui.Label;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class TableLayoutMenuItem extends FBMenuItem {
+public class CalendarMenuItem extends FBMenuItem {
 
-    public TableLayoutMenuItem() {
-        super();
+    public CalendarMenuItem() {
+        this(new ArrayList<FBFormEffect>());
     }
     
-    public TableLayoutMenuItem(List<FBFormEffect> formEffects) {
-        super(formEffects);
+    public CalendarMenuItem(List<FBFormEffect> effects) {
+        super(effects);
     }
-
-    @Override
-    public FBMenuItem cloneWidget() {
-        return clone(new TableLayoutMenuItem());
-    }
-
+    
     @Override
     protected ImageResource getIconUrl() {
-        return FormBuilderResources.INSTANCE.tableLayoutIcon();
+        return FormBuilderResources.INSTANCE.calendar();
     }
 
     @Override
     public Label getDescription() {
-        return new Label(i18n.MenuItemTableLayout());
+        return new Label(i18n.MenuItemCalendar());
+    }
+
+    @Override
+    public FBMenuItem cloneWidget() {
+        return clone(new CalendarMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        return build(new TableLayoutFormItem());
+        return build(new CalendarFormItem());
     }
 
 }

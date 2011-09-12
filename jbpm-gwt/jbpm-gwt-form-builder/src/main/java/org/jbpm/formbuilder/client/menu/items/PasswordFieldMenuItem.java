@@ -51,13 +51,11 @@ public class PasswordFieldMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new PasswordFieldMenuItem(super.getFormEffects());
+        return clone(new PasswordFieldMenuItem());
     }
     
     @Override
     public FBFormItem buildWidget() {
-        PasswordFieldFormItem item = new PasswordFieldFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new PasswordFieldFormItem());
     }
 }

@@ -16,77 +16,109 @@
 package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.items.RichTextEditorRepresentation;
 
+import com.gc.gwt.wysiwyg.client.Editor;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
- * 
+ * UI form item. Represents a rich text editor
  */
+@Reflectable
 public class RichTextEditorFormItem extends FBFormItem {
 
-    /**
-     * 
-     */
+    private Editor editor = new Editor();
+    private String html = "";
+    
     public RichTextEditorFormItem() {
         this(new ArrayList<FBFormEffect>());
+        editor.setSize("99%", "200px");
+        setSize("99%", "200px");
+        editor.setHTML(this.html);
+        add(editor);
     }
     
-    /**
-     * @param formEffects
-     */
     public RichTextEditorFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
     }
 
-    /* (non-Javadoc)
-     * @see org.jbpm.formbuilder.client.form.FBFormItem#getFormItemPropertiesMap()
-     */
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("html", editor.getHTML());
+        map.put("width", editor.getWidth());
+        map.put("height", editor.getHeight());
+        return map;
     }
 
-    /* (non-Javadoc)
-     * @see org.jbpm.formbuilder.client.form.FBFormItem#saveValues(java.util.Map)
-     */
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        // TODO Auto-generated method stub
-
+        this.html = extractString(asPropertiesMap.get("html"));
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
+        populate(this.editor);
+    }
+    
+    private void populate(Editor editor) {
+        if (getHeight() != null && !"".equals(getHeight())) {
+            editor.setHeight(getHeight());
+        }
+        if (getWidth() != null && !"".equals(getWidth())) {
+            editor.setWidth(getWidth());
+        }
+        if (this.html != null && !"".equals(this.html)) {
+            editor.setHTML(this.html);
+        }
     }
 
-    /* (non-Javadoc)
-     * @see org.jbpm.formbuilder.client.form.FBFormItem#getRepresentation()
-     */
     @Override
     public FormItemRepresentation getRepresentation() {
-        // TODO Auto-generated method stub
-        return null;
+        RichTextEditorRepresentation rep = super.getRepresentation(new RichTextEditorRepresentation());
+        rep.setHtml(this.html);
+        return rep;
     }
 
-    /* (non-Javadoc)
-     * @see org.jbpm.formbuilder.client.form.FBFormItem#cloneItem()
-     */
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof RichTextEditorRepresentation)) {
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "RichTextEditorRepresentation"));
+        }
+        super.populate(rep);
+        RichTextEditorRepresentation rrep = (RichTextEditorRepresentation) rep;
+        this.html = rrep.getHtml();
+        if (rrep.getWidth() != null && !"".equals(rrep.getWidth())) {
+            setWidth(rrep.getWidth());
+        }
+        if (rrep.getHeight() != null && !"".equals(rrep.getHeight())) {
+            setHeight(rrep.getHeight());
+        }
+        populate(this.editor);
+    }
+    
     @Override
     public FBFormItem cloneItem() {
-        // TODO Auto-generated method stub
-        return null;
+        RichTextEditorFormItem clone = super.cloneItem(new RichTextEditorFormItem(getFormEffects()));
+        clone.html = this.html;
+        populate(clone.editor);
+        return clone;
     }
 
-    /* (non-Javadoc)
-     * @see org.jbpm.formbuilder.client.form.FBFormItem#cloneDisplay()
-     */
     @Override
     public Widget cloneDisplay() {
-        // TODO Auto-generated method stub
-        return null;
+        Editor display = new Editor();
+        display.setHeight(this.editor.getHeight());
+        display.setWidth(this.editor.getWidth());
+        display.setHTML(this.editor.getHTML());
+        return display;
     }
 
 }

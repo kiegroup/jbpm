@@ -109,9 +109,34 @@
       <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwt-dnd-3.1.0.jar</systemPath>
     </dependency>
     <dependency>
+      <groupId>com.gc.gwt.wysiwyg</groupId>
+      <artifactId>gwt-html-editor</artifactId>
+      <version>0.1.4</version>
+      <!-- temporal fix. Should change soon enough -->
+      <scope>system</scope>
+      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/editor-0.1.4.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.yesmail</groupId>
+      <artifactId>gwt-rolodex</artifactId>
+      <version>1.3</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwt-rolodex-1.3.jar</systemPath>
+    </dependency>
+    <dependency>
       <groupId>org.fusesource.restygwt</groupId>
       <artifactId>restygwt</artifactId>
       <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.timepedia.exporter</groupId>
+      <artifactId>gwtexporter</artifactId>
+      <version>2.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.gwtupload</groupId>
+      <artifactId>gwtupload</artifactId>
+      <version>0.6.3-compat</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.resteasy</groupId>

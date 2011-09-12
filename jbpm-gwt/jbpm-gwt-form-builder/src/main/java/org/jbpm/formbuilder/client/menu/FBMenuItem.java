@@ -152,6 +152,32 @@ public abstract class FBMenuItem extends AbsolutePanel implements HasDragHandle 
      */
     public abstract Label getDescription();
 
+    protected <T extends FBMenuItem> T clone(T item) {
+        if (getFormEffects() != null) {
+            for (FBFormEffect effect : getFormEffects()) {
+                item.addEffect(effect);
+            }
+        }
+        if (getAllowedEvents() != null) {
+            for (String allowedEvent : getAllowedEvents()) {
+                item.addAllowedEvent(allowedEvent);
+            }
+        }
+        return item;
+    }
+    
+    protected <T extends FBFormItem> T build(T item) {
+        if (getFormEffects() != null) {
+            for (FBFormEffect effect : getFormEffects()) {
+                item.addEffect(effect);
+            }
+        }
+        if (getAllowedEvents() != null) {
+            item.setEventActions(getAllowedEventsAsMap());
+        }
+        return item;
+    }
+    
     /**
      * This method is like {@link #clone()}, but returns
      * the proper instance and forces implementation

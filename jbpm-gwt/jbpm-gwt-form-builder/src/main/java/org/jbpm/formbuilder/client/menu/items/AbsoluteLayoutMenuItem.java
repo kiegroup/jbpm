@@ -50,14 +50,12 @@ public class AbsoluteLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new AbsoluteLayoutMenuItem(super.getFormEffects());
+        return clone(new AbsoluteLayoutMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        AbsoluteLayoutFormItem item = new AbsoluteLayoutFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new AbsoluteLayoutFormItem());
     }
 
 }

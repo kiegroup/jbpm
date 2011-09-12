@@ -28,6 +28,7 @@ import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.timepedia.exporter.client.Export;
 
 import com.google.gwt.event.shared.EventBus;
 
@@ -37,6 +38,8 @@ public class FormExporter {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    
+    private String clientExportForm = "";
     
     public FormExporter() {
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
@@ -49,7 +52,6 @@ public class FormExporter {
             @Override
             public void undoAction(UndoableEvent event) { }
         });
-        
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
             @Override
             public void onEvent(GetFormRepresentationResponseEvent event) {
@@ -70,15 +72,12 @@ public class FormExporter {
         }
     }
 
-    protected final native void start() /*-{
-        if (typeof($doc.clientExportForm) == 'undefined') {
-            $doc.clientExportForm = "";
-        } else if ($doc.clientExportForm == null) {
-            $doc.clientExportForm = "";
-        }
-    }-*/;
+    protected void setClientExportForm(String clientExportForm) {
+        this.clientExportForm = clientExportForm;
+    }
     
-    private final native void setClientExportForm(String formAsJson) /*-{
-        $doc.clientExportForm = formAsJson;
-    }-*/;
+    @Export("$wnd.serializeFormBuilder()")
+    public String serialize() {
+        return clientExportForm;
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 JBoss Inc 
+ * Copyright 2011 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,111 +23,117 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.HasSourceReference;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.items.HiddenRepresentation;
+import org.jbpm.formbuilder.shared.api.items.ClientScriptRepresentation;
 
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.ScriptElement;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
-/**
- * UI form item. Represents a hidden field
- */
 @Reflectable
-public class HiddenFormItem extends FBFormItem {
+public class ClientScriptFormItem extends FBFormItem implements HasSourceReference {
 
-    private Hidden hidden = new Hidden();
+    private ScriptElement script = Document.get().createScriptElement();
     
-    private String id;
-    private String name;
-    private String value;
-
-    public HiddenFormItem() {
+    private String type = "text/javascript";
+    private String src = null;
+    
+    public ClientScriptFormItem() {
         this(new ArrayList<FBFormEffect>());
     }
     
-    public HiddenFormItem(List<FBFormEffect> formEffects) {
+    public ClientScriptFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         Grid border = new Grid(1, 1);
         border.setSize("100px", "20px");
         border.setBorderWidth(1);
         border.getCellFormatter().setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
         border.getCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-        border.setWidget(0, 0, new Image(FormBuilderResources.INSTANCE.hiddenFieldIcon()));
+        border.setWidget(0, 0, new Image(FormBuilderResources.INSTANCE.clientScriptIcon()));
+        border.getElement().insertFirst(this.script);
         add(border);
         setSize("100px", "20px");
     }
 
     @Override
-    public Map<String, Object> getFormItemPropertiesMap() {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("value", this.value);
-        map.put("name", this.name);
-        map.put("id", this.id);
-        return map;
-    }
-    
-    @Override
-    public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.value = asPropertiesMap.get("value").toString();
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
-        populate(this.hidden);
+    public void setSourceReference(String sourceReference) {
+        script.setSrc(sourceReference);
     }
 
-    private void populate(Hidden hidden) {
-        if (this.id != null) {
-            hidden.setID(id);
-        }
-        if (this.name != null) {
-            hidden.setName(name);
-        }
-        if (this.value != null) {
-            hidden.setValue(value);
-        }
+    @Override
+    public String getSourceReference() {
+        return script.getSrc();
+    }
+
+    @Override
+    public List<String> getAllowedTypes() {
+        List<String> retval = new ArrayList<String>();
+        retval.add("text/javascript");
+        return retval;
+    }
+    
+    private void populate(ScriptElement script) {
+        script.setSrc(src);
+        script.setType(type);
+    }
+
+    @Override
+    public Map<String, Object> getFormItemPropertiesMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("type", this.type);
+        map.put("src", this.src);
+        return map;
+    }
+
+    @Override
+    public void saveValues(Map<String, Object> asPropertiesMap) {
+        this.type = extractString(asPropertiesMap.get("type"));
+        this.src = extractString(asPropertiesMap.get("src"));
+        populate(this.script);
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        HiddenRepresentation rep = super.getRepresentation(new HiddenRepresentation());
-        rep.setId(id);
-        rep.setName(name);
-        rep.setValue(value);
+        ClientScriptRepresentation rep = super.getRepresentation(new ClientScriptRepresentation());
+        rep.setType(this.type);
+        rep.setSrc(this.src);
         return rep;
-    }
-    
-    @Override
-    public void populate(FormItemRepresentation rep) throws FormBuilderException {
-        if (!(rep instanceof HiddenRepresentation)) {
-            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "HiddenRepresentation"));
-        }
-        super.populate(rep);
-        HiddenRepresentation hrep = (HiddenRepresentation) rep;
-        this.id = hrep.getId();
-        this.name = hrep.getName();
-        this.value = hrep.getValue();
-        populate(this.hidden);
     }
 
     @Override
-    public FBFormItem cloneItem() {
-        HiddenFormItem clone = new HiddenFormItem(getFormEffects());
-        clone.id = this.id;
-        clone.name = this.name;
-        clone.value = this.value;
-        clone.populate(clone.hidden);
-        return clone;
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof ClientScriptRepresentation)) {
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "ClientScriptRepresentation"));
+        }
+        super.populate(rep);
+        ClientScriptRepresentation csrep = (ClientScriptRepresentation) rep;
+        this.src = csrep.getSrc();
+        this.type = csrep.getType();
+        populate(this.script);
     }
     
     @Override
-    public Widget cloneDisplay() {
-        Hidden hi = new Hidden();
-        populate(hi);
-        return hi;
+    public FBFormItem cloneItem() {
+        ClientScriptFormItem clone = super.cloneItem(new ClientScriptFormItem());
+        clone.src = this.src;
+        clone.type = this.type;
+        populate(clone.script);
+        return clone;
     }
+
+    @Override
+    public Widget cloneDisplay() {
+        Widget widget = new Widget();
+        widget.getElement().insertFirst(script.cloneNode(true));
+        return widget; 
+    }
+
+    
 }

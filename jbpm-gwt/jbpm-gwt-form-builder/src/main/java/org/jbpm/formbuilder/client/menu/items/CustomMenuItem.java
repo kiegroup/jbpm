@@ -170,7 +170,7 @@ public class CustomMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new CustomMenuItem(representation, optionName, getFormEffects(), groupName);
+        return clone(new CustomMenuItem(representation, optionName, getFormEffects(), groupName));
     }
 
     @Override
@@ -182,11 +182,7 @@ public class CustomMenuItem extends FBMenuItem {
     public FBFormItem buildWidget() {
         try {
             FBFormItem item = FBFormItem.createItem(representation);
-            for (FBFormEffect effect : getFormEffects()) {
-                item.addEffect(effect);
-            }
-            item.setEventActions(getAllowedEventsAsMap());
-            return item;
+            return build(item);
         } catch (FormBuilderException e) {
             return new ErrorMenuItem(e.getLocalizedMessage()).buildWidget();
         }

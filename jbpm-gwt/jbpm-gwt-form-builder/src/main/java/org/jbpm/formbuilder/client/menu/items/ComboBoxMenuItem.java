@@ -40,7 +40,7 @@ public class ComboBoxMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new ComboBoxMenuItem(super.getFormEffects());
+        return clone(new ComboBoxMenuItem());
     }
 
     @Override
@@ -55,9 +55,7 @@ public class ComboBoxMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        ComboBoxFormItem item = new ComboBoxFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new ComboBoxFormItem());
     }
 
 }

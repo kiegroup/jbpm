@@ -50,14 +50,12 @@ public class ImageMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new ImageMenuItem(super.getFormEffects());
+        return clone(new ImageMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        ImageFormItem item = new ImageFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new ImageFormItem());
     }
 
 }

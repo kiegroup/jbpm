@@ -41,7 +41,7 @@ public class CheckBoxMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new CheckBoxMenuItem(super.getFormEffects());
+        return clone(new CheckBoxMenuItem());
     }
 
     @Override
@@ -56,8 +56,6 @@ public class CheckBoxMenuItem extends FBMenuItem {
 
     @Override
     public FBFormItem buildWidget() {
-        CheckBoxFormItem item = new CheckBoxFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new CheckBoxFormItem());
     }
 }

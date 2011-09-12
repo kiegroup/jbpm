@@ -50,14 +50,12 @@ public class RadioButtonMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new RadioButtonMenuItem(super.getFormEffects());
+        return clone(new RadioButtonMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        RadioButtonFormItem item = new RadioButtonFormItem(super.getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new RadioButtonFormItem());
     }
 
 }

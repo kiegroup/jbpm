@@ -15,8 +15,14 @@
  */
 package org.jbpm.formbuilder.client.menu.items;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.items.ClientScriptFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;
@@ -25,27 +31,31 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class ClientScriptMenuItem extends FBMenuItem {
 
+    public ClientScriptMenuItem() {
+        this(new ArrayList<FBFormEffect>());
+    }
+    
+    public ClientScriptMenuItem(List<FBFormEffect> formEffects) {
+        super(formEffects);
+    }
+
     @Override
     protected ImageResource getIconUrl() {
-        // TODO Auto-generated method stub
-        return null;
+        return FormBuilderResources.INSTANCE.clientScript();
     }
 
     @Override
     public Label getDescription() {
-        // TODO Auto-generated method stub
-        return null;
+        return new Label(i18n.MenuItemClientScript());
     }
 
     @Override
     public FBMenuItem cloneWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return clone(new ClientScriptMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        // TODO Auto-generated method stub
-        return null;
+        return build(new ClientScriptFormItem());
     }
 }

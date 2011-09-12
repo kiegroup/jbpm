@@ -50,14 +50,12 @@ public class CSSLayoutMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new CSSLayoutMenuItem(getFormEffects());
+        return clone(new CSSLayoutMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        CSSLayoutFormItem item = new CSSLayoutFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new CSSLayoutFormItem());
     }
 
 }

@@ -49,14 +49,12 @@ public class LoopBlockMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return new LoopBlockMenuItem(getFormEffects());
+        return clone(new LoopBlockMenuItem());
     }
 
     @Override
     public FBFormItem buildWidget() {
-        LoopBlockFormItem item = new LoopBlockFormItem(getFormEffects());
-        item.setEventActions(getAllowedEventsAsMap());
-        return item;
+        return build(new LoopBlockFormItem());
     }
 
 }
