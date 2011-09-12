@@ -28,21 +28,15 @@ import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
-import org.timepedia.exporter.client.Export;
-import org.timepedia.exporter.client.Exportable;
-import org.timepedia.exporter.client.NoExport;
 
 import com.google.gwt.event.shared.EventBus;
 
-@Export("FormExporter")
-public class FormExporter implements Exportable {
+public class FormExporter {
 
     private static final String EXPORT_TYPE = FormExporter.class.getName();
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
-    
-    private String clientExportForm = "";
     
     public FormExporter() {
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
@@ -55,6 +49,7 @@ public class FormExporter implements Exportable {
             @Override
             public void undoAction(UndoableEvent event) { }
         });
+        
         bus.addHandler(GetFormRepresentationResponseEvent.TYPE, new GetFormRepresentationResponseHandler() {
             @Override
             public void onEvent(GetFormRepresentationResponseEvent event) {
@@ -65,7 +60,6 @@ public class FormExporter implements Exportable {
         });
     }
     
-    @NoExport
     protected void exportForm(FormRepresentation form) {
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
@@ -76,12 +70,15 @@ public class FormExporter implements Exportable {
         }
     }
 
-    @NoExport
-    protected void setClientExportForm(String clientExportForm) {
-        this.clientExportForm = clientExportForm;
-    }
+    protected final native void start() /*-{
+        if (typeof($doc.clientExportForm) == 'undefined') {
+            $doc.clientExportForm = "";
+        } else if ($doc.clientExportForm == null) {
+            $doc.clientExportForm = "";
+        }
+    }-*/;
     
-    public String serialize() {
-        return clientExportForm;
-    }
+    private final native void setClientExportForm(String formAsJson) /*-{
+        $doc.clientExportForm = formAsJson;
+    }-*/;
 }
