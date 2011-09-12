@@ -29,10 +29,13 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.timepedia.exporter.client.Export;
+import org.timepedia.exporter.client.Exportable;
+import org.timepedia.exporter.client.NoExport;
 
 import com.google.gwt.event.shared.EventBus;
 
-public class FormExporter {
+@Export("FormExporter")
+public class FormExporter implements Exportable {
 
     private static final String EXPORT_TYPE = FormExporter.class.getName();
 
@@ -62,6 +65,7 @@ public class FormExporter {
         });
     }
     
+    @NoExport
     protected void exportForm(FormRepresentation form) {
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
@@ -72,11 +76,11 @@ public class FormExporter {
         }
     }
 
+    @NoExport
     protected void setClientExportForm(String clientExportForm) {
         this.clientExportForm = clientExportForm;
     }
     
-    @Export("$wnd.serializeFormBuilder()")
     public String serialize() {
         return clientExportForm;
     }

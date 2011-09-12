@@ -36,11 +36,11 @@
   <inherits name="org.gwt.mosaic.ui.UI" />
   <inherits name="com.google.gwt.junit.JUnit" />
   <inherits name="org.timepedia.exporter.Exporter" />
-  <inherits name="com.gc.gwt.wysiwyg.Editor" />
+  <inherits name="com.gc.gwt.wysiwyg.Editor"/>
 
+  <set-property name="export" value="yes"/>
   <extend-property name="locale" values="es_ES" />
   <set-property name="user.agent" value="gecko1_8" />
-  <set-property name="export" value="yes"/>
 
   <entry-point class="org.jbpm.formbuilder.client.FormBuilderEntryPoint" />
 
