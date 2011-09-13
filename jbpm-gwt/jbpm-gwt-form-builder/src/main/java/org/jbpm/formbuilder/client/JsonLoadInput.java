@@ -80,6 +80,9 @@ public class JsonLoadInput {
     
 
     public Map<String, Object> getFormData() {
+        if (formData == null) {
+            formData = new HashMap<String, Object>();
+        }
         return formData;
     }
 

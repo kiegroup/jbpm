@@ -452,6 +452,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.CutFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.PasteFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.UploadFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
