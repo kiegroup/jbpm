@@ -184,11 +184,12 @@ public class HorizontalLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         HorizontalPanel hp = new HorizontalPanel();
         populate(hp);
+        super.populateActions(hp.getElement());
         for (FBFormItem item : getItems()) {
-            hp.add(item.cloneDisplay());
+            hp.add(item.cloneDisplay(data));
         }
         return hp;
     }

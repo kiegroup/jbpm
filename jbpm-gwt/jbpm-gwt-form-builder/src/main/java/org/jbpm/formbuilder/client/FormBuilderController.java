@@ -16,9 +16,7 @@
 package org.jbpm.formbuilder.client;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
@@ -41,11 +39,7 @@ import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
 import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
 import org.jbpm.formbuilder.client.tree.TreeViewImpl;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
-import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
@@ -53,10 +47,6 @@ import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderController {
@@ -132,35 +122,18 @@ public class FormBuilderController {
         String innerHTML = rootPanel.getElement().getInnerHTML();
         if (innerHTML != null && !"".equals(innerHTML)) {
             try {
-                JSONValue json = JSONParser.parseStrict(innerHTML);
-                if (json.isObject() != null) {
-                    TaskRef task = null;
-                    String profileName = null;
-                    String pkgName = null;
-                    JSONObject jsonObj = json.isObject();
-                    if (jsonObj.get("embedded") != null && jsonObj.get("embedded").isString() != null) {
-                        profileName = jsonObj.get("embedded").isString().stringValue();
-                    }
-                    JSONValue jsonPkg = jsonObj.get("packageName");
-                    if (jsonPkg != null && jsonPkg.isString() != null) {
-                        pkgName = jsonPkg.isString().stringValue();
-                        if (pkgName != null && !"".equals(pkgName)) {
-                            model.setPackageName(pkgName);
+                JsonLoadInput input = JsonLoadInput.parse(innerHTML);
+                if (input != null) {
+                    if (input.getForm() != null) {
+                        if (input.getPackage() != null && !"".equals(input.getPackage())) {
+                            model.setPackageName(input.getPackage());
+                        }
+                        retval.add(new UpdateFormViewEvent(input.getForm()));
+                        if (input.getTask() == null && hasTaskAssigned(input.getForm())) {
+                            model.selectIoAssociation(input.getPackage(), input.getForm().getProcessName(), input.getForm().getTaskId());
                         }
                     }
-                    if (jsonObj.get("task") != null && jsonObj.get("task").isObject() != null) {
-                        task = toTask(jsonObj.get("task").isObject());
-                    }
-                    if (jsonObj.get("formjson") != null && jsonObj.get("formjson").isString() != null) {
-                        FormRepresentation form = toForm(jsonObj.get("formjson").isString().stringValue());
-                        if (form != null) {
-                            retval.add(new UpdateFormViewEvent(form));
-                            if (task == null && hasTaskAssigned(form)) {
-                                model.selectIoAssociation(pkgName, form.getProcessName(), form.getTaskId());
-                            }
-                        }
-                    }
-                    retval.add(new EmbededIOReferenceEvent(task, profileName));
+                    retval.add(new EmbededIOReferenceEvent(input.getTask(), input.getProfile()));
                 }
             } catch (Exception e) {
                 GWT.log("Problem parsing init content", e);
@@ -168,68 +141,12 @@ public class FormBuilderController {
         }
         return retval;
     }
-    
+
     private boolean hasTaskAssigned(FormRepresentation form) {
         boolean notNull = form != null && form.getProcessName() != null && form.getTaskId() != null;
         return notNull && !"".equals(form.getProcessName().trim()) && !"".equals(form.getTaskId().trim());
     }
     
-    private FormRepresentation toForm(String json) {
-        FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
-        FormRepresentation form = null;
-        try {
-            form = decoder.decode(json);
-        } catch (FormEncodingException e) {
-            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntLoadFromEmbeded(), e));
-        }
-        return form;
-    }
-    
-    private TaskRef toTask(JSONObject json) {
-        TaskRef retval = null;
-        if (json != null) {
-            retval = new TaskRef();
-            retval.setInputs(getIOData(json.get("inputs").isArray()));
-            retval.setOutputs(getIOData(json.get("outputs").isArray()));
-            Map<String, String> metaData = new HashMap<String, String>();
-            JSONObject jsonMetaData = json.get("metaData") == null ? null : json.get("metaData").isObject();
-            if (jsonMetaData != null) {
-                for (String key : jsonMetaData.keySet()) {
-                    metaData.put(key, jsonMetaData.get(key).isString().stringValue());
-                }
-            }
-            retval.setMetaData(metaData);
-            if (json.get("packageName") != null && json.get("packageName").isString() != null) {
-                retval.setPackageName(json.get("packageName").isString().stringValue());
-            }
-            if (json.get("processId") != null && json.get("processId").isString() != null) {
-                retval.setProcessId(json.get("processId").isString().stringValue());
-            }
-            if (json.get("taskId") != null && json.get("taskId").isString() != null) {
-                retval.setTaskId(json.get("taskId").isString().stringValue());
-            }
-        }
-        return retval;
-    }
-
-    private List<TaskPropertyRef> getIOData(JSONArray jsonIO) {
-        List<TaskPropertyRef> retval = new ArrayList<TaskPropertyRef>();
-        if (jsonIO != null) {
-            for (int index = 0; index < jsonIO.size(); index++) {
-                JSONObject jsonIo = jsonIO.get(index).isObject();
-                TaskPropertyRef io = new TaskPropertyRef();
-                if (jsonIo.get("name") != null && jsonIo.get("name").isString() != null) {
-                    io.setName(jsonIo.get("name").isString().stringValue());
-                }
-                if (jsonIo.get("sourceExpression") != null && jsonIo.get("sourceExpression").isString() != null) {
-                    io.setSourceExpresion(jsonIo.get("sourceExpression").isString().stringValue());
-                }
-                retval.add(io);
-            }
-        }
-        return retval;
-    }
-
     private void setViewPanel(RootPanel rootPanel) {
         rootPanel.getElement().setInnerHTML("");
         rootPanel.getElement().getStyle().setVisibility(Visibility.VISIBLE);

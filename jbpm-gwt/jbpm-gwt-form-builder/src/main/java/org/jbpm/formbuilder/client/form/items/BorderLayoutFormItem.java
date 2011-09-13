@@ -164,13 +164,13 @@ public class BorderLayoutFormItem extends LayoutFormItem {
 	public FBFormItem cloneItem() {
 		BorderLayoutFormItem clone = super.cloneItem(new BorderLayoutFormItem(getFormEffects()));
 		clone.currentPosition = this.currentPosition;
-		clone.grid = (Grid) cloneDisplay();
+		clone.grid = (Grid) cloneDisplay(null);
 		clone.locations = new HashMap<Position, FBFormItem>(this.locations);
 		return clone;
 	}
 
 	@Override
-	public Widget cloneDisplay() {
+	public Widget cloneDisplay(Map<String, Object> data) {
 		int rows = this.grid.getRowCount();
 		int columns = this.grid.getColumnCount();
 		Grid g = new Grid(rows, columns);
@@ -180,9 +180,10 @@ public class BorderLayoutFormItem extends LayoutFormItem {
             int row = index/columns;
             FBFormItem item = (FBFormItem) this.grid.getWidget(row, column);
             if (item != null) {
-                g.setWidget(row, column, item.cloneDisplay());
+                g.setWidget(row, column, item.cloneDisplay(data));
             }
         }
+        super.populateActions(g.getElement());
         return g;
 	}
 

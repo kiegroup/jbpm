@@ -9,8 +9,8 @@
                     {   "html": "As FTL",
                         "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand"
                     },
-                    {   "html": "As XSL",
-                        "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand",
+                    {   "html": "As GWT",
+                        "commandClass": "org.jbpm.formbuilder.client.command.PreviewFormAsGwtCommand",
                         "enabled": false
                     }
                 ]

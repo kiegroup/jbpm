@@ -134,9 +134,17 @@ public class RadioButtonFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         RadioButton rb = new RadioButton("");
         populate(rb);
+        Object input = getInputValue(data);
+        if (input != null) {
+            rb.setValue(Boolean.valueOf(input.toString()));
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            rb.setName(getOutput().getName());
+        }
+        super.populateActions(rb.getElement());
         return rb;
     }
 }

@@ -155,12 +155,13 @@ public class CSSLayoutFormItem extends LayoutFormItem implements HasSourceRefere
     }
 
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         FlowPanel fp = new FlowPanel();
         fp.getElement().insertFirst(this.link.cloneNode(false));
         populate(fp, this.link);
+        super.populateActions(fp.getElement());
         for (FBFormItem item : getItems()) {
-            fp.add(item.cloneDisplay());
+            fp.add(item.cloneDisplay(data));
         }
         return fp;
     }

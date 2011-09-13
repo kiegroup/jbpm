@@ -149,9 +149,17 @@ public class TextFieldFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         TextBox tb = new TextBox();
         populate(tb);
+        Object input = getInputValue(data);
+        if (input != null) {
+            tb.setValue(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            tb.setName(getOutput().getName());
+        }
+        super.populateActions(tb.getElement());
         return tb;
     }
 }

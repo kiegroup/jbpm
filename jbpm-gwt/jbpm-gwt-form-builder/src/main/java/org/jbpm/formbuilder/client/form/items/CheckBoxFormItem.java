@@ -134,9 +134,17 @@ public class CheckBoxFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         CheckBox cb = new CheckBox();
         populate(cb);
+        Object input = getInputValue(data);
+        if (input != null) {
+            cb.setValue(Boolean.valueOf(input.toString()));
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            cb.setName(getOutput().getName());
+        }
+        super.populateActions(cb.getElement());
         return cb;
     }
 }

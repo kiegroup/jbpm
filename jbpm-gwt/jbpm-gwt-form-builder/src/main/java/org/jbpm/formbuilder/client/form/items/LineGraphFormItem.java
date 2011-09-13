@@ -135,7 +135,7 @@ public class LineGraphFormItem extends FBFormItem {
     @Override
     public FBFormItem cloneItem() {
         LineGraphFormItem item = super.cloneItem(new LineGraphFormItem(getFormEffects()));
-        item.chart = (LineChart) cloneDisplay();
+        item.chart = (LineChart) cloneDisplay(null);
         item.dataStructRep = new ArrayList<Map.Entry<String, String>>(this.dataStructRep);
         item.dataTableRep = new ArrayList<List<String>>(this.dataTableRep);
         item.graphTitle = this.graphTitle;
@@ -145,9 +145,11 @@ public class LineGraphFormItem extends FBFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         LineChart chart = new LineChart();
         populate(chart);
+        //TODO populate with external data
+        super.populateActions(chart.getElement());
         return chart;
     }
 

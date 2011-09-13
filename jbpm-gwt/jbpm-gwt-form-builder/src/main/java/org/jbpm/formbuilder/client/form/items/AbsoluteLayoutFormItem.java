@@ -150,12 +150,13 @@ public class AbsoluteLayoutFormItem extends LayoutFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         AbsolutePanel ap = new AbsolutePanel();
         populate(ap);
         for (FBFormItem item : getItems()) {
-            ap.add(item.cloneDisplay(), this.getAbsoluteLeft() - item.getDesiredX(), this.getAbsoluteTop() - item.getDesiredY());
+            ap.add(item.cloneDisplay(data), this.getAbsoluteLeft() - item.getDesiredX(), this.getAbsoluteTop() - item.getDesiredY());
         }
+        super.populateActions(ap.getElement());
         return ap;
     }
 

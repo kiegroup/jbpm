@@ -87,7 +87,7 @@ public class ErrorMenuItem extends FBMenuItem {
             }
             
             @Override
-            public Widget cloneDisplay() {
+            public Widget cloneDisplay(Map<String, Object> data) {
                 return null;
             }
         };

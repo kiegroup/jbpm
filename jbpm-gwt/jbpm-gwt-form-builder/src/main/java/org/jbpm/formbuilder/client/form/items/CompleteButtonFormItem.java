@@ -30,6 +30,9 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
 
+import com.google.gwt.dom.client.ButtonElement;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
@@ -144,9 +147,23 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         Button bt = new Button();
         populate(bt);
+        Object input = getInputValue(data);
+        if (input != null) {
+            bt.setText(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            ButtonElement.as(bt.getElement()).setName(getOutput().getName());
+        }
+        bt.addClickHandler(new ClickHandler() {
+            @Override
+            public native void onClick(ClickEvent event) /*-{
+                document.forms[0].submit();
+            }-*/;
+        });
+        super.populateActions(bt.getElement());
         return bt;
     }
     

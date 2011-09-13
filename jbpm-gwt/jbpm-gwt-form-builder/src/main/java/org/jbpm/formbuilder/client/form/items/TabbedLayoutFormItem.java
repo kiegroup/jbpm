@@ -80,15 +80,22 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         
     }
     
-    private TabLayoutPanel panel = new TabLayoutPanel(21, Unit.PX) {
+    public class MyTabLayoutPanel extends TabLayoutPanel {
+
+        public MyTabLayoutPanel(double barHeight, Unit barUnit) {
+            super(barHeight, barUnit);
+        }
+        
         @Override
         public boolean remove(Widget widget) {
             if (widget instanceof FBFormItem) {
                 TabbedLayoutFormItem.this.removeItem((FBFormItem) widget);
             }
             return super.remove(widget);
-        };
-    };
+        }
+    }
+    
+    private TabLayoutPanel panel = new MyTabLayoutPanel(21, Unit.PX);
     
     public TabbedLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
@@ -223,6 +230,27 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         populate(clone.panel);
         return clone;
     }
+    
+    @Override
+    public Widget cloneDisplay(Map<String, Object> data) {
+        TabLayoutPanel panel = new MyTabLayoutPanel(25, Unit.PX);
+        panel.getElement().setId(this.id);
+        panel.getElement().setClassName(this.cssClassName);
+        for (int index = 0; index < this.titles.size() && index < this.tabs.size(); index++) {
+            FlowLayoutFormItem flow = this.tabs.get(index);
+            TabLabelFormItem label = this.titles.get(index);
+            if (flow != null && label != null) {
+                Widget newFlow = flow.cloneDisplay(data);
+                if (this.cssClassName != null && !"".equals(this.cssClassName)) {
+                    newFlow.setStyleName(this.cssClassName);
+                }
+                panel.add(newFlow, label.cloneDisplay(data));
+            }
+        }
+        super.populateActions(panel.getElement());
+        return panel;
+    }
+
 
     @Override
     public boolean add(FBFormItem item) {
@@ -260,11 +288,6 @@ public class TabbedLayoutFormItem extends LayoutFormItem {
         populate(this.panel);
     }
 
-    @Override
-    public Widget cloneDisplay() {
-        return ((TabbedLayoutFormItem)cloneItem()).panel;
-    }
-    
     public int getTabForCoordinates(int x, int y) {
         int tabNumber = 0;
         while (tabNumber < panel.getWidgetCount()) {

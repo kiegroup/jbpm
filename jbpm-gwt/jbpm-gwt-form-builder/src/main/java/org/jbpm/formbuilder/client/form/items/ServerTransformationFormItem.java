@@ -94,13 +94,18 @@ public class ServerTransformationFormItem extends FBFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
-        Label display = new Label(scriptMarker.getText());
+    public Widget cloneDisplay(Map<String, Object> data) {
+        Widget display = new Widget();
+        eval0(scriptMarker.getText());
         display.setHeight(getHeight());
         display.setWidth(getWidth());
-        display.setStyleName("transformationBlockBorder");
+        super.populateActions(display.getElement());
         return display;
     }
+    
+    public native void eval0(String script) /*-{
+        eval(script);
+    }-*/;
     
     @Override
     public FBInplaceEditor createInplaceEditor() {

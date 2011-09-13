@@ -151,9 +151,14 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         Label lb = new Label();
         populate(lb);
+        String value = (String) getInputValue(data);
+        if (value != null) {
+            lb.setText(value);
+        }
+        super.populateActions(lb.getElement());
         return lb;
     }
     

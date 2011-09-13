@@ -128,9 +128,19 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
-        return ((ConditionalBlockFormItem) cloneItem()).display;
+    public Widget cloneDisplay(Map<String, Object> data) {
+        Widget elseBlock = this.elseBlock == null ? null : this.elseBlock.cloneDisplay(data);
+        Widget ifBlock = this.ifBlock == null ? null : this.ifBlock.cloneDisplay(data);
+        String condition = this.conditionScript;
+        boolean result = eval0(condition);
+        Widget actualBlock = result ? ifBlock : elseBlock;
+        super.populateActions(actualBlock.getElement());
+        return actualBlock;
     }
+    
+    private native boolean eval0(String condition) /*-{
+        return eval(condition);
+    }-*/;
 
     @Override
     public HasWidgets getPanel() {

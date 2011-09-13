@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -207,10 +208,39 @@ public class ComboBoxFormItem extends OptionsFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         ListBox lb = new ListBox();
         populate(lb);
         addItems(getItems(), lb);
+        Object input = getInputValue(data);
+        String inputName = getInput() == null ? null : getInput().getName();
+        if (input != null && inputName != null) {
+            if (input.getClass().isArray()) {
+                Object[] arr = (Object[]) input;
+                for (Object obj : arr) {
+                    lb.addItem(obj.toString(), obj.toString());
+                }
+            } else if (input instanceof Collection) {
+                Collection<?> col = (Collection<?>) input;
+                for (Object obj : col) {
+                    lb.addItem(obj.toString(), obj.toString());
+                }
+            } else if (input instanceof Map) {
+                Map<?,?> map = (Map<?,?>) input;
+                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                    lb.addItem(entry.getKey().toString(), entry.getValue().toString());
+                }
+            } else {
+                String value = input.toString();
+                for (int index = 0; index < lb.getItemCount(); index++) {
+                    if (value != null && value.equals(lb.getValue(index))) {
+                        lb.setSelectedIndex(index);
+                        break;
+                    }
+                }
+            }
+        }
+        super.populateActions(lb.getElement());
         return lb;
     }
 }

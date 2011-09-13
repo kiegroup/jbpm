@@ -23,10 +23,10 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.common.panels.RichTextEditor;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.RichTextEditorRepresentation;
 
-import com.gc.gwt.wysiwyg.client.Editor;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -36,7 +36,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class RichTextEditorFormItem extends FBFormItem {
 
-    private Editor editor = new Editor();
+    private RichTextEditor editor = new RichTextEditor();
     private String html = "";
     
     public RichTextEditorFormItem() {
@@ -68,7 +68,7 @@ public class RichTextEditorFormItem extends FBFormItem {
         populate(this.editor);
     }
     
-    private void populate(Editor editor) {
+    private void populate(RichTextEditor editor) {
         if (getHeight() != null && !"".equals(getHeight())) {
             editor.setHeight(getHeight());
         }
@@ -113,11 +113,17 @@ public class RichTextEditorFormItem extends FBFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
-        Editor display = new Editor();
-        display.setHeight(this.editor.getHeight());
-        display.setWidth(this.editor.getWidth());
-        display.setHTML(this.editor.getHTML());
+    public Widget cloneDisplay(Map<String, Object> data) {
+        RichTextEditor display = new RichTextEditor();
+        populate(display);
+        Object input = getInputValue(data);
+        if (input != null) {
+            display.setHTML(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            display.setName(getOutput().getName());
+        }
+        super.populateActions(display.getElement());
         return display;
     }
 

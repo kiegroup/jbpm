@@ -123,9 +123,13 @@ public class FileInputFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         FileUpload fu = new FileUpload();
         populate(fu);
+        if (getOutput() != null && getOutput().getName() != null) {
+            fu.setName(getOutput().getName());
+        }
+        super.populateActions(fu.getElement());
         return fu;
     }
 }

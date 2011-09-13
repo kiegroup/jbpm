@@ -480,7 +480,7 @@ public class TableLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         Grid g = new Grid(this.rows, this.columns);
         populate(g);
         for (int index = 0; index < this.columns * this.rows; index++) {
@@ -488,9 +488,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
             int row = index/this.columns;
             FBFormItem item = (FBFormItem) this.grid.getWidget(row, column);
             if (item != null) {
-                g.setWidget(row, column, item.cloneDisplay());
+                g.setWidget(row, column, item.cloneDisplay(data));
             }
         }
+        super.populateActions(g.getElement());
         return g;
     }
 }

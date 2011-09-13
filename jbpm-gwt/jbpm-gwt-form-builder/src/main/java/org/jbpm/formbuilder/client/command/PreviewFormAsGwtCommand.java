@@ -21,11 +21,11 @@ import com.gwtent.reflection.client.Reflectable;
  * Handles the preview action for XSL
  */
 @Reflectable
-public class PreviewFormAsXslCommand extends PreviewFormCommand {
+public class PreviewFormAsGwtCommand extends PreviewFormCommand {
 
-    private static final String LANG = "xsl";
+    private static final String LANG = "gwt";
     
-    public PreviewFormAsXslCommand() {
+    public PreviewFormAsGwtCommand() {
         super(LANG);
     }
 }

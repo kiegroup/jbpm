@@ -138,11 +138,12 @@ public class FlowLayoutFormItem extends LayoutFormItem {
 	}
 
 	@Override
-	public Widget cloneDisplay() {
+	public Widget cloneDisplay(Map<String, Object> data) {
         FlowPanel fp = new FlowPanel();
         populate(fp);
+        super.populateActions(fp.getElement());
         for (FBFormItem item : getItems()) {
-            fp.add(item.cloneDisplay());
+            fp.add(item.cloneDisplay(data));
         }
         return fp;
 	}

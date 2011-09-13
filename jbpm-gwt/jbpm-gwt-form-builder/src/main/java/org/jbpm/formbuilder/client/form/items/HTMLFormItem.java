@@ -130,10 +130,11 @@ public class HTMLFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         HTML html = new HTML();
         html.setHTML(this.html.getHTML());
         populate(html);
+        super.populateActions(html.getElement());
         return html;
     }
 }

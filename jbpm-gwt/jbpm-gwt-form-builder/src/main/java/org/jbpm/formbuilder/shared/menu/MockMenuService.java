@@ -23,7 +23,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.command.EditFormRedoCommand;
 import org.jbpm.formbuilder.client.command.EditFormUndoCommand;
 import org.jbpm.formbuilder.client.command.PreviewFormAsFtlCommand;
-import org.jbpm.formbuilder.client.command.PreviewFormAsXslCommand;
+import org.jbpm.formbuilder.client.command.PreviewFormAsGwtCommand;
 import org.jbpm.formbuilder.client.effect.AddItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DeleteItemFormEffect;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
@@ -156,7 +156,7 @@ public class MockMenuService extends AbstractBaseMenuService {
         
         MenuOptionDescription saveXsl = new MenuOptionDescription();
         saveXsl.setHtml("As XSL");
-        saveXsl.setCommandClass(PreviewFormAsXslCommand.class.getName());
+        saveXsl.setCommandClass(PreviewFormAsGwtCommand.class.getName());
         
         saveMenu.add(saveFtl);
         saveMenu.add(saveXsl);

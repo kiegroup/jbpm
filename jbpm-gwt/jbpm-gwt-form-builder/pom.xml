@@ -46,10 +46,14 @@
           <style>DETAILED</style>
           <noServer>false</noServer>
           <inplace>true</inplace>
-          <module>org.jbpm.formbuilder.FormBuilder</module>
+          <modules>
+            <module>org.jbpm.formbuilder.FormBuilder</module>
+            <module>org.jbpm.formdisplay.FormDisplay</module>
+          </modules>
           <runTarget>FormBuilder.html</runTarget>
           <compileTargets>
             <value>org.jbpm.formbuilder.FormBuilder</value>
+            <value>org.jbpm.formdisplay.FormDisplay</value>
           </compileTargets>
           <hostedWebapp>${basedir}/src/main/webapp/</hostedWebapp>
           <gwtSdkFirstInClasspath>true</gwtSdkFirstInClasspath><!-- The GWT compiler must the correct JDT version -->

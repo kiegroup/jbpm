@@ -160,9 +160,14 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         HTML html = new HTML(this.header.getHTML());
         populate(html);
+        String value = (String) getInputValue(data);
+        if (value != null) {
+            html.setHTML("<h1>" + value + "</h1>");
+        }
+        super.populateActions(html.getElement());
         return html;
     }
 

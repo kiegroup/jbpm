@@ -37,9 +37,15 @@ import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.api.InputData;
 import org.jbpm.formbuilder.shared.api.OutputData;
 
+import com.google.gwt.dom.client.FormElement;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -369,5 +375,33 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         } else {
             add(item);
         }
+    }
+
+    public FormPanel asFormPanel(Map<String, Object> data) {
+        FormPanel panel = new FormPanel((String) null);
+        panel.setAction(this.action);
+        panel.setEncoding(this.enctype);
+        panel.setMethod(this.method);
+        FlowPanel flow = new FlowPanel();
+        FormElement el = FormElement.as(panel.getElement());
+        el.setName(this.name);
+        flow.add(new HTML("<!-- process name: " + getProcessId() + ", task name: " + getTaskId() + " -->"));
+        //TODO see what to do with getInputs() and getOutputs()
+        for (FBFormItem item : getItems()) {
+            flow.add(item.cloneDisplay(data));
+        }
+        panel.addSubmitHandler(new SubmitHandler() {
+            @Override
+            public void onSubmit(SubmitEvent event) {
+                for (FBValidationItem item : getValidationItems()) {
+                    if (!item.createValidation().isValid(null)) {
+                        Window.alert("Validation " + item.getName() + " failed");
+                        event.cancel();
+                    }
+                }
+            }
+        });
+        panel.setWidget(flow);
+        return panel;
     }
 }

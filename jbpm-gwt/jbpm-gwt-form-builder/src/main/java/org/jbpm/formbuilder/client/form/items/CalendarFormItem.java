@@ -102,10 +102,10 @@ public class CalendarFormItem extends FBFormItem {
         setWidth(extractString(asPropertiesMap.get("width")));
         setHeight(extractString(asPropertiesMap.get("height")));
         this.defaultValue = extractString(asPropertiesMap.get("defaultValue"));
-        populate(this.calendar);
+        populate(this.calendar, this.text, this.icon);
     }
     
-    private void populate(DatePicker calendar) {
+    private void populate(DatePicker calendar, TextBox text, Image icon) {
         if (getHeight() != null && !"".equals(getHeight())) {
             calendar.setHeight(getHeight());
         }
@@ -140,20 +140,32 @@ public class CalendarFormItem extends FBFormItem {
         if (crep.getHeight() != null && !"".equals(crep.getHeight())) {
             setHeight(crep.getHeight());
         }
-        populate(this.calendar);
+        populate(this.calendar, this.text, this.icon);
     }
     
     @Override
     public FBFormItem cloneItem() {
         CalendarFormItem clone = super.cloneItem(new CalendarFormItem());
-        populate(clone.calendar);
+        populate(clone.calendar, clone.text, clone.icon);
         return clone;
     }
 
     @Override
-    public Widget cloneDisplay() {
-        DatePicker display = new DatePicker();
-        populate(display);
+    public Widget cloneDisplay(Map<String, Object> data) {
+        DatePicker date = new DatePicker();
+        TextBox textBox = new TextBox();
+        populate(date, textBox, this.icon);
+        HorizontalPanel display = new HorizontalPanel();
+        display.add(textBox);
+        Object input = getInputValue(data);
+        if (input != null) {
+            textBox.setValue(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            textBox.setName(getOutput().getName());
+        }
+        display.add(this.icon);
+        super.populateActions(textBox.getElement());
         return display;
     }
 

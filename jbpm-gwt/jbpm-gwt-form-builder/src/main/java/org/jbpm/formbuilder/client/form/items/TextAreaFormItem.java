@@ -145,9 +145,17 @@ public class TextAreaFormItem extends FBFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         TextArea ta = new TextArea();
         populate(ta);
+        Object input = getInputValue(data);
+        if (input != null) {
+            ta.setValue(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            ta.setName(getOutput().getName());
+        }
+        super.populateActions(ta.getElement());
         return ta;
     }
 

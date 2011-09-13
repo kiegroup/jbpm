@@ -148,9 +148,17 @@ public class PasswordFieldFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         PasswordTextBox pb = new PasswordTextBox();
         populate(pb);
+        Object input = getInputValue(data);
+        if (input != null) {
+            pb.setValue(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            pb.setName(getOutput().getName());
+        }
+        super.populateActions(pb.getElement());
         return pb;
     }
 }

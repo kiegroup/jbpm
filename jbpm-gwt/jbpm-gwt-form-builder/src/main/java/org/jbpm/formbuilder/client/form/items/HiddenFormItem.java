@@ -125,9 +125,17 @@ public class HiddenFormItem extends FBFormItem {
     }
     
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         Hidden hi = new Hidden();
         populate(hi);
+        Object input = getInputValue(data);
+        if (input != null) {
+            hi.setValue(input.toString());
+        }
+        if (getOutput() != null && getOutput().getName() != null) {
+            hi.setName(getOutput().getName());
+        }
+        super.populateActions(hi.getElement());
         return hi;
     }
 }

@@ -129,9 +129,10 @@ public class ClientScriptFormItem extends FBFormItem implements HasSourceReferen
     }
 
     @Override
-    public Widget cloneDisplay() {
+    public Widget cloneDisplay(Map<String, Object> data) {
         Widget widget = new Widget();
         widget.getElement().insertFirst(script.cloneNode(true));
+        super.populateActions(widget.getElement());
         return widget; 
     }
 

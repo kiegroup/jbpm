@@ -38,11 +38,13 @@ import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.InputData;
 import org.jbpm.formbuilder.shared.api.OutputData;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -404,5 +406,24 @@ public abstract class FBFormItem extends FocusPanel {
      * Similar to {@link #cloneItem()}, but only clones the underlying UI GWT component.
      * @return
      */
-    public abstract Widget cloneDisplay();
+    public abstract Widget cloneDisplay(Map<String, Object> formData);
+
+    protected void populateActions(Element element) {
+        for (Map.Entry<String, FBScript> entry : getEventActions().entrySet()) {
+            element.setPropertyJSO(entry.getKey(), toJsFunction(entry.getValue().getContent()));
+        }
+    }
+    
+    protected Object getInputValue(Map<String, Object> data) {
+        if (getInput() != null && getInput().getName() != null) {
+            if (data != null && data.containsKey(getInput().getName())) {
+                return data.get(getInput().getName());
+            }
+        }
+        return null;
+    }
+    
+    private native JavaScriptObject toJsFunction(String value) /*-{
+        return function(){ eval(value); }
+    }-*/;
 }

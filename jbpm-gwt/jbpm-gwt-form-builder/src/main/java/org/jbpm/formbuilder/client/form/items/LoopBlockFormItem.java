@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.jbpm.formbuilder.shared.api.InputData;
 import org.jbpm.formbuilder.shared.api.items.LoopBlockRepresentation;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -113,11 +115,35 @@ public class LoopBlockFormItem extends LayoutFormItem {
     }
 
     @Override
-    public Widget cloneDisplay() {
-        SimplePanel display = new SimplePanel();
-        display.setStyleName("loopBlockBorder");
-        display.setWidget(loopBlock.getWidget());
+    public Widget cloneDisplay(Map<String, Object> data) {
+        FlowPanel display = new FlowPanel();
+        FBFormItem subItem = (FBFormItem) loopBlock.getWidget();
+        Object input = getInputValue(data);
+        String inputName = getInput() == null ? null : getInput().getName(); 
+        if (subItem != null && input != null && inputName != null) {
+            Map<String, Object> subData = new HashMap<String, Object>();
+            if (input.getClass().isArray()) {
+                Object[] arr = (Object[]) input;
+                for (Object obj : arr) {
+                    subData.put(inputName, obj);
+                    display.add(subItem.cloneDisplay(subData));
+                }
+            } else if (input instanceof Collection) {
+                Collection<?> col = (Collection<?>) input;
+                for (Object obj : col) {
+                    subData.put(inputName, obj);
+                    display.add(subItem.cloneDisplay(subData));
+                }
+            } else if (input instanceof Map) {
+                Map<?,?> map = (Map<?,?>) input;
+                for (Object obj : map.entrySet()) {
+                    subData.put(inputName, obj);
+                    display.add(subItem.cloneDisplay(subData));
+                }
+            }
+        }
         display.setSize(getWidth(), getHeight());
+        super.populateActions(display.getElement());
         return display;
     }
 
