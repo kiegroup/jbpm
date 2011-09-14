@@ -15,40 +15,22 @@
  */
 package org.jbpm.formbuilder.client;
 
-import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
-
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
  * Main entry point of the form builder application
  */
-public class FormBuilderEntryPoint implements EntryPoint {
+public class FormBuilderEntryPoint extends FBBaseEntryPoint {
 
     /**
-     * Does the following steps to start the app:
-     * 1 - Registers an event bus
-     * 2-  Registers i18n modules
-     * 3 - Starts a client service resolver and registers it
-     * 4 - Creates a FormBuilderView instance
-     * 5 - Creates a FormBuilderController instance that adds all to the main view
+     * Creates a FormBuilderView instance
+     * Creates a FormBuilderController instance that adds all to the main view
      */
     @Override
-    public void onModuleLoad() {
-        //register event bus
-        FormBuilderGlobals.getInstance().registerEventBus(new SimpleEventBus());
-        //register i18n module
-        I18NConstants constants = GWT.create(I18NConstants.class);
-        FormBuilderGlobals.getInstance().registerI18n(constants);
-        //start model
-        RestyFormBuilderModel server = new RestyFormBuilderModel("rest");
-        FormBuilderGlobals.getInstance().registerService(server);
+    public void loadModule() {
         //start view and controller
-        FormBuilderView view = new FormBuilderView();
         RootPanel rootPanel = RootPanel.get("formBuilder");
-        new FormBuilderController(rootPanel, server, view);
+        FormBuilderView view = new FormBuilderView();
+        new FormBuilderController(rootPanel, view);
     }
 }

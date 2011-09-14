@@ -15,28 +15,17 @@
  */
 package org.jbpm.formdisplay.client;
 
-import org.jbpm.formbuilder.client.RestyFormBuilderModel;
-import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.FBBaseEntryPoint;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
 
-public class FormDisplayEntryPoint implements EntryPoint {
+/**
+ * Main entry point for form display in GWT
+ */
+public class FormDisplayEntryPoint extends FBBaseEntryPoint {
 
     @Override
-    public void onModuleLoad() {
-      //register event bus
-        FormBuilderGlobals.getInstance().registerEventBus(new SimpleEventBus());
-        //register i18n module
-        I18NConstants constants = GWT.create(I18NConstants.class);
-        FormBuilderGlobals.getInstance().registerI18n(constants);
-        //start model
-        RestyFormBuilderModel server = new RestyFormBuilderModel("rest");
-        FormBuilderGlobals.getInstance().registerService(server);
-        
+    protected void loadModule() {
         //start view and controller
         RootPanel formInfo = RootPanel.get("formInfo");
         RootPanel formDisplay = RootPanel.get("formDisplay");

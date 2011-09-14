@@ -104,7 +104,8 @@ public class RestyFormBuilderModel implements FormBuilderService {
             }
         });
     }
-    
+
+    @Override
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }

@@ -53,7 +53,7 @@ public class FormBuilderController {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final RestyFormBuilderModel model;
+    private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
     private final FormBuilderView view;
     
     private final FormExporter formExporter;
@@ -63,9 +63,8 @@ public class FormBuilderController {
      * @param fbModel
      * @param fbView
      */
-    public FormBuilderController(final RootPanel rootPanel, RestyFormBuilderModel fbModel, FormBuilderView fbView) {
+    public FormBuilderController(final RootPanel rootPanel, FormBuilderView fbView) {
         super();
-        this.model = fbModel;
         this.view = fbView;
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             @Override
@@ -92,8 +91,12 @@ public class FormBuilderController {
         bus.addHandler(RepresentationFactoryPopulatedEvent.TYPE, new RepresentationFactoryPopulatedHandler() {
             @Override
             public void onEvent(RepresentationFactoryPopulatedEvent event) {
-                model.getMenuItems();
-                model.getMenuOptions();
+                try {
+                    model.getMenuItems();
+                    model.getMenuOptions();
+                } catch (FormBuilderException e) {
+                    //implementation never throws this
+                }
                 List<GwtEvent<?>> events = setDataPanel(rootPanel);
                 setViewPanel(rootPanel);
                 //events are fired deferred since they might need that ui components are already attached
@@ -106,7 +109,7 @@ public class FormBuilderController {
                 view.toggleNotifications(event.isVisible());
             }
         });
-        populateRepresentationFactory(fbModel);
+        populateRepresentationFactory(model);
     }
 
     private void fireEvents(List<GwtEvent<?>> events) {

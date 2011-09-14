@@ -161,4 +161,6 @@ public interface FormBuilderService {
     FormRepresentation toBasicForm(TaskRef task);
 
     String getUploadFileURL();
+    
+    void setPackageName(String packageName);
 }
