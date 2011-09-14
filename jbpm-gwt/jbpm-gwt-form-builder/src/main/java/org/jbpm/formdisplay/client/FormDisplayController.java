@@ -26,6 +26,7 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -40,6 +41,8 @@ public class FormDisplayController {
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         try {
             final String innerJson = formInfo.getElement().getInnerHTML();
+            formInfo.getElement().setInnerHTML("");
+            formInfo.getElement().getStyle().setHeight(1, Unit.PX);
             eventBus.addHandler(RepresentationFactoryPopulatedEvent.TYPE, new RepresentationFactoryPopulatedHandler() {
                 @Override
                 public void onEvent(RepresentationFactoryPopulatedEvent event) {

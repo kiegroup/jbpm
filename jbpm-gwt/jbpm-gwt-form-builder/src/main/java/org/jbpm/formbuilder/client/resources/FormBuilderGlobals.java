@@ -29,6 +29,8 @@ import com.google.gwt.event.shared.EventBus;
  */
 public class FormBuilderGlobals {
 
+    public static final String FORM_PANEL_KEY = "org.jbpm.formbuilder.FormBuilder.FORM_PANEL";
+    
     private static final FormBuilderGlobals INSTANCE = new FormBuilderGlobals();
     
     private EventBus eventBus;

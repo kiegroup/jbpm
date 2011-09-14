@@ -166,6 +166,8 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
         String value = (String) getInputValue(data);
         if (value != null) {
             html.setHTML("<h1>" + value + "</h1>");
+        } else {
+            html.setHTML(this.header.getHTML()); //TODO i18n management
         }
         super.populateActions(html.getElement());
         return html;

@@ -157,6 +157,8 @@ public class LabelFormItem extends FBFormItem implements I18NFormItem  {
         String value = (String) getInputValue(data);
         if (value != null) {
             lb.setText(value);
+        } else {
+            lb.setText(this.label.getText()); //TODO i18n management
         }
         super.populateActions(lb.getElement());
         return lb;

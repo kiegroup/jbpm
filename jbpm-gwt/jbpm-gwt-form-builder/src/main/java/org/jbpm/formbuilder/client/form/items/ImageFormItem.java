@@ -146,6 +146,7 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSource
     public Widget cloneDisplay(Map<String, Object> data) {
         Image im = new Image();
         populate(im);
+        //TODO i18n management
         super.populateActions(im.getElement());
         return im;
     }

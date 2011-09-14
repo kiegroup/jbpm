@@ -132,7 +132,9 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         }
         List<TaskPropertyRef> inputs = task.getInputs();
         if (inputs != null && !inputs.isEmpty()) {
-            TableRepresentation tableOfInputs = new TableRepresentation(inputs.size(), 2);
+            TableRepresentation tableOfInputs = new TableRepresentation();
+            tableOfInputs.setRows(inputs.size());
+            tableOfInputs.setColumns(2);
             tableOfInputs.setHeight("" + (inputs.size() * 30) + "px");
             tableOfInputs.setEffectClasses(tableEffects);
             tableOfInputs.setEventActions(asMapOfNull(tableActions, FBScript.class));
@@ -175,7 +177,9 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         }
         List<TaskPropertyRef> outputs = task.getOutputs();
         if (outputs != null && !outputs.isEmpty()) {
-            TableRepresentation tableOfOutputs = new TableRepresentation(outputs.size(), 2);
+            TableRepresentation tableOfOutputs = new TableRepresentation();
+            tableOfOutputs.setRows(outputs.size());
+            tableOfOutputs.setColumns(2);
             tableOfOutputs.setHeight("" + (outputs.size() * 30) + "px");
             tableOfOutputs.setEffectClasses(tableEffects);
             tableOfOutputs.setEventActions(asMapOfNull(tableActions, FBScript.class));

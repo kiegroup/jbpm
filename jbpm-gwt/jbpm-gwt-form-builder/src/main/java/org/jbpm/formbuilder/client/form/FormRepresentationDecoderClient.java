@@ -48,7 +48,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
     
     @Override
     public Object decode(Map<String, Object> data) throws FormEncodingException {
-        if (data == null) {
+        if (data == null || data.isEmpty()) {
             return null;
         }
         String className = (String) data.get("@className");
@@ -59,7 +59,7 @@ public class FormRepresentationDecoderClient implements FormRepresentationDecode
                 Mappable item = (Mappable) obj;
                 item.setDataMap(data);
             } else {
-                throw new FormEncodingException(i18n.CannotCastTo(obj.getClass().getName(), "FormItemRepresentation"));
+                throw new FormEncodingException(i18n.CannotCastTo(obj.getClass().getName(), "Mappable"));
             }
         } catch (Exception e) {
             throw new FormEncodingException(i18n.CouldntInstantiateClass(className), e);

@@ -31,8 +31,8 @@ public class TableRepresentation extends FormItemRepresentation {
 
     private final List<List<FormItemRepresentation>> elements;
     
-    private Integer rows;
-    private Integer columns;
+    private Integer rows = 0;
+    private Integer columns = 0;
 
     private Integer borderWidth;
     private Integer cellPadding;
@@ -43,18 +43,25 @@ public class TableRepresentation extends FormItemRepresentation {
         this.elements = new ArrayList<List<FormItemRepresentation>>();
     }
     
-    public TableRepresentation(Integer rows, Integer columns) {
-        super("table");
-        this.rows = rows == null ? 1 : rows;
-        this.columns = columns == null ? 1 : columns;
-        this.elements = new ArrayList<List<FormItemRepresentation>>(this.rows);
-        for (int index = 0; index < this.rows; index++) {
-            List<FormItemRepresentation> row = new ArrayList<FormItemRepresentation>(this.columns);
-            for (int subIndex = 0; subIndex < this.columns; subIndex++) {
-                row.add(null);
+    public void setRows(Integer rows) {
+        this.rows = rows;
+        checkRoom();
+    }
+    
+    public void setColumns(Integer columns) {
+        this.columns = columns;
+        checkRoom();
+    }
+    
+    private void checkRoom() {
+        if (this.rows > 0 && this.columns > 0) {
+            for (int index = 0; index < this.rows; index++) {
+                List<FormItemRepresentation> row = new ArrayList<FormItemRepresentation>(this.columns);
+                for (int subIndex = 0; subIndex < this.columns; subIndex++) {
+                    row.add(null);
+                }
+                this.elements.add(row);
             }
-            this.elements.add(row);
-            
         }
     }
 

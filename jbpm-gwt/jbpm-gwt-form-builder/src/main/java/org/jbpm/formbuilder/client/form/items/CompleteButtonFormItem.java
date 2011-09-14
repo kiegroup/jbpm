@@ -34,6 +34,7 @@ import com.google.gwt.dom.client.ButtonElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -147,7 +148,7 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
     }
     
     @Override
-    public Widget cloneDisplay(Map<String, Object> data) {
+    public Widget cloneDisplay(final Map<String, Object> data) {
         Button bt = new Button();
         populate(bt);
         Object input = getInputValue(data);
@@ -159,9 +160,10 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
         }
         bt.addClickHandler(new ClickHandler() {
             @Override
-            public native void onClick(ClickEvent event) /*-{
-                document.forms[0].submit();
-            }-*/;
+            public void onClick(ClickEvent event) {
+                FormPanel form = (FormPanel) data.get(FormBuilderGlobals.FORM_PANEL_KEY);
+                form.submit();
+            }
         });
         super.populateActions(bt.getElement());
         return bt;

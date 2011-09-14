@@ -43,6 +43,9 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -378,7 +381,8 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
     }
 
     public FormPanel asFormPanel(Map<String, Object> data) {
-        FormPanel panel = new FormPanel((String) null);
+        FormPanel panel = new FormPanel();
+        data.put(FormBuilderGlobals.FORM_PANEL_KEY, panel);
         panel.setAction(this.action);
         panel.setEncoding(this.enctype);
         panel.setMethod(this.method);
@@ -399,6 +403,12 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
                         event.cancel();
                     }
                 }
+            }
+        });
+        panel.addSubmitCompleteHandler(new SubmitCompleteHandler() {
+            @Override
+            public void onSubmitComplete(SubmitCompleteEvent event) {
+                RootPanel.get().getElement().setInnerHTML(event.getResults());
             }
         });
         panel.setWidget(flow);
