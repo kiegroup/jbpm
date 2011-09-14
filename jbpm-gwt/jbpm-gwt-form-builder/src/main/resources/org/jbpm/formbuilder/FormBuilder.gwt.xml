@@ -35,8 +35,10 @@
   <inherits name="org.gwt.mosaic.core.Core" />
   <inherits name="org.gwt.mosaic.ui.UI" />
   <inherits name="com.google.gwt.junit.JUnit" />
-  <inherits name="org.timepedia.exporter.Exporter" />
   <inherits name="com.gc.gwt.wysiwyg.Editor"/>
+  <inherits name="com.yesmail.gwt.rolodex.Rolodex" />
+  <inherits name="gwtupload.GWTUpload" />
+  <inherits name="org.timepedia.exporter.Exporter" />
 
   <set-property name="export" value="yes"/>
   <extend-property name="locale" values="es_ES" />

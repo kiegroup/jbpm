@@ -470,6 +470,41 @@
                 { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
                 { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" }
             ]
+        },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.ImageRolodexMenuItem",
+            "allowedEvents": [ ],
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CutFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.PasteFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.AddItemFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DeleteItemFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.IoBindingEffect" }
+            ]
+        },
+        {   "className": "org.jbpm.formbuilder.client.menu.items.UploadWithProgressBarMenuItem",
+            "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
+                "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
+                "onkeydown", "onkeypress", "onkeyup", "onselect"
+            ],
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CutFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.PasteFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ValidationsEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.IoBindingEffect" }            
+            ]
         }
      ],
      "My Components": [

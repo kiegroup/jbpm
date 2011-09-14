@@ -138,6 +138,8 @@ public interface I18NConstants extends Messages {
     String MenuItemRichTextEditor();
     String MenuItemClientScript();
     String MenuItemCalendar();
+    String MenuItemUploadWithProgressBar();
+    String MenuItemImageRolodex();
     
     String NotEmptyValidationName();
     String EqualToValidationName();
