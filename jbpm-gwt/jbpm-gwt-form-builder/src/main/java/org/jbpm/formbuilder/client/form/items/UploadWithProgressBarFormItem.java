@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.form.items;
 
+import gwtupload.client.SingleUploader;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,24 +25,28 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.UploadWithProgressBarRepresentation;
 
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class UploadWithProgressBarFormItem extends FBFormItem {
 
+    private final SingleUploader uploader = new SingleUploader();
+    
     public UploadWithProgressBarFormItem() {
         this(new ArrayList<FBFormEffect>());
     }
     
     public UploadWithProgressBarFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        add(new Label("YET TO BE DONE"));
-        // TODO Auto-generated constructor stub
+        String uploadAction = FormBuilderGlobals.getInstance().getService().getUploadActionURL();
+        uploader.setServletPath(uploadAction);
+        add(uploader);
     }
 
     @Override
@@ -62,6 +68,10 @@ public class UploadWithProgressBarFormItem extends FBFormItem {
         // TODO Auto-generated method stub
         return urep;
     }
+    
+    private void populate(SingleUploader uploader) {
+        //TODO implement
+    }
 
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
@@ -77,8 +87,14 @@ public class UploadWithProgressBarFormItem extends FBFormItem {
 
     @Override
     public Widget cloneDisplay(Map<String, Object> formData) {
-        // TODO Auto-generated method stub
-        return null;
+        SingleUploader uploader = new SingleUploader();
+        uploader.setServletPath("upload");
+        populate(uploader);
+        if (getOutput() != null && getOutput().getName() != null) {
+            uploader.getFileInput().setName(getOutput().getName());
+        }
+        super.populateActions(((FileUpload) uploader.getFileInput()).getElement());
+        return uploader;
     }
 
 }

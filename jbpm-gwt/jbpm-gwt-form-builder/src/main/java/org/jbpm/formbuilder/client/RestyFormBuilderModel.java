@@ -51,7 +51,6 @@ import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
@@ -74,8 +73,8 @@ public class RestyFormBuilderModel implements FormBuilderService {
     private String packageName = DEFAULT_PACKAGE;
     
     public RestyFormBuilderModel(String contextPath) {
-        this.contextPath = GWT.getHostPageBaseURL() + contextPath;
-      //registered to save the menu items
+        this.contextPath = contextPath;
+        //registered to save the menu items
         bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
             @Override
             public void onEvent(MenuItemAddedEvent event) {
@@ -450,6 +449,11 @@ public class RestyFormBuilderModel implements FormBuilderService {
     @Override
     public String getUploadFileURL() {
         return URLBuilder.uploadFileURL(this.contextPath, this.packageName);
+    }
+    
+    @Override
+    public String getUploadActionURL() {
+        return URLBuilder.uploadActionURL();
     }
     
     private void populateMockFormService(FBMenuItem item) {

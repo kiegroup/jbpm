@@ -62,8 +62,8 @@ public class ImageRolodexFormItem extends FBFormItem {
     
     public ImageRolodexFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        panel.setSize("300px", "100px");
-        setSize("300px", "100px");
+        panel.setSize("400px", "180px");
+        setSize("400px", "180px");
         add(panel);
     }
 

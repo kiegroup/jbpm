@@ -160,7 +160,16 @@ public interface FormBuilderService {
      */
     FormRepresentation toBasicForm(TaskRef task);
 
+    /**
+     * @return URL for uploading files to guvnor
+     */
     String getUploadFileURL();
+
+    /**
+     * @return URL for mocking uploading files for form instances
+     */
+    String getUploadActionURL();
     
     void setPackageName(String packageName);
+
 }
