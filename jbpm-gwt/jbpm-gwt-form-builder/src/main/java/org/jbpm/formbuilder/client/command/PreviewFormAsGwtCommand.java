@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import com.google.gwt.user.client.Window;
 import com.gwtent.reflection.client.Reflectable;
 
 /**
@@ -27,5 +28,21 @@ public class PreviewFormAsGwtCommand extends PreviewFormCommand {
     
     public PreviewFormAsGwtCommand() {
         super(LANG);
+    }
+    
+    @Override
+    protected void refreshPopup(String url) {
+        String queryString = Window.Location.getQueryString();
+        if (queryString != null && queryString.contains("gwt.codesvr")) {
+            int start = queryString.indexOf("gwt.codesvr");
+            int end = queryString.substring(start).indexOf("&") < 0 ? queryString.length() : queryString.substring(start).indexOf("&");
+            if (url.contains("?")) {
+                url += "&";
+            } else {
+                url += "?";
+            }
+            url += queryString.substring(start, end);
+        }
+        super.refreshPopup(url);
     }
 }

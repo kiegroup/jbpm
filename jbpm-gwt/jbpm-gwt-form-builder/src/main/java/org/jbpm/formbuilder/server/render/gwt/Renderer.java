@@ -27,6 +27,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
 import org.jbpm.formbuilder.server.render.RendererException;
 
 import com.google.gson.JsonArray;
@@ -38,11 +40,20 @@ import com.google.gson.JsonPrimitive;
 public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
 
     private final VelocityEngine engine = new VelocityEngine();
+    private final URL velocityTemplate;
     private Template template = null;
+    
+    public Renderer() {
+        this.velocityTemplate = getClass().getResource("/langs/gwt/index.vm");
+        String folderFileLocation = velocityTemplate.toExternalForm().replace("index.vm", "");
+        engine.setProperty(RuntimeConstants.RESOURCE_LOADER, "url");
+        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".class", URLResourceLoader.class.getName());
+        engine.setProperty("url." + RuntimeConstants.RESOURCE_LOADER + ".root", folderFileLocation);
+        engine.init();
+    }
     
     @Override
     public Object render(URL url, Map<String, Object> inputData) throws RendererException {
-        URL velocityTemplate = getClass().getResource("/langs/gwt/index.vm");
         if (velocityTemplate == null) {
             throw new RendererException("Couldn't find index.vm");
         }
@@ -54,9 +65,12 @@ public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
         try {
             String formContent = IOUtils.toString(url.openStream());
             JsonObject json = new JsonObject();
-            json.addProperty("form", formContent);
+            json.addProperty("formjson", formContent);
+            String contextPath = (String) inputData.remove(BASE_CONTEXT_PATH);
             json.add("formData", toJsonObject(inputData));
+            json.addProperty("contextPath", contextPath);
             VelocityContext context = new VelocityContext();
+            context.put("contextPath", contextPath);
             context.put("formContent", json.toString());
             StringWriter writer = new StringWriter();
             template.merge(context, writer);

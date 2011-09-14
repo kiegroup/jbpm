@@ -30,7 +30,5 @@ public class FormDisplayEntryPoint extends FBBaseEntryPoint {
         RootPanel formInfo = RootPanel.get("formInfo");
         RootPanel formDisplay = RootPanel.get("formDisplay");
         new FormDisplayController(formInfo, formDisplay);
-        
-        
     }
 }

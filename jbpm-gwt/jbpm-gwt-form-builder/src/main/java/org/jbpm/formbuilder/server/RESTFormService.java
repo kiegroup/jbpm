@@ -199,6 +199,7 @@ public class RESTFormService extends RESTBaseService {
             URL url = createTemplate(language, dto);
             Map<String, Object> inputs = dto.getInputsAsMap();
             Renderer renderer = RendererFactory.getInstance().getRenderer(language);
+            inputs.put(Renderer.BASE_CONTEXT_PATH, context.getContextPath());
             Object html = renderer.render(url, inputs);
             String htmlUrl = createHtmlTemplate(html, language, context);
             return Response.ok(htmlUrl, MediaType.TEXT_PLAIN).build();

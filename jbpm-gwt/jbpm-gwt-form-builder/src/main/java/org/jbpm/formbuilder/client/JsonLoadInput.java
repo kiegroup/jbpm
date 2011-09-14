@@ -41,6 +41,7 @@ public class JsonLoadInput {
     private TaskRef task;
     private String profile;
     private String _package;
+    private String contextPath;
     private Map<String, Object> formData = new HashMap<String, Object>();
     
     private JsonLoadInput() {
@@ -90,6 +91,14 @@ public class JsonLoadInput {
         this.formData = formData;
     }
 
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+    
+    public String getContextPath() {
+        return contextPath;
+    }
+    
     public static JsonLoadInput parse(String innerHTML) throws FormEncodingException {
         JSONValue json = JSONParser.parseStrict(innerHTML);
         JsonLoadInput input = null;
@@ -102,6 +111,10 @@ public class JsonLoadInput {
             JSONValue jsonPkg = jsonObj.get("packageName");
             if (jsonPkg != null && jsonPkg.isString() != null) {
                 input.setPackage(jsonPkg.isString().stringValue());
+            }
+            JSONValue jsonCtx = jsonObj.get("contextPath");
+            if (jsonCtx != null && jsonCtx.isString() != null) {
+                input.setContextPath(jsonCtx.isString().stringValue());
             }
             if (jsonObj.get("task") != null && jsonObj.get("task").isObject() != null) {
                 input.setTask(toTask(jsonObj.get("task").isObject()));

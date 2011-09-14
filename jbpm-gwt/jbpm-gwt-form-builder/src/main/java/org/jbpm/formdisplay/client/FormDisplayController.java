@@ -16,6 +16,7 @@
 package org.jbpm.formdisplay.client;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.JsonLoadInput;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
@@ -38,6 +39,7 @@ public class FormDisplayController {
 
     public FormDisplayController(RootPanel formInfo, final RootPanel formDisplay) {
         EventBus eventBus = FormBuilderGlobals.getInstance().getEventBus();
+        FormBuilderService server = FormBuilderGlobals.getInstance().getService();
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         try {
             final String innerJson = formInfo.getElement().getInnerHTML();
@@ -62,7 +64,7 @@ public class FormDisplayController {
                     }
                 }
             });
-            FormBuilderGlobals.getInstance().getService().populateRepresentationFactory();
+            server.populateRepresentationFactory();
         } catch (FormBuilderException e) {
             Window.alert("Couldn't populate representation factory: " + e.getMessage());
             GWT.log("Couldn't populate representation factory", e);
