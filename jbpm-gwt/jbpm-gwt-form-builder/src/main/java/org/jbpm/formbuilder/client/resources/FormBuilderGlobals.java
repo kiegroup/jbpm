@@ -30,6 +30,7 @@ import com.google.gwt.event.shared.EventBus;
 public class FormBuilderGlobals {
 
     public static final String FORM_PANEL_KEY = "org.jbpm.formbuilder.FormBuilder.FORM_PANEL";
+    public static final String BASE_LOCALE = "org.jbpm.formbuilder.server.render.Renderer.BASE_LOCALE";
     
     private static final FormBuilderGlobals INSTANCE = new FormBuilderGlobals();
     

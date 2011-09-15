@@ -390,7 +390,6 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         FormElement el = FormElement.as(panel.getElement());
         el.setName(this.name);
         flow.add(new HTML("<!-- process name: " + getProcessId() + ", task name: " + getTaskId() + " -->"));
-        //TODO see what to do with getInputs() and getOutputs()
         for (FBFormItem item : getItems()) {
             flow.add(item.cloneDisplay(data));
         }

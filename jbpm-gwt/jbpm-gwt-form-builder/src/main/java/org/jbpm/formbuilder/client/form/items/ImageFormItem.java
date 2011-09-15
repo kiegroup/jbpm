@@ -26,6 +26,7 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.HasSourceReference;
 import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
+import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.ImageRepresentation;
@@ -146,7 +147,14 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSource
     public Widget cloneDisplay(Map<String, Object> data) {
         Image im = new Image();
         populate(im);
-        //TODO i18n management
+        String locale = (String) data.get(FormBuilderGlobals.BASE_LOCALE);
+        if (locale != null) {
+            String i18nText = getI18n(locale);
+            if (i18nText != null && !"".equals(i18nText)) {
+                im.setAltText(i18nText);
+                im.setTitle(i18nText);
+            }
+        }
         super.populateActions(im.getElement());
         return im;
     }

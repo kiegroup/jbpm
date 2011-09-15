@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -193,13 +194,16 @@ public class RESTFormService extends RESTBaseService {
     }
     
     @POST @Path("/preview/lang/{language}")
-    public Response getFormPreview(FormPreviewDTO dto, @PathParam("language") String language, @Context ServletContext context) {
+    public Response getFormPreview(FormPreviewDTO dto, @PathParam("language") String language, 
+            @Context ServletContext context, @Context HttpServletRequest request) {
         setContext(context);
         try {
             URL url = createTemplate(language, dto);
             Map<String, Object> inputs = dto.getInputsAsMap();
             Renderer renderer = RendererFactory.getInstance().getRenderer(language);
             inputs.put(Renderer.BASE_CONTEXT_PATH, context.getContextPath());
+            Locale locale = request.getLocale();
+            inputs.put(Renderer.BASE_LOCALE, locale == null ? "default" : locale.getDisplayName(locale));
             Object html = renderer.render(url, inputs);
             String htmlUrl = createHtmlTemplate(html, language, context);
             return Response.ok(htmlUrl, MediaType.TEXT_PLAIN).build();

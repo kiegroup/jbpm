@@ -167,7 +167,14 @@ public class HeaderFormItem extends FBFormItem implements I18NFormItem {
         if (value != null) {
             html.setHTML("<h1>" + value + "</h1>");
         } else {
-            html.setHTML(this.header.getHTML()); //TODO i18n management
+            String locale = (String) data.get(FormBuilderGlobals.BASE_LOCALE);
+            html.setHTML(this.header.getHTML());
+            if (locale != null) {
+                String i18nText = getI18n(locale);
+                if (i18nText != null && !"".equals(i18nText)) {
+                    html.setHTML("<h1>" + i18nText + "</h1>");
+                }
+            }
         }
         super.populateActions(html.getElement());
         return html;

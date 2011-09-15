@@ -21,6 +21,7 @@ import java.util.Map;
 public interface Renderer {
 
     String BASE_CONTEXT_PATH = Renderer.class.getName() + ".BASE_CONTEXT_PATH";
+    String BASE_LOCALE = Renderer.class.getName() + ".BASE_LOCALE";
     
     Object render(URL url, Map<String, Object> inputData) throws RendererException;
 }
