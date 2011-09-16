@@ -79,6 +79,20 @@ public class ImageRolodexFormItem extends FBFormItem {
         // TODO Auto-generated method stub
 
     }
+    
+    private void populate(RolodexPanel panel) {
+        //TODO implement
+        /*panel.setHeight(height);
+        panel.setWidth(width);
+        int startIndex = 0;
+        List<ImageFormItem> subItems = new ArrayList<ImageFormItem>();
+        for (ImageFormItem subItem : subItems) {
+            RolodexCard card = new RolodexCard(expanded, collapsedLeft, collapsedRight, expandedWidth, collapsedWidth, heightOffset)
+        }
+        panel.setSelectedCard(selectedCard);
+        panel.setStyleName(style);*/
+
+    }
 
     @Override
     public FormItemRepresentation getRepresentation() {
@@ -89,14 +103,21 @@ public class ImageRolodexFormItem extends FBFormItem {
 
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof ImageRolodexRepresentation)) {
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "ImageRolodexRepresentation"));
+        }
+        super.populate(rep);
+        ImageRolodexRepresentation irep = (ImageRolodexRepresentation) rep;
         // TODO Auto-generated method stub
+        populate(this.panel);
         super.populate(rep);
     }
     
     @Override
     public FBFormItem cloneItem() {
+        ImageRolodexFormItem item = super.cloneItem(new ImageRolodexFormItem());
         // TODO Auto-generated method stub
-        return null;
+        return item;
     }
 
     @Override

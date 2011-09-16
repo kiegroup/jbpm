@@ -51,7 +51,7 @@ public class CalendarFormItem extends FBFormItem {
     private String calendarCss;
     private final DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG);
     private final DatePicker calendar = new DatePicker();
-    private final Image icon;
+    private final Image icon = new Image();
     private final PopupPanel panel = new PopupPanel();
     private final TextBox text = new TextBox();
     
@@ -61,8 +61,8 @@ public class CalendarFormItem extends FBFormItem {
     
     public CalendarFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
-        icon = new Image(FormBuilderResources.INSTANCE.calendarSquare());
-        this.iconUrl = icon.getUrl();
+        this.iconUrl = FormBuilderResources.INSTANCE.calendarSquare().getURL();
+        icon.setUrl(this.iconUrl);
         icon.getElement().getStyle().setCursor(Style.Cursor.POINTER);
         icon.addClickHandler(new ClickHandler() {
             @Override
@@ -156,18 +156,18 @@ public class CalendarFormItem extends FBFormItem {
         }
         super.populate(rep);
         CalendarRepresentation crep = (CalendarRepresentation) rep;
-        if (crep.getWidth() != null && !"".equals(crep.getWidth())) {
-            setWidth(crep.getWidth());
-        }
-        if (crep.getHeight() != null && !"".equals(crep.getHeight())) {
-            setHeight(crep.getHeight());
-        }
+        this.calendarCss = crep.getCalendarCss();
+        this.iconUrl = crep.getIconUrl();
+        this.defaultValue = crep.getDefaultValue();
         populate(this.calendar, this.text, this.icon);
     }
     
     @Override
     public FBFormItem cloneItem() {
         CalendarFormItem clone = super.cloneItem(new CalendarFormItem());
+        clone.calendarCss = this.calendarCss;
+        clone.defaultValue = this.defaultValue;
+        clone.iconUrl = this.iconUrl;
         populate(clone.calendar, clone.text, clone.icon);
         return clone;
     }
@@ -176,7 +176,21 @@ public class CalendarFormItem extends FBFormItem {
     public Widget cloneDisplay(Map<String, Object> data) {
         DatePicker date = new DatePicker();
         TextBox textBox = new TextBox();
+        final PopupPanel panel = new PopupPanel();
+        DatePicker calendar = new DatePicker();
+        if (this.calendarCss != null && !"".equals(this.calendarCss)) {
+            calendar.setStyleName(this.calendarCss);
+        }
+        panel.setSize("183px", "183px");
+        panel.setWidget(calendar);
         Image icon = new Image();
+        icon.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                panel.setPopupPosition(event.getClientX(), event.getClientY());
+                panel.show();
+            }
+        });
         populate(date, textBox, icon);
         CalendarPanel display = new CalendarPanel(textBox, icon);
         Object input = getInputValue(data);
