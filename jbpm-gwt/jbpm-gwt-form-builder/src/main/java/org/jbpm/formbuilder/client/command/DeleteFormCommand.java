@@ -127,6 +127,7 @@ public class DeleteFormCommand implements BaseCommand {
                 }
             });
             vpanel.add(closeButton);
+            panel.setWidget(vpanel);
         }
         int height = RootPanel.getBodyElement().getClientHeight();
         int width = RootPanel.getBodyElement().getClientWidth();

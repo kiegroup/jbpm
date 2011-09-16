@@ -49,34 +49,40 @@
     height: 10px;
     background-repeat: no-repeat;
 }
+
 .northwestCorner {
     background-image: url(images/resizablePanel/northwestCorner.gif);
     width: 10px;
     height: 10px;
     background-repeat: no-repeat;
 }
+
 .southwestCorner {
     background-image: url(images/resizablePanel/southwestCorner.gif);
     width: 10px;
     height: 10px;
     background-repeat: no-repeat;
 }
+
 .smallButton {
     background-image: url(images/resizablePanel/resizeButton.gif);
     width: 10px;
     height: 10px;
     background-repeat: no-repeat;
 }
+
 .horizontalLine {
     background-image: url(images/resizablePanel/horizontalLine.gif);
     height: 10px;
     background-repeat: repeat-x;
 }
+
 .verticalLine {
     background-image: url(images/resizablePanel/verticalLine.gif);
     width: 10px;
     background-repeat: repeat-y;
 }
+
 .formDisplay {
     vertical-align: top;
     background-color: #FFFFFF;
@@ -86,122 +92,176 @@
 .greenNotification {
     color: #AADD00;
 }
+
 .orangeNotification {
     color: #FF5721
 }
+
 .redNotification {
     color: #FF3030;
 }
+
 .fbFormItemThinBorder {
     border: 1px dotted gray;
 }
+
 .phantomPanel {
     background-color: #88FFFF;
     border: 1px dashed gray;
 }
+
 .even {
     background-color: #BBBBBB;
 }
+
 .odd {
     background-color: #FFFFFF;
 }
+
 .notificationsViewWrapper {
     border: 1px solid grey;
     background-color: #BBBBBB;
 }
+
 .mainWrapper {
     color: #000000;
 }
+
 #mainRowWrapper {
     height: 90%;
 }
+
 #notificationsRowWrapper {
     height: 25px;
 }
+
 .notificationsView DIV {
     width: 100%;
     background-color: #EFEFEF;
 }
+
 .toolBarViewWrapper {
-    background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+    background: url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
     border: 1px solid grey;
     border-bottom: none;
     border-left: none;
 }
+
 .layoutViewWrapper {
     border: 1px solid grey;
     border-bottom: none;
     border-left: none;
 }
+
 .toolViewWrapper {
     border: 1px solid grey;
     border-top: none;
 }
+
 .toolView {
+    
 }
+
 .toolView .gwt-TabLayoutPanelTabs {
+    
 }
 
 .toolView .gwt-TabLayoutPanelContent {
-  border-color: #bcbcbc;
-  border-style: solid;
-  border-width: 1px;
-  overflow: hidden;
-  padding: 6px;
+    border-color: #bcbcbc;
+    border-style: solid;
+    border-width: 1px;
+    overflow: hidden;
+    padding: 6px;
 }
 
 .toolView .gwt-TabLayoutPanelTab {
-  background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
-  border-color:#BBBBBB #BBBBBB -moz-use-text-color;
-  border-style:solid solid none;
-  border-width:1px 1px 0;
-  cursor: pointer;
-  cursor: hand;
-  margin-left: 2px;
-  padding: 3px 5px 3px 5px;
-  color: grey;
-  font-weight: bold;
-  text-align: center;
+    background: url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+    border-color: #BBBBBB #BBBBBB -moz-use-text-color;
+    border-style: solid solid none;
+    border-width: 1px 1px 0;
+    cursor: pointer;
+    cursor: hand;
+    margin-left: 2px;
+    padding: 3px 5px 3px 5px;
+    color: grey;
+    font-weight: bold;
+    text-align: center;
 }
 
 .toolView .gwt-TabLayoutPanelTab-selected {
-  background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
-  border-color:#BBBBBB #BBBBBB -moz-use-text-color;
-  border-style:solid solid none;
-  border-width:1px 1px 0;
-  cursor: default;
-  margin-left: 2px;
-  padding: 3px 5px 3px 5px;
-  color: black;
-  font-weight: bold;
-  text-align: center;
+    background: url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+    border-color: #BBBBBB #BBBBBB -moz-use-text-color;
+    border-style: solid solid none;
+    border-width: 1px 1px 0;
+    cursor: default;
+    margin-left: 2px;
+    padding: 3px 5px 3px 5px;
+    color: black;
+    font-weight: bold;
+    text-align: center;
 }
 
 .fbStackPanel .gwt-StackPanelItem {
-    background:url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
-    border-color:#BBBBBB #BBBBBB -moz-use-text-color;
-    border-style:solid solid none;
-    border-width:1px 1px 0;
-    cursor:pointer;
-    font-size:10pt;
-    font-weight:bold;
-    padding:3px;
+    background: url("images/hborder.png") repeat-x scroll 0 -989px #D3DEF6;
+    border-color: #BBBBBB #BBBBBB -moz-use-text-color;
+    border-style: solid solid none;
+    border-width: 1px 1px 0;
+    cursor: pointer;
+    font-size: 10pt;
+    font-weight: bold;
+    padding: 3px;
 }
 
 .fbStackPanel .gwt-StackPanelContent {
     background-color: #FFFFFF;
 }
 
+.commandPopupPanel {
+    border: 10px solid #E3E3E3;
+    -webkit-border-radius: 10px;
+    -webkit-border-top-left-radius: 0;
+    -moz-border-radius: 10px;
+    -moz-border-radius-topleft: 0;
+    border-radius: 10px;
+    border-top-left-radius: 0;
+    padding: 0px;
+    z-index: 15;
+}
+
+.commandContent {
+    background: none repeat scroll 0 0 #E3E3E3;
+}
+
+.commandMenuBar {
+    background: none repeat scroll 0 0 #E3E3E3;
+}
+
+.commandMenuBar-vertical {
+    margin-left: 0;
+    margin-top: 0;
+}
+
+.commandMenuItem {
+    background: none repeat scroll 0 0 #E3E3E3;
+    border-top: 2px;
+    border-bottom: 2px;
+    padding: 1px 0px 1px 0px;
+}
+
+.commandMenuItem-selected {
+    background: none repeat scroll 0 0 #BCBCBC;
+}
+
 .fbStackPanel {
-  border-bottom:1px solid #BBBBBB;
-  width:100%;
-  height: 100%;
+    border-bottom: 1px solid #BBBBBB;
+    width: 100%;
+    height: 100%;
 }
 
 .backgroundWrapper {
     background-image: url(images/header_background.png);
     background-repeat: repeat-x;
-    background-color: #edf0f4; 
+    background-color: #edf0f4;
     height: 99%;
     width: 99%;
 }

@@ -20,10 +20,9 @@ import java.util.List;
 
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
 
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
@@ -31,35 +30,31 @@ import com.google.gwt.user.client.ui.PopupPanel;
  * {@link FBFormItem}, once the user click the right
  * button over it.
  */
-public class EffectsPopupPanel extends PopupPanel {
+public class EffectsPopupPanel extends CommandPopupPanel {
 
     private List<FBFormEffect> effects = new ArrayList<FBFormEffect>();
     
     public EffectsPopupPanel(final FBFormItem item, boolean autoHide) {
         super(autoHide);
-        MenuBar bar = new MenuBar(true);
         this.effects = item.getFormEffects();
         for (final FBFormEffect effect : effects) {
             if (effect.isValidForItem(item)) {
-                bar.addItem(new MenuItem(
-                    effect.getName(), 
-                    new Command() {
-                        @Override
-                        public void execute() {
-                            effect.apply(item, EffectsPopupPanel.this);
-                            PopupPanel popup = effect.createPanel();
-                            if (popup != null) {
-                                popup.setPopupPosition(getPopupLeft(), getPopupTop() + 30);
-                                popup.show();
-                                hide();
-                            } else {
-                                hide();
-                            }
+                addItem(effect.getName(), 
+                new Command() {
+                    @Override
+                    public void execute() {
+                        effect.apply(item, EffectsPopupPanel.this);
+                        PopupPanel popup = effect.createPanel();
+                        if (popup != null) {
+                            popup.setPopupPosition(getPopupLeft(), getPopupTop() + 30);
+                            popup.show();
+                            hide();
+                        } else {
+                            hide();
                         }
-                    })
-                );
+                    }
+                });
             }
         }
-        add(bar);
     }
 }

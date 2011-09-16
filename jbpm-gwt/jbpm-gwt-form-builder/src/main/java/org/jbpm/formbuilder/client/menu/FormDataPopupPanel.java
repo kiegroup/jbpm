@@ -22,6 +22,7 @@ import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -56,7 +57,7 @@ public class FormDataPopupPanel extends PopupPanel {
     
     public FormDataPopupPanel(boolean showForSavingForm) {
         super(true);
-
+        setStyleName("commandPopupPanel");
         VerticalPanel vPanel = new VerticalPanel();
         vPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         Grid grid = new Grid(7, 2);
@@ -119,8 +120,8 @@ public class FormDataPopupPanel extends PopupPanel {
             }
         }));
         vPanel.add(buttonPanel);
-        add(vPanel);
-        
+        vPanel.setStyleName("commandContent");
+        setWidget(vPanel);
     }
     
     public void setTaskId(String taskId) {
@@ -185,4 +186,28 @@ public class FormDataPopupPanel extends PopupPanel {
     public String getDocumentation() {
         return documentation.getValue();
     }
+
+    @Override
+    protected void onLoad() {
+        super.onLoad();
+        int left = getPopupLeft();
+        int top = getPopupTop();
+        int width = getOffsetWidth();
+        int height = getOffsetHeight();
+        
+        boolean changed = false;
+        
+        if (left + width > Window.getClientWidth()) {
+            left -= width;
+            changed = true;
+        }
+        if (top + height > Window.getClientHeight()) {
+            top -= height;
+            changed = true;
+        }
+        if (changed) {
+            setPopupPosition(left, top);
+        }
+    }
+    
 }

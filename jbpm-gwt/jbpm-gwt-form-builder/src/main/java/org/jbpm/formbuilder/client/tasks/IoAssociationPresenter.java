@@ -30,12 +30,11 @@ import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
+import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.PopupPanel;
 
 /**
  * Tasks presenter. Handles server querying of existing tasks 
@@ -93,17 +92,15 @@ public class IoAssociationPresenter implements IoAssociationView.Presenter {
         row.addRightClickHandler(new RightClickHandler() {
             @Override
             public void onRightClick(RightClickEvent event) {
-                final PopupPanel panel = new PopupPanel(true);
+                final CommandPopupPanel panel = new CommandPopupPanel(true);
                 panel.setPopupPosition(event.getX(), event.getY());
-                MenuBar bar = new MenuBar(true);
-                bar.addItem(i18n.SelectIOObjectCommand(), new Command() {
+                panel.addItem(i18n.SelectIOObjectCommand(), new Command() {
                     @Override
                     public void execute() {
                         bus.fireEvent(new TaskSelectedEvent(task));
                         panel.hide();
                     }
                 });
-                panel.add(bar);
                 panel.show();
             }
         });
@@ -115,19 +112,17 @@ public class IoAssociationPresenter implements IoAssociationView.Presenter {
         row.addRightClickHandler(new RightClickHandler() {
             @Override
             public void onRightClick(final RightClickEvent event) {
-                final PopupPanel panel = new PopupPanel(true);
+                final CommandPopupPanel panel = new CommandPopupPanel(true);
                 panel.setPopupPosition(event.getX(), event.getY());
-                MenuBar bar = new MenuBar(true);
-                bar.addItem(i18n.QuickFormIOObjectCommand(), new Command() {
+                panel.addItem(i18n.QuickFormIOObjectCommand(), new Command() {
                     @Override
                     public void execute() {
-                        PopupPanel conf = new QuickFormPanel(row);
+                        QuickFormPanel conf = new QuickFormPanel(row);
                         conf.setPopupPosition(event.getX(), event.getY());
                         conf.show();
                         panel.hide();
                     }
                 });
-                panel.add(bar);
                 panel.show();
             }
         });

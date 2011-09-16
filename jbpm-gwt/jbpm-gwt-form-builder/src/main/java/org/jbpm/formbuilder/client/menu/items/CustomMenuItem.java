@@ -30,6 +30,7 @@ import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,9 +40,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.gwtent.reflection.client.Reflectable;
 
 /**
@@ -90,7 +89,7 @@ public class CustomMenuItem extends FBMenuItem {
               fireEvent(evt);
               super.onBrowserEvent(event);
           } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
-              final PopupPanel removePanel = new PopupPanel(true);
+              final CommandPopupPanel removePanel = new CommandPopupPanel(true);
               MenuItem removeItem = new MenuItem(i18n.RemoveMenuItem(), new Command() {
                   @Override
                   public void execute() {
@@ -117,9 +116,7 @@ public class CustomMenuItem extends FBMenuItem {
                       removePanel.hide();
                   }
               });
-              MenuBar bar = new MenuBar(true);
-              bar.addItem(removeItem);
-              removePanel.add(bar);
+              removePanel.addItem(removeItem);
               removePanel.setPopupPosition(event.getClientX(), event.getClientY());
               removePanel.show();
           }

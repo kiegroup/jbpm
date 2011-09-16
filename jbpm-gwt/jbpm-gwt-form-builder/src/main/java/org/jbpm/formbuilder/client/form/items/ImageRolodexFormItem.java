@@ -88,8 +88,7 @@ public class ImageRolodexFormItem extends FBFormItem {
     }
 
     @Override
-    public void populate(FormItemRepresentation rep)
-            throws FormBuilderException {
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
         // TODO Auto-generated method stub
         super.populate(rep);
     }
