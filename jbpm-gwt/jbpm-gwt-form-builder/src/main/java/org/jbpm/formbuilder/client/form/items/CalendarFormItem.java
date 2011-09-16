@@ -25,17 +25,17 @@ import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.common.panels.CalendarPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.CalendarRepresentation;
 
-import com.google.gwt.dom.client.Style.Cursor;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextBox;
@@ -47,6 +47,8 @@ import com.gwtent.reflection.client.Reflectable;
 public class CalendarFormItem extends FBFormItem {
 
     private String defaultValue;
+    private String iconUrl;
+    private String calendarCss;
     private final DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG);
     private final DatePicker calendar = new DatePicker();
     private final Image icon;
@@ -60,7 +62,8 @@ public class CalendarFormItem extends FBFormItem {
     public CalendarFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         icon = new Image(FormBuilderResources.INSTANCE.calendarSquare());
-        icon.getElement().getStyle().setCursor(Cursor.POINTER);
+        this.iconUrl = icon.getUrl();
+        icon.getElement().getStyle().setCursor(Style.Cursor.POINTER);
         icon.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -79,13 +82,13 @@ public class CalendarFormItem extends FBFormItem {
             }
         });
         calendar.setSize("183px", "183px");
-        HorizontalPanel hPanel = new HorizontalPanel();
-        hPanel.add(text);
-        hPanel.add(icon);
+        CalendarPanel cPanel = new CalendarPanel(text, icon);
+        cPanel.add(text);
+        cPanel.add(icon);
         text.setSize("175px", "21px");
-        hPanel.setSize("200px", "21px");
+        cPanel.setSize("200px", "21px");
         setSize("200px", "21px");
-        add(hPanel);
+        add(cPanel);
     }
 
     @Override
@@ -93,7 +96,9 @@ public class CalendarFormItem extends FBFormItem {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("width", getWidth());
         map.put("height", getHeight());
-        map.put("defaultValue", this.defaultValue); //TODO add the rest of the properties (icon url, icon update, style for the calendar, etc)
+        map.put("iconUrl", this.iconUrl);
+        map.put("calendarCss", this.calendarCss);
+        map.put("defaultValue", this.defaultValue);
         return map;
     }
 
@@ -101,6 +106,10 @@ public class CalendarFormItem extends FBFormItem {
     public void saveValues(Map<String, Object> asPropertiesMap) {
         setWidth(extractString(asPropertiesMap.get("width")));
         setHeight(extractString(asPropertiesMap.get("height")));
+        
+        this.iconUrl = extractString(asPropertiesMap.get("iconUrl"));
+        this.calendarCss = extractString(asPropertiesMap.get("calendarCss"));
+        
         this.defaultValue = extractString(asPropertiesMap.get("defaultValue"));
         populate(this.calendar, this.text, this.icon);
     }
@@ -118,13 +127,26 @@ public class CalendarFormItem extends FBFormItem {
             } else {
                 calendar.setValue(null);
             }
-
+        }
+        if (this.calendarCss != null && !"".equals(this.calendarCss)) {
+            calendar.setStyleName(this.calendarCss);
+        }
+        if (this.iconUrl != null && !"".equals(this.iconUrl)) {
+            icon.setUrl(this.iconUrl);
+        }
+        String cursor = icon.getElement().getStyle().getCursor();
+        if (!Style.Cursor.POINTER.getCssName().equals(cursor)) {
+            icon.getElement().getStyle().setCursor(Style.Cursor.POINTER);
         }
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        return super.getRepresentation(new CalendarRepresentation());
+        CalendarRepresentation crep = super.getRepresentation(new CalendarRepresentation());
+        crep.setIconUrl(this.iconUrl);
+        crep.setCalendarCss(this.calendarCss);
+        crep.setDefaultValue(this.defaultValue);
+        return crep;
     }
 
     @Override
@@ -149,14 +171,14 @@ public class CalendarFormItem extends FBFormItem {
         populate(clone.calendar, clone.text, clone.icon);
         return clone;
     }
-
+    
     @Override
     public Widget cloneDisplay(Map<String, Object> data) {
         DatePicker date = new DatePicker();
         TextBox textBox = new TextBox();
-        populate(date, textBox, this.icon);
-        HorizontalPanel display = new HorizontalPanel();
-        display.add(textBox);
+        Image icon = new Image();
+        populate(date, textBox, icon);
+        CalendarPanel display = new CalendarPanel(textBox, icon);
         Object input = getInputValue(data);
         if (input != null) {
             textBox.setValue(input.toString());
@@ -164,7 +186,6 @@ public class CalendarFormItem extends FBFormItem {
         if (getOutput() != null && getOutput().getName() != null) {
             textBox.setName(getOutput().getName());
         }
-        display.add(this.icon);
         super.populateActions(textBox.getElement());
         return display;
     }
