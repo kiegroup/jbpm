@@ -133,7 +133,7 @@ public class RESTFileServiceTest extends TestCase {
         assertTrue("dto.getFile() should be empty", dto.getFile().isEmpty());
     }
     
-  //test response to a FileException of RESTFileService.getFiles(...)
+    //test response to a FileException of RESTFileService.getFiles(...)
     public void testGetFilesServiceProblem() throws Exception {
         RESTFileService restService = new RESTFileService();
         List<Object> requestMocks = createRequestMocks();
@@ -151,12 +151,51 @@ public class RESTFileServiceTest extends TestCase {
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test happy path for RESTFileService.getFile(...)
     public void testGetFileOK() throws Exception {
-        //TODO test happy path
+        RESTFileService restService = new RESTFileService();
+        List<Object> requestMocks = createRequestMocks();
+        FileService fileService = EasyMock.createMock(FileService.class);
+        byte[] myContent = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        EasyMock.expect(fileService.loadFile(EasyMock.same("somePackage"), EasyMock.same("myFile.tmp"))).
+            andReturn(myContent);
+        requestMocks.add(fileService);
+        restService.setFileService(fileService);
+        Object[] mocks = requestMocks.toArray();
+        EasyMock.replay(mocks);
+        Response resp = restService.getFile((HttpServletRequest) mocks[0], "somePackage", "myFile.tmp");
+        EasyMock.verify(mocks);
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("resp.metadata[Content-Type] shouldn't be null", contentType);
+        assertEquals("resp.metadata[Content-Type] should be application/octet-stream but is " + contentType, 
+                contentType, MediaType.APPLICATION_OCTET_STREAM);
+        Object objDto = resp.getEntity();
+        assertTrue("objDto should be an array", objDto.getClass().isArray());
+        assertTrue("objDto should be a byte array", objDto instanceof byte[]);
+        byte[] retval = (byte[]) objDto;
+        assertEquals("retval should be the same as " + myContent + " but is " + retval, retval, myContent);
     }
     
+    //test response to a FileException for RESTFileService.getFile(...)
     public void testGetFileServiceProblem() throws Exception {
-        //TODO cause a FileException
+        RESTFileService restService = new RESTFileService();
+        List<Object> requestMocks = createRequestMocks();
+        FileService fileService = EasyMock.createMock(FileService.class);
+        FileException exception = new FileException("Something going wrong");
+        EasyMock.expect(fileService.loadFile(EasyMock.same("somePackage"), EasyMock.same("myFile.tmp"))).
+            andThrow(exception);
+        requestMocks.add(fileService);
+        restService.setFileService(fileService);
+        Object[] mocks = requestMocks.toArray();
+        EasyMock.replay(mocks);
+        Response resp = restService.getFile((HttpServletRequest) mocks[0], "somePackage", "myFile.tmp");
+        EasyMock.verify(mocks);
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 
     private List<Object> createRequestMocks() {
