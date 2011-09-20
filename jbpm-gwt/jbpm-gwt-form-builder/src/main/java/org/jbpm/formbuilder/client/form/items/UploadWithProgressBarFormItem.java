@@ -36,6 +36,11 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class UploadWithProgressBarFormItem extends FBFormItem {
 
+    private boolean enabled = true;
+    private boolean avoidRepeatFiles = false;
+    private boolean autoSubmit = false;
+    private String cssClassName;
+    
     private final SingleUploader uploader = new SingleUploader();
     
     public UploadWithProgressBarFormItem() {
@@ -52,37 +57,75 @@ public class UploadWithProgressBarFormItem extends FBFormItem {
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
-        // TODO Auto-generated method stub
+        map.put("width", getWidth());
+        map.put("height", getHeight());
+        map.put("enabled", this.enabled);
+        map.put("avoidRepeatFiles", this.avoidRepeatFiles);
+        map.put("autoSubmit", this.autoSubmit);
         return map;
     }
 
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        // TODO Auto-generated method stub
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
+        this.enabled = extractBoolean(asPropertiesMap.get("enabled"));
+        this.avoidRepeatFiles = extractBoolean(asPropertiesMap.get("avoidRepeatFiles"));
+        this.autoSubmit = extractBoolean(asPropertiesMap.get("autoSubmit"));
+        
+        populate(this.uploader);
+    }
 
+    private void populate(SingleUploader uploader) {
+        if (getWidth() != null && !"".equals(getWidth())) {
+            uploader.setWidth(getWidth());
+        }
+        if (getHeight() != null && !"".equals(getHeight())) {
+            uploader.setHeight(getHeight());
+        }
+        uploader.setEnabled(this.enabled);
+        uploader.setAvoidRepeatFiles(this.avoidRepeatFiles);
+        uploader.setAutoSubmit(this.autoSubmit);
+        if (this.cssClassName != null) {
+            uploader.setStyleName(this.cssClassName);
+        }
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
-        UploadWithProgressBarRepresentation urep = new UploadWithProgressBarRepresentation(); 
-        // TODO Auto-generated method stub
+        UploadWithProgressBarRepresentation urep = super.getRepresentation(new UploadWithProgressBarRepresentation());
+        urep.setAutoSubmit(this.autoSubmit);
+        urep.setAvoidRepeatFiles(this.avoidRepeatFiles);
+        urep.setCssClassName(this.cssClassName);
+        urep.setEnabled(this.enabled);
         return urep;
     }
     
-    private void populate(SingleUploader uploader) {
-        //TODO implement
-    }
-
+    
     @Override
     public void populate(FormItemRepresentation rep) throws FormBuilderException {
-        // TODO Auto-generated method stub
+        if (!(rep instanceof UploadWithProgressBarRepresentation)) {
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "UploadWithProgressBarRepresentation"));
+        }
         super.populate(rep);
+        UploadWithProgressBarRepresentation urep = (UploadWithProgressBarRepresentation) rep;
+        this.autoSubmit = urep.isAutoSubmit();
+        this.avoidRepeatFiles = urep.isAvoidRepeatFiles();
+        this.cssClassName = urep.getCssClassName();
+        this.enabled = urep.isEnabled();
+        
+        populate(this.uploader);
     }
     
     @Override
     public FBFormItem cloneItem() {
-        // TODO Auto-generated method stub
-        return null;
+        UploadWithProgressBarFormItem clone = super.cloneItem(new UploadWithProgressBarFormItem());
+        clone.autoSubmit = this.autoSubmit;
+        clone.avoidRepeatFiles = this.avoidRepeatFiles;
+        clone.cssClassName = this.cssClassName;
+        clone.enabled = this.enabled;
+        clone.populate(clone.uploader);
+        return clone;
     }
 
     @Override

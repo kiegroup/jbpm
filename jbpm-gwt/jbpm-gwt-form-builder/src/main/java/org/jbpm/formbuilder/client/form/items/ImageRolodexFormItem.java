@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,9 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
+import org.jbpm.formbuilder.common.panels.ImageRolodexPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.ImageRolodexRepresentation;
 
@@ -31,30 +34,16 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.impl.ClippedImagePrototype;
 import com.gwtent.reflection.client.Reflectable;
 import com.yesmail.gwt.rolodex.client.RolodexCard;
-import com.yesmail.gwt.rolodex.client.RolodexCardBundle;
-import com.yesmail.gwt.rolodex.client.RolodexPanel;
 
 @Reflectable
-public class ImageRolodexFormItem extends FBFormItem {
+public class ImageRolodexFormItem extends OptionsFormItem {
 
-    private final RolodexPanel panel = new RolodexPanel(new RolodexCardBundle() {
-        @Override
-        public RolodexCard[] getRolodexCards() {
-            ClippedImagePrototype expanded = new ClippedImagePrototype(FormBuilderResources.INSTANCE.defaultImage().getURL(), 0, 0, 300, 200);
-            ClippedImagePrototype collapseLeft = new ClippedImagePrototype(FormBuilderResources.INSTANCE.defaultImage().getURL(), 0, 0, 100, 100);
-            ClippedImagePrototype collapseRight = new ClippedImagePrototype(FormBuilderResources.INSTANCE.defaultImage().getURL(), 0, 0, 100, 100);
-            return new RolodexCard[] {
-                    new RolodexCard(expanded, collapseLeft, collapseRight, 300, 100, 0),
-                    new RolodexCard(expanded, collapseLeft, collapseRight, 300, 100, 0),
-                    new RolodexCard(expanded, collapseLeft, collapseRight, 300, 100, 0)
-            };
-        }
-        
-        @Override
-        public int getMaxHeight() {
-            return 400;
-        }
-    });
+    private final ImageRolodexPanel panel = new ImageRolodexPanel(FormBuilderResources.INSTANCE.defaultImage(), 400);
+    
+    private boolean animated = true;
+    private int selectedIndex = 0;
+    private List<String> urls = new ArrayList<String>();
+    private String cssClassName = null;
     
     public ImageRolodexFormItem() {
         this(new ArrayList<FBFormEffect>());
@@ -70,34 +59,56 @@ public class ImageRolodexFormItem extends FBFormItem {
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
-        // TODO Auto-generated method stub
+        map.put("width", getWidth());
+        map.put("height", getHeight());
+        map.put("animated", this.animated);
+        map.put("selectedIndex", this.selectedIndex + 1);
+        map.put("cssClassName", this.cssClassName);
         return map;
     }
 
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        // TODO Auto-generated method stub
-
+        setWidth(extractString(asPropertiesMap.get("width")));
+        setHeight(extractString(asPropertiesMap.get("height")));
+        this.animated = extractBoolean(asPropertiesMap.get("animated"));
+        Integer ind = extractInt(asPropertiesMap.get("selectedIndex"));
+        this.selectedIndex = ind == null  || ind <= 0 ? 0 : ind - 1;
+        this.cssClassName = extractString(asPropertiesMap.get("cssClassName"));
+        
+        populate(this.panel);
     }
     
-    private void populate(RolodexPanel panel) {
-        //TODO implement
-        /*panel.setHeight(height);
-        panel.setWidth(width);
-        int startIndex = 0;
-        List<ImageFormItem> subItems = new ArrayList<ImageFormItem>();
-        for (ImageFormItem subItem : subItems) {
-            RolodexCard card = new RolodexCard(expanded, collapsedLeft, collapsedRight, expandedWidth, collapsedWidth, heightOffset)
+    private void populate(ImageRolodexPanel panel) {
+        panel.setSize(getWidth(), getHeight());
+        if (urls != null) {
+            for (String url : urls) {
+                RolodexCard card = createCard(url);
+                panel.add(card);
+            }
         }
-        panel.setSelectedCard(selectedCard);
-        panel.setStyleName(style);*/
-
+        panel.setSelectedCard(panel.get(this.selectedIndex));
+        panel.setAnimated(this.animated);
+        panel.setStyleName(this.cssClassName);
+    }
+    
+    private RolodexCard createCard(String url) {
+        ClippedImagePrototype expanded = new ClippedImagePrototype(url, 0, 0, getOffsetWidth() / 2, getOffsetHeight());
+        ClippedImagePrototype collapseLeft = new ClippedImagePrototype(url, 0, 0, getOffsetWidth() / 4, getOffsetHeight() / 2);
+        ClippedImagePrototype collapseRight = new ClippedImagePrototype(url, 0, 0, getOffsetWidth() / 4, getOffsetHeight() / 2);
+        int expandedWidth = getOffsetWidth() / 2;
+        int collapsedWidth = getOffsetWidth() / 4;
+        int heightOffset = getOffsetHeight() / 4;
+        RolodexCard card = new RolodexCard(expanded, collapseLeft, collapseRight, expandedWidth, collapsedWidth, heightOffset);
+        return card;
     }
 
     @Override
     public FormItemRepresentation getRepresentation() {
         ImageRolodexRepresentation irrep = new ImageRolodexRepresentation();
-        // TODO Auto-generated method stub
+        irrep.setAnimated(this.animated);
+        irrep.setImageUrls(this.urls);
+        irrep.setSelectedIndex(this.selectedIndex);
         return irrep;
     }
 
@@ -108,22 +119,79 @@ public class ImageRolodexFormItem extends FBFormItem {
         }
         super.populate(rep);
         ImageRolodexRepresentation irep = (ImageRolodexRepresentation) rep;
-        // TODO Auto-generated method stub
+        this.selectedIndex = irep.getSelectedIndex();
+        this.animated = irep.isAnimated();
+        this.urls = irep.getImageUrls();
         populate(this.panel);
-        super.populate(rep);
     }
     
     @Override
     public FBFormItem cloneItem() {
-        ImageRolodexFormItem item = super.cloneItem(new ImageRolodexFormItem());
-        // TODO Auto-generated method stub
-        return item;
+        ImageRolodexFormItem clone = super.cloneItem(new ImageRolodexFormItem());
+        clone.animated = this.animated;
+        clone.cssClassName = this.cssClassName;
+        clone.selectedIndex = this.selectedIndex;
+        clone.urls = new ArrayList<String>(this.urls);
+        clone.populate(clone.panel);
+        return clone;
     }
 
     @Override
     public Widget cloneDisplay(Map<String, Object> formData) {
-        // TODO Auto-generated method stub
-        return null;
+        Object input = getInputValue(formData);
+        ImageRolodexPanel panel = ((ImageRolodexFormItem) cloneItem()).panel;
+        if (input != null) {
+            if (input.getClass().isArray()) {
+                Object[] arr = (Object[]) input;
+                for (Object obj : arr) {
+                    panel.add(createCard(obj.toString()));
+                }
+            } else if (input instanceof Collection) {
+                Collection<?> col = (Collection<?>) input;
+                for (Object obj : col) {
+                    panel.add(createCard(obj.toString()));
+                }
+            }
+        }
+        return panel;
     }
 
+    @Override
+    public void setSize(String width, String height) {
+        super.setSize(width, height);
+        if (width != null && width.endsWith("px") && height != null && height.endsWith("px")) {
+            //when size changes, you should resize all cards
+            List<RolodexCard> cards = panel.getCards();
+            panel.clear();
+            for (RolodexCard card : cards) {
+                panel.add(createCard(card.getExpandedImagePrototype().createImage().getUrl()));
+            }
+        }
+    }
+    
+    @Override
+    public void addItem(String index, String url) {
+        urls.add(url);
+        panel.add(createCard(url));
+    }
+
+    @Override
+    public void deleteItem(String index) {
+        urls.remove(index);
+        if (index != null && !"".equals(index)) {
+            Integer i = Integer.valueOf(index);
+            RolodexCard card = panel.get(i - 1);
+            panel.remove(card);
+        }
+    }
+
+    @Override
+    public Map<String, String> getItems() {
+        Map<String, String> map = new HashMap<String, String>();
+        for (int i = 0; i < panel.size(); i++) {
+            RolodexCard card = panel.get(i);
+            map.put(String.valueOf(i), card.getExpandedImagePrototype().createImage().getUrl());
+        }
+        return map;
+    }
 }
