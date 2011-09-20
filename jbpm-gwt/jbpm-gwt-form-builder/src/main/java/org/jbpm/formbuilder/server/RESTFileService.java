@@ -38,17 +38,21 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
+import org.jbpm.formbuilder.server.file.FileService;
+import org.jbpm.formbuilder.server.file.GuvnorFileService;
 
 @Path("/files")
 public class RESTFileService extends RESTBaseService {
 
-    private GuvnorFileService fileService = null;
+    private FileService fileService = null;
     
     private void setContext(ServletContext context) {
-        String url = context.getInitParameter("guvnor-base-url");
-        String user = context.getInitParameter("guvnor-user");
-        String pass = context.getInitParameter("guvnor-password");
-        this.fileService = new GuvnorFileService(url, user, pass);
+        if (fileService == null) {
+            String url = context.getInitParameter("guvnor-base-url");
+            String user = context.getInitParameter("guvnor-user");
+            String pass = context.getInitParameter("guvnor-password");
+            this.fileService = new GuvnorFileService(url, user, pass);
+        }
     }
     
     @POST @Path("/package/{pkgName}")
@@ -72,7 +76,7 @@ public class RESTFileService extends RESTBaseService {
                 String fileName = item.getName();
                 String expositionUrl = fileService.storeFile(packageName, fileName, content);
                 return Response.ok(expositionUrl, MediaType.TEXT_PLAIN).build();
-            } catch (GuvnorFileException e) {
+            } catch (FileException e) {
                 return error("Problem storing file to guvnor", e);
             } catch (IOException e) {
                 return error("Problem reading input of file", e);
@@ -90,7 +94,7 @@ public class RESTFileService extends RESTBaseService {
         try {
             fileService.deleteFile(packageName, fileName);
             return Response.noContent().build();
-        } catch (GuvnorFileException e) {
+        } catch (FileException e) {
             return error("Problem deleting file in guvnor", e);
         }
     }
@@ -102,7 +106,7 @@ public class RESTFileService extends RESTBaseService {
             List<String> files = fileService.loadFilesByType(packageName, fileType);
             FileListDTO dto = new FileListDTO(files);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
-        } catch (GuvnorFileException e) {
+        } catch (FileException e) {
             return error("Problem loading file names", e);
         }
     }
@@ -113,8 +117,15 @@ public class RESTFileService extends RESTBaseService {
         try {
             byte[] content = fileService.loadFile(packageName, fileName);
             return Response.ok(content, MediaType.APPLICATION_OCTET_STREAM).build();
-        } catch (GuvnorFileException e) {
+        } catch (FileException e) {
             return error("Problem loading file " + fileName, e);
         }
+    }
+    
+    /**
+     * @param fileService the fileService to set (for test case purposes)
+     */
+    public void setFileService(FileService fileService) {
+        this.fileService = fileService;
     }
 }

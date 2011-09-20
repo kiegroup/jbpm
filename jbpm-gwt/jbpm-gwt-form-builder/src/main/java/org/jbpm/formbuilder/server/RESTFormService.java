@@ -64,13 +64,15 @@ import org.jbpm.formbuilder.shared.form.FormServiceException;
 @Path("/form")
 public class RESTFormService extends RESTBaseService {
 
-    private FormDefinitionService formService;
+    private FormDefinitionService formService = null;
     
     public void setContext(@Context ServletContext context) {
-        String baseUrl = context.getInitParameter("guvnor-base-url");
-        String user = context.getInitParameter("guvnor-user");
-        String pass = context.getInitParameter("guvnor-password");
-        this.formService = new GuvnorFormDefinitionService(baseUrl, user, pass);
+        if (formService == null) {
+            String baseUrl = context.getInitParameter("guvnor-base-url");
+            String user = context.getInitParameter("guvnor-user");
+            String pass = context.getInitParameter("guvnor-password");
+            this.formService = new GuvnorFormDefinitionService(baseUrl, user, pass);
+        }
     }
     
     public RESTFormService() {
@@ -311,5 +313,12 @@ public class RESTFormService extends RESTBaseService {
         } catch (IOException e) {
             return Response.serverError().build();
         }
+    }
+    
+    /**
+     * @param formService the formService to set (for test cases purpose)
+     */
+    public void setFormService(FormDefinitionService formService) {
+        this.formService = formService;
     }
 }

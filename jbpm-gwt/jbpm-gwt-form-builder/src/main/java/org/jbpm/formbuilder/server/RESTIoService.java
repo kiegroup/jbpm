@@ -37,13 +37,15 @@ import org.jbpm.formbuilder.shared.task.TaskServiceException;
 @Path("/io")
 public class RESTIoService extends RESTBaseService {
 
-    private TaskDefinitionService taskService;
+    private TaskDefinitionService taskService = null;
     
     public void setContext(@Context ServletContext context) {
-        String url = context.getInitParameter("guvnor-base-url");
-        String user = context.getInitParameter("guvnor-user");
-        String pass = context.getInitParameter("guvnor-password");
-        this.taskService = new GuvnorTaskDefinitionService(url, user, pass);
+        if (taskService == null) {
+            String url = context.getInitParameter("guvnor-base-url");
+            String user = context.getInitParameter("guvnor-user");
+            String pass = context.getInitParameter("guvnor-password");
+            this.taskService = new GuvnorTaskDefinitionService(url, user, pass);
+        }
     }
     
     public RESTIoService() {
@@ -83,5 +85,12 @@ public class RESTIoService extends RESTBaseService {
         } catch (TaskServiceException e) {
             return error("Problem getting io association for package " + pkgName + ", process " + procName + ", task " + taskName, e);
         }
+    }
+    
+    /**
+     * @param taskService the taskService to set (for test cases purpose)
+     */
+    public void setTaskService(TaskDefinitionService taskService) {
+        this.taskService = taskService;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 JBoss Inc 
+ * Copyright 2011 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server;
+package org.jbpm.formbuilder.server.form;
 
-public class GuvnorFileException extends Exception {
+import junit.framework.TestCase;
 
-    private static final long serialVersionUID = 8612783913087556595L;
+public class GuvnorFormDefinitionServiceTest extends TestCase {
 
-    public GuvnorFileException() {
-        super();
-    }
-
-    public GuvnorFileException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public GuvnorFileException(String message) {
-        super(message);
-    }
-
-    public GuvnorFileException(Throwable cause) {
-        super(cause);
+    public void testToBeDefined() throws Exception {
+        //TODO define tests for this service
     }
 }

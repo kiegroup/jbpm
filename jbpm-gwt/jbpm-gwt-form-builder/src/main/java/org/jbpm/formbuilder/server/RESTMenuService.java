@@ -50,7 +50,7 @@ import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 @Path("/menu")
 public class RESTMenuService extends RESTBaseService {
 
-    private final MenuService menuService = new GuvnorMenuService();
+    private MenuService menuService = new GuvnorMenuService();
     
     public RESTMenuService() {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
@@ -58,6 +58,7 @@ public class RESTMenuService extends RESTBaseService {
     
     @GET @Path("/items") 
     public Response listMenuItems() {
+        init();
         try {
             Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
             ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
@@ -69,6 +70,7 @@ public class RESTMenuService extends RESTBaseService {
 
     @GET @Path("/options")
     public Response listMenuOptions() {
+        init();
         try {
             List<MenuOptionDescription> options = menuService.listOptions();
             ListOptionsDTO dto = new ListOptionsDTO(options);
@@ -80,6 +82,7 @@ public class RESTMenuService extends RESTBaseService {
     
     @GET @Path("/validations")
     public Response getValidations() {
+        init();
         try {
             List<ValidationDescription> validations = menuService.listValidations();
             ListValidationsDTO dto = new ListValidationsDTO(validations);
@@ -91,6 +94,7 @@ public class RESTMenuService extends RESTBaseService {
     
     @POST @Path("/items")
     public Response saveMenuItem(SaveMenuItemDTO dto) {
+        init();
         try {
             MenuItemDescription menuItem = toMenuItemDescription(dto, true);
             menuService.saveMenuItem(dto.getGroupName(), menuItem);
@@ -136,6 +140,7 @@ public class RESTMenuService extends RESTBaseService {
     
     @DELETE @Path("/items")
     public Response deleteMenuItem(SaveMenuItemDTO dto) {
+        init();
         try {
             MenuItemDescription menuItem = toMenuItemDescription(dto, false);
             Map<String, List<MenuItemDescription>> items = menuService.listMenuItems();
@@ -163,6 +168,7 @@ public class RESTMenuService extends RESTBaseService {
 
     @GET @Path("/mappings")
     public Response getRepresentationMappings() {
+        init();
         try {
             Map<String, String> props = menuService.getFormBuilderProperties();
             PropertiesDTO dto = new PropertiesDTO(props);
@@ -170,5 +176,18 @@ public class RESTMenuService extends RESTBaseService {
         } catch (MenuServiceException e) {
             return error("Problem reading form builder properties", e);
         }
+    }
+    
+    private void init() {
+        if (menuService == null) {
+            menuService = new GuvnorMenuService();
+        }
+    }
+    
+    /**
+     * @param menuService the menuService to set (for test cases purpose)
+     */
+    public void setMenuService(MenuService menuService) {
+        this.menuService = menuService;
     }
 }

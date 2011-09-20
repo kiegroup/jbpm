@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server;
+package org.jbpm.formbuilder.server.file;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,11 +26,13 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.jbpm.formbuilder.server.FileException;
+import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.task.MetaDataDTO;
 import org.jbpm.formbuilder.server.task.PackageAssetDTO;
 import org.jbpm.formbuilder.server.task.PackageAssetsDTO;
 
-public class GuvnorFileService {
+public class GuvnorFileService implements FileService {
     
     private final GuvnorHelper helper;
     private final String baseUrl;
@@ -56,7 +58,8 @@ public class GuvnorFileService {
         return assetName;
     }
     
-    public String storeFile(String packageName, String fileName, byte[] content) throws GuvnorFileException {
+    @Override
+    public String storeFile(String packageName, String fileName, byte[] content) throws FileException {
         try {
             String assetName = stripFileExtension(fileName);
             String assetExt = extractFileExtension(fileName);
@@ -77,11 +80,11 @@ public class GuvnorFileService {
             }
             return (this.baseUrl + "/org.drools.guvnor.Guvnor/api/packages/" + packageName + "/" + assetName + "." + assetExt);
         } catch (Exception e) {
-            throw new GuvnorFileException("Problem storing file", e);
+            throw new FileException("Problem storing file", e);
         }
     }
 
-    private void deleteOlderVersion(String packageName, String fileName) throws GuvnorFileException {
+    private void deleteOlderVersion(String packageName, String fileName) throws FileException {
         HttpClient client = new HttpClient();
         String assetName = stripFileExtension(fileName);
         GetMethod check = new GetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
@@ -93,13 +96,14 @@ public class GuvnorFileService {
                 deleteFile(packageName, fileName);
             }
         } catch (IOException e) {
-            throw new GuvnorFileException("Problem getting old version of asset " + fileName + " in package " + packageName, e);
+            throw new FileException("Problem getting old version of asset " + fileName + " in package " + packageName, e);
         } finally {
             check.releaseConnection();
         } 
     }
 
-    public void deleteFile(String packageName, String fileName) throws GuvnorFileException {
+    @Override
+    public void deleteFile(String packageName, String fileName) throws FileException {
         HttpClient client = new HttpClient();
         String assetName = stripFileExtension(fileName);
         //String assetType = extractFileExtension(fileName);
@@ -108,13 +112,14 @@ public class GuvnorFileService {
             deleteAsset.addRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(deleteAsset);
         } catch (IOException e) {
-            throw new GuvnorFileException("Problem deleting guvnor file", e);
+            throw new FileException("Problem deleting guvnor file", e);
         } finally {
             deleteAsset.releaseConnection();
         }
     }
 
-    public List<String> loadFilesByType(String packageName, String fileType) throws GuvnorFileException {
+    @Override
+    public List<String> loadFilesByType(String packageName, String fileType) throws FileException {
         HttpClient client = new HttpClient();
         GetMethod load = new GetMethod(helper.getRestBaseUrl() + packageName + "/assets/");
         try {
@@ -140,15 +145,16 @@ public class GuvnorFileService {
             }
             return retval;
         } catch (IOException e) {
-            throw new GuvnorFileException("Problem obtaining assets from guvnor", e);
+            throw new FileException("Problem obtaining assets from guvnor", e);
         } catch (JAXBException e) {
-            throw new GuvnorFileException("Problem parsing assets from guvnor", e);
+            throw new FileException("Problem parsing assets from guvnor", e);
         } finally {
             load.releaseConnection();
         }
     }
 
-    public byte[] loadFile(String packageName, String fileName) throws GuvnorFileException {
+    @Override
+    public byte[] loadFile(String packageName, String fileName) throws FileException {
         HttpClient client = new HttpClient();
         String assetName = stripFileExtension(fileName);
         GetMethod get = new GetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName + "/source");
@@ -157,7 +163,7 @@ public class GuvnorFileService {
             client.executeMethod(get);
             return get.getResponseBody();
         } catch (IOException e) {
-            throw new GuvnorFileException("Problem reading file " + fileName, e); 
+            throw new FileException("Problem reading file " + fileName, e); 
         } finally {
             get.releaseConnection();
         }
