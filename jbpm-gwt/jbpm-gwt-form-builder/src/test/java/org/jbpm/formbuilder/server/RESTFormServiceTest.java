@@ -70,13 +70,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         Response resp = restService.getForms("somePackage", context);
         EasyMock.verify(formService, context);
         
-        assertNotNull("resp shouldn't be null", resp);
-        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
-        Object entity = resp.getEntity();
-        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
-        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
-        assertNotNull("resp.entity shouldn't be null", contentType);
-        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
+        Object entity = assertXmlOkResponse(resp);
         assertTrue("entity should be of type ListFormsDTO", entity instanceof ListFormsDTO);
         ListFormsDTO dto = (ListFormsDTO) entity;
         assertNotNull("dto.getForm() shouldn't be null", dto.getForm());
@@ -145,14 +139,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         Response resp = restService.getForm("somePackage", "myFormId", context);
         EasyMock.verify(formService, context);
         
-        assertNotNull("resp shouldn't be null", resp);
-        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
-        Object entity = resp.getEntity();
-        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
-        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
-        assertNotNull("resp.entity shouldn't be null", contentType);
-        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
-        assertTrue("entity should be of type ListFormsDTO", entity instanceof ListFormsDTO);
+        Object entity = assertXmlOkResponse(resp);
         ListFormsDTO dto = (ListFormsDTO) entity;
         assertNotNull("dto.getForm() shouldn't be null", dto.getForm());
         assertEquals("dto.getForm() should be of one element but it is of size " + dto.getForm().size(), dto.getForm().size(), 1);
@@ -313,12 +300,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
     public void testGetFormItemsOK() throws Exception {
         RESTFormService restService = new RESTFormService();
         FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
-        Map<String, FormItemRepresentation> map = new HashMap<String, FormItemRepresentation>();
-        FormRepresentation form = createMockForm("myForm", "param1", "param2", "param3");
-        Iterator<FormItemRepresentation> myItems = form.getFormItems().iterator();
-        map.put("name1", myItems.next());
-        map.put("name2", myItems.next());
-        map.put("name3", myItems.next());
+        Map<String, FormItemRepresentation> map = mockGetFormItems();
         EasyMock.expect(formService.getFormItems(EasyMock.eq("somePackage"))).andReturn(map).once();
         ServletContext context = EasyMock.createMock(ServletContext.class);
         restService.setFormService(formService);
@@ -327,14 +309,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         Response resp = restService.getFormItems("somePackage", context);
         EasyMock.verify(formService, context);
         
-        assertNotNull("resp shouldn't be null", resp);
-        assertStatus(resp.getStatus(), Status.OK);
-        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
-        Object entity = resp.getEntity();
-        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
-        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
-        assertNotNull("resp.entity shouldn't be null", contentType);
-        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
+        Object entity = assertXmlOkResponse(resp);
         assertTrue("entity should be of type ListFormsItemsDTO", entity instanceof ListFormsItemsDTO);
         ListFormsItemsDTO dto = (ListFormsItemsDTO) entity;
         List<FormItemDefDTO> items = dto.getFormItem();
@@ -343,24 +318,112 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         assertEquals("items size should be " + map.size() + " but is " + items.size(), items.size(), map.size());
     }
     
+    //test response to a FormServiceException for RESTFormService.getFormItems(...)
     public void testGetFormItemsServiceProblem() throws Exception {
-        //TODO cause a FormServiceException
+        RESTFormService restService = new RESTFormService();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        FormServiceException exception = new FormServiceException("Something going wrong");
+        EasyMock.expect(formService.getFormItems(EasyMock.eq("somePackage"))).andThrow(exception).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        restService.setFormService(formService);
+        
+        EasyMock.replay(formService, context);
+        Response resp = restService.getFormItems("somePackage", context);
+        EasyMock.verify(formService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test response to a FormEncodingException for RESTFormService.getFormItems(...)
     public void testGetFormItemsEncodingProblem() throws Exception {
-        //TODO cause a FormEncodingException
+        RESTFormService restService = new RESTFormService();
+        FormRepresentationEncoder encoder = EasyMock.createMock(FormRepresentationEncoder.class);
+        FormEncodingException exception = new FormEncodingException("Something going wrong");
+        EasyMock.expect(encoder.encode(EasyMock.notNull(FormItemRepresentation.class))).andThrow(exception).anyTimes();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        Map<String, FormItemRepresentation> map = mockGetFormItems();
+        EasyMock.expect(formService.getFormItems(EasyMock.eq("somePackage"))).andReturn(map).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        restService.setFormService(formService);
+        FormEncodingFactory.register(encoder, FormEncodingServerFactory.getDecoder());
+        
+        EasyMock.replay(formService, context, encoder);
+        Response resp = restService.getFormItems("somePackage", context);
+        EasyMock.verify(formService, context, encoder);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 
+    private Map<String, FormItemRepresentation> mockGetFormItems() {
+        Map<String, FormItemRepresentation> map = new HashMap<String, FormItemRepresentation>();
+        FormRepresentation form = createMockForm("myForm", "param1", "param2", "param3");
+        Iterator<FormItemRepresentation> myItems = form.getFormItems().iterator();
+        map.put("name1", myItems.next());
+        map.put("name2", myItems.next());
+        map.put("name3", myItems.next());
+        return map;
+    }
+
+    //test happy path for RESTFormService.getFormItem(...)
     public void testGetFormItemOK() throws Exception {
-        //TODO test happy path
+        RESTFormService restService = new RESTFormService();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        FormItemRepresentation item = createMockForm("myForm", "param1").getFormItems().iterator().next();
+        EasyMock.expect(formService.getFormItem(EasyMock.eq("somePackage"), EasyMock.eq("MY_FORM_ITEM_ID"))).andReturn(item).once();
+        restService.setFormService(formService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(formService, context);
+        Response resp = restService.getFormItem("somePackage", "MY_FORM_ITEM_ID", context);
+        EasyMock.verify(formService, context);
+        
+        Object entity = assertXmlOkResponse(resp);
+        assertTrue("entity should be of type ListFormsItemsDTO", entity instanceof ListFormsItemsDTO);
+        ListFormsItemsDTO dto = (ListFormsItemsDTO) entity;
+        List<FormItemDefDTO> items = dto.getFormItem();
+        assertNotNull("items shouldn't be null", items);
+        assertFalse("items shouldn't be empty", items.isEmpty());
+        assertEquals("items size should be 1 but is " + items.size(), items.size(), 1);
     }
-    
+
+    //test response to FormServiceException for RESTFormService.getFormItem(...)
     public void testGetFormItemServiceProblem() throws Exception {
-        //TODO cause a FormServiceException
+        RESTFormService restService = new RESTFormService();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        FormServiceException exception = new FormServiceException("Something going wrong");
+        EasyMock.expect(formService.getFormItem(EasyMock.eq("somePackage"), EasyMock.eq("MY_FORM_ITEM_ID"))).andThrow(exception).once();
+        restService.setFormService(formService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(formService, context);
+        Response resp = restService.getFormItem("somePackage", "MY_FORM_ITEM_ID", context);
+        EasyMock.verify(formService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test response to FormServiceException for RESTFormService.getFormItem(...)
     public void testGetFormItemEncodingProblem() throws Exception {
-        //TODO cause a FormEncodingException
+        RESTFormService restService = new RESTFormService();
+        FormRepresentationEncoder encoder = EasyMock.createMock(FormRepresentationEncoder.class);
+        FormEncodingException exception = new FormEncodingException("Something going wrong");
+        EasyMock.expect(encoder.encode(EasyMock.notNull(FormItemRepresentation.class))).andThrow(exception).anyTimes();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        FormItemRepresentation item = createMockForm("myForm", "param1").getFormItems().iterator().next();
+        EasyMock.expect(formService.getFormItem(EasyMock.eq("somePackage"), EasyMock.eq("MY_ITEM_ID"))).andReturn(item).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        restService.setFormService(formService);
+        FormEncodingFactory.register(encoder, FormEncodingServerFactory.getDecoder());
+        
+        EasyMock.replay(formService, context, encoder);
+        Response resp = restService.getFormItem("somePackage", "MY_ITEM_ID", context);
+        EasyMock.verify(formService, context, encoder);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 
     public void testSaveFormItemOK() throws Exception {

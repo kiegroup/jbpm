@@ -15,8 +15,11 @@
  */
 package org.jbpm.formbuilder.server;
 
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.jboss.resteasy.util.HttpHeaderNames;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
@@ -76,4 +79,15 @@ public abstract class RESTAbstractTest extends TestCase {
         assertEquals("resp.getStatus() should be " + expected + " but is " + Status.fromStatusCode(status), status, expected.getStatusCode());
     }
 
+    protected static Object assertXmlOkResponse(Response resp) {
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        Object entity = resp.getEntity();
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("resp.entity shouldn't be null", contentType);
+        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
+        return entity;
+    }
 }
