@@ -452,13 +452,43 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         String expected = "<formItemId>MY_FORM_ITEM_ID</formItemId>";
         assertEquals("xml should be " + expected + " but it is " + xml, xml, expected);
     }
-
+    
+    //test response to a FormServiceException for RESTFormService.saveFormItem(...)
     public void testSaveFormItemServiceProblem() throws Exception {
-        //TODO cause a FormServiceException
+        RESTFormService restService = new RESTFormService();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("formToBeSaved", "param1").getFormItems().iterator().next();
+        FormServiceException exception = new FormServiceException("Something going wrong");
+        EasyMock.expect(formService.saveFormItem(EasyMock.eq("somePackage"), EasyMock.eq("MY_FORM_ITEM_ID"), EasyMock.eq(item))).andThrow(exception).once();
+        restService.setFormService(formService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(formService, context);
+        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", context);
+        EasyMock.verify(formService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test response to a FormEncodingException for RESTFormService.saveFormItem(...)
     public void testSaveFormItemEncodingProblem() throws Exception {
-        //TODO cause a FormEncodingException
+        RESTFormService restService = new RESTFormService();
+        FormRepresentationDecoder decoder = EasyMock.createMock(FormRepresentationDecoder.class);
+        FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), decoder);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("formToBeSaved", "param1").getFormItems().iterator().next();
+        FormEncodingException exception = new FormEncodingException("Something going wrong");
+        EasyMock.expect(decoder.decodeItem(EasyMock.anyObject(String.class))).andThrow(exception).once();
+        restService.setFormService(formService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(formService, context, decoder);
+        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", context);
+        EasyMock.verify(formService, context, decoder);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
     public void testDeleteFormItemOK() throws Exception {
