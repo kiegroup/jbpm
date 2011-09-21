@@ -8,13 +8,13 @@
   <artifactId>jbpm</artifactId>
   <packaging>pom</packaging>
   <name>jBPM</name>
-  <version>5.1.1.Final</version>
+  <version>5.1.2-SNAPSHOT</version>
   <description>jBPM: a Business Process Management (BPM) Suite</description>
   <url>http://www.jboss.org/jbpm/</url>
   <properties>
-    <drools.version>5.2.1.Final</drools.version>
-    <drools.osgi.version>5.2.1.Final</drools.osgi.version>
-    <jbpm.osgi.version>5.1.1.Final</jbpm.osgi.version>
+    <drools.version>5.2.2-SNAPSHOT</drools.version>
+    <drools.osgi.version>5.2.2.SNAPSHOT</drools.osgi.version>
+    <jbpm.osgi.version>5.1.2.SNAPSHOT</jbpm.osgi.version>
   </properties>
   <prerequisites>
     <maven>3.0.3</maven>
