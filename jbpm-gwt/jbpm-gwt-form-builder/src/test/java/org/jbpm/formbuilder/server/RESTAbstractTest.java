@@ -15,13 +15,9 @@
  */
 package org.jbpm.formbuilder.server;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.ws.rs.core.Response.Status;
 
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.Formatter;
 import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
 import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;

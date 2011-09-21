@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,10 @@ import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
 import org.jbpm.formbuilder.server.form.FormDefDTO;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formbuilder.server.form.FormItemDefDTO;
 import org.jbpm.formbuilder.server.form.ListFormsDTO;
+import org.jbpm.formbuilder.server.form.ListFormsItemsDTO;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
@@ -167,6 +171,34 @@ public class JaxbDtoTest extends TestCase {
         forms.add(form2);
         ListFormsDTO dto = new ListFormsDTO(forms);
         jaxbSimulation(dto, ListFormsDTO.class, FormDefDTO.class);
+    }
+    
+    public void testListFormsItemsDTOEmpty() throws Exception {
+        ListFormsItemsDTO dto = new ListFormsItemsDTO();
+        jaxbSimulation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
+        ListFormsItemsDTO dto2 = new ListFormsItemsDTO(new HashMap<String, FormItemRepresentation>());
+        jaxbSimulation(dto2, ListFormsItemsDTO.class, FormItemDefDTO.class);
+    }
+    
+    public void testListFormsItemsDTOOneItem() throws Exception {
+        HashMap<String, FormItemRepresentation> items = new HashMap<String, FormItemRepresentation>();
+        FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "myParam1", "myParam2", "myParam3");
+        Iterator<FormItemRepresentation> iter = form.getFormItems().iterator();
+        items.put("name1", iter.next());
+        ListFormsItemsDTO dto = new ListFormsItemsDTO(items);
+        jaxbSimulation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
+    }
+    
+    public void testListFormsItemsDTOManyItems() throws Exception {
+        HashMap<String, FormItemRepresentation> items = new HashMap<String, FormItemRepresentation>();
+        FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "myParam1", "myParam2", "myParam3");
+        Iterator<FormItemRepresentation> iter = form.getFormItems().iterator();
+        items.put("name1", iter.next());
+        items.put("name2", iter.next());
+        items.put("name3", iter.next());
+        items.put("name4", iter.next());
+        ListFormsItemsDTO dto = new ListFormsItemsDTO(items);
+        jaxbSimulation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
     }
     
     public void testListMenuItemsDTOEmpty() throws Exception {

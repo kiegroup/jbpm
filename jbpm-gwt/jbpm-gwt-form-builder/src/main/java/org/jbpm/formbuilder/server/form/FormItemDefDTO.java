@@ -55,4 +55,36 @@ public class FormItemDefDTO {
     public void setFormItemId(String formItemId) {
         this._formItemId = formItemId;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_formItemId == null) ? 0 : _formItemId.hashCode());
+        result = prime * result + ((_json == null) ? 0 : _json.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FormItemDefDTO other = (FormItemDefDTO) obj;
+        if (_formItemId == null) {
+            if (other._formItemId != null)
+                return false;
+        } else if (!_formItemId.equals(other._formItemId))
+            return false;
+        if (_json == null) {
+            if (other._json != null)
+                return false;
+        } else if (!_json.equals(other._json))
+            return false;
+        return true;
+    }
 }
