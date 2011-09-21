@@ -46,21 +46,30 @@ public class FormEffectDescription implements Mappable {
     public void setDataMap(Map<String, Object> dataMap) {
         this.className = (String) dataMap.get("className");
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof FormEffectDescription)) return false;
-        FormEffectDescription other = (FormEffectDescription) obj;
-        return (this.className == null && other.className == null) || (this.className != null && this.className.equals(other.className));
-    }
-    
+
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        int aux = this.className == null ? 0 : this.className.hashCode();
-        result = 37 * result + aux;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((className == null) ? 0 : className.hashCode());
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FormEffectDescription other = (FormEffectDescription) obj;
+        if (className == null) {
+            if (other.className != null)
+                return false;
+        } else if (!className.equals(other.className))
+            return false;
+        return true;
     }
 }

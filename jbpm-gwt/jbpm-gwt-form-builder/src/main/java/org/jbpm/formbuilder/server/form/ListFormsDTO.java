@@ -54,4 +54,29 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
     public void setForm(List<FormDefDTO> form) {
         this._form = form;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_form == null) ? 0 : _form.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ListFormsDTO other = (ListFormsDTO) obj;
+        if (_form == null) {
+            if (other._form != null)
+                return false;
+        } else if (!_form.equals(other._form))
+            return false;
+        return true;
+    }
 }

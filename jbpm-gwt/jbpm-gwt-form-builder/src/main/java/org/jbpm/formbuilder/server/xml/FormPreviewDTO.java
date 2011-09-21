@@ -75,4 +75,42 @@ import org.jbpm.formbuilder.shared.api.FormRepresentation;
         }
         return retval;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_form == null) ? 0 : _form.hashCode());
+        result = prime * result + ((_input == null) ? 0 : _input.hashCode());
+        result = prime * result
+                + ((_representation == null) ? 0 : _representation.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FormPreviewDTO other = (FormPreviewDTO) obj;
+        if (_form == null) {
+            if (other._form != null)
+                return false;
+        } else if (!_form.equals(other._form))
+            return false;
+        if (_input == null) {
+            if (other._input != null)
+                return false;
+        } else if (!_input.equals(other._input))
+            return false;
+        if (_representation == null) {
+            if (other._representation != null)
+                return false;
+        } else if (!_representation.equals(other._representation))
+            return false;
+        return true;
+    }
 }

@@ -125,4 +125,64 @@ public class TaskRefDTO {
     public void setMetaData(List<MetaDataDTO> metaData) {
         this._metaData = metaData;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_input == null) ? 0 : _input.hashCode());
+        result = prime * result
+                + ((_metaData == null) ? 0 : _metaData.hashCode());
+        result = prime * result + ((_output == null) ? 0 : _output.hashCode());
+        result = prime * result
+                + ((_processId == null) ? 0 : _processId.hashCode());
+        result = prime * result + ((_taskId == null) ? 0 : _taskId.hashCode());
+        result = prime * result
+                + ((_taskName == null) ? 0 : _taskName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TaskRefDTO other = (TaskRefDTO) obj;
+        if (_input == null) {
+            if (other._input != null)
+                return false;
+        } else if (!_input.equals(other._input))
+            return false;
+        if (_metaData == null) {
+            if (other._metaData != null)
+                return false;
+        } else if (!_metaData.equals(other._metaData))
+            return false;
+        if (_output == null) {
+            if (other._output != null)
+                return false;
+        } else if (!_output.equals(other._output))
+            return false;
+        if (_processId == null) {
+            if (other._processId != null)
+                return false;
+        } else if (!_processId.equals(other._processId))
+            return false;
+        if (_taskId == null) {
+            if (other._taskId != null)
+                return false;
+        } else if (!_taskId.equals(other._taskId))
+            return false;
+        if (_taskName == null) {
+            if (other._taskName != null)
+                return false;
+        } else if (!_taskName.equals(other._taskName))
+            return false;
+        return true;
+    }
+    
+    
 }

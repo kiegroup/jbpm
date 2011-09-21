@@ -25,13 +25,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
 import org.jbpm.formbuilder.server.file.FileService;
 
-public class RESTFileServiceTest extends TestCase {
+public class RESTFileServiceTest extends RESTAbstractTest {
 
     //test happy path of RESTFileService.deleteFile(...)
     public void testDeleteFileOK() throws Exception {
@@ -209,9 +207,5 @@ public class RESTFileServiceTest extends TestCase {
         requestMocks.add(session);
         requestMocks.add(context);
         return requestMocks;
-    }
-    
-    private void assertStatus(int status, Status expected) {
-        assertEquals("resp.getStatus() should be " + expected + " but is " + Status.fromStatusCode(status), status, expected.getStatusCode());
     }
 }

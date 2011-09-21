@@ -99,4 +99,57 @@ public class MenuItemDTO {
     public void setOptionName(String optionName) {
         this._optionName = optionName;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_allowedEvent == null) ? 0 : _allowedEvent.hashCode());
+        result = prime * result
+                + ((_className == null) ? 0 : _className.hashCode());
+        result = prime * result + ((_effect == null) ? 0 : _effect.hashCode());
+        result = prime * result
+                + ((_itemJson == null) ? 0 : _itemJson.hashCode());
+        result = prime * result
+                + ((_optionName == null) ? 0 : _optionName.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MenuItemDTO other = (MenuItemDTO) obj;
+        if (_allowedEvent == null) {
+            if (other._allowedEvent != null)
+                return false;
+        } else if (!_allowedEvent.equals(other._allowedEvent))
+            return false;
+        if (_className == null) {
+            if (other._className != null)
+                return false;
+        } else if (!_className.equals(other._className))
+            return false;
+        if (_effect == null) {
+            if (other._effect != null)
+                return false;
+        } else if (!_effect.equals(other._effect))
+            return false;
+        if (_itemJson == null) {
+            if (other._itemJson != null)
+                return false;
+        } else if (!_itemJson.equals(other._itemJson))
+            return false;
+        if (_optionName == null) {
+            if (other._optionName != null)
+                return false;
+        } else if (!_optionName.equals(other._optionName))
+            return false;
+        return true;
+    }
 }

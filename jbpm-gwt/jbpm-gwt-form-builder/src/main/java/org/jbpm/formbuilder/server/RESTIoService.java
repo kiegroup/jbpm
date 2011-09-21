@@ -64,6 +64,9 @@ public class RESTIoService extends RESTBaseService {
                 newFilter += subFilter + " ";
             }
         }
+        if (newFilter.endsWith(" ")) {
+            newFilter = newFilter.substring(0, newFilter.length() - 1); //remove last space
+        }
         try {
             List<TaskRef> tasks = taskService.query(pkgName, newFilter);
             ListTasksDTO dto = new ListTasksDTO(tasks);

@@ -39,4 +39,30 @@ public class FormEffectDTO {
     public void setClassName(String className) {
         this._className = className;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_className == null) ? 0 : _className.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FormEffectDTO other = (FormEffectDTO) obj;
+        if (_className == null) {
+            if (other._className != null)
+                return false;
+        } else if (!_className.equals(other._className))
+            return false;
+        return true;
+    }
 }

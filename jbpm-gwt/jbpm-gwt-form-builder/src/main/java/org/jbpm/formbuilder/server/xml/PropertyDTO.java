@@ -51,4 +51,35 @@ import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
     public void setSource(String source) {
         this._source = source;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+        result = prime * result + ((_source == null) ? 0 : _source.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PropertyDTO other = (PropertyDTO) obj;
+        if (_name == null) {
+            if (other._name != null)
+                return false;
+        } else if (!_name.equals(other._name))
+            return false;
+        if (_source == null) {
+            if (other._source != null)
+                return false;
+        } else if (!_source.equals(other._source))
+            return false;
+        return true;
+    }
 }

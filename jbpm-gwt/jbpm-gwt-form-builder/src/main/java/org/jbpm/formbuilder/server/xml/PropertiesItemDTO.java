@@ -48,4 +48,25 @@ public class PropertiesItemDTO {
     public void setValue(String value) {
         this._value = value;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof PropertiesItemDTO)) return false;
+        PropertiesItemDTO other = (PropertiesItemDTO) obj;
+        boolean equals = (other._key == null && this._key == null) || (this._key != null && this._key.equals(other._key));
+        if (!equals) return equals;
+        equals = (other._value == null && this._value == null) || (this._value != null && this._value.equals(other._value));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = _key == null ? 0 : _key.hashCode();
+        result = result * 37 + aux;
+        aux = _value == null ? 0 : _value.hashCode();
+        result = result * 37 + aux;
+        return result;
+    }
 }

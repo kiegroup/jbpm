@@ -15,30 +15,146 @@
  */
 package org.jbpm.formbuilder.server;
 
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * 
- */
-public class RESTIoServiceTest extends TestCase {
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
+import org.easymock.EasyMock;
+import org.jboss.resteasy.util.HttpHeaderNames;
+import org.jbpm.formbuilder.server.xml.ListTasksDTO;
+import org.jbpm.formbuilder.server.xml.TaskRefDTO;
+import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
+import org.jbpm.formbuilder.shared.task.TaskRef;
+import org.jbpm.formbuilder.shared.task.TaskServiceException;
+
+public class RESTIoServiceTest extends RESTAbstractTest {
+
+    //test happy path for RESTIoService.getIoAssociations(...)
     public void testGetIoAssociationsOK() throws Exception {
-        //TODO test happy path
+        RESTIoService restService = new RESTIoService();
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        List<TaskRef> tasks = new ArrayList<TaskRef>();
+        tasks.add(new TaskRef());
+        tasks.add(new TaskRef());
+        EasyMock.expect(taskService.query(EasyMock.eq("somePackage"), EasyMock.eq("someFilter"))).andReturn(tasks).once();
+        restService.setTaskService(taskService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(taskService, context);
+        Response resp = restService.getIoAssociations("someFilter", "somePackage", context);
+        EasyMock.verify(taskService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        Object entity = resp.getEntity();
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("resp.entity shouldn't be null", contentType);
+        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
+        assertTrue("entity should be of type ListTasksDTO", entity instanceof ListTasksDTO);
+        ListTasksDTO dto = (ListTasksDTO) entity;
+        List<TaskRefDTO> dtoTasks = dto.getTask();
+        assertNotNull("dtoTasks shouldn't be null", dtoTasks);
+        assertEquals("dtoTasks should have " + tasks.size() + " elements but it has " + dtoTasks.size(), tasks.size(), dtoTasks.size());
     }
     
+    //test happy path without filtering param for RESTIoService.getIoAssociations(...)
     public void testGetIoAssociationsNoQParam() throws Exception {
-        //TODO test another happy path
+        RESTIoService restService = new RESTIoService();
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        List<TaskRef> tasks = new ArrayList<TaskRef>();
+        tasks.add(new TaskRef());
+        tasks.add(new TaskRef());
+        EasyMock.expect(taskService.query(EasyMock.eq("somePackage"), EasyMock.eq(""))).andReturn(tasks).once();
+        restService.setTaskService(taskService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(taskService, context);
+        Response resp = restService.getIoAssociations(null, "somePackage", context);
+        EasyMock.verify(taskService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        Object entity = resp.getEntity();
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("resp.entity shouldn't be null", contentType);
+        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
+        assertTrue("entity should be of type ListTasksDTO", entity instanceof ListTasksDTO);
+        ListTasksDTO dto = (ListTasksDTO) entity;
+        List<TaskRefDTO> dtoTasks = dto.getTask();
+        assertNotNull("dtoTasks shouldn't be null", dtoTasks);
+        assertEquals("dtoTasks should have " + tasks.size() + " elements but it has " + dtoTasks.size(), tasks.size(), dtoTasks.size());
     }
     
+    //test response to a TaskServiceException for RESTIoService.getIoAssociations(...)
     public void testGetIoAssociationsServiceProblem() throws Exception {
-        //TODO cause a TaskServiceException
+        RESTIoService restService = new RESTIoService();
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskServiceException exception = new TaskServiceException("Something going wrong");
+        EasyMock.expect(taskService.query(EasyMock.eq("somePackage"), EasyMock.eq(""))).andThrow(exception).once();
+        restService.setTaskService(taskService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(taskService, context);
+        Response resp = restService.getIoAssociations(null, "somePackage", context);
+        EasyMock.verify(taskService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 
+    //test happy path for RESTIoService.getIoAssociations(...)
     public void testGetIoAssociationOK() throws Exception {
-        //TODO test happy path
+        RESTIoService restService = new RESTIoService();
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        List<TaskRef> tasks = new ArrayList<TaskRef>();
+        tasks.add(new TaskRef());
+        EasyMock.expect(taskService.getTasksByName(
+                EasyMock.eq("somePackage"), EasyMock.eq("someProcess"), EasyMock.eq("someTask"))).andReturn(tasks).once();
+        restService.setTaskService(taskService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(taskService, context);
+        Response resp = restService.getIoAssociation("somePackage", "someProcess", "someTask", context);
+        EasyMock.verify(taskService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        Object entity = resp.getEntity();
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("resp.entity shouldn't be null", contentType);
+        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.APPLICATION_XML);
+        assertTrue("entity should be of type ListTasksDTO", entity instanceof ListTasksDTO);
+        ListTasksDTO dto = (ListTasksDTO) entity;
+        List<TaskRefDTO> dtoTasks = dto.getTask();
+        assertNotNull("dtoTasks shouldn't be null", dtoTasks);
+        assertEquals("dtoTasks should have " + tasks.size() + " elements but it has " + dtoTasks.size(), tasks.size(), dtoTasks.size());
     }
     
+    //test response to a TaskServiceException for RESTIoService.getIoAssociation(...)
     public void testGetIoAssociationServiceProblem() throws Exception {
-        //TODO cause a TaskServiceException
+        RESTIoService restService = new RESTIoService();
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskServiceException exception = new TaskServiceException("Something going wrong");
+        EasyMock.expect(taskService.getTasksByName(
+                EasyMock.eq("somePackage"), EasyMock.eq("someProcess"), EasyMock.eq("someTask"))).andThrow(exception).once();
+        restService.setTaskService(taskService);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        
+        EasyMock.replay(taskService, context);
+        Response resp = restService.getIoAssociation("somePackage", "someProcess", "someTask", context);
+        EasyMock.verify(taskService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 }

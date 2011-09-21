@@ -53,7 +53,8 @@
         #set($labelFormatted = '${label?string("0")}')
       #end
     #end
-      <\#if \$value??> $valueFormatted <\#else> $labelFormatted </\#if>
+      #set($__val = '$value??')
+      <\#if $__val> $valueFormatted <\#else> $labelFormatted </\#if>
 </\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})
 <span #if($oneventxParam)$oneventxParam#end#if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nlabel label="#if($value)$value#end" /></span>

@@ -161,8 +161,7 @@ public class RESTMenuService extends RESTBaseService {
             menuService.deleteMenuItem(dto.getGroupName(), menuItem);
             return Response.status(Status.ACCEPTED).build();
         } catch (MenuServiceException e) {
-            error("Couldn't delete menu item " + dto.getGroupName() + ":" + dto.getName(), e);
-            return Response.status(Status.CONFLICT).build();
+            return error("Couldn't delete menu item " + dto.getGroupName() + ":" + dto.getName(), e);
         }
     }
 

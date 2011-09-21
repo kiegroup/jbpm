@@ -45,4 +45,20 @@ import javax.xml.bind.annotation.XmlElement;
     public void setProperty(List<PropertiesItemDTO> property) {
         this._property = property;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof PropertiesDTO)) return false;
+        PropertiesDTO other = (PropertiesDTO) obj;
+        return (other._property == null && this._property == null) || (this._property != null && this._property.equals(other._property));
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = _property == null ? 0 : _property.hashCode();
+        result = result * 37 + aux;
+        return result;
+    }
 }

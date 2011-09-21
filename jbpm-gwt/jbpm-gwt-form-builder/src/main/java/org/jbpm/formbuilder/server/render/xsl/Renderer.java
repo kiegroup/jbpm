@@ -60,7 +60,7 @@ public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
     }
     
     protected String toInputString(Map<String, Object> inputData) {
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder("<?xml version=\"1.0\"?>\n");
         if (inputData != null) {
             for (Map.Entry<String, Object> entry : inputData.entrySet()) {
                 builder.append("<").append(entry.getKey()).append(">").

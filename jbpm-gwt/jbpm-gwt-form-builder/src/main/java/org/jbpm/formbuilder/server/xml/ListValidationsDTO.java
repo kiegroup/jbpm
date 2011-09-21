@@ -25,7 +25,7 @@ import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 @XmlRootElement (name = "validations")
 public class ListValidationsDTO {
 
-    private List<ValidationDTO> _validation;
+    private List<ValidationDTO> _validation = new ArrayList<ValidationDTO>();
 
     public ListValidationsDTO() {
         // jaxb needs a default constructor
@@ -48,5 +48,21 @@ public class ListValidationsDTO {
 
     public void setValidation(List<ValidationDTO> validation) {
         this._validation = validation;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ListValidationsDTO)) return false;
+        ListValidationsDTO other = (ListValidationsDTO) obj;
+        return (other._validation == null && this._validation == null) || (this._validation != null && this._validation.equals(other._validation));
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = _validation == null ? 0 : _validation.hashCode();
+        result = result * 37 + aux;
+        return result;
     }
 }

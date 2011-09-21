@@ -47,4 +47,20 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
     public List<TaskRefDTO> getTask() {
         return _task;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ListTasksDTO)) return false;
+        ListTasksDTO other = (ListTasksDTO) obj;
+        return (other._task == null && this._task == null) || (this._task != null && this._task.equals(other._task));
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = _task == null ? 0 : _task.hashCode();
+        result = result * 37 + aux;
+        return result;
+    }
 }

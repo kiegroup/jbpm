@@ -43,4 +43,29 @@ public class FormDefDTO {
     public void setJson(String json) {
         this._json = json;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_json == null) ? 0 : _json.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FormDefDTO other = (FormDefDTO) obj;
+        if (_json == null) {
+            if (other._json != null)
+                return false;
+        } else if (!_json.equals(other._json))
+            return false;
+        return true;
+    }
 }

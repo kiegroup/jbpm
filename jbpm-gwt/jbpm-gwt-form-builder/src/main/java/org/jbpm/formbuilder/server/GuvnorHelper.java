@@ -18,9 +18,11 @@ package org.jbpm.formbuilder.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.codec.binary.Base64;
@@ -90,6 +92,14 @@ public class GuvnorHelper {
         Unmarshaller unmarshaller = ctx.createUnmarshaller();
         Object obj = unmarshaller.unmarshal(reader);
         return (T) obj;
+    }
+    
+    public String jaxbSerializing(Object obj, Class<?>... boundTypes) throws JAXBException {
+        JAXBContext ctx = JAXBContext.newInstance(boundTypes);
+        Marshaller marshaller = ctx.createMarshaller();
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(obj, writer);
+        return writer.toString();
     }
     
     public String getAuth() {

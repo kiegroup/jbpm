@@ -27,7 +27,7 @@ import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 public class ValidationDTO {
 
     private String _className;
-    private List<PropertiesItemDTO> _property;
+    private List<PropertiesItemDTO> _property = new ArrayList<PropertiesItemDTO>();
 
     public ValidationDTO() {
         // jaxb needs a default constructor
@@ -61,5 +61,26 @@ public class ValidationDTO {
 
     public void setProperty(List<PropertiesItemDTO> property) {
         this._property = property;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ValidationDTO)) return false;
+        ValidationDTO other = (ValidationDTO) obj;
+        boolean equals = (other._className == null && this._className == null) || (this._className != null && this._className.equals(other._className));
+        if (!equals) return equals;
+        equals = (other._property == null && this._property == null) || (this._property != null && this._property.equals(other._property));
+        return equals;
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        int aux = _className == null ? 0 : _className.hashCode();
+        result = result * 37 + aux;
+        aux = _property == null ? 0 : _property.hashCode();
+        result = result * 37 + aux;
+        return result;
     }
 }

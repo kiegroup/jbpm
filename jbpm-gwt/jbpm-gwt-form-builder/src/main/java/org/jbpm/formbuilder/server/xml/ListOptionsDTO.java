@@ -45,4 +45,30 @@ import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
     public void setMenuOption(List<MenuOptionDTO> menuOption) {
         this._menuOption = menuOption;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_menuOption == null) ? 0 : _menuOption.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ListOptionsDTO other = (ListOptionsDTO) obj;
+        if (_menuOption == null) {
+            if (other._menuOption != null)
+                return false;
+        } else if (!_menuOption.equals(other._menuOption))
+            return false;
+        return true;
+    }
 }

@@ -71,4 +71,43 @@ public class MenuOptionDTO {
     public void setMenuOption(List<MenuOptionDTO> menuOption) {
         this._menuOption = menuOption;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_commandClass == null) ? 0 : _commandClass.hashCode());
+        result = prime * result
+                + ((_menuOption == null) ? 0 : _menuOption.hashCode());
+        result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MenuOptionDTO other = (MenuOptionDTO) obj;
+        if (_commandClass == null) {
+            if (other._commandClass != null)
+                return false;
+        } else if (!_commandClass.equals(other._commandClass))
+            return false;
+        if (_menuOption == null) {
+            if (other._menuOption != null)
+                return false;
+        } else if (!_menuOption.equals(other._menuOption))
+            return false;
+        if (_name == null) {
+            if (other._name != null)
+                return false;
+        } else if (!_name.equals(other._name))
+            return false;
+        return true;
+    }
 }

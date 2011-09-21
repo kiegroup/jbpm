@@ -46,4 +46,30 @@ import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
     public void setMenuGroup(List<MenuGroupDTO> menuGroup) {
         this._menuGroup = menuGroup;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_menuGroup == null) ? 0 : _menuGroup.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ListMenuItemsDTO other = (ListMenuItemsDTO) obj;
+        if (_menuGroup == null) {
+            if (other._menuGroup != null)
+                return false;
+        } else if (!_menuGroup.equals(other._menuGroup))
+            return false;
+        return true;
+    }
 }

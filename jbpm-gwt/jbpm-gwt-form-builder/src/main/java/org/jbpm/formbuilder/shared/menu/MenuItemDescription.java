@@ -122,40 +122,58 @@ public class MenuItemDescription implements Mappable {
         Map<String, Object> itemMap = (Map<String, Object>) data.get("itemRepresentation");
         this.itemRepresentation = (FormItemRepresentation) decoder.decode(itemMap);
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof MenuItemDescription)) return false;
-        MenuItemDescription other = (MenuItemDescription) obj;
-        boolean equals = (this.className == null && other.className == null) || (this.className != null && this.className.equals(other.className));
-        if (!equals) return equals;
-        equals = (this.name == null && other.name == null) || (this.name != null && this.name.equals(other.name));
-        if (!equals) return equals;
-        equals = (this.itemRepresentation == null && other.itemRepresentation == null) || 
-            (this.itemRepresentation != null && this.itemRepresentation.equals(other.itemRepresentation));
-        if (!equals) return equals;
-        equals = (this.effects == null && other.effects == null) || (this.effects != null && this.effects.equals(other.effects));
-        if (!equals) return equals;
-        equals = (this.allowedEvents == null && other.allowedEvents == null) || 
-            (this.allowedEvents != null && this.allowedEvents.equals(other.allowedEvents));
-        return equals;
-    }
-    
+
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        int aux = this.className == null ? 0 : this.className.hashCode();
-        result = 37 * result + aux;
-        aux = this.name == null ? 0 : this.name.hashCode();
-        result = 37 * result + aux;
-        aux = this.itemRepresentation == null ? 0 : this.itemRepresentation.hashCode();
-        result = 37 * result + aux;
-        aux = this.effects == null ? 0 : this.effects.hashCode();
-        result = 37 * result + aux;
-        aux = this.allowedEvents == null ? 0 : this.allowedEvents.hashCode();
-        result = 37 * result + aux;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((allowedEvents == null) ? 0 : allowedEvents.hashCode());
+        result = prime * result
+                + ((className == null) ? 0 : className.hashCode());
+        result = prime * result + ((effects == null) ? 0 : effects.hashCode());
+        result = prime
+                * result
+                + ((itemRepresentation == null) ? 0 : itemRepresentation
+                        .hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        MenuItemDescription other = (MenuItemDescription) obj;
+        if (allowedEvents == null) {
+            if (other.allowedEvents != null)
+                return false;
+        } else if (!allowedEvents.equals(other.allowedEvents))
+            return false;
+        if (className == null) {
+            if (other.className != null)
+                return false;
+        } else if (!className.equals(other.className))
+            return false;
+        if (effects == null) {
+            if (other.effects != null)
+                return false;
+        } else if (!effects.equals(other.effects))
+            return false;
+        if (itemRepresentation == null) {
+            if (other.itemRepresentation != null)
+                return false;
+        } else if (!itemRepresentation.equals(other.itemRepresentation))
+            return false;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
     }
 }

@@ -182,53 +182,81 @@ public abstract class FormItemRepresentation implements Mappable {
         this.width = (String) data.get("width");
         this.height = (String) data.get("height");
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof FormItemRepresentation)) return false;
-        FormItemRepresentation other = (FormItemRepresentation) obj;
-        boolean equals = (this.typeId == null && other.typeId == null) || (this.typeId != null && this.typeId.equals(other.typeId));
-        if (!equals) return equals;
-        equals = (this.output == null && other.output == null) || (this.output != null && this.output.equals(other.output));
-        if (!equals) return equals;
-        equals = (this.input == null && other.input == null) || (this.input != null && this.input.equals(other.input));
-        if (!equals) return equals;
-        equals = (this.effectClasses == null && other.effectClasses == null) || 
-            (this.effectClasses != null && this.effectClasses.equals(other.effectClasses));
-        if (!equals) return equals;
-        equals = (this.itemValidations == null && other.itemValidations == null) || 
-            (this.itemValidations != null && this.itemValidations.equals(other.itemValidations));
-        if (!equals) return equals;
-        equals = (this.width == null && other.width == null) || (this.width != null && this.width.equals(other.width));
-        if (!equals) return equals;
-        equals = (this.height == null && other.height == null) || (this.height != null && this.height.equals(other.height));
-        if (!equals) return equals;
-        equals = (this.eventActions == null && other.eventActions == null) ||
-            (this.eventActions !=  null && this.eventActions.entrySet().equals(other.eventActions.entrySet()));
-        return equals;
-    }
-    
+
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        int aux = this.typeId == null ? 0 : this.typeId.hashCode();
-        result = 37 * result + aux;
-        aux = this.output == null ? 0 : this.output.hashCode();
-        result = 37 * result + aux;
-        aux = this.input == null ? 0 : this.input.hashCode();
-        result = 37 * result + aux;
-        aux = this.effectClasses == null ? 0 : this.effectClasses.hashCode();
-        result = 37 * result + aux;
-        aux = this.itemValidations == null ? 0 : this.itemValidations.hashCode();
-        result = 37 * result + aux;
-        aux = this.width == null ? 0 : this.width.hashCode();
-        result = 37 * result + aux;
-        aux = this.height == null ? 0 : this.height.hashCode();
-        result = 37 * result + aux;
-        aux = this.eventActions == null ? 0 : this.eventActions.hashCode();
-        result = 37 * result + aux;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((effectClasses == null) ? 0 : effectClasses.hashCode());
+        result = prime * result
+                + ((eventActions == null) ? 0 : eventActions.hashCode());
+        result = prime * result + ((height == null) ? 0 : height.hashCode());
+        result = prime * result + ((input == null) ? 0 : input.hashCode());
+        result = prime * result
+                + ((itemClassName == null) ? 0 : itemClassName.hashCode());
+        result = prime * result
+                + ((itemValidations == null) ? 0 : itemValidations.hashCode());
+        result = prime * result + ((output == null) ? 0 : output.hashCode());
+        result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
+        result = prime * result + ((width == null) ? 0 : width.hashCode());
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FormItemRepresentation other = (FormItemRepresentation) obj;
+        if (effectClasses == null) {
+            if (other.effectClasses != null)
+                return false;
+        } else if (!effectClasses.equals(other.effectClasses))
+            return false;
+        if (eventActions == null) {
+            if (other.eventActions != null)
+                return false;
+        } else if (!eventActions.equals(other.eventActions))
+            return false;
+        if (height == null) {
+            if (other.height != null)
+                return false;
+        } else if (!height.equals(other.height))
+            return false;
+        if (input == null) {
+            if (other.input != null)
+                return false;
+        } else if (!input.equals(other.input))
+            return false;
+        if (itemClassName == null) {
+            if (other.itemClassName != null)
+                return false;
+        } else if (!itemClassName.equals(other.itemClassName))
+            return false;
+        if (itemValidations == null) {
+            if (other.itemValidations != null)
+                return false;
+        } else if (!itemValidations.equals(other.itemValidations))
+            return false;
+        if (output == null) {
+            if (other.output != null)
+                return false;
+        } else if (!output.equals(other.output))
+            return false;
+        if (typeId == null) {
+            if (other.typeId != null)
+                return false;
+        } else if (!typeId.equals(other.typeId))
+            return false;
+        if (width == null) {
+            if (other.width != null)
+                return false;
+        } else if (!width.equals(other.width))
+            return false;
+        return true;
     }
 }
