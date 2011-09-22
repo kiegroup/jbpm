@@ -33,10 +33,12 @@ import org.jbpm.formbuilder.server.mock.MockDeleteMethod;
 import org.jbpm.formbuilder.server.mock.MockGetMethod;
 import org.jbpm.formbuilder.server.mock.MockPostMethod;
 import org.jbpm.formbuilder.server.mock.MockPutMethod;
+import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 
 public class GuvnorFormDefinitionServiceTest extends TestCase {
@@ -164,36 +166,186 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         EasyMock.verify(client);
     }
 
+    //test happy path for GuvnorFormDefinitionService.saveFormItem(...)
     public void testSaveFormItemOK() throws Exception {
-        //TODO happy path
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        responses.put("POST http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/formItemDefinition_item1.json", "{}");
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("form1", "oneParam").getFormItems().iterator().next();
+        
+        EasyMock.replay(client);
+        String itemId = service.saveFormItem("somePackage", "item1", item);
+        EasyMock.verify(client);
+        
+        assertNotNull("itemId shouldn't be null", itemId);
     }
     
+    //test response to a FormEncodingException for GuvnorFormDefinitionService.saveFormItem(...)
     public void testSaveFormItemEncodingProblem() throws Exception {
-        //TODO cause a FormEncodingException
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        responses.put("POST http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/formItemDefinition_item1.json", "{}");
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("form1", "oneParam").getFormItems().iterator().next();
+        FormRepresentationEncoder encoder = EasyMock.createMock(FormRepresentationEncoder.class);
+        FormEncodingFactory.register(encoder, FormEncodingFactory.getDecoder());
+        EasyMock.expect(encoder.encode(EasyMock.eq(item))).andThrow(new FormEncodingException("Something wrong")).once();
+        
+        EasyMock.replay(client, encoder);
+        try {
+            service.saveFormItem("somePackage", "item1", item);
+            fail("Shouldn't have succeeded");
+        } catch (FormServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type FormEncodingException", cause instanceof FormEncodingException);
+        }
+        EasyMock.verify(client, encoder);
     }
     
+    //test response to a IOException for GuvnorFormDefinitionService.saveFormItem(...)
     public void testSaveFormItemIOProblem() throws Exception {
-        //TODO cause a IOException
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IOException("MOCK IO ERROR"))).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("form1", "oneParam").getFormItems().iterator().next();
+        
+        EasyMock.replay(client);
+        try {
+            service.saveFormItem("somePackage", "item1", item);
+            fail("Shouldn't have succeeded");
+        } catch (FormServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type IOException", cause instanceof IOException);
+        }
+        EasyMock.verify(client);
     }
     
+    //test response to an Exception for GuvnorFormDefinitionService.saveFormItem(...)
     public void testSaveFormItemUnkownProblem() throws Exception {
-        //TODO cause a NullPointerException
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new NullPointerException())).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("form1", "oneParam").getFormItems().iterator().next();
+        
+        EasyMock.replay(client);
+        try {
+            service.saveFormItem("somePackage", "item1", item);
+            fail("Shouldn't have succeeded");
+        } catch (FormServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type NullPointerException", cause instanceof NullPointerException);
+        }
+        EasyMock.verify(client);
     }
     
+    //test happy path for GuvnorFormDefinitionService.getForm(...)
     public void testGetFormOK() throws Exception {
-        //TODO happy path
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        FormRepresentation form = RESTAbstractTest.createMockForm("form1", "oneParam");
+        String jsonForm = FormEncodingFactory.getEncoder().encode(form);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", jsonForm);
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("Unexpected call"))).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        FormRepresentation form1 = service.getForm("somePackage", "form1AutoForm");
+        EasyMock.verify(client);
+        
+        assertNotNull("form1 shouldn't be null", form1);
+        assertEquals("form and form1 should be identical", form, form1);
     }
     
+    //test response to a FormEncodingException for GuvnorFormDefinitionService.getForm(...)
     public void testGetFormEncodingProblem() throws Exception {
-        //TODO cause a FormEncodingException
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
+        String jsonForm = FormEncodingFactory.getEncoder().encode(form);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        FormRepresentationDecoder decoder = EasyMock.createMock(FormRepresentationDecoder.class);
+        EasyMock.expect(decoder.decode(EasyMock.eq(jsonForm))).andThrow(new FormEncodingException("Something going wrong")).once();
+        FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), decoder);
+        
+        EasyMock.replay(client, decoder);
+        try {
+            service.getForm("somePackage", "form2AutoForm");
+            fail("getForm(...) Shouldn't succeed");
+        } catch (FormServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type FormEncodingException", cause instanceof FormEncodingException);
+        }
+        EasyMock.verify(client, decoder);
     }
     
+    //test response to a IOException for GuvnorFormDefinitionService.getForm(...)
     public void testGetFormIOProblem() throws Exception {
-        //TODO cause a IOException
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IOException("MOCK IO ERROR"))).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.getForm("somePackage", "form2AutoForm");
+            fail("getForm(...) Shouldn't succeed");
+        } catch (FormServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type FormEncodingException", cause instanceof IOException);
+        }
+        EasyMock.verify(client);
     }
     
     public void testGetFormUnkownProblem() throws Exception {
-        //TODO cause a NullPointerException
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new NullPointerException())).anyTimes();
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.getForm("somePackage", "form2AutoForm");
+            fail("getForm(...) Shouldn't succeed");
+        } catch (FormServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type FormEncodingException", cause instanceof NullPointerException);
+        }
+        EasyMock.verify(client);
     }
     
     public void testGetFormByUUIDOK() throws Exception {

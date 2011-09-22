@@ -136,6 +136,8 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             throw new FormServiceException(e);
         } catch (FormEncodingException e) {
             throw new FormServiceException(e);
+        } catch (Exception e) {
+            throw new FormServiceException("Unexpected error", e);
         } finally {
             method.releaseConnection();
         }
@@ -156,6 +158,8 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
                 throw new FormServiceException(e);
             } catch (FormEncodingException e) {
                 throw new FormServiceException(e);
+            } catch (Exception e) {
+                throw new FormServiceException("Unexpected error", e);
             } finally {
                 method.releaseConnection();
             }
