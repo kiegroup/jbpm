@@ -54,10 +54,9 @@ public class RendererAndTranslatorTest extends TestCase {
     /**
      * Test, for every configured language, that a basic form can be populated
      * @throws Exception in case of an error on any of the languages.
-     * TODO xulphp should be finished
-     * TODO xsl has problems
+     * TODO xulphp should be finished and xsl has problems
      */
-    public void testToBeDefined() throws Exception {
+    public void testAllAvailableLanguages() throws Exception {
         Map<String, String> props = service.getFormBuilderProperties();
         String langsProperty = props.get("form.builder.languages"); //"gwt,ftl"
         String[] langs = langsProperty.split(","); //{ "gwt", "ftl" }

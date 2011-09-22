@@ -15,13 +15,16 @@
  */
 package org.jbpm.formbuilder.server;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -33,6 +36,12 @@ import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.FormItemDefDTO;
 import org.jbpm.formbuilder.server.form.ListFormsDTO;
 import org.jbpm.formbuilder.server.form.ListFormsItemsDTO;
+import org.jbpm.formbuilder.server.render.Renderer;
+import org.jbpm.formbuilder.server.render.RendererException;
+import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.Translator;
+import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
+import org.jbpm.formbuilder.server.xml.FormPreviewParameterDTO;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
@@ -41,6 +50,7 @@ import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
+import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 
 public class RESTFormServiceTest extends RESTAbstractTest {
 
@@ -491,43 +501,300 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test happy path for RESTFormService.deleteForm(...)
     public void testDeleteFormItemOK() throws Exception {
-        //TODO test happy path
+        RESTFormService restService = new RESTFormService();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        formService.deleteForm(EasyMock.eq("somePackage"), EasyMock.eq("MY_FORM_ID"));
+        EasyMock.expectLastCall().once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        restService.setFormService(formService);
+        
+        EasyMock.replay(formService, context);
+        Response resp = restService.deleteForm("somePackage", "MY_FORM_ID", context);
+        EasyMock.verify(formService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
     }
     
+    //test response to a FormServiceException for RESTFormService.deleteForm(...)
     public void testDeleteFormItemServiceProblem() throws Exception {
-        //TODO cause a FormServiceException
+        RESTFormService restService = new RESTFormService();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        formService.deleteForm(EasyMock.eq("somePackage"), EasyMock.eq("MY_FORM_ID"));
+        FormServiceException exception = new FormServiceException("Something going wrong");
+        EasyMock.expectLastCall().andThrow(exception).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        restService.setFormService(formService);
+        
+        EasyMock.replay(formService, context);
+        Response resp = restService.deleteForm("somePackage", "MY_FORM_ID", context);
+        EasyMock.verify(formService, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 
+    private RESTFormService emulateRESTFormService(final Translator t, final LanguageException e1, final Renderer r, final RendererException e2) {
+        return new RESTFormService() {
+            @Override
+            protected Renderer getRenderer(String language) throws RendererException {
+                if (r == null) {
+                    if (e1 == null) return super.getRenderer(language);
+                    else throw e2;
+                }
+                return r;
+            }
+            @Override
+            protected Translator getTranslator(String language) throws LanguageException {
+                if (t == null) {
+                    if (e2 == null) return super.getTranslator(language);
+                    else throw e1;
+                }
+                return t;
+            }
+        };
+    }
+
+    private FormPreviewDTO createFormPreviewDTO(FormRepresentation form) throws Exception {
+        FormPreviewDTO dto = new FormPreviewDTO();
+        String jsonBody = FormEncodingFactory.getEncoder().encode(form);
+        dto.setRepresentation(jsonBody);
+        List<FormPreviewParameterDTO> inputs = new ArrayList<FormPreviewParameterDTO>();
+        FormPreviewParameterDTO param1 = new FormPreviewParameterDTO();
+        param1.setKey("key1");
+        param1.setValue("value1");
+        FormPreviewParameterDTO param2 = new FormPreviewParameterDTO();
+        param2.setKey("key2");
+        param2.setValue("value2");
+        inputs.add(param1);
+        inputs.add(param2);
+        dto.setInput(inputs);
+        return dto;
+    }
+    
+    //test happy path for RESTFormService.getFormPreview(...)
     public void testGetFormPreviewOK() throws Exception {
-        //TODO test happy path
+        final Renderer renderer = EasyMock.createMock(Renderer.class);
+        final Translator translator = EasyMock.createMock(Translator.class);
+        final ServletContext context = EasyMock.createMock(ServletContext.class);
+        final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        RESTFormService restService = emulateRESTFormService(translator, null, renderer, null);
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        FormPreviewDTO dto = createFormPreviewDTO(form);
+        
+        URL url = new URL("http://www.redhat.com");
+        EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andReturn(url).once();
+        String htmlResult = "<html><body><div>Hello</div></body></html>";
+        @SuppressWarnings("unchecked")
+        Map<String, Object> anyObject = EasyMock.anyObject(Map.class);
+        EasyMock.expect(renderer.render(EasyMock.anyObject(URL.class), anyObject)).andReturn(htmlResult);
+        EasyMock.expect(context.getContextPath()).andReturn("/").anyTimes();
+        EasyMock.expect(request.getLocale()).andReturn(Locale.getDefault()).once();
+        
+        EasyMock.replay(renderer, translator, context, request);
+        Response resp = restService.getFormPreview(dto, "lang", context, request);
+        EasyMock.verify(renderer, translator, context, request);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        Object entity = resp.getEntity();
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("contentType shouldn't be null", contentType);
+        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.TEXT_PLAIN);
+        String html = entity.toString();
+        assertTrue("html should contain data", html.length() > 0);
     }
     
+    //test response to a FormEncodingException for RESTFormService.getFormPreview(...)
     public void testGetFormPreviewEncodingProblem() throws Exception {
-      //TODO cause a FormEncodingException
+        final ServletContext context = EasyMock.createMock(ServletContext.class);
+        final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        FormRepresentationDecoder decoder = EasyMock.createMock(FormRepresentationDecoder.class);
+        RESTFormService restService = new RESTFormService();
+        restService.setFormService(new MockFormDefinitionService());
+        FormEncodingFactory.register(FormEncodingFactory.getEncoder(), decoder);
+        
+        FormPreviewDTO dto = new FormPreviewDTO();
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        String jsonBody = FormEncodingFactory.getEncoder().encode(form);
+        dto.setRepresentation(jsonBody);
+        
+        FormEncodingException exception = new FormEncodingException("Something going wrong");
+        EasyMock.expect(decoder.decode(EasyMock.eq(jsonBody))).andThrow(exception).once();
+        
+        EasyMock.replay(context, request);
+        Response resp = restService.getFormPreview(dto, "lang", context, request);
+        EasyMock.verify(context, request);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test response to a non existing Translator for RESTFormService.getFormPreview(...)
+    public void testGetFormPreviewTranslatorNotFound() throws Exception {
+        final ServletContext context = EasyMock.createMock(ServletContext.class);
+        final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        RESTFormService restService = emulateRESTFormService(null, new LanguageException("Not finding translator"), null, null);
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormPreviewDTO dto = new FormPreviewDTO();
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        String jsonBody = FormEncodingFactory.getEncoder().encode(form);
+        dto.setRepresentation(jsonBody);
+        
+        EasyMock.replay(context, request);
+        Response resp = restService.getFormPreview(dto, "lang", context, request);
+        EasyMock.verify(context, request);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
+    }
+    
+    //test response to a non existing Renderer for RESTFormService.getFormPreview(...)
+    public void testGetFormPreviewRendererNotFound() throws Exception {
+        final Translator translator = EasyMock.createMock(Translator.class);
+        final ServletContext context = EasyMock.createMock(ServletContext.class);
+        final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        RESTFormService restService = emulateRESTFormService(translator, null, null, new RendererException("not finding a renderer"));
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormPreviewDTO dto = new FormPreviewDTO();
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        String jsonBody = FormEncodingFactory.getEncoder().encode(form);
+        dto.setRepresentation(jsonBody);
+        
+        URL url = new URL("http://www.redhat.com");
+        EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andReturn(url).once();
+        EasyMock.expect(context.getContextPath()).andReturn("/").anyTimes();
+        
+        EasyMock.replay(translator, context, request);
+        Response resp = restService.getFormPreview(dto, "lang", context, request);
+        EasyMock.verify(translator, context, request);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
+    }
+    
+    //test response to a LanguageException for RESTFormService.getFormPreview(...)
     public void testGetFormPreviewTranslatorProblem() throws Exception {
-      //TODO cause a LanguageException
+        final Renderer renderer = EasyMock.createMock(Renderer.class);
+        final Translator translator = EasyMock.createMock(Translator.class);
+        final ServletContext context = EasyMock.createMock(ServletContext.class);
+        final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        RESTFormService restService = emulateRESTFormService(translator, null, renderer, null);
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        FormPreviewDTO dto = createFormPreviewDTO(form);
+        
+        LanguageException exception = new LanguageException("Something going wrong");
+        EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andThrow(exception).once();
+        EasyMock.expect(context.getContextPath()).andReturn("/").anyTimes();
+        
+        EasyMock.replay(renderer, translator, context, request);
+        Response resp = restService.getFormPreview(dto, "lang", context, request);
+        EasyMock.verify(renderer, translator, context, request);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
-    
+
+    //test response to a RendererException for RESTFormService.getFormPreview(...)
     public void testGetFormPreviewRendererProblem() throws Exception {
-      //TODO cause a RendererException
+        final Renderer renderer = EasyMock.createMock(Renderer.class);
+        final Translator translator = EasyMock.createMock(Translator.class);
+        final ServletContext context = EasyMock.createMock(ServletContext.class);
+        final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        RESTFormService restService = emulateRESTFormService(translator, null, renderer, null);
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        FormPreviewDTO dto = createFormPreviewDTO(form);
+        
+        EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andReturn(new URL("http://www.redhat.com")).once();
+        RendererException exception = new RendererException("Something going wrong");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> anyObject = EasyMock.anyObject(Map.class);
+        EasyMock.expect(renderer.render(EasyMock.anyObject(URL.class), anyObject)).andThrow(exception).once();
+        EasyMock.expect(context.getContextPath()).andReturn("/").anyTimes();
+        EasyMock.expect(request.getLocale()).andReturn(Locale.getDefault()).once();
+        
+        EasyMock.replay(renderer, translator, context, request);
+        Response resp = restService.getFormPreview(dto, "lang", context, request);
+        EasyMock.verify(renderer, translator, context, request);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
-    public void testGetFormPreviewIOProblem() throws Exception {
-      //TODO cause a IOException
-    }
-    
+    //test happy path for RESTFormService.getFormTemplate(...)
     public void testGetFormTemplateOK() throws Exception {
-        //TODO test happy path
+        Translator translator = EasyMock.createMock(Translator.class);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        RESTFormService restService = emulateRESTFormService(translator, null, null, null);
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        FormPreviewDTO dto = createFormPreviewDTO(form);
+        
+        EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andReturn(new URL("http://www.redhat.com")).once();
+        
+        EasyMock.replay(translator, context);
+        Response resp = restService.getFormTemplate(dto, "lang", context);
+        EasyMock.verify(translator, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        Object entity = assertXmlOkResponse(resp);
+        String xml = entity.toString();
+        assertTrue("xml should start with <fileName>", xml.startsWith("<fileName>"));
+        assertTrue("xml should end with </fileName>", xml.endsWith("</fileName>"));
     }
     
+    //test response to a FormEncodingException for RESTFormService.getFormTemplate(...)
     public void testGetFormTemplateEncodingProblem() throws Exception {
-        //TODO cause a FormEncodingException
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        RESTFormService restService = new RESTFormService();
+        restService.setFormService(new MockFormDefinitionService());
+        FormRepresentationDecoder decoder = EasyMock.createMock(FormRepresentationDecoder.class);
+        FormEncodingFactory.register(FormEncodingFactory.getEncoder(), decoder);
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        FormPreviewDTO dto = createFormPreviewDTO(form);
+        
+        FormEncodingException exception = new FormEncodingException("Something going wrong");
+        EasyMock.expect(decoder.decode(EasyMock.eq(dto.getRepresentation()))).andThrow(exception).once();
+        
+        EasyMock.replay(decoder, context);
+        Response resp = restService.getFormTemplate(dto, "lang", context);
+        EasyMock.verify(decoder, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
+    //test response to a LanguageException for RESTFormService.getFormTemplate(...)
     public void testGetFormTemplateTranslatorProblem() throws Exception {
-        //TODO cause a LanguageException
+        Translator translator = EasyMock.createMock(Translator.class);
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        RESTFormService restService = emulateRESTFormService(translator, null, null, null);
+        restService.setFormService(new MockFormDefinitionService());
+        
+        FormRepresentation form = createMockForm("myForm", "key1", "key2");
+        FormPreviewDTO dto = createFormPreviewDTO(form);
+        
+        LanguageException exception = new LanguageException("Something going wrong");
+        EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andThrow(exception).once();
+        
+        EasyMock.replay(translator, context);
+        Response resp = restService.getFormTemplate(dto, "lang", context);
+        EasyMock.verify(translator, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 }

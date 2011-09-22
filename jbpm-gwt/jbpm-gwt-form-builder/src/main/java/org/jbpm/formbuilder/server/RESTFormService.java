@@ -202,7 +202,7 @@ public class RESTFormService extends RESTBaseService {
         try {
             URL url = createTemplate(language, dto);
             Map<String, Object> inputs = dto.getInputsAsMap();
-            Renderer renderer = RendererFactory.getInstance().getRenderer(language);
+            Renderer renderer = getRenderer(language);
             inputs.put(Renderer.BASE_CONTEXT_PATH, context.getContextPath());
             Locale locale = request.getLocale();
             inputs.put(Renderer.BASE_LOCALE, locale == null ? "default" : locale.getDisplayName(locale));
@@ -292,7 +292,7 @@ public class RESTFormService extends RESTBaseService {
         String json = dto.getRepresentation();
         FormRepresentation form = decoder.decode(json);
         dto.setForm(form);
-        Translator translator = TranslatorFactory.getInstance().getTranslator(language);
+        Translator translator = getTranslator(language);
         URL url = translator.translateForm(form);
         return url;
     }
@@ -313,6 +313,14 @@ public class RESTFormService extends RESTBaseService {
         } catch (IOException e) {
             return Response.serverError().build();
         }
+    }
+
+    protected Translator getTranslator(String language) throws LanguageException {
+        return TranslatorFactory.getInstance().getTranslator(language);
+    }
+    
+    protected Renderer getRenderer(String language) throws RendererException {
+        return RendererFactory.getInstance().getRenderer(language);
     }
     
     /**

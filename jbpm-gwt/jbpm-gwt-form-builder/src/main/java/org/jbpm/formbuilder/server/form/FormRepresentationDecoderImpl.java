@@ -99,30 +99,33 @@ public class FormRepresentationDecoderImpl implements FormRepresentationDecoder 
         JsonElement json = new JsonParser().parse(code);
         if (json.isJsonObject()) {
             JsonObject jsonObj = json.getAsJsonObject();
-            if (jsonObj.get("action").isJsonPrimitive() && jsonObj.get("action").getAsJsonPrimitive().isString()) {
+            if (jsonObj.entrySet().isEmpty()) {
+                return null;
+            }
+            if (jsonObj.get("action") != null && jsonObj.get("action").isJsonPrimitive() && jsonObj.get("action").getAsJsonPrimitive().isString()) {
                 form.setAction(jsonObj.get("action").getAsString());
             }
-            if (jsonObj.get("documentation").isJsonPrimitive() && jsonObj.get("documentation").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("documentation") != null && jsonObj.get("documentation").isJsonPrimitive() && jsonObj.get("documentation").getAsJsonPrimitive().isString()) {
                 form.setDocumentation(jsonObj.get("documentation").getAsString());
             }
-            if (jsonObj.get("enctype").isJsonPrimitive() && jsonObj.get("enctype").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("enctype") != null && jsonObj.get("enctype").isJsonPrimitive() && jsonObj.get("enctype").getAsJsonPrimitive().isString()) {
                 form.setEnctype(jsonObj.get("enctype").getAsString());
             }
-            if (jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("lastModified") != null && jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isString()) {
                 form.setLastModified(Double.valueOf(jsonObj.get("lastModified").getAsString()).longValue());
-            } else if (jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isNumber()) {
+            } else if (jsonObj.get("lastModified") != null && jsonObj.get("lastModified").isJsonPrimitive() && jsonObj.get("lastModified").getAsJsonPrimitive().isNumber()) {
                 form.setLastModified(jsonObj.get("lastModified").getAsNumber().longValue());
             }
-            if (jsonObj.get("method").isJsonPrimitive() && jsonObj.get("method").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("method") != null && jsonObj.get("method").isJsonPrimitive() && jsonObj.get("method").getAsJsonPrimitive().isString()) {
                 form.setMethod(jsonObj.get("method").getAsString());
             }
-            if (jsonObj.get("name").isJsonPrimitive() && jsonObj.get("name").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("name") != null && jsonObj.get("name").isJsonPrimitive() && jsonObj.get("name").getAsJsonPrimitive().isString()) {
                 form.setName(jsonObj.get("name").getAsString());
             }
-            if (jsonObj.get("taskId").isJsonPrimitive() && jsonObj.get("taskId").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("taskId") != null && jsonObj.get("taskId").isJsonPrimitive() && jsonObj.get("taskId").getAsJsonPrimitive().isString()) {
                 form.setTaskId(jsonObj.get("taskId").getAsString());
             }
-            if (jsonObj.get("processName").isJsonPrimitive() && jsonObj.get("processName").getAsJsonPrimitive().isString()) {
+            if (jsonObj.get("processName") != null && jsonObj.get("processName").isJsonPrimitive() && jsonObj.get("processName").getAsJsonPrimitive().isString()) {
                 form.setProcessName(jsonObj.get("processName").getAsString());
             }
             form.setFormItems(decodeList(jsonObj.get("formItems"), FormItemRepresentation.class));

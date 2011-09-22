@@ -7,9 +7,6 @@ import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-/**
- * TODO
- */
 public class FormDefinitionServiceTest extends TestCase {
 
     public void testTemplateFormFromTask() throws Exception {
