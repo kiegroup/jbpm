@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
 import org.jbpm.formbuilder.server.file.FileService;
@@ -44,6 +49,23 @@ public class RESTFileServiceTest extends RESTAbstractTest {
 
         FileService service = restService.getFileService();
         assertNotNull("service shouldn't be null", service);
+    }
+
+    public void testError() throws Exception {
+        RESTFileService restService = new RESTFileService();
+        
+        String msg = "mock error message";
+        Exception err = new NullPointerException();
+        
+        Response resp0 = restService.error(null, null);
+        assertNotNull("resp0 shouldn't be null", resp0);
+        assertStatus(resp0.getStatus(), Status.INTERNAL_SERVER_ERROR);
+        Response resp1 = restService.error(msg, null);
+        assertNotNull("resp1 shouldn't be null", resp1);
+        assertStatus(resp1.getStatus(), Status.INTERNAL_SERVER_ERROR);
+        Response resp2 = restService.error(msg, err);
+        assertNotNull("resp2 shouldn't be null", resp2);
+        assertStatus(resp2.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
     
     //test happy path of RESTFileService.deleteFile(...)
@@ -193,6 +215,149 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         EasyMock.replay(mocks);
         Response resp = restService.getFile((HttpServletRequest) mocks[0], "somePackage", "myFile.tmp");
         EasyMock.verify(mocks);
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
+    }
+    
+    public void testSaveFileNotMultipart() throws Exception {
+        RESTFileService restService = createSaveFileMockService(null, null, null, false);
+        FileService fileService = EasyMock.createMock(FileService.class);
+        restService.setFileService(fileService);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        EasyMock.expect(request.getSession()).andReturn(session).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(session.getServletContext()).andReturn(context).once();
+        
+        EasyMock.replay(fileService, request, session, context);
+        Response resp = restService.saveFile("somePackage", request);
+        EasyMock.verify(fileService, request, session, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
+    }
+    
+    public void testSaveFileOK() throws Exception {
+        byte[] bstream = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        String fileName = "fileName";        
+        RESTFileService restService = createSaveFileMockService(bstream, fileName, null, true);
+        FileService fileService = EasyMock.createMock(FileService.class);
+        String url = "http://www.redhat.com";
+        EasyMock.expect(fileService.storeFile(EasyMock.eq("somePackage"), EasyMock.eq("fileName"), EasyMock.same(bstream))).
+            andReturn(url).once();
+        restService.setFileService(fileService);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        EasyMock.expect(request.getSession()).andReturn(session).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(session.getServletContext()).andReturn(context).once();
+        
+        EasyMock.replay(fileService, request, session, context);
+        Response resp = restService.saveFile("somePackage", request);
+        EasyMock.verify(fileService, request, session, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.OK);
+        assertNotNull("resp.entity shouldn't be null", resp.getEntity());
+        Object entity = resp.getEntity();
+        assertNotNull("resp.metadata shouldn't be null", resp.getMetadata());
+        Object contentType = resp.getMetadata().getFirst(HttpHeaderNames.CONTENT_TYPE);
+        assertNotNull("resp.entity shouldn't be null", contentType);
+        assertEquals("contentType should be application/xml but is" + contentType, contentType, MediaType.TEXT_PLAIN);
+        String retval = entity.toString();
+        assertTrue("retval should contain url", retval.contains(url));
+    }
+
+    private RESTFileService createSaveFileMockService(final byte[] bstream, final String fileName, 
+            final Class<?> exceptionType, final boolean isMultipart) {
+        RESTFileService restService = new RESTFileService() {
+            @Override
+            protected boolean isMultipart(HttpServletRequest request) {
+                return isMultipart;
+            }
+            @Override
+            protected ServletFileUpload createFileUpload() {
+                return null;
+            }
+            @Override
+            protected List<?> parseFiles(HttpServletRequest request, ServletFileUpload upload) throws FileUploadException {
+                if (exceptionType != null && exceptionType.equals(FileUploadException.class)) {
+                    throw new FileUploadException();
+                }
+                List<FileItem> retval = new ArrayList<FileItem>();
+                retval.add(new DiskFileItem("fieldName", "application/octet-stream", true, fileName, 0, null));
+                return retval;
+            }
+            @Override
+            protected byte[] readItem(FileItem item) throws IOException {
+                if (exceptionType != null && exceptionType.equals(IOException.class)) {
+                    throw new IOException("mock io error");
+                }
+                return bstream;
+            }
+        };
+        return restService;
+    }
+    
+    public void testSaveFileServiceProblem() throws Exception {
+        byte[] bstream = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        String fileName = "fileName";        
+        RESTFileService restService = createSaveFileMockService(bstream, fileName, null, true);
+        FileService fileService = EasyMock.createMock(FileService.class);
+        FileException exception = new FileException();
+        EasyMock.expect(fileService.storeFile(EasyMock.eq("somePackage"), EasyMock.eq("fileName"), EasyMock.same(bstream))).
+            andThrow(exception).once();
+        restService.setFileService(fileService);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        EasyMock.expect(request.getSession()).andReturn(session).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(session.getServletContext()).andReturn(context).once();
+        
+        EasyMock.replay(fileService, request, session, context);
+        Response resp = restService.saveFile("somePackage", request);
+        EasyMock.verify(fileService, request, session, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
+    }
+
+    public void testSaveFileUploadProblem() throws Exception {
+        byte[] bstream = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        String fileName = "fileName";        
+        RESTFileService restService = createSaveFileMockService(bstream, fileName, FileUploadException.class, true);
+        FileService fileService = EasyMock.createMock(FileService.class);
+        restService.setFileService(fileService);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        EasyMock.expect(request.getSession()).andReturn(session).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(session.getServletContext()).andReturn(context).once();
+        
+        EasyMock.replay(fileService, request, session, context);
+        Response resp = restService.saveFile("somePackage", request);
+        EasyMock.verify(fileService, request, session, context);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
+    }
+
+    public void testSaveFileIOProblem() throws Exception {
+        byte[] bstream = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        String fileName = "fileName";        
+        RESTFileService restService = createSaveFileMockService(bstream, fileName, IOException.class, true);
+        FileService fileService = EasyMock.createMock(FileService.class);
+        restService.setFileService(fileService);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        EasyMock.expect(request.getSession()).andReturn(session).once();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(session.getServletContext()).andReturn(context).once();
+        
+        EasyMock.replay(fileService, request, session, context);
+        Response resp = restService.saveFile("somePackage", request);
+        EasyMock.verify(fileService, request, session, context);
+        
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }

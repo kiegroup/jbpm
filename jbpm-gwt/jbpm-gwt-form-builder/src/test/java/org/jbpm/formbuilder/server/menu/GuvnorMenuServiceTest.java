@@ -16,6 +16,11 @@
 package org.jbpm.formbuilder.server.menu;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +28,21 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.easymock.EasyMock;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
+import org.jbpm.formbuilder.server.RESTAbstractTest;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
+import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 public class GuvnorMenuServiceTest extends TestCase {
@@ -43,14 +53,130 @@ public class GuvnorMenuServiceTest extends TestCase {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
     }
     
-    public void testListOptions() throws Exception {
+    public void testListOptionsURIProblem() throws Exception {
+        abstractTestListOptionsProblem(URISyntaxException.class);
+    }
+    
+    public void testListOptionsFileNotFoundProblem() throws Exception {
+        abstractTestListOptionsProblem(FileNotFoundException.class);
+    }
+    
+    public void testListOptionsIOProblem() throws Exception {
+        abstractTestListOptionsProblem(IOException.class);
+    }
+    
+    public void testListOptionsUnknownProblem() throws Exception {
+        abstractTestListOptionsProblem(NullPointerException.class);
+    }
+    
+    private void abstractTestListOptionsProblem(final Class<?> exceptionType) throws Exception {
+        GuvnorMenuService service = createMockedService(exceptionType);
+        try {
+            service.listOptions();
+            fail("listOptions shouldn't succeed");
+        } catch (MenuServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be a " + exceptionType.getName(), cause.getClass().equals(exceptionType));
+        }
+    }
+
+    private GuvnorMenuService createMockedService(final Class<?> exceptionType) {
+        GuvnorMenuService service = new GuvnorMenuService() {
+            @Override 
+            protected URI asURI(String path) throws URISyntaxException {
+                if (exceptionType != null && exceptionType.equals(URISyntaxException.class)) throw new URISyntaxException(path, "mocking");
+                return super.asURI(path);
+            }
+            @Override 
+            protected Reader createReader(File file) throws FileNotFoundException, IOException {
+                if (exceptionType != null) {
+                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(file.getAbsolutePath());
+                    if (exceptionType.equals(IOException.class)) throw new IOException(file.getAbsolutePath());
+                    throw new NullPointerException();
+                }
+                return super.createReader(file);
+            }
+            @Override
+            protected String readFile(File file) throws FileNotFoundException, IOException {
+                if (exceptionType != null) {
+                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(file.getAbsolutePath());
+                    if (exceptionType.equals(IOException.class)) throw new IOException(file.getAbsolutePath());
+                    throw new NullPointerException();
+                }
+                return super.readFile(file);
+            }
+            @Override
+            protected void writeFile(File file, String json) throws FileNotFoundException, IOException {
+                if (exceptionType != null) {
+                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(file.getAbsolutePath());
+                    if (exceptionType.equals(IOException.class)) throw new IOException(file.getAbsolutePath());
+                    throw new NullPointerException();
+                }
+                super.writeFile(file, json);
+            }
+        };
+        return service;
+    }
+    
+    public void testListOptionsOK() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
         List<MenuOptionDescription> options = service.listOptions();
         assertNotNull("options shouldn't be null", options);
         assertFalse("options shouldn't be empty", options.isEmpty());
     }
     
-    public void testListItems() throws Exception {
+    public void testListItemsURIProblem() throws Exception {
+        abstractTestListItemsProblem(URISyntaxException.class);
+    }
+    
+    public void testListItemsFileNotFound() throws Exception {
+        abstractTestListItemsProblem(FileNotFoundException.class);
+    }
+    
+    public void testListItemsIOProblem() throws Exception {
+        abstractTestListItemsProblem(IOException.class);
+    }
+    
+    public void testListItemsEncodingProblem() throws Exception {
+        GuvnorMenuService service = createMockedService(null);
+        FormRepresentationDecoder decoder = EasyMock.createMock(FormRepresentationDecoder.class);
+        FormEncodingFactory.register(FormEncodingFactory.getEncoder(), decoder);
+        FormEncodingException exception = new FormEncodingException("Something going wrong");
+        EasyMock.expect(decoder.decodeMenuItemsMap(EasyMock.anyObject(String.class))).andThrow(exception).once();
+        
+        EasyMock.replay(decoder);
+        try {
+            service.listMenuItems();
+            fail("listOptions shouldn't succeed");
+        } catch (MenuServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be a FormEncodingException", cause instanceof FormEncodingException);
+        }
+        EasyMock.verify(decoder);
+    }
+    
+    public void testListItemsUnknownProblem() throws Exception {
+        abstractTestListItemsProblem(NullPointerException.class);
+    }
+    
+    private void abstractTestListItemsProblem(final Class<?> exceptionType) throws Exception {
+        GuvnorMenuService service = createMockedService(exceptionType);
+        try {
+            service.listMenuItems();
+            fail("listOptions shouldn't succeed");
+        } catch (MenuServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be a " + exceptionType.getName(), cause.getClass().equals(exceptionType));
+        }
+    }
+    
+    public void testListItemsOK() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
         Map<String, List<MenuItemDescription>> items = service.listMenuItems();
         assertNotNull("items shouldn't be null", items);
@@ -60,8 +186,33 @@ public class GuvnorMenuServiceTest extends TestCase {
             assertFalse("items of key " + key + " shouldn't be empty", items.get(key).isEmpty());
         }
     }
+
+    public void testListValidationsURIProblem() throws Exception {
+        abstractTestListValidationsProblem(URISyntaxException.class);
+    }
     
-    public void testListValidations() throws Exception {
+    public void testListValidationsFileNotFound() throws Exception {
+        abstractTestListValidationsProblem(FileNotFoundException.class);
+    }
+    
+    public void testListValidationsUnknownProblem() throws Exception {
+        abstractTestListValidationsProblem(NullPointerException.class);
+    }
+
+    private void abstractTestListValidationsProblem(final Class<?> exceptionType) throws Exception {
+        GuvnorMenuService service = createMockedService(exceptionType);
+        try {
+            service.listValidations();
+            fail("listOptions shouldn't succeed");
+        } catch (MenuServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be a " + exceptionType.getName(), cause.getClass().equals(exceptionType));
+        }
+    }
+    
+    public void testListValidationsOK() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
         List<ValidationDescription> validations = service.listValidations();
         assertNotNull("validations shouldn't be null", validations);
@@ -73,7 +224,70 @@ public class GuvnorMenuServiceTest extends TestCase {
         }
     }
     
-    public void testSaveMenuItem() throws Exception {
+    private void abstractTestSaveMenuItemProblem(final Class<?> exceptionType) throws Exception {
+        GuvnorMenuService service = createMockedService(exceptionType);
+        MenuItemDescription sampleDescription = new MenuItemDescription();
+        sampleDescription.setAllowedEvents(new ArrayList<String>());
+        sampleDescription.setEffects(new ArrayList<FormEffectDescription>());
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("form", "param1").getFormItems().iterator().next();
+        sampleDescription.setItemRepresentation(item);
+        sampleDescription.setName("name");
+        try {
+            service.saveMenuItem("group", sampleDescription);
+            fail("saveMenuItem shouldn't succeed");
+        } catch (MenuServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be a " + exceptionType.getName(), cause.getClass().equals(exceptionType));
+        }
+    }
+    
+    public void testSaveMenuItemURIProblem() throws Exception {
+        abstractTestSaveMenuItemProblem(URISyntaxException.class);
+    }
+    
+    public void testSaveMenuItemFileNotFound() throws Exception {
+        abstractTestSaveMenuItemProblem(FileNotFoundException.class);
+    }
+    
+    public void testSaveMenuItemIOProblem() throws Exception {
+        abstractTestSaveMenuItemProblem(IOException.class);
+    }
+
+    public void testSaveMenuItemUnknownProblem() throws Exception {
+        abstractTestSaveMenuItemProblem(NullPointerException.class);
+    }
+
+    public void testSaveMenuItemEncodingProblem() throws Exception {
+        GuvnorMenuService service = createMockedService(null);
+        MenuItemDescription sampleDescription = new MenuItemDescription();
+        sampleDescription.setAllowedEvents(new ArrayList<String>());
+        sampleDescription.setEffects(new ArrayList<FormEffectDescription>());
+        FormItemRepresentation item = RESTAbstractTest.createMockForm("form", "param1").getFormItems().iterator().next();
+        sampleDescription.setItemRepresentation(item);
+        sampleDescription.setName("name");
+        FormRepresentationEncoder encoder = EasyMock.createMock(FormRepresentationEncoder.class);
+        FormEncodingException exception = new FormEncodingException();
+        @SuppressWarnings("unchecked")
+        Map<String, List<MenuItemDescription>> anyObject = EasyMock.anyObject(Map.class);
+        EasyMock.expect(encoder.encodeMenuItemsMap(anyObject)).andThrow(exception).once();
+        FormEncodingFactory.register(encoder, FormEncodingFactory.getDecoder());
+        
+        EasyMock.replay(encoder);
+        try {
+            service.saveMenuItem("group", sampleDescription);
+            fail("saveMenuItem shouldn't succeed");
+        } catch (MenuServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be a FormEncodingException", cause instanceof FormEncodingException);
+        }
+        EasyMock.verify(encoder);
+    }
+    
+    public void testSaveMenuItemOK() throws Exception {
         GuvnorMenuService service = new GuvnorMenuService();
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         File dbFile = new File(getClass().getResource("/menuItems.json").getFile());

@@ -27,8 +27,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.easymock.EasyMock;
-import org.easymock.IAnswer;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
+import org.jbpm.formbuilder.server.mock.MockAnswer;
 import org.jbpm.formbuilder.server.mock.MockDeleteMethod;
 import org.jbpm.formbuilder.server.mock.MockGetMethod;
 import org.jbpm.formbuilder.server.mock.MockPostMethod;
@@ -454,53 +454,6 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     
     public void testSaveTemplatePutProblem() throws Exception {
         //TODO cause a IOException on executeMethod
-    }
-    
-    protected class MockAnswer implements IAnswer<Integer> {
-
-        private final Map<String, String> responses;
-        private final Throwable exception;
-        
-        public MockAnswer(Map<String, String> responses, Throwable exception) {
-            this.responses = responses;
-            this.exception = exception;
-        }
-        
-        @Override
-        public Integer answer() throws Throwable {
-            Object[] params = EasyMock.getCurrentArguments();
-            if (params[0] instanceof MockGetMethod) {
-                MockGetMethod method = (MockGetMethod) params[0];
-                String key = "GET " + method.getURI().toString();
-                if (responses.containsKey(key)) {
-                    method.setResponseBodyAsString(responses.get(key));
-                } else if (exception != null) throw exception;
-                return 200;
-            } else if (params[0] instanceof MockPostMethod) {
-                MockPostMethod method = (MockPostMethod) params[0];
-                String key = "POST " + method.getURI().toString();
-                if (responses.containsKey(key)) {
-                    method.setResponseBodyAsString(responses.get(key));
-                } else if (exception != null) throw exception;
-                return 201;
-            } else if (params[0] instanceof MockPutMethod) {
-                MockPutMethod method = (MockPutMethod) params[0];
-                String key = "PUT " + method.getURI().toString();
-                if (responses.containsKey(key)) {
-                    method.setResponseBodyAsString(responses.get(key));
-                } else if (exception != null) throw exception;
-                return 201;
-            } else if (params[0] instanceof MockDeleteMethod) {
-                MockDeleteMethod method = (MockDeleteMethod) params[0];
-                String key = "PUT " + method.getURI().toString();
-                if (responses.containsKey(key)) {
-                    method.setResponseBodyAsString(responses.get(key));
-                } else if (exception != null) throw exception;
-                return 201;
-            } else {
-                throw new IllegalArgumentException("params[0] shouldn't be of type " + params[0]);
-            }
-        }
     }
     
     private GuvnorFormDefinitionService createService(String baseUrl, String user, String pass) {

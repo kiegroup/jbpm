@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -46,28 +48,27 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     @Override
     public List<MenuOptionDescription> listOptions() throws MenuServiceException {
     	Gson gson = new Gson();
-        URL url = getClass().getResource("/menuOptions.json");
         List<MenuOptionDescription> retval = null;
         try {
-            File file = new File(url.toURI());
-            retval = gson.fromJson(new FileReader(file), 
-            		new TypeToken<List<MenuOptionDescription>>(){}.getType());
+            File file = new File(asURI("/menuOptions.json"));
+            retval = gson.fromJson(createReader(file), new TypeToken<List<MenuOptionDescription>>(){}.getType());
         } catch (URISyntaxException e) {
             throw new MenuServiceException("Problem finding menu options json file", e); 
         } catch (FileNotFoundException e) {
             throw new MenuServiceException("No menu options json file found", e);
+        } catch (Exception e) {
+            throw new MenuServiceException("Unexpected error", e);
         }
         return retval;
     }
 
     @Override
     public Map<String, List<MenuItemDescription>> listMenuItems() throws MenuServiceException {
-        URL url = getClass().getResource("/menuItems.json");
         Map<String, List<MenuItemDescription>> retval = null;
         try {
         	FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
-        	File file = new File(url.toURI());
-        	String json = FileUtils.readFileToString(file);
+        	File file = new File(asURI("/menuItems.json"));
+        	String json = readFile(file);
         	retval = decoder.decodeMenuItemsMap(json);
         } catch (FormEncodingException e) {
             throw new MenuServiceException("Problem parsing menu items json file", e);
@@ -77,23 +78,25 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
             throw new MenuServiceException("No menu items json file found", e);
         } catch (IOException e) {
             throw new MenuServiceException("Problem reading menu items json file", e);
+        } catch (Exception e) {
+            throw new MenuServiceException("Unexpected error", e);
         }
         return retval;
     }
-    
+
     @Override
     public List<ValidationDescription> listValidations() throws MenuServiceException {
         Gson gson = new Gson();
-        URL url = getClass().getResource("/validations.json");
         List<ValidationDescription> retval = null;
         try {
-            File file = new File(url.toURI());
-            retval = gson.fromJson(new FileReader(file), 
-                    new TypeToken<List<ValidationDescription>>(){}.getType());
+            File file = new File(asURI("/validations.json"));
+            retval = gson.fromJson(createReader(file), new TypeToken<List<ValidationDescription>>(){}.getType());
         } catch (URISyntaxException e) {
             throw new MenuServiceException("Problem finding validations json file", e); 
         } catch (FileNotFoundException e) {
             throw new MenuServiceException("No validations json file found", e);
+        } catch (Exception e) {
+            throw new MenuServiceException("Unexpected error", e);
         }
         return retval;
     }
@@ -129,12 +132,11 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     }
     
     private void writeMenuItems(Map<String, List<MenuItemDescription>> items) throws MenuServiceException {
-        URL url = getClass().getResource("/menuItems.json");
         try {
             FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
-            File file = new File(url.toURI());
+            File file = new File(asURI("/menuItems.json"));
             String json = encoder.encodeMenuItemsMap(items);
-            FileUtils.writeStringToFile(file, json);
+            writeFile(file, json);
         } catch (FormEncodingException e) {
             throw new MenuServiceException("Problem transforming menu items to json", e);
         } catch (URISyntaxException e) {
@@ -143,6 +145,25 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
             throw new MenuServiceException("No menu items json file found", e);
         } catch (IOException e) {
             throw new MenuServiceException("Problem writing menu items json file", e);
+        } catch (Exception e) {
+            throw new MenuServiceException("Unexpected error", e);
         }
+    }
+
+    protected void writeFile(File file, String json) throws FileNotFoundException, IOException {
+        FileUtils.writeStringToFile(file, json);
+    }
+    
+    protected URI asURI(String path) throws URISyntaxException {
+        URL url = getClass().getResource(path);
+        return url.toURI();
+    }
+    
+    protected Reader createReader(File file) throws FileNotFoundException, IOException {
+        return new FileReader(file);
+    }
+
+    protected String readFile(File file) throws FileNotFoundException, IOException {
+        return FileUtils.readFileToString(file);
     }
 }

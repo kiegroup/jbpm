@@ -60,19 +60,16 @@ public class RESTFileService extends RESTBaseService {
     @DoNotUseJAXBProvider
     public Response saveFile(@PathParam("pkgName") String packageName, @Context HttpServletRequest request) {
         setContext(request.getSession().getServletContext());
-        if (ServletFileUpload.isMultipartContent(request)) {
+        if (isMultipart(request)) {
             //read multipart request and populate request accordingly for display
-            int maxMemorySize = 2400000;
-            File tmpDirectory = new File(System.getProperty("java.io.tmpdir"));
-            DiskFileItemFactory factory = new DiskFileItemFactory(maxMemorySize, tmpDirectory);
-            ServletFileUpload upload = new ServletFileUpload(factory);
+            ServletFileUpload upload = createFileUpload();
             try {
-                List<?> files = upload.parseRequest(request);
+                List<?> files = parseFiles(request, upload);
                 if (files == null || files.isEmpty()) {
                     return error("there should be one file at least", null);
                 }
                 FileItem item = (FileItem) files.iterator().next();
-                byte[] content = IOUtils.toByteArray(item.getInputStream());
+                byte[] content = readItem(item);
                 String fileName = item.getName();
                 String expositionUrl = fileService.storeFile(packageName, fileName, content);
                 return Response.ok(expositionUrl, MediaType.TEXT_PLAIN).build();
@@ -86,6 +83,27 @@ public class RESTFileService extends RESTBaseService {
         } else {
             return error("Must be a multipart form data post", null);
         }
+    }
+
+    protected boolean isMultipart(HttpServletRequest request) {
+        return ServletFileUpload.isMultipartContent(request);
+    }
+
+    protected byte[] readItem(FileItem item) throws IOException {
+        return IOUtils.toByteArray(item.getInputStream());
+    }
+
+    protected List<?> parseFiles(HttpServletRequest request, ServletFileUpload upload)
+            throws FileUploadException {
+        return upload.parseRequest(request);
+    }
+
+    protected ServletFileUpload createFileUpload() {
+        int maxMemorySize = 2400000;
+        File tmpDirectory = new File(System.getProperty("java.io.tmpdir"));
+        DiskFileItemFactory factory = new DiskFileItemFactory(maxMemorySize, tmpDirectory);
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        return upload;
     }
     
     @DELETE @Path("/package/{pkgName}/{fileName}")
