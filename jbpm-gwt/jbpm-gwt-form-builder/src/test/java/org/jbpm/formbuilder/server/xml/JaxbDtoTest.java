@@ -27,6 +27,7 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.TestCase;
 
+import org.jbpm.formbuilder.server.FileListDTO;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
 import org.jbpm.formbuilder.server.form.FormDefDTO;
@@ -49,6 +50,17 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
 public class JaxbDtoTest extends TestCase {
 
     private GuvnorHelper helper = new GuvnorHelper("", "", "");
+    
+    public void testFileListDTOEmpty() throws Exception {
+        FileListDTO dto = new FileListDTO();
+        jaxbSimulation(dto, FileListDTO.class);
+        
+        FileListDTO dto2 = new FileListDTO(null);
+        jaxbSimulation(dto2, FileListDTO.class);
+        
+        FileListDTO dto3 = new FileListDTO(new ArrayList<String>());
+        jaxbSimulation(dto3, FileListDTO.class);
+    }
     
     public void testPropertiesDTOEmpty() throws Exception {
         PropertiesDTO dto = new PropertiesDTO(new HashMap<String, String>());
@@ -316,9 +328,11 @@ public class JaxbDtoTest extends TestCase {
     private <T> void jaxbSimulation(T dto, Class<T> retType, Class<?>... otherBoundTypes) throws JAXBException, IOException {
         List<Class<?>> boundTypesList = new ArrayList<Class<?>>();
         boundTypesList.add(retType);
-        for (Class<?> boundType : otherBoundTypes) {
-            if (!boundTypesList.contains(boundType)) {
-                boundTypesList.add(boundType);
+        if (otherBoundTypes != null) {
+            for (Class<?> boundType : otherBoundTypes) {
+                if (!boundTypesList.contains(boundType)) {
+                    boundTypesList.add(boundType);
+                }
             }
         }
         Class<?>[] boundTypes = boundTypesList.toArray(new Class<?>[0]);

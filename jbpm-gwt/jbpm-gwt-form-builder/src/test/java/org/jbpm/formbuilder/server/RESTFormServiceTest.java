@@ -54,6 +54,21 @@ import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 
 public class RESTFormServiceTest extends RESTAbstractTest {
 
+    public void testSetContextOK() throws Exception {
+        RESTFormService restService = new RESTFormService();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("anyuser").once();
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("anypassword").once();
+        
+        EasyMock.replay(context);
+        restService.setContext(context);
+        EasyMock.verify(context);
+
+        FormDefinitionService service = restService.getFormService();
+        assertNotNull("service shouldn't be null", service);
+    }
+    
     //test happy path for RESTFormService.getForms(...)
     public void testGetFormsOK() throws Exception {
         List<FormRepresentation> forms = new ArrayList<FormRepresentation>();

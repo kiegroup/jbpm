@@ -47,4 +47,29 @@ public class FileListDTO {
     public void setFile(List<String> file) {
         this._file = file;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_file == null) ? 0 : _file.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        FileListDTO other = (FileListDTO) obj;
+        if (_file == null) {
+            if (other._file != null)
+                return false;
+        } else if (!_file.equals(other._file))
+            return false;
+        return true;
+    }
 }

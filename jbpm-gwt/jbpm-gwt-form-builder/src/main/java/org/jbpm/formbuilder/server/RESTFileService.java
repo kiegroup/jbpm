@@ -46,7 +46,7 @@ public class RESTFileService extends RESTBaseService {
 
     private FileService fileService = null;
     
-    private void setContext(ServletContext context) {
+    protected void setContext(ServletContext context) {
         if (fileService == null) {
             String url = context.getInitParameter("guvnor-base-url");
             String user = context.getInitParameter("guvnor-user");
@@ -127,5 +127,9 @@ public class RESTFileService extends RESTBaseService {
      */
     public void setFileService(FileService fileService) {
         this.fileService = fileService;
+    }
+    
+    public FileService getFileService() {
+        return fileService;
     }
 }

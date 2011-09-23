@@ -329,4 +329,8 @@ public class RESTFormService extends RESTBaseService {
     public void setFormService(FormDefinitionService formService) {
         this.formService = formService;
     }
+
+    public FormDefinitionService getFormService() {
+        return this.formService;
+    }
 }

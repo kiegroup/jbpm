@@ -33,6 +33,21 @@ import org.jbpm.formbuilder.shared.task.TaskServiceException;
 
 public class RESTIoServiceTest extends RESTAbstractTest {
 
+    public void testSetContextOK() throws Exception {
+        RESTIoService restService = new RESTIoService();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("anyuser").once();
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("anypassword").once();
+        
+        EasyMock.replay(context);
+        restService.setContext(context);
+        EasyMock.verify(context);
+
+        TaskDefinitionService service = restService.getTaskService();
+        assertNotNull("service shouldn't be null", service);
+    }
+    
     //test happy path for RESTIoService.getIoAssociations(...)
     public void testGetIoAssociationsOK() throws Exception {
         RESTIoService restService = new RESTIoService();

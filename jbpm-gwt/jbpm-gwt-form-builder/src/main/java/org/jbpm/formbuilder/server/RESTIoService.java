@@ -96,4 +96,8 @@ public class RESTIoService extends RESTBaseService {
     public void setTaskService(TaskDefinitionService taskService) {
         this.taskService = taskService;
     }
+
+    public TaskDefinitionService getTaskService() {
+        return this.taskService;
+    }
 }

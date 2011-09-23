@@ -31,6 +31,21 @@ import org.jbpm.formbuilder.server.file.FileService;
 
 public class RESTFileServiceTest extends RESTAbstractTest {
 
+    public void testSetContextOK() throws Exception {
+        RESTFileService restService = new RESTFileService();
+        ServletContext context = EasyMock.createMock(ServletContext.class);
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("anyuser").once();
+        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("anypassword").once();
+        
+        EasyMock.replay(context);
+        restService.setContext(context);
+        EasyMock.verify(context);
+
+        FileService service = restService.getFileService();
+        assertNotNull("service shouldn't be null", service);
+    }
+    
     //test happy path of RESTFileService.deleteFile(...)
     public void testDeleteFileOK() throws Exception {
         RESTFileService restService = new RESTFileService();
@@ -55,7 +70,7 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         RESTFileService restService = new RESTFileService();
         List<Object> requestMocks = createRequestMocks();
         FileService fileService = EasyMock.createMock(FileService.class);
-        FileException exception = new FileException("Something went wrong");
+        FileException exception = new FileException("Something went wrong", new NullPointerException());
         fileService.deleteFile(EasyMock.same("somePackage"), EasyMock.same("myFile.tmp"));
         EasyMock.expectLastCall().andThrow(exception).once();
         requestMocks.add(fileService);
@@ -122,7 +137,7 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         RESTFileService restService = new RESTFileService();
         List<Object> requestMocks = createRequestMocks();
         FileService fileService = EasyMock.createMock(FileService.class);
-        FileException exception = new FileException("Something going wrong");
+        FileException exception = new FileException();
         EasyMock.expect(fileService.loadFilesByType(EasyMock.same("somePackage"), EasyMock.same("tmp"))).
             andThrow(exception);
         requestMocks.add(fileService);
@@ -169,7 +184,7 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         RESTFileService restService = new RESTFileService();
         List<Object> requestMocks = createRequestMocks();
         FileService fileService = EasyMock.createMock(FileService.class);
-        FileException exception = new FileException("Something going wrong");
+        FileException exception = new FileException(new NullPointerException());
         EasyMock.expect(fileService.loadFile(EasyMock.same("somePackage"), EasyMock.same("myFile.tmp"))).
             andThrow(exception);
         requestMocks.add(fileService);
