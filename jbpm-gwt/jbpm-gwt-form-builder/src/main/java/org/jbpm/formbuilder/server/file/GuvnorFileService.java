@@ -143,6 +143,8 @@ public class GuvnorFileService implements FileService {
             client.executeMethod(deleteAsset);
         } catch (IOException e) {
             throw new FileException("Problem deleting guvnor file", e);
+        } catch (Exception e) {
+            throw new FileException("Unexpected error", e);
         } finally {
             deleteAsset.releaseConnection();
         }
@@ -178,6 +180,8 @@ public class GuvnorFileService implements FileService {
             throw new FileException("Problem obtaining assets from guvnor", e);
         } catch (JAXBException e) {
             throw new FileException("Problem parsing assets from guvnor", e);
+        } catch (Exception e) {
+            throw new FileException("Unexpected error", e);
         } finally {
             load.releaseConnection();
         }

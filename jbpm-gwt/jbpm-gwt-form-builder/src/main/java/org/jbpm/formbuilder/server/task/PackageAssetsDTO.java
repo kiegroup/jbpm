@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.server.task;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -23,7 +24,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "assets")
 public class PackageAssetsDTO {
 
-    private List<PackageAssetDTO> _asset;
+    private List<PackageAssetDTO> _asset = new ArrayList<PackageAssetDTO>();
     
     public PackageAssetsDTO() {
         //jaxb needs a default constructor

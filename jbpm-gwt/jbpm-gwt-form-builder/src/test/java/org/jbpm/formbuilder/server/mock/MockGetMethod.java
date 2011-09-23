@@ -15,6 +15,10 @@
  */
 package org.jbpm.formbuilder.server.mock;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -43,6 +47,11 @@ public class MockGetMethod extends GetMethod {
     @Override
     public String getResponseBodyAsString() {
         return responseBodyAsString;
+    }
+    
+    @Override
+    public InputStream getResponseBodyAsStream() throws IOException {
+        return new ByteArrayInputStream(responseBodyAsString.getBytes());
     }
 
     public void setResponseBodyAsString(String responseBodyAsString) {

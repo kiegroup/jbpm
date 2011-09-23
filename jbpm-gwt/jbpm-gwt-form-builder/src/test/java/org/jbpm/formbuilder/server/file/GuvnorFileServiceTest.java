@@ -17,7 +17,10 @@ package org.jbpm.formbuilder.server.file;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.JAXBException;
 
 import junit.framework.TestCase;
 
@@ -53,6 +56,24 @@ public class GuvnorFileServiceTest extends TestCase {
         assertNotNull("url shouldn't be null", url);
     }
     
+    public void testStoreFileOKForUpdate() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, Integer> statuses = new HashMap<String, Integer>();
+        statuses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/fileName-upfile", 200);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(statuses)).once();
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockPostMethod.class))).andReturn(201).once();
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andReturn(204).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        String url = service.storeFile("somePackage", "fileName.txt", new byte[] { 1,2,3,4,5,6,7,8,9 } );
+        EasyMock.verify(client);
+        
+        assertNotNull("url shouldn't be null", url);
+    }
+    
     public void testStoreFileProblem() throws Exception {
         GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
         HttpClient client = EasyMock.createMock(HttpClient.class);
@@ -77,28 +98,251 @@ public class GuvnorFileServiceTest extends TestCase {
         EasyMock.verify(client);
     }
     
+    public void testStoreFileDeleteOlderProblem() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        IOException exception = new IOException("mock io error");
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(exception).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.storeFile("somePackage", "fileName.txt", new byte[] { 1,2,3,4,5,6,7,8,9 } );
+            fail("storeFile(...) should not succeed");
+        } catch (FileException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            Throwable cause2 = cause.getCause();
+            assertNotNull("cause2 shouldn't be null", cause2);
+            assertTrue("cause2 should be of type IOException", cause2 instanceof IOException);
+        }
+        EasyMock.verify(client);
+    }
+    
     public void testDeleteFileOK() throws Exception {
-        //TODO implement
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, Integer> statuses = new HashMap<String, Integer>();
+        statuses.put("DELETE http://www.redhat.com/rest/packages/somePackage/assets/fileName-upfile", 204);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andAnswer(new MockAnswer(statuses)).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        service.deleteFile("somePackage", "fileName.txt");
+        EasyMock.verify(client);
     }
     
     public void testDeleteFileIOProblem() throws Exception {
-        //TODO implement
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        IOException exception = new IOException();
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andThrow(exception).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.deleteFile("somePackage", "fileName.txt");
+            fail("storeFile(...) should not succeed");
+        } catch (FileException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type IOException", cause instanceof IOException);
+        }
+        EasyMock.verify(client);
     }
 
+    public void testDeleteFileUnknownProblem() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        NullPointerException exception = new NullPointerException();
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andThrow(exception).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.deleteFile("somePackage", "fileName.txt");
+            fail("deleteFile(...) should not succeed");
+        } catch (FileException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type NullPointerException", cause instanceof NullPointerException);
+        }
+        EasyMock.verify(client);
+    }
+    
     public void testLoadFilesByTypeOK() throws Exception {
-        //TODO implement
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String props = "<?xml version=\"1.0\"?><assets><asset>" +
+            "<binaryLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/binary</binaryLink>" + 
+            "<refLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1</refLink>" +
+            "<sourceLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/source</sourceLink>" +
+            "<metadata><format>txt</format></metadata>" +
+            "</asset></assets>";
+        responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        List<String> files = service.loadFilesByType("somePackage", "txt");
+        EasyMock.verify(client);
+        
+        assertNotNull("files shouldn't be null", files);
+        assertFalse("files shouldn't be empty", files.isEmpty());
+    }
+    
+    public void testLoadFilesByTypeNoneOfType() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String props = "<?xml version=\"1.0\"?><assets><asset>" +
+            "<binaryLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/binary</binaryLink>" + 
+            "<refLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1</refLink>" +
+            "<sourceLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/source</sourceLink>" +
+            "<metadata><format>drg</format></metadata>" +
+            "</asset></assets>";
+        responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        List<String> files = service.loadFilesByType("somePackage", "txt");
+        EasyMock.verify(client);
+        
+        assertNotNull("files shouldn't be null", files);
+        assertTrue("files should be empty", files.isEmpty());
+    }
+    
+    public void testLoadFilesByTypeNoTypeSpecified() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String props = "<?xml version=\"1.0\"?><assets><asset>" +
+            "<binaryLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/binary</binaryLink>" + 
+            "<refLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1</refLink>" +
+            "<sourceLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/source</sourceLink>" +
+            "<metadata><format>drg</format></metadata>" +
+            "</asset></assets>";
+        responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        List<String> files = service.loadFilesByType("somePackage", "");
+        EasyMock.verify(client);
+        
+        assertNotNull("files shouldn't be null", files);
+        assertFalse("files shouldn't be empty", files.isEmpty());
+    }
+    
+    public void testLoadFilesByTypeNoTypeSpecified2() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String props = "<?xml version=\"1.0\"?><assets><asset>" +
+            "<binaryLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/binary</binaryLink>" + 
+            "<refLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1</refLink>" +
+            "<sourceLink>http://www.redhat.com/rest/packages/somePackage/assets/asset1/source</sourceLink>" +
+            "<metadata><format>drg</format></metadata>" +
+            "</asset></assets>";
+        responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        List<String> files = service.loadFilesByType("somePackage", null);
+        EasyMock.verify(client);
+        
+        assertNotNull("files shouldn't be null", files);
+        assertFalse("files shouldn't be empty", files.isEmpty());
+    }
+    
+    public void testLoadFilesByTypeEmpty() throws Exception {
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String props = "<?xml version=\"1.0\"?><assets></assets>";
+        responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        List<String> files = service.loadFilesByType("somePackage", "txt");
+        EasyMock.verify(client);
+        
+        assertNotNull("files shouldn't be null", files);
+        assertTrue("files should be empty", files.isEmpty());
     }
     
     public void testLoadFilesByTypeIOProblem() throws Exception {
-        //TODO implement
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        IOException exception = new IOException("mock io error");
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(exception).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.loadFilesByType("somePackage", "txt");
+            fail("loadFilesByType(...) shouldn't succeed");
+        } catch (FileException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type IOException", cause instanceof IOException);
+        }
+        EasyMock.verify(client);
     }
     
     public void testLoadFilesByTypeJAXBProblem() throws Exception {
-        //TODO implement
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String props = "<?xml version=\"1.0\"?><assets></assetsBROKENXMLWHATSHAPPENINGITOLDYOUBRO>";
+        responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.loadFilesByType("somePackage", "txt");
+            fail("loadFilesByType(...) shouldn't succeed");
+        } catch (FileException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type JAXBException", cause instanceof JAXBException);
+        }
+        EasyMock.verify(client);
     }
 
     public void testLoadFilesByTypeUnknownProblem() throws Exception {
-        //TODO implement
+        GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(new NullPointerException()).once();
+        service.setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.loadFilesByType("somePackage", "txt");
+            fail("loadFilesByType(...) shouldn't succeed");
+        } catch (FileException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type NullPointerException", cause instanceof NullPointerException);
+        }
+        EasyMock.verify(client);
     }
     
     public void testLoadFileOK() throws Exception {
