@@ -342,7 +342,7 @@ public class JaxbDtoTest extends TestCase {
         ByteArrayInputStream input = new ByteArrayInputStream(xml.getBytes());
         T dto2 = helper.jaxbTransformation(retType, input, boundTypes);
         assertNotNull("dto2 shouldn't be null", dto2);
-        assertTrue("dot2 should have a hash code greater than zero", dto2.hashCode() > 0);
+        assertTrue("dto2 should have a hash code different than zero", dto2.hashCode() != 0);
         assertTrue("dto2 and dto should be the same", dto2.equals(dto));
     }
 }
