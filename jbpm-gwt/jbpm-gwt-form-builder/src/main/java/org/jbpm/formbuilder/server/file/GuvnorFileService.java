@@ -197,7 +197,9 @@ public class GuvnorFileService implements FileService {
             client.executeMethod(get);
             return get.getResponseBody();
         } catch (IOException e) {
-            throw new FileException("Problem reading file " + fileName, e); 
+            throw new FileException("Problem reading file " + fileName, e);
+        } catch (Exception e) {
+            throw new FileException("Unexpected error reading file " + fileName, e);
         } finally {
             get.releaseConnection();
         }

@@ -135,10 +135,12 @@ public class MockFormDefinitionService extends AbstractBaseFormDefinitionService
         List<FormRepresentation> list = forms.get(pkgName);
         if (list != null) {
             FormRepresentation toRemove = null;
-            for (FormRepresentation form : list) {
-                if (formId.equals(form.getName())) {
-                    toRemove = form;
-                    break;
+            if (formId != null) {
+                for (FormRepresentation form : list) {
+                    if (formId.equals(form.getName())) {
+                        toRemove = form;
+                        break;
+                    }
                 }
             }
             if (toRemove != null) {

@@ -50,6 +50,11 @@ public class MockGetMethod extends GetMethod {
     }
     
     @Override
+    public byte[] getResponseBody() throws IOException {
+        return responseBodyAsString.getBytes();
+    }
+    
+    @Override
     public InputStream getResponseBodyAsStream() throws IOException {
         return new ByteArrayInputStream(responseBodyAsString.getBytes());
     }

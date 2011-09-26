@@ -68,11 +68,11 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
     }
     
     protected boolean isItemName(String assetId) {
-        return assetId.startsWith(ITEM_ID_PREFIX);
+        return assetId.startsWith(ITEM_ID_PREFIX) && assetId.endsWith(".json");
     }
     
     protected boolean isFormName(String assetId) {
-        return assetId.startsWith(FORM_ID_PREFIX);
+        return assetId.endsWith(".formdef");
     }
     
     public void putEffectsForItem(String className, List<String> effectClassNames) {

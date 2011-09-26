@@ -80,7 +80,7 @@ public class MockAnswer implements IAnswer<Integer> {
             return 201;
         } else if (params[0] instanceof MockDeleteMethod) {
             MockDeleteMethod method = (MockDeleteMethod) params[0];
-            String key = "PUT " + method.getURI().toString();
+            String key = "DELETE " + method.getURI().toString();
             if (responses.containsKey(key)) {
                 method.setResponseBodyAsString(responses.get(key));
             } else if (statuses.containsKey(key)) {

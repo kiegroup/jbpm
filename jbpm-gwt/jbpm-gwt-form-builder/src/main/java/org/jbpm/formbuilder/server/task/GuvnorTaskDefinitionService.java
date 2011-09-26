@@ -23,7 +23,10 @@ import java.util.Properties;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
@@ -58,10 +61,39 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         this.helper = new GuvnorHelper(baseUrl, user, password);
     }
     
+    private HttpClient client = null;
+    
+    public void setClient(HttpClient client) {
+        this.client = client;
+    }
+    
+    protected HttpClient getHttpClient() {
+        if (client == null) {
+            return new HttpClient();
+        }
+        return client;
+    }
+    
+    protected GetMethod createGetMethod(String url) {
+        return new GetMethod(url);
+    }
+    
+    protected DeleteMethod createDeleteMethod(String url) {
+        return new DeleteMethod(url);
+    }
+    
+    protected PutMethod createPutMethod(String url) {
+        return new PutMethod(url);
+    }
+    
+    protected PostMethod createPostMethod(String url) {
+        return new PostMethod(url);
+    }
+    
     @Override
     public List<TaskRef> query(String pkgName, String filter) throws TaskServiceException {
-        HttpClient client = new HttpClient();
-        GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName));
+        HttpClient client = getHttpClient();
+        GetMethod method = createGetMethod(helper.getApiSearchUrl(pkgName));
         try {
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -98,10 +130,10 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     
     @Override
     public List<TaskRef> getTasksByName(String pkgName, String processId, String taskId) throws TaskServiceException {
-        HttpClient client = new HttpClient();
+        HttpClient client = getHttpClient();
         List<TaskRef> retval = new ArrayList<TaskRef>();
         if (pkgName != null) {
-            GetMethod call = new GetMethod(helper.getRestBaseUrl());
+            GetMethod call = createGetMethod(helper.getRestBaseUrl());
             try {
                 String auth = helper.getAuth();
                 call.addRequestHeader("Accept", "application/xml");
@@ -111,7 +143,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 PackageDTO pkg = dto.getSelectedPackage(pkgName);
                 List<String> urls = new ArrayList<String>();
                 for (String url : pkg.getAssets()) {
-                    GetMethod subCall = new GetMethod(url);
+                    GetMethod subCall = createGetMethod(url);
                     try {
                         subCall.setRequestHeader("Authorization", auth);
                         subCall.addRequestHeader("Accept", "application/xml");
@@ -126,7 +158,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 }
                 for (String url : urls) {
                     //download the process in processUrl and get the right task
-                    GetMethod processCall = new GetMethod(url);
+                    GetMethod processCall = createGetMethod(url);
                     try {
                         processCall.setRequestHeader("Authorization", auth);
                         client.executeMethod(processCall);
@@ -169,9 +201,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
 
     @Override
     public TaskRef getTaskByUUID(final String packageName, final String userTask, final String uuid) throws TaskServiceException {
-        HttpClient client = new HttpClient();
+        HttpClient client = getHttpClient();
         if (packageName != null) {
-            GetMethod call = new GetMethod(helper.getRestBaseUrl());
+            GetMethod call = createGetMethod(helper.getRestBaseUrl());
             try {
                 String auth = helper.getAuth();
                 call.addRequestHeader("Accept", "application/xml");
@@ -182,7 +214,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 String format = null;
                 PackageDTO pkg = dto.getSelectedPackage(packageName);
                 for (String url : pkg.getAssets()) {
-                    GetMethod subCall = new GetMethod(url);
+                    GetMethod subCall = createGetMethod(url);
                     try {
                         subCall.setRequestHeader("Authorization", auth);
                         subCall.addRequestHeader("Accept", "application/xml");
@@ -199,7 +231,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 }
                 if (format != null && "bpmn2".equals(format)) {
                     //download the process in processUrl and get the right task
-                    GetMethod processCall = new GetMethod(processUrl);
+                    GetMethod processCall = createGetMethod(processUrl);
                     try {
                         processCall.setRequestHeader("Authorization", auth);
                         client.executeMethod(processCall);
@@ -250,9 +282,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     }
     
     private String getTaskDefinitionContent(String pkgName, String itemName) throws TaskServiceException {
-        HttpClient client = new HttpClient();
+        HttpClient client = getHttpClient();
         if (itemName != null && !"".equals(itemName)) {
-            GetMethod method = new GetMethod(helper.getApiSearchUrl(pkgName) + itemName);
+            GetMethod method = createGetMethod(helper.getApiSearchUrl(pkgName) + itemName);
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);

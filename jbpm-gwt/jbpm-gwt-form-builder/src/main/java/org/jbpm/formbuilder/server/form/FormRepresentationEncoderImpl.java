@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.jbpm.formbuilder.shared.api.Mappable;
 import org.jbpm.formbuilder.shared.form.AbstractFormRepresentationEncoder;
 
 public class FormRepresentationEncoderImpl extends AbstractFormRepresentationEncoder {
@@ -27,6 +28,9 @@ public class FormRepresentationEncoderImpl extends AbstractFormRepresentationEnc
     
     @Override
     public Object fromMap(Map<String, Object> map) {
+        if (map == null) {
+            return null;
+        }
         Object objClassName = map.get("@className");
         if (objClassName == null) {
             return null;
@@ -34,7 +38,12 @@ public class FormRepresentationEncoderImpl extends AbstractFormRepresentationEnc
         String className = (String) objClassName;
         try {
             Class<?> klass = Class.forName(className);
-            return klass.newInstance();
+            Object newInstance = klass.newInstance();
+            if (newInstance instanceof Mappable) {
+                Mappable mappable = (Mappable) newInstance;
+                mappable.setDataMap(map);
+            }
+            return newInstance;
         } catch (Exception e) {
             return null;
         }

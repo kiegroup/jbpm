@@ -19,13 +19,17 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.jbpm.formbuilder.server.RESTAbstractTest;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 
 public class FormItemRepresentationTest extends TestCase {
 
@@ -85,4 +89,23 @@ public class FormItemRepresentationTest extends TestCase {
         }
     }
     
+    public void testRepresentationEncoderImpl() throws Exception {
+        FormRepresentationEncoderImpl encoder = new FormRepresentationEncoderImpl();
+        FormRepresentationDecoderImpl decoder = new FormRepresentationDecoderImpl();
+        FormEncodingFactory.register(encoder, decoder);
+        
+        assertNull("result should be null", encoder.fromMap(null));
+        assertNull("result should be null", encoder.fromMap(new HashMap<String, Object>()));
+        
+        assertNotNull("formattedDate shouldn't be null", encoder.formatDate(new Date()));
+        
+        FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "myParam1", "myParam2");
+        FormItemRepresentation item = form.getFormItems().iterator().next();
+        Map<String, Object> data = item.getDataMap();
+        Object obj = encoder.fromMap(data);
+        assertNotNull("obj shouldn't be null", obj);
+        assertTrue("obj should be of type FormItemRepresentation", obj instanceof FormItemRepresentation);
+        FormItemRepresentation retval = (FormItemRepresentation) obj;
+        assertEquals("retval and item should be equal", retval, item);
+    }
 }

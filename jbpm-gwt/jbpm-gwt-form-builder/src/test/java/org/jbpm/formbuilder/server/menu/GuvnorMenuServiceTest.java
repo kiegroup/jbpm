@@ -43,6 +43,7 @@ import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
+import org.jbpm.formbuilder.shared.menu.MockMenuService;
 import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 public class GuvnorMenuServiceTest extends TestCase {
@@ -333,5 +334,25 @@ public class GuvnorMenuServiceTest extends TestCase {
         Map<String, String> props = service.getFormBuilderProperties();
         assertNotNull("props shouldn't be null", props);
         assertFalse("props shouldn't be empty", props.isEmpty());
+    }
+    
+    public void testMockMenuService() throws Exception {
+        MockMenuService service = new MockMenuService();
+        
+        Map<String, String> formBuilderProperties = service.getFormBuilderProperties();
+        assertNotNull("formBuilderProperties shouldn't be null", formBuilderProperties);
+        assertFalse("formBuilderProperties shouldn't be empty", formBuilderProperties.isEmpty());
+        
+        Map<String, List<MenuItemDescription>> menuItems = service.listMenuItems();
+        assertNotNull("menuItems shouldn't be null", menuItems);
+        assertFalse("menuItems shouldn't be empty", menuItems.isEmpty());
+        
+        List<MenuOptionDescription> options = service.listOptions();
+        assertNotNull("options shouldn't be null", options);
+        assertFalse("options shouldn't be empty", options.isEmpty());
+        
+        List<ValidationDescription> validations = service.listValidations();
+        assertNotNull("validations shouldn't be null", validations);
+        assertFalse("validations shouldn't be empty", validations.isEmpty());
     }
 }
