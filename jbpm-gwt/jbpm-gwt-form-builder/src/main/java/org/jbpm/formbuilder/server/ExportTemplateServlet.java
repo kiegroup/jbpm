@@ -59,8 +59,8 @@ public class ExportTemplateServlet extends HttpServlet {
         try {
             if (notEmpty(profile) && "jbpm".equals(profile)) {
                 String uuid = req.getParameter("uuid");
-                TaskDefinitionService taskService = new GuvnorTaskDefinitionService(this.guvnorBaseUrl, this.user, this.pass);
-                FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, this.user, this.pass);
+                TaskDefinitionService taskService = createTaskService();
+                FormDefinitionService formService = createFormService();
                 String packageName = taskService.getContainingPackage(uuid);
                 FormRepresentation form = formService.getFormByUUID(packageName, uuid);
                 if (notEmpty(form.getProcessName()) || notEmpty(form.getTaskId())) {
@@ -73,7 +73,7 @@ public class ExportTemplateServlet extends HttpServlet {
                     } else {
                         templateName = form.getTaskId();
                     }
-                    if (templateName != null) {
+                    if (templateName != null && !"".equals(templateName)) {
                         templateName += "-taskform.ftl";
                         formService.saveTemplate(packageName, templateName, content);
                     }
@@ -84,6 +84,14 @@ public class ExportTemplateServlet extends HttpServlet {
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
+    }
+
+    protected TaskDefinitionService createTaskService() {
+        return new GuvnorTaskDefinitionService(this.guvnorBaseUrl, this.user, this.pass);
+    }
+    
+    protected FormDefinitionService createFormService() {
+        return new GuvnorFormDefinitionService(this.guvnorBaseUrl, this.user, this.pass);
     }
 
     private boolean notEmpty(String value) {

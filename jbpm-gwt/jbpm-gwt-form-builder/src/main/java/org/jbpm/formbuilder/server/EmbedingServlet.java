@@ -67,8 +67,8 @@ public class EmbedingServlet extends HttpServlet {
         String pwd = request.getParameter("pwd");
         usr = (usr == null ? this.guvnorDefaultUser : usr);
         pwd = (pwd == null ? this.guvnorDefaultPass : pwd);
-        TaskDefinitionService taskService = new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
-        FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
+        TaskDefinitionService taskService = createTaskService(usr, pwd);
+        FormDefinitionService formService = createFormService(usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         JsonObject json = new JsonObject();
         json.addProperty("embedded", profile);
@@ -83,7 +83,7 @@ public class EmbedingServlet extends HttpServlet {
                     json.addProperty("formjson", encoder.encode(form));
                 }
             }else {
-                throw new Exception("Unknown profile for POST: " + profile);
+                throw new Exception("Unknown profile for GET: " + profile);
             }
             request.setAttribute("jsonData", new Gson().toJson(json));
             request.getRequestDispatcher("/FormBuilder.jsp").forward(request, response);
@@ -105,8 +105,8 @@ public class EmbedingServlet extends HttpServlet {
         String pwd = request.getParameter("pwd");
         usr = (usr == null ? this.guvnorDefaultUser : usr);
         pwd = (pwd == null ? this.guvnorDefaultPass : pwd);
-        TaskDefinitionService taskService = new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
-        FormDefinitionService formService = new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
+        TaskDefinitionService taskService = createTaskService(usr, pwd);
+        FormDefinitionService formService = createFormService(usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         JsonObject json = new JsonObject();
         json.addProperty("embedded", profile);
@@ -126,7 +126,7 @@ public class EmbedingServlet extends HttpServlet {
                     json.addProperty("packageName", task.getPackageName());
                 }
             } else {
-                throw new Exception("Unknown profile for GET: " + profile);
+                throw new Exception("Unknown profile for POST: " + profile);
             }
             request.setAttribute("jsonData", new Gson().toJson(json));
             request.getRequestDispatcher("/FormBuilder.jsp").forward(request, response);
@@ -139,6 +139,14 @@ public class EmbedingServlet extends HttpServlet {
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+    protected FormDefinitionService createFormService(String usr, String pwd) {
+        return new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
+    }
+
+    protected TaskDefinitionService createTaskService(String usr, String pwd) {
+        return new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
     }
 
     private JsonObject toJsonObject(TaskRef task) {

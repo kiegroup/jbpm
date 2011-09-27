@@ -413,15 +413,69 @@ public class GuvnorTaskDefinitionServiceTest extends TestCase {
     }
     
     public void testGetTaskByUUIDJAXBProblem() throws Exception {
-        //TODO cause a JAXBException
+        String uuid1 = UUID.randomUUID().toString();
+        GuvnorTaskDefinitionService service = createService("http://www.redhat.com", "", "");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        Map<String, String> responses = new HashMap<String, String>();
+        String xml1 = "<packages><package><title>somePackage</title>" +
+                "<assets>http://www.redhat.com/rest/packages/somePackage/assets/sampleProcess1</assets>" +
+                "<assets>http://www.redhat.com/rest/packages/somePackage/assets/sampleProcess2</assetsBROKEN_XML>";
+        responses.put("GET http://www.redhat.com/rest/packages/", xml1);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
+            andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
+        service.getHelper().setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.getTaskByUUID("somePackage", "Review", uuid1);
+            fail("getTaskByUUID(...) should not succeed");
+        } catch (TaskServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type JAXBException", cause instanceof JAXBException);
+        }
+        EasyMock.verify(client);
     }
     
     public void testGetTaskByUUIDIOProblem() throws Exception {
-        //TODO cause a IOException
+        String uuid1 = UUID.randomUUID().toString();
+        GuvnorTaskDefinitionService service = createService("http://www.redhat.com", "", "");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(new IOException("mock io error")).once();
+        service.getHelper().setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.getTaskByUUID("somePackage", "Review", uuid1);
+            fail("getTaskByUUID(...) should not succeed");
+        } catch (TaskServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type IOException", cause instanceof IOException);
+        }
+        EasyMock.verify(client);
     }
 
     public void testGetTaskByUUIDUnknownProblem() throws Exception {
-        //TODO cause a NullPointerException
+        String uuid1 = UUID.randomUUID().toString();
+        GuvnorTaskDefinitionService service = createService("http://www.redhat.com", "", "");
+        HttpClient client = EasyMock.createMock(HttpClient.class);
+        EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(new NullPointerException()).once();
+        service.getHelper().setClient(client);
+        
+        EasyMock.replay(client);
+        try {
+            service.getTaskByUUID("somePackage", "Review", uuid1);
+            fail("getTaskByUUID(...) should not succeed");
+        } catch (TaskServiceException e) {
+            assertNotNull("e shouldn't be null", e);
+            Throwable cause = e.getCause();
+            assertNotNull("cause shouldn't be null", cause);
+            assertTrue("cause should be of type NullPointerException", cause instanceof NullPointerException);
+        }
+        EasyMock.verify(client);
     }
     
     public void testGetBPMN2TaskOK() throws Exception {
