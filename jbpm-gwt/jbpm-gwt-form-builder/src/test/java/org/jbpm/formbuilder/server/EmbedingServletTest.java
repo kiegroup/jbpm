@@ -28,13 +28,24 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
+import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
+import org.jbpm.formbuilder.shared.task.TaskServiceException;
 
 public class EmbedingServletTest extends TestCase {
 
+    @Override
+    protected void setUp() throws Exception {
+        FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
+    }
+    
     public void testInitOK() throws Exception {
         EmbedingServlet servlet = new EmbedingServlet();
         ServletConfig config = EasyMock.createMock(ServletConfig.class);
@@ -91,19 +102,90 @@ public class EmbedingServletTest extends TestCase {
     }
     
     public void testDoGetTaskServiceProblem() throws Exception {
-        //TODO
+        String uuid = UUID.randomUUID().toString();
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("guvnor").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("uuid"))).andReturn(uuid).once();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        EasyMock.expect(taskService.getContainingPackage(EasyMock.eq(uuid))).andThrow(new TaskServiceException()).once();
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        
+        EasyMock.replay(request, response, formService, taskService);
+        servlet.doGet(request, response);
+        EasyMock.verify(request, response, formService, taskService);
     }
     
     public void testDoGetFormServiceProblem() throws Exception {
-        //TODO
+        String uuid = UUID.randomUUID().toString();
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("guvnor").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("uuid"))).andReturn(uuid).once();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        EasyMock.expect(taskService.getContainingPackage(EasyMock.eq(uuid))).andReturn("somePackage").once();
+        EasyMock.expect(formService.getFormByUUID(EasyMock.eq("somePackage"), EasyMock.eq(uuid))).andThrow(new FormServiceException()).once();
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        
+        EasyMock.replay(request, response, formService, taskService);
+        servlet.doGet(request, response);
+        EasyMock.verify(request, response, formService, taskService);
     }
     
     public void testDoGetEncodingProblem() throws Exception {
-        //TODO
+        String uuid = UUID.randomUUID().toString();
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("guvnor").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("uuid"))).andReturn(uuid).once();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        EasyMock.expect(taskService.getContainingPackage(EasyMock.eq(uuid))).andReturn("somePackage").once();
+        FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "my1Param", "my2Param");
+        EasyMock.expect(formService.getFormByUUID(EasyMock.eq("somePackage"), EasyMock.eq(uuid))).andReturn(form).once();
+        FormRepresentationEncoder encoder = EasyMock.createMock(FormRepresentationEncoder.class);
+        EasyMock.expect(encoder.encode(EasyMock.eq(form))).andThrow(new FormEncodingException()).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        FormEncodingFactory.register(encoder, FormEncodingFactory.getDecoder());
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService, encoder);
+        servlet.doGet(request, response);
+        EasyMock.verify(request, response, formService, taskService, encoder);
     }
     
     public void testDoGetUnknownProblem() throws Exception {
-        //TODO
+        String uuid = UUID.randomUUID().toString();
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("guvnor").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("uuid"))).andReturn(uuid).once();
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        EasyMock.expect(taskService.getContainingPackage(EasyMock.eq(uuid))).andReturn("somePackage").once();
+        EasyMock.expect(formService.getFormByUUID(EasyMock.eq("somePackage"), EasyMock.eq(uuid))).andThrow(new NullPointerException()).once();
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        
+        EasyMock.replay(request, response, formService, taskService);
+        servlet.doGet(request, response);
+        EasyMock.verify(request, response, formService, taskService);
     }
 
     public void testDoPostOK() throws Exception {
@@ -153,27 +235,169 @@ public class EmbedingServletTest extends TestCase {
     }
     
     public void testDoPostNoTask() throws Exception {
-        //TODO
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("designer").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("userTask"))).andReturn("USER_TASK").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("processName"))).andReturn("PROCESS_NAME").once();
+        String xml = "<some><bpmn2><content/></bpmn2></some>";
+        BufferedReader reader = new BufferedReader(new StringReader(xml));
+        EasyMock.expect(request.getReader()).andReturn(reader);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        EasyMock.expect(taskService.getBPMN2Task(EasyMock.eq(xml), EasyMock.eq("PROCESS_NAME"), EasyMock.eq("USER_TASK"))).andReturn(null).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        request.setAttribute(EasyMock.eq("jsonData"), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        RequestDispatcher dispatcher = EasyMock.createMock(RequestDispatcher.class);
+        EasyMock.expect(request.getRequestDispatcher(EasyMock.eq("/FormBuilder.jsp"))).andReturn(dispatcher).once();
+        dispatcher.forward(request, response);
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService, dispatcher);
+        servlet.doPost(request, response);
+        EasyMock.verify(request, response, formService, taskService, dispatcher);
     }
     
     public void testDoPostNoForm() throws Exception {
-        //TODO
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("designer").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("userTask"))).andReturn("USER_TASK").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("processName"))).andReturn("PROCESS_NAME").once();
+        String xml = "<some><bpmn2><content/></bpmn2></some>";
+        BufferedReader reader = new BufferedReader(new StringReader(xml));
+        EasyMock.expect(request.getReader()).andReturn(reader);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskRef task = new TaskRef();
+        task.setPackageName("somePackage");
+        EasyMock.expect(taskService.getBPMN2Task(EasyMock.eq(xml), EasyMock.eq("PROCESS_NAME"), EasyMock.eq("USER_TASK"))).andReturn(task).once();
+        EasyMock.expect(formService.getAssociatedForm(EasyMock.eq("somePackage"), EasyMock.eq(task))).andReturn(null).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        request.setAttribute(EasyMock.eq("jsonData"), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        RequestDispatcher dispatcher = EasyMock.createMock(RequestDispatcher.class);
+        EasyMock.expect(request.getRequestDispatcher(EasyMock.eq("/FormBuilder.jsp"))).andReturn(dispatcher).once();
+        dispatcher.forward(request, response);
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService, dispatcher);
+        servlet.doPost(request, response);
+        EasyMock.verify(request, response, formService, taskService, dispatcher);
     }
     
     public void testDoPostTaskServiceProblem() throws Exception {
-        //TODO
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("designer").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("userTask"))).andReturn("USER_TASK").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("processName"))).andReturn("PROCESS_NAME").once();
+        String xml = "<some><bpmn2><content/></bpmn2></some>";
+        BufferedReader reader = new BufferedReader(new StringReader(xml));
+        EasyMock.expect(request.getReader()).andReturn(reader);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskRef task = new TaskRef();
+        task.setPackageName("somePackage");
+        EasyMock.expect(taskService.getBPMN2Task(EasyMock.eq(xml), EasyMock.eq("PROCESS_NAME"), EasyMock.eq("USER_TASK"))).
+            andThrow(new TaskServiceException("problem")).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService);
+        servlet.doPost(request, response);
+        EasyMock.verify(request, response, formService, taskService);
     }
     
     public void testDoPostFormServiceProblem() throws Exception {
-        //TODO
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("designer").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("userTask"))).andReturn("USER_TASK").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("processName"))).andReturn("PROCESS_NAME").once();
+        String xml = "<some><bpmn2><content/></bpmn2></some>";
+        BufferedReader reader = new BufferedReader(new StringReader(xml));
+        EasyMock.expect(request.getReader()).andReturn(reader);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskRef task = new TaskRef();
+        task.setPackageName("somePackage");
+        EasyMock.expect(taskService.getBPMN2Task(EasyMock.eq(xml), EasyMock.eq("PROCESS_NAME"), EasyMock.eq("USER_TASK"))).andReturn(task).once();
+        EasyMock.expect(formService.getAssociatedForm(EasyMock.eq("somePackage"), EasyMock.eq(task))).
+            andThrow(new FormServiceException("problem")).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService);
+        servlet.doPost(request, response);
+        EasyMock.verify(request, response, formService, taskService);
     }
     
     public void testDoPostEncodingProblem() throws Exception {
-        //TODO
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("designer").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("userTask"))).andReturn("USER_TASK").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("processName"))).andReturn("PROCESS_NAME").once();
+        String xml = "<some><bpmn2><content/></bpmn2></some>";
+        BufferedReader reader = new BufferedReader(new StringReader(xml));
+        EasyMock.expect(request.getReader()).andReturn(reader);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskRef task = new TaskRef();
+        task.setPackageName("somePackage");
+        EasyMock.expect(taskService.getBPMN2Task(EasyMock.eq(xml), EasyMock.eq("PROCESS_NAME"), EasyMock.eq("USER_TASK"))).andReturn(task).once();
+        FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "myParam");
+        EasyMock.expect(formService.getAssociatedForm(EasyMock.eq("somePackage"), EasyMock.eq(task))).andReturn(form).once();
+        FormRepresentationEncoder encoder = EasyMock.createMock(FormRepresentationEncoder.class);
+        EasyMock.expect(encoder.encode(EasyMock.eq(form))).andThrow(new FormEncodingException()).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        FormEncodingFactory.register(encoder, FormEncodingFactory.getDecoder());
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService, encoder);
+        servlet.doPost(request, response);
+        EasyMock.verify(request, response, formService, taskService, encoder);
     }
     
     public void testDoPostUnknownProblem() throws Exception {
-        //TODO
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        HttpServletResponse response = EasyMock.createMock(HttpServletResponse.class);
+        EasyMock.expect(request.getParameter(EasyMock.eq("profile"))).andReturn("designer").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("usr"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("pwd"))).andReturn(null).once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("userTask"))).andReturn("USER_TASK").once();
+        EasyMock.expect(request.getParameter(EasyMock.eq("processName"))).andReturn("PROCESS_NAME").once();
+        String xml = "<some><bpmn2><content/></bpmn2></some>";
+        BufferedReader reader = new BufferedReader(new StringReader(xml));
+        EasyMock.expect(request.getReader()).andReturn(reader);
+        FormDefinitionService formService = EasyMock.createMock(FormDefinitionService.class);
+        TaskDefinitionService taskService = EasyMock.createMock(TaskDefinitionService.class);
+        TaskRef task = new TaskRef();
+        task.setPackageName("somePackage");
+        EasyMock.expect(taskService.getBPMN2Task(EasyMock.eq(xml), EasyMock.eq("PROCESS_NAME"), EasyMock.eq("USER_TASK"))).
+            andThrow(new NullPointerException()).once();
+        EmbedingServlet servlet = createServlet(formService, taskService);
+        response.sendError(EasyMock.eq(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), EasyMock.anyObject(String.class));
+        EasyMock.expectLastCall().once();
+        
+        EasyMock.replay(request, response, formService, taskService);
+        servlet.doPost(request, response);
+        EasyMock.verify(request, response, formService, taskService);
     }
 
     private EmbedingServlet createServlet(final FormDefinitionService formService, final TaskDefinitionService taskService) {
