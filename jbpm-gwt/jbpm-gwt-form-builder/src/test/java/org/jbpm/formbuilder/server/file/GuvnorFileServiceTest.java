@@ -31,6 +31,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.easymock.EasyMock;
 import org.jbpm.formbuilder.server.FileException;
+import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.mock.MockAnswer;
 import org.jbpm.formbuilder.server.mock.MockDeleteMethod;
 import org.jbpm.formbuilder.server.mock.MockGetMethod;
@@ -47,7 +48,7 @@ public class GuvnorFileServiceTest extends TestCase {
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(statuses)).once();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockPostMethod.class))).andReturn(201).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         String url = service.storeFile("somePackage", "fileName.txt", new byte[] { 1,2,3,4,5,6,7,8,9 } );
@@ -65,7 +66,7 @@ public class GuvnorFileServiceTest extends TestCase {
             andAnswer(new MockAnswer(statuses)).once();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockPostMethod.class))).andReturn(201).once();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andReturn(204).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         String url = service.storeFile("somePackage", "fileName.txt", new byte[] { 1,2,3,4,5,6,7,8,9 } );
@@ -83,7 +84,7 @@ public class GuvnorFileServiceTest extends TestCase {
             andAnswer(new MockAnswer(statuses)).once();
         IOException exception = new IOException("mock io error");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockPostMethod.class))).andThrow(exception).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -103,7 +104,7 @@ public class GuvnorFileServiceTest extends TestCase {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         IOException exception = new IOException("mock io error");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(exception).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -126,7 +127,7 @@ public class GuvnorFileServiceTest extends TestCase {
         Map<String, Integer> statuses = new HashMap<String, Integer>();
         statuses.put("DELETE http://www.redhat.com/rest/packages/somePackage/assets/fileName-upfile", 204);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andAnswer(new MockAnswer(statuses)).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         service.deleteFile("somePackage", "fileName.txt");
@@ -138,7 +139,7 @@ public class GuvnorFileServiceTest extends TestCase {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         IOException exception = new IOException();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andThrow(exception).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -158,7 +159,7 @@ public class GuvnorFileServiceTest extends TestCase {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         NullPointerException exception = new NullPointerException();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).andThrow(exception).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -186,7 +187,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         List<String> files = service.loadFilesByType("somePackage", "txt");
@@ -209,7 +210,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         List<String> files = service.loadFilesByType("somePackage", "txt");
@@ -232,7 +233,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         List<String> files = service.loadFilesByType("somePackage", "");
@@ -255,7 +256,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         List<String> files = service.loadFilesByType("somePackage", null);
@@ -273,7 +274,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         List<String> files = service.loadFilesByType("somePackage", "txt");
@@ -288,7 +289,7 @@ public class GuvnorFileServiceTest extends TestCase {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         IOException exception = new IOException("mock io error");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(exception).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -311,7 +312,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/", props);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -330,7 +331,7 @@ public class GuvnorFileServiceTest extends TestCase {
         GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
         HttpClient client = EasyMock.createMock(HttpClient.class);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(new NullPointerException()).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -353,7 +354,7 @@ public class GuvnorFileServiceTest extends TestCase {
         responses.put("GET http://www.redhat.com/rest/packages/somePackage/assets/someFile-upfile/source", txt);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
 
         EasyMock.replay(client);
         byte[] retval = service.loadFile("somePackage", "someFile.txt");
@@ -371,7 +372,7 @@ public class GuvnorFileServiceTest extends TestCase {
         GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
         HttpClient client = EasyMock.createMock(HttpClient.class);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(new IOException("mock io error")).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -390,7 +391,7 @@ public class GuvnorFileServiceTest extends TestCase {
         GuvnorFileService service = createService("http://www.redhat.com", "user", "pass");
         HttpClient client = EasyMock.createMock(HttpClient.class);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).andThrow(new NullPointerException()).once();
-        service.setClient(client);
+        service.getHelper().setClient(client);
         
         EasyMock.replay(client);
         try {
@@ -406,23 +407,25 @@ public class GuvnorFileServiceTest extends TestCase {
     }
 
     private GuvnorFileService createService(String baseUrl, String user, String pass) {
-        return new GuvnorFileService(baseUrl, user, pass) {
+        GuvnorFileService service = new GuvnorFileService(baseUrl, user, pass);
+        service.setHelper(new GuvnorHelper(baseUrl, user, pass) {
             @Override
-            protected GetMethod createGetMethod(String url) {
+            public GetMethod createGetMethod(String url) {
                 return new MockGetMethod(url);
             }
             @Override
-            protected PostMethod createPostMethod(String url) {
+            public PostMethod createPostMethod(String url) {
                 return new MockPostMethod(url);
             }
             @Override
-            protected DeleteMethod createDeleteMethod(String url) {
+            public DeleteMethod createDeleteMethod(String url) {
                 return new MockDeleteMethod(url);
             }
             @Override
-            protected PutMethod createPutMethod(String url) {
+            public PutMethod createPutMethod(String url) {
                 return new MockPutMethod(url);
             }
-        };
+        });
+        return service;
     }
 }

@@ -26,7 +26,6 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
 import org.jbpm.formbuilder.server.FileException;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.task.MetaDataDTO;
@@ -35,7 +34,7 @@ import org.jbpm.formbuilder.server.task.PackageAssetsDTO;
 
 public class GuvnorFileService implements FileService {
     
-    private final GuvnorHelper helper;
+    private GuvnorHelper helper;
     private final String baseUrl;
     
     public GuvnorFileService(String url, String user, String pass) {
@@ -43,33 +42,12 @@ public class GuvnorFileService implements FileService {
         this.baseUrl = url;
     }
     
-    private HttpClient client = null;
-    
-    public void setClient(HttpClient client) {
-        this.client = client;
+    public void setHelper(GuvnorHelper helper) {
+        this.helper = helper;
     }
     
-    protected HttpClient getHttpClient() {
-        if (client == null) {
-            return new HttpClient();
-        }
-        return client;
-    }
-    
-    protected GetMethod createGetMethod(String url) {
-        return new GetMethod(url);
-    }
-    
-    protected DeleteMethod createDeleteMethod(String url) {
-        return new DeleteMethod(url);
-    }
-    
-    protected PutMethod createPutMethod(String url) {
-        return new PutMethod(url);
-    }
-    
-    protected PostMethod createPostMethod(String url) {
-        return new PostMethod(url);
+    public GuvnorHelper getHelper() {
+        return helper;
     }
     
     public String extractFileExtension(String fileName) {
@@ -96,8 +74,8 @@ public class GuvnorFileService implements FileService {
 
             deleteOlderVersion(packageName, fileName);
 
-            HttpClient client = getHttpClient();
-            PostMethod create = createPostMethod(helper.getRestBaseUrl() + packageName + "/assets/");
+            HttpClient client = helper.getHttpClient();
+            PostMethod create = helper.createPostMethod(helper.getRestBaseUrl() + packageName + "/assets/");
             try {
                 create.addRequestHeader("Authorization", helper.getAuth());
                 create.addRequestHeader("Content-Type", "application/octet-stream");
@@ -115,9 +93,9 @@ public class GuvnorFileService implements FileService {
     }
 
     private void deleteOlderVersion(String packageName, String fileName) throws FileException {
-        HttpClient client = getHttpClient();
+        HttpClient client = helper.getHttpClient();
         String assetName = stripFileExtension(fileName);
-        GetMethod check = createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
+        GetMethod check = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
         try {
             check.addRequestHeader("Authorization", helper.getAuth());
             check.addRequestHeader("Accept", "application/xml");
@@ -134,10 +112,10 @@ public class GuvnorFileService implements FileService {
 
     @Override
     public void deleteFile(String packageName, String fileName) throws FileException {
-        HttpClient client = getHttpClient();
+        HttpClient client = helper.getHttpClient();
         String assetName = stripFileExtension(fileName);
         //String assetType = extractFileExtension(fileName);
-        DeleteMethod deleteAsset = createDeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
+        DeleteMethod deleteAsset = helper.createDeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
         try {
             deleteAsset.addRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(deleteAsset);
@@ -152,8 +130,8 @@ public class GuvnorFileService implements FileService {
 
     @Override
     public List<String> loadFilesByType(String packageName, String fileType) throws FileException {
-        HttpClient client = getHttpClient();
-        GetMethod load = createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/");
+        HttpClient client = helper.getHttpClient();
+        GetMethod load = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/");
         try {
             load.addRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(load);
@@ -189,9 +167,9 @@ public class GuvnorFileService implements FileService {
 
     @Override
     public byte[] loadFile(String packageName, String fileName) throws FileException {
-        HttpClient client = getHttpClient();
+        HttpClient client = helper.getHttpClient();
         String assetName = stripFileExtension(fileName);
-        GetMethod get = createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName + "/source");
+        GetMethod get = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName + "/source");
         try {
             get.addRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(get);

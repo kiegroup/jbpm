@@ -23,10 +23,7 @@ import java.util.Properties;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
@@ -54,46 +51,25 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
     };
 
-    private final GuvnorHelper helper;
+    private GuvnorHelper helper;
     
     public GuvnorTaskDefinitionService(String baseUrl, String user, String password) {
         super();
         this.helper = new GuvnorHelper(baseUrl, user, password);
     }
     
-    private HttpClient client = null;
-    
-    public void setClient(HttpClient client) {
-        this.client = client;
+    public void setHelper(GuvnorHelper helper) {
+        this.helper = helper;
     }
     
-    protected HttpClient getHttpClient() {
-        if (client == null) {
-            return new HttpClient();
-        }
-        return client;
-    }
-    
-    protected GetMethod createGetMethod(String url) {
-        return new GetMethod(url);
-    }
-    
-    protected DeleteMethod createDeleteMethod(String url) {
-        return new DeleteMethod(url);
-    }
-    
-    protected PutMethod createPutMethod(String url) {
-        return new PutMethod(url);
-    }
-    
-    protected PostMethod createPostMethod(String url) {
-        return new PostMethod(url);
+    public GuvnorHelper getHelper() {
+        return helper;
     }
     
     @Override
     public List<TaskRef> query(String pkgName, String filter) throws TaskServiceException {
-        HttpClient client = getHttpClient();
-        GetMethod method = createGetMethod(helper.getApiSearchUrl(pkgName));
+        HttpClient client = helper.getHttpClient();
+        GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
         try {
             method.setRequestHeader("Authorization", helper.getAuth());
             client.executeMethod(method);
@@ -112,7 +88,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                             for (TaskRef ref : processTasks) {
                                 if (filter == null || "".equals(filter)) {
                                     tasks.add(ref);
-                                } else if (ref.getProcessId().contains(assetId) && ref.getTaskName().contains(filter)) {
+                                } else if (ref.getProcessId().contains(assetId) || ref.getTaskName().contains(filter)) {
                                     tasks.add(ref);
                                 }
                             }
@@ -123,6 +99,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             return tasks;
         } catch (IOException e) {
             throw new TaskServiceException("Couldn't read task definitions", e);
+        } catch (Exception e) {
+            throw new TaskServiceException("Unexpected error", e);
         } finally {
             method.releaseConnection();
         }
@@ -130,10 +108,10 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     
     @Override
     public List<TaskRef> getTasksByName(String pkgName, String processId, String taskId) throws TaskServiceException {
-        HttpClient client = getHttpClient();
+        HttpClient client = helper.getHttpClient();
         List<TaskRef> retval = new ArrayList<TaskRef>();
         if (pkgName != null) {
-            GetMethod call = createGetMethod(helper.getRestBaseUrl());
+            GetMethod call = helper.createGetMethod(helper.getRestBaseUrl());
             try {
                 String auth = helper.getAuth();
                 call.addRequestHeader("Accept", "application/xml");
@@ -143,7 +121,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 PackageDTO pkg = dto.getSelectedPackage(pkgName);
                 List<String> urls = new ArrayList<String>();
                 for (String url : pkg.getAssets()) {
-                    GetMethod subCall = createGetMethod(url);
+                    GetMethod subCall = helper.createGetMethod(url);
                     try {
                         subCall.setRequestHeader("Authorization", auth);
                         subCall.addRequestHeader("Accept", "application/xml");
@@ -158,7 +136,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 }
                 for (String url : urls) {
                     //download the process in processUrl and get the right task
-                    GetMethod processCall = createGetMethod(url);
+                    GetMethod processCall = helper.createGetMethod(url);
                     try {
                         processCall.setRequestHeader("Authorization", auth);
                         client.executeMethod(processCall);
@@ -181,6 +159,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             } catch (IOException e) {
                 throw new TaskServiceException("Couldn't read task definition for package:" + pkgName +
                         ", process: " + processId + ", task: " + taskId, e);
+            } catch (Exception e) {
+                throw new TaskServiceException("Unexpected error", e);
             } finally {
                 call.releaseConnection();
             }
@@ -196,14 +176,16 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
             throw new TaskServiceException("problem querying package", e);
         } catch (IOException e) {
             throw new TaskServiceException("problem querying package", e);
+        } catch (Exception e) {
+            throw new TaskServiceException("Unexpected error", e);
         }
     }
 
     @Override
     public TaskRef getTaskByUUID(final String packageName, final String userTask, final String uuid) throws TaskServiceException {
-        HttpClient client = getHttpClient();
+        HttpClient client = helper.getHttpClient();
         if (packageName != null) {
-            GetMethod call = createGetMethod(helper.getRestBaseUrl());
+            GetMethod call = helper.createGetMethod(helper.getRestBaseUrl());
             try {
                 String auth = helper.getAuth();
                 call.addRequestHeader("Accept", "application/xml");
@@ -214,7 +196,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 String format = null;
                 PackageDTO pkg = dto.getSelectedPackage(packageName);
                 for (String url : pkg.getAssets()) {
-                    GetMethod subCall = createGetMethod(url);
+                    GetMethod subCall = helper.createGetMethod(url);
                     try {
                         subCall.setRequestHeader("Authorization", auth);
                         subCall.addRequestHeader("Accept", "application/xml");
@@ -231,7 +213,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 }
                 if (format != null && "bpmn2".equals(format)) {
                     //download the process in processUrl and get the right task
-                    GetMethod processCall = createGetMethod(processUrl);
+                    GetMethod processCall = helper.createGetMethod(processUrl);
                     try {
                         processCall.setRequestHeader("Authorization", auth);
                         client.executeMethod(processCall);
@@ -250,6 +232,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 throw new TaskServiceException("Couldn't read task definition" + uuid + " : " + userTask, e);
             } catch (IOException e) {
                 throw new TaskServiceException("Couldn't read task definition " + uuid + " : " + userTask, e);
+            } catch (Exception e) {
+                throw new TaskServiceException("Unexpected error", e);
             } finally {
                 call.releaseConnection();
             }
@@ -281,16 +265,14 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return (emptyUserTask && taskIsStartProcess) || taskIsSearchedTask;
     }
     
-    private String getTaskDefinitionContent(String pkgName, String itemName) throws TaskServiceException {
-        HttpClient client = getHttpClient();
+    private String getTaskDefinitionContent(String pkgName, String itemName) throws IOException {
+        HttpClient client = helper.getHttpClient();
         if (itemName != null && !"".equals(itemName)) {
-            GetMethod method = createGetMethod(helper.getApiSearchUrl(pkgName) + itemName);
+            GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName) + itemName);
             try {
                 method.setRequestHeader("Authorization", helper.getAuth());
                 client.executeMethod(method);
                 return method.getResponseBodyAsString();
-            } catch (IOException e) {
-                throw new TaskServiceException(e);
             } finally {
                 method.releaseConnection();
             }
@@ -298,7 +280,10 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         return "";
     }
     
-    protected List<TaskRef> getProcessTasks(String bpmn2Content, String processName) throws TaskServiceException {
+    protected List<TaskRef> getProcessTasks(String bpmn2Content, String processName) {
+        if (bpmn2Content == null || "".equals(bpmn2Content)) {
+            return new ArrayList<TaskRef>();
+        }
         if (BPMN2ProcessFactory.getBPMN2ProcessProvider() != provider) {
             BPMN2ProcessFactory.setBPMN2ProcessProvider(provider);
         }

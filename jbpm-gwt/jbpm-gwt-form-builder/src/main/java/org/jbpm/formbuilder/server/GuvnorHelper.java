@@ -27,7 +27,10 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.io.IOUtils;
 import org.jbpm.formbuilder.server.task.AssetDTO;
 import org.jbpm.formbuilder.server.task.MetaDataDTO;
@@ -46,9 +49,38 @@ public class GuvnorHelper {
         this.password = password;
     }
 
+    private HttpClient client = null;
+    
+    public void setClient(HttpClient client) {
+        this.client = client;
+    }
+    
+    public HttpClient getHttpClient() {
+        if (client == null) {
+            return new HttpClient();
+        }
+        return client;
+    }
+    
+    public GetMethod createGetMethod(String url) {
+        return new GetMethod(url);
+    }
+    
+    public DeleteMethod createDeleteMethod(String url) {
+        return new DeleteMethod(url);
+    }
+    
+    public PutMethod createPutMethod(String url) {
+        return new PutMethod(url);
+    }
+    
+    public PostMethod createPostMethod(String url) {
+        return new PostMethod(url);
+    }
+
     public String getPackageNameByContentUUID(String uuid) throws JAXBException, IOException {
-        HttpClient client = new HttpClient();
-        GetMethod call = new GetMethod(getRestBaseUrl());
+        HttpClient client = getHttpClient();
+        GetMethod call = createGetMethod(getRestBaseUrl());
         try {
             String auth = getAuth();
             call.addRequestHeader("Accept", "application/xml");
@@ -63,7 +95,7 @@ public class GuvnorHelper {
             }
             for (PackageDTO pkg : dto.getPackage()) {
                 for (String url : pkg.getAssets()) {
-                    GetMethod subCall = new GetMethod(url);
+                    GetMethod subCall = createGetMethod(url);
                     try {
                         subCall.setRequestHeader("Authorization", auth);
                         subCall.setRequestHeader("Accept", "application/xml");
