@@ -149,6 +149,13 @@ public class TaskServiceSession {
             scheduleTask(task);
         }
 
+        String createdBy = "";
+        if (task.getTaskData().getCreatedBy() != null) {
+        	createdBy = task.getTaskData().getCreatedBy().getId();
+        }
+        
+		service.getEventSupport().fireTaskAdded(task.getId(), createdBy);
+
         if (currentStatus == Status.Reserved) {
             // Task was reserved so owner should get icals
             SendIcal.getInstance().sendIcalForTask(task, service.getUserinfo());

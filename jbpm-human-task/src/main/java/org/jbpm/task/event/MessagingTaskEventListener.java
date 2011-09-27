@@ -138,4 +138,32 @@ public class MessagingTaskEventListener implements TaskEventListener {
         }
 	}
 
+	public void taskAdded(TaskAddedEvent event) {
+        EventKey key = new TaskEventKey(TaskAddedEvent.class, event.getTaskId() );
+        List<EventTriggerTransport> targets = keys.getTargets( key );
+        if ( targets == null ){
+        	key = new TaskEventKey(TaskAddedEvent.class, -1);
+        	targets = keys.getTargets( key );
+        	if (targets == null) {
+        		return;
+        	}
+        } else {
+        	key = new TaskEventKey(TaskAddedEvent.class, -1);
+        	List<EventTriggerTransport> additionalTargets = keys.getTargets( key );
+        	if (additionalTargets != null) {
+        		targets.addAll(additionalTargets);
+        	}
+        }
+        Payload payload = new EventPayload( event );
+        for ( Iterator<EventTriggerTransport> it = targets.iterator(); it.hasNext(); ) {
+            EventTriggerTransport target = it.next();
+            target.trigger( payload );
+            if ( target.isRemove() ) {
+                it.remove();
+            }
+        }
+        if ( targets.isEmpty() ) {
+            keys.removeKey( key );
+        }
+     }
 }

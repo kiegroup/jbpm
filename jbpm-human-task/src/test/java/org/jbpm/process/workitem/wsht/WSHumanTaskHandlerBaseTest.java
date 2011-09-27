@@ -25,17 +25,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import org.drools.process.instance.impl.WorkItemImpl;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
+import org.jbpm.eventmessaging.EventResponseHandler;
+import org.jbpm.eventmessaging.Payload;
 import org.jbpm.task.AccessType;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
+import org.jbpm.task.event.TaskAddedEvent;
+import org.jbpm.task.event.TaskEvent;
+import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
 import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.responsehandlers.AbstractBaseResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
@@ -830,7 +838,48 @@ public abstract class WSHumanTaskHandlerBaseTest extends BaseTest {
 		
 	}
 
-
+	public void testAddTask() {
+		TaskEventKey key = new TaskEventKey(TaskAddedEvent.class, -1);
+		final List<String> notifications = new ArrayList<String>();
+		EventResponseHandler eventResponseHandler = new EventResponseHandler() {
+			
+			public void setError(RuntimeException arg0) {
+			}
+			
+			public boolean isRemove() {
+				return false;
+			}
+			
+			public void execute(Payload payload) {
+				TaskEvent event = ( TaskEvent ) payload.get();
+	        	Long taskId = event.getTaskId();
+	        	//we know it was created.
+	        	notifications.add("There is a new task with id " + taskId);
+	        	synchronized (this) {
+	        		this.notifyAll();					
+				}
+			}
+		};
+ 
+		getClient().registerForEvent(key, false, eventResponseHandler);
+		TestWorkItemManager manager = new TestWorkItemManager();
+		WorkItemImpl workItem = new WorkItemImpl();
+		workItem.setName("Human Task One");
+		workItem.setParameter("TaskName", "TaskNameOne");
+		workItem.setParameter("Comment", "Comment");
+		workItem.setParameter("Priority", "10");
+		workItem.setParameter("ActorId", "Darth Vader,Peter Parker");
+		getHandler().executeWorkItem(workItem, manager);
+		try {
+			synchronized (eventResponseHandler) {
+				eventResponseHandler.wait(DEFAULT_WAIT_TIME);				
+			}
+		} catch (InterruptedException e) {
+			Assert.fail(e.getMessage());
+		}
+		Assert.assertEquals(1, notifications.size());
+	}
+	
 	
 	private class TestWorkItemManager implements WorkItemManager {
 

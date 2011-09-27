@@ -16,9 +16,9 @@
 
 package org.jbpm.task.event;
 
-import org.drools.event.AbstractEventSupport;
-
 import java.util.Iterator;
+
+import org.drools.event.AbstractEventSupport;
 
 /**
  * @author <a href="mailto:stampy88@yahoo.com">dave sinclair</a>
@@ -69,6 +69,18 @@ public class TaskEventSupport extends AbstractEventSupport<TaskEventListener> {
 
             do {
                 iter.next().taskSkipped(event);
+            } while (iter.hasNext());
+        }
+    }
+
+    public void fireTaskAdded(final long taskId, final String userId) {
+        final Iterator<TaskEventListener> iter = getEventListenersIterator();
+
+        if (iter.hasNext()) {
+            final TaskAddedEvent event = new TaskAddedEvent(taskId, userId);
+
+            do {
+                iter.next().taskAdded(event);
             } while (iter.hasNext());
         }
     }

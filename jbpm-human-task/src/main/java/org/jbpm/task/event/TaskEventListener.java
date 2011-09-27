@@ -28,4 +28,6 @@ public interface TaskEventListener extends EventListener {
     
     void taskSkipped(TaskSkippedEvent event);
     
+    void taskAdded(TaskAddedEvent event);
+    
 }

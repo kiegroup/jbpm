@@ -16,20 +16,13 @@
 
 package org.jbpm.task.event;
 
-public class DefaultTaskEventListener implements TaskEventListener {
+public class TaskAddedEvent extends TaskUserEvent {
 
-    public void taskClaimed(TaskClaimedEvent event) {        
+	public TaskAddedEvent() {
+    }
+    
+    public TaskAddedEvent(long taskId, String userId) {
+        super( taskId, userId );
     }
 
-    public void taskCompleted(TaskCompletedEvent event) {
-    }
-
-	public void taskFailed(TaskFailedEvent event) {
-	}
-
-	public void taskSkipped(TaskSkippedEvent event) {
-	}
-
-	public void taskAdded(TaskAddedEvent event) {
-	}
 }
