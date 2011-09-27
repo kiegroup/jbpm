@@ -36,7 +36,8 @@ public class TaskData
         Externalizable {
     @Enumerated(EnumType.STRING)
     private Status status = Status.Created;         // initial default state
-
+    
+    @Enumerated(EnumType.STRING)
     private Status previousStatus = null;
 
     @ManyToOne()

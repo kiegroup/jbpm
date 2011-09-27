@@ -758,6 +758,80 @@ public abstract class WSHumanTaskHandlerBaseTest extends BaseTest {
 		return handler;
 	}
 
+	public void testTaskGroupAssignentLifeCycle() throws Exception {
+		TestWorkItemManager manager = new TestWorkItemManager();
+		WorkItemImpl workItem = new WorkItemImpl();
+		workItem.setName("Human Task One");
+		workItem.setParameter("TaskName", "TaskNameOne");
+		workItem.setParameter("Comment", "Comment");
+		workItem.setParameter("Priority", "10");
+		workItem.setParameter("GroupId", "Crusaders");
+		getHandler().executeWorkItem(workItem, manager);
+
+		Thread.sleep(500);
+
+		BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+		List<String> groupIds = new ArrayList<String>();
+		groupIds.add("Crusaders");
+		getClient().getTasksAssignedAsPotentialOwner("Darth Vader", groupIds, "en-UK", responseHandler);
+		List<TaskSummary> tasksVader = responseHandler.getResults();
+		assertEquals(1, tasksVader.size());
+		
+		responseHandler = new BlockingTaskSummaryResponseHandler();
+		getClient().getTasksAssignedAsPotentialOwner("Peter Parker", groupIds, "en-UK", responseHandler);
+		List<TaskSummary> tasksPeter = responseHandler.getResults();
+		assertEquals(1, tasksPeter.size());
+
+		BlockingTaskOperationResponseHandler operationHandler = new BlockingTaskOperationResponseHandler();
+		getClient().claim(tasksVader.get(0).getId(), "Darth Vader", groupIds, operationHandler);
+		operationHandler.waitTillDone(DEFAULT_WAIT_TIME);
+		
+		responseHandler = new BlockingTaskSummaryResponseHandler();
+		//now Peter should not see the task as is is owned by darth
+		getClient().getTasksAssignedAsPotentialOwner("Peter Parker", groupIds, "en-UK", responseHandler);
+		tasksPeter = responseHandler.getResults();
+		assertEquals(0, tasksPeter.size());
+		
+	}
+	
+	public void testTaskTwoActorAssignentLifeCycle() throws Exception {
+		TestWorkItemManager manager = new TestWorkItemManager();
+		WorkItemImpl workItem = new WorkItemImpl();
+		workItem.setName("Human Task One");
+		workItem.setParameter("TaskName", "TaskNameOne");
+		workItem.setParameter("Comment", "Comment");
+		workItem.setParameter("Priority", "10");
+		workItem.setParameter("ActorId", "Darth Vader,Peter Parker");
+		getHandler().executeWorkItem(workItem, manager);
+
+		Thread.sleep(500);
+
+		BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+		List<String> groupIds = new ArrayList<String>();
+		groupIds.add("Crusaders");
+		getClient().getTasksAssignedAsPotentialOwner("Darth Vader", groupIds, "en-UK", responseHandler);
+		List<TaskSummary> tasksVader = responseHandler.getResults();
+		assertEquals(1, tasksVader.size());
+		
+		responseHandler = new BlockingTaskSummaryResponseHandler();
+		getClient().getTasksAssignedAsPotentialOwner("Peter Parker", groupIds, "en-UK", responseHandler);
+		List<TaskSummary> tasksPeter = responseHandler.getResults();
+		assertEquals(1, tasksPeter.size());
+
+		BlockingTaskOperationResponseHandler operationHandler = new BlockingTaskOperationResponseHandler();
+		getClient().claim(tasksVader.get(0).getId(), "Darth Vader", groupIds, operationHandler);
+		operationHandler.waitTillDone(DEFAULT_WAIT_TIME);
+		
+		responseHandler = new BlockingTaskSummaryResponseHandler();
+		//now Peter should not see the task as is is owned by darth
+		getClient().getTasksAssignedAsPotentialOwner("Peter Parker", groupIds, "en-UK", responseHandler);
+		tasksPeter = responseHandler.getResults();
+		assertEquals(0, tasksPeter.size());
+		
+	}
+
+
+	
 	private class TestWorkItemManager implements WorkItemManager {
 
 		private volatile boolean completed;
