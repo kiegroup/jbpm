@@ -69,9 +69,9 @@ public class CheckBoxFormItem extends FBFormItem {
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.formValue = asPropertiesMap.get("formValue").toString();
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
+        this.formValue = extractString(asPropertiesMap.get("formValue"));
+        this.name = extractString(asPropertiesMap.get("name"));
+        this.id = extractString(asPropertiesMap.get("id"));
         this.checked = extractBoolean(asPropertiesMap.get("checked"));
         setHeight(extractString(asPropertiesMap.get("height")));
         setWidth(extractString(asPropertiesMap.get("width")));

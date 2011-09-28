@@ -30,6 +30,7 @@ import org.jbpm.formbuilder.shared.api.items.ClientScriptRepresentation;
 
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.ScriptElement;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -130,11 +131,22 @@ public class ClientScriptFormItem extends FBFormItem implements HasSourceReferen
 
     @Override
     public Widget cloneDisplay(Map<String, Object> data) {
-        Widget widget = new Widget();
-        widget.getElement().insertFirst(script.cloneNode(true));
+        MyWidget widget = new MyWidget();
+        widget.set(script);
         super.populateActions(widget.getElement());
         return widget; 
     }
 
+    class MyWidget extends Widget {
+        
+        public MyWidget() {
+            setElement(DOM.createElement("script"));
+        }
+        
+        public void set(ScriptElement elem) {
+            getElement().setAttribute("src", elem.getSrc());
+            getElement().setAttribute("type", elem.getType());
+        }
+    }
     
 }

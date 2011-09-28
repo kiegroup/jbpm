@@ -28,6 +28,7 @@ import org.jbpm.formbuilder.client.form.editors.ServerScriptEditor;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.ServerTransformationRepresentation;
 
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
@@ -95,12 +96,21 @@ public class ServerTransformationFormItem extends FBFormItem {
 
     @Override
     public Widget cloneDisplay(Map<String, Object> data) {
-        Widget display = new Widget();
-        eval0(scriptMarker.getText());
+        Widget display = new MyWidget();
+        if (scriptMarker.getText() != null && !"".equals(scriptMarker.getText())) {
+            eval0(scriptMarker.getText());
+        }
         display.setHeight(getHeight());
         display.setWidth(getWidth());
         super.populateActions(display.getElement());
         return display;
+    }
+    
+    class MyWidget extends Widget {
+        public MyWidget() {
+            super();
+            setElement(DOM.createDiv());
+        }
     }
     
     public native void eval0(String script) /*-{

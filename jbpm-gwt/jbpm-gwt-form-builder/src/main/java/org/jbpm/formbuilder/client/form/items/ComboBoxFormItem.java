@@ -68,8 +68,8 @@ public class ComboBoxFormItem extends OptionsFormItem {
         this.title = extractString(asPropertiesMap.get("title"));
         this.setWidth(extractString(asPropertiesMap.get("width")));
         this.setHeight(extractString(asPropertiesMap.get("height")));
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
+        this.name = extractString(asPropertiesMap.get("name"));
+        this.id = extractString(asPropertiesMap.get("id"));
         populate(this.listBox);
     }
 

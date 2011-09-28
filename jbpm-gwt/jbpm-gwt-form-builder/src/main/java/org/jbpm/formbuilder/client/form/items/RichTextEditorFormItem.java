@@ -41,22 +41,23 @@ public class RichTextEditorFormItem extends FBFormItem {
     
     public RichTextEditorFormItem() {
         this(new ArrayList<FBFormEffect>());
-        editor.setSize("99%", "200px");
-        setSize("99%", "200px");
-        editor.setHTML(this.html);
-        add(editor);
     }
     
     public RichTextEditorFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
+        editor.getEditorToolbar().setHeight("50px");
+        editor.setSize("400px", "200px");
+        setSize("400px", "200px");
+        editor.setHTML(this.html);
+        add(editor);
     }
 
     @Override
     public Map<String, Object> getFormItemPropertiesMap() {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("html", editor.getHTML());
-        map.put("width", editor.getWidth());
-        map.put("height", editor.getHeight());
+        map.put("width", getWidth());
+        map.put("height", getHeight());
         return map;
     }
 
@@ -114,7 +115,7 @@ public class RichTextEditorFormItem extends FBFormItem {
 
     @Override
     public Widget cloneDisplay(Map<String, Object> data) {
-        RichTextEditor display = new RichTextEditor();
+        RichTextEditor display = new RichTextEditorFormItem().editor;
         populate(display);
         Object input = getInputValue(data);
         if (input != null) {

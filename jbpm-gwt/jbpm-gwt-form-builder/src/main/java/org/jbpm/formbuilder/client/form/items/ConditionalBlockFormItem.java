@@ -134,7 +134,9 @@ public class ConditionalBlockFormItem extends LayoutFormItem {
         String condition = this.conditionScript;
         boolean result = eval0(condition);
         Widget actualBlock = result ? ifBlock : elseBlock;
-        super.populateActions(actualBlock.getElement());
+        if (actualBlock != null) {
+            super.populateActions(actualBlock.getElement());
+        }
         return actualBlock;
     }
     

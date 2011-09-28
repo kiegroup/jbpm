@@ -74,9 +74,9 @@ public class HiddenFormItem extends FBFormItem {
     
     @Override
     public void saveValues(Map<String, Object> asPropertiesMap) {
-        this.value = asPropertiesMap.get("value").toString();
-        this.name = asPropertiesMap.get("name").toString();
-        this.id = asPropertiesMap.get("id").toString();
+        this.value = extractString(asPropertiesMap.get("value"));
+        this.name = extractString(asPropertiesMap.get("name"));
+        this.id = extractString(asPropertiesMap.get("id"));
         populate(this.hidden);
     }
 
@@ -84,7 +84,7 @@ public class HiddenFormItem extends FBFormItem {
         if (this.id != null) {
             hidden.setID(id);
         }
-        if (this.name != null) {
+        if (this.name != null && !"".equals(this.name)) {
             hidden.setName(name);
         }
         if (this.value != null) {
@@ -132,7 +132,7 @@ public class HiddenFormItem extends FBFormItem {
         if (input != null) {
             hi.setValue(input.toString());
         }
-        if (getOutput() != null && getOutput().getName() != null) {
+        if (getOutput() != null && getOutput().getName() != null && !"".equals(getOutput().getName())) {
             hi.setName(getOutput().getName());
         }
         super.populateActions(hi.getElement());
