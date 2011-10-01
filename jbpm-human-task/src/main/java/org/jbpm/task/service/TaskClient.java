@@ -16,6 +16,7 @@
 
 package org.jbpm.task.service;
 
+import org.jbpm.task.AsyncTaskService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,7 +40,7 @@ import org.jbpm.task.service.TaskClientHandler.SetDocumentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskOperationResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskSummaryResponseHandler;
 
-public class TaskClient  {
+public class TaskClient implements AsyncTaskService{
 
     private final BaseHandler handler;
 	private final AtomicInteger counter;
@@ -748,5 +749,4 @@ public class TaskClient  {
     public void disconnect() throws Exception {
     	connector.disconnect();
     }
-
 }

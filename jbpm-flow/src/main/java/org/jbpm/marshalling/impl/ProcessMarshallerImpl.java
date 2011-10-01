@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.common.InternalWorkingMemory;
+import org.drools.marshalling.impl.InputMarshaller;
 import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
 import org.drools.marshalling.impl.PersisterEnums;
@@ -21,6 +22,7 @@ import org.drools.runtime.process.WorkItem;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
+import org.jbpm.process.instance.timer.TimerManager.ProcessJobContext;
 
 public class ProcessMarshallerImpl implements ProcessMarshaller {
 
@@ -34,6 +36,7 @@ public class ProcessMarshallerImpl implements ProcessMarshaller {
                                   return (int) (o1.getId() - o2.getId());
                               }
                           } );
+
         for ( org.drools.runtime.process.ProcessInstance processInstance : processInstances ) {
             stream.writeShort(PersisterEnums.PROCESS_INSTANCE);
             String processType = processInstance.getProcess().getType();
@@ -44,33 +47,36 @@ public class ProcessMarshallerImpl implements ProcessMarshaller {
         stream.writeShort( PersisterEnums.END );
     }
 
-    public void writeProcessTimers(MarshallerWriteContext context) throws IOException {
-        ObjectOutputStream stream = context.stream;
-
-        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) context.wm).getProcessRuntime()).getTimerManager();
+    public void writeProcessTimers(MarshallerWriteContext outCtx) throws IOException {
+        outCtx.writersByClass.put( ProcessJobContext.class, new TimerManager.ProcessTimerOutputMarshaller() );
+        
+        // this is deprecated, will delete soon (mdp)
+//        ObjectOutputStream stream = context.stream;
+//
+        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) outCtx.wm).getProcessRuntime()).getTimerManager();
         long timerId = timerManager.internalGetTimerId();
-        stream.writeLong( timerId );
-        
-        // need to think on how to fix this
-        // stream.writeObject( timerManager.getTimerService() );
-        
-        List<TimerInstance> timers = new ArrayList<TimerInstance>( timerManager.getTimers() );
-        Collections.sort( timers,
-                          new Comparator<TimerInstance>() {
-                              public int compare(TimerInstance o1,
-                                                 TimerInstance o2) {
-                                  return (int) (o2.getId() - o1.getId());
-                              }
-                          } );
-        for ( TimerInstance timer : timers ) {
-            stream.writeShort( PersisterEnums.TIMER );
-            writeTimer( context,
-                        timer );
-        }
-        stream.writeShort( PersisterEnums.END );
+        outCtx.writeLong( timerId );
+//        
+//        // need to think on how to fix this
+//        // stream.writeObject( timerManager.getTimerService() );
+//        
+//        List<TimerInstance> timers = new ArrayList<TimerInstance>( timerManager.getTimers() );
+//        Collections.sort( timers,
+//                          new Comparator<TimerInstance>() {
+//                              public int compare(TimerInstance o1,
+//                                                 TimerInstance o2) {
+//                                  return (int) (o2.getId() - o1.getId());
+//                              }
+//                          } );
+//        for ( TimerInstance timer : timers ) {
+//            stream.writeShort( PersisterEnums.TIMER );
+//            writeTimer( context,
+//                        timer );
+//        }
+//        stream.writeShort( PersisterEnums.END );
     }
 
-    public void writeTimer(MarshallerWriteContext context,
+    public static void writeTimer(MarshallerWriteContext context,
                            TimerInstance timer) throws IOException {
         ObjectOutputStream stream = context.stream;
         stream.writeLong( timer.getId() );
@@ -179,23 +185,32 @@ public class ProcessMarshallerImpl implements ProcessMarshaller {
         return workItem;
     }
 
-    public void readProcessTimers(MarshallerReaderContext context) throws IOException {
-        ObjectInputStream stream = context.stream;
-
-        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) context.wm).getProcessRuntime()).getTimerManager();
-        timerManager.internalSetTimerId( stream.readLong() );
+    public void readProcessTimers(MarshallerReaderContext inCtx) throws IOException, ClassNotFoundException {
+        inCtx.readersByInt.put( PersisterEnums.PROCESS_TIMER,  new TimerManager.ProcessTimerInputMarshaller());
         
-        // still need to think on how to fix this.
-//        TimerService service = (TimerService) stream.readObject();
-//        timerManager.setTimerService( service );
+        ObjectInputStream stream = inCtx.stream;
 
-        while ( stream.readShort() == PersisterEnums.TIMER ) {
-            TimerInstance timer = readTimer( context );
-            timerManager.internalAddTimer( timer );
-        }
+        TimerManager timerManager = ((InternalProcessRuntime) ((InternalWorkingMemory) inCtx.wm).getProcessRuntime()).getTimerManager();
+        timerManager.internalSetTimerId( stream.readLong() );
+
+        
+        int token;
+        while ((token = inCtx.readShort()) != PersisterEnums.END) {
+            switch( token ) {
+                case PersisterEnums.TIMER : {
+                    TimerInstance timer = readTimer( inCtx );
+                    timerManager.internalAddTimer( timer );   
+                    break;
+                }
+                case PersisterEnums.DEFAULT_TIMER: {
+                    InputMarshaller.readTimer( inCtx );
+                    break;
+                }
+            }   
+        }          
     }
 
-    public TimerInstance readTimer(MarshallerReaderContext context) throws IOException {
+    public static TimerInstance readTimer(MarshallerReaderContext context) throws IOException {
         ObjectInputStream stream = context.stream;
 
         TimerInstance timer = new TimerInstance();
@@ -212,3 +227,4 @@ public class ProcessMarshallerImpl implements ProcessMarshaller {
     }
 
 }
+    

@@ -24,10 +24,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Properties;
 
@@ -36,6 +34,9 @@ import javax.activation.DataSource;
 
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
+import org.jbpm.integration.console.shared.GuvnorConnectionUtils; 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -45,6 +46,8 @@ import freemarker.template.Template;
  */
 public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 
+	private static final Logger logger = LoggerFactory.getLogger(AbstractFormDispatcher.class);
+	
 	public URL getDispatchUrl(FormAuthorityRef ref) {
 		StringBuffer sb = new StringBuffer();
 		Properties properties = new Properties();
@@ -80,7 +83,27 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	}
 	
 	public InputStream getTemplate(String name) {
-		// try to find on classpath
+		// try to find in guvnor repository
+        GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
+        if(guvnorUtils.guvnorExists()) {
+        	try {
+				String templateName;
+				if(guvnorUtils.templateExistsInRepo(name + "-taskform")) {
+					templateName = name + "-taskform";
+				} else if(guvnorUtils.templateExistsInRepo(name)) {
+					templateName = name;
+				} else {
+					return null;
+				}
+				return guvnorUtils.getFormTemplateFromGuvnor(templateName);
+			} catch (Throwable t) {
+				logger.error("Could not load process template from Guvnor: " + t.getMessage());
+				return null;
+			}
+        } else {
+        	logger.warn("Could not connect to Guvnor.");
+        }
+        // try to find on classpath
 	    InputStream nameTaskformResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + "-taskform.ftl");
 		if (nameTaskformResult != null) {
 			return nameTaskformResult;
@@ -88,37 +111,9 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 		    InputStream nameResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + ".ftl");
 		    if (nameResult != null) {
 		        return nameResult;
+		    } else {
+		    	return null;
 		    }
-		}
-		// try to find in repository
-		Properties properties = new Properties();
-        try {
-            properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
-        } catch (IOException e) {
-            throw new RuntimeException("Could not load jbpm.console.properties", e);
-        }
-		
-        try {
-            String templateName;
-            if(templateExistsInRepo(name + "-taskform", properties)) {
-                templateName = name + "-taskform";
-            } else if(templateExistsInRepo(name, properties)) {
-                templateName = name;
-            } else {
-                return null;
-            }
-		
-            StringBuffer sb = new StringBuffer();
-			sb.append("http://");
-			sb.append(properties.get("jbpm.console.server.host"));
-			sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port")));
-			sb.append("/drools-guvnor/org.drools.guvnor.Guvnor/package/defaultPackage/LATEST/");
-			sb.append(URLEncoder.encode(templateName, "UTF-8"));
-			sb.append(".drl");
-			return new URL(sb.toString()).openStream();
-		} catch (Throwable t) {
-			t.printStackTrace();
-			return null;
 		}
 	}
 
@@ -151,21 +146,5 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 			throw new RuntimeException("Failed to process form template", e);
 		}
 		return merged;
-	}
-	
-	protected boolean templateExistsInRepo(String templateName, Properties properties) throws Exception {
-	    StringBuffer sb = new StringBuffer();
-	    sb.append("http://");
-        sb.append(properties.get("jbpm.console.server.host"));
-        sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port")));
-        sb.append("/drools-guvnor/rest/packages/defaultPackage/assets/");
-        sb.append(URLEncoder.encode(templateName, "UTF-8"));
-        
-        URL checkURL = new URL(sb.toString());
-        HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
-        checkConnection.setRequestMethod("GET");
-        checkConnection.setRequestProperty("Accept", "application/atom+xml");
-        checkConnection.connect();
-        return checkConnection.getResponseCode() == 200;
 	}
 }

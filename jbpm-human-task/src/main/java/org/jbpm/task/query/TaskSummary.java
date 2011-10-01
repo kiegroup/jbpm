@@ -53,6 +53,11 @@ public class TaskSummary
     private Date    expirationTime;
     
     private long    processInstanceId;
+    
+    private String  processId;
+    
+    private int processSessionId;
+    
 
     public TaskSummary(long id,
     		           long processInstanceId,
@@ -66,7 +71,9 @@ public class TaskSummary
                        User createdBy,
                        Date createdOn,
                        Date activationTime,
-                       Date expirationTime) {
+                       Date expirationTime,
+                       String processId,
+                       int processSessionId) {
         super();
         this.id = id;
         this.processInstanceId = processInstanceId;
@@ -81,6 +88,8 @@ public class TaskSummary
         this.createdOn = createdOn;
         this.activationTime = activationTime;
         this.expirationTime = expirationTime;
+        this.processId = processId;
+        this.processSessionId = processSessionId;
     }
 
     public TaskSummary() {
@@ -154,6 +163,15 @@ public class TaskSummary
         } else {
             out.writeBoolean( false );
         }
+        
+        if ( processId != null ) {
+            out.writeBoolean( true );
+            out.writeUTF( processId );
+        } else {
+            out.writeBoolean( false );
+        }
+        
+        out.writeInt( processSessionId );
     }
 
     public void readExternal(ObjectInput in) throws IOException,
@@ -202,6 +220,12 @@ public class TaskSummary
         if ( in.readBoolean() ) {
             expirationTime = new Date( in.readLong() );
         }
+        
+        if ( in.readBoolean() ) {
+            processId = in.readUTF();
+        }
+        
+        processSessionId = in.readInt();
     }
 
     public long getId() {
@@ -219,8 +243,8 @@ public class TaskSummary
     public void setProcessInstanceId(long processInstanceId) {
     	this.processInstanceId = processInstanceId;
     }
-
-    public String getName() {
+    
+	public String getName() {
         return name;
     }
 
@@ -307,8 +331,24 @@ public class TaskSummary
     public void setExpirationTime(Date expirationTime) {
         this.expirationTime = expirationTime;
     }
+    
+    public String getProcessId() {
+		return processId;
+	}
 
-    @Override
+	public void setProcessId(String processId) {
+		this.processId = processId;
+	}
+	
+	public int getProcessSessionId() {
+		return processSessionId;
+	}
+
+	public void setProcessSessionId(int processSessionId) {
+		this.processSessionId = processSessionId;
+	}
+
+	@Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -325,6 +365,8 @@ public class TaskSummary
         result = prime * result + (skipable ? 1231 : 1237);
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result + ((subject == null) ? 0 : subject.hashCode());
+        result = prime * result + ((processId == null) ? 0 : processId.hashCode());
+        result = prime * result + processSessionId;
         return result;
     }
 
@@ -364,6 +406,10 @@ public class TaskSummary
         if ( subject == null ) {
             if ( other.subject != null ) return false;
         } else if ( !subject.equals( other.subject ) ) return false;
+        if ( processId == null ) {
+            if ( other.processId != null ) return false;
+        } else if ( !processId.equals( other.processId ) ) return false;
+        if ( processSessionId != other.processSessionId ) return false;
         return true;
     }
 

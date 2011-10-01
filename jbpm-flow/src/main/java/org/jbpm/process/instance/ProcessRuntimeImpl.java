@@ -25,6 +25,9 @@ import org.drools.rule.Rule;
 import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemManager;
+import org.drools.time.AcceptsTimerJobFactoryManager;
+import org.drools.time.impl.DefaultTimerJobFactoryManager;
+import org.drools.time.impl.TrackableTimeJobFactoryManager;
 import org.drools.util.CompositeClassLoader;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
@@ -45,20 +48,31 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	private SignalManager signalManager;
 	private TimerManager timerManager;
 	private ProcessEventSupport processEventSupport;
+	private DefaultKnowledgeBaseEventListener knowledgeBaseListener;
 
 	public ProcessRuntimeImpl(InternalKnowledgeRuntime kruntime) {
 		this.kruntime = kruntime;
+        AcceptsTimerJobFactoryManager jfm = ( AcceptsTimerJobFactoryManager ) kruntime.getTimerService();
+        if ( jfm.getTimerJobFactoryManager() instanceof DefaultTimerJobFactoryManager ) {
+            jfm.setTimerJobFactoryManager( new TrackableTimeJobFactoryManager() );
+        }		
+		((AcceptsTimerJobFactoryManager)kruntime.getTimerService()).setTimerJobFactoryManager( new TrackableTimeJobFactoryManager() );		
 		((CompositeClassLoader) getRootClassLoader()).addClassLoader( getClass().getClassLoader() );
 		initProcessInstanceManager();
 		initSignalManager();
 		timerManager = new TimerManager(kruntime, kruntime.getTimerService());
         processEventSupport = new ProcessEventSupport();
         initProcessEventListeners();
-        initProcessActivationListener();
+        initProcessActivationListener();        
 	}
 	
 	public ProcessRuntimeImpl(AbstractWorkingMemory workingMemory) {
 		this.workingMemory = workingMemory;
+		AcceptsTimerJobFactoryManager jfm = ( AcceptsTimerJobFactoryManager ) workingMemory.getTimerService();
+		if ( jfm.getTimerJobFactoryManager() instanceof DefaultTimerJobFactoryManager ) {
+		    jfm.setTimerJobFactoryManager( new TrackableTimeJobFactoryManager() );
+		}
+		
 		this.kruntime = (InternalKnowledgeRuntime) workingMemory.getKnowledgeRuntime();
 		((CompositeClassLoader) getRootClassLoader()).addClassLoader( getClass().getClassLoader() );
 		initProcessInstanceManager();
@@ -198,7 +212,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         for ( Process process : kruntime.getKnowledgeBase().getProcesses() ) {
             initProcessEventListener(process);
         }
-        kruntime.getKnowledgeBase().addEventListener(new DefaultKnowledgeBaseEventListener() {
+        knowledgeBaseListener = new DefaultKnowledgeBaseEventListener() {
         	@Override
         	public void afterProcessAdded(AfterProcessAddedEvent event) {
         		initProcessEventListener(event.getProcess());
@@ -215,7 +229,8 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         			}
         		}
         	}
-		});
+		};
+        kruntime.getKnowledgeBase().addEventListener(knowledgeBaseListener);
     }
     
     private void initProcessEventListener(Process process) {
@@ -366,6 +381,9 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	public void dispose() {
         this.processEventSupport.reset();
         this.timerManager.dispose();
+        kruntime.getKnowledgeBase().removeEventListener(knowledgeBaseListener);
+        kruntime = null;
+        workingMemory = null;
 	}
 
 	public void clearProcessInstances() {

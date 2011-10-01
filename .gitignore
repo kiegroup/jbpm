@@ -16,3 +16,7 @@
 bin/
 *~
 *.tlog
+
+# Test info
+/settings*.xml
+/lib-jdbc/

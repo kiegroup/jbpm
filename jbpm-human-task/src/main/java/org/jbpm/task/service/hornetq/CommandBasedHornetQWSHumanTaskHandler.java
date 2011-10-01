@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import org.drools.SystemEventListenerFactory;
 import org.drools.runtime.KnowledgeRuntime;
+import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
@@ -130,6 +131,12 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 		TaskData taskData = new TaskData();
 		taskData.setWorkItemId(workItem.getId());
 		taskData.setProcessInstanceId(workItem.getProcessInstanceId());
+		if(session != null && session.getProcessInstance(workItem.getProcessInstanceId()) != null) {
+			taskData.setProcessId(session.getProcessInstance(workItem.getProcessInstanceId()).getProcess().getId());
+		}
+		if(session != null && (session instanceof StatefulKnowledgeSession)) { 
+        	taskData.setProcessSessionId( ((StatefulKnowledgeSession) session).getId() );
+        }
 		taskData.setSkipable(!"false".equals(workItem.getParameter("Skippable")));
         //Sub Task Data
         Long parentId = (Long) workItem.getParameter("ParentId");
