@@ -18,19 +18,10 @@
 
   <!-- Inherit the core Web Toolkit stuff. -->
 
-  <inherits name="com.google.gwt.user.User" />
-  <inherits name="com.google.gwt.i18n.I18N" />
-  <inherits name="com.google.gwt.user.theme.chrome.Chrome" />
-  <inherits name="com.google.gwt.resources.Resources" />
-  <inherits name="com.google.gwt.activity.Activity" />
-  <inherits name="com.google.gwt.http.HTTP" />
-  <inherits name="com.google.gwt.xml.XML" />
-  <inherits name="com.google.gwt.json.JSON" />
-  <inherits name="com.google.gwt.uibinder.UiBinder"/>
+  <inherits name="org.jbpm.formbuilder.Commons" />
   <inherits name="com.google.gwt.visualization.Visualization"/>
   <inherits name="org.fusesource.restygwt.RestyGWT" />
   <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
-  <inherits name="com.gwtent.GwtEnt" />
   <inherits name="org.gwt.beansbinding.BeansBinding" />
   <inherits name="org.gwt.mosaic.core.Core" />
   <inherits name="org.gwt.mosaic.ui.UI" />

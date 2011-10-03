@@ -15,14 +15,14 @@
  */
 package org.jbpm.formbuilder.server.form;
 
-import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -35,21 +35,18 @@ public class FormItemRepresentationTest extends TestCase {
 
     public void testGetData() throws Exception {
         //get class names
-        List<String> classNames = new ArrayList<String>();
-        URL dir = getClass().getResource("/org/jbpm/formbuilder/shared/api/items/");
-        File file = new File(dir.getFile());
-        String[] classFiles = file.list();
-        for (String classFile : classFiles) {
-            if (!classFile.contains("$")) {
-                classNames.add("org.jbpm.formbuilder.shared.api.items." + classFile.replace(".class", ""));
-            }
-        }
+        Properties props = new Properties();
+        props.load(getClass().getResourceAsStream("/FormBuilder.properties"));
+        Set<Object> classNames = props.keySet();
         //get classes
         List<Class<?>> classes = new ArrayList<Class<?>>();
-        for (String className : classNames) {
-            Class<?> klass = Class.forName(className);
-            if (FormItemRepresentation.class.isAssignableFrom(klass)) {
-                classes.add(klass);
+        for (Object objClassName : classNames) {
+            String className = (String) objClassName;
+            if (className.endsWith("Representation")) {
+                Class<?> klass = Class.forName(className);
+                if (FormItemRepresentation.class.isAssignableFrom(klass)) {
+                    classes.add(klass);
+                }
             }
         }
         //create instances

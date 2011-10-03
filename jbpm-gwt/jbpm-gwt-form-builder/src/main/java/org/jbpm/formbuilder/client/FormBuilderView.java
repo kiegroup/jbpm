@@ -113,11 +113,11 @@ public class FormBuilderView extends AbsolutePanel {
     public void toggleNotifications(boolean visibleNotifications) {
         int fullHeight = Window.getClientHeight();
         if (visibleNotifications) {
-            String sheight = "" + (fullHeight - 350) + "px";
-            String smallerHeight = "" + (fullHeight - 375) + "px";
-            this.notificationsView.setHeight("300px");
+            String sheight = "" + (fullHeight - 275) + "px";
+            String smallerHeight = "" + (fullHeight - 300) + "px";
+            this.notificationsView.setHeight("225px");
             Document.get().getElementById("mainRowWrapper").setPropertyString("height", sheight);
-            Document.get().getElementById("notificationsRowWrapper").setPropertyString("height", "300px");
+            Document.get().getElementById("notificationsRowWrapper").setPropertyString("height", "225px");
             treeView.setHeight(sheight);
             menuView.setHeight(sheight);
             editionView.setHeight(sheight);

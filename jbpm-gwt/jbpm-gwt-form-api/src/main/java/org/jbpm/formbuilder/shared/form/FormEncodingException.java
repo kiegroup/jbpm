@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 JBoss Inc 
+ * Copyright 2011 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.shared.form;
 
 public class FormEncodingException extends Exception {
 
-    private static final long serialVersionUID = 5810473419363539681L;
+    private static final long serialVersionUID = 1113435107260639779L;
 
     public FormEncodingException() {
         super();

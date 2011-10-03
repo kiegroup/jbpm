@@ -48,7 +48,7 @@ public class CompleteButtonFormItem extends FBFormItem implements I18NFormItem {
     private Button button = new Button(i18n.CompleteButton());
     private final I18NUtils utils = new I18NUtils();
 
-    private String innerText;
+    private String innerText = i18n.CompleteButton();
     private String name;
     private String id;
     private String cssStyleName;
