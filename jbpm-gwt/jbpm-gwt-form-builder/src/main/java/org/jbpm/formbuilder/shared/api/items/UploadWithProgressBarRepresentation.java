@@ -70,12 +70,30 @@ public class UploadWithProgressBarRepresentation extends FormItemRepresentation 
     public void setDataMap(Map<String, Object> data)
             throws FormEncodingException {
         super.setDataMap(data);
-        this.autoSubmit = (Boolean) data.get("autoSubmit");
-        this.avoidRepeatFiles = (Boolean) data.get("avoidRepeatFiles");
-        this.enabled = (Boolean) data.get("enabled");
+        this.autoSubmit = extractBoolean(data.get("autoSubmit"));
+        this.avoidRepeatFiles = extractBoolean(data.get("avoidRepeatFiles"));
+        this.enabled = extractBoolean(data.get("enabled"));
         this.cssClassName = (String) data.get("cssClassName");
     }
     
+    private boolean extractBoolean(Object aux) {
+        if (aux == null) {
+            return false;
+        }
+        if (aux instanceof String) {
+            String saux = (String) aux;
+            if ("".equals(saux)) {
+                return false;
+            }
+            return Boolean.valueOf(saux);
+        }
+        if (aux instanceof Boolean) {
+            Boolean baux = (Boolean) aux;
+            return baux.booleanValue();
+        }
+        return false;
+    }
+
     @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> data = super.getDataMap();
