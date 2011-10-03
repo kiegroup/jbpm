@@ -22,12 +22,12 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
@@ -57,12 +57,14 @@ import org.jbpm.process.audit.ProcessInstanceDbLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.builder.ProcessBuilderFactoryServiceImpl;
 import org.jbpm.process.instance.ProcessRuntimeFactoryServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Kris Verlaenen
  */
 public class GraphViewerPluginImpl implements GraphViewerPlugin {
-	
+	private static final Logger logger = LoggerFactory.getLogger(GraphViewerPluginImpl.class);
 	private KnowledgeBase kbase;
 
 	public List<ActiveNodeInfo> getActiveNodeInfo(String instanceId) {
@@ -102,35 +104,25 @@ public class GraphViewerPluginImpl implements GraphViewerPlugin {
 
 	public DiagramInfo getDiagramInfo(String processId) {
 		if (kbase == null) {
-		    Properties jbpmconsoleproperties = new Properties();
-            try {
-                jbpmconsoleproperties.load(GraphViewerPluginImpl.class.getResourceAsStream("/jbpm.console.properties"));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not load jbpm.console.properties", e);
-            }
-			try {
-			    GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils(jbpmconsoleproperties);
-				KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default");
-				kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet()));
-				kagent.monitorResourceChangeEvents(false);
-				kbase = kagent.getKnowledgeBase();
-			} catch (Throwable t) {
-				if (t instanceof RuntimeException
-						&& "KnowledgeAgent exception while trying to deserialize".equals(t.getMessage())) {
-					System.out.println("Could not connect to guvnor");
-					if (t.getCause() != null) {
-						System.out.println(t.getCause().getMessage());
+			    GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
+			    if(guvnorUtils.guvnorExists()) {
+			    	try {
+						KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default");
+						kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet()));
+						kagent.monitorResourceChangeEvents(false);
+						kbase = kagent.getKnowledgeBase();
+					} catch (Throwable t) {
+						logger.error("Could not build kbase from Guvnor assets: " + t.getMessage());
 					}
-				}
-				System.out.println("Could not load processes from guvnor: " + t.getMessage());
-				t.printStackTrace();
-			}
+			    } else {
+			    	logger.warn("Could not connect to Guvnor.");
+			    }
 			if (kbase == null) {
 				kbase = KnowledgeBaseFactory.newKnowledgeBase();
 			}
 			String directory = System.getProperty("jbpm.console.directory");
 			if (directory == null) {
-				System.out.println("jbpm.console.directory property not found");
+				logger.error("jbpm.console.directory property not found");
 			} else {
 				File file = new File(directory);
 				if (!file.exists()) {
@@ -185,6 +177,17 @@ public class GraphViewerPluginImpl implements GraphViewerPlugin {
 	}
 
 	public byte[] getProcessImage(String processId) {
+		GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
+		if(guvnorUtils.guvnorExists()) {
+			try {
+				return guvnorUtils.getProcessImageFromGuvnor(processId);
+			} catch (Throwable t) {
+				logger.error("Could not get process image from Guvnor: " + t.getMessage());
+			}
+		} else {
+			logger.warn("Could not connect to Guvnor.");
+		}
+		
 		InputStream is = GraphViewerPluginImpl.class.getResourceAsStream("/" + processId + ".png");
 		if (is != null) {
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -194,18 +197,6 @@ public class GraphViewerPluginImpl implements GraphViewerPlugin {
 				throw new RuntimeException("Could not read process image: " + e.getMessage());
 			}
 			return os.toByteArray();
-		}
-		Properties properties = new Properties();
-		try {
-			properties.load(GraphViewerPluginImpl.class.getResourceAsStream("/jbpm.console.properties"));
-		} catch (IOException e) {
-			throw new RuntimeException("Could not load jbpm.console.properties", e);
-		}
-		try {
-		    GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils(properties);
-		    return guvnorUtils.getProcessImageFromGuvnor(processId);
-		} catch (Throwable t) {
-			t.printStackTrace();
 		}
 		return null;
 	}
@@ -225,22 +216,22 @@ public class GraphViewerPluginImpl implements GraphViewerPlugin {
 	}
 
 	public URL getDiagramURL(String id) {
+		GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
+        if(guvnorUtils.guvnorExists()) {
+        	try {
+				return new URL(guvnorUtils.getProcessImageURLFromGuvnor(id));
+			} catch (Throwable t) {
+				logger.error("Could not get diagram url from Guvnor: " + t.getMessage());
+			}
+        } else {
+        	logger.warn("Could not connect to Guvnor.");
+        }
+		
 		URL result = GraphViewerPluginImpl.class.getResource("/" + id + ".png");
 		if (result != null) {
 			return result;
 		}
-		Properties properties = new Properties();
-		try {
-			properties.load(GraphViewerPluginImpl.class.getResourceAsStream("/jbpm.console.properties"));
-		} catch (IOException e) {
-			throw new RuntimeException("Could not load jbpm.console.properties", e);
-		}
-		try {
-		    GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils(properties);
-            return  new URL(guvnorUtils.getProcessImageURLFromGuvnor(id));
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
+		
 		return null;
 	}
 

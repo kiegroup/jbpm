@@ -23,6 +23,8 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -40,7 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 public class GuvnorConnectionUtils {
     public static final String GUVNOR_PROTOCOL_KEY = "guvnor.protocol";
@@ -49,15 +51,20 @@ public class GuvnorConnectionUtils {
     public static final String GUVNOR_PWD_KEY = "guvnor.pwd";
     public static final String GUVNOR_PACKAGES_KEY = "guvnor.packages";
     public static final String GUVNOR_SUBDOMAIN_KEY = "guvnor.subdomain";
+    public static final String GUVNOR_CONNECTTIMEOUT_KEY = "guvnor.connect.timeout";
+    public static final String GUVNOR_READTIMEOUT_KEY = "guvnor.read.timeout";
     public static final String EXT_BPMN = "bpmn";
     public static final String EXT_BPMN2 = "bpmn2";
     
     private static final Logger logger = LoggerFactory.getLogger(GuvnorConnectionUtils.class);
+    private static Properties properties = new Properties();
     
-    private Properties properties;
-    
-    public GuvnorConnectionUtils(Properties properties) {
-        this.properties = properties;
+    static {
+    	try {
+    		properties.load(GuvnorConnectionUtils.class.getResourceAsStream("/jbpm.console.properties"));
+    	} catch (IOException e) {
+            throw new RuntimeException("Could not load jbpm.console.properties", e);
+        }
     }
     
     public String getProcessImageURLFromGuvnor(String processId) {
@@ -113,7 +120,8 @@ public class GuvnorConnectionUtils {
                 HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
                 checkConnection.setRequestMethod("GET");
                 checkConnection.setRequestProperty("Accept", "application/atom+xml");
-                checkConnection.setReadTimeout(2 * 1000);
+                checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+                checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
                 applyAuth(checkConnection);
                 checkConnection.connect();
                 if(checkConnection.getResponseCode() == 200) {
@@ -307,6 +315,14 @@ public class GuvnorConnectionUtils {
         return isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY)) ? "" : properties.getProperty(GUVNOR_PACKAGES_KEY);
     }
     
+    public String getGuvnorConnectTimeout() {
+    	return isEmpty(properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY)) ? "" : properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY);
+    }
+    
+    public String getGuvnorReadTimeout() {
+    	return isEmpty(properties.getProperty(GUVNOR_READTIMEOUT_KEY)) ? "" : properties.getProperty(GUVNOR_READTIMEOUT_KEY);
+    }
+    
     private List<String> getPackageNamesFromGuvnor() {
         List<String> packages = new ArrayList<String>();
         String packagesURL = getGuvnorProtocol()
@@ -322,7 +338,10 @@ public class GuvnorConnectionUtils {
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamReader.START_ELEMENT) {
                     if ("title".equals(reader.getLocalName())) {
-                        packages.add(reader.getElementText());
+                    	String pname = reader.getElementText();
+                    	if(!pname.equalsIgnoreCase("Packages")) {
+                    		 packages.add(pname);
+                    	}
                     }
                 }
             }
@@ -351,7 +370,8 @@ public class GuvnorConnectionUtils {
                 HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
                 checkConnection.setRequestMethod("GET");
                 checkConnection.setRequestProperty("Accept", "application/atom+xml");
-                checkConnection.setReadTimeout(2 * 1000);
+                checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+                checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
                 applyAuth(checkConnection);
                 checkConnection.connect();
                 if(checkConnection.getResponseCode() == 200) {
@@ -367,30 +387,24 @@ public class GuvnorConnectionUtils {
     }
     
     private void applyAuth(HttpURLConnection connection) {
-        BASE64Encoder enc = new sun.misc.BASE64Encoder();
-        String userpassword = getGuvnorUsr() + ":" + getGuvnorPwd();
-        String encodedAuthorization = enc.encode(userpassword.getBytes());
-        connection.setRequestProperty("Authorization", "Basic "
-                + encodedAuthorization);
+		String auth = getGuvnorUsr() + ":" + getGuvnorPwd();
+		connection.setRequestProperty("Authorization", "Basic "
+                + Base64.encodeBase64String(auth.getBytes()));
     }
-    
+
     private InputStream getInputStreamForImageURL(String urlLocation, String requestMethod) throws Exception {
         URL url = new URL(urlLocation);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         connection.setRequestMethod(requestMethod);
         connection
-                .setRequestProperty(
-                        "User-Agent",
-                        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        connection
-                .setRequestProperty("Accept",
-                        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
-        connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+        .setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
+        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
         connection.setRequestProperty("charset", "UTF-8");
-        connection.setReadTimeout(10 * 1000);
-
+        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
         applyAuth(connection);
 
         connection.connect();
@@ -404,19 +418,14 @@ public class GuvnorConnectionUtils {
 
         connection.setRequestMethod(requestMethod);
         connection
-                .setRequestProperty(
-                        "User-Agent",
-                        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        connection
-                .setRequestProperty("Accept",
-                        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
-        connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+        .setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
+        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
         connection.setRequestProperty("charset", "UTF-8");
-        connection.setReadTimeout(10 * 1000);
-
+        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
         applyAuth(connection);
-
         connection.connect();
 
         BufferedReader sreader = new BufferedReader(new InputStreamReader(
@@ -427,7 +436,7 @@ public class GuvnorConnectionUtils {
         while ((line = sreader.readLine()) != null) {
             stringBuilder.append(line + "\n");
         }
-
+        
         return new ByteArrayInputStream(stringBuilder.toString().getBytes(
                 "UTF-8"));
     }
@@ -458,10 +467,33 @@ public class GuvnorConnectionUtils {
         }
     }
     
+    public boolean guvnorExists() {
+    	String checkURLStr = getGuvnorProtocol()
+                + "://"
+                + getGuvnorHost()
+                + "/"
+                + getGuvnorSubdomain()
+                + "/rest/packages/";
+    	
+    	try {
+			URL checkURL = new URL(checkURLStr);
+			HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
+			checkConnection.setRequestMethod("GET");
+			checkConnection.setRequestProperty("Accept", "application/atom+xml");
+			checkConnection.setConnectTimeout(4000);
+			applyAuth(checkConnection);
+			checkConnection.connect();
+			return (checkConnection.getResponseCode() == 200);
+		} catch (Exception e) {
+			logger.error("Error checking guvnor existence: " + e.getMessage());
+			return false;
+		} 
+    }
+    
     private class TemplateInfo {
         List<String> data = new ArrayList<String>();
         
-        public TemplateInfo(String protocol, String host, String usr, String pwd, 
+        public TemplateInfo(String protocol, String host, String usr, String pwd,
                 String subdomain, List<String> packages) {
             for(String pkg : packages) {
                 StringBuffer sb = new StringBuffer();
