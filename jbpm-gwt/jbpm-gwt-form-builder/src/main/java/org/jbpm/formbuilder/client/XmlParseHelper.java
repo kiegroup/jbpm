@@ -71,7 +71,7 @@ public class XmlParseHelper {
         StringBuilder builder = new StringBuilder();
         String json = FormEncodingFactory.getEncoder().encode(formItem);
         builder.append("<formItem name=\"").append(formItemName).append("\">");
-        builder.append("<content>").append(json).append("</content>");
+        builder.append("<content><![CDATA[").append(json).append("]]></content>");
         builder.append("</formItem>");
         return builder.toString();
     }
@@ -351,7 +351,7 @@ public class XmlParseHelper {
         builder.append("<formPreview>");
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         String json = encoder.encode(form);
-        builder.append("<representation>").append(json).append("</representation>");
+        builder.append("<representation><![CDATA[").append(json).append("]]></representation>");
         if (inputs != null) {
             for (Map.Entry<String, Object> entry : inputs.entrySet()) {
                 String key = entry.getKey();

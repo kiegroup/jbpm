@@ -34,7 +34,7 @@ public class CommonGlobals {
     private AbstractFormItemCommand paste;
     private PickupDragController dragController;
     
-    protected CommonGlobals() {
+    private CommonGlobals() {
     }
     
     public static CommonGlobals getInstance() {

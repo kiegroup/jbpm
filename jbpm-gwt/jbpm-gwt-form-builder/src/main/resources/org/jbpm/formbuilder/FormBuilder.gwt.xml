@@ -25,6 +25,7 @@
   <inherits name="org.gwt.mosaic.core.Core" />
   <inherits name="org.gwt.mosaic.ui.UI" />
   <inherits name="com.google.gwt.junit.JUnit" />
+  <inherits name="com.gwtent.GwtEnt" />
   <inherits name="gwtupload.GWTUpload" />
   <inherits name="org.timepedia.exporter.Exporter" />
 

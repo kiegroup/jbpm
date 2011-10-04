@@ -22,7 +22,6 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.ServerTransformationFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
@@ -31,8 +30,6 @@ import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class ServerTransformationMenuItem extends FBMenuItem {
-
-    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     public ServerTransformationMenuItem() {
     }
@@ -48,7 +45,7 @@ public class ServerTransformationMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new Label(i18n.MenuItemServerScript());
+        return new Label(FormBuilderGlobals.getInstance().getI18n().MenuItemServerScript());
     }
 
     @Override

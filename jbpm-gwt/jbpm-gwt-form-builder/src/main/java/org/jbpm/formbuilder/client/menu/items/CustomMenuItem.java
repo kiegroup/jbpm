@@ -29,7 +29,6 @@ import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
@@ -52,8 +51,6 @@ import com.gwtent.reflection.client.Reflectable;
  */
 @Reflectable
 public class CustomMenuItem extends FBMenuItem {
-
-    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private String optionName;
     private FormItemRepresentation representation;
@@ -93,7 +90,7 @@ public class CustomMenuItem extends FBMenuItem {
               super.onBrowserEvent(event);
           } else if (DOM.eventGetButton(event) == Event.BUTTON_RIGHT) {
               final CommandPopupPanel removePanel = new CommandPopupPanel(true);
-              MenuItem removeItem = new MenuItem(i18n.RemoveMenuItem(), new Command() {
+              MenuItem removeItem = new MenuItem(FormBuilderGlobals.getInstance().getI18n().RemoveMenuItem(), new Command() {
                   @Override
                   public void execute() {
                       Map<String, Object> dataSnapshot = new HashMap<String, Object>();

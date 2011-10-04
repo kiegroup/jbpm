@@ -22,7 +22,6 @@ import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.PasswordFieldFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
@@ -32,8 +31,6 @@ import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class PasswordFieldMenuItem extends FBMenuItem {
-
-    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     public PasswordFieldMenuItem() {
         super();
@@ -45,7 +42,7 @@ public class PasswordFieldMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new HTML(i18n.MenuItemPasswordField());
+        return new HTML(FormBuilderGlobals.getInstance().getI18n().MenuItemPasswordField());
     }
     
     @Override
