@@ -27,14 +27,9 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.TestCase;
 
-import org.jbpm.formbuilder.server.FileListDTO;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
-import org.jbpm.formbuilder.server.form.FormDefDTO;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.server.form.FormItemDefDTO;
-import org.jbpm.formbuilder.server.form.ListFormsDTO;
-import org.jbpm.formbuilder.server.form.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
@@ -53,25 +48,25 @@ public class JaxbDtoTest extends TestCase {
     
     public void testFileListDTOEmpty() throws Exception {
         FileListDTO dto = new FileListDTO();
-        jaxbSimulation(dto, FileListDTO.class);
+        jaxbSimulation(dto, FileListDTO.class, FileListDTO.RELATED_CLASSES);
         
         FileListDTO dto2 = new FileListDTO(null);
-        jaxbSimulation(dto2, FileListDTO.class);
+        jaxbSimulation(dto2, FileListDTO.class, FileListDTO.RELATED_CLASSES);
         
         FileListDTO dto3 = new FileListDTO(new ArrayList<String>());
-        jaxbSimulation(dto3, FileListDTO.class);
+        jaxbSimulation(dto3, FileListDTO.class, FileListDTO.RELATED_CLASSES);
     }
     
     public void testPropertiesDTOEmpty() throws Exception {
         PropertiesDTO dto = new PropertiesDTO(new HashMap<String, String>());
-        jaxbSimulation(dto, PropertiesDTO.class, PropertiesItemDTO.class);
+        jaxbSimulation(dto, PropertiesDTO.class, PropertiesDTO.RELATED_CLASSES);
     }
 
     public void testPropertiesDTOOneItem() throws Exception {
         HashMap<String, String> props = new HashMap<String, String>();
         props.put("oneItemKey", "oneItemValue");
         PropertiesDTO dto = new PropertiesDTO(props);
-        jaxbSimulation(dto, PropertiesDTO.class, PropertiesItemDTO.class);
+        jaxbSimulation(dto, PropertiesDTO.class, PropertiesDTO.RELATED_CLASSES);
     }
     
     public void testPropertiesDTOManyItems() throws Exception {
@@ -80,12 +75,12 @@ public class JaxbDtoTest extends TestCase {
         props.put("anotherItemKey", "anotherItemValue");
         props.put("andYet", "oneMore");
         PropertiesDTO dto = new PropertiesDTO(props);
-        jaxbSimulation(dto, PropertiesDTO.class, PropertiesItemDTO.class);
+        jaxbSimulation(dto, PropertiesDTO.class, PropertiesDTO.RELATED_CLASSES);
     }
     
     public void testListValidationsDTOEmpty() throws Exception {
         ListValidationsDTO dto = new ListValidationsDTO();
-        jaxbSimulation(dto, ListValidationsDTO.class, ValidationDTO.class, PropertiesItemDTO.class);
+        jaxbSimulation(dto, ListValidationsDTO.class, ListValidationsDTO.RELATED_CLASSES);
     }
     
     public void testListValidationsDTOManyItems() throws Exception {
@@ -108,12 +103,12 @@ public class JaxbDtoTest extends TestCase {
         validation3.setProperties(somethingProps);
         validations.add(validation3);
         ListValidationsDTO dto = new ListValidationsDTO(validations);
-        jaxbSimulation(dto, ListValidationsDTO.class, ValidationDTO.class, PropertiesItemDTO.class);
+        jaxbSimulation(dto, ListValidationsDTO.class, ListValidationsDTO.RELATED_CLASSES);
     }
     
     public void testListTasksDTOEmpty() throws Exception {
         ListTasksDTO dto = new ListTasksDTO();
-        jaxbSimulation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
+        jaxbSimulation(dto, ListTasksDTO.class, ListTasksDTO.RELATED_CLASSES);
     }
     
     public void testListTasksDTOElementsWithNoContent() throws Exception {
@@ -123,7 +118,7 @@ public class JaxbDtoTest extends TestCase {
         TaskRef task2 = new TaskRef();
         tasks.add(task2);
         ListTasksDTO dto = new ListTasksDTO(tasks);
-        jaxbSimulation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
+        jaxbSimulation(dto, ListTasksDTO.class, ListTasksDTO.RELATED_CLASSES);
     }
     
     public void testListTasksDTOElementsWithContent() throws Exception {
@@ -157,21 +152,21 @@ public class JaxbDtoTest extends TestCase {
         task2.setMetaData(metaData2);
         tasks.add(task2);
         ListTasksDTO dto = new ListTasksDTO(tasks);
-        jaxbSimulation(dto, ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaDataDTO.class);
+        jaxbSimulation(dto, ListTasksDTO.class, ListTasksDTO.RELATED_CLASSES);
     }
     
     public void testListFormsDTOEmpty() throws Exception {
         ListFormsDTO dto = new ListFormsDTO();
-        jaxbSimulation(dto, ListFormsDTO.class, FormDefDTO.class);
+        jaxbSimulation(dto, ListFormsDTO.class, ListFormsDTO.RELATED_CLASSES);
         ListFormsDTO dto2 = new ListFormsDTO(new ArrayList<FormRepresentation>());
-        jaxbSimulation(dto2, ListFormsDTO.class, FormDefDTO.class);
+        jaxbSimulation(dto2, ListFormsDTO.class, ListFormsDTO.RELATED_CLASSES);
     }
 
     public void testListFormsOneItem() throws Exception {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder()); // this is important
         FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "param1", "param2", "param3");
         ListFormsDTO dto = new ListFormsDTO(form);
-        jaxbSimulation(dto, ListFormsDTO.class, FormDefDTO.class);
+        jaxbSimulation(dto, ListFormsDTO.class, ListFormsDTO.RELATED_CLASSES);
     }
     
     public void testListFormsDTOManyItems() throws Exception {
@@ -182,14 +177,14 @@ public class JaxbDtoTest extends TestCase {
         forms.add(form1);
         forms.add(form2);
         ListFormsDTO dto = new ListFormsDTO(forms);
-        jaxbSimulation(dto, ListFormsDTO.class, FormDefDTO.class);
+        jaxbSimulation(dto, ListFormsDTO.class, ListFormsDTO.RELATED_CLASSES);
     }
     
     public void testListFormsItemsDTOEmpty() throws Exception {
         ListFormsItemsDTO dto = new ListFormsItemsDTO();
-        jaxbSimulation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
+        jaxbSimulation(dto, ListFormsItemsDTO.class, ListFormsItemsDTO.RELATED_CLASSES);
         ListFormsItemsDTO dto2 = new ListFormsItemsDTO(new HashMap<String, FormItemRepresentation>());
-        jaxbSimulation(dto2, ListFormsItemsDTO.class, FormItemDefDTO.class);
+        jaxbSimulation(dto2, ListFormsItemsDTO.class, ListFormsItemsDTO.RELATED_CLASSES);
     }
     
     public void testListFormsItemsDTOOneItem() throws Exception {
@@ -198,7 +193,7 @@ public class JaxbDtoTest extends TestCase {
         Iterator<FormItemRepresentation> iter = form.getFormItems().iterator();
         items.put("name1", iter.next());
         ListFormsItemsDTO dto = new ListFormsItemsDTO(items);
-        jaxbSimulation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
+        jaxbSimulation(dto, ListFormsItemsDTO.class, ListFormsItemsDTO.RELATED_CLASSES);
     }
     
     public void testListFormsItemsDTOManyItems() throws Exception {
@@ -210,12 +205,12 @@ public class JaxbDtoTest extends TestCase {
         items.put("name3", iter.next());
         items.put("name4", iter.next());
         ListFormsItemsDTO dto = new ListFormsItemsDTO(items);
-        jaxbSimulation(dto, ListFormsItemsDTO.class, FormItemDefDTO.class);
+        jaxbSimulation(dto, ListFormsItemsDTO.class, ListFormsItemsDTO.RELATED_CLASSES);
     }
     
     public void testListMenuItemsDTOEmpty() throws Exception {
         ListMenuItemsDTO dto = new ListMenuItemsDTO();
-        jaxbSimulation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
+        jaxbSimulation(dto, ListMenuItemsDTO.class, ListMenuItemsDTO.RELATED_CLASSES);
     }
     
     public void testListMenuItemsDTOEmptyGroups() throws Exception {
@@ -223,7 +218,7 @@ public class JaxbDtoTest extends TestCase {
         items.put("oneGroup", new ArrayList<MenuItemDescription>());
         items.put("nullGroup", null);
         ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
-        jaxbSimulation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
+        jaxbSimulation(dto, ListMenuItemsDTO.class, ListMenuItemsDTO.RELATED_CLASSES);
     }
     
     public void testListMenuItemsDTOManyItems() throws Exception {
@@ -267,14 +262,14 @@ public class JaxbDtoTest extends TestCase {
         items.put("oneGroup", itemsOfGroup1);
         items.put("twoGroups", itemsOfGroup2);
         ListMenuItemsDTO dto = new ListMenuItemsDTO(items);
-        jaxbSimulation(dto, ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class);
+        jaxbSimulation(dto, ListMenuItemsDTO.class, ListMenuItemsDTO.RELATED_CLASSES);
     }
     
     public void testListOptionsDTOEmpty() throws Exception {
         ListOptionsDTO dto = new ListOptionsDTO();
-        jaxbSimulation(dto, ListOptionsDTO.class, MenuOptionDTO.class);
+        jaxbSimulation(dto, ListOptionsDTO.class, ListOptionsDTO.RELATED_CLASSES);
         ListOptionsDTO dto2 = new ListOptionsDTO(new ArrayList<MenuOptionDescription>());
-        jaxbSimulation(dto2, ListOptionsDTO.class, MenuOptionDTO.class);
+        jaxbSimulation(dto2, ListOptionsDTO.class, ListOptionsDTO.RELATED_CLASSES);
     }
     
     public void testListOptionsManyItems() throws Exception {
@@ -295,7 +290,7 @@ public class JaxbDtoTest extends TestCase {
         options.add(option1);
         options.add(option2);
         ListOptionsDTO dto = new ListOptionsDTO(options);
-        jaxbSimulation(dto, ListOptionsDTO.class, MenuOptionDTO.class);
+        jaxbSimulation(dto, ListOptionsDTO.class, ListOptionsDTO.RELATED_CLASSES);
     }
     
     public void testFormPreviewDTO() throws Exception {
@@ -311,31 +306,89 @@ public class JaxbDtoTest extends TestCase {
         inputs.add(param2);
         dto.setInput(inputs);
         dto.setRepresentation("{}");
-        jaxbSimulation(dto, FormPreviewDTO.class, FormPreviewParameterDTO.class);
+        jaxbSimulation(dto, FormPreviewDTO.class, FormPreviewDTO.RELATED_CLASSES);
         
         FormPreviewDTO dto2 = new FormPreviewDTO();
         dto.setRepresentation("{}");
-        jaxbSimulation(dto2, FormPreviewDTO.class, FormPreviewParameterDTO.class);
+        jaxbSimulation(dto2, FormPreviewDTO.class, FormPreviewDTO.RELATED_CLASSES);
         
         FormPreviewDTO dto3 = new FormPreviewDTO();
-        jaxbSimulation(dto3, FormPreviewDTO.class, FormPreviewParameterDTO.class);
+        jaxbSimulation(dto3, FormPreviewDTO.class, FormPreviewDTO.RELATED_CLASSES);
         
         FormPreviewDTO dto4 = new FormPreviewDTO();
         dto4.setInput(new ArrayList<FormPreviewParameterDTO>());
-        jaxbSimulation(dto4, FormPreviewDTO.class, FormPreviewParameterDTO.class);
+        jaxbSimulation(dto4, FormPreviewDTO.class, FormPreviewDTO.RELATED_CLASSES);
     }
 
-    private <T> void jaxbSimulation(T dto, Class<T> retType, Class<?>... otherBoundTypes) throws JAXBException, IOException {
-        List<Class<?>> boundTypesList = new ArrayList<Class<?>>();
-        boundTypesList.add(retType);
-        if (otherBoundTypes != null) {
-            for (Class<?> boundType : otherBoundTypes) {
-                if (!boundTypesList.contains(boundType)) {
-                    boundTypesList.add(boundType);
-                }
-            }
-        }
-        Class<?>[] boundTypes = boundTypesList.toArray(new Class<?>[0]);
+    public void testPackageListDTOEmpty() throws Exception {
+        PackageListDTO dto = new PackageListDTO();
+        jaxbSimulation(dto, PackageListDTO.class, PackageListDTO.RELATED_CLASSES);
+        
+        PackageListDTO dto2 = new PackageListDTO();
+        dto2.setPackage(new ArrayList<PackageDTO>());
+        jaxbSimulation(dto2, PackageListDTO.class, PackageListDTO.RELATED_CLASSES);
+    }
+    
+    public void testPackageListDTOManyItems() throws Exception {
+        PackageListDTO dto = new PackageListDTO();
+        List<PackageDTO> packageList = new ArrayList<PackageDTO>();
+        PackageDTO pdto1 = new PackageDTO();
+        List<String> assets1 = new ArrayList<String>();
+        MetaDataDTO metadata1 = new MetaDataDTO();
+        metadata1.setFormat("drl");
+        metadata1.setTitle("title1");
+        metadata1.setUuid("uuid");
+        assets1.add("aaaa");
+        assets1.add("bbbb");
+        pdto1.setAssets(assets1);
+        pdto1.setTitle("title1");
+        pdto1.setMetadata(metadata1);
+        packageList.add(pdto1);
+        
+        PackageDTO pdto2 = new PackageDTO();
+        List<String> assets2 = new ArrayList<String>();
+        MetaDataDTO metadata2 = new MetaDataDTO();
+        metadata2.setFormat("txt");
+        metadata2.setTitle("title2");
+        metadata2.setUuid("uuid2");
+        assets2.add("cccc");
+        assets2.add("dddd");
+        pdto2.setAssets(assets2);
+        pdto2.setTitle("title2");
+        pdto2.setMetadata(metadata2);
+        packageList.add(pdto2);
+        dto.setPackage(packageList);
+        jaxbSimulation(dto, PackageListDTO.class, PackageListDTO.RELATED_CLASSES);
+    }
+    
+    public void testPackageListDTONullItems() throws Exception {
+        PackageListDTO dto = new PackageListDTO();
+        List<PackageDTO> packageList = new ArrayList<PackageDTO>();
+        packageList.add(new PackageDTO());
+        packageList.add(new PackageDTO());
+        dto.setPackage(packageList);
+        jaxbSimulation(dto, PackageListDTO.class, PackageListDTO.RELATED_CLASSES);
+    }
+    
+    public void testAssetDTOEmpty() throws Exception {
+        AssetDTO dto = new AssetDTO();
+        jaxbSimulation(dto, AssetDTO.class, AssetDTO.RELATED_CLASSES);
+        dto.setMetadata(new MetaDataDTO());
+        jaxbSimulation(dto, AssetDTO.class, AssetDTO.RELATED_CLASSES);
+    }
+    
+    public void testAssetDTOFull() throws Exception {
+        AssetDTO dto = new AssetDTO();
+        MetaDataDTO metadata = new MetaDataDTO();
+        metadata.setFormat("fff");
+        metadata.setTitle("tttt");
+        metadata.setUuid("uuuu");
+        dto.setMetadata(metadata);
+        dto.setSourceLink("sssssss");
+        jaxbSimulation(dto, AssetDTO.class, AssetDTO.RELATED_CLASSES);
+    }
+    
+    private <T> void jaxbSimulation(T dto, Class<T> retType, Class<?>... boundTypes) throws JAXBException, IOException {
         String xml = helper.jaxbSerializing(dto, boundTypes);
         assertNotNull("xml shouldn't be null", xml);
         assertTrue("xml should have content", xml.length() > 0);

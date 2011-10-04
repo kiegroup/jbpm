@@ -32,7 +32,9 @@ import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
+import org.jbpm.formbuilder.server.file.FileException;
 import org.jbpm.formbuilder.server.file.FileService;
+import org.jbpm.formbuilder.server.xml.FileListDTO;
 
 public class RESTFileServiceTest extends RESTAbstractTest {
 

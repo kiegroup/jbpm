@@ -32,10 +32,9 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.io.IOUtils;
-import org.jbpm.formbuilder.server.task.AssetDTO;
-import org.jbpm.formbuilder.server.task.MetaDataDTO;
-import org.jbpm.formbuilder.server.task.PackageDTO;
-import org.jbpm.formbuilder.server.task.PackageListDTO;
+import org.jbpm.formbuilder.server.xml.AssetDTO;
+import org.jbpm.formbuilder.server.xml.PackageDTO;
+import org.jbpm.formbuilder.server.xml.PackageListDTO;
 
 public class GuvnorHelper {
     
@@ -86,8 +85,7 @@ public class GuvnorHelper {
             call.addRequestHeader("Accept", "application/xml");
             call.addRequestHeader("Authorization", auth);
             client.executeMethod(call);
-            PackageListDTO dto = jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), 
-                    PackageListDTO.class, PackageDTO.class, MetaDataDTO.class);
+            PackageListDTO dto = jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.RELATED_CLASSES);
             for (PackageDTO pkg : dto.getPackage()) {
                 if (uuid.equals(pkg.getMetadata().getUuid())) {
                     return pkg.getTitle();
@@ -100,8 +98,7 @@ public class GuvnorHelper {
                         subCall.setRequestHeader("Authorization", auth);
                         subCall.setRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
-                        AssetDTO subDto = jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), 
-                                AssetDTO.class, MetaDataDTO.class);
+                        AssetDTO subDto = jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.RELATED_CLASSES);
                         if (subDto.getMetadata().getUuid().equals(uuid)) {
                             return pkg.getTitle();
                         }

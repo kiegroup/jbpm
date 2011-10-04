@@ -17,7 +17,6 @@ package org.jbpm.formbuilder.server.file;
 
 import java.util.List;
 
-import org.jbpm.formbuilder.server.FileException;
 
 /**
  * 

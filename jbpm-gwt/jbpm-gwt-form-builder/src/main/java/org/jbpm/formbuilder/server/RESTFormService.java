@@ -44,15 +44,15 @@ import org.apache.commons.io.FileUtils;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
-import org.jbpm.formbuilder.server.form.ListFormsDTO;
-import org.jbpm.formbuilder.server.form.ListFormsItemsDTO;
 import org.jbpm.formbuilder.server.render.Renderer;
 import org.jbpm.formbuilder.server.render.RendererException;
 import org.jbpm.formbuilder.server.render.RendererFactory;
-import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.TranslatorException;
 import org.jbpm.formbuilder.server.trans.Translator;
 import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
+import org.jbpm.formbuilder.server.xml.ListFormsDTO;
+import org.jbpm.formbuilder.server.xml.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
@@ -211,7 +211,7 @@ public class RESTFormService extends RESTBaseService {
             return Response.ok(htmlUrl, MediaType.TEXT_PLAIN).build();
         } catch (FormEncodingException e) {
             return error("Problem encoding form preview", e);
-        } catch (LanguageException e) {
+        } catch (TranslatorException e) {
             return error("Problem transforming form preview to " + language + " language", e);
         } catch (RendererException e) {
             return error("Problem rendering form preview in " + language + " language", e);
@@ -229,7 +229,7 @@ public class RESTFormService extends RESTBaseService {
             return Response.ok("<fileName>"+fileName+"</fileName>", MediaType.APPLICATION_XML).build();
         } catch (FormEncodingException e) {
             return error("Problem encoding form for templating", e);
-        } catch (LanguageException e) {
+        } catch (TranslatorException e) {
             return error("Problem transforming form to " + language + " language", e);
         }
     }
@@ -287,7 +287,7 @@ public class RESTFormService extends RESTBaseService {
     }
     
     
-    private URL createTemplate(String language, FormPreviewDTO dto) throws FormEncodingException, LanguageException {
+    private URL createTemplate(String language, FormPreviewDTO dto) throws FormEncodingException, TranslatorException {
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         String json = dto.getRepresentation();
         FormRepresentation form = decoder.decode(json);
@@ -315,7 +315,7 @@ public class RESTFormService extends RESTBaseService {
         }
     }
 
-    protected Translator getTranslator(String language) throws LanguageException {
+    protected Translator getTranslator(String language) throws TranslatorException {
         return TranslatorFactory.getInstance().getTranslator(language);
     }
     

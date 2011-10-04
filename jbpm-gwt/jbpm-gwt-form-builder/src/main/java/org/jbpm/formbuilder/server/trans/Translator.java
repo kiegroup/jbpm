@@ -44,8 +44,8 @@ public interface Translator {
 
     String getLanguage();
     
-    URL translateForm(FormRepresentation form) throws LanguageException;
+    URL translateForm(FormRepresentation form) throws TranslatorException;
     
-    Object translateItem(FormItemRepresentation item) throws LanguageException;
+    Object translateItem(FormItemRepresentation item) throws TranslatorException;
     
 }

@@ -26,6 +26,8 @@ import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 
 @XmlRootElement (name ="menuGroups") public class ListMenuItemsDTO {
 
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { ListMenuItemsDTO.class, MenuGroupDTO.class, MenuItemDTO.class, FormEffectDTO.class };
+    
     private List<MenuGroupDTO> _menuGroup = new ArrayList<MenuGroupDTO>();
     
     public ListMenuItemsDTO() {

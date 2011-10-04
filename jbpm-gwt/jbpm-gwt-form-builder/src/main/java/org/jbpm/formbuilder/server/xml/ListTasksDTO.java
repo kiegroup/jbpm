@@ -25,6 +25,8 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
 
 @XmlRootElement(name="tasks") public class ListTasksDTO {
 
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { ListTasksDTO.class, TaskRefDTO.class, PropertyDTO.class, MetaData2DTO.class };
+    
     private List<TaskRefDTO> _task = new ArrayList<TaskRefDTO>();
     
     public ListTasksDTO() {

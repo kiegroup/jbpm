@@ -28,6 +28,8 @@ import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 @XmlRootElement (name = "formPreview") public class FormPreviewDTO {
 
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { FormPreviewDTO.class, FormPreviewParameterDTO.class };
+    
     private List<FormPreviewParameterDTO> _input = new ArrayList<FormPreviewParameterDTO>();
     private String _representation;
     private FormRepresentation _form;

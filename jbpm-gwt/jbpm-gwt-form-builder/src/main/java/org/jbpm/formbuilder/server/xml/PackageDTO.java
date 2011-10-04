@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.task;
+package org.jbpm.formbuilder.server.xml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class PackageDTO {
 
     private String _title;
     
-    private List<String> _assets;
+    private List<String> _assets = new ArrayList<String>();
     private MetaDataDTO _metadata;
 
     @XmlElement
@@ -55,5 +55,43 @@ public class PackageDTO {
     
     public void setMetadata(MetaDataDTO metadata) {
         this._metadata = metadata;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((_assets == null) ? 0 : _assets.hashCode());
+        result = prime * result
+                + ((_metadata == null) ? 0 : _metadata.hashCode());
+        result = prime * result + ((_title == null) ? 0 : _title.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PackageDTO other = (PackageDTO) obj;
+        if (_assets == null) {
+            if (other._assets != null)
+                return false;
+        } else if (!_assets.equals(other._assets))
+            return false;
+        if (_metadata == null) {
+            if (other._metadata != null)
+                return false;
+        } else if (!_metadata.equals(other._metadata))
+            return false;
+        if (_title == null) {
+            if (other._title != null)
+                return false;
+        } else if (!_title.equals(other._title))
+            return false;
+        return true;
     }
 }

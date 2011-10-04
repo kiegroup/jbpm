@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 
 @XmlRootElement (name ="properties") public class PropertiesDTO {
 
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { PropertiesDTO.class, PropertiesItemDTO.class };
+    
     private List<PropertiesItemDTO> _property = new ArrayList<PropertiesItemDTO>();
 
     public PropertiesDTO() {

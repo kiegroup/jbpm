@@ -26,11 +26,10 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.jbpm.formbuilder.server.FileException;
 import org.jbpm.formbuilder.server.GuvnorHelper;
-import org.jbpm.formbuilder.server.task.MetaDataDTO;
-import org.jbpm.formbuilder.server.task.PackageAssetDTO;
-import org.jbpm.formbuilder.server.task.PackageAssetsDTO;
+import org.jbpm.formbuilder.server.xml.MetaDataDTO;
+import org.jbpm.formbuilder.server.xml.PackageAssetDTO;
+import org.jbpm.formbuilder.server.xml.PackageAssetsDTO;
 
 public class GuvnorFileService implements FileService {
     

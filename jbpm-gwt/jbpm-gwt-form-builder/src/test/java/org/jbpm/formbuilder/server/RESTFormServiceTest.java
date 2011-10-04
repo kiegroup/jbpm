@@ -31,17 +31,17 @@ import javax.ws.rs.core.Response.Status;
 
 import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
-import org.jbpm.formbuilder.server.form.FormDefDTO;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.server.form.FormItemDefDTO;
-import org.jbpm.formbuilder.server.form.ListFormsDTO;
-import org.jbpm.formbuilder.server.form.ListFormsItemsDTO;
 import org.jbpm.formbuilder.server.render.Renderer;
 import org.jbpm.formbuilder.server.render.RendererException;
-import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.TranslatorException;
 import org.jbpm.formbuilder.server.trans.Translator;
+import org.jbpm.formbuilder.server.xml.FormDefDTO;
+import org.jbpm.formbuilder.server.xml.FormItemDefDTO;
 import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
 import org.jbpm.formbuilder.server.xml.FormPreviewParameterDTO;
+import org.jbpm.formbuilder.server.xml.ListFormsDTO;
+import org.jbpm.formbuilder.server.xml.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
@@ -551,7 +551,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
     }
 
-    private RESTFormService emulateRESTFormService(final Translator t, final LanguageException e1, final Renderer r, final RendererException e2) {
+    private RESTFormService emulateRESTFormService(final Translator t, final TranslatorException e1, final Renderer r, final RendererException e2) {
         return new RESTFormService() {
             @Override
             protected Renderer getRenderer(String language) throws RendererException {
@@ -562,7 +562,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
                 return r;
             }
             @Override
-            protected Translator getTranslator(String language) throws LanguageException {
+            protected Translator getTranslator(String language) throws TranslatorException {
                 if (t == null) {
                     if (e2 == null) return super.getTranslator(language);
                     else throw e1;
@@ -655,7 +655,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
     public void testGetFormPreviewTranslatorNotFound() throws Exception {
         final ServletContext context = EasyMock.createMock(ServletContext.class);
         final HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
-        RESTFormService restService = emulateRESTFormService(null, new LanguageException("Not finding translator"), null, null);
+        RESTFormService restService = emulateRESTFormService(null, new TranslatorException("Not finding translator"), null, null);
         restService.setFormService(new MockFormDefinitionService());
         
         FormPreviewDTO dto = new FormPreviewDTO();
@@ -708,7 +708,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         FormRepresentation form = createMockForm("myForm", "key1", "key2");
         FormPreviewDTO dto = createFormPreviewDTO(form);
         
-        LanguageException exception = new LanguageException("Something going wrong");
+        TranslatorException exception = new TranslatorException("Something going wrong");
         EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andThrow(exception).once();
         EasyMock.expect(context.getContextPath()).andReturn("/").anyTimes();
         
@@ -802,7 +802,7 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         FormRepresentation form = createMockForm("myForm", "key1", "key2");
         FormPreviewDTO dto = createFormPreviewDTO(form);
         
-        LanguageException exception = new LanguageException("Something going wrong");
+        TranslatorException exception = new TranslatorException("Something going wrong");
         EasyMock.expect(translator.translateForm(EasyMock.eq(form))).andThrow(exception).once();
         
         EasyMock.replay(translator, context);

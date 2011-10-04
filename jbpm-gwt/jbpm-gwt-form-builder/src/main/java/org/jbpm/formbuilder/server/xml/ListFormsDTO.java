@@ -13,55 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.form;
+package org.jbpm.formbuilder.server.xml;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
+import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 
-@XmlRootElement (name = "listFormItems") public class ListFormsItemsDTO {
+@XmlRootElement (name = "listForms") public class ListFormsDTO {
 
-    private List<FormItemDefDTO> _formItem = new ArrayList<FormItemDefDTO>();
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { ListFormsDTO.class, FormDefDTO.class };
+    
+    private List<FormDefDTO> _form = new ArrayList<FormDefDTO>();
 
-    public ListFormsItemsDTO() {
+    public ListFormsDTO() {
         // jaxb needs a default constructor
     }
     
-    public ListFormsItemsDTO(Map<String, FormItemRepresentation> formItems) throws FormEncodingException {
-        if (formItems != null) {
-            for (Map.Entry<String, FormItemRepresentation> entry : formItems.entrySet()) {
-                _formItem.add(new FormItemDefDTO(entry.getKey(), entry.getValue()));
+    public ListFormsDTO(List<FormRepresentation> forms) throws FormEncodingException {
+        if (forms != null) {
+            for (FormRepresentation form : forms) {
+                _form.add(new FormDefDTO(form));
             }
         }
     }
     
-    public ListFormsItemsDTO(String formItemId, FormItemRepresentation formItem) throws FormEncodingException {
-        if (formItem != null) {
-            _formItem.add(new FormItemDefDTO(formItemId, formItem));
+    public ListFormsDTO(FormRepresentation form) throws FormEncodingException {
+        if (form != null) {
+            _form.add(new FormDefDTO(form));
         }
     }
     
     @XmlElement
-    public List<FormItemDefDTO> getFormItem() {
-        return _formItem;
+    public List<FormDefDTO> getForm() {
+        return _form;
     }
 
-    public void setFormItem(List<FormItemDefDTO> formItem) {
-        this._formItem = formItem;
+    public void setForm(List<FormDefDTO> form) {
+        this._form = form;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
-                + ((_formItem == null) ? 0 : _formItem.hashCode());
+        result = prime * result + ((_form == null) ? 0 : _form.hashCode());
         return result;
     }
 
@@ -73,11 +73,11 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ListFormsItemsDTO other = (ListFormsItemsDTO) obj;
-        if (_formItem == null) {
-            if (other._formItem != null)
+        ListFormsDTO other = (ListFormsDTO) obj;
+        if (_form == null) {
+            if (other._form != null)
                 return false;
-        } else if (!_formItem.equals(other._formItem))
+        } else if (!_form.equals(other._form))
             return false;
         return true;
     }

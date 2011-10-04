@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.server.trans.ftl;
 
-import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.TranslatorException;
 import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
 import org.jbpm.formbuilder.shared.api.FBScript;
@@ -28,11 +28,11 @@ public class Translator extends ScriptingTranslator {
         super(LANG, "/langs/freemarker/");
     }
 
-    public String toServerScript(FBScript script) throws LanguageException {
+    public String toServerScript(FBScript script) throws TranslatorException {
         if (isValidScript(script)) {
             return asFtlScript(script);
         } else {
-            throw new LanguageException(script.getType() + " is not a supported language");
+            throw new TranslatorException(script.getType() + " is not a supported language");
         }
     }
     

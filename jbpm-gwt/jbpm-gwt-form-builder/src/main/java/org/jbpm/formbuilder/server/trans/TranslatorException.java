@@ -13,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.task;
+package org.jbpm.formbuilder.server.trans;
 
-import java.util.ArrayList;
-import java.util.List;
+public class TranslatorException extends Exception {
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+    private static final long serialVersionUID = -407925898649708362L;
 
-@XmlRootElement(name = "assets")
-public class PackageAssetsDTO {
-
-    private List<PackageAssetDTO> _asset = new ArrayList<PackageAssetDTO>();
-    
-    public PackageAssetsDTO() {
-        //jaxb needs a default constructor
+    public TranslatorException() {
+        super();
     }
 
-    @XmlElement
-    public List<PackageAssetDTO> getAsset() {
-        return _asset;
+    public TranslatorException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public void setAsset(List<PackageAssetDTO> asset) {
-        this._asset = asset;
+    public TranslatorException(String message) {
+        super(message);
+    }
+
+    public TranslatorException(Throwable cause) {
+        super(cause);
     }
 }

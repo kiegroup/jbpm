@@ -13,46 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.jbpm.formbuilder.server.xml;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "files")
-public class FileListDTO {
+@XmlRootElement(name = "asset")
+public class AssetDTO {
 
-    private List<String> _file = new ArrayList<String>();
-
-    public FileListDTO() {
-        // jaxb needs a default constructor
-    }
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { AssetDTO.class, MetaDataDTO.class };
     
-    public FileListDTO(List<String> file) {
-        super();
-        if (file != null) {
-            for (String f : file) {
-                this._file.add(f);
-            }
-        }
+    private MetaDataDTO _metadata;
+    private String _sourceLink;
+
+    @XmlElement
+    public MetaDataDTO getMetadata() {
+        return _metadata;
+    }
+
+    public void setMetadata(MetaDataDTO metadata) {
+        this._metadata = metadata;
     }
 
     @XmlElement
-    public List<String> getFile() {
-        return _file;
+    public String getSourceLink() {
+        return _sourceLink;
     }
 
-    public void setFile(List<String> file) {
-        this._file = file;
+    public void setSourceLink(String sourceLink) {
+        this._sourceLink = sourceLink;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((_file == null) ? 0 : _file.hashCode());
+        result = prime * result
+                + ((_metadata == null) ? 0 : _metadata.hashCode());
+        result = prime * result
+                + ((_sourceLink == null) ? 0 : _sourceLink.hashCode());
         return result;
     }
 
@@ -64,11 +63,16 @@ public class FileListDTO {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        FileListDTO other = (FileListDTO) obj;
-        if (_file == null) {
-            if (other._file != null)
+        AssetDTO other = (AssetDTO) obj;
+        if (_metadata == null) {
+            if (other._metadata != null)
                 return false;
-        } else if (!_file.equals(other._file))
+        } else if (!_metadata.equals(other._metadata))
+            return false;
+        if (_sourceLink == null) {
+            if (other._sourceLink != null)
+                return false;
+        } else if (!_sourceLink.equals(other._sourceLink))
             return false;
         return true;
     }

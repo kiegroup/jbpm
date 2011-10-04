@@ -21,7 +21,7 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.TranslatorException;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -37,7 +37,7 @@ public class Translator implements org.jbpm.formbuilder.server.trans.Translator 
     }
 
     @Override
-    public URL translateForm(FormRepresentation form) throws LanguageException {
+    public URL translateForm(FormRepresentation form) throws TranslatorException {
         FormRepresentationEncoder encoder = FormEncodingServerFactory.getEncoder();
         try {
             String json = encoder.encode(form);
@@ -45,14 +45,14 @@ public class Translator implements org.jbpm.formbuilder.server.trans.Translator 
             FileUtils.writeStringToFile(file, json);
             return FileUtils.toURLs(new File[] { file })[0];
         } catch (IOException e) {
-            throw new LanguageException("Problem writing temporal file", e);
+            throw new TranslatorException("Problem writing temporal file", e);
         } catch (FormEncodingException e) {
-            throw new LanguageException("Problem encoding form", e);
+            throw new TranslatorException("Problem encoding form", e);
         }
     }
 
     @Override
-    public Object translateItem(FormItemRepresentation item) throws LanguageException {
+    public Object translateItem(FormItemRepresentation item) throws TranslatorException {
         /* not used */
         return null;
     }

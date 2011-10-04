@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.task;
+package org.jbpm.formbuilder.server.xml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +23,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "packages")
 public class PackageListDTO {
+    
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { PackageListDTO.class, PackageDTO.class, MetaDataDTO.class };
 
-    private List<PackageDTO> _package;
+    private List<PackageDTO> _package = new ArrayList<PackageDTO>();
 
     @XmlElement
     public List<PackageDTO> getPackage() {
@@ -45,5 +47,31 @@ public class PackageListDTO {
 
     public void setPackage(List<PackageDTO> _package) {
         this._package = _package;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((_package == null) ? 0 : _package.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PackageListDTO other = (PackageListDTO) obj;
+        if (_package == null) {
+            if (other._package != null)
+                return false;
+        } else if (!_package.equals(other._package))
+            return false;
+        return true;
     }
 }

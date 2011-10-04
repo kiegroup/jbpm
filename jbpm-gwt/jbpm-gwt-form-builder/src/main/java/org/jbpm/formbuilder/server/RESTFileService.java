@@ -38,8 +38,10 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
+import org.jbpm.formbuilder.server.file.FileException;
 import org.jbpm.formbuilder.server.file.FileService;
 import org.jbpm.formbuilder.server.file.GuvnorFileService;
+import org.jbpm.formbuilder.server.xml.FileListDTO;
 
 @Path("/files")
 public class RESTFileService extends RESTBaseService {

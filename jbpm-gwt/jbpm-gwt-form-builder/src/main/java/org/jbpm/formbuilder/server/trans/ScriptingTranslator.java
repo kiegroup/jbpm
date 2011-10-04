@@ -58,22 +58,22 @@ public class ScriptingTranslator implements Translator {
     }
     
     @Override
-    public String translateItem(FormItemRepresentation item) throws LanguageException {
+    public String translateItem(FormItemRepresentation item) throws TranslatorException {
         return runVelocityScript(item, item.getTypeId());
     }
 
     @Override
-    public URL translateForm(FormRepresentation form) throws LanguageException {
+    public URL translateForm(FormRepresentation form) throws TranslatorException {
         return saveToURL(runVelocityScript(form, "form"));
     }
     
     /*
      * utilitary methods
      */
-    private String runVelocityScript(Object item, String scriptName) throws LanguageException {
+    private String runVelocityScript(Object item, String scriptName) throws TranslatorException {
         URL velocityTemplate = getClass().getResource(folderLocation + scriptName + ".vm");
         if (velocityTemplate == null) {
-            throw new LanguageException("Unknown typeId: " + scriptName);
+            throw new TranslatorException("Unknown typeId: " + scriptName);
         }
         Template template = null;
         synchronized (this) {
@@ -91,13 +91,13 @@ public class ScriptingTranslator implements Translator {
         return writer.toString();
     }
     
-    private URL saveToURL(String fileContent) throws LanguageException {
+    private URL saveToURL(String fileContent) throws TranslatorException {
         try {
             File tmpFile = File.createTempFile("formBuilderTrans", ".ftl");
             FileUtils.writeStringToFile(tmpFile, fileContent);
             return new URL(URLDecoder.decode(tmpFile.toURI().toString(), "UTF-8"));
         } catch (IOException e) {
-            throw new LanguageException("Problem saving URL file", e);
+            throw new TranslatorException("Problem saving URL file", e);
         }
     }
 

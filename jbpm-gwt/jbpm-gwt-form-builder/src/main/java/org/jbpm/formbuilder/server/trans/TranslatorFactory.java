@@ -45,7 +45,7 @@ public class TranslatorFactory {
             }
         } catch (IOException e) {
             log.error("Couldn't read file " + DEFAULT_FILE, e);
-        } catch (LanguageException e) {
+        } catch (TranslatorException e) {
             log.error("Couldn't initiate LanguageFactory", e);
         }
     }
@@ -54,7 +54,7 @@ public class TranslatorFactory {
         return INSTANCE;
     }
     
-    public Translator getTranslator(String language) throws LanguageException {
+    public Translator getTranslator(String language) throws TranslatorException {
         synchronized(this) {
             if (!cache.containsKey(language)) {
                 String pkgName = getClass().getPackage().getName();
@@ -65,7 +65,7 @@ public class TranslatorFactory {
                     Class<?> klass = Class.forName(kclass);
                     obj = klass.newInstance();
                 } catch (Exception e) {
-                    throw new LanguageException("Couldn't find class " + kclass, e);
+                    throw new TranslatorException("Couldn't find class " + kclass, e);
                 }
                 cache.put(language, (Translator) obj);
             }

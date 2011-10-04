@@ -32,7 +32,7 @@ public class TaskRefDTO {
     private String _taskId;
     private List<PropertyDTO> _input = new ArrayList<PropertyDTO>();
     private List<PropertyDTO> _output = new ArrayList<PropertyDTO>();
-    private List<MetaDataDTO> _metaData = new ArrayList<MetaDataDTO>();
+    private List<MetaData2DTO> _metaData = new ArrayList<MetaData2DTO>();
     
     public TaskRefDTO() {
         // jaxb needs a default constructor
@@ -68,7 +68,7 @@ public class TaskRefDTO {
             _output.add(new PropertyDTO(ref));
         }
         for (Map.Entry<String, String> entry : task.getMetaData().entrySet()) {
-            _metaData.add(new MetaDataDTO(entry));
+            _metaData.add(new MetaData2DTO(entry));
         }
     }
 
@@ -118,11 +118,11 @@ public class TaskRefDTO {
     }
 
     @XmlElement 
-    public List<MetaDataDTO> getMetaData() {
+    public List<MetaData2DTO> getMetaData() {
         return _metaData;
     }
 
-    public void setMetaData(List<MetaDataDTO> metaData) {
+    public void setMetaData(List<MetaData2DTO> metaData) {
         this._metaData = metaData;
     }
 

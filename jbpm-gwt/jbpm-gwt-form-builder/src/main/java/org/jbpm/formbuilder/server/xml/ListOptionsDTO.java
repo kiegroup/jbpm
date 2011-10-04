@@ -25,6 +25,8 @@ import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 
 @XmlRootElement (name = "menuOptions") public class ListOptionsDTO {
 
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { ListOptionsDTO.class, MenuOptionDTO.class };
+    
     private List<MenuOptionDTO> _menuOption = new ArrayList<MenuOptionDTO>();
     
     public ListOptionsDTO() {

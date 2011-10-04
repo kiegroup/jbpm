@@ -30,7 +30,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.easymock.EasyMock;
-import org.jbpm.formbuilder.server.FileException;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.mock.MockAnswer;
 import org.jbpm.formbuilder.server.mock.MockDeleteMethod;

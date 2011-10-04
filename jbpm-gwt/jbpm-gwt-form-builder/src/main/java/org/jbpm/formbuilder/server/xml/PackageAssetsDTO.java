@@ -13,32 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.task;
+package org.jbpm.formbuilder.server.xml;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "asset")
-public class AssetDTO {
+@XmlRootElement(name = "assets")
+public class PackageAssetsDTO {
 
-    private MetaDataDTO _metadata;
-    private String _sourceLink;
-
-    @XmlElement
-    public MetaDataDTO getMetadata() {
-        return _metadata;
-    }
-
-    public void setMetadata(MetaDataDTO metadata) {
-        this._metadata = metadata;
+    private List<PackageAssetDTO> _asset = new ArrayList<PackageAssetDTO>();
+    
+    public PackageAssetsDTO() {
+        //jaxb needs a default constructor
     }
 
     @XmlElement
-    public String getSourceLink() {
-        return _sourceLink;
+    public List<PackageAssetDTO> getAsset() {
+        return _asset;
     }
 
-    public void setSourceLink(String sourceLink) {
-        this._sourceLink = sourceLink;
+    public void setAsset(List<PackageAssetDTO> asset) {
+        this._asset = asset;
     }
 }

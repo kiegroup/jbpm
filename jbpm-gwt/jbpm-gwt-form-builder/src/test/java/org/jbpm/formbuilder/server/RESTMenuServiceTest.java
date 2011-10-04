@@ -26,7 +26,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
-import org.jbpm.formbuilder.server.form.SaveMenuItemDTO;
 import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
 import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
 import org.jbpm.formbuilder.server.xml.ListValidationsDTO;
@@ -35,6 +34,7 @@ import org.jbpm.formbuilder.server.xml.MenuItemDTO;
 import org.jbpm.formbuilder.server.xml.MenuOptionDTO;
 import org.jbpm.formbuilder.server.xml.PropertiesDTO;
 import org.jbpm.formbuilder.server.xml.PropertiesItemDTO;
+import org.jbpm.formbuilder.server.xml.SaveMenuItemDTO;
 import org.jbpm.formbuilder.server.xml.ValidationDTO;
 import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;

@@ -13,53 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.form;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.jbpm.formbuilder.server.xml;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
+import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
+import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 
-@XmlRootElement (name = "listForms") public class ListFormsDTO {
+public class FormDefDTO {
 
-    private List<FormDefDTO> _form = new ArrayList<FormDefDTO>();
-
-    public ListFormsDTO() {
+    private String _json;
+    
+    public FormDefDTO() {
         // jaxb needs a default constructor
     }
     
-    public ListFormsDTO(List<FormRepresentation> forms) throws FormEncodingException {
-        if (forms != null) {
-            for (FormRepresentation form : forms) {
-                _form.add(new FormDefDTO(form));
-            }
-        }
-    }
-    
-    public ListFormsDTO(FormRepresentation form) throws FormEncodingException {
-        if (form != null) {
-            _form.add(new FormDefDTO(form));
-        }
+    public FormDefDTO(FormRepresentation form) throws FormEncodingException {
+        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
+        this._json = encoder.encode(form);
     }
     
     @XmlElement
-    public List<FormDefDTO> getForm() {
-        return _form;
+    public String getJson() {
+        return _json;
     }
-
-    public void setForm(List<FormDefDTO> form) {
-        this._form = form;
+    
+    public void setJson(String json) {
+        this._json = json;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((_form == null) ? 0 : _form.hashCode());
+        result = prime * result + ((_json == null) ? 0 : _json.hashCode());
         return result;
     }
 
@@ -71,11 +60,11 @@ import org.jbpm.formbuilder.shared.form.FormEncodingException;
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ListFormsDTO other = (ListFormsDTO) obj;
-        if (_form == null) {
-            if (other._form != null)
+        FormDefDTO other = (FormDefDTO) obj;
+        if (_json == null) {
+            if (other._json != null)
                 return false;
-        } else if (!_form.equals(other._form))
+        } else if (!_json.equals(other._json))
             return false;
         return true;
     }

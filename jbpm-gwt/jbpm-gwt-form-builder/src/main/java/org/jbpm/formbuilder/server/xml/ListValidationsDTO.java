@@ -25,6 +25,8 @@ import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 @XmlRootElement (name = "validations")
 public class ListValidationsDTO {
 
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { ListValidationsDTO.class, ValidationDTO.class, PropertiesItemDTO.class };
+    
     private List<ValidationDTO> _validation = new ArrayList<ValidationDTO>();
 
     public ListValidationsDTO() {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.form;
+package org.jbpm.formbuilder.server.xml;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,6 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.server.xml.FormEffectDTO;
 
 @XmlRootElement (name = "menuItem") public class SaveMenuItemDTO {
 

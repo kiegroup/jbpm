@@ -15,48 +15,48 @@
  */
 package org.jbpm.formbuilder.server.xml;
 
-import java.util.Map;
-
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 public class MetaDataDTO {
 
-    private String _key;
-    private String _value;
+    private String _title;
+    private String _uuid;
+    private String _format;
+
+    @XmlElement
+    public String getTitle() {
+        return _title;
+    }
+
+    public void setTitle(String title) {
+        this._title = title;
+    }
+
+    @XmlElement
+    public String getUuid() {
+        return _uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this._uuid = uuid;
+    }
+
+    @XmlElement
+    public String getFormat() {
+        return _format;
+    }
+
+    public void setFormat(String format) {
+        this._format = format;
+    }
     
-    public MetaDataDTO() {
-        // jaxb needs a default constructor
-    }
-    
-    public MetaDataDTO(Map.Entry<String, String> entry) {
-        this._key = entry.getKey();
-        this._value = entry.getValue();
-    }
-
-    @XmlAttribute 
-    public String getKey() {
-        return _key;
-    }
-
-    public void setKey(String key) {
-        this._key = key;
-    }
-
-    @XmlAttribute 
-    public String getValue() {
-        return _value;
-    }
-
-    public void setValue(String value) {
-        this._value = value;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((_key == null) ? 0 : _key.hashCode());
-        result = prime * result + ((_value == null) ? 0 : _value.hashCode());
+        result = prime * result + ((_format == null) ? 0 : _format.hashCode());
+        result = prime * result + ((_title == null) ? 0 : _title.hashCode());
+        result = prime * result + ((_uuid == null) ? 0 : _uuid.hashCode());
         return result;
     }
 
@@ -69,15 +69,20 @@ public class MetaDataDTO {
         if (getClass() != obj.getClass())
             return false;
         MetaDataDTO other = (MetaDataDTO) obj;
-        if (_key == null) {
-            if (other._key != null)
+        if (_format == null) {
+            if (other._format != null)
                 return false;
-        } else if (!_key.equals(other._key))
+        } else if (!_format.equals(other._format))
             return false;
-        if (_value == null) {
-            if (other._value != null)
+        if (_title == null) {
+            if (other._title != null)
                 return false;
-        } else if (!_value.equals(other._value))
+        } else if (!_title.equals(other._title))
+            return false;
+        if (_uuid == null) {
+            if (other._uuid != null)
+                return false;
+        } else if (!_uuid.equals(other._uuid))
             return false;
         return true;
     }

@@ -31,7 +31,7 @@ import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.render.Renderer;
 import org.jbpm.formbuilder.server.render.RendererException;
 import org.jbpm.formbuilder.server.render.RendererFactory;
-import org.jbpm.formbuilder.server.trans.LanguageException;
+import org.jbpm.formbuilder.server.trans.TranslatorException;
 import org.jbpm.formbuilder.server.trans.Translator;
 import org.jbpm.formbuilder.server.trans.TranslatorFactory;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
@@ -74,7 +74,7 @@ public class RendererAndTranslatorTest extends TestCase {
                 Map<String, Object> inputs = basicInputs();
                 Object html = renderer.render(url, inputs);
                 assertNotNull("html shouldn't be null", html);
-            } catch (LanguageException e) {
+            } catch (TranslatorException e) {
                 errors.add(new Exception("translator for language " + language + " failed", e));
             } catch (RendererException e) {
                 errors.add(new Exception("renderer for language " + language + " failed", e));

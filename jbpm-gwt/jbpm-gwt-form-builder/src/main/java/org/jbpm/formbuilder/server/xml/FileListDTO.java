@@ -13,42 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.formbuilder.server.form;
+package org.jbpm.formbuilder.server.xml;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+@XmlRootElement(name = "files")
+public class FileListDTO {
 
-public class FormDefDTO {
-
-    private String _json;
+    public static final Class<?>[] RELATED_CLASSES = new Class<?>[] { FileListDTO.class };
     
-    public FormDefDTO() {
+    private List<String> _file = new ArrayList<String>();
+
+    public FileListDTO() {
         // jaxb needs a default constructor
     }
     
-    public FormDefDTO(FormRepresentation form) throws FormEncodingException {
-        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
-        this._json = encoder.encode(form);
+    public FileListDTO(List<String> file) {
+        super();
+        if (file != null) {
+            for (String f : file) {
+                this._file.add(f);
+            }
+        }
     }
-    
+
     @XmlElement
-    public String getJson() {
-        return _json;
+    public List<String> getFile() {
+        return _file;
     }
-    
-    public void setJson(String json) {
-        this._json = json;
+
+    public void setFile(List<String> file) {
+        this._file = file;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((_json == null) ? 0 : _json.hashCode());
+        result = prime * result + ((_file == null) ? 0 : _file.hashCode());
         return result;
     }
 
@@ -60,11 +66,11 @@ public class FormDefDTO {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        FormDefDTO other = (FormDefDTO) obj;
-        if (_json == null) {
-            if (other._json != null)
+        FileListDTO other = (FileListDTO) obj;
+        if (_file == null) {
+            if (other._file != null)
                 return false;
-        } else if (!_json.equals(other._json))
+        } else if (!_file.equals(other._file))
             return false;
         return true;
     }
