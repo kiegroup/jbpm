@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.PhantomPanel;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.TabbedPanelRepresentation;
 
@@ -35,6 +37,8 @@ import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
 public class TabbedLayoutFormItem extends LayoutFormItem {
+
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private final List<FlowLayoutFormItem> tabs = new ArrayList<FlowLayoutFormItem>();
     private final List<TabLabelFormItem> titles = new ArrayList<TabLabelFormItem>();

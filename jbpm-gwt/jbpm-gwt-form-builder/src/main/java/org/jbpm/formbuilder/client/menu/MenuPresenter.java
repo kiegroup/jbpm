@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
@@ -22,7 +23,6 @@ import org.jbpm.formbuilder.client.bus.MenuItemFromServerHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;

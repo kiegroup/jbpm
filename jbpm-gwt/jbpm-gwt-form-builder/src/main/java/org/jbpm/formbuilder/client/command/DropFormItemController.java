@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
@@ -31,7 +32,6 @@ import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.layout.LayoutView;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.panels.MovablePanel;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;

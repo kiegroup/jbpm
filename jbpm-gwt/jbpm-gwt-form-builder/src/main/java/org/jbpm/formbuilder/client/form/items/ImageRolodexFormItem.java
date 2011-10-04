@@ -22,9 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.OptionsFormItem;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.ImageRolodexPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
@@ -38,6 +40,7 @@ import com.yesmail.gwt.rolodex.client.RolodexCard;
 @Reflectable
 public class ImageRolodexFormItem extends OptionsFormItem {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final ImageRolodexPanel panel = new ImageRolodexPanel(FormBuilderResources.INSTANCE.defaultImage(), 400);
     
     private boolean animated = true;

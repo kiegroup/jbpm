@@ -15,8 +15,8 @@
  */
 package org.jbpm.formbuilder.client.tasks;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

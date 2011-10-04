@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.CalendarPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
@@ -49,6 +51,7 @@ public class CalendarFormItem extends FBFormItem {
     private String defaultValue;
     private String iconUrl;
     private String calendarCss;
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final DateTimeFormat format = DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG);
     private final DatePicker calendar = new DatePicker();
     private final Image icon = new Image();

@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseHandler;
@@ -28,7 +29,6 @@ import org.jbpm.formbuilder.client.bus.ui.ValidationSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedHandler;
 import org.jbpm.formbuilder.client.effect.view.ValidationsEffectView;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.shared.EventBus;

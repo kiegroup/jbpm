@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.toolbar;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
@@ -27,7 +28,6 @@ import org.jbpm.formbuilder.client.command.LoadFormCommand;
 import org.jbpm.formbuilder.client.command.SaveFormCommand;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.UndoRedoManager;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 

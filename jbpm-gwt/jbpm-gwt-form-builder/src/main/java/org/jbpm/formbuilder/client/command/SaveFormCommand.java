@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client.command;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
@@ -24,7 +25,6 @@ import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 import com.google.gwt.event.logical.shared.CloseEvent;

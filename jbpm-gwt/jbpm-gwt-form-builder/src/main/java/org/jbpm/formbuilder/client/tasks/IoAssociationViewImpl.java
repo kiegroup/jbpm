@@ -17,8 +17,8 @@ package org.jbpm.formbuilder.client.tasks;
 
 import java.util.List;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.user.client.ui.AbsolutePanel;

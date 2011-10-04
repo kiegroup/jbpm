@@ -15,12 +15,12 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
 import org.jbpm.formbuilder.client.bus.UndoRedoHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.options.UndoRedoManager;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;

@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.effect;
 
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 
 import com.gwtent.reflection.client.Reflectable;
 

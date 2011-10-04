@@ -18,8 +18,8 @@ package org.jbpm.formbuilder.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

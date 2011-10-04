@@ -15,8 +15,8 @@
  */
 package org.jbpm.formbuilder.client.effect;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.gwtent.reflection.client.Reflectable;
 

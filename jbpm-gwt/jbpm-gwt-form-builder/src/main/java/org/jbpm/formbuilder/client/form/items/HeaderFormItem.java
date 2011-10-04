@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.FBInplaceEditor;
@@ -28,7 +29,6 @@ import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;
 

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
@@ -28,7 +29,6 @@ import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;

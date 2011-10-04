@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.options;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 

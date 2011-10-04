@@ -21,10 +21,10 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.common.handler.ControlKeyHandler;
 import org.jbpm.formbuilder.common.handler.EventHelper;

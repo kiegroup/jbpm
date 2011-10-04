@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.form.items;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.RestyFormBuilderModel;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 
 import com.google.gwt.core.client.GWT;

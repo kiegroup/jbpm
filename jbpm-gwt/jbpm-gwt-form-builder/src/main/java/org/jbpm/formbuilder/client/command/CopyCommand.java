@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.user.client.ui.MenuItem;
 import com.gwtent.reflection.client.Reflectable;
@@ -34,7 +34,7 @@ public class CopyCommand extends AbstractCopyPasteCommand {
 
     public CopyCommand() {
         super();
-        FormBuilderGlobals.getInstance().register(this);
+        FormBuilderGlobals.getInstance().registerCopy(this);
     }
     
     @Override

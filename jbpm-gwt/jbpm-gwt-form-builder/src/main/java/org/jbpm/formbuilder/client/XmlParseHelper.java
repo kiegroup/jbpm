@@ -27,7 +27,6 @@ import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.menu.items.ErrorMenuItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.validation.OtherValidationsAware;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;

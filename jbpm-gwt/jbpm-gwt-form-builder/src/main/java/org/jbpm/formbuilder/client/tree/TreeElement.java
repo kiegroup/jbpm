@@ -18,11 +18,11 @@ package org.jbpm.formbuilder.client.tree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.EffectsPopupPanel;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;

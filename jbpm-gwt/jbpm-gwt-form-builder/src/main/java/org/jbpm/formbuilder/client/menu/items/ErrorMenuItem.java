@@ -19,9 +19,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
@@ -38,6 +40,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class ErrorMenuItem extends FBMenuItem {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final String errMsg;
     
     public ErrorMenuItem(String errMsg) {

@@ -15,9 +15,9 @@
  */
 package org.jbpm.formbuilder.client.notification;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent; 
 import org.jbpm.formbuilder.client.bus.ui.NotificationHandler;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 

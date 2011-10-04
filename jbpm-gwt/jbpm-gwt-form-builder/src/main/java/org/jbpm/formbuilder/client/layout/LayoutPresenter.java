@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
@@ -43,7 +44,6 @@ import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.api.InputData;
 import org.jbpm.formbuilder.shared.api.OutputData;

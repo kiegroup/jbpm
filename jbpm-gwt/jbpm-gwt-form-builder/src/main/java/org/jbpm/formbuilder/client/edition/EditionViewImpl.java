@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.edition;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.dom.client.ClickEvent;

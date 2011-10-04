@@ -17,9 +17,9 @@ package org.jbpm.formbuilder.client.notification;
 
 import java.util.Collection;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.event.dom.client.ClickEvent;

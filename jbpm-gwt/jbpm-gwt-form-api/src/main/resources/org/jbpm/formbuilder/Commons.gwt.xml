@@ -27,9 +27,14 @@
   <inherits name="com.google.gwt.xml.XML" />
   <inherits name="com.google.gwt.json.JSON" />
   <inherits name="com.google.gwt.uibinder.UiBinder"/>
+  <inherits name="com.yesmail.gwt.rolodex.Rolodex" />
   <inherits name="com.gwtent.GwtEnt" />
+  <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
+  <inherits name="com.gc.gwt.wysiwyg.Editor"/>
 
   <!-- Specify the paths for translatable code                    -->
+  <source path='client'/>
   <source path='shared'/>
+  <source path='common'/>
   
 </module>

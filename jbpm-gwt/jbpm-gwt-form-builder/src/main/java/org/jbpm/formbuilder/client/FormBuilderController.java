@@ -34,7 +34,6 @@ import org.jbpm.formbuilder.client.menu.AnimatedMenuViewImpl;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.notification.CompactNotificationsViewImpl;
 import org.jbpm.formbuilder.client.options.OptionsViewImpl;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
 import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
 import org.jbpm.formbuilder.client.tree.TreeViewImpl;

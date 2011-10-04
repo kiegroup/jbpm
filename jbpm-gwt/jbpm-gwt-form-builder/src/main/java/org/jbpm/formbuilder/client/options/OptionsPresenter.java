@@ -17,12 +17,12 @@ package org.jbpm.formbuilder.client.options;
 
 import java.util.List;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedHandler;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceHandler;
 import org.jbpm.formbuilder.client.command.BaseCommand;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Command;

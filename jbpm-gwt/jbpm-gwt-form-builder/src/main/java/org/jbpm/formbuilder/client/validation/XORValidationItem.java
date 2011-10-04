@@ -18,8 +18,8 @@ package org.jbpm.formbuilder.client.validation;
 import java.util.List;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.FBValidation;
 import org.jbpm.formbuilder.shared.api.validation.XORValidation;
 

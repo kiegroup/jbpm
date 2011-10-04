@@ -21,13 +21,10 @@
   <inherits name="org.jbpm.formbuilder.Commons" />
   <inherits name="com.google.gwt.visualization.Visualization"/>
   <inherits name="org.fusesource.restygwt.RestyGWT" />
-  <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd" />
   <inherits name="org.gwt.beansbinding.BeansBinding" />
   <inherits name="org.gwt.mosaic.core.Core" />
   <inherits name="org.gwt.mosaic.ui.UI" />
   <inherits name="com.google.gwt.junit.JUnit" />
-  <inherits name="com.gc.gwt.wysiwyg.Editor"/>
-  <inherits name="com.yesmail.gwt.rolodex.Rolodex" />
   <inherits name="gwtupload.GWTUpload" />
   <inherits name="org.timepedia.exporter.Exporter" />
 

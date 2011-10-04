@@ -19,7 +19,6 @@ import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.TextCallback;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 

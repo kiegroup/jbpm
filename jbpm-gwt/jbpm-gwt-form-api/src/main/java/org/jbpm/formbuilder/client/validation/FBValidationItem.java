@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.validation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.CommonGlobals;
 import org.jbpm.formbuilder.client.FormBuilderException;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.api.FBValidation;
 import org.jbpm.formbuilder.shared.api.RepresentationFactory;
@@ -56,9 +56,8 @@ public abstract class FBValidationItem {
         try {
             representation.setDataMap(dataMap);
         } catch (FormEncodingException e) {
-            FormBuilderGlobals.getInstance().getEventBus().fireEvent(
-                    new NotificationEvent(Level.ERROR, 
-                        FormBuilderGlobals.getInstance().getI18n().CouldntCreateValidation(), e));
+            CommonGlobals.getInstance().getEventBus().fireEvent(
+                    new NotificationEvent(Level.ERROR, "Couldn't create validation", e));
         }
         return representation;
     }

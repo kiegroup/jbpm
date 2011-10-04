@@ -21,11 +21,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.PhantomPanel;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.shared.api.items.TableRepresentation;
 
@@ -41,7 +42,9 @@ import com.gwtent.reflection.client.Reflectable;
  */
 @Reflectable
 public class TableLayoutFormItem extends LayoutFormItem {
-    
+
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+
     private Grid grid = new Grid(1, 1) {
         @Override
         public boolean remove(Widget widget) {

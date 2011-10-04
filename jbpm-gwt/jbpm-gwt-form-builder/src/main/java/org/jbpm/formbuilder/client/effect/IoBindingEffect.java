@@ -18,11 +18,11 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.effect.view.IoBindingEffectView;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.api.Formatter;
 import org.jbpm.formbuilder.shared.api.InputData;
 import org.jbpm.formbuilder.shared.api.OutputData;

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -28,7 +29,7 @@ import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
@@ -51,6 +52,8 @@ import com.gwtent.reflection.client.Reflectable;
  */
 @Reflectable
 public class CustomMenuItem extends FBMenuItem {
+
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private String optionName;
     private FormItemRepresentation representation;

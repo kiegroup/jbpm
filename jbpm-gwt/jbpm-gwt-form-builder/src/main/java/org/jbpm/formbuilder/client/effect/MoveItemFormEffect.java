@@ -15,8 +15,8 @@
  */
 package org.jbpm.formbuilder.client.effect;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.panels.MovablePanel;
 
 import com.allen_sauer.gwt.dnd.client.DragEndEvent;

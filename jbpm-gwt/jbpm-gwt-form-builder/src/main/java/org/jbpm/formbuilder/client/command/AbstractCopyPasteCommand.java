@@ -17,12 +17,12 @@ package org.jbpm.formbuilder.client.command;
 
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.AbstractFormItemCommand;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
 import org.jbpm.formbuilder.client.bus.FormItemSelectionHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -30,14 +30,11 @@ import com.google.gwt.user.client.ui.MenuItem;
 /**
  * cut / copy / paste command base class
  */
-public abstract class AbstractCopyPasteCommand implements BaseCommand {
+public abstract class AbstractCopyPasteCommand extends AbstractFormItemCommand implements BaseCommand {
 
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private static Object memory;
-    
-    private FBFormItem selectedItem;
-    private MenuItem menuItem;
     
     public AbstractCopyPasteCommand() {   
         bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionHandler() {
@@ -52,33 +49,13 @@ public abstract class AbstractCopyPasteCommand implements BaseCommand {
         });
     }
     
-    private void setSelectedItem(FBFormItem item) {
-        this.selectedItem = item;
-        enable(menuItem);
-    }
-    
-    protected void enable() {
-        enable(this.menuItem);
-    }
-    
-    protected abstract void enable(MenuItem menuItem);
-    
-    public AbstractCopyPasteCommand append(FBFormItem selectedItem) {
-        setSelectedItem(selectedItem);
-        return this;
-    }
-    
-    public FBFormItem getSelectedItem() {
-        return selectedItem;
-    }
- 
     protected void fireUndoableEvent(Map<String, Object> dataSnapshot, UndoableHandler handler) {
         bus.fireEvent(new UndoableEvent(dataSnapshot, handler));
     }
     
     @Override
     public void setItem(MenuItem item) {
-        this.menuItem = item;
+        super.setItem(item);
         setSelectedItem(getSelectedItem());
     }
     

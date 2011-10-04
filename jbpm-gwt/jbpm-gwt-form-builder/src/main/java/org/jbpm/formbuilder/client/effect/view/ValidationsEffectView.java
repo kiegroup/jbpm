@@ -17,9 +17,9 @@ package org.jbpm.formbuilder.client.effect.view;
 
 import java.util.List;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.ItemValidationsEditedEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.dom.client.ClickEvent;

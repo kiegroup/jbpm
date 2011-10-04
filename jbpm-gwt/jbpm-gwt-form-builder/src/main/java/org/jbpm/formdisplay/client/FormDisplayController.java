@@ -16,13 +16,13 @@
 package org.jbpm.formdisplay.client;
 
 import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.JsonLoadInput;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 

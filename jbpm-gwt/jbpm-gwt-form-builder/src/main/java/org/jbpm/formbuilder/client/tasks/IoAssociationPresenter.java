@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.tasks;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
@@ -27,7 +28,6 @@ import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.client.resources.FormBuilderGlobals;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
