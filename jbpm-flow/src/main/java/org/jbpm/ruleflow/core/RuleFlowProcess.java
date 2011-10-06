@@ -72,13 +72,23 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
         return null;
     }
     
+    public StartNode getStartNodeForValidation() {
+        Node[] nodes = getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] instanceof StartNode){
+                return (StartNode) nodes[i];
+            }
+        }
+        return null;
+    }
+    
     private class WorkflowProcessNodeContainer extends NodeContainerImpl {
         
         private static final long serialVersionUID = 510l;
 
         protected void validateAddNode(Node node) {
             super.validateAddNode(node);
-            if ((node instanceof StartNode) && (getStart() != null)) {
+            if ((node instanceof StartNode) && (getStartNodeForValidation() != null)) {
                 throw new IllegalArgumentException(
                     "A RuleFlowProcess cannot have more than one start node!");
             }
