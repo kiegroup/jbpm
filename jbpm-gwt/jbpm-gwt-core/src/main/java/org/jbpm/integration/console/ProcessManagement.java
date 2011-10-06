@@ -79,6 +79,15 @@ public class ProcessManagement implements org.jboss.bpm.console.server.integrati
         return Transform.processInstance(processInstance);
     }
 
+    public List<ProcessInstanceRef> getHistoricProcessInstances(String definitionId) {
+	    List<ProcessInstanceLog> processInstances = CommandDelegate.getInactiveProcessInstanceLogsByProcessId(definitionId);
+	    List<ProcessInstanceRef> result = new ArrayList<ProcessInstanceRef>();
+	    for (ProcessInstanceLog processInstance: processInstances) {
+		    result.add(Transform.processInstance(processInstance));
+	    }
+	    return result;
+    }
+
     public void setProcessState(String instanceId, STATE nextState) {
         if (nextState == STATE.ENDED) {
             CommandDelegate.abortProcessInstance(instanceId);

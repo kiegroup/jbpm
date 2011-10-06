@@ -113,6 +113,10 @@ public class CommandDelegate {
         long processInstanceId = getSession().startProcess(processId, parameters).getId();
         return JPAProcessInstanceDbLog.findProcessInstance(processInstanceId);
     }
+
+    public static List<ProcessInstanceLog> getInactiveProcessInstanceLogsByProcessId(String processId) {
+        return JPAProcessInstanceDbLog.findInactiveProcessInstances(processId);
+    }
     
     public static void abortProcessInstance(String processInstanceIdString) {
         StatefulKnowledgeSession session = getSession();
