@@ -32,6 +32,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.process.audit.JPAProcessInstanceDbLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
@@ -116,6 +117,10 @@ public class CommandDelegate {
 
     public static List<ProcessInstanceLog> getInactiveProcessInstanceLogsByProcessId(String processId) {
         return JPAProcessInstanceDbLog.findInactiveProcessInstances(processId);
+    }
+    
+    public static List<NodeInstanceLog> getNodeInstanceLogsByProcessInstanceId(String processInstanceId) {
+    	return JPAProcessInstanceDbLog.findNodeInstances(new Long(processInstanceId));
     }
     
     public static void abortProcessInstance(String processInstanceIdString) {

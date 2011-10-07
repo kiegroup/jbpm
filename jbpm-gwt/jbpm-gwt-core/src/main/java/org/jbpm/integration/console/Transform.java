@@ -16,11 +16,15 @@
 
 package org.jbpm.integration.console;
 
+import java.util.Date;
+
 import org.drools.definition.process.Process;
+import org.jboss.bpm.console.client.model.NodeInstanceRef;
 import org.jboss.bpm.console.client.model.ProcessDefinitionRef;
 import org.jboss.bpm.console.client.model.ProcessInstanceRef;
 import org.jboss.bpm.console.client.model.TaskRef;
 import org.jboss.bpm.console.client.model.TokenReference;
+import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.task.I18NText;
 import org.jbpm.task.Task;
@@ -53,6 +57,15 @@ public class Transform {
 			processInstance.getProcessInstanceId() + "", null, "");
 		result.setRootToken(token);
 		return result;
+	}
+	
+	public static NodeInstanceRef nodeInstance(NodeInstanceLog nodeInstance) {
+		return new NodeInstanceRef(
+				nodeInstance.getId(),
+				nodeInstance.getType(),
+				nodeInstance.getNodeId(),
+				nodeInstance.getNodeName(),
+				nodeInstance.getDate());
 	}
 	
 	public static TaskRef task(TaskSummary task) {
