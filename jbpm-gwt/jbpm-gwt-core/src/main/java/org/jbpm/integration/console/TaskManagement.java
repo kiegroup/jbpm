@@ -43,6 +43,7 @@ import org.jbpm.task.service.local.LocalTaskService;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
+import org.jbpm.task.service.responsehandlers.BlockingGetTasksResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
@@ -270,4 +271,19 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 		return result;
 	}
 
+	public List<TaskRef> getProcessInstanceTasks(String processInstanceId) {
+		connect();
+		List<TaskRef> result = new ArrayList<TaskRef>();
+		try {
+			BlockingGetTasksResponseHandler responseHandler = new BlockingGetTasksResponseHandler();
+			client.getTasksByProcessInstanceId(new Long(processInstanceId), responseHandler);
+			List<Task> tasks = responseHandler.getTasks();
+			for (Task task: tasks) {
+				result.add(Transform.task(task));
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		return result;
+	}
 }
