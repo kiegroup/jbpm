@@ -58,6 +58,7 @@ import org.jbpm.workflow.core.node.Split;
 import org.jbpm.workflow.core.node.StateNode;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.jbpm.workflow.core.node.StateBasedNode;
 
 public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	
@@ -355,7 +356,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                     } else if (type.startsWith("Timer-")) {
                         boolean cancelActivity = (Boolean) node.getMetaData()
                                 .get("CancelActivity");
-                        CompositeContextNode compositeNode = (CompositeContextNode) attachedNode;
+                        StateBasedNode compositeNode = (StateBasedNode) attachedNode;
 
                         String timeDuration = (String) node.getMetaData().get("TimeDuration");
                         String timeCycle = (String) node.getMetaData().get("TimeCycle");
