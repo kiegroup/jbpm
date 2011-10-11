@@ -422,4 +422,31 @@ public abstract class FBFormItem extends FocusPanel {
     private native JavaScriptObject toJsFunction(String value) /*-{
         return function(){ eval(value); }
     }-*/;
+
+    public boolean removeEffectOfType(Class<? extends FBFormEffect> effectClass) {
+        FBFormEffect effectToRemove = null;
+        if (getFormEffects() != null) {
+            for (FBFormEffect effect : getFormEffects()) {
+                if (effect.getClass().getName().equals(effectClass.getName())) {
+                    effectToRemove = effect;
+                    break;
+                }
+            }
+        }
+        if (effectToRemove != null) {
+            return effects.remove(effectToRemove);
+        }
+        return false;
+    }
+
+    public boolean hasEffectOfType(Class<? extends FBFormEffect> effectClass) {
+        if (getFormEffects() != null) {
+            for (FBFormEffect effect : getFormEffects()) {
+                if (effect.getClass().getName().equals(effectClass.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

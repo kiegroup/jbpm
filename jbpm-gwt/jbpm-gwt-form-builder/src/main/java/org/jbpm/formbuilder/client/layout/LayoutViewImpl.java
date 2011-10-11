@@ -16,7 +16,7 @@
 package org.jbpm.formbuilder.client.layout;
 
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.items.LayoutFormItem;
+import org.jbpm.formbuilder.client.form.LayoutFormItem;
 
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.ScrollPanel;

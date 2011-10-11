@@ -126,6 +126,11 @@
       <version>${version}</version>
     </dependency>
     <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-gwt-form-exporter-freemarker</artifactId>
+      <version>${version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-servlet</artifactId>
       <version>${gwt.version}</version>

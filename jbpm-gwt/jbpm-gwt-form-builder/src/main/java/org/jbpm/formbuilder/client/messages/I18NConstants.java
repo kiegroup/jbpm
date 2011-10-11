@@ -129,6 +129,7 @@ public interface I18NConstants extends Messages {
     String MenuItemTextArea();
     String MenuItemRadioButton();
     String MenuItemTableLayout();
+    String MenuItemFlexibleTable();
     String MenuItemFlowLayout();
     String MenuItemHeader();
     String MenuItemLabel();
@@ -214,6 +215,7 @@ public interface I18NConstants extends Messages {
     String MessagesLabel();
     String ApplyLocaleFormattingLabel();
     String InternationalizeEffectLabel();
+    String ChangeColspanEffectLabel();
     String AddTabEffectLabel();
     String RemoveTabEffectLabel();
     String AddColumnEffectLabel();
@@ -255,4 +257,5 @@ public interface I18NConstants extends Messages {
     String RedoButton();
     String SelectAFile();
     String CouldntUploadFile();
+    String ColspanLabel();
 }
