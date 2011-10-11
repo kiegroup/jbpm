@@ -20,10 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -34,12 +31,11 @@ import javax.activation.DataSource;
 
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
-import org.jbpm.integration.console.shared.GuvnorConnectionUtils; 
+import org.jbpm.formbuilder.server.form.FormUtils;
+import org.jbpm.formbuilder.shared.form.FormDef;
+import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
 
 /**
  * @author Kris Verlaenen
@@ -86,18 +82,13 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 		// try to find in guvnor repository
         GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
         if(guvnorUtils.guvnorExists()) {
+            FormDef def = FormUtils.getFormDefinitionFromGuvnor(name, name);
         	try {
-				String templateName;
-				if(guvnorUtils.templateExistsInRepo(name + "-taskform")) {
-					templateName = name + "-taskform";
-				} else if(guvnorUtils.templateExistsInRepo(name)) {
-					templateName = name;
-				} else {
-					return null;
-				}
-				return guvnorUtils.getFormTemplateFromGuvnor(templateName);
+        	    if (def != null) {
+                    return new URL(def.getFormUrl()).openStream();
+                }
 			} catch (Throwable t) {
-				logger.error("Could not load process template from Guvnor: " + t.getMessage());
+				logger.error("Could not load template from Guvnor: " + t.getMessage());
 				return null;
 			}
         } else {
@@ -120,14 +111,9 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	protected DataHandler processTemplate(final String name, InputStream src, Map<String, Object> renderContext) {
 		DataHandler merged = null;
 		try {
-			freemarker.template.Configuration cfg = new freemarker.template.Configuration();
-			cfg.setObjectWrapper(new DefaultObjectWrapper());
-			cfg.setTemplateUpdateDelay(0);
-			Template temp = new Template(name, new InputStreamReader(src), cfg);
+		    Object render = FormUtils.renderForm(name, name, renderContext);
 			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			Writer out = new OutputStreamWriter(bout);
-			temp.process(renderContext, out);
-			out.flush();
+			bout.write(render.toString().getBytes());
 			merged = new DataHandler(new DataSource() {
 				public InputStream getInputStream() throws IOException {
 					return new ByteArrayInputStream(bout.toByteArray());

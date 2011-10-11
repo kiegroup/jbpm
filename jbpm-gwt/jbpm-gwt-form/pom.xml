@@ -18,6 +18,11 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-gwt-form-api</artifactId>
+      <version>${version}</version>
     </dependency>         
     <dependency>
       <groupId>org.jboss.bpm</groupId>
