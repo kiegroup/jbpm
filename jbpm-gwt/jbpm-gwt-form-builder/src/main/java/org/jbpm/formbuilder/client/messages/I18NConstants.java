@@ -258,4 +258,5 @@ public interface I18NConstants extends Messages {
     String SelectAFile();
     String CouldntUploadFile();
     String ColspanLabel();
+    String RowspanLabel();
 }

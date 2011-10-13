@@ -35,6 +35,7 @@ public class ChangeColspanFormEffect extends FBFormEffect {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final IntegerBox colspan = new IntegerBox();
+    private final IntegerBox rowspan = new IntegerBox();
     
     
     public ChangeColspanFormEffect() {
@@ -49,13 +50,13 @@ public class ChangeColspanFormEffect extends FBFormEffect {
             parent = parent.getParent();
         }
         MIGLayoutFormItem container = (MIGLayoutFormItem) parent;
-        container.setColspan(item, colspan.getValue());
+        container.setSpan(item, colspan.getValue(), rowspan.getValue());
     }
     
     @Override
     public PopupPanel createPanel() {
         final PopupPanel panel = new PopupPanel();
-        Grid data = new Grid(2, 2);
+        Grid data = new Grid(3, 2);
         Button cancelButton = new Button(i18n.CancelButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -71,6 +72,8 @@ public class ChangeColspanFormEffect extends FBFormEffect {
         });
         data.setWidget(0, 0, new Label(i18n.ColspanLabel()));
         data.setWidget(0, 1, colspan);
+        data.setWidget(0, 0, new Label(i18n.RowspanLabel()));
+        data.setWidget(0, 1, rowspan);
         data.setWidget(1, 0, cancelButton);
         data.setWidget(1, 1, confirmButton);
         panel.add(data);

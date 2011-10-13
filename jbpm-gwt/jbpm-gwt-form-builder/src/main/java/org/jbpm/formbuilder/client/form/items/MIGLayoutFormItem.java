@@ -240,10 +240,11 @@ public class MIGLayoutFormItem extends LayoutFormItem {
             for (int c = 0; c < table.getCellCount(r); c++) {
                 Widget widget = table.getWidget(r, c);
                 int colspan = table.getFlexCellFormatter().getColSpan(r, c);
+                int rowspan = table.getFlexCellFormatter().getRowSpan(r, c);
                 if (widget != null && widget instanceof FBFormItem) {
                     FBFormItem item = (FBFormItem) widget;
                     FormItemRepresentation subRep = item.getRepresentation();
-                    rep.setElement(r, c, subRep, colspan);
+                    rep.setElement(r, c, subRep, colspan, rowspan);
                 }
             }
         }
@@ -279,8 +280,12 @@ public class MIGLayoutFormItem extends LayoutFormItem {
                         FBFormItem subItem = super.createItem(cell);
                         this.table.setWidget(rowindex, cellindex, subItem);
                         int colspan = mprep.getColspan(rowindex, cellindex);
+                        int rowspan = mprep.getRowspan(rowindex, cellindex);
                         if (colspan > 1) {
                             this.table.getFlexCellFormatter().setColSpan(rowindex, cellindex, colspan);
+                        }
+                        if (rowspan > 1) {
+                            this.table.getFlexCellFormatter().setRowSpan(rowindex, cellindex, rowspan);
                         }
                         super.add(subItem);
                     }
@@ -359,15 +364,15 @@ public class MIGLayoutFormItem extends LayoutFormItem {
         return widget != null && widget instanceof PhantomPanel;
     }
 
-    public void setColspan(FBFormItem item, Integer value) {
+    public void setSpan(FBFormItem item, Integer colspan, Integer rowspan) {
         for (int row = 0; row < table.getRowCount(); row++) {
             for (int col = 0; col < table.getCellCount(row); col++) {
                 if (table.getWidget(row, col).equals(item)) {
-                    table.getFlexCellFormatter().setColSpan(row, col, value);
+                    table.getFlexCellFormatter().setColSpan(row, col, colspan);
+                    table.getFlexCellFormatter().setRowSpan(row, col, rowspan);
                     break;
                 }
             }
         }
-        
     }
 }
