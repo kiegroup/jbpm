@@ -35,6 +35,7 @@ import org.jbpm.formbuilder.shared.api.items.MIGPanelRepresentation;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
@@ -52,28 +53,9 @@ public class MIGLayoutFormItem extends LayoutFormItem {
         @Override
         public boolean remove(Widget widget) {
             if (widget instanceof FBFormItem) {
-                return MIGLayoutFormItem.this.remove(widget);
-            } else if (widget instanceof PhantomPanel) {
-                boolean retval = false;
-                int row = 0, column = 0;
-                while (row < super.getRowCount() && !retval) {
-                    for (column = 0; column < super.getCellCount(row) && !retval; column++) {
-                        if (super.getWidget(row, column) != null && isPhantom(super.getWidget(row, column))) {
-                            retval = true;
-                            break;
-                        }
-                    }
-                    if (retval) break; else row++; 
-                }
-                if (retval) {
-                    if (super.getWidget(row, column) != null) {
-                        super.getWidget(row, column).getElement().getParentElement().setInnerHTML("&nbsp;");
-                    }
-                }
-                return retval;
-            } else {
-                return super.remove(widget);
+                MIGLayoutFormItem.super.remove((FBFormItem) widget);
             }
+            return super.remove(widget);
         }
     };
     
@@ -81,6 +63,7 @@ public class MIGLayoutFormItem extends LayoutFormItem {
     private Integer cellpadding = null;
     private Integer cellspacing = null;
     private Integer rows = 1;
+    private Integer columns = 1;
     private String title = null;
 
     public MIGLayoutFormItem() {
@@ -90,6 +73,8 @@ public class MIGLayoutFormItem extends LayoutFormItem {
     public MIGLayoutFormItem(List<FBFormEffect> formEffects) {
         super(formEffects);
         table.setBorderWidth(this.borderWidth);
+        table.insertRow(table.getRowCount());
+        table.addCell(0);
         add(table);
         setSize("90px", "90px");
         table.setSize(getWidth(), getHeight());
@@ -97,6 +82,9 @@ public class MIGLayoutFormItem extends LayoutFormItem {
     
     @Override
     public void replacePhantom(FBFormItem item) {
+        if (!item.hasEffectOfType(ChangeColspanFormEffect.class)) {
+            item.addEffect(new ChangeColspanFormEffect());
+        }
         boolean found = false;
         int row = 0, column = 0;
         while (row < table.getRowCount()) {
@@ -121,28 +109,6 @@ public class MIGLayoutFormItem extends LayoutFormItem {
             add(item);
         }
 
-    }
-    
-    @Override
-    public boolean remove(Widget child) {
-        boolean removed = false;
-        if (child instanceof FBFormItem) {
-            for (int i = 0; i < table.getRowCount(); i++) {
-                for (int j = 0; j < table.getCellCount(i); j++) {
-                    if (table.getWidget(i, j) != null && table.getWidget(i, j).equals(child)) {
-                        removed = super.remove(child);
-                        ////WARN dom used: seems the only way of fixing deleted cell bug
-                        table.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");
-                        break;
-                    }
-                }
-            }
-            FBFormItem item = (FBFormItem) child;
-            item.removeEffectOfType(ChangeColspanFormEffect.class);
-        } else {
-            removed = super.remove(child);
-        }
-        return removed;
     }
     
     @Override
@@ -212,6 +178,7 @@ public class MIGLayoutFormItem extends LayoutFormItem {
         map.put("width", getWidth());
         map.put("title", this.title);
         map.put("rows", this.rows);
+        map.put("columns", this.columns);
         return map;
     }
 
@@ -224,7 +191,7 @@ public class MIGLayoutFormItem extends LayoutFormItem {
         this.setWidth(extractString(asPropertiesMap.get("width")));
         this.title = extractString(asPropertiesMap.get("title"));
         this.rows = extractInt(asPropertiesMap.get("rows"));
-        
+        this.columns = extractInt(asPropertiesMap.get("columns"));
         populate(this.table);
     }
 
@@ -314,7 +281,46 @@ public class MIGLayoutFormItem extends LayoutFormItem {
             grid.setTitle(this.title);
         }
         if (this.rows != null && this.rows > 0) {
-            grid.addCell(this.rows);
+            while (this.rows > grid.getRowCount()) {
+                grid.insertRow(grid.getRowCount());
+                int columnCount = 0;
+                FlexCellFormatter formatter = grid.getFlexCellFormatter();
+                for (int cell = 0; cell < grid.getCellCount(grid.getRowCount() - 1); cell++) {
+                    columnCount += formatter.getColSpan(grid.getRowCount() - 1, cell);
+                }
+                while (this.columns > columnCount) {
+                    grid.addCell(grid.getRowCount() - 1); //at least one cell per column. Modified later by colspans
+                    columnCount++;
+                }
+            }
+            while (this.rows < grid.getRowCount()) {
+                grid.removeRow(grid.getRowCount() - 1);
+            }
+        }
+        if (this.columns != null && this.columns > 0) {
+            for (int row = 0; row < grid.getRowCount(); row++) {
+                int columnCount = 0;
+                FlexCellFormatter formatter = grid.getFlexCellFormatter();
+                for (int cell = 0; cell < grid.getCellCount(row); cell++) {
+                    columnCount += formatter.getColSpan(row, cell);
+                }
+                while (this.columns > columnCount) {
+                    grid.addCell(row);
+                    columnCount++;
+                }
+                while (this.columns < columnCount) {
+                    int cellCount = grid.getCellCount(row);
+                    if (cellCount > 0) {
+                        int cellColumns = formatter.getColSpan(row, cellCount - 1);
+                        if (cellColumns > 1 && columnCount - cellColumns >= this.columns) {
+                            grid.removeCell(row, cellCount - 1);
+                        } else {
+                            grid.removeCell(row, cellCount - 1);
+                        }
+                    }
+                    columnCount--;
+                }
+            }
         }
     }
     
@@ -367,9 +373,14 @@ public class MIGLayoutFormItem extends LayoutFormItem {
     public void setSpan(FBFormItem item, Integer colspan, Integer rowspan) {
         for (int row = 0; row < table.getRowCount(); row++) {
             for (int col = 0; col < table.getCellCount(row); col++) {
-                if (table.getWidget(row, col).equals(item)) {
-                    table.getFlexCellFormatter().setColSpan(row, col, colspan);
-                    table.getFlexCellFormatter().setRowSpan(row, col, rowspan);
+                Widget widget = table.getWidget(row, col);
+                if (widget != null && widget.equals(item)) {
+                    if (colspan != null && colspan > 0) {
+                        table.getFlexCellFormatter().setColSpan(row, col, colspan);
+                    }
+                    if (rowspan != null && rowspan > 0) {
+                        table.getFlexCellFormatter().setRowSpan(row, col, rowspan);
+                    }
                     break;
                 }
             }

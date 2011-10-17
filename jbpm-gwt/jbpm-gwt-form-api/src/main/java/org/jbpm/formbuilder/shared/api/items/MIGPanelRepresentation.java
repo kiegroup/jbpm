@@ -54,7 +54,6 @@ public class MIGPanelRepresentation extends FormItemRepresentation {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + getOuterType().hashCode();
             result = prime * result + cellNumber;
             result = prime * result + row;
             return result;
@@ -65,13 +64,9 @@ public class MIGPanelRepresentation extends FormItemRepresentation {
             if (obj == null) return false;
             if (getClass() != obj.getClass()) return false;
             Cell other = (Cell) obj;
-            if (!getOuterType().equals(other.getOuterType())) return false;
             if (cellNumber != other.cellNumber) return false;
             if (row != other.row) return false;
             return true;
-        }
-        private MIGPanelRepresentation getOuterType() {
-            return MIGPanelRepresentation.this;
         }
     }
     

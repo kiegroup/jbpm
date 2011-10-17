@@ -72,10 +72,10 @@ public class ChangeColspanFormEffect extends FBFormEffect {
         });
         data.setWidget(0, 0, new Label(i18n.ColspanLabel()));
         data.setWidget(0, 1, colspan);
-        data.setWidget(0, 0, new Label(i18n.RowspanLabel()));
-        data.setWidget(0, 1, rowspan);
-        data.setWidget(1, 0, cancelButton);
-        data.setWidget(1, 1, confirmButton);
+        data.setWidget(1, 0, new Label(i18n.RowspanLabel()));
+        data.setWidget(1, 1, rowspan);
+        data.setWidget(2, 0, cancelButton);
+        data.setWidget(2, 1, confirmButton);
         panel.add(data);
         return panel;
     }
