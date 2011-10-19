@@ -68,6 +68,7 @@ public class ImageRolodexPanel extends RolodexPanel implements HasWidgets {
         private final Iterator<RolodexCard> iterator;
         private Widget current = null;
 
+        @SuppressWarnings("unchecked")
         public ImageRolodexIterator(ImageRolodexPanel panel) {
             this.panel = panel;
             this.iterator = panel.cards.iterator();
@@ -124,13 +125,14 @@ public class ImageRolodexPanel extends RolodexPanel implements HasWidgets {
     }
 
     public RolodexCard get(int index) {
-        return cards.get(index);
+        return (RolodexCard) cards.get(index);
     }
 
     public int size() {
         return cards.size();
     }
 
+    @SuppressWarnings("unchecked")
     public List<RolodexCard> getCards() {
         return new ArrayList<RolodexCard>(cards);
     }

@@ -175,11 +175,17 @@
       <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/editor-0.1.4.jar</systemPath>
     </dependency>
     <dependency>
+      <groupId>com.gwtent</groupId>
+      <artifactId>gwtent.parent</artifactId>
+      <version>1.0.0</version>
+      <!-- temporal fix. Should change soon enough -->
+      <scope>system</scope>
+      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwtent.jar</systemPath>
+    </dependency>
+    <dependency>
       <groupId>com.yesmail</groupId>
       <artifactId>gwt-rolodex</artifactId>
-      <version>1.3</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwt-rolodex-1.3.jar</systemPath>
+      <version>1.1</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.restygwt</groupId>
@@ -256,13 +262,6 @@
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.2.2</version>
-    </dependency>
-    <dependency>
-      <groupId>com.gwtent</groupId>
-      <artifactId>gwtent.parent</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwtent.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>com.google.gwt.google-apis</groupId>
