@@ -162,12 +162,9 @@
       <artifactId>droolsjbpm-ide-common</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.code.gwt-dnd</groupId>
+      <groupId>com.allen-sauer.gwt.dnd</groupId>
       <artifactId>gwt-dnd</artifactId>
-      <version>3.1.0</version>
-      <!-- temporal fix. Should change soon enough -->
-      <scope>system</scope>
-      <systemPath>${basedir}/src/main/webapp/WEB-INF/lib/gwt-dnd-3.1.0.jar</systemPath>
+      <version>3.1.2</version>
     </dependency>
     <dependency>
       <groupId>com.gc.gwt.wysiwyg</groupId>

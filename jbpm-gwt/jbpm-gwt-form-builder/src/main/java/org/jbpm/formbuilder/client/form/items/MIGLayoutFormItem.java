@@ -386,4 +386,32 @@ public class MIGLayoutFormItem extends LayoutFormItem {
             }
         }
     }
+    
+    public int getColSpan(FBFormItem item) {
+        for (int row = 0; row < table.getRowCount(); row++) {
+            for (int col = 0; col < table.getCellCount(row); col++) {
+                Widget widget = table.getWidget(row, col);
+                if (widget != null && widget.equals(item)) {
+                    int colSpan = table.getFlexCellFormatter().getColSpan(row, col);
+                    if (colSpan <= 0) colSpan = 1;
+                    return colSpan;
+                }
+            }
+        }
+        return 1;
+    }
+    
+    public int getRowSpan(FBFormItem item) {
+        for (int row = 0; row < table.getRowCount(); row++) {
+            for (int col = 0; col < table.getCellCount(row); col++) {
+                Widget widget = table.getWidget(row, col);
+                if (widget != null && widget.equals(item)) {
+                    int rowSpan = table.getFlexCellFormatter().getRowSpan(row, col);
+                    if (rowSpan <= 0) rowSpan = 1;
+                    return rowSpan;
+                }
+            }
+        }
+        return 1;
+    }
 }

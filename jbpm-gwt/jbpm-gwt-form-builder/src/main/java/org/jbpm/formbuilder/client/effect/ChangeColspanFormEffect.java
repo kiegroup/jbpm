@@ -15,13 +15,19 @@
  */
 package org.jbpm.formbuilder.client.effect;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.bus.UndoableEvent;
+import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.MIGLayoutFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.IntegerBox;
@@ -34,6 +40,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class ChangeColspanFormEffect extends FBFormEffect {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final IntegerBox colspan = new IntegerBox();
     private final IntegerBox rowspan = new IntegerBox();
     
@@ -45,16 +52,53 @@ public class ChangeColspanFormEffect extends FBFormEffect {
     @Override
     protected void createStyles() {
         FBFormItem item = getItem();
+        MIGLayoutFormItem container = getContainer(item);
+        
+        Map<String, Object> dataSnapshot = new HashMap<String, Object>();
+        dataSnapshot.put("item", item);
+        dataSnapshot.put("container", container);
+        dataSnapshot.put("oldColspan", container.getColSpan(item));
+        dataSnapshot.put("oldRowspan", container.getRowSpan(item));
+        dataSnapshot.put("newColspan", colspan.getValue());
+        dataSnapshot.put("newRowspan", rowspan.getValue());
+        UndoableHandler rollbackHandler = new UndoableHandler() {
+            @Override
+            public void onEvent(UndoableEvent event) { }
+            @Override
+            public void doAction(UndoableEvent event) {
+                Integer rowspan = (Integer) event.getData("newRowspan");
+                Integer colspan = (Integer) event.getData("newColspan");
+                MIGLayoutFormItem container = (MIGLayoutFormItem) event.getData("container");
+                FBFormItem item = (FBFormItem) event.getData("item");
+                container.setSpan(item, colspan, rowspan);
+            }
+            @Override
+            public void undoAction(UndoableEvent event) {
+                Integer rowspan = (Integer) event.getData("oldRowspan");
+                Integer colspan = (Integer) event.getData("oldColspan");
+                MIGLayoutFormItem container = (MIGLayoutFormItem) event.getData("container");
+                FBFormItem item = (FBFormItem) event.getData("item");
+                container.setSpan(item, colspan, rowspan);
+            }
+        };
+        bus.fireEvent(new UndoableEvent(dataSnapshot, rollbackHandler));
+        container.setSpan(item, colspan.getValue(), rowspan.getValue());
+    }
+
+    private MIGLayoutFormItem getContainer(FBFormItem item) {
         Widget parent = item.getParent();
         while (!(parent instanceof MIGLayoutFormItem)) {
             parent = parent.getParent();
         }
-        MIGLayoutFormItem container = (MIGLayoutFormItem) parent;
-        container.setSpan(item, colspan.getValue(), rowspan.getValue());
+        return (MIGLayoutFormItem) parent;
     }
     
     @Override
     public PopupPanel createPanel() {
+        FBFormItem item = getItem();
+        MIGLayoutFormItem container = getContainer(item);
+        colspan.setValue(container.getColSpan(item));
+        rowspan.setValue(container.getRowSpan(item));
         final PopupPanel panel = new PopupPanel();
         Grid data = new Grid(3, 2);
         Button cancelButton = new Button(i18n.CancelButton(), new ClickHandler() {
