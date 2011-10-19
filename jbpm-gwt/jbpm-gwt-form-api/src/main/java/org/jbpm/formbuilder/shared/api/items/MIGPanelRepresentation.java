@@ -147,12 +147,14 @@ public class MIGPanelRepresentation extends FormItemRepresentation {
     
     public int getColspan(int rowNumber, int cellNumber) {
         Cell index = new Cell(rowNumber, cellNumber);
-        return colspans.get(index);
+        Integer colspan = colspans.get(index);
+        return colspan == null ? 1 : colspan;
     }
     
     public int getRowspan(int rowNumber, int cellNumber) {
         Cell index = new Cell(rowNumber, cellNumber);
-        return rowspans.get(index);
+        Integer rowspan = rowspans.get(index);
+        return rowspan == null ? 1 : rowspan;
     }
     
     @Override
