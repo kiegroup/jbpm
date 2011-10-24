@@ -23,9 +23,11 @@ import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.effect.view.IoBindingEffectView;
 import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formbuilder.shared.api.ExternalData;
 import org.jbpm.formbuilder.shared.api.Formatter;
 import org.jbpm.formbuilder.shared.api.InputData;
 import org.jbpm.formbuilder.shared.api.OutputData;
+import org.jbpm.formbuilder.shared.task.ExternalDataRef;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -44,6 +46,7 @@ public class IoBindingEffect extends FBFormEffect {
     private TaskRef ioRef = null;
     private TaskPropertyRef input = null;
     private TaskPropertyRef output = null;
+    private ExternalDataRef extData = null;
     
     public IoBindingEffect() {
         super(FormBuilderGlobals.getInstance().getI18n().IoBindingEffectLabel(), true);
@@ -100,6 +103,15 @@ public class IoBindingEffect extends FBFormEffect {
             });
         }
         item.setOutput(out);
+        ExternalData external = null; 
+        if (extData != null) {
+            external = new ExternalData();
+            external.setMethod(extData.getMethod());
+            external.setResponseLanguage(extData.getResponseLanguage());
+            external.setSource(extData.getSource());
+            external.setXpath(extData.getXpath());
+        }
+        item.setExternal(external);
     }
 
     @Override
@@ -125,6 +137,14 @@ public class IoBindingEffect extends FBFormEffect {
 
     public void setOutput(TaskPropertyRef output) {
         this.output = output;
+    }
+
+    public ExternalDataRef getExtData() {
+        return extData;
+    }
+
+    public void setExtData(ExternalDataRef extData) {
+        this.extData = extData;
     }
 
     @Override

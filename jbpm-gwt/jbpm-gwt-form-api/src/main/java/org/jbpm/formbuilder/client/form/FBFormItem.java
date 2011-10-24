@@ -31,6 +31,7 @@ import org.jbpm.formbuilder.common.handler.EventHelper;
 import org.jbpm.formbuilder.common.handler.RightClickEvent;
 import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
+import org.jbpm.formbuilder.shared.api.ExternalData;
 import org.jbpm.formbuilder.shared.api.FBScript;
 import org.jbpm.formbuilder.shared.api.FBValidation;
 import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
@@ -70,6 +71,7 @@ public abstract class FBFormItem extends FocusPanel {
     
     private InputData input = null;
     private OutputData output = null;
+    private ExternalData external = null;
     
     public FBFormItem(List<FBFormEffect> formEffects) {
         this.effects.addAll(formEffects);
@@ -247,12 +249,20 @@ public abstract class FBFormItem extends FocusPanel {
         this.output = output;
     }
     
+    public void setExternal(ExternalData external) {
+        this.external = external;
+    }
+    
     public OutputData getOutput() {
         return output;
     }
     
     public InputData getInput() {
         return input;
+    }
+    
+    public ExternalData getExternal() {
+        return external;
     }
     
     protected <T extends FBFormItem> T cloneItem(T clone) {
@@ -279,6 +289,7 @@ public abstract class FBFormItem extends FocusPanel {
             rep.addEffectClass(effect.getClass());
         }
         rep.setEventActions(getEventActions());
+        rep.setExternal(getExternal());
         return rep;
     }
     
@@ -389,6 +400,7 @@ public abstract class FBFormItem extends FocusPanel {
         setWidth(rep.getWidth());
         this.input = rep.getInput();
         this.output = rep.getOutput();
+        this.external = rep.getExternal();
         this.eventActions = rep.getEventActions();
     }
     

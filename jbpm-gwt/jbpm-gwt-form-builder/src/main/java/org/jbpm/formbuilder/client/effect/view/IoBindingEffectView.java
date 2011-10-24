@@ -25,12 +25,16 @@ import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.IoBindingEffect;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.api.Data;
+import org.jbpm.formbuilder.shared.task.ExternalDataRef;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -45,6 +49,8 @@ public class IoBindingEffectView extends PopupPanel {
     private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     private final ListBox inputList;
     private final ListBox outputList;
+    private final CheckBox externalDataCheckbox;
+    private final ExternalDataSourcePanel externalDataPanel;
     private final IoBindingEffect effect;
     
     public IoBindingEffectView(IoBindingEffect ioBindingEffect) {
@@ -54,6 +60,9 @@ public class IoBindingEffectView extends PopupPanel {
         
         this.inputList = createVisualList(effect.getItem().getInput(), effect.getIoRef().getInputs());
         this.outputList = createVisualList(effect.getItem().getOutput(), effect.getIoRef().getOutputs());
+    
+        this.externalDataCheckbox = new CheckBox();
+        this.externalDataPanel = new ExternalDataSourcePanel();
         
         Button applyButton = new Button(i18n.ConfirmButton());
         applyButton.addClickHandler(new ClickHandler() {
@@ -75,8 +84,10 @@ public class IoBindingEffectView extends PopupPanel {
         grid.setWidget(0, 1, inputList);
         grid.setWidget(1, 0, new Label(i18n.LabelOutput()));
         grid.setWidget(1, 1, outputList);
-        grid.setWidget(2, 0, applyButton);
-        grid.setWidget(2, 1, cancelButton);
+        grid.setWidget(2, 0, externalDataCheckbox);
+        grid.setWidget(2, 1, createExternalDataPanel());
+        grid.setWidget(3, 0, applyButton);
+        grid.setWidget(3, 1, cancelButton);
         
         VerticalPanel vPanel = new VerticalPanel();
         vPanel.add(title);
@@ -100,6 +111,8 @@ public class IoBindingEffectView extends PopupPanel {
             dataSnapshot.put("newOutput", null);
         }
         dataSnapshot.put("oldOutput", effect.getOutput());
+        dataSnapshot.put("newExtData", externalDataPanel.getData());
+        dataSnapshot.put("oldExtData", effect.getExtData());
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
             @Override
             public void onEvent(UndoableEvent event) { }
@@ -107,12 +120,14 @@ public class IoBindingEffectView extends PopupPanel {
             public void undoAction(UndoableEvent event) {
                 effect.setInput((TaskPropertyRef) event.getData("oldInput"));
                 effect.setOutput((TaskPropertyRef) event.getData("oldOutput"));
+                effect.setExtData((ExternalDataRef) event.getData("oldExtData"));
                 effect.fire();
             }
             @Override
             public void doAction(UndoableEvent event) {
                 effect.setInput((TaskPropertyRef) event.getData("newInput"));
                 effect.setOutput((TaskPropertyRef) event.getData("newOutput"));
+                effect.setExtData((ExternalDataRef) event.getData("newExtData"));
                 effect.fire();
             }
         }));
@@ -130,5 +145,27 @@ public class IoBindingEffectView extends PopupPanel {
             }
         }
         return inputList;
+    }
+    
+    private VerticalPanel createExternalDataPanel() {
+        final VerticalPanel panel = new VerticalPanel();
+        final Label message = new Label("Obtain input from external source");
+        panel.add(message);
+        
+        externalDataCheckbox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                panel.clear();
+                if (event.getValue()) {
+                    panel.add(new Label("Disregard input from external source"));
+                    externalDataPanel.flagData();
+                    panel.add(externalDataPanel);
+                } else {
+                    externalDataPanel.unflagData();
+                    panel.add(message);
+                }
+            }
+        });
+        return panel;
     }
 }
