@@ -8,7 +8,7 @@
   <artifactId>jbpm</artifactId>
   <packaging>pom</packaging>
   <name>jBPM</name>
-  <version>5.1.2.Final</version>
+  <version>5.1.3-SNAPSHOT</version>
   <description>jBPM: a Business Process Management (BPM) Suite</description>
   <url>http://www.jboss.org/jbpm/</url>
   <properties>
