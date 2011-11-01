@@ -30,7 +30,7 @@ import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
-import org.hibernate.annotations.CollectionOfElements;
+import javax.persistence.ElementCollection;
 import org.jbpm.marshalling.impl.ProcessInstanceMarshaller;
 import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
@@ -60,7 +60,7 @@ public class ProcessInstanceInfo{
 //  @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 //  @JoinColumn(name = "processInstanceId")
 //  private Set<EventType>                    eventTypes         = new HashSet<EventType>();    
-    private @CollectionOfElements
+    private @ElementCollection
 
     @JoinTable(name = "EventTypes", joinColumns = @JoinColumn(name = "InstanceId"))
     Set<String>                               eventTypes         = new HashSet<String>();
