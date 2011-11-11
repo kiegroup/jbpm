@@ -8,4 +8,5 @@
 /src/main/webapp/org.jbpm.formbuilder.FormBuilder
 /src/main/webapp/WEB-INF/deploy
 /src/main/webapp/velocity.log*
+/velocity.log*
 /src/main/webapp/formbuilder
