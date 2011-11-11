@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 JBoss Inc 
+k * Copyright 2011 JBoss Inc 
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@ import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.EventHandlingFormEffect;
+import org.jbpm.formbuilder.client.effect.scripthandlers.PlainTextScriptHelper;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.api.FBScript;
+import org.jbpm.formbuilder.shared.api.FBScriptHelper;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -34,38 +36,41 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class EventHandlingEffectView extends PopupPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final EventHandlingFormEffect effect;
     private final ListBox eventsSelectionCombo = new ListBox();
-    private final TextArea scriptPanel = new TextArea();
+    private final VerticalPanel mainPanel = new VerticalPanel();
     
     private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();
+    private Map<String, FBScriptHelper> eventHelpers = new HashMap<String, FBScriptHelper>();
     
     public EventHandlingEffectView(EventHandlingFormEffect formEffect) {
         this.effect = formEffect;
         populateEventActions();
-        VerticalPanel mainPanel = new VerticalPanel();
         mainPanel.add(createEventPanel());
-        startScriptPanel();
-        mainPanel.add(scriptPanel);
+        mainPanel.add(startScriptPanel());
         HorizontalPanel buttonsPanel = createButtonsPanel();
         mainPanel.add(buttonsPanel);
         add(mainPanel);
     }
 
-    private void startScriptPanel() {
-        scriptPanel.setCharacterWidth(50);
-        scriptPanel.setVisibleLines(15);
+    private Widget startScriptPanel() {
         String initialEventName = eventsSelectionCombo.getValue(0);
         FBScript initialScript = eventActions.get(initialEventName);
+        FBScriptHelper helper = null;
         if (initialScript != null) {
-            scriptPanel.setValue(initialScript.getContent());
+            helper = initialScript.getHelper();
         }
+        if (helper == null) {
+            helper = new PlainTextScriptHelper();
+            helper.setScript(initialScript);
+        }
+        return helper.draw();
     }
 
     private HorizontalPanel createButtonsPanel() {
@@ -92,8 +97,8 @@ public class EventHandlingEffectView extends PopupPanel {
             public void onClick(ClickEvent event) {
                 int selectedIndex = eventsSelectionCombo.getSelectedIndex();
                 String evtName = eventsSelectionCombo.getValue(selectedIndex);
-                String scriptContent = scriptPanel.getValue();
-                effect.confirmEventAction(evtName, scriptContent);
+                FBScriptHelper helper = eventHelpers.get(evtName);
+                effect.confirmEventAction(evtName, toScript(helper));
                 hide();
             }
         });
@@ -106,11 +111,21 @@ public class EventHandlingEffectView extends PopupPanel {
             public void onClick(ClickEvent event) {
                 int selectedIndex = eventsSelectionCombo.getSelectedIndex();
                 String evtName = eventsSelectionCombo.getValue(selectedIndex);
-                String scriptContent = scriptPanel.getValue();
-                effect.storeEventAction(evtName, scriptContent);
+                FBScriptHelper helper = eventHelpers.get(evtName);
+                effect.storeEventAction(evtName, toScript(helper));
             }
         });
         return saveContinueButton;
+    }
+    
+    private FBScript toScript(FBScriptHelper helper) {
+        FBScript script = new FBScript();
+        if (helper != null) {
+            script.setContent(helper.asScriptContent());
+            script.setHelper(helper);
+        }
+        script.setType("text/javascript");
+        return script;
     }
 
     private Grid createEventPanel() {
@@ -133,15 +148,29 @@ public class EventHandlingEffectView extends PopupPanel {
         if (actions != null) {
             this.eventActions.putAll(actions);
         }
+        for (Map.Entry<String, FBScript> entry : this.eventActions.entrySet()) {
+            FBScript script = entry.getValue();
+            FBScriptHelper helper = script == null ? null : script.getHelper();
+            String key = entry.getKey();
+            this.eventHelpers.put(key, helper);
+        }
         eventsSelectionCombo.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
                 int selectedIndex = eventsSelectionCombo.getSelectedIndex();
                 String eventName = eventsSelectionCombo.getValue(selectedIndex);
                 FBScript script = eventActions.get(eventName);
+                FBScriptHelper helper = null;
                 if (script != null) {
-                    scriptPanel.setValue(script.getContent());
+                    helper = script.getHelper();
                 }
+                if (helper == null) {
+                    helper = new PlainTextScriptHelper();
+                    helper.setScript(script);
+                }
+                mainPanel.remove(2);
+                mainPanel.add(helper.draw());
+                //scriptPanel.setValue(script.getContent());
             }
         });
     }

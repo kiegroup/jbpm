@@ -18,6 +18,7 @@ package org.jbpm.formbuilder.shared.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 
 import com.gwtent.reflection.client.Reflectable;
@@ -27,6 +28,8 @@ public class FBScript implements Mappable {
 
     private String documentation;
     private String id;
+    
+    private FBScriptHelper helper;
     
     private String type;
     private String src;
@@ -66,7 +69,18 @@ public class FBScript implements Mappable {
     }
 
     public String getContent() {
+        if (helper != null) {
+            return helper.asScriptContent();
+        }
         return content;
+    }
+    
+    public void setHelper(FBScriptHelper helper) {
+        this.helper = helper;
+    }
+    
+    public FBScriptHelper getHelper() {
+        return helper;
     }
 
     public void setContent(String content) {
@@ -90,6 +104,9 @@ public class FBScript implements Mappable {
         data.put("type", this.type);
         data.put("src", this.src);
         data.put("content", this.content);
+        if (getHelper() != null) {
+            data.put("helper", getHelper().getDataMap());
+        }
         data.put("invokeFunction", this.invokeFunction);
         return data;
     }
@@ -101,6 +118,17 @@ public class FBScript implements Mappable {
         this.type = (String) dataMap.get("type");
         this.src = (String) dataMap.get("src");
         this.content = (String) dataMap.get("content");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> helperMap = (Map<String, Object>) dataMap.get("helper");
+        if (helperMap != null) {
+            try {
+                String helperClass = (String) helperMap.get("@className");
+                this.helper = (FBScriptHelper) ReflectionHelper.newInstance(helperClass);
+            } catch (Exception e) {
+                throw new FormEncodingException("Problem creating helper", e);
+            }
+            this.helper.setDataMap(helperMap);
+        }
         this.invokeFunction = (String) dataMap.get("invokeFunction");
     }
     

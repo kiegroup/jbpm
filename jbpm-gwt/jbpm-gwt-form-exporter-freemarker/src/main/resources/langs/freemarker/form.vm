@@ -7,7 +7,6 @@
             position: static;
         }
     </style>
-</head>
   </head>
   <body>
     #set ($invokeOnLoad = "")
@@ -48,7 +47,7 @@
         #set ($subHeightParam = ${language.getStyleParam("height", $item.height)})
         #set ($subStyle = "$subWidthParam$subHeightParam")
         #set ($styleParam = ${language.getParam("style", $subStyle)})
-        <div #if($styleParam)$styleParam)#end>${language.translateItem($subItem)}</div>
+        <div #if($styleParam)$styleParam#end>${language.translateItem($subItem)}</div>
       #end
     </form>
   </body>

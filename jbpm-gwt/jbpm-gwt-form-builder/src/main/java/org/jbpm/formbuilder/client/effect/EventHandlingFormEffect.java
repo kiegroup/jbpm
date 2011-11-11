@@ -77,10 +77,10 @@ public class EventHandlingFormEffect extends FBFormEffect {
         return new ArrayList<String>();
     }
     
-    public void storeEventAction(String eventName, String scriptContent) {
+    public void storeEventAction(String eventName, FBScript script) {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("oldScript", eventActions.get(eventName));
-        dataSnapshot.put("newScript", toScript(scriptContent));
+        dataSnapshot.put("newScript", script);
         dataSnapshot.put("eventName", eventName);
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
             @Override
@@ -100,10 +100,10 @@ public class EventHandlingFormEffect extends FBFormEffect {
         }));
     }
     
-    public void confirmEventAction(String eventName, String scriptContent) {
+    public void confirmEventAction(String eventName, FBScript script) {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
         dataSnapshot.put("oldScript", eventActions.get(eventName));
-        dataSnapshot.put("newScript", toScript(scriptContent));
+        dataSnapshot.put("newScript", script);
         dataSnapshot.put("oldEventActions", getItemActions());
         dataSnapshot.put("newEventActions", this.eventActions);
         dataSnapshot.put("eventName", eventName);
@@ -130,12 +130,5 @@ public class EventHandlingFormEffect extends FBFormEffect {
                 item.setEventActions(eventActions);
             }
         }));
-    }
-    
-    private FBScript toScript(String scriptContent) {
-        FBScript script = new FBScript();
-        script.setContent(scriptContent);
-        script.setType("text/javascript");
-        return script;
     }
 }
