@@ -130,7 +130,7 @@ public class TaskHandler extends AbstractNodeHandler {
     			org.w3c.dom.Node ssubNode = subNode.getFirstChild();
     			String from = ssubNode.getTextContent();
     			String to = ssubNode.getNextSibling().getTextContent();
-    			assignments.add(new Assignment(null, from, to));
+    			assignments.add(new Assignment(((Element) xmlNode).getAttribute("language"), from, to));
 
         		subNode = subNode.getNextSibling();
     		}
@@ -181,7 +181,7 @@ public class TaskHandler extends AbstractNodeHandler {
 			org.w3c.dom.Node ssubNode = subNode.getFirstChild();
 			String from = ssubNode.getTextContent();
 			String to = ssubNode.getNextSibling().getTextContent();
-			assignments.add(new Assignment(null, from, to));
+			assignments.add(new Assignment(((Element) xmlNode).getAttribute("language"), from, to));
 
     		subNode = subNode.getNextSibling();
 		}
@@ -198,7 +198,7 @@ public class TaskHandler extends AbstractNodeHandler {
     		    if (from.startsWith("\"") && from.endsWith("\"")) {
                     from = from.substring(1, from.length() -1);
     		    }
-				assignments.add(new Assignment(null, from, to));
+				assignments.add(new Assignment(((Element) xmlNode).getAttribute("language"), from, to));
 
 	    		subNode = subNode.getNextSibling();
 			}

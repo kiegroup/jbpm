@@ -30,7 +30,7 @@ public class Assignment implements Serializable {
     private Map<String, Object> metaData = new HashMap<String, Object>();
 	
 	public Assignment(String dialect, String from, String to) {
-		this.dialect = dialect != null ? dialect : this.dialect;
+		this.dialect = dialect != null && !"".equals(dialect) ? dialect : this.dialect;
 		this.from = from;
 		this.to = to;
 	}
