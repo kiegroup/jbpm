@@ -1,0 +1,6 @@
+/.classpath
+/.project
+/.settings
+/target/
+/src/main/webapp/WEB-INF/deploy
+/src/main/webapp/org.jbpm.formbuilder.Commons
