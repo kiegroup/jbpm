@@ -75,4 +75,13 @@ public class PlainTextScriptHelper implements FBScriptHelper {
         return this.scriptPanel;
     }
 
+    /* (non-Javadoc)
+     * @see org.jbpm.formbuilder.shared.api.FBScriptHelper#getName()
+     */
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return "text";
+    }
+
 }

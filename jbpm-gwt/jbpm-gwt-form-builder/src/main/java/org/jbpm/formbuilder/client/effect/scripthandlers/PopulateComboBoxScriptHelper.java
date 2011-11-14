@@ -22,12 +22,18 @@ import org.jbpm.formbuilder.shared.api.FBScriptHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
 
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtent.reflection.client.Reflectable;
 
 /**
  * 
  */
+@Reflectable
 public class PopulateComboBoxScriptHelper implements FBScriptHelper {
 
+    public PopulateComboBoxScriptHelper() {
+        // TODO Auto-generated constructor stub
+    }
+    
     /* (non-Javadoc)
      * @see org.jbpm.formbuilder.shared.api.FBScriptHelper#setScript(org.jbpm.formbuilder.shared.api.FBScript)
      */
@@ -72,6 +78,15 @@ public class PopulateComboBoxScriptHelper implements FBScriptHelper {
     public Widget draw() {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.jbpm.formbuilder.shared.api.FBScriptHelper#getName()
+     */
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return "populate combo";
     }
 
 }

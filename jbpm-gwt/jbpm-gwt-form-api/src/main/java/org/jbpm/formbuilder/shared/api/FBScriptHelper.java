@@ -36,6 +36,11 @@ public interface FBScriptHelper extends Mappable {
     Widget draw();
     
     /**
+     * Returns the name of the UI script helper
+     */
+    String getName();
+    
+    /**
      * For initialization purposes, the represented script.
      * @param script
      */

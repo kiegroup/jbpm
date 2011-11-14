@@ -102,7 +102,7 @@ public class EditionViewImpl extends ScrollPanel implements EditionView {
         
         panel.clear();
         panel.add(grid);
-        setScrollPosition(0);
+        setVerticalScrollPosition(0);
     }
 
     @Override
