@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.effect.scripthandlers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.shared.api.FBScript;
@@ -95,7 +97,14 @@ public class RestServiceScriptHelper extends FlexTable implements FBScriptHelper
 
     @Override
     public void setScript(FBScript script) {
-        script.setHelper(this);
+        List<FBScriptHelper> helpers = script.getHelpers();
+        if (helpers == null) {
+            helpers = new ArrayList<FBScriptHelper>();
+        }
+        if (!helpers.contains(this)) {
+            helpers.add(this);
+        }
+        script.setHelpers(helpers);
     }
     
     @Override
@@ -113,41 +122,40 @@ public class RestServiceScriptHelper extends FlexTable implements FBScriptHelper
     @Override
     public String asScriptContent() {
         long id = System.currentTimeMillis();
-        Object[] nullargs = new Object[] {};
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("var %s = null;\n", exportVariableName.getValue()));
-        sb.append(String.format("var url%d = \"%s\";\n", id, url.getValue()));
-        sb.append(String.format("var method%d = \"%s\";\n", id, method.getValue(method.getSelectedIndex())));
-        sb.append(String.format("var xmlhttp%d;\n", id));
-        sb.append(String.format("if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari\n", nullargs));
-        sb.append(String.format("   xmlhttp%d=new XMLHttpRequest();\n", id));
-        sb.append(String.format("} else {// code for IE6, IE5\n", nullargs));
-        sb.append(String.format("   xmlhttp%d=new ActiveXObject(\"Microsoft.XMLHTTP\");\n", id));
-        sb.append(String.format("}\n", nullargs));
-        sb.append(String.format("xmlhttp%d.onreadystatechange=function() {\n", id));
-        sb.append(String.format("   if (xmlhttp%d.readyState==4 && xmlhttp%d.status==%s) {\n", id, id, resultStatus.getValue(resultStatus.getSelectedIndex())));  
-        sb.append(String.format("      var xmlDoc%d = null;\n", id));
-        sb.append(String.format("      if (window.ActiveXObject) { // code for IE\n", nullargs));
-        sb.append(String.format("         xmlDoc%d=new ActiveXObject(\"Microsoft.XMLDOM\");\n", id));
-        sb.append(String.format("         xmlDoc%d.write(xmlhttp%d.responseText);\n", id, id));
-        sb.append(String.format("      } else if (document.implementation && document.implementation.createDocument) { // code for Mozilla, Firefox, Opera, etc.\n", nullargs));
-        sb.append(String.format("         xmlDoc%d=document.implementation.createDocument(\"\",\"\",null);\n", id));
-        sb.append(String.format("         xmlDoc%d.write(xmlhttp%d.responseText);\n", id, id));
-        sb.append(String.format("      } else {\n", nullargs));
-        sb.append(String.format("         alert('Your browser cannot handle this script');\n", nullargs));
-        sb.append(String.format("      }\n", nullargs));
-        sb.append(String.format("      var xmlNodeList%d = xmlDoc%d.selectNodes(\"%s\");\n", id, id, resultXPath.getValue()));
-        sb.append(String.format("      %s = new Array();\n", exportVariableName.getValue()));
-        sb.append(String.format("      for (var idx = 0; idx < xmlNodeList%d.length; idx++ ) {\n", id));
-        sb.append(String.format("         %s[idx] = xmlNodeList%d.item(idx).text;\n", exportVariableName.getValue(), id));
-        sb.append(String.format("      }", nullargs));
-        sb.append(String.format("   }\n", nullargs));
-        sb.append(String.format("}\n", nullargs));
+        sb.append("var " + exportVariableName.getValue() + " = null;\n");
+        sb.append("var url" + id + " = \"" + url.getValue() + "\";\n");
+        sb.append("var method" + id + " = \"" + method.getValue(method.getSelectedIndex()) + "\";\n");
+        sb.append("var xmlhttp" + id + ";\n");
+        sb.append("if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari\n");
+        sb.append("   xmlhttp" + id + "=new XMLHttpRequest();\n");
+        sb.append("} else {// code for IE6, IE5\n");
+        sb.append("   xmlhttp" + id + "=new ActiveXObject(\"Microsoft.XMLHTTP\");\n");
+        sb.append("}\n");
+        sb.append("xmlhttp" + id + ".onreadystatechange=function() {\n");
+        sb.append("   if (xmlhttp" + id + ".readyState==4 && xmlhttp" + id + ".status==" + resultStatus.getValue(resultStatus.getSelectedIndex()) + ") {\n");  
+        sb.append("      var xmlDoc" + id + " = null;\n");
+        sb.append("      if (window.ActiveXObject) { // code for IE\n");
+        sb.append("         xmlDoc" + id + "=new ActiveXObject(\"Microsoft.XMLDOM\");\n");
+        sb.append("         xmlDoc" + id + ".write(xmlhttp" + id + ".responseText);\n");
+        sb.append("      } else if (document.implementation && document.implementation.createDocument) { // code for Mozilla, Firefox, Opera, etc.\n");
+        sb.append("         xmlDoc" + id + "=document.implementation.createDocument(\"\",\"\",null);\n");
+        sb.append("         xmlDoc" + id + ".write(xmlhttp" + id + ".responseText);\n");
+        sb.append("      } else {\n");
+        sb.append("         alert('Your browser cannot handle this script');\n");
+        sb.append("      }\n");
+        sb.append("      var xmlNodeList" + id + " = xmlDoc" + id + ".selectNodes(\"" + resultXPath.getValue() + "\");\n");
+        sb.append("      " + exportVariableName.getValue() + " = new Array();\n");
+        sb.append("      for (var idx = 0; idx < xmlNodeList" + id + ".length; idx++ ) {\n");
+        sb.append("         " + exportVariableName.getValue() + "[idx] = xmlNodeList" + id + ".item(idx).text;\n");
+        sb.append("      }\n");
+        sb.append("   }\n");
+        sb.append("}\n");
         for (Map.Entry<String, String> header : headerViewPanel.getHeaders()) {
-            sb.append(String.format("xmlhttp%d.setRequestHeader(\"%s\",\"%s\");\n", id, header.getKey(), header.getValue()));
+            sb.append("xmlhttp" + id + ".setRequestHeader(\"" + header.getKey() + "\",\"" + header.getValue() + "\");\n");
         }
-        sb.append(String.format("xmlhttp%d.open(method%d, url%d, true);\n", id, id, id));
-        sb.append(String.format("xmlhttp%d.send();\n", id));
+        sb.append("xmlhttp" + id + ".open(method" + id + ", url" + id + ", true);\n");
+        sb.append("xmlhttp" + id + ".send();\n");
         return sb.toString();
     }
 

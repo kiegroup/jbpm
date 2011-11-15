@@ -15,6 +15,7 @@ k * Copyright 2011 JBoss Inc
  */
 package org.jbpm.formbuilder.client.effect.view;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,45 +40,48 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 
 public class EventHandlingEffectView extends PopupPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventHandlingFormEffect effect;
-    private final ListBox eventsSelectionCombo = new ListBox();
-    private final ListBox helperSelectionCombo = new ListBox();
-    private final VerticalPanel mainPanel = new VerticalPanel();
     
+    private final EventHandlingFormEffect effect;
     private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();
+    
+    private final VerticalPanel mainPanel = new VerticalPanel();
+    private final ListBox eventSelectionCombo = new ListBox();
+    private final ListBox helperSelectionCombo = new ListBox();
+    
+    private final Button addHelperButton = new Button("Add");
     
     public EventHandlingEffectView(EventHandlingFormEffect formEffect) {
         this.effect = formEffect;
-        populateEventActions();
+        populateEventSelectionCombo();
         populateScriptHelpers();
         mainPanel.add(createEventPanel());
-        mainPanel.add(startScriptPanel());
-        HorizontalPanel buttonsPanel = createButtonsPanel();
-        mainPanel.add(buttonsPanel);
+        mainPanel.add(new Label("Loading...")); //TODO i18n
+        mainPanel.add(createButtonsPanel());
+        startScriptPanel();
         add(mainPanel);
     }
 
-    private Widget startScriptPanel() {
-        String initialEventName = eventsSelectionCombo.getValue(0);
+    private void startScriptPanel() {
+        String initialEventName = eventSelectionCombo.getValue(0);
         FBScript initialScript = eventActions.get(initialEventName);
-        FBScriptHelper helper = null;
+        List<FBScriptHelper> helpers = null;
         if (initialScript != null) {
-            helper = initialScript.getHelper();
+            helpers = initialScript.getHelpers();
         }
-        if (helper == null) {
-            helper = new PlainTextScriptHelper();
+        if (helpers == null) {
+            helpers = new ArrayList<FBScriptHelper>();
+        }
+        if (helpers.isEmpty()) {
+            FBScriptHelper helper = new PlainTextScriptHelper();
+            helpers.add(helper);
+            initialScript.setHelpers(helpers);
             helper.setScript(initialScript);
         }
-        Widget editor = helper.draw();
-        if (editor == null) {
-            editor = new Label("Problem: null editor"); //TODO i18n
-        }
-        return editor;
+        populateScriptHelperView(helpers);
     }
 
     private HorizontalPanel createButtonsPanel() {
@@ -102,15 +106,15 @@ public class EventHandlingEffectView extends PopupPanel {
         Button confirmButton = new Button(i18n.ConfirmButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                int selectedIndex = eventsSelectionCombo.getSelectedIndex();
-                String evtName = eventsSelectionCombo.getValue(selectedIndex);
+                int selectedIndex = eventSelectionCombo.getSelectedIndex();
+                String evtName = eventSelectionCombo.getValue(selectedIndex);
                 FBScript fbScript = eventActions.get(evtName);
                 if (fbScript == null) {
                     fbScript = new FBScript();
                     eventActions.put(evtName, fbScript);
                 }
-                FBScriptHelper helper = fbScript.getHelper();
-                effect.confirmEventAction(evtName, toScript(helper));
+                List<FBScriptHelper> helpers = fbScript.getHelpers();
+                effect.confirmEventAction(evtName, toScript(helpers));
                 hide();
             }
         });
@@ -118,45 +122,50 @@ public class EventHandlingEffectView extends PopupPanel {
     }
 
     private Button createSaveContinueButton() {
-        Button saveContinueButton = new Button("Save & Continue", new ClickHandler() {
+        Button saveContinueButton = new Button("Save & Continue", new ClickHandler() { //TODO i18n
             @Override
             public void onClick(ClickEvent event) {
-                int selectedIndex = eventsSelectionCombo.getSelectedIndex();
-                String evtName = eventsSelectionCombo.getValue(selectedIndex);
+                int selectedIndex = eventSelectionCombo.getSelectedIndex();
+                String evtName = eventSelectionCombo.getValue(selectedIndex);
                 FBScript fbScript = eventActions.get(evtName);
                 if (fbScript == null) {
                     fbScript = new FBScript();
                     eventActions.put(evtName, fbScript);
                 }
-                FBScriptHelper helper = fbScript.getHelper();
-                effect.storeEventAction(evtName, toScript(helper));
+                List<FBScriptHelper> helpers = fbScript.getHelpers();
+                effect.storeEventAction(evtName, toScript(helpers));
             }
         });
         return saveContinueButton;
     }
     
-    private FBScript toScript(FBScriptHelper helper) {
+    private FBScript toScript(List<FBScriptHelper> helpers) {
         FBScript script = new FBScript();
-        if (helper != null) {
-            script.setContent(helper.asScriptContent());
-            script.setHelper(helper);
+        if (helpers != null && !helpers.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (FBScriptHelper helper : helpers) {
+                sb.append(helper.asScriptContent());
+            }
+            script.setContent(sb.toString());
+            script.setHelpers(helpers);
         }
         script.setType("text/javascript");
         return script;
     }
 
     private Grid createEventPanel() {
-        Grid eventPanel = new Grid(2, 4);
+        Grid eventPanel = new Grid(3, 3);
         eventPanel.setWidget(0, 0, new Label("Event:"));
-        eventPanel.setWidget(0, 1, eventsSelectionCombo);
-        eventPanel.setWidget(0, 2, new Label("Editor:"));
-        eventPanel.setWidget(0, 3, helperSelectionCombo);
-        eventPanel.setWidget(1, 0, new Label("Type:"));
-        eventPanel.setWidget(1, 1, new Label("text/javascript"));
+        eventPanel.setWidget(0, 1, eventSelectionCombo);
+        eventPanel.setWidget(1, 0, new Label("Editor:"));
+        eventPanel.setWidget(1, 1, helperSelectionCombo);
+        eventPanel.setWidget(1, 2, addHelperButton);
+        eventPanel.setWidget(2, 0, new Label("Type:"));
+        eventPanel.setWidget(2, 1, new Label("text/javascript"));
         return eventPanel;
     }
-
-    private void populateScriptHelpers() {
+    
+    private void populateScriptHelpers() { 
         String classesString = RepresentationFactory.getItemClassName("form.builder.scriptHelpers");
         final Map<String, String> helpersAvailable = new HashMap<String, String>();
         if (classesString != null) {
@@ -176,11 +185,11 @@ public class EventHandlingEffectView extends PopupPanel {
         for (Map.Entry<String, String> entry : helpersAvailable.entrySet()) {
             helperSelectionCombo.addItem(entry.getKey());
         }
-        helperSelectionCombo.addChangeHandler(new ChangeHandler() {
+        addHelperButton.addClickHandler(new ClickHandler() {
             @Override
-            public void onChange(ChangeEvent event) {
+            public void onClick(ClickEvent event) {
                 String helperName = helperSelectionCombo.getValue(helperSelectionCombo.getSelectedIndex());
-                String eventName = eventsSelectionCombo.getValue(eventsSelectionCombo.getSelectedIndex());
+                String eventName = eventSelectionCombo.getValue(eventSelectionCombo.getSelectedIndex());
                 String helperClassName = helpersAvailable.get(helperName);
                 try {
                     FBScriptHelper helper = (FBScriptHelper) ReflectionHelper.newInstance(helperClassName);
@@ -189,84 +198,80 @@ public class EventHandlingEffectView extends PopupPanel {
                         fbScript = new FBScript();
                         eventActions.put(eventName, fbScript);
                     }
-                    fbScript.setHelper(helper);
-                    mainPanel.remove(1);
-                    Widget editor = helper.draw();
-                    if (editor == null) {
-                        editor = new Label("Problem: null editor"); //TODO i18n
+                    List<FBScriptHelper> helpers = getHelpersForEvent(fbScript);
+                    helpers.add(helper);
+                    ScriptHelperListPanel editors = new ScriptHelperListPanel();
+                    for (FBScriptHelper helper2 : helpers) {
+                        editors.addScriptHelper(helper2);
                     }
-                    mainPanel.insert(editor, 1);
+                    mainPanel.remove(1);
+                    mainPanel.insert(editors, 1);
                 } catch (Exception e) {
                     //TODO manage exceptions
                 }
             }
         });
-        
         for (Map.Entry<String, FBScript> entry : this.eventActions.entrySet()) {
             FBScript script = entry.getValue();
-            FBScriptHelper helper = script == null ? null : script.getHelper();
+            List<FBScriptHelper> helpers = script == null ? new ArrayList<FBScriptHelper>() : script.getHelpers();
             String key = entry.getKey();
             FBScript fbScript = this.eventActions.get(key);
             if (fbScript == null) {
                 fbScript = new FBScript();
                 eventActions.put(key, fbScript);
             }
-            fbScript.setHelper(helper);
+            fbScript.setHelpers(helpers);
         }
-        
     }
     
-    private void populateEventActions() {
+    private void populateEventSelectionCombo() {
         List<String> possibleEvents = this.effect.getPossibleEvents();
         if (possibleEvents != null) {
             for (String eventName : possibleEvents) {
-                eventsSelectionCombo.addItem(eventName);
+                eventSelectionCombo.addItem(eventName);
             }
         }
         Map<String, FBScript> actions = this.effect.getItemActions();
         if (actions != null) {
             this.eventActions.putAll(actions);
         }
-        eventsSelectionCombo.addChangeHandler(new ChangeHandler() {
+        eventSelectionCombo.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                int selectedIndex = eventsSelectionCombo.getSelectedIndex();
-                String eventName = eventsSelectionCombo.getValue(selectedIndex);
-                //TODO
+                int selectedIndex = eventSelectionCombo.getSelectedIndex();
+                String eventName = eventSelectionCombo.getValue(selectedIndex);
                 FBScript script = eventActions.get(eventName);
-                FBScriptHelper helper = null;
-                if (script != null) {
-                    helper = script.getHelper();
+                if (script == null) {
+                    script = new FBScript();
+                    eventActions.put(eventName, script);
                 }
-                if (helper == null) {
-                    helper = new PlainTextScriptHelper();
-                    helper.setScript(script);
-                }
-                FBScript fbScript = eventActions.get(eventName);
-                if (fbScript == null) {
-                    fbScript = new FBScript();
-                    eventActions.put(eventName, fbScript);
-                }
-                fbScript.setHelper(helper);
-                String currentHelperName = helper.getName();
-                int currentHelperIndex = -1;
-                for (int i = 0; i < helperSelectionCombo.getItemCount(); i++) {
-                    if (currentHelperName.equals(helperSelectionCombo.getItemText(i))) {
-                        currentHelperIndex = i;
-                        break;
-                    }
-                }
-                if (currentHelperIndex >= 0) {
-                    helperSelectionCombo.setSelectedIndex(currentHelperIndex);
-                }
-                mainPanel.remove(1);
-                Widget editor = helper.draw();
-                if (editor == null) {
-                    editor = new Label("Problem: null editor"); //TODO i18n
-                }
-                mainPanel.insert(editor, 1);
-                //scriptPanel.setValue(script.getContent());
+                List<FBScriptHelper> helpers = getHelpersForEvent(script);
+                populateScriptHelperView(helpers);
             }
         });
+    }
+    
+    private void populateScriptHelperView(List<FBScriptHelper> helpers) {
+        ScriptHelperListPanel editorPanel = new ScriptHelperListPanel();
+        for (FBScriptHelper helper : helpers) { 
+            editorPanel.addScriptHelper(helper);
+        }
+        mainPanel.remove(1);
+        mainPanel.insert(editorPanel, 1);
+    }
+    
+    private List<FBScriptHelper> getHelpersForEvent(FBScript script) {
+        List<FBScriptHelper> helpers = null;
+        if (script != null) {
+            helpers = script.getHelpers();
+        }
+        if (helpers == null) {
+            helpers = new ArrayList<FBScriptHelper>();
+            FBScriptHelper helper = new PlainTextScriptHelper();
+            helpers.add(helper);
+            helper.setScript(script);
+            script.setHelpers(helpers);
+        }
+        return helpers;
     }
 }

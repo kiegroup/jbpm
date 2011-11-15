@@ -15,7 +15,9 @@
  */
 package org.jbpm.formbuilder.shared.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
@@ -29,7 +31,7 @@ public class FBScript implements Mappable {
     private String documentation;
     private String id;
     
-    private FBScriptHelper helper;
+    private List<FBScriptHelper> helpers;
     
     private String type;
     private String src;
@@ -69,18 +71,22 @@ public class FBScript implements Mappable {
     }
 
     public String getContent() {
-        if (helper != null) {
-            return helper.asScriptContent();
+        if (helpers != null && !helpers.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (FBScriptHelper helper : helpers) {
+                sb.append(helper.asScriptContent());
+            }
+            return sb.toString();
         }
         return content;
     }
     
-    public void setHelper(FBScriptHelper helper) {
-        this.helper = helper;
+    public void setHelpers(List<FBScriptHelper> helpers) {
+        this.helpers = helpers;
     }
     
-    public FBScriptHelper getHelper() {
-        return helper;
+    public List<FBScriptHelper> getHelpers() {
+        return helpers;
     }
 
     public void setContent(String content) {
@@ -104,8 +110,12 @@ public class FBScript implements Mappable {
         data.put("type", this.type);
         data.put("src", this.src);
         data.put("content", this.content);
-        if (getHelper() != null) {
-            data.put("helper", getHelper().getDataMap());
+        if (getHelpers() != null) {
+            List<Object> helpersMap = new ArrayList<Object>();
+            for (FBScriptHelper helper : getHelpers()) {
+                helpersMap.add(helper.getDataMap());
+            }
+            data.put("helpers", helpersMap);
         }
         data.put("invokeFunction", this.invokeFunction);
         return data;
@@ -118,58 +128,67 @@ public class FBScript implements Mappable {
         this.type = (String) dataMap.get("type");
         this.src = (String) dataMap.get("src");
         this.content = (String) dataMap.get("content");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> helperMap = (Map<String, Object>) dataMap.get("helper");
-        if (helperMap != null) {
-            try {
-                String helperClass = (String) helperMap.get("@className");
-                this.helper = (FBScriptHelper) ReflectionHelper.newInstance(helperClass);
-            } catch (Exception e) {
-                throw new FormEncodingException("Problem creating helper", e);
-            }
-            this.helper.setDataMap(helperMap);
-        }
         this.invokeFunction = (String) dataMap.get("invokeFunction");
+        @SuppressWarnings("unchecked")
+        List<Object> helpersMap = (List<Object>) dataMap.get("helpers");
+        if (helpersMap != null) {
+            List<FBScriptHelper> myHelpers = new ArrayList<FBScriptHelper>();
+            for (Object obj : helpersMap) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> helperMap = (Map<String, Object>) obj;
+                    String helperClass = (String) helperMap.get("@className");
+                    FBScriptHelper helper = (FBScriptHelper) ReflectionHelper.newInstance(helperClass);
+                    helper.setDataMap(helperMap);
+                } catch (Exception e) {
+                    throw new FormEncodingException("Problem creating helper " + obj, e);
+                }
+            }
+            setHelpers(myHelpers);
+        }
     }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null) return false;
-        if (!(obj instanceof FBScript)) return false;
-        FBScript other = (FBScript) obj;
-        boolean equals = (this.documentation == null && other.documentation == null) || 
-            (this.documentation != null && this.documentation.equals(other.documentation));
-        if (!equals) return equals;
-        equals = (this.id == null && other.id == null) || (this.id != null && this.id.equals(other.id));
-        if (!equals) return equals;
-        equals = (this.type == null && other.type == null) || (this.type != null && this.type.equals(other.type));
-        if (!equals) return equals;
-        equals = (this.src == null && other.src == null) || (this.src != null && this.src.equals(other.src));
-        if (!equals) return equals;
-        equals = (this.content == null && other.content == null) || (this.content != null && this.content.equals(other.content));
-        if (!equals) return equals;
-        equals = (this.invokeFunction == null && other.invokeFunction == null) || 
-            (this.invokeFunction != null && this.invokeFunction.equals(other.invokeFunction));
-        if (!equals) return equals;
-        return equals;
-    }
-    
+
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        int aux = this.documentation == null ? 0 : this.documentation.hashCode();
-        result = 37 * result + aux;
-        aux = this.id == null ? 0 : this.id.hashCode();
-        result = 37 * result + aux;
-        aux = this.type == null ? 0 : this.type.hashCode();
-        result = 37 * result + aux;
-        aux = this.src == null ? 0 : this.src.hashCode();
-        result = 37 * result + aux;
-        aux = this.content == null ? 0 : this.content.hashCode();
-        result = 37 * result + aux;
-        aux = this.invokeFunction == null ? 0 : this.invokeFunction.hashCode();
-        result = 37 * result + aux;
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((content == null) ? 0 : content.hashCode());
+        result = prime * result + ((documentation == null) ? 0 : documentation.hashCode());
+        result = prime * result + ((helpers == null) ? 0 : helpers.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((invokeFunction == null) ? 0 : invokeFunction.hashCode());
+        result = prime * result + ((src == null) ? 0 : src.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+        FBScript other = (FBScript) obj;
+        if (content == null) {
+            if (other.content != null) return false;
+        } else if (!content.equals(other.content)) return false;
+        if (documentation == null) {
+            if (other.documentation != null) return false;
+        } else if (!documentation.equals(other.documentation)) return false;
+        if (helpers == null) {
+            if (other.helpers != null) return false;
+        } else if (!helpers.equals(other.helpers)) return false;
+        if (id == null) {
+            if (other.id != null) return false;
+        } else if (!id.equals(other.id)) return false;
+        if (invokeFunction == null) {
+            if (other.invokeFunction != null) return false;
+        } else if (!invokeFunction.equals(other.invokeFunction)) return false;
+        if (src == null) {
+            if (other.src != null) return false;
+        } else if (!src.equals(other.src)) return false;
+        if (type == null) {
+            if (other.type != null) return false;
+        } else if (!type.equals(other.type)) return false;
+        return true;
     }
 }
