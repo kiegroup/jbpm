@@ -18,6 +18,7 @@ import org.drools.marshalling.impl.PersisterEnums;
 import org.drools.marshalling.impl.ProcessMarshaller;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.process.instance.impl.WorkItemImpl;
+import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItem;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.timer.TimerInstance;
@@ -138,12 +139,16 @@ public class ProcessMarshallerImpl implements ProcessMarshaller {
 	    }
     }
 
-    public void readProcessInstances(MarshallerReaderContext context) throws IOException {
+    public List<ProcessInstance> readProcessInstances(MarshallerReaderContext context) throws IOException {
         ObjectInputStream stream = context.stream;
+        List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
         while ( stream.readShort() == PersisterEnums.PROCESS_INSTANCE ) {
         	String processType = stream.readUTF();
-        	ProcessMarshallerRegistry.INSTANCE.getMarshaller(processType).readProcessInstance(context);
+        	ProcessInstance processInstance 
+        	    = ProcessMarshallerRegistry.INSTANCE.getMarshaller(processType).readProcessInstance(context);
+        	processInstanceList.add(processInstance);
         }
+        return processInstanceList;
     }
 
     public void readWorkItems(MarshallerReaderContext context) throws IOException {

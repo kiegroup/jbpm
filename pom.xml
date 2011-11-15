@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.drools</groupId>
     <artifactId>droolsjbpm-parent</artifactId>
-    <version>5.4.0-SNAPSHOT</version>
+    <version>5.3.1-SNAPSHOT</version>
     <!-- relativePath causes out-of-date problems on hudson slaves -->
     <!--<relativePath>../droolsjbpm-build-bootstrap/pom.xml</relativePath>-->
   </parent>
@@ -41,9 +41,9 @@
     <maven.jdbc.db.port/>
     <maven.jdbc.db.server/>     
     <maven.jdbc.driver.jar/>
-    <maven.jdbc.username>sa</maven.jdbc.username>
+    <maven.jdbc.username></maven.jdbc.username>
     <maven.jdbc.password></maven.jdbc.password>
-    <maven.jdbc.url>jdbc:h2:tcp://localhost/JPADroolsFlow</maven.jdbc.url>
+    <maven.jdbc.url>jdbc:h2:</maven.jdbc.url>
   </properties>
 
   <repositories>
