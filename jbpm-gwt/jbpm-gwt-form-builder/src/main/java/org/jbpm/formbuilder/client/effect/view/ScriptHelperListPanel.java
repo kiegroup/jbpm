@@ -31,7 +31,13 @@ public class ScriptHelperListPanel extends VerticalPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     
-    public void addScriptHelper(FBScriptHelper helper) {
+    public interface ScriptOrderHandler {
+        void onRemove(int index);
+        void onMoveUp(int index);
+        void onMoveDown(int index);
+    }
+    
+    public void addScriptHelper(FBScriptHelper helper, ScriptOrderHandler handler) {
         Widget editor = helper.draw();
         if (editor == null) {
             editor = new Label("Problem: null editor"); //TODO i18n
@@ -42,13 +48,13 @@ public class ScriptHelperListPanel extends VerticalPanel {
         panel.add(editor);
         VerticalPanel buttons = new VerticalPanel();
         panel.add(buttons);
-        buttons.add(createRemoveButton(panel));
-        buttons.add(createMoveUpButton(panel));
-        buttons.add(createMoveDownButton(panel));
+        buttons.add(createRemoveButton(panel, handler));
+        buttons.add(createMoveUpButton(panel, handler));
+        buttons.add(createMoveDownButton(panel, handler));
         add(panel);
     }
 
-    private Button createMoveDownButton(final HorizontalPanel panel) {
+    private Button createMoveDownButton(final HorizontalPanel panel, final ScriptOrderHandler handler) {
         return new Button("Move down", new ClickHandler() { //TODO i18n
             @Override
             public void onClick(ClickEvent event) {
@@ -56,13 +62,14 @@ public class ScriptHelperListPanel extends VerticalPanel {
                 if (index + 1 < getWidgetCount()) {
                     remove(panel);
                     insert(panel, index + 1);
+                    handler.onMoveDown(index);
                     renumber();
                 }
             }
         });
     }
 
-    private Button createMoveUpButton(final HorizontalPanel panel) {
+    private Button createMoveUpButton(final HorizontalPanel panel, final ScriptOrderHandler handler) {
         return new Button("Move up", new ClickHandler() { //TODO i18n
             @Override
             public void onClick(ClickEvent event) {
@@ -70,17 +77,20 @@ public class ScriptHelperListPanel extends VerticalPanel {
                 if (index -1 >= 0) {
                     remove(panel);
                     insert(panel, index - 1);
+                    handler.onMoveUp(index);
                     renumber();
                 }
             }
         });
     }
 
-    private Button createRemoveButton(final HorizontalPanel panel) {
+    private Button createRemoveButton(final HorizontalPanel panel, final ScriptOrderHandler handler) {
         return new Button(i18n.RemoveButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                int index = getWidgetIndex(panel);
                 remove(panel);
+                handler.onRemove(index);
                 renumber();
             }
         });
@@ -89,8 +99,8 @@ public class ScriptHelperListPanel extends VerticalPanel {
     private void renumber() {
         for (Widget widget : this) {
             HorizontalPanel panel = (HorizontalPanel) widget;
-            int index = getWidgetIndex(panel);
-            String number = String.valueOf(index + 1);
+            int index = getWidgetIndex(panel) + 1;
+            String number = String.valueOf(index);
             panel.remove(0);
             panel.insert(new Label(number), 0);
         }

@@ -23,6 +23,7 @@ import java.util.Map;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.EventHandlingFormEffect;
 import org.jbpm.formbuilder.client.effect.scripthandlers.PlainTextScriptHelper;
+import org.jbpm.formbuilder.client.effect.view.ScriptHelperListPanel.ScriptOrderHandler;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.shared.api.FBScript;
@@ -68,20 +69,7 @@ public class EventHandlingEffectView extends PopupPanel {
     private void startScriptPanel() {
         String initialEventName = eventSelectionCombo.getValue(0);
         FBScript initialScript = eventActions.get(initialEventName);
-        List<FBScriptHelper> helpers = null;
-        if (initialScript != null) {
-            helpers = initialScript.getHelpers();
-        }
-        if (helpers == null) {
-            helpers = new ArrayList<FBScriptHelper>();
-        }
-        if (helpers.isEmpty()) {
-            FBScriptHelper helper = new PlainTextScriptHelper();
-            helpers.add(helper);
-            initialScript.setHelpers(helpers);
-            helper.setScript(initialScript);
-        }
-        populateScriptHelperView(helpers);
+        populateScriptHelperView(initialScript);
     }
 
     private HorizontalPanel createButtonsPanel() {
@@ -202,7 +190,7 @@ public class EventHandlingEffectView extends PopupPanel {
                     helpers.add(helper);
                     ScriptHelperListPanel editors = new ScriptHelperListPanel();
                     for (FBScriptHelper helper2 : helpers) {
-                        editors.addScriptHelper(helper2);
+                        editors.addScriptHelper(helper2, newScriptOrderHandler(fbScript));
                     }
                     mainPanel.remove(1);
                     mainPanel.insert(editors, 1);
@@ -245,16 +233,52 @@ public class EventHandlingEffectView extends PopupPanel {
                     script = new FBScript();
                     eventActions.put(eventName, script);
                 }
-                List<FBScriptHelper> helpers = getHelpersForEvent(script);
-                populateScriptHelperView(helpers);
+                populateScriptHelperView(script);
             }
         });
     }
+
+    private ScriptOrderHandler newScriptOrderHandler(final FBScript script) {
+        return new ScriptOrderHandler() {
+            @Override
+            public void onRemove(int index) {
+                if (script != null && script.getHelpers() != null) {
+                    if (script.getHelpers().size() > index) {
+                        script.getHelpers().remove(index);
+                    }
+                }
+            }
+            @Override
+            public void onMoveUp(int index) {
+                if (script != null && script.getHelpers() != null) {
+                    if (script.getHelpers().size() > index + 1) {
+                        List<FBScriptHelper> helpers = script.getHelpers();
+                        FBScriptHelper helper = helpers.remove(index);
+                        helpers.add(index + 1, helper);
+                        script.setHelpers(helpers);
+                    }
+                }
+            }
+            @Override
+            public void onMoveDown(int index) {
+                if (script != null && script.getHelpers() != null) {
+                    if (index > 0) {
+                        List<FBScriptHelper> helpers = script.getHelpers();
+                        FBScriptHelper helper = helpers.remove(index);
+                        helpers.add(index - 1, helper);
+                        script.setHelpers(helpers);
+                    }
+                }
+            }
+        };
+    }
+
     
-    private void populateScriptHelperView(List<FBScriptHelper> helpers) {
+    private void populateScriptHelperView(FBScript script) {
+        List<FBScriptHelper> helpers = getHelpersForEvent(script);
         ScriptHelperListPanel editorPanel = new ScriptHelperListPanel();
         for (FBScriptHelper helper : helpers) { 
-            editorPanel.addScriptHelper(helper);
+            editorPanel.addScriptHelper(helper, newScriptOrderHandler(script));
         }
         mainPanel.remove(1);
         mainPanel.insert(editorPanel, 1);
