@@ -60,10 +60,13 @@ public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptH
         setWidget(0, 0, new Label(i18n.PopulateComboBoxScriptHelperUrl()));
         setWidget(0, 1, url);
         setWidget(1, 0, new Label(i18n.PopulateComboBoxScriptHelperMethod()));
+        populateMethodList();
         setWidget(1, 1, method);
         setWidget(2, 0, new Label(i18n.PopulateComboBoxScriptHelperResultStatus()));
+        populateResultStatusList();
         setWidget(2, 1, resultStatus);
         setWidget(3, 0, new Label(i18n.PopulateComboBoxScriptHelperResponseLanguage()));
+        populateResponseLanguageList();
         setWidget(3, 1, responseLanguage);
         setWidget(4, 0, new Label(i18n.PopulateComboBoxScriptHelperResultPath()));
         setWidget(4, 1, resultXPath);
@@ -82,6 +85,26 @@ public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptH
         getFlexCellFormatter().setColSpan(8, 0, 2);
         setWidget(9, 0, new Label(i18n.PopulateComboBoxScriptHelperCheckBoxId()));
         setWidget(9, 1, checkBoxId);
+    }
+    
+    
+    private void populateResponseLanguageList() {
+        responseLanguage.addItem("xml");
+        responseLanguage.addItem("json");
+    }
+    
+    private void populateResultStatusList() {
+        resultStatus.addItem("200 - OK", "200");
+        resultStatus.addItem("201 - Created", "201");
+        resultStatus.addItem("404 - Not found", "404");
+        resultStatus.addItem("500 - Server error", "500");
+    }
+
+    private void populateMethodList() {
+        method.addItem("GET");
+        method.addItem("POST");
+        method.addItem("PUT");
+        method.addItem("DELETE");
     }
     
     @Override
