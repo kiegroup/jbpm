@@ -186,6 +186,8 @@ public interface I18NConstants extends Messages {
     String SaveChangesButton();
     String ResetChangesButton();
     String RefreshFromServerButton();
+    String MoveUpButton();
+    String MoveDownButton();
     String RefreshButtonWarning();
     String PackageLabel();
     String ProcessLabel();
@@ -259,4 +261,29 @@ public interface I18NConstants extends Messages {
     String CouldntUploadFile();
     String ColspanLabel();
     String RowspanLabel();
+    
+    String LoadingLabel();
+    String RestServiceScriptHelperUrl();
+    String RestServiceScriptHelperMethod();
+    String RestServiceScriptHelperResultStatus();
+    String RestServiceScriptHelperResultPath();
+    String RestServiceScriptHelperExportVariable();
+    String RestServiceScriptHelperResponseLanguage();
+    String RestServiceScriptHelperSendHeaders();
+    String RestServiceScriptHelperAddHeader();
+    String RestServiceScriptHelperName();
+    String PlainTextScriptHelperName();
+    String PopulateComboBoxScriptHelperUrl();
+    String PopulateComboBoxScriptHelperMethod();
+    String PopulateComboBoxScriptHelperResultStatus();
+    String PopulateComboBoxScriptHelperResponseLanguage();
+    String PopulateComboBoxScriptHelperResultPath();
+    String PopulateComboBoxScriptHelperSubPathForKeys();
+    String PopulateComboBoxScriptHelperSubPathForValues();
+    String PopulateComboBoxScriptHelperSendHeaders();
+    String PopulateComboBoxScriptHelperAddHeader();
+    String PopulateComboBoxScriptHelperCheckBoxId();
+    String PopulateComboBoxScriptHelperName();
+    String NoHeadersLoadedLabel();
+    String ScriptHelperNullEditor();
 }

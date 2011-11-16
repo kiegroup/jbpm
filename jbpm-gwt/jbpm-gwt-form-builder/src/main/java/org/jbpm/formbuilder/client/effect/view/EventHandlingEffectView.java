@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
+import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.EventHandlingFormEffect;
 import org.jbpm.formbuilder.client.effect.scripthandlers.PlainTextScriptHelper;
 import org.jbpm.formbuilder.client.effect.view.ScriptHelperListPanel.ScriptOrderHandler;
@@ -34,6 +36,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -45,6 +48,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class EventHandlingEffectView extends PopupPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
     
     private final EventHandlingFormEffect effect;
     private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();
@@ -60,7 +64,7 @@ public class EventHandlingEffectView extends PopupPanel {
         populateEventSelectionCombo();
         populateScriptHelpers();
         mainPanel.add(createEventPanel());
-        mainPanel.add(new Label("Loading...")); //TODO i18n
+        mainPanel.add(new Label(i18n.LoadingLabel()));
         mainPanel.add(createButtonsPanel());
         startScriptPanel();
         add(mainPanel);
@@ -110,7 +114,7 @@ public class EventHandlingEffectView extends PopupPanel {
     }
 
     private Button createSaveContinueButton() {
-        Button saveContinueButton = new Button("Save & Continue", new ClickHandler() { //TODO i18n
+        Button saveContinueButton = new Button(i18n.SaveChangesButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 int selectedIndex = eventSelectionCombo.getSelectedIndex();
@@ -166,7 +170,7 @@ public class EventHandlingEffectView extends PopupPanel {
                         helpersAvailable.put(helper.getName(), className);
                     }
                 } catch (Exception e) {
-                    //TODO manage exceptions
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem loading script helper " + className, e));
                 }
             }
         }
@@ -195,7 +199,7 @@ public class EventHandlingEffectView extends PopupPanel {
                     mainPanel.remove(1);
                     mainPanel.insert(editors, 1);
                 } catch (Exception e) {
-                    //TODO manage exceptions
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, "Problem starting script helper " + helperClassName, e));
                 }
             }
         });

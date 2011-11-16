@@ -18,6 +18,8 @@ package org.jbpm.formbuilder.client.effect.scripthandlers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.api.FBScript;
 import org.jbpm.formbuilder.shared.api.FBScriptHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -32,6 +34,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class PlainTextScriptHelper implements FBScriptHelper {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final TextArea scriptPanel = new TextArea();
     
     public PlainTextScriptHelper() {
@@ -75,13 +78,9 @@ public class PlainTextScriptHelper implements FBScriptHelper {
         return this.scriptPanel;
     }
 
-    /* (non-Javadoc)
-     * @see org.jbpm.formbuilder.shared.api.FBScriptHelper#getName()
-     */
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
-        return "text";
+        return i18n.PlainTextScriptHelperName();
     }
 
 }

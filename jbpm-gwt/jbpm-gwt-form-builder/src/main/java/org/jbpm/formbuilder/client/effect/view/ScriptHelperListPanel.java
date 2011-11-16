@@ -40,7 +40,7 @@ public class ScriptHelperListPanel extends VerticalPanel {
     public void addScriptHelper(FBScriptHelper helper, ScriptOrderHandler handler) {
         Widget editor = helper.draw();
         if (editor == null) {
-            editor = new Label("Problem: null editor"); //TODO i18n
+            editor = new Label(i18n.ScriptHelperNullEditor());
         }
         final HorizontalPanel panel = new HorizontalPanel();
         String number = String.valueOf(getWidgetCount() + 1);
@@ -55,7 +55,7 @@ public class ScriptHelperListPanel extends VerticalPanel {
     }
 
     private Button createMoveDownButton(final HorizontalPanel panel, final ScriptOrderHandler handler) {
-        return new Button("Move down", new ClickHandler() { //TODO i18n
+        return new Button(i18n.MoveDownButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 int index = getWidgetIndex(panel);
@@ -70,7 +70,7 @@ public class ScriptHelperListPanel extends VerticalPanel {
     }
 
     private Button createMoveUpButton(final HorizontalPanel panel, final ScriptOrderHandler handler) {
-        return new Button("Move up", new ClickHandler() { //TODO i18n
+        return new Button(i18n.MoveUpButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 int index = getWidgetIndex(panel);

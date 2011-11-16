@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -30,22 +33,26 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class HeaderViewPanel extends SimplePanel {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    
     private final Grid headerView = new Grid(0, 3);
-    private final Label noHeaders = new Label("No headers loaded"); //TODO i18n
+    private final Label noHeaders = new Label(i18n.NoHeadersLoadedLabel());
     
     public HeaderViewPanel() {
         add(noHeaders);
     }
     
-    public void addHeaderRow() {
+    public void addHeaderRow(String keyValue, String valueValue) {
         headerView.resizeRows(headerView.getRowCount() + 1);
         checkTable();
         final int lastRow = headerView.getRowCount() - 1;
         final TextBox headerName = new TextBox();
+        headerName.setValue(keyValue);
         final TextBox headerValue = new TextBox();
+        headerValue.setValue(valueValue);
         headerView.setWidget(lastRow, 0, headerName);
         headerView.setWidget(lastRow, 1, headerValue);
-        headerView.setWidget(lastRow, 2, new Button("Remove", new ClickHandler() { //TODO i18n
+        headerView.setWidget(lastRow, 2, new Button(i18n.RemoveButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 int rowToRemove = -1;

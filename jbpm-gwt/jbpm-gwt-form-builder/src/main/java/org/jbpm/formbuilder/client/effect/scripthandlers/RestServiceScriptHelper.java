@@ -16,9 +16,12 @@
 package org.jbpm.formbuilder.client.effect.scripthandlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.api.FBScript;
 import org.jbpm.formbuilder.shared.api.FBScriptHelper;
 import org.jbpm.formbuilder.shared.form.FormEncodingException;
@@ -39,6 +42,8 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class RestServiceScriptHelper extends FlexTable implements FBScriptHelper {
 
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    
     private final TextBox url = new TextBox();
     private final ListBox method = new ListBox();
     private final ListBox resultStatus = new ListBox();
@@ -50,26 +55,26 @@ public class RestServiceScriptHelper extends FlexTable implements FBScriptHelper
     
     public RestServiceScriptHelper() {
         super();
-        setWidget(0, 0, new Label("URL:")); //TODO i18n
+        setWidget(0, 0, new Label(i18n.RestServiceScriptHelperUrl()));
         setWidget(0, 1, url);
-        setWidget(1, 0, new Label("Method:")); //TODO i18n
+        setWidget(1, 0, new Label(i18n.RestServiceScriptHelperMethod()));
         populateMethodList();
         setWidget(1, 1, method);
-        setWidget(2, 0, new Label("Result status:")); //TODO i18n
+        setWidget(2, 0, new Label(i18n.RestServiceScriptHelperResultStatus()));
         populateResultStatusList();
         setWidget(2, 1, resultStatus);
-        setWidget(3, 0, new Label("Result path to obtain results:")); //TODO i18n
+        setWidget(3, 0, new Label(i18n.RestServiceScriptHelperResultPath()));
         setWidget(3, 1, resultXPath);
-        setWidget(4, 0, new Label("Export data to variable:")); //TODO i18n
+        setWidget(4, 0, new Label(i18n.RestServiceScriptHelperExportVariable()));
         setWidget(4, 1, exportVariableName);
-        setWidget(5, 0, new Label("Response language:")); //TODO i18n
+        setWidget(5, 0, new Label(i18n.RestServiceScriptHelperResponseLanguage()));
         populateResponseLanguageList();
         setWidget(5, 1, responseLanguage);
-        setWidget(6, 0, new Label("Send headers:")); //TODO i18n
-        setWidget(6, 1, new Button("Add header", new ClickHandler() {
+        setWidget(6, 0, new Label(i18n.RestServiceScriptHelperSendHeaders()));
+        setWidget(6, 1, new Button(i18n.RestServiceScriptHelperAddHeader(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                headerViewPanel.addHeaderRow();
+                headerViewPanel.addHeaderRow("", "");
             }
         }));
         setWidget(7, 0, headerViewPanel);
@@ -109,14 +114,73 @@ public class RestServiceScriptHelper extends FlexTable implements FBScriptHelper
     
     @Override
     public Map<String, Object> getDataMap() {
-        // TODO Auto-generated method stub
-        return null;
+        String urlValue = this.url.getValue();
+        String methodValue = this.method.getValue(this.method.getSelectedIndex());
+        String resultStatusValue = this.method.getValue(this.resultStatus.getSelectedIndex());
+        String resultPathValue = this.resultXPath.getValue();
+        String exportVariableNameValue = this.exportVariableName.getValue();
+        String responseLanguageValue = this.responseLanguage.getValue(this.responseLanguage.getSelectedIndex());
+        
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("@className", RestServiceScriptHelper.class.getName());
+        map.put("urlValue", urlValue);
+        map.put("methodValue", methodValue);
+        map.put("resultStatusValue", resultStatusValue);
+        map.put("resultPathValue", resultPathValue);
+        map.put("exportVariableNameValue", exportVariableNameValue);
+        map.put("responseLanguageValue", responseLanguageValue);
+        Map<String, Object> headersMap = new HashMap<String, Object>();
+        for (Map.Entry<String, String> entry : headerViewPanel.getHeaders()) {
+            headersMap.put(entry.getKey(), entry.getValue());
+        }
+        map.put("headers", headersMap);
+        return map;
     }
 
     @Override
     public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
-        // TODO Auto-generated method stub
+        String urlValue = (String) dataMap.get("urlValue");
+        if (urlValue == null) urlValue = "";
+        String methodValue = (String) dataMap.get("methodValue");
+        if (methodValue == null) methodValue = "";
+        String resultStatusValue = (String) dataMap.get("resultStatusValue");
+        if (resultStatusValue == null) resultStatusValue = "";
+        String resultPathValue = (String) dataMap.get("resultPathValue");
+        if (resultPathValue == null) resultPathValue = "";
+        String exportVariableNameValue = (String) dataMap.get("exportVariableNameValue");
+        if (exportVariableNameValue == null) exportVariableNameValue = "";
+        String responseLanguageValue = (String) dataMap.get("responseLanguageValue");
+        if (responseLanguageValue == null) responseLanguageValue = "";
+        @SuppressWarnings("unchecked")
+        Map<String, Object> headerMap = (Map<String, Object>) dataMap.get("headers"); 
 
+        this.url.setValue(urlValue);
+        for (int index = 0; index < this.method.getItemCount(); index++) {
+            if (this.method.getValue(index).equals(methodValue)) {
+                this.method.setSelectedIndex(index);
+                break;
+            }
+        }
+        for (int index = 0; index < this.resultStatus.getItemCount(); index++) {
+            if (this.resultStatus.getValue(index).equals(resultStatusValue)) {
+                this.resultStatus.setSelectedIndex(index);
+                break;
+            }
+        }
+        this.resultXPath.setValue(resultPathValue);
+        this.exportVariableName.setValue(exportVariableNameValue);
+        for (int index = 0; index < this.responseLanguage.getItemCount(); index++) {
+            if (this.responseLanguage.getValue(index).equals(responseLanguageValue)) {
+                this.responseLanguage.setSelectedIndex(index);
+                break;
+            }
+        }
+        headerViewPanel.clear();
+        if (headerMap != null) {
+            for (Map.Entry<String, Object> entry : headerMap.entrySet()) {
+                headerViewPanel.addHeaderRow(entry.getKey(), (String) entry.getValue());
+            }
+        }
     }
 
     @Override
@@ -166,7 +230,7 @@ public class RestServiceScriptHelper extends FlexTable implements FBScriptHelper
 
     @Override
     public String getName() {
-        return "rest service"; //TODO i18n
+        return i18n.RestServiceScriptHelperName();
     }
 
 }
