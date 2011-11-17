@@ -121,10 +121,10 @@ public class RuleFlowProcessValidator implements ProcessValidator {
 //            errors.add(new ProcessValidationErrorImpl(process,
 //                    "Process has no start node."));
 //        }
-        if (!endNodeFound) {
-            errors.add(new ProcessValidationErrorImpl(process,
-                    "Process has no end node."));
-        }
+        //        if (!endNodeFound) {
+        //   errors.add(new ProcessValidationErrorImpl(process,
+        //           "Process has no end node."));
+        //}
         for (final Iterator<Variable> it = process.getVariableScope()
                 .getVariables().iterator(); it.hasNext();) {
             final Variable variable = it.next();
