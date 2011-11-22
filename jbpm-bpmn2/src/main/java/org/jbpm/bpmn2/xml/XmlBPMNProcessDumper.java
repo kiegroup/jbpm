@@ -62,7 +62,8 @@ public class XmlBPMNProcessDumper {
     public static final String JAVA_LANGUAGE = "http://www.java.com/java";
     public static final String RULE_LANGUAGE = "http://www.jboss.org/drools/rule";
     public static final String XPATH_LANGUAGE = "http://www.w3.org/1999/XPath";
-
+    public static final String ECMASCRIPT_DIALECT = "http://www.ecmascript.org";
+    
     public static final int NO_META_DATA = 0;
     public static final int META_DATA_AS_NODE_PROPERTY = 1;
     public static final int META_DATA_USING_DI = 2;
