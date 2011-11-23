@@ -96,11 +96,6 @@
       <artifactId>drools-persistence-jpa</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-persistence-jpa</artifactId>
       <type>test-jar</type>
