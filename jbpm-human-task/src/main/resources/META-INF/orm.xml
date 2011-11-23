@@ -129,7 +129,7 @@ from
     left join t.names as name,
     OrganizationalEntity potentialOwners
 where
-    potentialOwners.id = :userId and
+    (potentialOwners.id = :userId and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
 
     (
@@ -147,9 +147,30 @@ where
     or t.descriptions.size = 0
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
+    (t.taskData.status in ('Created', 'Ready')  or
+    (t.taskData.status in ('Suspended') and t.taskData.previousStatus in ('Created', 'Ready')) ) and
+    t.taskData.expirationTime is null)
+    or
+    (( t.taskData.actualOwner.id = :userId ) and
+       potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    (
+    name.language = :language
+    or t.names.size = 0
+    ) and
 
-    t.taskData.expirationTime is null
+    (
+    subject.language = :language
+    or t.subjects.size = 0
+    ) and
+
+    (
+    description.language = :language
+    or t.descriptions.size = 0
+    ) and
+    (t.taskData.status in ('Reserved', 'InProgress')  or
+    (t.taskData.status in ('Suspended') and t.taskData.previousStatus in ('Reserved', 'InProgress')) )
+    and
+    t.taskData.expirationTime is null)
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
@@ -181,7 +202,7 @@ from
     left join t.names as name,
     OrganizationalEntity potentialOwners
 where
-    ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
+    (( potentialOwners.id = :userId or potentialOwners.id in (:groupIds)) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
 
     (
@@ -199,10 +220,34 @@ where
     or t.descriptions.size = 0
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and
+	(t.taskData.status in ('Created', 'Ready')  or
+    (t.taskData.status in ('Suspended') and t.taskData.previousStatus in ('Created', 'Ready')) ) and    
 
-    t.taskData.expirationTime is null
-          </query>
+    t.taskData.expirationTime is null)
+    or
+    (( t.taskData.actualOwner.id = :userId ) and
+      potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    (
+    name.language = :language
+    or t.names.size = 0
+    ) and
+
+    (
+    subject.language = :language
+    or t.subjects.size = 0
+    ) and
+
+    (
+    description.language = :language
+    or t.descriptions.size = 0
+    ) and
+
+    (t.taskData.status in ('Reserved', 'InProgress')  or
+    (t.taskData.status in ('Suspended') and t.taskData.previousStatus in ('Reserved', 'InProgress')) )
+    and
+
+    t.taskData.expirationTime is null)
+  </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
 
