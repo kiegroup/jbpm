@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,9 +85,9 @@ public class GuvnorMenuServiceTest extends TestCase {
     private GuvnorMenuService createMockedService(final Class<?> exceptionType) {
         GuvnorMenuService service = new GuvnorMenuService() {
             @Override 
-            protected URI asURI(String path) throws URISyntaxException {
+            protected File asFile(String path) throws URISyntaxException {
                 if (exceptionType != null && exceptionType.equals(URISyntaxException.class)) throw new URISyntaxException(path, "mocking");
-                return super.asURI(path);
+                return super.asFile(path);
             }
             @Override 
             protected Reader createReader(File file) throws FileNotFoundException, IOException {

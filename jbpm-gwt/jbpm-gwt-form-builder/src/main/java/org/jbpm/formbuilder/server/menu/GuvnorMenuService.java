@@ -21,7 +21,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -50,7 +49,7 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     	Gson gson = new Gson();
         List<MenuOptionDescription> retval = null;
         try {
-            File file = new File(asURI("/menuOptions.json"));
+            File file = asFile("/menuOptions.json");
             retval = gson.fromJson(createReader(file), new TypeToken<List<MenuOptionDescription>>(){}.getType());
         } catch (URISyntaxException e) {
             throw new MenuServiceException("Problem finding menu options json file", e); 
@@ -67,7 +66,7 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         Map<String, List<MenuItemDescription>> retval = null;
         try {
         	FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
-        	File file = new File(asURI("/menuItems.json"));
+        	File file = asFile("/menuItems.json");
         	String json = readFile(file);
         	retval = decoder.decodeMenuItemsMap(json);
         } catch (FormEncodingException e) {
@@ -89,7 +88,7 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         Gson gson = new Gson();
         List<ValidationDescription> retval = null;
         try {
-            File file = new File(asURI("/validations.json"));
+            File file = asFile("/validations.json");
             retval = gson.fromJson(createReader(file), new TypeToken<List<ValidationDescription>>(){}.getType());
         } catch (URISyntaxException e) {
             throw new MenuServiceException("Problem finding validations json file", e); 
@@ -134,7 +133,7 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     private void writeMenuItems(Map<String, List<MenuItemDescription>> items) throws MenuServiceException {
         try {
             FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
-            File file = new File(asURI("/menuItems.json"));
+            File file = asFile("/menuItems.json");
             String json = encoder.encodeMenuItemsMap(items);
             writeFile(file, json);
         } catch (FormEncodingException e) {
@@ -154,9 +153,9 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         FileUtils.writeStringToFile(file, json);
     }
     
-    protected URI asURI(String path) throws URISyntaxException {
+    protected File asFile(String path) throws URISyntaxException {
         URL url = getClass().getResource(path);
-        return url.toURI();
+        return FileUtils.toFile(url);
     }
     
     protected Reader createReader(File file) throws FileNotFoundException, IOException {
