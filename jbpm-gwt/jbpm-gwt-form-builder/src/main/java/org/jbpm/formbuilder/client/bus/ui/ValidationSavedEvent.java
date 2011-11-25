@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.client.bus.ui;
 
 import java.util.List;
 
-import org.jbpm.formbuilder.client.validation.FBValidationItem;
+import org.jbpm.formapi.client.validation.FBValidationItem;
 
 import com.google.gwt.event.shared.GwtEvent;
 

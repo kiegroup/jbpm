@@ -19,9 +19,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.server.RenderTranslatorAbstractTest;
 import org.jbpm.formbuilder.server.trans.ftl.Translator;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 public class RendererTest extends RenderTranslatorAbstractTest {
 

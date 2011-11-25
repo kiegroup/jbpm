@@ -29,7 +29,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.URLResourceLoader;
-import org.jbpm.formbuilder.server.render.RendererException;
+import org.jbpm.formapi.server.render.RendererException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -37,7 +37,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
+public class Renderer implements org.jbpm.formapi.server.render.Renderer {
 
     private final VelocityEngine engine = new VelocityEngine();
     private final URL velocityTemplate;

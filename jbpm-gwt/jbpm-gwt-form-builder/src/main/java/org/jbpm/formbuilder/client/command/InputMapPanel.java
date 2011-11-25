@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.shared.api.InputData;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.InputData;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
 
 @XmlRootElement (name = "formPreview") public class FormPreviewDTO {
 

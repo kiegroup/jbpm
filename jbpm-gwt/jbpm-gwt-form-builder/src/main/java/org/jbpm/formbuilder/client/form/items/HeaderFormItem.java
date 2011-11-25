@@ -20,17 +20,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.FBInplaceEditor;
+import org.jbpm.formapi.client.form.I18NFormItem;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.items.HeaderRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.FBInplaceEditor;
-import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.form.editors.HeaderInplaceEditor;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;

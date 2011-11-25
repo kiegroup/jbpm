@@ -26,10 +26,12 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.jbpm.formapi.server.form.FormRepresentationDecoderImpl;
+import org.jbpm.formapi.server.form.FormRepresentationEncoderImpl;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 
 public class FormItemRepresentationTest extends TestCase {
 

@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.bus.ui;
 
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
 
 import com.google.gwt.event.shared.GwtEvent;
 

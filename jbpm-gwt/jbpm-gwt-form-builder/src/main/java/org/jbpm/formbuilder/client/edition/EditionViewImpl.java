@@ -18,9 +18,10 @@ package org.jbpm.formbuilder.client.edition;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
@@ -51,7 +52,7 @@ public class EditionViewImpl extends ScrollPanel implements EditionView {
         panel.setSize("100%", "100%");
         add(panel);
         
-        PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
+        PickupDragController dragController = CommonGlobals.getInstance().getDragController();
         dragController.registerDropController(new DisposeDropController(this));
         
         this.presenter = new EditionPresenter(this);

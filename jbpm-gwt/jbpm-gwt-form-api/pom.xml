@@ -60,10 +60,10 @@
               <noServer>false</noServer>
               <inplace>true</inplace>
               <modules>
-                <module>org.jbpm.formbuilder.Commons</module>
+                <module>org.jbpm.formapi.Commons</module>
               </modules>
               <compileTargets>
-                <value>org.jbpm.formbuilder.Commons</value>
+                <value>org.jbpm.formapi.Commons</value>
               </compileTargets>
               <gwtSdkFirstInClasspath>true</gwtSdkFirstInClasspath><!-- The GWT compiler must the correct JDT version -->
               <localWorkers>2</localWorkers><!-- Using all workers can temporarily hang the mouse and isn't much faster -->

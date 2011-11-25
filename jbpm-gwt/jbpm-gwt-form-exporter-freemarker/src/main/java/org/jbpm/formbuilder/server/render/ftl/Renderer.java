@@ -21,14 +21,14 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.Map;
 
-import org.jbpm.formbuilder.server.render.RendererException;
+import org.jbpm.formapi.server.render.RendererException;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
+public class Renderer implements org.jbpm.formapi.server.render.Renderer {
 
     @Override
     public Object render(URL url, Map<String, Object> inputData) throws RendererException {

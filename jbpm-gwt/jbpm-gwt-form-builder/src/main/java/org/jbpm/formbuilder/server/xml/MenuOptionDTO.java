@@ -21,7 +21,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
+import org.jbpm.formapi.shared.menu.MenuOptionDescription;
 
 public class MenuOptionDTO {
     

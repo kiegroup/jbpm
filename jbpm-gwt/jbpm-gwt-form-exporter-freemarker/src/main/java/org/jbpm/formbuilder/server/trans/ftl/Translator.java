@@ -15,10 +15,10 @@
  */
 package org.jbpm.formbuilder.server.trans.ftl;
 
-import org.jbpm.formbuilder.server.trans.TranslatorException;
-import org.jbpm.formbuilder.server.trans.TranslatorFactory;
-import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
-import org.jbpm.formbuilder.shared.api.FBScript;
+import org.jbpm.formapi.server.trans.ScriptingTranslator;
+import org.jbpm.formapi.server.trans.TranslatorException;
+import org.jbpm.formapi.server.trans.TranslatorFactory;
+import org.jbpm.formapi.shared.api.FBScript;
 
 public class Translator extends ScriptingTranslator {
 

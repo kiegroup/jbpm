@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
+
 public abstract class AbstractBaseMenuService implements MenuService {
 
     protected void removeFromMap(String groupName, MenuItemDescription item, Map<String, List<MenuItemDescription>> items) {

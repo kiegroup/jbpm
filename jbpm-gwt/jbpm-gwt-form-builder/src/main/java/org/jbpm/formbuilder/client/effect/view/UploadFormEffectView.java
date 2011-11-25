@@ -18,10 +18,11 @@ package org.jbpm.formbuilder.client.effect.view;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.UploadFormEffect;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
@@ -45,7 +46,7 @@ public class UploadFormEffectView extends PopupPanel {
     private final UploadFormEffect effect;
     private final FileUpload fileInput = new FileUpload();
     private final FormPanel form = new FormPanel();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     

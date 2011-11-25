@@ -21,18 +21,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.LayoutFormItem;
+import org.jbpm.formapi.client.form.PhantomPanel;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.InputData;
+import org.jbpm.formapi.shared.api.items.LoopBlockRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
-import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.InputData;
-import org.jbpm.formbuilder.shared.api.items.LoopBlockRepresentation;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -49,7 +50,7 @@ public class LoopBlockFormItem extends LayoutFormItem {
 
     private String variableName;
     private SimplePanel loopBlock = new SimplePanel();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     public LoopBlockFormItem() {

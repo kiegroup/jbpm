@@ -15,9 +15,9 @@
  */
 package org.jbpm.formbuilder.client.notification;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent; 
-import org.jbpm.formbuilder.client.bus.ui.NotificationHandler;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationHandler;
 
 import com.google.gwt.event.shared.EventBus;
 
@@ -28,7 +28,7 @@ import com.google.gwt.event.shared.EventBus;
 public class NotificationsPresenter implements NotificationsView.Presenter {
 
     private final NotificationsView view;
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
 
     public NotificationsPresenter(NotificationsView notifView) {
         this.view = notifView;

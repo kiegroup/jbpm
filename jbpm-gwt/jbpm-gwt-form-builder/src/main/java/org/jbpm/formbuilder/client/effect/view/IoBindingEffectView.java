@@ -19,12 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.shared.api.Data;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.IoBindingEffect;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.Data;
 import org.jbpm.formbuilder.shared.task.ExternalDataRef;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
@@ -46,7 +47,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class IoBindingEffectView extends PopupPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final ListBox inputList;
     private final ListBox outputList;
     private final CheckBox externalDataCheckbox;

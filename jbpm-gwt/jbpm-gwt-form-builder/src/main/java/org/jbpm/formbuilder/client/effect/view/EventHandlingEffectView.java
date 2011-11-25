@@ -20,17 +20,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.common.reflect.ReflectionHelper;
+import org.jbpm.formapi.shared.api.FBScript;
+import org.jbpm.formapi.shared.api.FBScriptHelper;
+import org.jbpm.formapi.shared.api.RepresentationFactory;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.effect.EventHandlingFormEffect;
 import org.jbpm.formbuilder.client.effect.scripthandlers.PlainTextScriptHelper;
 import org.jbpm.formbuilder.client.effect.view.ScriptHelperListPanel.ScriptOrderHandler;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
-import org.jbpm.formbuilder.shared.api.FBScript;
-import org.jbpm.formbuilder.shared.api.FBScriptHelper;
-import org.jbpm.formbuilder.shared.api.RepresentationFactory;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -48,7 +49,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class EventHandlingEffectView extends PopupPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     private final EventHandlingFormEffect effect;
     private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();

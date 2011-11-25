@@ -18,7 +18,7 @@
 
   <!-- Inherit the core Web Toolkit stuff. -->
 
-  <inherits name="org.jbpm.formbuilder.Commons" />
+  <inherits name="org.jbpm.formapi.Commons" />
   <inherits name="com.google.gwt.visualization.Visualization"/>
   <inherits name="org.fusesource.restygwt.RestyGWT" />
   <inherits name="org.gwt.beansbinding.BeansBinding" />

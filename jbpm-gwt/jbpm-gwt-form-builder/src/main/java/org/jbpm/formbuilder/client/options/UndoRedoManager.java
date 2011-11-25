@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.client.options;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
@@ -34,7 +34,7 @@ public class UndoRedoManager {
     
     private static final UndoRedoManager INSTANCE = new UndoRedoManager();
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public static UndoRedoManager getInstance() {
         return INSTANCE;

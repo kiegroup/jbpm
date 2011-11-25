@@ -18,10 +18,12 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.TabbedLayoutFormItem;
 
 import com.google.gwt.event.shared.EventBus;
@@ -30,7 +32,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class AddTabFormEffect extends FBFormEffect {
    
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public AddTabFormEffect() {
         super(FormBuilderGlobals.getInstance().getI18n().AddTabEffectLabel(), false);

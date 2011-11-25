@@ -18,12 +18,14 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.view.L10NEffectView;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.I18NFormItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -32,7 +34,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class L10NFormEffect extends FBFormEffect {
 
-    private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private EventBus bus = CommonGlobals.getInstance().getEventBus();
     private String savedFormat = null;
     
     public L10NFormEffect() {

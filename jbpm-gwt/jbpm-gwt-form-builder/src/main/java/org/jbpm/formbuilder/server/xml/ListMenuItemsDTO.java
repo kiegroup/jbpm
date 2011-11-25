@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
 
 @XmlRootElement (name ="menuGroups") public class ListMenuItemsDTO {
 

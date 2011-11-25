@@ -19,7 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.client.form.LayoutFormItem;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.InputData;
+import org.jbpm.formapi.shared.api.OutputData;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.FormDataPopulatedHandler;
@@ -34,19 +41,13 @@ import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedHandler;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
 import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.InputData;
-import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
@@ -66,12 +67,12 @@ import com.google.gwt.event.shared.EventBus;
 public class LayoutPresenter {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final LayoutView layoutView;
     
     public LayoutPresenter(LayoutView view) {
         this.layoutView = view;
-        final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
+        final PickupDragController dragController = CommonGlobals.getInstance().getDragController();
         dragController.registerDropController(new DropFormItemController(layoutView.asWidget(), layoutView));
         
         this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutHandler() {

@@ -15,16 +15,17 @@
  */
 package org.jbpm.formdisplay.client;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.form.FormEncodingClientFactory;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.JsonLoadInput;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
@@ -38,7 +39,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 public class FormDisplayController {
 
     public FormDisplayController(RootPanel formInfo, final RootPanel formDisplay) {
-        EventBus eventBus = FormBuilderGlobals.getInstance().getEventBus();
+        EventBus eventBus = CommonGlobals.getInstance().getEventBus();
         FormBuilderService server = FormBuilderGlobals.getInstance().getService();
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         try {

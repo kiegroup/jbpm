@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.server.xml;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
 
 public class FormItemDefDTO {
 

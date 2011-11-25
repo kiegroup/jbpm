@@ -18,18 +18,20 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.ValidationSavedHandler;
 import org.jbpm.formbuilder.client.effect.view.ValidationsEffectView;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -41,7 +43,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class ValidationsEffect extends FBFormEffect {
 
-    private EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private EventBus bus = CommonGlobals.getInstance().getEventBus();
     private FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     
     private List<FBValidationItem> availableValidations = new ArrayList<FBValidationItem>();

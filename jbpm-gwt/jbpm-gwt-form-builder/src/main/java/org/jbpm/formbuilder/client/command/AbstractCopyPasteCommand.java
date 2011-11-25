@@ -17,10 +17,10 @@ package org.jbpm.formbuilder.client.command;
 
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.AbstractFormItemCommand;
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
-import org.jbpm.formbuilder.client.bus.FormItemSelectionHandler;
+import org.jbpm.formapi.client.AbstractFormItemCommand;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.FormItemSelectionEvent;
+import org.jbpm.formapi.client.bus.FormItemSelectionHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 
@@ -32,7 +32,7 @@ import com.google.gwt.user.client.ui.MenuItem;
  */
 public abstract class AbstractCopyPasteCommand extends AbstractFormItemCommand implements BaseCommand {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     private static Object memory;
     

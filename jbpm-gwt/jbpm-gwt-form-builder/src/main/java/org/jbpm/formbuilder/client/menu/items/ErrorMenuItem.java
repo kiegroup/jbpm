@@ -19,13 +19,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
 
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.ui.Label;

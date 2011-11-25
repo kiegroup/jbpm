@@ -17,6 +17,7 @@ package org.jbpm.formbuilder.client.notification;
 
 import java.util.Collection;
 
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
@@ -42,7 +43,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class CompactNotificationsViewImpl extends SimplePanel implements NotificationsView {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     private final VerticalPanel panel = new VerticalPanel();
     private final ScrollPanel scroll = new ScrollPanel(panel);

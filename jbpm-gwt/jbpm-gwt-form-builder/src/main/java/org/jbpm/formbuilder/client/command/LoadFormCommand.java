@@ -19,18 +19,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.LoadServerFormEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormHandler;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -53,7 +54,7 @@ import com.gwtent.reflection.client.Reflectable;
 public class LoadFormCommand implements BaseCommand {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final FormBuilderService service = FormBuilderGlobals.getInstance().getService();
     
     public LoadFormCommand() {

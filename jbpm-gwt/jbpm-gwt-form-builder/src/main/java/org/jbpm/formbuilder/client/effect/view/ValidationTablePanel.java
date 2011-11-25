@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.effect.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formapi.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.client.validation.FBValidationItem;
 
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.event.dom.client.ClickEvent;

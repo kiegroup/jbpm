@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.jbpm.formbuilder.shared.menu.ValidationDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
 
 public class ValidationDTO {
 

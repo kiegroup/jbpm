@@ -18,13 +18,15 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
@@ -48,7 +50,7 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
     private String newMenuOptionName;
     private String groupName;
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public SaveAsMenuOptionFormEffect() {
         super("Save as menu option", true);
@@ -87,14 +89,14 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
                 FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
                 String groupName = (String) event.getData("groupName");
                 MenuItemRemoveEvent mevent = new MenuItemRemoveEvent(menuItem, groupName);
-                FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
+                CommonGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
             @Override
             public void doAction(UndoableEvent event) {
                 FBMenuItem menuItem = (FBMenuItem) event.getData("menuItem");
                 String groupName = (String) event.getData("groupName");
                 MenuItemAddedEvent mevent = new MenuItemAddedEvent(menuItem, groupName);
-                FormBuilderGlobals.getInstance().getEventBus().fireEvent(mevent);
+                CommonGlobals.getInstance().getEventBus().fireEvent(mevent);
             }
         }));
     }

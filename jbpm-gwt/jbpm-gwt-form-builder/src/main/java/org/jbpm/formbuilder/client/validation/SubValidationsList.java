@@ -18,6 +18,7 @@ package org.jbpm.formbuilder.client.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formapi.client.validation.FBValidationItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 

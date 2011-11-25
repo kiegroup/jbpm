@@ -20,14 +20,14 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.server.trans.TranslatorException;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.server.trans.TranslatorException;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
 
-public class Translator implements org.jbpm.formbuilder.server.trans.Translator {
+public class Translator implements org.jbpm.formapi.server.trans.Translator {
 
     private static final String LANG = "gwt";
     

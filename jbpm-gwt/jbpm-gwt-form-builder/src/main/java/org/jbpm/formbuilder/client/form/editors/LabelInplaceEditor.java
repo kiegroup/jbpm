@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.form.editors;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBInplaceEditor;
 import org.jbpm.formbuilder.client.form.items.LabelFormItem;
 
 import com.google.gwt.event.dom.client.BlurEvent;
@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.TextBox;
  */
 public class LabelInplaceEditor extends FBInplaceEditor {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final TextBox textBox = new TextBox();
     private final FocusWrapper wrapper = new FocusWrapper();
     

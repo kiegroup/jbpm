@@ -549,7 +549,7 @@
 	            "width": "100%",
 	            "rows": 3,
 	            "columns": 2,
-	            "@className": "org.jbpm.formbuilder.shared.api.items.TableRepresentation",
+	            "@className": "org.jbpm.formapi.shared.api.items.TableRepresentation",
 	            "typeId": "table",
 	            "cellPadding": 0,
 	            "height": "200px",
@@ -560,11 +560,11 @@
 	                    {
 	                        "value": "User",
 	                        "typeId": "label",
-	                        "@className": "org.jbpm.formbuilder.shared.api.items.LabelRepresentation"
+	                        "@className": "org.jbpm.formapi.shared.api.items.LabelRepresentation"
 	                    },
 	                    {
 	                        "typeId": "textField",
-	                        "@className": "org.jbpm.formbuilder.shared.api.items.TextFieldRepresentation",
+	                        "@className": "org.jbpm.formapi.shared.api.items.TextFieldRepresentation",
 	                        "width": "160px",
 	                        "height": "21px",
 	                        "name": "usr"
@@ -573,12 +573,12 @@
 	                [
 	                    {
 	                        "typeId": "label",
-	                        "@className": "org.jbpm.formbuilder.shared.api.items.LabelRepresentation",
+	                        "@className": "org.jbpm.formapi.shared.api.items.LabelRepresentation",
 	                        "value": "Password"
 	                    },
 	                    {
 	                        "typeId": "textField",
-	                        "@className": "org.jbpm.formbuilder.shared.api.items.TextFieldRepresentation",
+	                        "@className": "org.jbpm.formapi.shared.api.items.TextFieldRepresentation",
 	                        "width": "160px",
 	                        "height": "21px",
 	                        "name": "pwd"
@@ -588,12 +588,12 @@
 	                    null,
 	                    {
 	                        "onClickScript": {
-	                            "@className": "org.jbpm.formbuilder.shared.api.FBScript",
+	                            "@className": "org.jbpm.formapi.shared.api.FBScript",
 	                            "type": "text/javascript",
 	                            "content": "document.forms[0].submit();"
 	                        },
 	                        "typeId": "completeButton",
-	                        "@className": "org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation",
+	                        "@className": "org.jbpm.formapi.shared.api.items.CompleteButtonRepresentation",
 	                        "text": "Login",
 	                        "width": "140px",
 	                        "height": "25px"

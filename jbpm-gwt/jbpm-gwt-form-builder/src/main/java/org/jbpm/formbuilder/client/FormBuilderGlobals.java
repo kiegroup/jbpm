@@ -17,9 +17,6 @@ package org.jbpm.formbuilder.client;
 
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
-import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.event.shared.EventBus;
-
 /**
  * Base singleton to obtain global variables, like service callers and event buses
  */
@@ -29,7 +26,6 @@ public class FormBuilderGlobals {
     public static final String BASE_LOCALE = "org.jbpm.formbuilder.server.render.Renderer.BASE_LOCALE";
     
     private static final FormBuilderGlobals INSTANCE = new FormBuilderGlobals();
-    private static final CommonGlobals SUPERINSTANCE = CommonGlobals.getInstance();
     
     private I18NConstants i18n;
     private FormBuilderService service;
@@ -55,45 +51,5 @@ public class FormBuilderGlobals {
     
     public FormBuilderService getService() {
         return service;
-    }
-    
-    public void registerEventBus(EventBus eventBus) {
-        SUPERINSTANCE.registerEventBus(eventBus);
-    }
-    
-    public EventBus getEventBus() {
-        return SUPERINSTANCE.getEventBus();
-    }
-    
-    public void registerCopy(AbstractFormItemCommand copy) {
-        SUPERINSTANCE.registerCopy(copy);
-    }
-    
-    public void registerCut(AbstractFormItemCommand cut) {
-        SUPERINSTANCE.registerCut(cut);
-    }
-    
-    public void registerPaste(AbstractFormItemCommand paste) {
-        SUPERINSTANCE.registerPaste(paste);
-    }
-    
-    public AbstractFormItemCommand copy() {
-        return SUPERINSTANCE.copy();
-    }
-    
-    public AbstractFormItemCommand cut() {
-        return SUPERINSTANCE.cut();
-    }
-    
-    public AbstractFormItemCommand paste() {
-        return SUPERINSTANCE.paste();
-    }
-
-    public void registerDragController(PickupDragController dragController) {
-        SUPERINSTANCE.registerDragController(dragController);
-    }
-    
-    public PickupDragController getDragController() {
-        return SUPERINSTANCE.getDragController();
     }
 }

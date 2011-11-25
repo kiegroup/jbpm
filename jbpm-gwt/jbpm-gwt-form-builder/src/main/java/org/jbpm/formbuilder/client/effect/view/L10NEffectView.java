@@ -15,9 +15,9 @@
  */
 package org.jbpm.formbuilder.client.effect.view;
 
+import org.jbpm.formapi.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.effect.L10NFormEffect;
-import org.jbpm.formbuilder.client.form.I18NFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.event.dom.client.ClickEvent;

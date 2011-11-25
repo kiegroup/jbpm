@@ -18,12 +18,12 @@ package org.jbpm.formbuilder.client.command;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HasOneWidget;
@@ -38,11 +38,11 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class CutCommand extends AbstractCopyPasteCommand {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public CutCommand() {
         super();
-        FormBuilderGlobals.getInstance().registerCut(this);
+        CommonGlobals.getInstance().registerCut(this);
     }
     
     @Override
@@ -66,7 +66,7 @@ public class CutCommand extends AbstractCopyPasteCommand {
                     AbstractCopyPasteCommand.setMemory(item.cloneItem());
                     item.removeFromParent();
                 }
-                FormBuilderGlobals.getInstance().paste().enable();
+                CommonGlobals.getInstance().paste().enable();
                 bus.fireEvent(new FormItemRemovedEvent(item));
             }
             @Override
@@ -75,7 +75,7 @@ public class CutCommand extends AbstractCopyPasteCommand {
                 Object oldMemory = event.getData("oldMemory");
                 Widget oldParent = (Widget) event.getData("oldItemParent");
                 AbstractCopyPasteCommand.setMemory(oldMemory);
-                FormBuilderGlobals.getInstance().paste().enable();
+                CommonGlobals.getInstance().paste().enable();
                 if (oldParent instanceof HasWidgets) {
                     HasWidgets oldParentPanel = (HasWidgets) oldParent;
                     oldParentPanel.add(item);

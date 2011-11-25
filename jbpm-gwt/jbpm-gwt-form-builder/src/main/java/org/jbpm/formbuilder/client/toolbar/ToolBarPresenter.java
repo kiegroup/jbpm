@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.toolbar;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.common.panels.ConfirmDialog;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
@@ -29,7 +31,6 @@ import org.jbpm.formbuilder.client.command.SaveFormCommand;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.UndoRedoManager;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -44,7 +45,7 @@ public class ToolBarPresenter {
     private static final String LOAD_TYPE = LoadFormCommand.class.getName();
     
     private final ToolBarView view;
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final UndoRedoManager mgr = UndoRedoManager.getInstance();
 

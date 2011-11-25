@@ -18,7 +18,7 @@ package org.jbpm.formbuilder.server.trans.xulphp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
+import org.jbpm.formapi.server.trans.ScriptingTranslator;
 
 public class Translator extends ScriptingTranslator {
 

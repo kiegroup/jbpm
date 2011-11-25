@@ -27,8 +27,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
+import org.jbpm.formapi.shared.menu.FormEffectDescription;
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
+import org.jbpm.formapi.shared.menu.MenuOptionDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.xml.FormEffectDTO;
 import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
@@ -36,16 +44,8 @@ import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
 import org.jbpm.formbuilder.server.xml.ListValidationsDTO;
 import org.jbpm.formbuilder.server.xml.PropertiesDTO;
 import org.jbpm.formbuilder.server.xml.SaveMenuItemDTO;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
-import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuService;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
-import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 @Path("/menu")
 public class RESTMenuService extends RESTBaseService {

@@ -18,11 +18,11 @@ package org.jbpm.formbuilder.client.effect.scripthandlers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.shared.api.FBScript;
+import org.jbpm.formapi.shared.api.FBScriptHelper;
+import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FBScript;
-import org.jbpm.formbuilder.shared.api.FBScriptHelper;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
 
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;

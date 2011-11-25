@@ -27,16 +27,16 @@ import javax.xml.bind.JAXBException;
 
 import junit.framework.TestCase;
 
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.menu.FormEffectDescription;
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
+import org.jbpm.formapi.shared.menu.MenuOptionDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
-import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
-import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 /**

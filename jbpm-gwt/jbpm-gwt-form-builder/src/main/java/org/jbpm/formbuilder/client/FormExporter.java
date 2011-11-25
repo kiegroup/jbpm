@@ -15,18 +15,19 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 
 import com.google.gwt.event.shared.EventBus;
 
@@ -35,7 +36,7 @@ public class FormExporter {
     private static final String EXPORT_TYPE = FormExporter.class.getName();
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public FormExporter() {
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {

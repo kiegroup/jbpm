@@ -18,15 +18,15 @@ package org.jbpm.formbuilder.client.command;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.LayoutFormItem;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.bus.ui.GetFormDisplayEvent;
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HasOneWidget;
@@ -41,11 +41,11 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class PasteCommand extends AbstractCopyPasteCommand {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public PasteCommand() {
         super();
-        FormBuilderGlobals.getInstance().registerPaste(this);
+        CommonGlobals.getInstance().registerPaste(this);
     }
     
     @Override

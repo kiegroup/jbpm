@@ -26,10 +26,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;

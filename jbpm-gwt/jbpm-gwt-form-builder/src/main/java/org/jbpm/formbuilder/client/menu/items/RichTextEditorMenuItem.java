@@ -18,11 +18,11 @@ package org.jbpm.formbuilder.client.menu.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.form.items.RichTextEditorFormItem;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;

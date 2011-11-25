@@ -18,6 +18,10 @@ package org.jbpm.formbuilder.shared.menu;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
+import org.jbpm.formapi.shared.menu.MenuOptionDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
+
 public interface MenuService {
 
     List<MenuOptionDescription> listOptions() throws MenuServiceException;

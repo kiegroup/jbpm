@@ -18,11 +18,12 @@ package org.jbpm.formbuilder.client.form.items;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.common.reflect.ReflectionHelper;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.RestyFormBuilderModel;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.common.reflect.ReflectionHelper;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -38,7 +39,7 @@ public class FormItemsGwtTest extends GWTTestCase {
 
     public void testItems() throws Exception {
         FormBuilderGlobals.getInstance().registerI18n((I18NConstants) GWT.create(I18NConstants.class));
-        FormBuilderGlobals.getInstance().registerEventBus(new SimpleEventBus());
+        CommonGlobals.getInstance().registerEventBus(new SimpleEventBus());
         FormBuilderGlobals.getInstance().registerService(new RestyFormBuilderModel("rest"));
         
         testBasicItem(AbsoluteLayoutFormItem.class);

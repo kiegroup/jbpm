@@ -23,6 +23,7 @@ import java.util.Map;
 import org.gwt.mosaic.ui.client.layout.BoxLayout;
 import org.gwt.mosaic.ui.client.layout.BoxLayoutData;
 import org.gwt.mosaic.ui.client.layout.LayoutPanel;
+import org.jbpm.formapi.client.menu.FBMenuItem;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.ScrollPanel;

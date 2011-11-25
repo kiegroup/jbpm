@@ -21,6 +21,17 @@ import java.util.Map;
 
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.Resource;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formapi.client.validation.FBValidationItem;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.RepresentationFactory;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingValidationsResponseEvent;
 import org.jbpm.formbuilder.client.bus.LoadServerFormResponseEvent;
@@ -32,21 +43,11 @@ import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
-import org.jbpm.formbuilder.client.validation.FBValidationItem;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.RepresentationFactory;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -64,7 +65,7 @@ import com.google.gwt.xml.client.XMLParser;
 public class RestyFormBuilderModel implements FormBuilderService {
 
     private static final String DEFAULT_PACKAGE = "defaultPackage";
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final XmlParseHelper helper = new XmlParseHelper();
     private final MockFormDefinitionService mockFormService = new MockFormDefinitionService();

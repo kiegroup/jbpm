@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.command;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.bus.UndoRedoEvent;
 import org.jbpm.formbuilder.client.bus.UndoRedoHandler;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -36,7 +36,7 @@ public class EditFormUndoCommand implements BaseCommand {
     private MenuItem item = null;
     
     public EditFormUndoCommand() {
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+        EventBus bus = CommonGlobals.getInstance().getEventBus();
         bus.addHandler(UndoableEvent.TYPE, new UndoableHandler() {
             @Override
             public void onEvent(UndoableEvent event) {

@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.effect;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 
 import com.gwtent.reflection.client.Reflectable;
@@ -31,7 +33,7 @@ public class PasteFormEffect extends FBFormEffect {
     
     @Override
     protected void createStyles() {
-        FormBuilderGlobals.getInstance().paste().append(getItem()).execute();
+        CommonGlobals.getInstance().paste().append(getItem()).execute();
     }
 
 }

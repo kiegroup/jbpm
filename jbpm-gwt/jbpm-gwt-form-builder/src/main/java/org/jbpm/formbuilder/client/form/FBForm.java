@@ -20,22 +20,26 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.form.FBCompositeItem;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.PhantomPanel;
+import org.jbpm.formapi.client.validation.FBValidationItem;
+import org.jbpm.formapi.common.handler.ControlKeyHandler;
+import org.jbpm.formapi.common.handler.EventHelper;
+import org.jbpm.formapi.common.handler.RightClickEvent;
+import org.jbpm.formapi.common.handler.RightClickHandler;
+import org.jbpm.formapi.shared.api.FBScript;
+import org.jbpm.formapi.shared.api.FBValidation;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.InputData;
+import org.jbpm.formapi.shared.api.OutputData;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.menu.FormDataPopupPanel;
-import org.jbpm.formbuilder.client.validation.FBValidationItem;
-import org.jbpm.formbuilder.common.handler.ControlKeyHandler;
-import org.jbpm.formbuilder.common.handler.EventHelper;
-import org.jbpm.formbuilder.common.handler.RightClickEvent;
-import org.jbpm.formbuilder.common.handler.RightClickHandler;
-import org.jbpm.formbuilder.shared.api.FBScript;
-import org.jbpm.formbuilder.shared.api.FBValidation;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.InputData;
-import org.jbpm.formbuilder.shared.api.OutputData;
 
 import com.google.gwt.dom.client.FormElement;
 import com.google.gwt.event.shared.EventBus;
@@ -43,12 +47,12 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.google.gwt.user.client.ui.FormPanel.SubmitHandler;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -56,7 +60,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class FBForm extends FlowPanel implements FBCompositeItem {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     private String name;
     private String taskId;
@@ -89,7 +93,7 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         EventHelper.addKeyboardPasteHandler(this, new ControlKeyHandler() {
             @Override
             public void onKeyboardControl() {
-                FormBuilderGlobals.getInstance().paste().append(null).execute();
+                CommonGlobals.getInstance().paste().append(null).execute();
             }
         });
     }

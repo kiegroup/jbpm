@@ -29,22 +29,22 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
+import org.jbpm.formapi.shared.menu.FormEffectDescription;
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
+import org.jbpm.formapi.shared.menu.MenuOptionDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.client.effect.DoneEffect;
 import org.jbpm.formbuilder.client.effect.RemoveEffect;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
-import org.jbpm.formbuilder.shared.menu.FormEffectDescription;
-import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 import org.jbpm.formbuilder.shared.menu.MockMenuService;
-import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 public class GuvnorMenuServiceTest extends TestCase {
 

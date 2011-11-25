@@ -32,9 +32,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.jbpm.formbuilder.server.render.RendererException;
+import org.jbpm.formapi.server.render.RendererException;
 
-public class Renderer implements org.jbpm.formbuilder.server.render.Renderer {
+public class Renderer implements org.jbpm.formapi.server.render.Renderer {
 
     private final TransformerFactory factory = TransformerFactory.newInstance();
     

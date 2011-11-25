@@ -17,10 +17,11 @@ package org.jbpm.formbuilder.client;
 
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.RepresentationFactory;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.RepresentationFactory;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 /**

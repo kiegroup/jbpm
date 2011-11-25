@@ -18,12 +18,12 @@ package org.jbpm.formbuilder.client.edition;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
-import org.jbpm.formbuilder.client.bus.FormItemSelectionHandler;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.FormItemSelectionEvent;
+import org.jbpm.formapi.client.bus.FormItemSelectionHandler;
+import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.event.shared.EventBus;
 
@@ -38,7 +38,7 @@ public class EditionPresenter implements EditionView.Presenter {
     public EditionPresenter(EditionView view) {
         super();
         this.editView = view;
-        this.bus = FormBuilderGlobals.getInstance().getEventBus();
+        this.bus = CommonGlobals.getInstance().getEventBus();
         
         this.bus.addHandler(FormItemSelectionEvent.TYPE, new FormItemSelectionHandler() {
             @Override

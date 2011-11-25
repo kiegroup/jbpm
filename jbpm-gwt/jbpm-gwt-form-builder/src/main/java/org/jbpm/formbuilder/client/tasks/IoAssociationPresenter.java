@@ -15,22 +15,23 @@
  */
 package org.jbpm.formbuilder.client.tasks;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.common.handler.RightClickEvent;
+import org.jbpm.formapi.common.handler.RightClickHandler;
+import org.jbpm.formapi.common.panels.CommandPopupPanel;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseHandler;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterHandler;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.common.handler.RightClickEvent;
-import org.jbpm.formbuilder.common.handler.RightClickHandler;
-import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
 import com.google.gwt.event.shared.EventBus;
@@ -46,7 +47,7 @@ public class IoAssociationPresenter implements IoAssociationView.Presenter {
     
     private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public IoAssociationPresenter(IoAssociationView tasksView) {
         this.view = tasksView;

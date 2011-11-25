@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.client.edition;
 
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.FBFormItem;
 
 public interface EditionView {
 

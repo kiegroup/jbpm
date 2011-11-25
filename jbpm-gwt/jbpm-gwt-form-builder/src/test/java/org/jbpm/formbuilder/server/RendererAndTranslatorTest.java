@@ -26,17 +26,17 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.server.render.Renderer;
+import org.jbpm.formapi.server.render.RendererException;
+import org.jbpm.formapi.server.render.RendererFactory;
+import org.jbpm.formapi.server.trans.Translator;
+import org.jbpm.formapi.server.trans.TranslatorException;
+import org.jbpm.formapi.server.trans.TranslatorFactory;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
 import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
-import org.jbpm.formbuilder.server.render.Renderer;
-import org.jbpm.formbuilder.server.render.RendererException;
-import org.jbpm.formbuilder.server.render.RendererFactory;
-import org.jbpm.formbuilder.server.trans.TranslatorException;
-import org.jbpm.formbuilder.server.trans.Translator;
-import org.jbpm.formbuilder.server.trans.TranslatorFactory;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
 
 import com.google.gwt.event.shared.UmbrellaException;
 

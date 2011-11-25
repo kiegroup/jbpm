@@ -18,15 +18,17 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.shared.api.ExternalData;
+import org.jbpm.formapi.shared.api.Formatter;
+import org.jbpm.formapi.shared.api.InputData;
+import org.jbpm.formapi.shared.api.OutputData;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.effect.view.IoBindingEffectView;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.shared.api.ExternalData;
-import org.jbpm.formbuilder.shared.api.Formatter;
-import org.jbpm.formbuilder.shared.api.InputData;
-import org.jbpm.formbuilder.shared.api.OutputData;
 import org.jbpm.formbuilder.shared.task.ExternalDataRef;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
@@ -41,7 +43,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class IoBindingEffect extends FBFormEffect {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     private TaskRef ioRef = null;
     private TaskPropertyRef input = null;

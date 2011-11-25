@@ -20,13 +20,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.jboss.resteasy.util.HttpHeaderNames;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.OutputData;
-import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
-import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;
-import org.jbpm.formbuilder.shared.api.items.LabelRepresentation;
-import org.jbpm.formbuilder.shared.api.items.TableRepresentation;
-import org.jbpm.formbuilder.shared.api.items.TextFieldRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.OutputData;
+import org.jbpm.formapi.shared.api.items.CompleteButtonRepresentation;
+import org.jbpm.formapi.shared.api.items.HeaderRepresentation;
+import org.jbpm.formapi.shared.api.items.LabelRepresentation;
+import org.jbpm.formapi.shared.api.items.TableRepresentation;
+import org.jbpm.formapi.shared.api.items.TextFieldRepresentation;
 
 import junit.framework.TestCase;
 

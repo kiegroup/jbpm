@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client;
 
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -36,7 +37,7 @@ public abstract class FBBaseEntryPoint implements EntryPoint {
     @Override
     public final void onModuleLoad() {
         //register event bus
-        FormBuilderGlobals.getInstance().registerEventBus(new SimpleEventBus());
+        CommonGlobals.getInstance().registerEventBus(new SimpleEventBus());
         //register i18n module
         I18NConstants constants = GWT.create(I18NConstants.class);
         FormBuilderGlobals.getInstance().registerI18n(constants);

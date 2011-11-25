@@ -20,19 +20,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBCompositeItem;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.LayoutFormItem;
+import org.jbpm.formapi.client.form.PhantomPanel;
+import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formapi.common.panels.MovablePanel;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
-import org.jbpm.formbuilder.client.form.FBCompositeItem;
 import org.jbpm.formbuilder.client.form.FBForm;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
-import org.jbpm.formbuilder.client.form.PhantomPanel;
 import org.jbpm.formbuilder.client.layout.LayoutView;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
-import org.jbpm.formbuilder.common.panels.MovablePanel;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.AbstractDropController;
@@ -46,7 +46,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class DropFormItemController extends AbstractDropController {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final List<PhantomPanel> phantoms = new ArrayList<PhantomPanel>();
     private final LayoutView layoutView;
     

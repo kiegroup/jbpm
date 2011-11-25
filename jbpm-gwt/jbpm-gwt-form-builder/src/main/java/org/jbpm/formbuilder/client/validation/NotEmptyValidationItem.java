@@ -17,11 +17,12 @@ package org.jbpm.formbuilder.client.validation;
 
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.validation.FBValidationItem;
+import org.jbpm.formapi.shared.api.FBValidation;
+import org.jbpm.formapi.shared.api.validation.NotEmptyValidation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FBValidation;
-import org.jbpm.formbuilder.shared.api.validation.NotEmptyValidation;
 
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.TextBox;

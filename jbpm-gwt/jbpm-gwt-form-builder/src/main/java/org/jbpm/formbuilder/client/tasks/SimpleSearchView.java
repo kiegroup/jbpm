@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client.tasks;
 
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
@@ -29,7 +30,7 @@ import com.google.gwt.user.client.ui.TextBox;
 public class SimpleSearchView extends HorizontalPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final TextBox searchQuery = new TextBox();
     private final Button searchButton = new Button(i18n.SearchButton());
     

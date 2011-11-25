@@ -18,6 +18,8 @@ package org.jbpm.formbuilder.client.form;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.form.I18NFormItem;
+
 public class I18NUtils implements I18NFormItem {
 
     private final Map<String, String> i18nMap = new HashMap<String, String>();

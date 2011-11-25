@@ -15,13 +15,13 @@
  */
 package org.jbpm.formbuilder.client.tree;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBCompositeItem;
+import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormItemRemovedHandler;
-import org.jbpm.formbuilder.client.form.FBCompositeItem;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Widget;
@@ -33,7 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class TreePresenter implements TreeView.Presenter {
 
     private final TreeView view;
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public TreePresenter(TreeView treeView) {
         this.view = treeView;

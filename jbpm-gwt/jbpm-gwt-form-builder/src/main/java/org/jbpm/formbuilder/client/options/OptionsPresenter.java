@@ -17,7 +17,7 @@ package org.jbpm.formbuilder.client.options;
 
 import java.util.List;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuOptionAddedHandler;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
@@ -39,7 +39,7 @@ public class OptionsPresenter implements OptionsView.Presenter {
     
     public OptionsPresenter(OptionsView optionsView) {
         this.view = optionsView;
-        this.bus = FormBuilderGlobals.getInstance().getEventBus();
+        this.bus = CommonGlobals.getInstance().getEventBus();
         
         bus.addHandler(MenuOptionAddedEvent.TYPE, new MenuOptionAddedHandler() {
             @Override

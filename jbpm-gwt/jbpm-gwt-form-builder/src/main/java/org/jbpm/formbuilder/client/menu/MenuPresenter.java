@@ -15,7 +15,8 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
@@ -44,8 +45,8 @@ public class MenuPresenter {
     public MenuPresenter(MenuView menuView) {
         super();
         this.view = menuView;
-        this.bus = FormBuilderGlobals.getInstance().getEventBus();
-        this.dragController = FormBuilderGlobals.getInstance().getDragController();
+        this.bus = CommonGlobals.getInstance().getEventBus();
+        this.dragController = CommonGlobals.getInstance().getDragController();
         this.dragController.registerDropController(new DisposeDropController(this.view.asWidget()));
         this.view.setDragController(this.dragController);
         

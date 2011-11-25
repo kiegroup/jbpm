@@ -15,6 +15,8 @@
  */
 package org.jbpm.formbuilder.client.menu;
 
+import org.jbpm.formapi.client.menu.FBMenuItem;
+
 import com.allen_sauer.gwt.dnd.client.DragController;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;

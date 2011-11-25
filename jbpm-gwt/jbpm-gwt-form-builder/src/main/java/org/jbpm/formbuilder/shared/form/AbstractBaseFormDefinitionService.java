@@ -19,16 +19,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.shared.api.FBScript;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.Formatter;
-import org.jbpm.formbuilder.shared.api.InputData;
-import org.jbpm.formbuilder.shared.api.OutputData;
-import org.jbpm.formbuilder.shared.api.items.CompleteButtonRepresentation;
-import org.jbpm.formbuilder.shared.api.items.HeaderRepresentation;
-import org.jbpm.formbuilder.shared.api.items.LabelRepresentation;
-import org.jbpm.formbuilder.shared.api.items.TableRepresentation;
-import org.jbpm.formbuilder.shared.api.items.TextFieldRepresentation;
+import org.jbpm.formapi.shared.api.FBScript;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.Formatter;
+import org.jbpm.formapi.shared.api.InputData;
+import org.jbpm.formapi.shared.api.OutputData;
+import org.jbpm.formapi.shared.api.items.CompleteButtonRepresentation;
+import org.jbpm.formapi.shared.api.items.HeaderRepresentation;
+import org.jbpm.formapi.shared.api.items.LabelRepresentation;
+import org.jbpm.formapi.shared.api.items.TableRepresentation;
+import org.jbpm.formapi.shared.api.items.TextFieldRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 

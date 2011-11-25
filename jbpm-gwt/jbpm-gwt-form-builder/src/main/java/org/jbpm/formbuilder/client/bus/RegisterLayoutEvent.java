@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.bus;
 
-import org.jbpm.formbuilder.client.form.LayoutFormItem;
+import org.jbpm.formapi.client.form.LayoutFormItem;
 
 import com.google.gwt.event.shared.GwtEvent;
 

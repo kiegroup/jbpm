@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.client.bus;
 
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
+import org.jbpm.formapi.client.menu.FBMenuItem;
 
 import com.google.gwt.event.shared.GwtEvent;
 

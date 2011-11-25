@@ -17,6 +17,8 @@ package org.jbpm.formbuilder.client.validation;
 
 import java.util.List;
 
+import org.jbpm.formapi.client.validation.FBValidationItem;
+
 public interface OtherValidationsAware {
 
     void setExistingValidations(List<FBValidationItem> existingValidations);

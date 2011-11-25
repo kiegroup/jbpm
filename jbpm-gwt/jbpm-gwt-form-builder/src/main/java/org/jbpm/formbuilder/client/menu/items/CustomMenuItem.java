@@ -20,18 +20,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formapi.common.panels.CommandPopupPanel;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.effect.FBFormEffect;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.common.panels.CommandPopupPanel;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.shared.EventBus;
@@ -96,7 +97,7 @@ public class CustomMenuItem extends FBMenuItem {
                       Map<String, Object> dataSnapshot = new HashMap<String, Object>();
                       dataSnapshot.put("menuItem", CustomMenuItem.this);
                       dataSnapshot.put("groupName", groupName);
-                      final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+                      final EventBus bus = CommonGlobals.getInstance().getEventBus();
                       bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
                           @Override
                           public void onEvent(UndoableEvent event) { }

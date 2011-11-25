@@ -30,15 +30,15 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
+import org.jbpm.formapi.shared.menu.MenuItemDescription;
+import org.jbpm.formapi.shared.menu.MenuOptionDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.shared.menu.AbstractBaseMenuService;
-import org.jbpm.formbuilder.shared.menu.MenuItemDescription;
-import org.jbpm.formbuilder.shared.menu.MenuOptionDescription;
 import org.jbpm.formbuilder.shared.menu.MenuServiceException;
-import org.jbpm.formbuilder.shared.menu.ValidationDescription;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

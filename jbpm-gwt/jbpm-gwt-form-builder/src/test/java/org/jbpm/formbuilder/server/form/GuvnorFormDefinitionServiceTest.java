@@ -31,6 +31,13 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.easymock.EasyMock;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.shared.api.FormItemRepresentation;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
 import org.jbpm.formbuilder.server.mock.MockAnswer;
@@ -38,12 +45,6 @@ import org.jbpm.formbuilder.server.mock.MockDeleteMethod;
 import org.jbpm.formbuilder.server.mock.MockGetMethod;
 import org.jbpm.formbuilder.server.mock.MockPostMethod;
 import org.jbpm.formbuilder.server.mock.MockPutMethod;
-import org.jbpm.formbuilder.shared.api.FormItemRepresentation;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 
 public class GuvnorFormDefinitionServiceTest extends TestCase {

@@ -4,8 +4,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.server.RESTAbstractTest;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;

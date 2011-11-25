@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.common.handler.EventHelper;
+import org.jbpm.formapi.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.common.handler.EventHelper;
-import org.jbpm.formbuilder.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 

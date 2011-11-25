@@ -18,11 +18,12 @@ package org.jbpm.formbuilder.client.tasks;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
@@ -43,7 +44,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class QuickFormPanel extends PopupPanel {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     
     private final Button okButton = new Button(i18n.ConfirmButton());

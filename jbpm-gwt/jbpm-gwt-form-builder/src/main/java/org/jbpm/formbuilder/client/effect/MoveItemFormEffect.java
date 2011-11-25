@@ -15,9 +15,11 @@
  */
 package org.jbpm.formbuilder.client.effect;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.common.panels.MovablePanel;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.common.panels.MovablePanel;
 
 import com.allen_sauer.gwt.dnd.client.DragEndEvent;
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
@@ -28,7 +30,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class MoveItemFormEffect extends FBFormEffect {
 
-    private final PickupDragController dragController = FormBuilderGlobals.getInstance().getDragController();
+    private final PickupDragController dragController = CommonGlobals.getInstance().getDragController();
     
     public MoveItemFormEffect() {
         super(FormBuilderGlobals.getInstance().getI18n().MoveItemEffectLabel(), false);

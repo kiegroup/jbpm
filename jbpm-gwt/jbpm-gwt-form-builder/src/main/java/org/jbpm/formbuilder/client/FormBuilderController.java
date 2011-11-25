@@ -18,9 +18,14 @@ package org.jbpm.formbuilder.client;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.client.form.FormEncodingClientFactory;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleEvent;
 import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleHandler;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
@@ -28,7 +33,6 @@ import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionViewImpl;
-import org.jbpm.formbuilder.client.form.FormEncodingClientFactory;
 import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
 import org.jbpm.formbuilder.client.menu.AnimatedMenuViewImpl;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
@@ -37,8 +41,6 @@ import org.jbpm.formbuilder.client.options.OptionsViewImpl;
 import org.jbpm.formbuilder.client.tasks.IoAssociationViewImpl;
 import org.jbpm.formbuilder.client.toolbar.ToolBarViewImpl;
 import org.jbpm.formbuilder.client.tree.TreeViewImpl;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.core.client.GWT;
@@ -50,7 +52,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderController {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     private final FormBuilderService model = FormBuilderGlobals.getInstance().getService();
     private final FormBuilderView view;
@@ -74,7 +76,7 @@ public class FormBuilderController {
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         PickupDragController dragController = new PickupDragController(view, true);
         dragController.registerDropController(new DisposeDropController(view));
-        FormBuilderGlobals.getInstance().registerDragController(dragController);
+        CommonGlobals.getInstance().registerDragController(dragController);
         
         this.formExporter = new FormExporter();
         this.formExporter.start();

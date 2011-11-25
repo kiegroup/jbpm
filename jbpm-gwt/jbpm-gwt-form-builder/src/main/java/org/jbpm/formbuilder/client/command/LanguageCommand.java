@@ -15,9 +15,9 @@
  */
 package org.jbpm.formbuilder.client.command;
 
+import org.jbpm.formapi.common.panels.ConfirmDialog;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.common.panels.ConfirmDialog;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

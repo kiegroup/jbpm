@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
@@ -45,7 +46,7 @@ public class AdvancedSearchView extends Grid {
     private static final String FILE_TYPE = "file";
     private static final String BPMN2_TYPE = "bpmn2";
     
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 
     private final Map<String, List<TaskRef>> processes = new HashMap<String, List<TaskRef>>();

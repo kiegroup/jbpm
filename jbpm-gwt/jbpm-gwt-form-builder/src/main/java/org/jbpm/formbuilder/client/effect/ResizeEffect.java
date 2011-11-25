@@ -18,13 +18,15 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.common.handler.ResizeEvent;
+import org.jbpm.formapi.common.handler.ResizeEventHandler;
+import org.jbpm.formapi.common.panels.ResizablePanel;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.common.handler.ResizeEvent;
-import org.jbpm.formbuilder.common.handler.ResizeEventHandler;
-import org.jbpm.formbuilder.common.panels.ResizablePanel;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Widget;
@@ -65,7 +67,7 @@ public class ResizeEffect extends FBFormEffect {
     
     protected void undoableEvent(ResizeEvent event, FBFormItem item) {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
-        EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+        EventBus bus = CommonGlobals.getInstance().getEventBus();
         dataSnapshot.put("item", item);
         dataSnapshot.put("oldWidth", item.getWidth());
         dataSnapshot.put("oldHeight", item.getHeight());

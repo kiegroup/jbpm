@@ -15,7 +15,7 @@
  */
 package org.jbpm.formbuilder.server.trans.xsl;
 
-import org.jbpm.formbuilder.server.trans.ScriptingTranslator;
+import org.jbpm.formapi.server.trans.ScriptingTranslator;
 
 public class Translator extends ScriptingTranslator {
 

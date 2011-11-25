@@ -18,10 +18,10 @@ package org.jbpm.formbuilder.client.command;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
 
 import com.google.gwt.user.client.ui.MenuItem;
 import com.gwtent.reflection.client.Reflectable;
@@ -34,7 +34,7 @@ public class CopyCommand extends AbstractCopyPasteCommand {
 
     public CopyCommand() {
         super();
-        FormBuilderGlobals.getInstance().registerCopy(this);
+        CommonGlobals.getInstance().registerCopy(this);
     }
     
     @Override
@@ -56,13 +56,13 @@ public class CopyCommand extends AbstractCopyPasteCommand {
                 } else {
                     AbstractCopyPasteCommand.setMemory(item.cloneItem());
                 }
-                FormBuilderGlobals.getInstance().paste().enable();
+                CommonGlobals.getInstance().paste().enable();
             }
             @Override
             public void undoAction(UndoableEvent event) {
                 Object oldMemory = event.getData("oldMemory");
                 AbstractCopyPasteCommand.setMemory(oldMemory);
-                FormBuilderGlobals.getInstance().paste().enable();
+                CommonGlobals.getInstance().paste().enable();
             }
             @Override
             public void onEvent(UndoableEvent event) { }

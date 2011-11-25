@@ -28,12 +28,12 @@ import javax.servlet.http.HttpServletResponse;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
-import org.jbpm.formbuilder.server.form.FormEncodingServerFactory;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.formapi.shared.form.FormEncodingFactory;
+import org.jbpm.formapi.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
-import org.jbpm.formbuilder.shared.form.FormEncodingException;
-import org.jbpm.formbuilder.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.shared.form.FormRepresentationEncoder;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;

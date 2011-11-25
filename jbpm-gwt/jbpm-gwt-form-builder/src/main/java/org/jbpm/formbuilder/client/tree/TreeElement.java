@@ -18,14 +18,15 @@ package org.jbpm.formbuilder.client.tree;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.bus.FormItemSelectionEvent;
+import org.jbpm.formapi.client.form.FBCompositeItem;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.menu.EffectsPopupPanel;
+import org.jbpm.formapi.common.handler.RightClickEvent;
+import org.jbpm.formapi.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.bus.FormItemSelectionEvent;
-import org.jbpm.formbuilder.client.form.FBCompositeItem;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.menu.EffectsPopupPanel;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
-import org.jbpm.formbuilder.common.handler.RightClickEvent;
-import org.jbpm.formbuilder.common.handler.RightClickHandler;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -51,7 +52,7 @@ public class TreeElement extends FocusPanel {
     
     private List<RightClickHandler> rclickHandlers = new ArrayList<RightClickHandler>();
     
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final HorizontalPanel panel = new HorizontalPanel();
     
     public TreeElement() {

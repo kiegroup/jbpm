@@ -20,7 +20,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jbpm.formbuilder.shared.menu.ValidationDescription;
+import org.jbpm.formapi.shared.menu.ValidationDescription;
 
 @XmlRootElement (name = "validations")
 public class ListValidationsDTO {

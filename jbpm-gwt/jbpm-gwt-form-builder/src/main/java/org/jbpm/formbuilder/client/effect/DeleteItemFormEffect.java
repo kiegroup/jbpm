@@ -18,11 +18,13 @@ package org.jbpm.formbuilder.client.effect;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.OptionsFormItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -46,7 +48,7 @@ public class DeleteItemFormEffect extends FBFormEffect {
 
     private String dropItemLabel;
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     
     public DeleteItemFormEffect() {
         super(FormBuilderGlobals.getInstance().getI18n().DeleteItemFormEffectLabel(), true);

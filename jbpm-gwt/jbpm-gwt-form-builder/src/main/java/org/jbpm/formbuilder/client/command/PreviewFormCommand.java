@@ -18,7 +18,12 @@ package org.jbpm.formbuilder.client.command;
 import java.util.Map;
 
 import org.gwt.mosaic.ui.client.WindowPanel;
-import org.jbpm.formbuilder.client.FormBuilderException;
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent;
+import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.api.InputData;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.UIUtils;
@@ -27,11 +32,7 @@ import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseHandler;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.PreviewFormResponseHandler;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent;
-import org.jbpm.formbuilder.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
-import org.jbpm.formbuilder.shared.api.FormRepresentation;
-import org.jbpm.formbuilder.shared.api.InputData;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -46,7 +47,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 public abstract class PreviewFormCommand implements BaseCommand {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    protected final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    protected final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
     private final String saveType;
     

@@ -19,12 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.effect.FBFormEffect;
+import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.HasSourceReference;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
 import org.jbpm.formbuilder.client.bus.UndoableHandler;
 import org.jbpm.formbuilder.client.effect.view.UploadFormEffectView;
-import org.jbpm.formbuilder.client.form.FBFormItem;
-import org.jbpm.formbuilder.client.form.HasSourceReference;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -33,7 +35,7 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class UploadFormEffect extends FBFormEffect {
 
-    private final EventBus bus = FormBuilderGlobals.getInstance().getEventBus();
+    private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private String srcUrl;
     
     public UploadFormEffect() {
