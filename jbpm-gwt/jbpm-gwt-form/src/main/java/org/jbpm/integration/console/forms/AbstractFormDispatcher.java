@@ -31,8 +31,8 @@ import javax.activation.DataSource;
 
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
-import org.jbpm.formbuilder.server.form.FormUtils;
-import org.jbpm.formbuilder.shared.form.FormDef;
+import org.jbpm.formapi.server.form.FormUtils;
+import org.jbpm.formapi.shared.form.FormDef;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
