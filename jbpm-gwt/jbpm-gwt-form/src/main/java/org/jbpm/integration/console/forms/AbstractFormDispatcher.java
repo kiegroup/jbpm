@@ -105,6 +105,7 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
         	logger.warn("Could not connect to Guvnor.");
         	return null;
         }
+        return null;
 	}
 
 	protected DataHandler processTemplate(final String name, InputStream src, Map<String, Object> renderContext) {
