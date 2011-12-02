@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
@@ -155,7 +156,14 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     
     protected File asFile(String path) throws URISyntaxException {
         URL url = getClass().getResource(path);
-        return FileUtils.toFile(url);
+        try {
+        	String content = IOUtils.toString(url.openStream());
+        	File file = File.createTempFile("xxFilexx", ".json");
+        	FileUtils.writeStringToFile(file, content);
+        	return file;
+        } catch (IOException e) {
+        	throw new URISyntaxException(path, "Couldn't read input");
+        }
     }
     
     protected Reader createReader(File file) throws FileNotFoundException, IOException {
