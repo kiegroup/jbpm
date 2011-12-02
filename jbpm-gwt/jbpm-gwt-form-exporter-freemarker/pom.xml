@@ -103,10 +103,12 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-bpmn2</artifactId>
+      <version>${version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-shared</artifactId>
+      <version>${version}</version>
     </dependency>
   </dependencies>
   

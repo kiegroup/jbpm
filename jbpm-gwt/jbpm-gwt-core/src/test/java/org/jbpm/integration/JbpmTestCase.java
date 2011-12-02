@@ -1,6 +1,6 @@
 package org.jbpm.integration;
 
-import java.io.File;
+/*import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
-
+*/
 /**
  * This is a.. wacky test (suite). 
  * 
@@ -53,7 +53,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
  */
 public abstract class JbpmTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(JbpmTestCase.class);
+ /*   private static Logger logger = LoggerFactory.getLogger(JbpmTestCase.class);
     
 	private static HashMap<String, Object> context = null;
 	private static EntityManagerFactory emf;
@@ -159,7 +159,7 @@ public abstract class JbpmTestCase {
 
         return MVEL.executeExpression( compiler.compile( context ), vars );
     }
-
+*/
 }
 
 

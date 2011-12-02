@@ -1,6 +1,6 @@
 package org.jbpm.marshalling;
 
-import static org.drools.marshalling.util.MarshallingDBUtil.initializeMarshalledDataEMF;
+/*import static org.drools.marshalling.util.MarshallingDBUtil.initializeMarshalledDataEMF;
 import static org.drools.marshalling.util.MarshallingTestUtil.retrieveMarshallingData;
 import static org.drools.persistence.util.PersistenceUtil.*;
 import static org.drools.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
@@ -21,7 +21,7 @@ import javax.persistence.EntityManagerFactory;
 import org.drools.marshalling.util.MarshalledData;
 import org.drools.marshalling.util.MarshallingTestUtil;
 import org.drools.persistence.info.WorkItemInfo;
-import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
+import org.jbpm.persistence.processinstance.ProcessInstanceInfo;*/
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class DebugJbpmUnmarshallingTest {
     @Test
     @Ignore
     public void checkMarshalledProcessInstanceObjects() { 
-        HashMap<String, Object> testContext
+    /*    HashMap<String, Object> testContext
             = initializeMarshalledDataEMF(JBPM_PERSISTENCE_UNIT_NAME, this.getClass(), true);
         EntityManagerFactory emf = (EntityManagerFactory) testContext.get(ENTITY_MANAGER_FACTORY);
         List<MarshalledData> marshalledDataList = retrieveMarshallingData(emf);
@@ -158,6 +158,6 @@ public class DebugJbpmUnmarshallingTest {
         finally {  
             tearDown(testContext);
         }
-        
+    */    
     }
 }
