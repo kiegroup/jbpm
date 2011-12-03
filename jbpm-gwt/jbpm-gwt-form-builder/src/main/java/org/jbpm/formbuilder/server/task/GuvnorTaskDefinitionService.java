@@ -74,7 +74,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         HttpClient client = helper.getHttpClient();
         GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
         try {
-            method.setRequestHeader("Authorization", helper.getAuth());
+            helper.setAuth(client, method);
             client.executeMethod(method);
             Properties props = new Properties();
             props.load(method.getResponseBodyAsStream());
@@ -116,9 +116,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         if (pkgName != null) {
             GetMethod call = helper.createGetMethod(helper.getRestBaseUrl());
             try {
-                String auth = helper.getAuth();
+                helper.setAuth(client, call);
                 call.addRequestHeader("Accept", "application/xml");
-                call.addRequestHeader("Authorization", auth);
                 client.executeMethod(call);
                 PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.RELATED_CLASSES);
                 PackageDTO pkg = dto.getSelectedPackage(pkgName);
@@ -126,7 +125,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 for (String url : pkg.getAssets()) {
                     GetMethod subCall = helper.createGetMethod(url);
                     try {
-                        subCall.setRequestHeader("Authorization", auth);
+                        helper.setAuth(client, call);
                         subCall.addRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
                         AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.RELATED_CLASSES);
@@ -141,7 +140,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                     //download the process in processUrl and get the right task
                     GetMethod processCall = helper.createGetMethod(url);
                     try {
-                        processCall.setRequestHeader("Authorization", auth);
+                        helper.setAuth(client, processCall);
                         client.executeMethod(processCall);
                         String processContent = processCall.getResponseBodyAsString();
                         List<TaskRef> tasks = getProcessTasks(processContent, "any.bpmn2");
@@ -190,9 +189,8 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         if (packageName != null) {
             GetMethod call = helper.createGetMethod(helper.getRestBaseUrl());
             try {
-                String auth = helper.getAuth();
+                helper.setAuth(client, call);
                 call.addRequestHeader("Accept", "application/xml");
-                call.addRequestHeader("Authorization", auth);
                 client.executeMethod(call);
                 PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.RELATED_CLASSES);
                 String processUrl = null;
@@ -201,7 +199,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 for (String url : pkg.getAssets()) {
                     GetMethod subCall = helper.createGetMethod(url);
                     try {
-                        subCall.setRequestHeader("Authorization", auth);
+                        helper.setAuth(client, subCall);
                         subCall.addRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
                         AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.RELATED_CLASSES);
@@ -218,7 +216,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                     //download the process in processUrl and get the right task
                     GetMethod processCall = helper.createGetMethod(processUrl);
                     try {
-                        processCall.setRequestHeader("Authorization", auth);
+                        helper.setAuth(client, processCall);
                         client.executeMethod(processCall);
                         String processContent = processCall.getResponseBodyAsString();
                         List<TaskRef> tasks = getProcessTasks(processContent, "any." + format);
@@ -273,7 +271,7 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         if (itemName != null && !"".equals(itemName)) {
             GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName) + itemName);
             try {
-                method.setRequestHeader("Authorization", helper.getAuth());
+                helper.setAuth(client, method);
                 client.executeMethod(method);
                 return method.getResponseBodyAsString();
             } finally {

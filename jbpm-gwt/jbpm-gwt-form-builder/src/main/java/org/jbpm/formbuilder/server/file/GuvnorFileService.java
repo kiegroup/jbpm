@@ -76,7 +76,7 @@ public class GuvnorFileService implements FileService {
             HttpClient client = helper.getHttpClient();
             PostMethod create = helper.createPostMethod(helper.getRestBaseUrl() + packageName + "/assets/");
             try {
-                create.addRequestHeader("Authorization", helper.getAuth());
+                helper.setAuth(client, create);
                 create.addRequestHeader("Content-Type", "application/octet-stream");
                 create.addRequestHeader("Accept", "application/atom+xml");
                 create.addRequestHeader("Slug", assetName + '.' + assetExt);
@@ -96,7 +96,7 @@ public class GuvnorFileService implements FileService {
         String assetName = stripFileExtension(fileName);
         GetMethod check = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
         try {
-            check.addRequestHeader("Authorization", helper.getAuth());
+            helper.setAuth(client, check);
             check.addRequestHeader("Accept", "application/xml");
             client.executeMethod(check);
             if (check.getStatusCode() == 200) {
@@ -116,7 +116,7 @@ public class GuvnorFileService implements FileService {
         //String assetType = extractFileExtension(fileName);
         DeleteMethod deleteAsset = helper.createDeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
         try {
-            deleteAsset.addRequestHeader("Authorization", helper.getAuth());
+            helper.setAuth(client, deleteAsset);
             client.executeMethod(deleteAsset);
         } catch (IOException e) {
             throw new FileException("Problem deleting guvnor file", e);
@@ -132,7 +132,7 @@ public class GuvnorFileService implements FileService {
         HttpClient client = helper.getHttpClient();
         GetMethod load = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/");
         try {
-            load.addRequestHeader("Authorization", helper.getAuth());
+            helper.setAuth(client, load);
             client.executeMethod(load);
             PackageAssetsDTO dto = helper.jaxbTransformation(PackageAssetsDTO.class, load.getResponseBodyAsStream(), PackageAssetsDTO.class, PackageAssetDTO.class, MetaDataDTO.class);
             List<PackageAssetDTO> validAssets = new ArrayList<PackageAssetDTO>();
@@ -170,7 +170,7 @@ public class GuvnorFileService implements FileService {
         String assetName = stripFileExtension(fileName);
         GetMethod get = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName + "/source");
         try {
-            get.addRequestHeader("Authorization", helper.getAuth());
+            helper.setAuth(client, get);
             client.executeMethod(get);
             return get.getResponseBody();
         } catch (IOException e) {

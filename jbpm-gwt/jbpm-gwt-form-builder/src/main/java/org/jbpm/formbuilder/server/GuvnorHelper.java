@@ -27,6 +27,9 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -81,9 +84,8 @@ public class GuvnorHelper {
         HttpClient client = getHttpClient();
         GetMethod call = createGetMethod(getRestBaseUrl());
         try {
-            String auth = getAuth();
+            setAuth(client, call);
             call.addRequestHeader("Accept", "application/xml");
-            call.addRequestHeader("Authorization", auth);
             client.executeMethod(call);
             PackageListDTO dto = jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.RELATED_CLASSES);
             for (PackageDTO pkg : dto.getPackage()) {
@@ -95,7 +97,6 @@ public class GuvnorHelper {
                 for (String url : pkg.getAssets()) {
                     GetMethod subCall = createGetMethod(url);
                     try {
-                        subCall.setRequestHeader("Authorization", auth);
                         subCall.setRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
                         AssetDTO subDto = jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.RELATED_CLASSES);
@@ -131,10 +132,15 @@ public class GuvnorHelper {
         return writer.toString();
     }
     
-    public String getAuth() {
-        String basic = this.user + ":" + this.password;
-        basic = "BASIC " + Base64.encodeBase64(basic.getBytes());
-        return basic;
+    public void setAuth(HttpClient client, HttpMethod method) {
+    	if (this.user != null && this.password != null && !"".equals(this.user) && !"".equals(this.password)) {
+    		client.getParams().setAuthenticationPreemptive(true);
+    		UsernamePasswordCredentials defaultcreds = new UsernamePasswordCredentials(this.user, this.password);
+    		client.getState().setCredentials(new AuthScope("localhost", 8080, AuthScope.ANY_REALM), defaultcreds);
+    		/*String basic = this.user + ":" + this.password;
+    		basic = "BASIC " + Base64.encodeBase64(basic.getBytes());
+    		method.addRequestHeader("Authorization", basic);*/
+    	}
     }
     
     public String getApiSearchUrl(String pkgName) {
