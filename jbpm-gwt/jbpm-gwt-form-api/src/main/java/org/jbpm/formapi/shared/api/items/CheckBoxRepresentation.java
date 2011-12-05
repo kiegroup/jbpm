@@ -80,7 +80,11 @@ public class CheckBoxRepresentation extends FormItemRepresentation {
     public void setDataMap(Map<String, Object> data) throws FormEncodingException {
         super.setDataMap(data);
         this.formValue = (String) data.get("formValue");
-        this.checked = (Boolean) data.get("checked");
+        Object objChecked = (Object) data.get("checked");
+        if (objChecked instanceof Boolean) 
+        	this.checked = (Boolean) objChecked;
+        else if (objChecked instanceof String) 
+        	this.checked = Boolean.valueOf(objChecked.toString());
         this.name = (String) data.get("name");
         this.id = (String) data.get("id");
     }

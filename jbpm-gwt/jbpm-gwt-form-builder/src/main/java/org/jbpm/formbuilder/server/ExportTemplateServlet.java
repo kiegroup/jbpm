@@ -17,6 +17,7 @@ package org.jbpm.formbuilder.server;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -75,6 +76,7 @@ public class ExportTemplateServlet extends HttpServlet {
                     }
                     if (templateName != null && !"".equals(templateName)) {
                         templateName += "-taskform.ftl";
+                        templateName = URLEncoder.encode(templateName, "UTF-8");
                         formService.saveTemplate(packageName, templateName, content);
                     }
                 }

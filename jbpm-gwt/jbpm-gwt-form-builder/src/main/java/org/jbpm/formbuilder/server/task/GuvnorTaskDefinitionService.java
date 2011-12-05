@@ -290,7 +290,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         }
         repo.clear();
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        ResourceType type = processName.toLowerCase().endsWith("bpmn2") ? ResourceType.BPMN2 : ResourceType.DRF;
+        boolean isBPMN = processName.toLowerCase().endsWith("bpmn");
+		boolean isBPMN2 = processName.toLowerCase().endsWith("bpmn2");
+		ResourceType type = (isBPMN || isBPMN2) ? ResourceType.BPMN2 : ResourceType.DRF;
         kbuilder.add(new ByteArrayResource(bpmn2Content.getBytes()), type);
         if (!kbuilder.hasErrors()) {
             return new ArrayList<TaskRef>(repo.getTasks());

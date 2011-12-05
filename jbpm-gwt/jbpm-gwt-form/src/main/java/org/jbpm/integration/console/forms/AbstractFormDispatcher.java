@@ -20,7 +20,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -31,11 +34,12 @@ import javax.activation.DataSource;
 
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
-import org.jbpm.formapi.server.form.FormUtils;
-import org.jbpm.formapi.shared.form.FormDef;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
 
 /**
  * @author Kris Verlaenen
@@ -80,6 +84,39 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	
 	public InputStream getTemplate(String name) {
         // try to find on classpath
+		 GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
+	     if(guvnorUtils.guvnorExists()) {
+	    	 try {
+	    		 String templateName;
+	    		 if(guvnorUtils.templateExistsInRepo(name + "-taskform")) {
+	    			 templateName = name + "-taskform";
+	    		 } else if(guvnorUtils.templateExistsInRepo(name)) {
+	    			 templateName = name;
+	    		 } else {
+	    			 return null;
+	    		 }
+	    		 return guvnorUtils.getFormTemplateFromGuvnor(templateName);
+	    	 } catch (Throwable t) {
+	    		 logger.error("Could not load process template from Guvnor: " + t.getMessage());
+	    		 return null;
+	    	 }
+	     } else {
+	         logger.warn("Could not connect to Guvnor.");
+	     }
+	     // try to find on classpath
+	     InputStream nameTaskformResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + "-taskform.ftl");
+	     if (nameTaskformResult != null) {
+	    	 return nameTaskformResult;
+	     } else {
+	    	 InputStream nameResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + ".ftl");
+	    	 if (nameResult != null) {
+	    		 return nameResult;
+	    	 } else {
+	    		 return null;
+	    	 }
+	     }
+	
+	/*
 	    InputStream nameTaskformResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + "-taskform.ftl");
 		if (nameTaskformResult != null) {
 			return nameTaskformResult;
@@ -105,15 +142,20 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
         	logger.warn("Could not connect to Guvnor.");
         	return null;
         }
-        return null;
+        return null;*/
 	}
 
 	protected DataHandler processTemplate(final String name, InputStream src, Map<String, Object> renderContext) {
 		DataHandler merged = null;
 		try {
-		    Object render = FormUtils.renderForm(name, name, renderContext);
+			freemarker.template.Configuration cfg = new freemarker.template.Configuration();
+			cfg.setObjectWrapper(new DefaultObjectWrapper());
+			cfg.setTemplateUpdateDelay(0);
+			Template temp = new Template(name, new InputStreamReader(src), cfg);
 			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			bout.write(render.toString().getBytes());
+			Writer out = new OutputStreamWriter(bout);
+			temp.process(renderContext, out);
+			out.flush();
 			merged = new DataHandler(new DataSource() {
 				public InputStream getInputStream() throws IOException {
 					return new ByteArrayInputStream(bout.toByteArray());
@@ -132,5 +174,29 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 			throw new RuntimeException("Failed to process form template", e);
 		}
 		return merged;
+		
+/*		DataHandler merged = null;
+		try {
+		    Object render = FormUtils.renderForm(name, name, renderContext);
+			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			bout.write(render.toString().getBytes());
+			merged = new DataHandler(new DataSource() {
+				public InputStream getInputStream() throws IOException {
+					return new ByteArrayInputStream(bout.toByteArray());
+				}
+				public OutputStream getOutputStream() throws IOException {
+					return bout;
+				}
+				public String getContentType() {
+					return "* /*";
+				}
+				public String getName() {
+					return name + "_DataSource";
+				}
+			});
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to process form template", e);
+		}
+		return merged;*/
 	}
 }
