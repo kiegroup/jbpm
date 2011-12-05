@@ -692,7 +692,7 @@ public class RuleFlowProcessValidator implements ProcessValidator {
         } else {
             if (!timer.getDelay().contains("#{")) {
                 try {
-                    TimeUtils.parseTimeString(timer.getDelay());
+//                    TimeUtils.parseTimeString(timer.getDelay());
                 } catch (RuntimeDroolsException e) {
                     errors.add(new ProcessValidationErrorImpl(process,
                             "Could not parse delay '" + timer.getDelay()

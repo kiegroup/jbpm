@@ -62,9 +62,11 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 			TimerManager timerManager = ((InternalProcessRuntime) 
 				getProcessInstance().getKnowledgeRuntime().getProcessRuntime()).getTimerManager();
 			for (Timer timer: timers.keySet()) {
-				TimerInstance timerInstance = createTimerInstance(timer); 
+				TimerInstance timerInstance = createTimerInstance(timer);
+				if(timerInstance != null) {
 				timerManager.registerTimer(timerInstance, (ProcessInstance) getProcessInstance());
 				timerInstances.add(timerInstance.getId());
+				}
 			}
 		}
 	}
