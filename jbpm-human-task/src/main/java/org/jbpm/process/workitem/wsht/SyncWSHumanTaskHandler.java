@@ -63,6 +63,7 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
     private TaskService client;
     private WorkItemManager manager = null;
     private KnowledgeRuntime session;
+    private boolean local = false;
     
     private static final Logger logger = LoggerFactory.getLogger(SyncWSHumanTaskHandler.class);
 	private boolean initialized = false;
@@ -103,6 +104,10 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
 	        initialized = true;
     	}
     }
+    
+    public void setLocal(boolean local) {
+    	this.local = local;
+    }
 
     private void registerTaskEvents() {
 		TaskCompletedHandler eventResponseHandler = new TaskCompletedHandler();
@@ -119,13 +124,15 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
     }
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-        if (this.manager == null) {
-            this.manager = manager;
-        } else {
-            if (this.manager != manager) {
-                throw new IllegalArgumentException(
-                        "This WSHumanTaskHandler can only be used for one WorkItemManager");
-            }
+        if (this.session == null) {
+	    	if (this.manager == null) {
+	            this.manager = manager;
+	        } else {
+	            if (this.manager != manager) {
+	                throw new IllegalArgumentException(
+	                        "This WSHumanTaskHandler can only be used for one WorkItemManager");
+	            }
+	        }
         }
         connect();
         Task task = new Task();
@@ -257,11 +264,27 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
         
         public void execute(Payload payload) {
             TaskEvent event = ( TaskEvent ) payload.get();
-        	long taskId = event.getTaskId();
+        	final long taskId = event.getTaskId();
+        	if (local) {
+        		handleCompletedTask(taskId);
+        	} else {
+	        	Runnable runnable = new Runnable() {
+	        		public void run() {
+	        			handleCompletedTask(taskId);
+	        		}
+	        	};
+	        	new Thread(runnable).start();
+        	}
+        }
+        
+        public boolean isRemove() {
+        	return false;
+        }
+        
+        public void handleCompletedTask(long taskId) {
         	Task task = client.getTask(taskId);
 			long workItemId = task.getTaskData().getWorkItemId();
 			if (task.getTaskData().getStatus() == Status.Completed) {
-				System.out.println("Notification of completed task " + workItemId);
 				String userId = task.getTaskData().getActualOwner().getId();
 				Map<String, Object> results = new HashMap<String, Object>();
 				results.put("ActorId", userId);
@@ -283,23 +306,31 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
 								}
 							}
 						}
-						manager.completeWorkItem(task.getTaskData().getWorkItemId(), results);
+						if (session != null) {
+							session.getWorkItemManager().completeWorkItem(task.getTaskData().getWorkItemId(), results);
+						} else {
+							manager.completeWorkItem(task.getTaskData().getWorkItemId(), results);
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					} catch (ClassNotFoundException e) {
 						e.printStackTrace();
 					}
 				} else {
-					manager.completeWorkItem(workItemId, results);
+					if (session != null) {
+						session.getWorkItemManager().completeWorkItem(workItemId, results);
+					} else {
+						manager.completeWorkItem(workItemId, results);
+					}
 				}
 			} else {
-				System.out.println("Notification of aborted task " + workItemId);
-				manager.abortWorkItem(workItemId);
+				if (session != null) {
+					session.getWorkItemManager().abortWorkItem(workItemId);
+				} else {
+					manager.abortWorkItem(workItemId);
+				}
 			}
-        }
-        
-        public boolean isRemove() {
-        	return false;
+
         }
     }
 }

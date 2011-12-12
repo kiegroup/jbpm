@@ -22,7 +22,7 @@
   <!-- major.minor.micro.Final -->
   <!-- For example: 1.2.3 without the suffix ".Final" corrupts the OSGi eclipse updatesite -->
   <!-- For example: 1.2.3.M2 corrupts the OSGi eclipse updatesite update order -->
-  <version>5.2.0-SNAPSHOT</version>
+  <version>5.3.0-SNAPSHOT</version>
 
   <name>jBPM multiproject</name>
   <description>jBPM: a Business Process Management (BPM) Suite</description>
@@ -44,6 +44,8 @@
     <maven.jdbc.username></maven.jdbc.username>
     <maven.jdbc.password></maven.jdbc.password>
     <maven.jdbc.url>jdbc:h2:</maven.jdbc.url>
+    <jbpm.version>5.3.0-SNAPSHOT</jbpm.version>
+    <jbpm.osgi.version>5.3.0.SNAPSHOT</jbpm.osgi.version>
   </properties>
 
   <repositories>
@@ -83,7 +85,9 @@
     <module>jbpm-bpmn2-emfextmodel</module>
     <module>jbpm-workitems</module>
     <module>jbpm-human-task</module>
+    <module>jbpm-human-task-war</module>
     <module>jbpm-gwt</module>
+    <module>jbpm-test</module>
     <module>jbpm-examples</module>
   </modules>
 

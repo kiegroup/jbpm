@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>5.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-distribution</artifactId>
@@ -32,7 +32,7 @@
           </execution>
         </executions>
         <configuration>
-          <finalName>jbpm-${jbpm.version}</finalName>
+          <finalName>jbpm-${project.version}</finalName>
           <descriptors>
             <descriptor>src/main/assembly/pre-bin.xml</descriptor>
             <descriptor>src/main/assembly/bin.xml</descriptor>
@@ -82,6 +82,10 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-bpmn2</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.jbpm</groupId>
+        <artifactId>jbpm-test</artifactId>
+    </dependency>
     <!--<dependency>-->
       <!--<groupId>org.jbpm</groupId>-->
       <!--<artifactId>jbpm-bpmn2</artifactId>-->
@@ -119,6 +123,18 @@
     <dependency>
       <groupId>com.thoughtworks.xstream</groupId>
       <artifactId>xstream</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
     </dependency>
 
     <!-- Javadocs and documentation -->
