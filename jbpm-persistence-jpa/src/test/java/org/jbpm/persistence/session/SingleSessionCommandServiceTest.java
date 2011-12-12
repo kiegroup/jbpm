@@ -58,7 +58,7 @@ import org.junit.After;
 import org.junit.Test;
 
 public class SingleSessionCommandServiceTest /*extends JbpmTestCase*/ {
-/*
+
 	private HashMap<String, Object> context;
 	private Environment env;
     
@@ -80,11 +80,11 @@ public class SingleSessionCommandServiceTest /*extends JbpmTestCase*/ {
     @After
     public void tearDown() {
         PersistenceUtil.tearDown(context);
-    }*/
+    }
 
     @Test
     public void testPersistenceWorkItems() throws Exception {
-        /*setUp();
+        setUp();
         
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         Collection<KnowledgePackage> kpkgs = getProcessWorkItems();
@@ -778,7 +778,7 @@ public class SingleSessionCommandServiceTest /*extends JbpmTestCase*/ {
                                      null );
         List<KnowledgePackage> list = new ArrayList<KnowledgePackage>();
         list.add( new KnowledgePackageImp( packageBuilder.getPackage() ) );
-        return list;*/
+        return list;
     }
 
 }

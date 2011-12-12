@@ -12,7 +12,7 @@ import org.jbpm.marshalling.impl.ProcessMarshallerImpl;
 
 public class MarshallingTestUtil {
 
-/*    public static List<ProcessInstance> unmarshallProcessInstances(byte [] marshalledSessionByteArray) throws Exception { 
+    public static List<ProcessInstance> unmarshallProcessInstances(byte [] marshalledSessionByteArray) throws Exception { 
         // Setup env/context/stream
         Environment env = EnvironmentFactory.newEnvironment();
         ByteArrayInputStream bais = new ByteArrayInputStream(marshalledSessionByteArray);
@@ -32,5 +32,5 @@ public class MarshallingTestUtil {
         context.close();
         
         return processInstanceList;
-    }**/
+    }
 }

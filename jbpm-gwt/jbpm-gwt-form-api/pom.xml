@@ -3,7 +3,7 @@
   <parent>
     <artifactId>jbpm-gwt</artifactId>
     <groupId>org.jbpm</groupId>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>5.3.0-SNAPSHOT</version>
   </parent>
   
   <artifactId>jbpm-gwt-form-api</artifactId>
@@ -11,7 +11,7 @@
   <name>jBPM :: GWT Form API</name>
   
   <properties>
-    <gwt.version>2.2.0</gwt.version>
+    <gwt.version>2.3.0</gwt.version>
   </properties>
   
   <build>
@@ -46,7 +46,7 @@
         <!-- use -Dgwt.compiler.skip=true to skip GWT compiler -->
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>gwt-maven-plugin</artifactId>
-        <version>2.2.0</version>
+        <version>2.3.0</version>
         <executions>
           <execution>
             <goals>
@@ -206,12 +206,10 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-bpmn2</artifactId>
-      <version>${version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-shared</artifactId>
-      <version>${version}</version>
     </dependency>
   </dependencies>
   

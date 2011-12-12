@@ -1,14 +1,14 @@
 package org.jbpm.bpmn2;
 
-/*import static org.drools.persistence.util.PersistenceUtil.*;
+import static org.drools.persistence.util.PersistenceUtil.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-*/
+
 import junit.framework.TestCase;
-/*
+
 import org.drools.KnowledgeBase;
 import org.drools.audit.WorkingMemoryInMemoryLogger;
 import org.drools.audit.event.LogEvent;
@@ -34,7 +34,7 @@ import org.jbpm.process.audit.JPAProcessInstanceDbLog;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
-*/
+
 
 /**
  * Base test case for the jbpm-bpmn2 module. 
@@ -44,7 +44,7 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
  */
 public abstract class JbpmJUnitTestCase extends TestCase {
 	
-/*    protected final static String EOL = System.getProperty( "line.separator" );
+    protected final static String EOL = System.getProperty( "line.separator" );
     
 	protected boolean persistence = true;
 	private HashMap<String, Object> context;
@@ -404,5 +404,5 @@ public abstract class JbpmJUnitTestCase extends TestCase {
             fail("Expected package name: " + packageName + " - found " + instance.getWorkflowProcess().getPackageName());
         }
     }
-*/    
+    
 }

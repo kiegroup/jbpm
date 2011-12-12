@@ -38,32 +38,26 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-core</artifactId>
-      <version>${version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-graph</artifactId>
-      <version>${version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-form</artifactId>
-      <version>${version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
-      <version>${version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-shared</artifactId>
-      <version>${version}</version>
     </dependency>
     <!--dependency>
       <groupId>org.javassist</groupId>
       <artifactId>javassist</artifactId>
-      <version>3.13.0-GA</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

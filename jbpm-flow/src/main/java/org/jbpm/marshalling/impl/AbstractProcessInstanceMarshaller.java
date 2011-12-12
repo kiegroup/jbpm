@@ -158,8 +158,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 int useNewMarshallingStrategyAlgorithm = -2;
                 stream.writeInt(useNewMarshallingStrategyAlgorithm);
                 // Choose first strategy that accepts the object (what was always done)
-                int indexS = context.objectMarshallingStrategyStore.getStrategy(object);
-                ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategy(indexS);
+                ObjectMarshallingStrategy strategy = context.objectMarshallingStrategyStore.getStrategyObject(object);
                 stream.writeUTF(strategy.getClass().getName());
                 strategy.write(stream, object);
             }
@@ -439,21 +438,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
 			        else if( index == -2 ) { 
 			            String strategyClassName = context.stream.readUTF();
 			            if ( ! StringUtils.isEmpty(strategyClassName) ) {
-                                        ObjectMarshallingStrategy objectMarshallingStrategyXX = null;
-                                        boolean xxdone = false;
-                                        for(int xxi = 0; !xxdone ; xxi++) {
-                                            try {
-                                                ObjectMarshallingStrategy xxstrategy = 
-                                                    context.resolverStrategyFactory.getStrategy(xxi);
-                                                if (xxstrategy.getClass().getName().equals(strategyClassName)) {
-                                                    strategy = xxstrategy;
-                                                    xxdone = true;
-                                                }
-                                            } catch (Throwable xxt) {
-                                                xxdone = true;
-                                            }
-                                        }
-			                //strategy = context.resolverStrategyFactory.getStrategyObject(strategyClassName);
+			                strategy = context.resolverStrategyFactory.getStrategyObject(strategyClassName);
 			                if( strategy == null ) { 
 			                    throw new IllegalStateException( "No strategy of type " + strategyClassName + " available." );
 			                }

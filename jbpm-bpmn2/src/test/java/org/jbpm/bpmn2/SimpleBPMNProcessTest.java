@@ -16,7 +16,7 @@
 
 package org.jbpm.bpmn2;
 
-/*import java.io.ByteArrayInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -68,10 +68,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-*/
+
 public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
 
-/*    private Logger logger = LoggerFactory.getLogger(SimpleBPMNProcessTest.class);
+    private Logger logger = LoggerFactory.getLogger(SimpleBPMNProcessTest.class);
     
     protected void setUp() { 
         String testName = getName();
@@ -81,9 +81,9 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
         }
         super.setUp();
     }
-*/    
+    
 	public void testMinimalProcess() throws Exception {
-/*		KnowledgeBase kbase = createKnowledgeBase("BPMN2-MinimalProcess.bpmn2");
+		KnowledgeBase kbase = createKnowledgeBase("BPMN2-MinimalProcess.bpmn2");
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
 		ProcessInstance processInstance = ksession.startProcess("Minimal");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
@@ -1790,6 +1790,6 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
 		KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
 		kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
 		return kbase;
-*/	}
+	}
 
 }

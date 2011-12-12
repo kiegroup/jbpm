@@ -1,6 +1,6 @@
 package org.jbpm.persistence.processinstance;
 
-/*import static org.drools.persistence.util.PersistenceUtil.*;
+import static org.drools.persistence.util.PersistenceUtil.*;
 import static org.drools.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkflowProcessInstance;
 import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
-import org.jbpm.persistence.processinstance.objects.NonSerializableClass;*/
+import org.jbpm.persistence.processinstance.objects.NonSerializableClass;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 public class ProcessInstanceResolverStrategyTest {
 
-/*    private static Logger logger = LoggerFactory.getLogger(ProcessInstanceResolverStrategyTest.class);
+    private static Logger logger = LoggerFactory.getLogger(ProcessInstanceResolverStrategyTest.class);
     
     private HashMap<String, Object> context;
     private StatefulKnowledgeSession ksession;
@@ -84,12 +84,12 @@ public class ProcessInstanceResolverStrategyTest {
             ksession.dispose();
         }
         tearDown(context);
-    }*/
+    }
 
     @Test
     public void testWithDatabaseAndStartProcess() throws Exception {
         // Create variable
-/*        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         NonSerializableClass processVar = new NonSerializableClass();
         processVar.setString("1234567890");
         params.put(VAR_NAME, processVar);
@@ -151,7 +151,7 @@ public class ProcessInstanceResolverStrategyTest {
         processInstance = ksession.getProcessInstance(processInstanceId);
         Assert.assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         processVar = (NonSerializableClass) ((WorkflowProcessInstance) processInstance).getVariable(VAR_NAME);
-        Assert.assertNotNull(processVar);*/
+        Assert.assertNotNull(processVar);
     }
 
 }
