@@ -1,2 +1,5 @@
 /velocity.log*
 /target
+/.settings
+/.classpath
+/.project
