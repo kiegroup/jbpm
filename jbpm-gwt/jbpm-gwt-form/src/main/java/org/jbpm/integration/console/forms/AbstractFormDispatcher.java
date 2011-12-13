@@ -20,10 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -32,14 +30,21 @@ import java.util.Properties;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 
+import org.apache.commons.io.IOUtils;
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jboss.bpm.console.server.plugin.FormDispatcherPlugin;
-import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
+import org.jbpm.formapi.server.form.FormEncodingServerFactory;
+import org.jbpm.formapi.server.render.Renderer;
+import org.jbpm.formapi.server.render.RendererException;
+import org.jbpm.formapi.server.render.RendererFactory;
+import org.jbpm.formapi.server.trans.Translator;
+import org.jbpm.formapi.server.trans.TranslatorException;
+import org.jbpm.formapi.server.trans.TranslatorFactory;
+import org.jbpm.formapi.shared.api.FormRepresentation;
+import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.integration.console.shared.GuvnorFormUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import freemarker.template.DefaultObjectWrapper;
-import freemarker.template.Template;
 
 /**
  * @author Kris Verlaenen
@@ -83,26 +88,16 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	}
 	
 	public InputStream getTemplate(String name) {
-        // try to find on classpath
-		 GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
-	     if(guvnorUtils.guvnorExists()) {
-	    	 try {
-	    		 String templateName;
-	    		 if(guvnorUtils.templateExistsInRepo(name + "-taskform")) {
-	    			 templateName = name + "-taskform";
-	    		 } else if(guvnorUtils.templateExistsInRepo(name)) {
-	    			 templateName = name;
-	    		 } else {
-	    			 return null;
-	    		 }
-	    		 return guvnorUtils.getFormTemplateFromGuvnor(templateName);
-	    	 } catch (Throwable t) {
-	    		 logger.error("Could not load process template from Guvnor: " + t.getMessage());
-	    		 return null;
-	    	 }
-	     } else {
-	         logger.warn("Could not connect to Guvnor.");
-	     }
+        // try to find on guvnor
+		 GuvnorFormUtils guvnorUtils = new GuvnorFormUtils();
+		 String content = guvnorUtils.getFormFromGuvnor(name);
+		 if (content != null && !"".equals(content)) {
+			 try {
+				 return new ByteArrayInputStream(content.getBytes("UTF-8"));
+			 } catch (UnsupportedEncodingException e) {
+				 logger.warn("Couldn't parse content to UTF-8", e);
+			 }
+		 }
 	     // try to find on classpath
 	     InputStream nameTaskformResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + "-taskform.ftl");
 	     if (nameTaskformResult != null) {
@@ -115,88 +110,47 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	    		 return null;
 	    	 }
 	     }
-	
-	/*
-	    InputStream nameTaskformResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + "-taskform.ftl");
-		if (nameTaskformResult != null) {
-			return nameTaskformResult;
-		} else {
-		    InputStream nameResult = AbstractFormDispatcher.class.getResourceAsStream("/" + name + ".ftl");
-		    if (nameResult != null) {
-		        return nameResult;
-		    }
-		}
-		// try to find in guvnor repository
-        GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
-        if(guvnorUtils.guvnorExists()) {
-            FormDef def = FormUtils.getFormDefinitionFromGuvnor(name, name);
-        	try {
-        	    if (def != null) {
-                    return new URL(def.getFormUrl()).openStream();
-                }
-			} catch (Throwable t) {
-				logger.error("Could not load template from Guvnor: " + t.getMessage());
-				return null;
-			}
-        } else {
-        	logger.warn("Could not connect to Guvnor.");
-        	return null;
-        }
-        return null;*/
 	}
 
 	protected DataHandler processTemplate(final String name, InputStream src, Map<String, Object> renderContext) {
 		DataHandler merged = null;
+		GuvnorFormUtils utils = new GuvnorFormUtils();
+		String language = utils.getFormDefaultLanguage();
+		String formUrl = utils.getFormDefinitionURLFromGuvnor(name);
 		try {
-			freemarker.template.Configuration cfg = new freemarker.template.Configuration();
-			cfg.setObjectWrapper(new DefaultObjectWrapper());
-			cfg.setTemplateUpdateDelay(0);
-			Template temp = new Template(name, new InputStreamReader(src), cfg);
-			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			Writer out = new OutputStreamWriter(bout);
-			temp.process(renderContext, out);
-			out.flush();
-			merged = new DataHandler(new DataSource() {
-				public InputStream getInputStream() throws IOException {
-					return new ByteArrayInputStream(bout.toByteArray());
-				}
-				public OutputStream getOutputStream() throws IOException {
-					return bout;
-				}
-				public String getContentType() {
-					return "*/*";
-				}
-				public String getName() {
-					return name + "_DataSource";
-				}
-			});
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to process form template", e);
+			String formDefContent = IOUtils.toString(src, "UTF-8");
+			if (formDefContent != null) {
+				Translator translator = TranslatorFactory.getInstance().getTranslator(language);
+				Renderer renderer = RendererFactory.getInstance().getRenderer(language);
+				FormRepresentation form = FormEncodingServerFactory.getDecoder().decode(formDefContent);
+				URL translatedForm = translator.translateForm(form);
+				Object render = renderer.render(translatedForm, renderContext);
+				final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				bout.write(render.toString().getBytes());
+				merged = new DataHandler(new DataSource() {
+					public InputStream getInputStream() throws IOException {
+						return new ByteArrayInputStream(bout.toByteArray());
+					}
+					public OutputStream getOutputStream() throws IOException {
+						return bout;
+					}
+					public String getContentType() {
+						return "*/*";
+					}
+					public String getName() {
+						return name + "_DataSource";
+					}
+				});
+			}
+		} catch (TranslatorException e) {
+			logger.error("Couldn't translate the form " + formUrl + " in the " + language + " language");
+		} catch (RendererException e) {
+			logger.error("Couldn't render the form " + formUrl + " in the " + language + " language");
+		} catch (FormEncodingException e) {
+			logger.error("Couldn't decode the form " + formUrl + " in the " + language + " language");
+		} catch (IOException e) {
+			logger.error("Couldn't write out the form " + formUrl + " in the " + language + " language");
 		}
 		return merged;
-		
-/*		DataHandler merged = null;
-		try {
-		    Object render = FormUtils.renderForm(name, name, renderContext);
-			final ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			bout.write(render.toString().getBytes());
-			merged = new DataHandler(new DataSource() {
-				public InputStream getInputStream() throws IOException {
-					return new ByteArrayInputStream(bout.toByteArray());
-				}
-				public OutputStream getOutputStream() throws IOException {
-					return bout;
-				}
-				public String getContentType() {
-					return "* /*";
-				}
-				public String getName() {
-					return name + "_DataSource";
-				}
-			});
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to process form template", e);
-		}
-		return merged;*/
 	}
 }

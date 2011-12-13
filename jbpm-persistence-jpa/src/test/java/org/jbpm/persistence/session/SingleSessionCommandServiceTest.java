@@ -58,7 +58,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Test;
 
-public class SingleSessionCommandServiceTest /*extends JbpmTestCase*/ {
+public class SingleSessionCommandServiceTest extends JbpmTestCase {
 
 	private HashMap<String, Object> context;
 	private Environment env;

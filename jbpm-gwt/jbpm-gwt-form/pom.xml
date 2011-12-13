@@ -20,11 +20,6 @@
       <artifactId>jbpm-human-task</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-gwt-form-api</artifactId>
-      <version>${parent.version}</version>
-    </dependency>         
-    <dependency>
       <groupId>org.jboss.bpm</groupId>
       <artifactId>gwt-console-server-integration</artifactId>
       <!-- overwrite parent pom version -->
@@ -47,6 +42,16 @@
     	<groupId>org.jbpm</groupId>
     	<artifactId>jbpm-gwt-shared</artifactId>
     	<scope>compile</scope>
+    </dependency>
+    <dependency>
+       <groupId>org.jbpm</groupId>
+       <artifactId>jbpm-gwt-form-api</artifactId>
+       <version>${parent.version}</version>
+    </dependency>
+    <dependency>
+       <groupId>org.jbpm</groupId>
+       <artifactId>jbpm-gwt-form-exporter-freemarker</artifactId>
+       <version>${parent.version}</version>
     </dependency>
   </dependencies>
 </project>
