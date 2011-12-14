@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.server.task;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -72,8 +73,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     @Override
     public List<TaskRef> query(String pkgName, String filter) throws TaskServiceException {
         HttpClient client = helper.getHttpClient();
-        GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
+        GetMethod method = null;
         try {
+        	method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
             helper.setAuth(client, method);
             client.executeMethod(method);
             Properties props = new Properties();
@@ -105,7 +107,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
         } catch (Exception e) {
             throw new TaskServiceException("Unexpected error", e);
         } finally {
-            method.releaseConnection();
+        	if (method != null) {
+        		method.releaseConnection();
+        	}
         }
     }
     
@@ -119,7 +123,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 helper.setAuth(client, call);
                 call.addRequestHeader("Accept", "application/xml");
                 client.executeMethod(call);
-                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.RELATED_CLASSES);
+                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, 
+                		call.getResponseBodyAsStream(), 
+                		PackageListDTO.RELATED_CLASSES);
                 PackageDTO pkg = dto.getSelectedPackage(pkgName);
                 List<String> urls = new ArrayList<String>();
                 for (String url : pkg.getAssets()) {
@@ -128,7 +134,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                         helper.setAuth(client, call);
                         subCall.addRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
-                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.RELATED_CLASSES);
+                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, 
+                        		subCall.getResponseBodyAsStream(), 
+                        		AssetDTO.RELATED_CLASSES);
                         if (subDto.getMetadata().getFormat().equals("bpmn2")) {
                             urls.add(subDto.getSourceLink());
                         }
@@ -192,7 +200,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                 helper.setAuth(client, call);
                 call.addRequestHeader("Accept", "application/xml");
                 client.executeMethod(call);
-                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class, call.getResponseBodyAsStream(), PackageListDTO.RELATED_CLASSES);
+                PackageListDTO dto = helper.jaxbTransformation(PackageListDTO.class,
+                		call.getResponseBodyAsStream(), 
+                		PackageListDTO.RELATED_CLASSES);
                 String processUrl = null;
                 String format = null;
                 PackageDTO pkg = dto.getSelectedPackage(packageName);
@@ -202,7 +212,9 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
                         helper.setAuth(client, subCall);
                         subCall.addRequestHeader("Accept", "application/xml");
                         client.executeMethod(subCall);
-                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, subCall.getResponseBodyAsStream(), AssetDTO.RELATED_CLASSES);
+                        AssetDTO subDto = helper.jaxbTransformation(AssetDTO.class, 
+                        		subCall.getResponseBodyAsStream(), 
+                        		AssetDTO.RELATED_CLASSES);
                         if (subDto.getMetadata().getUuid().equals(uuid)) {
                             processUrl = subDto.getSourceLink();
                             format = subDto.getMetadata().getFormat();
@@ -269,7 +281,10 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     private String getTaskDefinitionContent(String pkgName, String itemName) throws IOException {
         HttpClient client = helper.getHttpClient();
         if (itemName != null && !"".equals(itemName)) {
-            GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName) + itemName);
+        	
+            String getUrl = helper.getApiSearchUrl(pkgName) + 
+            		URLEncoder.encode(itemName, GuvnorHelper.ENCODING);
+			GetMethod method = helper.createGetMethod(getUrl);
             try {
                 helper.setAuth(client, method);
                 client.executeMethod(method);

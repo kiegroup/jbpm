@@ -19,13 +19,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
@@ -40,15 +41,34 @@ import org.jbpm.formbuilder.server.xml.PackageDTO;
 import org.jbpm.formbuilder.server.xml.PackageListDTO;
 
 public class GuvnorHelper {
-    
+
+	public static final String ENCODING = "UTF-8"; 
+	
     private final String baseUrl;
     private final String user;
     private final String password;
+    private final String domainName;
+    private final int portNumber;
     
     public GuvnorHelper(String baseUrl, String user, String password) {
         this.baseUrl = baseUrl;
         this.user = user;
         this.password = password;
+        int beginIndex = this.baseUrl.indexOf("://") + 3;
+        int endIndex = this.baseUrl.indexOf("/", beginIndex);
+        if (endIndex < 0) {
+        	endIndex = this.baseUrl.length();
+        }
+		String aux = this.baseUrl.substring(beginIndex, endIndex);
+		if (aux.contains(":")) {
+			String[] parts = aux.split(":");
+			this.domainName = parts[0];
+			this.portNumber = Integer.valueOf(parts[1]);
+		} else {
+			this.domainName = aux;
+			this.portNumber = 80;
+		}
+        
     }
 
     private HttpClient client = null;
@@ -133,20 +153,23 @@ public class GuvnorHelper {
     }
     
     public void setAuth(HttpClient client, HttpMethod method) {
-    	if (this.user != null && this.password != null && !"".equals(this.user) && !"".equals(this.password)) {
+    	if (notEmpty(this.user) && notEmpty(this.password)) {
     		client.getParams().setAuthenticationPreemptive(true);
-    		UsernamePasswordCredentials defaultcreds = new UsernamePasswordCredentials(this.user, this.password);
-    		client.getState().setCredentials(new AuthScope("localhost", 8080, AuthScope.ANY_REALM), defaultcreds);
-    		/*String basic = this.user + ":" + this.password;
-    		basic = "BASIC " + Base64.encodeBase64(basic.getBytes());
-    		method.addRequestHeader("Authorization", basic);*/
+    		UsernamePasswordCredentials defaultcreds = 
+    				new UsernamePasswordCredentials(this.user, this.password);
+    		AuthScope authScope = new AuthScope(this.domainName, this.portNumber, AuthScope.ANY_REALM);
+			client.getState().setCredentials(authScope, defaultcreds);
     	}
     }
     
-    public String getApiSearchUrl(String pkgName) {
+    private boolean notEmpty(String s) {
+    	return s != null && !"".equals(s);
+    }
+    
+    public String getApiSearchUrl(String pkgName) throws UnsupportedEncodingException {
         return new StringBuilder(this.baseUrl).
             append("/org.drools.guvnor.Guvnor/api/packages/").
-            append(pkgName).append("/").toString();
+            append(URLEncoder.encode(pkgName, ENCODING)).append("/").toString();
     }
 
     public String getRestBaseUrl() {

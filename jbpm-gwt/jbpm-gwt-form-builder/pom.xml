@@ -264,6 +264,11 @@
       <version>1.2.2</version>
     </dependency>
     <dependency>
+      <groupId>commons-vfs</groupId>
+      <artifactId>commons-vfs</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.gwt.google-apis</groupId>
       <artifactId>gwt-visualization</artifactId>
       <version>1.0.2</version>

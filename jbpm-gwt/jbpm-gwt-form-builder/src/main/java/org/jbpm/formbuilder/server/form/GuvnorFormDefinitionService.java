@@ -71,12 +71,12 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public String saveForm(String pkgName, FormRepresentation form) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
         EntityEnclosingMethod method = null;
-        String url = helper.getApiSearchUrl(pkgName);
-        boolean isUpdate = getForm(pkgName, form.getName()) != null;
-        String finalUrl = url + form.getName() + ".formdef";
-        method = isUpdate ? helper.createPutMethod(finalUrl) : helper.createPostMethod(finalUrl); 
-        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         try {
+        	String url = helper.getApiSearchUrl(pkgName);
+        	boolean isUpdate = getForm(pkgName, form.getName()) != null;
+        	String finalUrl = url + URLEncoder.encode(form.getName(), GuvnorHelper.ENCODING) + ".formdef";
+        	method = isUpdate ? helper.createPutMethod(finalUrl) : helper.createPostMethod(finalUrl); 
+        	FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
             method.setRequestEntity(new StringRequestEntity(encoder.encode(form), null, null));
             method.setRequestHeader("Checkin-Comment", form.getDocumentation());
             helper.setAuth(client, method);
@@ -95,20 +95,23 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             }
             throw new FormServiceException("Unexpected error", e);
         } finally {
-            method.releaseConnection();
+        	if (method != null) {
+        		method.releaseConnection();
+        	}
         }
     }
 
     @Override
     public String saveFormItem(String pkgName, String formItemName, FormItemRepresentation formItem) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
-        String url = helper.getApiSearchUrl(pkgName);
         StringBuilder builder = new StringBuilder();
         boolean isUpdate = updateItemName(formItemName, builder);
-        String finalUrl = url + builder.toString() + ".json";
-        EntityEnclosingMethod method = isUpdate ? helper.createPutMethod(finalUrl) : helper.createPostMethod(finalUrl);
-        FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
+        EntityEnclosingMethod method = null;
         try {
+        	String url = helper.getApiSearchUrl(pkgName);
+        	String finalUrl = url + URLEncoder.encode(builder.toString(), GuvnorHelper.ENCODING) + ".json";
+        	method = isUpdate ? helper.createPutMethod(finalUrl) : helper.createPostMethod(finalUrl);
+        	FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
             method.setRequestEntity(new StringRequestEntity(encoder.encode(formItem), null, null));
             method.setRequestHeader("Checkin-Comment", "Committing " + formItemName);
             helper.setAuth(client, method);
@@ -121,7 +124,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         } catch (Exception e) {
             throw new FormServiceException("Unexpected error", e);
         } finally {
-            method.releaseConnection();
+        	if (method != null) {
+        		method.releaseConnection();
+        	}
         }
     }
 
@@ -129,9 +134,13 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public FormRepresentation getForm(String pkgName, String formId) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
         if (formId != null && !"".equals(formId)) {
-            GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName) + formId + ".formdef");
+        	
+			GetMethod method = null;
             FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
+            	String getUrl = helper.getApiSearchUrl(pkgName) + 
+            			URLEncoder.encode(formId, GuvnorHelper.ENCODING) + ".formdef";
+            	method = helper.createGetMethod(getUrl);
                 helper.setAuth(client, method);
                 client.executeMethod(method);
                 String json = method.getResponseBodyAsString();
@@ -143,7 +152,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             } catch (Exception e) {
                 throw new FormServiceException("Unexpected error", e);
             } finally {
-                method.releaseConnection();
+            	if (method != null) {
+            		method.releaseConnection();
+            	}
             }
         }
         return null;
@@ -215,9 +226,12 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public FormItemRepresentation getFormItem(String pkgName, String formItemId) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
         if (formItemId != null && !"".equals(formItemId)) {
-            GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName) + formItemId + ".json");
+        	GetMethod method = null;
             FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
             try {
+            	String getUrl = helper.getApiSearchUrl(pkgName) + 
+            			URLEncoder.encode(formItemId, GuvnorHelper.ENCODING) + ".json";
+            	method = helper.createGetMethod(getUrl);
                 helper.setAuth(client, method);
                 client.executeMethod(method);
                 String json = method.getResponseBodyAsString();
@@ -236,8 +250,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     @Override
     public Map<String, FormItemRepresentation> getFormItems(String pkgName) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
-        GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
+        GetMethod method = null;
         try {
+        	method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
             helper.setAuth(client, method);
             client.executeMethod(method);
             Properties props = new Properties();
@@ -259,15 +274,18 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             }
             throw new FormServiceException("Unexpected error", e);
         } finally {
-            method.releaseConnection();
+        	if (method != null) {
+        		method.releaseConnection();
+        	}
         }
     }
     
     @Override
     public List<FormRepresentation> getForms(String pkgName) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
-        GetMethod method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
+        GetMethod method = null;
         try {
+        	method = helper.createGetMethod(helper.getApiSearchUrl(pkgName));
             helper.setAuth(client, method);
             client.executeMethod(method);
             Properties props = new Properties();
@@ -289,7 +307,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             }
             throw new FormServiceException("Unexpected error", e);
         } finally {
-            method.releaseConnection();
+        	if (method != null) {
+        		method.releaseConnection();
+        	}
         }
     }
 
@@ -297,8 +317,11 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public void deleteForm(String pkgName, String formId) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
         if (formId != null && !"".equals(formId)) {
-            DeleteMethod method = helper.createDeleteMethod(helper.getApiSearchUrl(pkgName) + formId + ".formdef");
+        	DeleteMethod method = null;
             try {
+            	String deleteUrl = helper.getApiSearchUrl(pkgName) + 
+            			URLEncoder.encode(formId, GuvnorHelper.ENCODING) + ".formdef";
+            	method = helper.createDeleteMethod(deleteUrl);
                 helper.setAuth(client, method);
                 client.executeMethod(method);
             } catch (IOException e) {
@@ -306,7 +329,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             } catch (Exception e) {
                 throw new FormServiceException("Unexpected error", e);
             } finally {
-                method.releaseConnection();
+            	if (method != null) {
+            		method.releaseConnection();
+            	}
             }
         }
     }
@@ -315,8 +340,11 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
     public void deleteFormItem(String pkgName, String formItemId) throws FormServiceException {
         HttpClient client = helper.getHttpClient();
         if (formItemId != null && !"".equals(formItemId)) {
-            DeleteMethod method = helper.createDeleteMethod(helper.getApiSearchUrl(pkgName) + formItemId + ".json");
+        	DeleteMethod method = null;
             try {
+            	String deleteUrl = helper.getApiSearchUrl(pkgName) + 
+            			URLEncoder.encode(formItemId, GuvnorHelper.ENCODING) + ".json";
+            	method = helper.createDeleteMethod(deleteUrl);
                 helper.setAuth(client, method);
                 client.executeMethod(method);
             } catch (IOException e) {
@@ -324,7 +352,9 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
             } catch (Exception e) {
                 throw new FormServiceException("Unexpected error", e);
             } finally {
-                method.releaseConnection();
+            	if (method != null) {
+            		method.releaseConnection();
+            	}
             }
         }
     }
@@ -352,7 +382,10 @@ public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionServi
         try {
             ensureTamplateAsset(packageName, templateName);
             String templateBaseName = StringUtils.reverse(StringUtils.reverse(templateName).replaceFirst("txt.", ""));
-            method = helper.createPutMethod(helper.getRestBaseUrl() + packageName + "/assets/" + URLEncoder.encode(templateBaseName, "UTF-8") + "/source");
+            String sourceUrl = helper.getRestBaseUrl() + 
+            		URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/" + 
+            		URLEncoder.encode(templateBaseName, GuvnorHelper.ENCODING) + "/source";
+			method = helper.createPutMethod(sourceUrl);
             method.setRequestEntity(new StringRequestEntity(content, null, null));
             method.setRequestHeader("Content-Type", "application/xml");
             helper.setAuth(client, method);

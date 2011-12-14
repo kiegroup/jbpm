@@ -29,7 +29,11 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.vfs.AllFileSelector;
+import org.apache.commons.vfs.FileName;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.VFS;
 import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
@@ -151,18 +155,30 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     }
 
     protected void writeFile(File file, String json) throws FileNotFoundException, IOException {
-        FileUtils.writeStringToFile(file, json);
+    	if (file.toString().startsWith("vfs")) {
+    		FileObject to = VFS.getManager().resolveFile(file.toString());
+    		File tmpFile = File.createTempFile("xxFilexx", ".json");
+    		FileUtils.writeStringToFile(tmpFile, json);
+    		FileObject from = VFS.getManager().toFileObject(tmpFile);
+    		to.copyFrom(from, new AllFileSelector());
+    		FileUtils.deleteQuietly(tmpFile);
+    	} else {
+    		FileUtils.writeStringToFile(file, json);
+    	}
     }
     
     protected File asFile(String path) throws URISyntaxException {
         URL url = getClass().getResource(path);
-        try {
-        	String content = IOUtils.toString(url.openStream());
-        	File file = File.createTempFile("xxFilexx", ".json");
-        	FileUtils.writeStringToFile(file, content);
-        	return file;
-        } catch (IOException e) {
-        	throw new URISyntaxException(path, "Couldn't read input");
+        if (url.getProtocol().equals("vfs")) {
+	        try {
+	        	FileSystemManager manager = VFS.getManager();
+	        	FileName fileName = manager.resolveURI(url.getFile());
+	        	return new File(fileName.getPathDecoded());
+	        } catch (IOException e) {
+	        	throw new URISyntaxException(path, "Couldn't read input");
+	        }
+        } else {
+        	return FileUtils.toFile(url);
         }
     }
     

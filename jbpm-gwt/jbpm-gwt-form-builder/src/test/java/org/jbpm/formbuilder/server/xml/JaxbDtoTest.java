@@ -44,7 +44,7 @@ import org.jbpm.formbuilder.shared.task.TaskRef;
  */
 public class JaxbDtoTest extends TestCase {
 
-    private GuvnorHelper helper = new GuvnorHelper("", "", "");
+    private GuvnorHelper helper = new GuvnorHelper("http://www.redhat.com", "", "");
     
     public void testFileListDTOEmpty() throws Exception {
         FileListDTO dto = new FileListDTO();

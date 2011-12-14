@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBException;
 import junit.framework.TestCase;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -423,6 +424,9 @@ public class GuvnorFileServiceTest extends TestCase {
             @Override
             public PutMethod createPutMethod(String url) {
                 return new MockPutMethod(url);
+            }
+            @Override
+            public void setAuth(HttpClient client, HttpMethod method) {
             }
         });
         return service;

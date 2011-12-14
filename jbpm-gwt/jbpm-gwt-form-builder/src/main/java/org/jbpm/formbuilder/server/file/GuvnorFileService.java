@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.server.file;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,7 +75,9 @@ public class GuvnorFileService implements FileService {
             deleteOlderVersion(packageName, fileName);
 
             HttpClient client = helper.getHttpClient();
-            PostMethod create = helper.createPostMethod(helper.getRestBaseUrl() + packageName + "/assets/");
+            String createUrl = helper.getRestBaseUrl() + 
+            		URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/";
+			PostMethod create = helper.createPostMethod(createUrl);
             try {
                 helper.setAuth(client, create);
                 create.addRequestHeader("Content-Type", "application/octet-stream");
@@ -85,7 +88,9 @@ public class GuvnorFileService implements FileService {
             } finally {
                 create.releaseConnection();
             }
-            return (this.baseUrl + "/org.drools.guvnor.Guvnor/api/packages/" + packageName + "/" + assetName + "." + assetExt);
+            return (this.baseUrl + "/org.drools.guvnor.Guvnor/api/packages/" + 
+            		URLEncoder.encode(packageName + "/" + assetName, GuvnorHelper.ENCODING) + 
+            		"." + assetExt);
         } catch (Exception e) {
             throw new FileException("Problem storing file", e);
         }
@@ -94,8 +99,12 @@ public class GuvnorFileService implements FileService {
     private void deleteOlderVersion(String packageName, String fileName) throws FileException {
         HttpClient client = helper.getHttpClient();
         String assetName = stripFileExtension(fileName);
-        GetMethod check = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
+        GetMethod check = null;
         try {
+        	String deleteUrl = helper.getRestBaseUrl() + 
+        			URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/" + 
+        			URLEncoder.encode(assetName, GuvnorHelper.ENCODING);
+        	check = helper.createGetMethod(deleteUrl);
             helper.setAuth(client, check);
             check.addRequestHeader("Accept", "application/xml");
             client.executeMethod(check);
@@ -105,7 +114,9 @@ public class GuvnorFileService implements FileService {
         } catch (IOException e) {
             throw new FileException("Problem getting old version of asset " + fileName + " in package " + packageName, e);
         } finally {
-            check.releaseConnection();
+        	if (check != null) {
+        		check.releaseConnection();
+        	}
         } 
     }
 
@@ -114,8 +125,12 @@ public class GuvnorFileService implements FileService {
         HttpClient client = helper.getHttpClient();
         String assetName = stripFileExtension(fileName);
         //String assetType = extractFileExtension(fileName);
-        DeleteMethod deleteAsset = helper.createDeleteMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName);
+        DeleteMethod deleteAsset = null;
         try {
+        	String deleteUrl = helper.getRestBaseUrl() + 
+        			URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/" + 
+        			URLEncoder.encode(assetName, GuvnorHelper.ENCODING);
+        	deleteAsset = helper.createDeleteMethod(deleteUrl);
             helper.setAuth(client, deleteAsset);
             client.executeMethod(deleteAsset);
         } catch (IOException e) {
@@ -123,18 +138,25 @@ public class GuvnorFileService implements FileService {
         } catch (Exception e) {
             throw new FileException("Unexpected error", e);
         } finally {
-            deleteAsset.releaseConnection();
+        	if (deleteAsset != null) {
+        		deleteAsset.releaseConnection();
+        	}
         }
     }
 
     @Override
     public List<String> loadFilesByType(String packageName, String fileType) throws FileException {
         HttpClient client = helper.getHttpClient();
-        GetMethod load = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/");
+        GetMethod load = null;
         try {
+        	String loadUrl = helper.getRestBaseUrl() + 
+        			URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/";
+        	load = helper.createGetMethod(loadUrl);
             helper.setAuth(client, load);
             client.executeMethod(load);
-            PackageAssetsDTO dto = helper.jaxbTransformation(PackageAssetsDTO.class, load.getResponseBodyAsStream(), PackageAssetsDTO.class, PackageAssetDTO.class, MetaDataDTO.class);
+            PackageAssetsDTO dto = helper.jaxbTransformation(PackageAssetsDTO.class, 
+            		load.getResponseBodyAsStream(), 
+            		PackageAssetsDTO.class, PackageAssetDTO.class, MetaDataDTO.class);
             List<PackageAssetDTO> validAssets = new ArrayList<PackageAssetDTO>();
             if (fileType != null && !"".equals(fileType)) {
                 for (PackageAssetDTO asset : dto.getAsset()) {
@@ -168,8 +190,12 @@ public class GuvnorFileService implements FileService {
     public byte[] loadFile(String packageName, String fileName) throws FileException {
         HttpClient client = helper.getHttpClient();
         String assetName = stripFileExtension(fileName);
-        GetMethod get = helper.createGetMethod(helper.getRestBaseUrl() + packageName + "/assets/" + assetName + "/source");
+        GetMethod get = null;
         try {
+        	String getUrl = helper.getRestBaseUrl() + 
+        			URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/" + 
+        			URLEncoder.encode(assetName, GuvnorHelper.ENCODING) + "/source";
+        	get = helper.createGetMethod(getUrl);
             helper.setAuth(client, get);
             client.executeMethod(get);
             return get.getResponseBody();
@@ -178,7 +204,9 @@ public class GuvnorFileService implements FileService {
         } catch (Exception e) {
             throw new FileException("Unexpected error reading file " + fileName, e);
         } finally {
-            get.releaseConnection();
+        	if (get != null) {
+        		get.releaseConnection();
+        	}
         }
     }
     
