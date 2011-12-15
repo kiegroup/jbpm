@@ -28,11 +28,11 @@ import javax.ws.rs.core.Response;
 
 import org.jbpm.formapi.server.form.FormEncodingServerFactory;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @Path("/io")
 public class RESTIoService extends RESTBaseService {
@@ -41,10 +41,8 @@ public class RESTIoService extends RESTBaseService {
     
     public void setContext(@Context ServletContext context) {
         if (taskService == null) {
-            String url = context.getInitParameter("guvnor-base-url");
-            String user = context.getInitParameter("guvnor-user");
-            String pass = context.getInitParameter("guvnor-password");
-            this.taskService = new GuvnorTaskDefinitionService(url, user, pass);
+        	taskService = (TaskDefinitionService) WebApplicationContextUtils.
+        			getWebApplicationContext(context).getBean("guvnorTaskService");
         }
     }
     

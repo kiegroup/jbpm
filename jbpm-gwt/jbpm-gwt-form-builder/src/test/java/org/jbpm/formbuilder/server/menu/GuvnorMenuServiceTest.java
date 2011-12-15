@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,36 +86,36 @@ public class GuvnorMenuServiceTest extends TestCase {
     private GuvnorMenuService createMockedService(final Class<?> exceptionType) {
         GuvnorMenuService service = new GuvnorMenuService() {
             @Override 
-            protected File asFile(String path) throws URISyntaxException {
+            protected URL asURL(String path) throws URISyntaxException {
                 if (exceptionType != null && exceptionType.equals(URISyntaxException.class)) throw new URISyntaxException(path, "mocking");
-                return super.asFile(path);
+                return super.asURL(path);
             }
             @Override 
-            protected Reader createReader(File file) throws FileNotFoundException, IOException {
+            protected Reader createReader(URL url) throws FileNotFoundException, IOException {
                 if (exceptionType != null) {
-                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(file.getAbsolutePath());
-                    if (exceptionType.equals(IOException.class)) throw new IOException(file.getAbsolutePath());
+                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(url.toExternalForm());
+                    if (exceptionType.equals(IOException.class)) throw new IOException(url.toExternalForm());
                     throw new NullPointerException();
                 }
-                return super.createReader(file);
+                return super.createReader(url);
             }
             @Override
-            protected String readFile(File file) throws FileNotFoundException, IOException {
+            protected String readURL(URL url) throws FileNotFoundException, IOException {
                 if (exceptionType != null) {
-                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(file.getAbsolutePath());
-                    if (exceptionType.equals(IOException.class)) throw new IOException(file.getAbsolutePath());
+                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(url.toExternalForm());
+                    if (exceptionType.equals(IOException.class)) throw new IOException(url.toExternalForm());
                     throw new NullPointerException();
                 }
-                return super.readFile(file);
+                return super.readURL(url);
             }
             @Override
-            protected void writeFile(File file, String json) throws FileNotFoundException, IOException {
+            protected void writeToURL(URL url, String json) throws FileNotFoundException, IOException {
                 if (exceptionType != null) {
-                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(file.getAbsolutePath());
-                    if (exceptionType.equals(IOException.class)) throw new IOException(file.getAbsolutePath());
+                    if (exceptionType.equals(FileNotFoundException.class)) throw new FileNotFoundException(url.toExternalForm());
+                    if (exceptionType.equals(IOException.class)) throw new IOException(url.toExternalForm());
                     throw new NullPointerException();
                 }
-                super.writeFile(file, json);
+                super.writeToURL(url, json);
             }
         };
         return service;

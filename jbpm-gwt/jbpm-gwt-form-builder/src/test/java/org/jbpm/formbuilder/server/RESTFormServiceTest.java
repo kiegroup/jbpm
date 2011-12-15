@@ -51,22 +51,26 @@ import org.jbpm.formbuilder.server.xml.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
+import org.springframework.web.context.WebApplicationContext;
 
 public class RESTFormServiceTest extends RESTAbstractTest {
 
     public void testSetContextOK() throws Exception {
         RESTFormService restService = new RESTFormService();
         ServletContext context = EasyMock.createMock(ServletContext.class);
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("anyuser").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("anypassword").once();
-        
-        EasyMock.replay(context);
+        WebApplicationContext appctx = EasyMock.createMock(WebApplicationContext.class);
+        FormDefinitionService mockFormService = new MockFormDefinitionService();
+        EasyMock.expect(appctx.getBean(EasyMock.eq("guvnorFormService"))).andReturn(mockFormService).once();
+        EasyMock.expect(context.getAttribute("org.springframework.web.context.WebApplicationContext.ROOT"))
+        	.andReturn(appctx).once();
+
+        EasyMock.replay(context, appctx);
         restService.setContext(context);
-        EasyMock.verify(context);
+        EasyMock.verify(context, appctx);
 
         FormDefinitionService service = restService.getFormService();
         assertNotNull("service shouldn't be null", service);
+        assertEquals("service and mockFormService should be the same", mockFormService, service);
     }
     
     //test happy path for RESTFormService.getForms(...)

@@ -34,23 +34,28 @@ import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
 import org.jbpm.formbuilder.server.file.FileException;
 import org.jbpm.formbuilder.server.file.FileService;
+import org.jbpm.formbuilder.server.file.MockFileService;
 import org.jbpm.formbuilder.server.xml.FileListDTO;
+import org.springframework.web.context.WebApplicationContext;
 
 public class RESTFileServiceTest extends RESTAbstractTest {
 
     public void testSetContextOK() throws Exception {
         RESTFileService restService = new RESTFileService();
         ServletContext context = EasyMock.createMock(ServletContext.class);
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("anyuser").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("anypassword").once();
-        
-        EasyMock.replay(context);
+        WebApplicationContext appctx = EasyMock.createMock(WebApplicationContext.class);
+        FileService mockFileService = new MockFileService();
+        EasyMock.expect(appctx.getBean(EasyMock.eq("guvnorFileService"))).andReturn(mockFileService).once();
+        EasyMock.expect(context.getAttribute("org.springframework.web.context.WebApplicationContext.ROOT"))
+    		.andReturn(appctx).once();
+
+        EasyMock.replay(context, appctx);
         restService.setContext(context);
-        EasyMock.verify(context);
+        EasyMock.verify(context, appctx);
 
         FileService service = restService.getFileService();
         assertNotNull("service shouldn't be null", service);
+        assertEquals("service ando mockFileService should be the same", service, mockFileService);
     }
 
     public void testError() throws Exception {

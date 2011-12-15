@@ -27,25 +27,30 @@ import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
+import org.jbpm.formbuilder.shared.task.MockTaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
+import org.springframework.web.context.WebApplicationContext;
 
 public class RESTIoServiceTest extends RESTAbstractTest {
 
     public void testSetContextOK() throws Exception {
         RESTIoService restService = new RESTIoService();
         ServletContext context = EasyMock.createMock(ServletContext.class);
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("anyuser").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("anypassword").once();
+        WebApplicationContext appctx = EasyMock.createMock(WebApplicationContext.class);
+        TaskDefinitionService mockTaskService = new MockTaskDefinitionService();
+        EasyMock.expect(appctx.getBean(EasyMock.eq("guvnorTaskService"))).andReturn(mockTaskService).once();
+        EasyMock.expect(context.getAttribute("org.springframework.web.context.WebApplicationContext.ROOT"))
+    		.andReturn(appctx).once();
         
-        EasyMock.replay(context);
+        EasyMock.replay(context, appctx);
         restService.setContext(context);
-        EasyMock.verify(context);
+        EasyMock.verify(context, appctx);
 
         TaskDefinitionService service = restService.getTaskService();
         assertNotNull("service shouldn't be null", service);
+        assertEquals("service and mockTaskService should be the same", service, mockTaskService);
     }
     
     //test happy path for RESTIoService.getIoAssociations(...)

@@ -2,7 +2,9 @@
 <web-app id="GPI_TEMPLATE_APP" version="2.4"
  xmlns="http://java.sun.com/xml/ns/j2ee"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
  <display-name>jBPM Form Builder</display-name>
+
  <context-param>
   <param-name>resteasy.server.cache.maxsize</param-name>
   <param-value>1000</param-value>
@@ -20,20 +22,17 @@
   <param-value>org.jboss.resteasy.plugins.providers.jaxb.JAXBXmlRootElementProvider</param-value>
  </context-param>
  <context-param>
-   <param-name>guvnor-base-url</param-name>
-   <param-value>http://localhost:8080/drools-guvnor</param-value>
+  <param-name>contextConfigLocation</param-name>
+  <param-value>/WEB-INF/springComponents.xml</param-value>
  </context-param>
- <context-param>
-  <param-name>guvnor-user</param-name>
-  <param-value>admin</param-value>
- </context-param>
- <context-param>
-  <param-name>guvnor-password</param-name>
-  <param-value>admin</param-value>
- </context-param>
+
  <listener>
   <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
  </listener>
+ <listener>
+  <listener-class>org.jboss.resteasy.plugins.spring.SpringContextLoaderListener</listener-class>
+ </listener>
+
  <servlet>
   <servlet-name>resteasy</servlet-name>
   <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
@@ -50,6 +49,7 @@
   <servlet-name>exportTemplate</servlet-name>
   <servlet-class>org.jbpm.formbuilder.server.ExportTemplateServlet</servlet-class>
  </servlet>
+
  <servlet-mapping>
   <servlet-name>embed</servlet-name>
   <url-pattern>/embed</url-pattern>
@@ -62,12 +62,49 @@
   <servlet-name>resteasy</servlet-name>
   <url-pattern>/rest/*</url-pattern>
  </servlet-mapping>
+
+ <security-constraint>
+  <web-resource-collection>
+   <web-resource-name>resteasy</web-resource-name>
+   <web-resource-name>embed</web-resource-name>
+   <http-method>GET</http-method>
+   <http-method>PUT</http-method>
+   <http-method>POST</http-method>
+   <http-method>DELETE</http-method>
+   <url-pattern>/FormBuilder.*</url-pattern>
+  </web-resource-collection>
+  <auth-constraint>
+   <role-name>administrator</role-name>
+   <role-name>webdesigner</role-name>
+   <role-name>functionalanalyst</role-name>
+  </auth-constraint>
+ </security-constraint>
+
+ <security-role>
+  <role-name>administrator</role-name>
+ </security-role>
+ <security-role>
+  <role-name>webdesigner</role-name>
+ </security-role>
+ <security-role>
+  <role-name>functionalanalyst</role-name>
+ </security-role>
+
+ <login-config>
+  <auth-method>FORM</auth-method>
+  <form-login-config>
+   <form-login-page>/login.html</form-login-page>
+   <form-error-page>/login_fail.html</form-error-page>
+  </form-login-config>
+ </login-config>
+
  <jsp-config>
   <taglib>
    <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
    <taglib-location>/WEB-INF/c.tld</taglib-location>
   </taglib>
  </jsp-config>
+
  <welcome-file-list>
   <welcome-file>FormBuilder.html</welcome-file>
   <welcome-file>index.html</welcome-file>

@@ -40,8 +40,8 @@ import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 import org.jbpm.formbuilder.server.file.FileException;
 import org.jbpm.formbuilder.server.file.FileService;
-import org.jbpm.formbuilder.server.file.GuvnorFileService;
 import org.jbpm.formbuilder.server.xml.FileListDTO;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @Path("/files")
 public class RESTFileService extends RESTBaseService {
@@ -50,10 +50,8 @@ public class RESTFileService extends RESTBaseService {
     
     protected void setContext(ServletContext context) {
         if (fileService == null) {
-            String url = context.getInitParameter("guvnor-base-url");
-            String user = context.getInitParameter("guvnor-user");
-            String pass = context.getInitParameter("guvnor-password");
-            this.fileService = new GuvnorFileService(url, user, pass);
+        	this.fileService = (FileService) WebApplicationContextUtils.
+        			getWebApplicationContext(context).getBean("guvnorFileService");
         }
     }
     

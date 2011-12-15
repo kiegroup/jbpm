@@ -17,9 +17,9 @@ package org.jbpm.formbuilder.server.menu;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -30,10 +30,9 @@ import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs.AllFileSelector;
-import org.apache.commons.vfs.FileName;
 import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
 import org.apache.commons.vfs.VFS;
+import org.drools.repository.utils.IOUtils;
 import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
@@ -54,8 +53,8 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     	Gson gson = new Gson();
         List<MenuOptionDescription> retval = null;
         try {
-            File file = asFile("/menuOptions.json");
-            retval = gson.fromJson(createReader(file), new TypeToken<List<MenuOptionDescription>>(){}.getType());
+            URL url = asURL("/menuOptions.json");
+            retval = gson.fromJson(createReader(url), new TypeToken<List<MenuOptionDescription>>(){}.getType());
         } catch (URISyntaxException e) {
             throw new MenuServiceException("Problem finding menu options json file", e); 
         } catch (FileNotFoundException e) {
@@ -71,8 +70,8 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         Map<String, List<MenuItemDescription>> retval = null;
         try {
         	FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
-        	File file = asFile("/menuItems.json");
-        	String json = readFile(file);
+        	URL url = asURL("/menuItems.json");
+        	String json = readURL(url);
         	retval = decoder.decodeMenuItemsMap(json);
         } catch (FormEncodingException e) {
             throw new MenuServiceException("Problem parsing menu items json file", e);
@@ -93,8 +92,8 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         Gson gson = new Gson();
         List<ValidationDescription> retval = null;
         try {
-            File file = asFile("/validations.json");
-            retval = gson.fromJson(createReader(file), new TypeToken<List<ValidationDescription>>(){}.getType());
+            URL url = asURL("/validations.json");
+            retval = gson.fromJson(createReader(url), new TypeToken<List<ValidationDescription>>(){}.getType());
         } catch (URISyntaxException e) {
             throw new MenuServiceException("Problem finding validations json file", e); 
         } catch (FileNotFoundException e) {
@@ -138,9 +137,9 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
     private void writeMenuItems(Map<String, List<MenuItemDescription>> items) throws MenuServiceException {
         try {
             FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
-            File file = asFile("/menuItems.json");
             String json = encoder.encodeMenuItemsMap(items);
-            writeFile(file, json);
+            URL url = asURL("/menuItems.json");
+            writeToURL(url, json);
         } catch (FormEncodingException e) {
             throw new MenuServiceException("Problem transforming menu items to json", e);
         } catch (URISyntaxException e) {
@@ -154,39 +153,33 @@ public class GuvnorMenuService extends AbstractBaseMenuService {
         }
     }
 
-    protected void writeFile(File file, String json) throws FileNotFoundException, IOException {
-    	if (file.toString().startsWith("vfs")) {
-    		FileObject to = VFS.getManager().resolveFile(file.toString());
+    protected void writeToURL(URL url, String json) throws FileNotFoundException, IOException {
+    	if (url.toExternalForm().startsWith("vfs")) {
+    		FileObject to = VFS.getManager().resolveFile(url.toExternalForm());
     		File tmpFile = File.createTempFile("xxFilexx", ".json");
     		FileUtils.writeStringToFile(tmpFile, json);
     		FileObject from = VFS.getManager().toFileObject(tmpFile);
     		to.copyFrom(from, new AllFileSelector());
     		FileUtils.deleteQuietly(tmpFile);
     	} else {
-    		FileUtils.writeStringToFile(file, json);
+    		FileUtils.writeStringToFile(FileUtils.toFile(url), json);
     	}
     }
     
-    protected File asFile(String path) throws URISyntaxException {
-        URL url = getClass().getResource(path);
-        if (url.getProtocol().equals("vfs")) {
-	        try {
-	        	FileSystemManager manager = VFS.getManager();
-	        	FileName fileName = manager.resolveURI(url.getFile());
-	        	return new File(fileName.getPathDecoded());
-	        } catch (IOException e) {
-	        	throw new URISyntaxException(path, "Couldn't read input");
-	        }
-        } else {
-        	return FileUtils.toFile(url);
-        }
+    protected URL asURL(String path) throws URISyntaxException {
+        return getClass().getResource(path);
     }
     
-    protected Reader createReader(File file) throws FileNotFoundException, IOException {
-        return new FileReader(file);
+    protected Reader createReader(URL url) throws FileNotFoundException, IOException {
+        return new InputStreamReader(url.openStream());
     }
 
-    protected String readFile(File file) throws FileNotFoundException, IOException {
-        return FileUtils.readFileToString(file);
+    protected String readURL(URL url) throws FileNotFoundException, IOException {
+    	if (url.toExternalForm().startsWith("vfs")) {
+    		FileObject from = VFS.getManager().resolveFile(url.toExternalForm());
+    		return IOUtils.toString(from.getContent().getInputStream());
+    	} else {
+    		return FileUtils.readFileToString(FileUtils.toFile(url));
+    	}
     }
 }

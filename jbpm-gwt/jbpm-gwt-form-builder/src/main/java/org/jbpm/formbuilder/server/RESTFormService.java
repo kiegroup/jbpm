@@ -54,12 +54,12 @@ import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
-import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
 import org.jbpm.formbuilder.server.xml.FormPreviewDTO;
 import org.jbpm.formbuilder.server.xml.ListFormsDTO;
 import org.jbpm.formbuilder.server.xml.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @Path("/form")
 public class RESTFormService extends RESTBaseService {
@@ -68,10 +68,8 @@ public class RESTFormService extends RESTBaseService {
     
     public void setContext(@Context ServletContext context) {
         if (formService == null) {
-            String baseUrl = context.getInitParameter("guvnor-base-url");
-            String user = context.getInitParameter("guvnor-user");
-            String pass = context.getInitParameter("guvnor-password");
-            this.formService = new GuvnorFormDefinitionService(baseUrl, user, pass);
+        	this.formService = (FormDefinitionService) 
+        		WebApplicationContextUtils.getWebApplicationContext(context).getBean("guvnorFormService");
         }
     }
     
