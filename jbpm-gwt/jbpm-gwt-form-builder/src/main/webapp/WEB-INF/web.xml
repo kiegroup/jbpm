@@ -67,7 +67,6 @@
   <web-resource-collection>
    <web-resource-name>resteasy</web-resource-name>
    <web-resource-name>embed</web-resource-name>
-   <http-method>GET</http-method>
    <http-method>PUT</http-method>
    <http-method>POST</http-method>
    <http-method>DELETE</http-method>
