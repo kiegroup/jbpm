@@ -67,17 +67,25 @@
   <web-resource-collection>
    <web-resource-name>resteasy</web-resource-name>
    <web-resource-name>embed</web-resource-name>
+   <url-pattern>/FormBuilder.html</url-pattern>
+   <url-pattern>/FormBuilder.jsp</url-pattern>
    <http-method>PUT</http-method>
    <http-method>POST</http-method>
    <http-method>DELETE</http-method>
-   <url-pattern>/FormBuilder.*</url-pattern>
   </web-resource-collection>
   <auth-constraint>
-   <role-name>administrator</role-name>
-   <role-name>webdesigner</role-name>
-   <role-name>functionalanalyst</role-name>
+   <role-name>*</role-name>
   </auth-constraint>
  </security-constraint>
+
+ <login-config>
+  <auth-method>FORM</auth-method>
+  <realm-name>jbpm-form-builder</realm-name>
+  <form-login-config>
+   <form-login-page>/login.html</form-login-page>
+   <form-error-page>/login_fail.html</form-error-page>
+  </form-login-config>
+ </login-config>
 
  <security-role>
   <role-name>administrator</role-name>
@@ -89,14 +97,6 @@
   <role-name>functionalanalyst</role-name>
  </security-role>
 
- <login-config>
-  <auth-method>FORM</auth-method>
-  <form-login-config>
-   <form-login-page>/login.html</form-login-page>
-   <form-error-page>/login_fail.html</form-error-page>
-  </form-login-config>
- </login-config>
-
  <jsp-config>
   <taglib>
    <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
@@ -106,7 +106,5 @@
 
  <welcome-file-list>
   <welcome-file>FormBuilder.html</welcome-file>
-  <welcome-file>index.html</welcome-file>
-  <welcome-file>index.jsp</welcome-file>
  </welcome-file-list>
 </web-app>
