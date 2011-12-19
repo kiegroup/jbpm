@@ -88,7 +88,7 @@
  </login-config>
 
  <security-role>
-  <role-name>administrator</role-name>
+  <role-name>admin</role-name>
  </security-role>
  <security-role>
   <role-name>webdesigner</role-name>
