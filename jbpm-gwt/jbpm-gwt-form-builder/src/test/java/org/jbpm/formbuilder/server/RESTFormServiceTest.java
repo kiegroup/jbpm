@@ -25,6 +25,7 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -233,10 +234,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expect(formService.saveForm(EasyMock.eq("somePackage"), EasyMock.eq(form))).andReturn("MY_FORM_ID").once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
         
-        EasyMock.replay(formService, context);
-        Response resp = restService.saveForm(FormEncodingFactory.getEncoder().encode(form), "somePackage", context);
-        EasyMock.verify(formService, context);
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.saveForm(FormEncodingFactory.getEncoder().encode(form), "somePackage", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.CREATED);
@@ -261,10 +266,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expect(formService.saveForm(EasyMock.eq("somePackage"), EasyMock.eq(form))).andThrow(exception).once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
         
-        EasyMock.replay(formService, context);
-        Response resp = restService.saveForm(FormEncodingFactory.getEncoder().encode(form), "somePackage", context);
-        EasyMock.verify(formService, context);
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.saveForm(FormEncodingFactory.getEncoder().encode(form), "somePackage", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
@@ -281,10 +290,15 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expect(decoder.decode(EasyMock.anyObject(String.class))).andThrow(exception).once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
+
         
-        EasyMock.replay(formService, context, decoder);
-        Response resp = restService.saveForm(FormEncodingFactory.getEncoder().encode(form), "somePackage", context);
-        EasyMock.verify(formService, context, decoder);
+        EasyMock.replay(formService, context, decoder, session, request);
+        Response resp = restService.saveForm(FormEncodingFactory.getEncoder().encode(form), "somePackage", request);
+        EasyMock.verify(formService, context, decoder, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
@@ -298,10 +312,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expectLastCall().once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
         
-        EasyMock.replay(formService, context);
-        Response resp = restService.deleteForm("somePackage", "myFormId", context);
-        EasyMock.verify(formService, context);
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.deleteForm("somePackage", "myFormId", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.OK);
@@ -316,10 +334,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expectLastCall().andThrow(exception).once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
-        
-        EasyMock.replay(formService, context);
-        Response resp = restService.deleteForm("somePackage", "myFormId", context);
-        EasyMock.verify(formService, context);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
+
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.deleteForm("somePackage", "myFormId", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
@@ -464,10 +486,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
             andReturn("MY_FORM_ITEM_ID").once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
         
-        EasyMock.replay(formService, context);
-        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", context);
-        EasyMock.verify(formService, context);
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.CREATED);
@@ -491,10 +517,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expect(formService.saveFormItem(EasyMock.eq("somePackage"), EasyMock.eq("MY_FORM_ITEM_ID"), EasyMock.eq(item))).andThrow(exception).once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
         
-        EasyMock.replay(formService, context);
-        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", context);
-        EasyMock.verify(formService, context);
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
@@ -511,10 +541,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expect(decoder.decodeItem(EasyMock.anyObject(String.class))).andThrow(exception).once();
         restService.setFormService(formService);
         ServletContext context = EasyMock.createMock(ServletContext.class);
-        
-        EasyMock.replay(formService, context, decoder);
-        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", context);
-        EasyMock.verify(formService, context, decoder);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
+
+        EasyMock.replay(formService, context, decoder, session, request);
+        Response resp = restService.saveFormItem(FormEncodingFactory.getEncoder().encode(item), "somePackage", "MY_FORM_ITEM_ID", request);
+        EasyMock.verify(formService, context, decoder, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);
@@ -528,10 +562,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expectLastCall().once();
         ServletContext context = EasyMock.createMock(ServletContext.class);
         restService.setFormService(formService);
-        
-        EasyMock.replay(formService, context);
-        Response resp = restService.deleteForm("somePackage", "MY_FORM_ID", context);
-        EasyMock.verify(formService, context);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
+
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.deleteForm("somePackage", "MY_FORM_ID", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.OK);
@@ -546,10 +584,14 @@ public class RESTFormServiceTest extends RESTAbstractTest {
         EasyMock.expectLastCall().andThrow(exception).once();
         ServletContext context = EasyMock.createMock(ServletContext.class);
         restService.setFormService(formService);
+        HttpSession session = EasyMock.createMock(HttpSession.class);
+        HttpServletRequest request = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(request.getSession()).andReturn(session);
+        EasyMock.expect(session.getServletContext()).andReturn(context);
         
-        EasyMock.replay(formService, context);
-        Response resp = restService.deleteForm("somePackage", "MY_FORM_ID", context);
-        EasyMock.verify(formService, context);
+        EasyMock.replay(formService, context, session, request);
+        Response resp = restService.deleteForm("somePackage", "MY_FORM_ID", request);
+        EasyMock.verify(formService, context, session, request);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);

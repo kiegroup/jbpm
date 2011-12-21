@@ -108,8 +108,8 @@ public class RESTFormService extends RESTBaseService {
     @POST @Path("/definitions/package/{pkgName}")
     @Consumes("text/plain")
     @DoNotUseJAXBProvider
-    public Response saveForm(String jsonBody, @PathParam("pkgName") String pkgName, @Context ServletContext context) {
-        setContext(context);
+    public Response saveForm(String jsonBody, @PathParam("pkgName") String pkgName, @Context HttpServletRequest request) {
+        setContext(request.getSession().getServletContext());
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         try {
             FormRepresentation form = decoder.decode(jsonBody);
@@ -124,8 +124,8 @@ public class RESTFormService extends RESTBaseService {
     }
     
     @DELETE @Path("/definitions/package/{pkgName}/id/{formId}") 
-    public Response deleteForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId, @Context ServletContext context) {
-        setContext(context);
+    public Response deleteForm(@PathParam("pkgName") String pkgName, @PathParam("formId") String formId, @Context HttpServletRequest request) {
+        setContext(request.getSession().getServletContext());
         try {
             formService.deleteForm(pkgName, formId);
             return Response.ok().build();
@@ -167,8 +167,8 @@ public class RESTFormService extends RESTBaseService {
     @DoNotUseJAXBProvider
     public Response saveFormItem(String jsonBody,
             @PathParam("pkgName") String pkgName, 
-            @PathParam("fItemName") String formItemName, @Context ServletContext context) {
-        setContext(context);
+            @PathParam("fItemName") String formItemName, @Context HttpServletRequest request) {
+        setContext(request.getSession().getServletContext());
         FormRepresentationDecoder decoder = FormEncodingFactory.getDecoder();
         try {
             FormItemRepresentation item = decoder.decodeItem(jsonBody);
@@ -183,8 +183,8 @@ public class RESTFormService extends RESTBaseService {
     }
 
     @DELETE @Path("/items/package/{pkgName}/name/{fItemName}")
-    public Response deleteFormItem(@PathParam("pkgName")String pkgName, @PathParam("fItemName") String formItemName, @Context ServletContext context) {
-        setContext(context);
+    public Response deleteFormItem(@PathParam("pkgName")String pkgName, @PathParam("fItemName") String formItemName, @Context HttpServletRequest request) {
+        setContext(request.getSession().getServletContext());
         try {
             formService.deleteFormItem(pkgName, formItemName);
             return Response.ok().build();
