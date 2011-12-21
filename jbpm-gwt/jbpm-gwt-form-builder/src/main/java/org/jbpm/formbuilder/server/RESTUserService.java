@@ -16,18 +16,15 @@ import org.jboss.resteasy.annotations.providers.jaxb.DoNotUseJAXBProvider;
 @Path("/user")
 public class RESTUserService extends RESTBaseService {
 
-	private String[] availableRoles = new String[] { "admin", "webdesigner", "functionalanalyst" };
+	private static final String[] AVAILABLE_ROLES = new String[] { 
+		"admin", "webdesigner", "functionalanalyst" 
+	};
 	
 	@GET @Path("/current/roles")
     @Consumes("text/plain")
     @DoNotUseJAXBProvider
 	public Response getCurrentRoles(@Context HttpServletRequest request) {
-		List<String> roles = new ArrayList<String>();
-		for (String role : availableRoles) {
-			if (request.isUserInRole(role)) {
-				roles.add(role);
-			}
-		}
+		List<String> roles = getRoles(request);
 		StringBuilder txtRoles = new StringBuilder();
 		for (Iterator<String> iter = roles.iterator(); iter.hasNext(); ) {
 			txtRoles.append(iter.next());
@@ -36,5 +33,20 @@ public class RESTUserService extends RESTBaseService {
 			}
 		}
 		return Response.ok(txtRoles.toString()).build();
+	}
+
+	public static List<String> getRoles(HttpServletRequest request) {
+		List<String> roles = new ArrayList<String>();
+		for (String role : AVAILABLE_ROLES) {
+			if (request.isUserInRole(role)) {
+				roles.add(role);
+			}
+		}
+		return roles;
+	}
+
+	public static boolean hasDesignerPrivileges(HttpServletRequest request) {
+		List<String> roles = getRoles(request);
+		return roles.contains("admin") || roles.contains("webdesigner");
 	}
 }

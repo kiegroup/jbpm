@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -233,6 +234,8 @@ public class RESTMenuServiceTest extends RESTAbstractTest {
     public void testSaveMenuItemOK() throws Exception {
         RESTMenuService restService = new RESTMenuService();
         MenuService menuService = EasyMock.createMock(MenuService.class);
+        HttpServletRequest mockRequest = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(mockRequest.isUserInRole(EasyMock.anyObject(String.class))).andReturn(true).times(3);
         menuService.saveMenuItem(EasyMock.same("groupName"), EasyMock.anyObject(MenuItemDescription.class));
         EasyMock.expectLastCall().once();
         restService.setMenuService(menuService);
@@ -246,9 +249,9 @@ public class RESTMenuServiceTest extends RESTAbstractTest {
         dto.setGroupName("groupName");
         dto.setName("myItem");
         
-        EasyMock.replay(menuService);
-        Response resp = restService.saveMenuItem(dto);
-        EasyMock.verify(menuService);
+        EasyMock.replay(mockRequest, menuService);
+        Response resp = restService.saveMenuItem(dto, mockRequest);
+        EasyMock.verify(mockRequest, menuService);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.CREATED);
@@ -258,6 +261,8 @@ public class RESTMenuServiceTest extends RESTAbstractTest {
     public void testSaveMenuItemServiceProblem() throws Exception {
         RESTMenuService restService = new RESTMenuService();
         MenuService menuService = EasyMock.createMock(MenuService.class);
+        HttpServletRequest mockRequest = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(mockRequest.isUserInRole(EasyMock.anyObject(String.class))).andReturn(true).times(3);
         menuService.saveMenuItem(EasyMock.same("groupName"), EasyMock.anyObject(MenuItemDescription.class));
         MenuServiceException exception = new MenuServiceException("Something went wrong");
         EasyMock.expectLastCall().andThrow(exception).once();
@@ -272,12 +277,35 @@ public class RESTMenuServiceTest extends RESTAbstractTest {
         dto.setGroupName("groupName");
         dto.setName("myItem");
         
-        EasyMock.replay(menuService);
-        Response resp = restService.saveMenuItem(dto);
-        EasyMock.verify(menuService);
+        EasyMock.replay(mockRequest, menuService);
+        Response resp = restService.saveMenuItem(dto, mockRequest);
+        EasyMock.verify(mockRequest, menuService);
         
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.CONFLICT);
+    }
+    
+    //test what happens when a functionalanalyst tries to save a menu item
+    public void testSaveMenuItemPermissionProblem() throws Exception {
+    	RESTMenuService restService = new RESTMenuService();
+        HttpServletRequest mockRequest = EasyMock.createMock(HttpServletRequest.class);
+        EasyMock.expect(mockRequest.isUserInRole(EasyMock.anyObject(String.class))).andReturn(false).times(3);
+        SaveMenuItemDTO dto = new SaveMenuItemDTO();
+        List<String> allowedEvents = new ArrayList<String>();
+        allowedEvents.add("onclick");
+        allowedEvents.add("onfocus");
+        allowedEvents.add("onblur");
+        dto.setAllowedEvent(allowedEvents);
+        dto.setClone("{}");
+        dto.setGroupName("groupName");
+        dto.setName("myItem");
+        
+        EasyMock.replay(mockRequest);
+        Response resp = restService.saveMenuItem(dto, mockRequest);
+        EasyMock.verify(mockRequest);
+        
+        assertNotNull("resp shouldn't be null", resp);
+        assertStatus(resp.getStatus(), Status.UNAUTHORIZED);
     }
     
     //test happy path for RESTMenuService.deleteMenuItem(...)

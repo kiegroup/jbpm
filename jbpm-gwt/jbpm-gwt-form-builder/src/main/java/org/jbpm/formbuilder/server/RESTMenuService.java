@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -93,12 +95,16 @@ public class RESTMenuService extends RESTBaseService {
     }
     
     @POST @Path("/items")
-    public Response saveMenuItem(SaveMenuItemDTO dto) {
+    public Response saveMenuItem(SaveMenuItemDTO dto, @Context HttpServletRequest request) {
         init();
         try {
-            MenuItemDescription menuItem = toMenuItemDescription(dto, true);
-            menuService.saveMenuItem(dto.getGroupName(), menuItem);
-            return Response.status(Status.CREATED).build();
+        	if (RESTUserService.hasDesignerPrivileges(request)) {
+        		MenuItemDescription menuItem = toMenuItemDescription(dto, true);
+        		menuService.saveMenuItem(dto.getGroupName(), menuItem);
+        		return Response.status(Status.CREATED).build();
+        	} else {
+        		return Response.status(Status.UNAUTHORIZED).build();
+        	}
         } catch (MenuServiceException e) {
             return Response.status(Status.CONFLICT).build();
         }
