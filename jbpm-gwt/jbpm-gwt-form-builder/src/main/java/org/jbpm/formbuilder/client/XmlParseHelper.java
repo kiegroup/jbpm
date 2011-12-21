@@ -556,4 +556,13 @@ public class XmlParseHelper {
         }
         return itemEffects;
     }
+
+	public List<String> readRoles(String response) {
+		String[] rolesArray = response.split(",");
+		List<String> retval = new ArrayList<String>(rolesArray.length);
+		for (String role : rolesArray) {
+			retval.add(role);
+		}
+		return retval;
+	}
 }

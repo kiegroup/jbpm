@@ -67,28 +67,21 @@
   <web-resource-collection>
    <web-resource-name>resteasy</web-resource-name>
    <web-resource-name>embed</web-resource-name>
-   <url-pattern>/FormBuilder.html</url-pattern>
-   <url-pattern>/FormBuilder.jsp</url-pattern>
+   <url-pattern>/FormBuilder.*</url-pattern>
+   <http-method>GET</http-method>
    <http-method>PUT</http-method>
    <http-method>POST</http-method>
    <http-method>DELETE</http-method>
   </web-resource-collection>
   <auth-constraint>
-   <role-name>*</role-name>
+   <role-name>administrator</role-name>
+   <role-name>webdesigner</role-name>
+   <role-name>functionalanalyst</role-name>
   </auth-constraint>
  </security-constraint>
 
- <login-config>
-  <auth-method>FORM</auth-method>
-  <realm-name>jbpm-form-builder</realm-name>
-  <form-login-config>
-   <form-login-page>/login.html</form-login-page>
-   <form-error-page>/login_fail.html</form-error-page>
-  </form-login-config>
- </login-config>
-
  <security-role>
-  <role-name>admin</role-name>
+  <role-name>administrator</role-name>
  </security-role>
  <security-role>
   <role-name>webdesigner</role-name>
@@ -96,6 +89,15 @@
  <security-role>
   <role-name>functionalanalyst</role-name>
  </security-role>
+
+ <login-config>
+  <auth-method>FORM</auth-method>
+  <realm-name>FormBuilderRealm</realm-name>
+  <form-login-config>
+   <form-login-page>/login.html</form-login-page>
+   <form-error-page>/login_fail.html</form-error-page>
+  </form-login-config>
+ </login-config>
 
  <jsp-config>
   <taglib>

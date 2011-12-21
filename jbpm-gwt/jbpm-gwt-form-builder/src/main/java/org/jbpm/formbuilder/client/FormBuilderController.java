@@ -31,6 +31,8 @@ import org.jbpm.formbuilder.client.bus.ui.NotificationsVisibleHandler;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
+import org.jbpm.formbuilder.client.bus.ui.UserIsLoggedOutEvent;
+import org.jbpm.formbuilder.client.bus.ui.UserIsLoggedOutHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.edition.EditionViewImpl;
 import org.jbpm.formbuilder.client.layout.LayoutViewImpl;
@@ -48,6 +50,7 @@ import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
 import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class FormBuilderController {
@@ -73,6 +76,13 @@ public class FormBuilderController {
                 bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorInTheUI(), exception));
             }
         });
+        bus.addHandler(UserIsLoggedOutEvent.TYPE, new UserIsLoggedOutHandler() {
+			@Override
+			public void onEvent(UserIsLoggedOutEvent event) {
+				Window.alert("User is login timeout");
+				Window.Location.reload();
+			}
+		});
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         PickupDragController dragController = new PickupDragController(view, true);
         dragController.registerDropController(new DisposeDropController(view));

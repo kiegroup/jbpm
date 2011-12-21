@@ -123,12 +123,17 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-form-api</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-gwt-form-exporter-freemarker</artifactId>
-      <version>${version}</version>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-gwt-form-exporter-gwt</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>

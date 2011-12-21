@@ -99,4 +99,9 @@ public class URLBuilder {
     private static String getBaseUrl() {
         return GWT.getModuleBaseURL().replace("/" + GWT.getModuleName(), "");
     }
+
+	public static String getCurrentRolesURL(String contextPath) {
+		return new StringBuilder(getBaseUrl()).append(contextPath).
+			append("/user/current/roles").toString();
+	}
 }

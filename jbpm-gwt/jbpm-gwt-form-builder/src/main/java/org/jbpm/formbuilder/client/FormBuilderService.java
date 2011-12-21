@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.client;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jbpm.formapi.client.FormBuilderException;
@@ -153,6 +154,12 @@ public interface FormBuilderService {
      * @throws FormBuilderException in case of error.
      */
     void loadFormTemplate(FormRepresentation form, String language) throws FormBuilderException;
+    
+    interface RolesResponseHandler {
+    	void onResponse(List<String> roles);
+    }
+    
+    void getCurrentRoles(RolesResponseHandler handler) throws FormBuilderException;
     
     /**
      * Returns the form representation that basically describes a task

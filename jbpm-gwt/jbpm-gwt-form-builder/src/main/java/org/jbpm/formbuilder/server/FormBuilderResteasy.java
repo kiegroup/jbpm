@@ -37,6 +37,7 @@ public class FormBuilderResteasy extends Application {
         singletons.add(new RESTFormService());
         singletons.add(new RESTIoService());
         singletons.add(new RESTFileService());
+        singletons.add(new RESTUserService());
         singletons.add(new XmlJAXBContextFinder());
         singletons.add(new JAXBXmlRootElementProvider());
     }

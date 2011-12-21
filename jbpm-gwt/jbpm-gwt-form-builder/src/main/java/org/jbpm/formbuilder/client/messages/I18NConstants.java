@@ -286,4 +286,5 @@ public interface I18NConstants extends Messages {
     String PopulateComboBoxScriptHelperName();
     String NoHeadersLoadedLabel();
     String ScriptHelperNullEditor();
+	String RolesNotRead();
 }

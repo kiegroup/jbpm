@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.Resource;
+import org.fusesource.restygwt.client.TextCallback;
 import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formapi.client.bus.ui.NotificationEvent;
 import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
@@ -45,6 +46,7 @@ import org.jbpm.formbuilder.client.bus.PreviewFormResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.FormSavedEvent;
 import org.jbpm.formbuilder.client.bus.ui.RepresentationFactoryPopulatedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
+import org.jbpm.formbuilder.client.bus.ui.UserIsLoggedOutEvent;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.client.options.MainMenuOption;
@@ -130,6 +132,27 @@ public class RestyFormBuilderModel implements FormBuilderService {
         });
     }
 
+    public void getCurrentRoles(final FormBuilderService.RolesResponseHandler handler) {
+    	Resource resource = new Resource(URLBuilder.getCurrentRolesURL(this.contextPath));
+    	resource.get().send(new TextCallback() {
+			@Override
+			public void onSuccess(Method method, String response) {
+				if (method.getResponse().getStatusCode() == Response.SC_OK) {
+					List<String> roles = helper.readRoles(response);
+					handler.onResponse(roles);
+				} else {
+					bus.fireEvent(new UserIsLoggedOutEvent());
+				}
+				
+			}
+			
+			@Override
+			public void onFailure(Method method, Throwable exception) {
+				bus.fireEvent(new UserIsLoggedOutEvent());
+			}
+		});
+    }
+    
     @Override
     public void getMenuOptions() {
         Resource resource = new Resource(URLBuilder.getMenuOptionsURL(this.contextPath));

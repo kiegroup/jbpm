@@ -17,6 +17,7 @@ package org.jbpm.formbuilder.client.menu;
 
 import org.jbpm.formapi.client.CommonGlobals;
 import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.RoleUtils;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
@@ -24,6 +25,7 @@ import org.jbpm.formbuilder.client.bus.MenuItemFromServerHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
 import org.jbpm.formbuilder.client.command.DisposeDropController;
+import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 
 import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
@@ -57,9 +59,16 @@ public class MenuPresenter {
         this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
             @Override
             public void onEvent(MenuItemAddedEvent event) {
-                String group = event.getGroupName();
+            	String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
-                view.addItem(group, item);
+            	if (RoleUtils.getInstance().hasOnlyUserPrivileges()) {
+            		if (item instanceof CustomMenuItem) {
+            			view.addItem(group, item);
+            		}
+            	} 
+            	if (RoleUtils.getInstance().hasDesignPrivileges()) {
+            		view.addItem(group, item);
+            	}
             }
         });
         this.bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveHandler() {
@@ -75,7 +84,14 @@ public class MenuPresenter {
             public void onEvent(MenuItemFromServerEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
-                view.addItem(group, item);
+                if (RoleUtils.getInstance().hasOnlyUserPrivileges()) {
+                	if (item instanceof CustomMenuItem) {
+                		view.addItem(group, item);
+                	}
+                }
+                if (RoleUtils.getInstance().hasDesignPrivileges()) {
+                	view.addItem(group, item);
+                }
             }
         });
     }
