@@ -23,6 +23,7 @@ import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formapi.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.RoleUtils;
 import org.jbpm.formbuilder.client.bus.MenuItemAddedEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.UndoableEvent;
@@ -128,5 +129,10 @@ public class SaveAsMenuOptionFormEffect extends FBFormEffect {
         vPanel.add(applyButton);
         panel.add(vPanel);
         return panel;
+    }
+
+    @Override
+    public boolean isValidForItem(FBFormItem item) {
+    	return super.isValidForItem(item) && RoleUtils.getInstance().hasDesignPrivileges();
     }
 }
