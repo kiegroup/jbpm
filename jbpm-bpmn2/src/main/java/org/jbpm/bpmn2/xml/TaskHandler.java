@@ -286,15 +286,19 @@ public class TaskHandler extends AbstractNodeHandler {
 				split.setMetaData("hidden", true);
 				end.setMetaData("hidden", true);
 
+				String language = "XPath";
+				if(((Element) xmlNode.getFirstChild()).getAttribute("language") != null && !"".equals(((Element) xmlNode.getFirstChild()).getAttribute("language"))) {
+					language = ((Element) xmlNode.getFirstChild()).getAttribute("language");
+				}
 				ConstraintImpl cons1 = new ConstraintImpl();
-				cons1.setDialect("XPath");
+				cons1.setDialect(language);
 				cons1.setConstraint(xmlNode.getFirstChild().getTextContent());
 				cons1.setType("code");
 				cons1.setName("");
 				split.setConstraint(c1, cons1);
 
 				ConstraintImpl cons2 = new ConstraintImpl();
-				cons2.setDialect("XPath");
+				cons2.setDialect(language);
 				cons2.setConstraint("");
 				cons2.setType("code");
 				cons2.setDefault(true);
