@@ -57,5 +57,8 @@
     },
     {   "html": "Language",
         "commandClass": "org.jbpm.formbuilder.client.command.LanguageCommand"
+    },
+    {	"html": "Logout",
+    	"commandClass": "org.jbpm.formbuilder.client.command.LogoutCommand"
     }
 ]

@@ -58,6 +58,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.RootPanel;
@@ -149,6 +150,20 @@ public class RestyFormBuilderModel implements FormBuilderService {
 			@Override
 			public void onFailure(Method method, Throwable exception) {
 				bus.fireEvent(new UserIsLoggedOutEvent());
+			}
+		});
+    }
+    
+    public void logout() {
+    	Resource resource = new Resource(URLBuilder.getLogoutURL(this.contextPath));
+    	resource.post().send(new TextCallback() {
+			@Override
+			public void onSuccess(Method method, String response) {
+				Window.Location.reload();
+			}
+			@Override
+			public void onFailure(Method method, Throwable exception) {
+				Window.Location.reload();
 			}
 		});
     }

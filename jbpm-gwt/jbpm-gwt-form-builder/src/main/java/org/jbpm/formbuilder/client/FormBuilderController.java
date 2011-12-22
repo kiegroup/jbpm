@@ -83,6 +83,7 @@ public class FormBuilderController {
 				Window.Location.reload();
 			}
 		});
+        RoleUtils.getInstance();
         FormEncodingFactory.register(FormEncodingClientFactory.getEncoder(), FormEncodingClientFactory.getDecoder());
         PickupDragController dragController = new PickupDragController(view, true);
         dragController.registerDropController(new DisposeDropController(view));

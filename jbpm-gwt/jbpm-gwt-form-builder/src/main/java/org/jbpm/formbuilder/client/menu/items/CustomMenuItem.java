@@ -168,7 +168,8 @@ public class CustomMenuItem extends FBMenuItem {
 
     @Override
     public FBMenuItem cloneWidget() {
-        return clone(new CustomMenuItem(representation, optionName, getFormEffects(), groupName));
+        return clone(new CustomMenuItem(representation, optionName, 
+        		new ArrayList<FBFormEffect>(getFormEffects()), groupName));
     }
 
     @Override

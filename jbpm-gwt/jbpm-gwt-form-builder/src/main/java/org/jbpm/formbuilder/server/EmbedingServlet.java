@@ -39,6 +39,7 @@ import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -48,16 +49,9 @@ public class EmbedingServlet extends HttpServlet {
 
     private static final long serialVersionUID = -5943196576708424978L;
 
-    private String guvnorBaseUrl = null;
-    private String guvnorDefaultUser = null;
-    private String guvnorDefaultPass = null;
-    
     @Override
     public void init(ServletConfig config) throws ServletException {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
-        this.guvnorBaseUrl = config.getServletContext().getInitParameter("guvnor-base-url");
-        this.guvnorDefaultUser = config.getServletContext().getInitParameter("guvnor-user");
-        this.guvnorDefaultPass = config.getServletContext().getInitParameter("guvnor-password");
     }
     
     @Override
@@ -65,8 +59,6 @@ public class EmbedingServlet extends HttpServlet {
         String profile = request.getParameter("profile");
         String usr = request.getParameter("usr");
         String pwd = request.getParameter("pwd");
-        usr = (usr == null ? this.guvnorDefaultUser : usr);
-        pwd = (pwd == null ? this.guvnorDefaultPass : pwd);
         TaskDefinitionService taskService = createTaskService(usr, pwd);
         FormDefinitionService formService = createFormService(usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
@@ -103,8 +95,6 @@ public class EmbedingServlet extends HttpServlet {
         String profile = request.getParameter("profile");
         String usr = request.getParameter("usr");
         String pwd = request.getParameter("pwd");
-        usr = (usr == null ? this.guvnorDefaultUser : usr);
-        pwd = (pwd == null ? this.guvnorDefaultPass : pwd);
         TaskDefinitionService taskService = createTaskService(usr, pwd);
         FormDefinitionService formService = createFormService(usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
@@ -142,11 +132,29 @@ public class EmbedingServlet extends HttpServlet {
     }
 
     protected FormDefinitionService createFormService(String usr, String pwd) {
-        return new GuvnorFormDefinitionService(this.guvnorBaseUrl, usr, pwd);
+    	GuvnorFormDefinitionService service = (GuvnorFormDefinitionService) WebApplicationContextUtils.
+    		getWebApplicationContext(getServletContext()).getBean("guvnorFormService");
+    	if (usr != null && pwd != null) {
+    		service.setUser(usr);
+    		service.setPassword(pwd);
+    		try {
+    			service.afterPropertiesSet();
+    		} catch (Exception e) { }
+    	}
+    	return service;
     }
 
     protected TaskDefinitionService createTaskService(String usr, String pwd) {
-        return new GuvnorTaskDefinitionService(this.guvnorBaseUrl, usr, pwd);
+    	GuvnorTaskDefinitionService service = (GuvnorTaskDefinitionService) WebApplicationContextUtils.
+			getWebApplicationContext(getServletContext()).getBean("guvnorTaskService");
+    	if (usr != null && pwd != null) {
+    		service.setUser(usr);
+    		service.setPassword(pwd);
+    		try {
+    			service.afterPropertiesSet();
+    		} catch (Exception e) { }
+    	}
+    	return service;
     }
 
     private JsonObject toJsonObject(TaskRef task) {

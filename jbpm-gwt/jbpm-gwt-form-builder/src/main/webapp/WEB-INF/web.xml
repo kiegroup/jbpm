@@ -66,8 +66,15 @@
  <security-constraint>
   <web-resource-collection>
    <web-resource-name>resteasy</web-resource-name>
+   <url-pattern>/*</url-pattern>
+   <http-method>GET</http-method>
+   <http-method>PUT</http-method>
+   <http-method>POST</http-method>
+   <http-method>DELETE</http-method>
+  </web-resource-collection>
+  <web-resource-collection>
    <web-resource-name>embed</web-resource-name>
-   <url-pattern>/FormBuilder.*</url-pattern>
+   <url-pattern>/*</url-pattern>
    <http-method>GET</http-method>
    <http-method>PUT</http-method>
    <http-method>POST</http-method>
@@ -92,7 +99,7 @@
 
  <login-config>
   <auth-method>FORM</auth-method>
-  <realm-name>FormBuilderRealm</realm-name>
+  <realm-name>jbpm-form-builder</realm-name>
   <form-login-config>
    <form-login-page>/login.html</form-login-page>
    <form-error-page>/login_fail.html</form-error-page>

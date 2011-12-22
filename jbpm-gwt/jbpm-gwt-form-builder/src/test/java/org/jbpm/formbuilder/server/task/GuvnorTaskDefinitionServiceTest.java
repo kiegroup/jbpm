@@ -512,7 +512,7 @@ public class GuvnorTaskDefinitionServiceTest extends TestCase {
     }
     
     private GuvnorTaskDefinitionService createService(String baseUrl, String user, String password) {
-        GuvnorTaskDefinitionService service = new GuvnorTaskDefinitionService(baseUrl, user, password);
+        GuvnorTaskDefinitionService service = new GuvnorTaskDefinitionService();
         service.setHelper(new GuvnorHelper(baseUrl, user, password) {
             @Override
             public GetMethod createGetMethod(String url) {

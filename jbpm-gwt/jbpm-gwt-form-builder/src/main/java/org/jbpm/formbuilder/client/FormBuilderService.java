@@ -180,4 +180,5 @@ public interface FormBuilderService {
     
     void setPackageName(String packageName);
 
+	void logout();
 }

@@ -407,7 +407,7 @@ public class GuvnorFileServiceTest extends TestCase {
     }
 
     private GuvnorFileService createService(String baseUrl, String user, String pass) {
-        GuvnorFileService service = new GuvnorFileService(baseUrl, user, pass);
+        GuvnorFileService service = new GuvnorFileService();
         service.setHelper(new GuvnorHelper(baseUrl, user, pass) {
             @Override
             public GetMethod createGetMethod(String url) {

@@ -338,7 +338,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     }
     
     public void testGetFormEmptyName() throws Exception {
-        GuvnorFormDefinitionService service = new GuvnorFormDefinitionService("http://www.redhat.com", "", "");
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
         FormRepresentation form1 = service.getForm("somePackage", "");
         assertNull("form1 should be null", form1);
         
@@ -418,7 +418,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     }
     
     public void testGetFormByUUIDEmptyPackage() throws Exception {
-        GuvnorFormDefinitionService service = new GuvnorFormDefinitionService("http://www.redhat.com", "", "");
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
         FormRepresentation form1 = service.getFormByUUID(null, null);
         assertNull("form1 should be null", form1);
         FormRepresentation form2 = service.getFormByUUID("", null);
@@ -590,7 +590,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     }
     
     public void testGetFormEmptyFormId() throws Exception {
-        GuvnorFormDefinitionService service = new GuvnorFormDefinitionService("http://www.redhat.com", "", "");
+        GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
         
         FormRepresentation form1 = service.getForm("somePackage", null);
         assertNull("form1 should be null", form1);
@@ -1083,7 +1083,10 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     }
     
     private GuvnorFormDefinitionService createService(String baseUrl, String user, String pass) {
-        GuvnorFormDefinitionService service = new GuvnorFormDefinitionService(baseUrl, user, pass);
+        GuvnorFormDefinitionService service = new GuvnorFormDefinitionService();
+        service.setBaseUrl(baseUrl);
+        service.setUser(user);
+        service.setPassword(pass);
         service.setHelper(new GuvnorHelper(baseUrl, user, pass) {
             @Override
             public GetMethod createGetMethod(String url) {

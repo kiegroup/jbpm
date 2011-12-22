@@ -25,21 +25,21 @@
 	<!-- Guvnor services -->
 
     <bean id="guvnorFileService" class="org.jbpm.formbuilder.server.file.GuvnorFileService">
-      <constructor-arg ref="guvnorUrl"/>
-      <constructor-arg ref="guvnorUser"/>
-      <constructor-arg ref="guvnorPass"/>
+      <property name="baseUrl" ref="guvnorUrl"/>
+      <property name="user" ref="guvnorUser"/>
+      <property name="password" ref="guvnorPass"/>
     </bean>
     
     <bean id="guvnorFormService" class="org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService">
-      <constructor-arg ref="guvnorUrl"/>
-      <constructor-arg ref="guvnorUser"/>
-      <constructor-arg ref="guvnorPass"/>
+      <property name="baseUrl" ref="guvnorUrl"/>
+      <property name="user" ref="guvnorUser"/>
+      <property name="password" ref="guvnorPass"/>
     </bean>
 
 	<bean id="guvnorTaskService" class="org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService">
-      <constructor-arg ref="guvnorUrl"/>
-      <constructor-arg ref="guvnorUser"/>
-      <constructor-arg ref="guvnorPass"/>
+      <property name="baseUrl" ref="guvnorUrl"/>
+      <property name="user" ref="guvnorUser"/>
+      <property name="password" ref="guvnorPass"/>
 	</bean>
 	
 	<bean id="guvnorMenuService" class="org.jbpm.formbuilder.server.menu.GuvnorMenuService">

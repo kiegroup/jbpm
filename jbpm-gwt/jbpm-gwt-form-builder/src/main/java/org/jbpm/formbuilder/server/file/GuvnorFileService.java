@@ -31,15 +31,45 @@ import org.jbpm.formbuilder.server.GuvnorHelper;
 import org.jbpm.formbuilder.server.xml.MetaDataDTO;
 import org.jbpm.formbuilder.server.xml.PackageAssetDTO;
 import org.jbpm.formbuilder.server.xml.PackageAssetsDTO;
+import org.springframework.beans.factory.InitializingBean;
 
-public class GuvnorFileService implements FileService {
+public class GuvnorFileService implements FileService, InitializingBean {
     
     private GuvnorHelper helper;
-    private final String baseUrl;
+    private String baseUrl;
+    private String user;
+    private String password;
     
-    public GuvnorFileService(String url, String user, String pass) {
-        this.helper = new GuvnorHelper(url, user, pass);
-        this.baseUrl = url;
+    public GuvnorFileService() {
+    }
+
+    public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+    public void afterPropertiesSet() throws Exception {
+    	this.helper = new GuvnorHelper(baseUrl, user, password);
     }
     
     public void setHelper(GuvnorHelper helper) {

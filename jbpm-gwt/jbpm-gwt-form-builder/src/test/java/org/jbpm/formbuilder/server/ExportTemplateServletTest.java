@@ -18,7 +18,6 @@ package org.jbpm.formbuilder.server;
 import java.util.UUID;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,15 +35,10 @@ public class ExportTemplateServletTest extends TestCase {
     public void testInitOK() throws Exception {
         ExportTemplateServlet servlet = new ExportTemplateServlet();
         ServletConfig config = EasyMock.createMock(ServletConfig.class);
-        ServletContext context = EasyMock.createMock(ServletContext.class);
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-base-url"))).andReturn("http://www.redhat.com").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-user"))).andReturn("").once();
-        EasyMock.expect(context.getInitParameter(EasyMock.eq("guvnor-password"))).andReturn("").once();
-        EasyMock.expect(config.getServletContext()).andReturn(context).times(3);
         
-        EasyMock.replay(config, context);
+        EasyMock.replay(config);
         servlet.init(config);
-        EasyMock.verify(config, context);
+        EasyMock.verify(config);
     }
     
     public void testDoGetOK() throws Exception {

@@ -104,4 +104,9 @@ public class URLBuilder {
 		return new StringBuilder(getBaseUrl()).append(contextPath).
 			append("/user/current/roles").toString();
 	}
+
+	public static String getLogoutURL(String contextPath) {
+		return new StringBuilder(getBaseUrl()).append(contextPath).
+			append("/user/current/logout").toString();
+	}
 }

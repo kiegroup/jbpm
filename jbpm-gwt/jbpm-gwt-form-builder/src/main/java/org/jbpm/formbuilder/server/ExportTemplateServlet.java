@@ -31,26 +31,18 @@ import org.jbpm.formapi.server.trans.Translator;
 import org.jbpm.formapi.server.trans.TranslatorFactory;
 import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
-import org.jbpm.formbuilder.server.form.GuvnorFormDefinitionService;
-import org.jbpm.formbuilder.server.task.GuvnorTaskDefinitionService;
 import org.jbpm.formbuilder.server.task.ProcessGetInputHandler;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class ExportTemplateServlet extends HttpServlet {
 
     private static final long serialVersionUID = -7653438101539099368L;
 
-    private String guvnorBaseUrl = null;
-    private String user = null;
-    private String pass = null;
-    
     @Override
     public void init(ServletConfig config) throws ServletException {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
-        this.guvnorBaseUrl = config.getServletContext().getInitParameter("guvnor-base-url");
-        this.user = config.getServletContext().getInitParameter("guvnor-user");
-        this.pass = config.getServletContext().getInitParameter("guvnor-password");
     }
     
     @Override
@@ -89,11 +81,13 @@ public class ExportTemplateServlet extends HttpServlet {
     }
 
     protected TaskDefinitionService createTaskService() {
-        return new GuvnorTaskDefinitionService(this.guvnorBaseUrl, this.user, this.pass);
+    	return (TaskDefinitionService) WebApplicationContextUtils.
+    		getWebApplicationContext(getServletContext()).getBean("guvnorTaskService");
     }
     
     protected FormDefinitionService createFormService() {
-        return new GuvnorFormDefinitionService(this.guvnorBaseUrl, this.user, this.pass);
+    	return (FormDefinitionService) WebApplicationContextUtils.
+		getWebApplicationContext(getServletContext()).getBean("guvnorFormService");
     }
 
     private boolean notEmpty(String value) {

@@ -40,8 +40,9 @@ import org.jbpm.formbuilder.server.xml.PackageListDTO;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
+import org.springframework.beans.factory.InitializingBean;
 
-public class GuvnorTaskDefinitionService implements TaskDefinitionService {
+public class GuvnorTaskDefinitionService implements TaskDefinitionService, InitializingBean {
     
     private final TaskRepoHelper repo = new TaskRepoHelper();
     private final TaskDefinitionsSemanticModule module = new TaskDefinitionsSemanticModule(repo);
@@ -56,10 +57,40 @@ public class GuvnorTaskDefinitionService implements TaskDefinitionService {
     };
 
     private GuvnorHelper helper;
+    private String baseUrl;
+    private String user;
+    private String password;
     
-    public GuvnorTaskDefinitionService(String baseUrl, String user, String password) {
-        super();
-        this.helper = new GuvnorHelper(baseUrl, user, password);
+    public GuvnorTaskDefinitionService() {
+    }
+    
+    public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+    public void afterPropertiesSet() throws Exception {
+    	this.helper = new GuvnorHelper(baseUrl, user, password);;
     }
     
     public void setHelper(GuvnorHelper helper) {

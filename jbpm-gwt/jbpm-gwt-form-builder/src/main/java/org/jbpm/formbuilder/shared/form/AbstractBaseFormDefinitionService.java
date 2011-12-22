@@ -32,7 +32,7 @@ import org.jbpm.formapi.shared.api.items.TextFieldRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-public abstract class AbstractBaseFormDefinitionService implements FormDefinitionService {
+public abstract class AbstractBaseFormDefinitionService {
 
     private static final String FORM_ID_PREFIX = "formDefinition_";
     private static final String ITEM_ID_PREFIX = "formItemDefinition_";
@@ -102,7 +102,6 @@ public abstract class AbstractBaseFormDefinitionService implements FormDefinitio
         return null;
     }
     
-    @Override
     public FormRepresentation createFormFromTask(TaskRef task) {
         if (task == null) {
             return null;

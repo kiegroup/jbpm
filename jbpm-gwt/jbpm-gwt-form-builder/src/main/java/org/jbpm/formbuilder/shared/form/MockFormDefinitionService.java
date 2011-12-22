@@ -24,7 +24,7 @@ import org.jbpm.formapi.shared.api.FormItemRepresentation;
 import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 
-public class MockFormDefinitionService extends AbstractBaseFormDefinitionService {
+public class MockFormDefinitionService extends AbstractBaseFormDefinitionService implements FormDefinitionService {
 
     private Map<String, List<FormRepresentation>> forms = new HashMap<String, List<FormRepresentation>>();
     private Map<String, List<Map.Entry<String, FormItemRepresentation>>> items = 

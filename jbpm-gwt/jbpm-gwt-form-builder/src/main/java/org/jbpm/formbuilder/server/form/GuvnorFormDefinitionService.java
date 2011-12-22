@@ -47,18 +47,50 @@ import org.jbpm.formbuilder.server.xml.MetaDataDTO;
 import org.jbpm.formbuilder.server.xml.PackageDTO;
 import org.jbpm.formbuilder.server.xml.PackageListDTO;
 import org.jbpm.formbuilder.shared.form.AbstractBaseFormDefinitionService;
+import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.task.TaskRef;
+import org.springframework.beans.factory.InitializingBean;
 
-public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionService {
+public class GuvnorFormDefinitionService extends AbstractBaseFormDefinitionService implements FormDefinitionService, InitializingBean {
 
+	private String baseUrl;
+	private String user;
+	private String password;
     private GuvnorHelper helper;
     
-    public GuvnorFormDefinitionService(String baseUrl, String user, String password) {
-        super();
-        this.helper = new GuvnorHelper(baseUrl, user, password);
+    public GuvnorFormDefinitionService() {
     }
+    
+    public String getBaseUrl() {
+		return baseUrl;
+	}
 
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+    public void afterPropertiesSet() throws Exception {
+    	this.helper = new GuvnorHelper(baseUrl, user, password);
+    }
+    
     public void setHelper(GuvnorHelper helper) {
         this.helper = helper;
     }
