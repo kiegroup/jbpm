@@ -15,6 +15,7 @@
  */
 package org.jbpm.formbuilder.server;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,30 +28,30 @@ import org.easymock.EasyMock;
 import org.jboss.resteasy.util.HttpHeaderNames;
 import org.jbpm.formbuilder.server.xml.ListTasksDTO;
 import org.jbpm.formbuilder.server.xml.TaskRefDTO;
-import org.jbpm.formbuilder.shared.task.MockTaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class RESTIoServiceTest extends RESTAbstractTest {
 
     public void testSetContextOK() throws Exception {
         RESTIoService restService = new RESTIoService();
-        ServletContext context = EasyMock.createMock(ServletContext.class);
-        WebApplicationContext appctx = EasyMock.createMock(WebApplicationContext.class);
-        TaskDefinitionService mockTaskService = new MockTaskDefinitionService();
-        EasyMock.expect(appctx.getBean(EasyMock.eq("guvnorTaskService"))).andReturn(mockTaskService).once();
-        EasyMock.expect(context.getAttribute("org.springframework.web.context.WebApplicationContext.ROOT"))
-    		.andReturn(appctx).once();
-        
-        EasyMock.replay(context, appctx);
+        URL pathToClasses = getClass().getResource("/FormBuilder.properties");
+		String filePath = pathToClasses.toExternalForm();
+		//assumes compilation is in target/classes
+		filePath = filePath.replace("target/classes/FormBuilder.properties", "src/main/webapp");
+		filePath = filePath + "/WEB-INF/springComponents.xml";
+		FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(filePath);
+		ServiceFactory.getInstance().setBeanFactory(ctx);
+		ServletContext context = EasyMock.createMock(ServletContext.class);
+		
+        EasyMock.replay(context);
         restService.setContext(context);
-        EasyMock.verify(context, appctx);
+        EasyMock.verify(context);
 
         TaskDefinitionService service = restService.getTaskService();
         assertNotNull("service shouldn't be null", service);
-        assertEquals("service and mockTaskService should be the same", service, mockTaskService);
     }
     
     //test happy path for RESTIoService.getIoAssociations(...)

@@ -8,6 +8,11 @@
           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
+	<!-- Select configuration strategy -->
+	<bean id="strategy" class="java.lang.String">
+	  <constructor-arg type="java.lang.String" value="guvnor"/>
+	</bean>
+
 	<!-- Guvnor configuration -->
 	
     <bean id="guvnorUrl" class="java.lang.String">
@@ -21,6 +26,8 @@
 	<bean id="guvnorPass" class="java.lang.String">
 	  <constructor-arg type="java.lang.String" value="admin"/>
 	</bean>
+
+	<bean id="serviceFactory" class="org.jbpm.formbuilder.server.ServiceFactory" factory-method="getInstance"/>
 
 	<!-- Guvnor services -->
 

@@ -59,7 +59,6 @@ import org.jbpm.formbuilder.server.xml.ListFormsDTO;
 import org.jbpm.formbuilder.server.xml.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @Path("/form")
 public class RESTFormService extends RESTBaseService {
@@ -68,8 +67,7 @@ public class RESTFormService extends RESTBaseService {
     
     public void setContext(@Context ServletContext context) {
         if (formService == null) {
-        	this.formService = (FormDefinitionService) 
-        		WebApplicationContextUtils.getWebApplicationContext(context).getBean("guvnorFormService");
+        	this.formService = ServiceFactory.getInstance().getFormDefinitionService();
         }
     }
     

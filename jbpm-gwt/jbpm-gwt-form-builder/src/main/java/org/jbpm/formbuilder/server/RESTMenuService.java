@@ -39,7 +39,6 @@ import org.jbpm.formapi.shared.menu.MenuItemDescription;
 import org.jbpm.formapi.shared.menu.MenuOptionDescription;
 import org.jbpm.formapi.shared.menu.ValidationDescription;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
-import org.jbpm.formbuilder.server.menu.GuvnorMenuService;
 import org.jbpm.formbuilder.server.xml.FormEffectDTO;
 import org.jbpm.formbuilder.server.xml.ListMenuItemsDTO;
 import org.jbpm.formbuilder.server.xml.ListOptionsDTO;
@@ -52,7 +51,7 @@ import org.jbpm.formbuilder.shared.menu.MenuServiceException;
 @Path("/menu")
 public class RESTMenuService extends RESTBaseService {
 
-    private MenuService menuService = new GuvnorMenuService();
+    private MenuService menuService;
     
     public RESTMenuService() {
         FormEncodingFactory.register(FormEncodingServerFactory.getEncoder(), FormEncodingServerFactory.getDecoder());
@@ -189,7 +188,7 @@ public class RESTMenuService extends RESTBaseService {
     
     private void init() {
         if (menuService == null) {
-            menuService = new GuvnorMenuService();
+            menuService = ServiceFactory.getInstance().getMenuService();
         }
     }
     

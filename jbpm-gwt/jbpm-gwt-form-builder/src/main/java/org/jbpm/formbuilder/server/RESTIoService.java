@@ -32,7 +32,6 @@ import org.jbpm.formbuilder.server.xml.ListTasksDTO;
 import org.jbpm.formbuilder.shared.task.TaskDefinitionService;
 import org.jbpm.formbuilder.shared.task.TaskRef;
 import org.jbpm.formbuilder.shared.task.TaskServiceException;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @Path("/io")
 public class RESTIoService extends RESTBaseService {
@@ -41,8 +40,7 @@ public class RESTIoService extends RESTBaseService {
     
     public void setContext(@Context ServletContext context) {
         if (taskService == null) {
-        	taskService = (TaskDefinitionService) WebApplicationContextUtils.
-        			getWebApplicationContext(context).getBean("guvnorTaskService");
+        	taskService = ServiceFactory.getInstance().getTaskDefinitionService();
         }
     }
     

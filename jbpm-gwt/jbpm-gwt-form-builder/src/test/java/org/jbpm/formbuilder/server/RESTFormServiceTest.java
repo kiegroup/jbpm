@@ -52,26 +52,27 @@ import org.jbpm.formbuilder.server.xml.ListFormsItemsDTO;
 import org.jbpm.formbuilder.shared.form.FormDefinitionService;
 import org.jbpm.formbuilder.shared.form.FormServiceException;
 import org.jbpm.formbuilder.shared.form.MockFormDefinitionService;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 public class RESTFormServiceTest extends RESTAbstractTest {
 
     public void testSetContextOK() throws Exception {
         RESTFormService restService = new RESTFormService();
+        URL pathToClasses = getClass().getResource("/FormBuilder.properties");
+		String filePath = pathToClasses.toExternalForm();
+		//assumes compilation is in target/classes
+		filePath = filePath.replace("target/classes/FormBuilder.properties", "src/main/webapp");
+		filePath = filePath + "/WEB-INF/springComponents.xml";
+		FileSystemXmlApplicationContext ctx = new FileSystemXmlApplicationContext(filePath);
+		ServiceFactory.getInstance().setBeanFactory(ctx);
         ServletContext context = EasyMock.createMock(ServletContext.class);
-        WebApplicationContext appctx = EasyMock.createMock(WebApplicationContext.class);
-        FormDefinitionService mockFormService = new MockFormDefinitionService();
-        EasyMock.expect(appctx.getBean(EasyMock.eq("guvnorFormService"))).andReturn(mockFormService).once();
-        EasyMock.expect(context.getAttribute("org.springframework.web.context.WebApplicationContext.ROOT"))
-        	.andReturn(appctx).once();
 
-        EasyMock.replay(context, appctx);
+        EasyMock.replay(context);
         restService.setContext(context);
-        EasyMock.verify(context, appctx);
+        EasyMock.verify(context);
 
         FormDefinitionService service = restService.getFormService();
         assertNotNull("service shouldn't be null", service);
-        assertEquals("service and mockFormService should be the same", mockFormService, service);
     }
     
     //test happy path for RESTFormService.getForms(...)
