@@ -254,6 +254,21 @@
     <get src="${jBPM.url}/jbpm-${jBPM.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip"  />
   </target>
 
+  <!-- Download form builder -->
+  <target name="download.form.builder.check">
+  	<echo message="Checking Form Builder download ..." />
+  	<condition property="form.builder.not.available">
+  	  <not>
+  		<available file="${install.home}/lib/jbpm-form-builder.war" />
+  	  </not>
+    </condition>
+  </target>
+  <target name="download.form.builder" depends="download.form.builder.check" if="form.builder.not.available">
+  	<echo message="Getting Form Builder ..." />
+  	<mkdir dir="${install.home}/lib"/>
+  	<get src="${form.builder.url}" dest="${install.home}/lib/jbpm-form-builder.war" />
+  </target>
+	
   <!-- ############ INSTALL ############ -->
 
   <!-- Install JBoss AS -->
@@ -396,7 +411,12 @@
           tofile="${jboss.server.conf.dir}/roles.properties"
           overwrite="true" />
   </target>
-  
+
+  <!-- Install form builder -->
+  <target name="install.form.builder.into.jboss" depends="download.form.builder">
+  	
+  </target>
+	
   <!-- Install dependencies -->
   <target name="install.dependencies">	
   	<copy todir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib">
@@ -511,13 +531,13 @@
   </target>
 
   <!-- Install Demo -->
-  <target name="install.demo" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
+  <target name="install.demo" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.form.builder.into.jboss,install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
 
   <!-- Install Demo (Eclipse) -->
   <target name="install.demo.eclipse" depends="install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
 
   <!-- Install Demo (No Eclipse) -->
-  <target name="install.demo.noeclipse" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM.runtime" />
+  <target name="install.demo.noeclipse" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.form.builder.into.jboss,install.jBPM.runtime" />
   
   <!-- ############ START/STOP ############ -->
 
