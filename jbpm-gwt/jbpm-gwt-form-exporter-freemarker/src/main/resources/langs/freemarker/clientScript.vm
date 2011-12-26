@@ -1,1 +1,6 @@
 <!-- TODO client script -->
+#set ($typeParam = ${language.getParam("type", $item.type)})
+
+<script #if($typeParam)$typeParam#end>
+	${item.src}
+</script>

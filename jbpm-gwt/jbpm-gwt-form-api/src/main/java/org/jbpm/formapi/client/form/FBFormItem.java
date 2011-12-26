@@ -432,7 +432,10 @@ public abstract class FBFormItem extends FocusPanel {
     }
     
     private native JavaScriptObject toJsFunction(String value) /*-{
-        return function(){ eval(value); }
+        var r = function() {
+        	eval(value);
+        }
+        return r;
     }-*/;
 
     public boolean removeEffectOfType(Class<? extends FBFormEffect> effectClass) {
