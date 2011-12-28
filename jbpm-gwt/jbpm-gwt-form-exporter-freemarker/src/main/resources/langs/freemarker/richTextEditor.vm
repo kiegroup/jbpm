@@ -37,10 +37,10 @@ tinyMCE.init({
         content_css : "css/example.css",
 
         // Drop lists for link/image/media/template dialogs
-        template_external_list_url : "js/template_list.js",
-        external_link_list_url : "js/link_list.js",
-        external_image_list_url : "js/image_list.js",
-        media_external_list_url : "js/media_list.js",
+        template_external_list_url : "http://www.tinymce.com/js/template_list.js",
+        external_link_list_url : "http://www.tinymce.com/js/link_list.js",
+        external_image_list_url : "http://www.tinymce.com/js/image_list.js",
+        media_external_list_url : "http://www.tinymce.com/js/media_list.js",
 
         // Replace values for the template plugin
         template_replace_values : {

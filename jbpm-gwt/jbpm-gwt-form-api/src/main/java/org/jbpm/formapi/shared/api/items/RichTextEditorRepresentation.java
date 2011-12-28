@@ -51,7 +51,7 @@ public class RichTextEditorRepresentation extends FormItemRepresentation {
         data.put("html", this.html);
         return data;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) return false;

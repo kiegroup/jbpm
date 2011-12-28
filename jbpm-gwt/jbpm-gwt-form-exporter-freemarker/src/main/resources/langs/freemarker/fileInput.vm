@@ -6,5 +6,4 @@
 #set ($style = "$width$height")
 #set ($styleParam = ${langauge.getParam("style", $style)})
 #set ($oneventxParam = ${language.getOnEventParams($item)})
-## TODO getInput();
 <input type="file" #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($nameParam)$nameParam#end#if($acceptParam)$acceptParam#end#if($styleParam)$styleParam#end />

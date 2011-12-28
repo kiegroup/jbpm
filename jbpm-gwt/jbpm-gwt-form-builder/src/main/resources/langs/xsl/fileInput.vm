@@ -6,7 +6,6 @@
 #set ($nameParam = ${language.getParam("ref", $item.name)})
 #set ($acceptParam = ${language.getParam("mediaType", $item.accept)})
 #set ($styleParam = ${langauge.getParam("style", $style)})
-## TODO getInput();
 <xforms:upload #if($nameParam)$nameParam#end
     #if($acceptParam)$acceptParam#end
     #if($idParam)$idParam#end

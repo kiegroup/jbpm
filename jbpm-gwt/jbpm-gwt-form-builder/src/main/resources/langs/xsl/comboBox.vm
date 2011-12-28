@@ -5,7 +5,11 @@
 #end
 #set ($nameParam = ${language.getParam("name", $name)})
 ## TODO $item.itemValidations
-## TODO $item.output
+#if($item.output)
+  #if($item.output.name)
+    #set($nameParam = ${language.getParam("name", $item.output.name)})
+  #end
+#end
 
 <xforms:select selectUI="listbox" #if($idParam)$idParam#end#if($nameParam)$nameParam#end xmlns:xforms="http://www.w3.org/2002/01/xforms"> 
   #if($valueParam)
