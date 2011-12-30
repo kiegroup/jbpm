@@ -1,7 +1,6 @@
 package org.jbpm.process.instance;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +22,6 @@ import org.drools.event.rule.ActivationCreatedEvent;
 import org.drools.event.rule.DefaultAgendaEventListener;
 import org.drools.impl.InternalKnowledgeBase;
 import org.drools.rule.Rule;
-import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemManager;
 import org.drools.util.CompositeClassLoader;
@@ -31,6 +29,7 @@ import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.instance.event.SignalManager;
 import org.jbpm.process.instance.event.SignalManagerFactory;
+import org.jbpm.process.instance.impl.AssignmentAction;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.node.EventTrigger;
@@ -238,7 +237,9 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                             }
                             StartProcessEventListener listener = new StartProcessEventListener( process.getId(),
                                                                                                 filters,
-                                                                                                trigger.getInMappings() );
+                                                                                                trigger.getInMappings(),
+                                                                                                (List<AssignmentAction>) startNode.getMetaData(AssignmentAction.ASSIGNMENT_ACTION),
+                                                                                                this);
                             signalManager.addEventListener( type,
                                                             listener );
                             ((RuleFlowProcess) process).getMetaData().put("StartProcessEventType", type);
@@ -265,50 +266,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     public List<ProcessEventListener> getProcessEventListeners() {
         return processEventSupport.getEventListeners();
     }
-
-    private class StartProcessEventListener implements EventListener {
-    	
-	    private String              processId;
-	    private List<EventFilter>   eventFilters;
-	    private Map<String, String> inMappings;
-	
-	    public StartProcessEventListener(String processId,
-	                                     List<EventFilter> eventFilters,
-	                                     Map<String, String> inMappings) {
-	        this.processId = processId;
-	        this.eventFilters = eventFilters;
-	        this.inMappings = inMappings;
-	    }
-	
-	    public String[] getEventTypes() {
-	        return null;
-	    }
-	
-	    public void signalEvent(String type,
-	                            Object event) {
-	        for ( EventFilter filter : eventFilters ) {
-	            if ( !filter.acceptsEvent( type,
-	                                       event ) ) {
-	                return;
-	            }
-	        }
-	        Map<String, Object> params = null;
-	        if ( inMappings != null && !inMappings.isEmpty() ) {
-	            params = new HashMap<String, Object>();
-	            for ( Map.Entry<String, String> entry : inMappings.entrySet() ) {
-	                if ( "event".equals( entry.getValue() ) ) {
-	                    params.put( entry.getKey(),
-	                                event );
-	                } else {
-	                    params.put( entry.getKey(),
-	                                entry.getValue() );
-	                }
-	            }
-	        }
-	        startProcess( processId,
-	                      params );
-	    }
-	}
 
     private void initProcessActivationListener() {
     	kruntime.addEventListener(new DefaultAgendaEventListener() {

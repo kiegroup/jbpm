@@ -17,22 +17,32 @@
 package org.jbpm.workflow.core.node;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Map;
 
 import org.jbpm.process.core.context.variable.Mappable;
+import org.jbpm.process.instance.impl.AssignmentAction;
 
 public class Trigger implements Mappable, Serializable {
 	
 	private static final long serialVersionUID = 510l;
 
 	private List<DataAssociation> inMapping = new LinkedList<DataAssociation>();
+	private List<AssignmentAction> actions = new ArrayList<AssignmentAction>();
+	
+    public List<AssignmentAction> getActions() {
+		return actions;
+	}
 
-    public void addInMapping(String subVariableName, String variableName) {
+	public void setActions(List<AssignmentAction> actions) {
+		this.actions = actions;
+	}
+
+	public void addInMapping(String subVariableName, String variableName) {
         inMapping.add(new DataAssociation(subVariableName, variableName, null, null));
     }
     

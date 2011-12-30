@@ -16,11 +16,17 @@
 
 package org.jbpm.process.instance.impl;
 
-import org.drools.runtime.process.ProcessContext;
+import java.util.Map;
+
 import org.drools.process.instance.WorkItem;
+import org.drools.runtime.process.ProcessContext;
 
 public interface AssignmentAction {
     
+	public static String START_MESSAGE = "startMesage";
+	public static final String ASSIGNMENT_ACTION = "assignmentAction";
+	
     void execute(WorkItem workItem, ProcessContext context) throws Exception;
     
+    void execute(Map<String,Object> metadata, ProcessContext context) throws Exception;
 }
