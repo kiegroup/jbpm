@@ -181,7 +181,7 @@ public class StartEventHandler extends AbstractNodeHandler {
 			dialectBuilder.getAssignmentBuilder().build(null, assignment,
 					"message", target, null, false);
 			AssignmentAction assignmentAction = (AssignmentAction) assignment
-					.getMetaData(AssignmentBuilder.ACTION);
+					.getMetaData("Action");
 			assignmentActions.add(assignmentAction);
 			subNode = subNode.getNextSibling();
 		}
