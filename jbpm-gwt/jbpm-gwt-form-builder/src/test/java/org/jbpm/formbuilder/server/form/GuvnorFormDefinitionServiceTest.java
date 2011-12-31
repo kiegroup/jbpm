@@ -59,8 +59,8 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     public void testSaveFormOK() throws Exception {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         Map<String, String> responses = new HashMap<String, String>();
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", "{}");
-        responses.put("POST http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", "OK");
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form1AutoForm.formdef", "{}");
+        responses.put("POST http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form1AutoForm.formdef", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -77,8 +77,8 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     public void testSaveFormHttpProblem() throws Exception {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         Map<String, String> responses = new HashMap<String, String>();
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", "{}");
-        responses.put("POST http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", "PROBLEM");
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form1AutoForm.formdef", "{}");
+        responses.put("POST http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form1AutoForm.formdef", "PROBLEM");
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -103,9 +103,9 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
         Map<String, String> responses1 = new HashMap<String, String>();
-        responses1.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        responses1.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
         Map<String, String> responses2 = new HashMap<String, String>();
-        responses2.put("PUT http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", "OK");
+        responses2.put("PUT http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses1, new IllegalArgumentException("unexpected call"))).once();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockPutMethod.class))).
@@ -126,7 +126,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -154,7 +154,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -182,7 +182,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IOException("MOCKING IO ERROR"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -207,7 +207,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new NullPointerException("MOCKING IO ERROR"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -230,7 +230,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     public void testSaveFormItemOK() throws Exception {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         Map<String, String> responses = new HashMap<String, String>();
-        responses.put("POST http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/formItemDefinition_item1.json", "{}");
+        responses.put("POST http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/formItemDefinition_item1.json", "{}");
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -248,7 +248,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
     public void testSaveFormItemEncodingProblem() throws Exception {
         HttpClient client = EasyMock.createMock(HttpClient.class);
         Map<String, String> responses = new HashMap<String, String>();
-        responses.put("POST http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/formItemDefinition_item1.json", "{}");
+        responses.put("POST http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/formItemDefinition_item1.json", "{}");
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -323,7 +323,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("form1", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form1AutoForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("Unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -352,7 +352,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("form2", "oneParam");
         String jsonForm = FormEncodingFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.anyObject(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).anyTimes();
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -577,7 +577,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "myParam");
         String jsonForm = FormEncodingServerFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/myForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/myForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
         
@@ -607,7 +607,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses = new HashMap<String, String>();
         FormRepresentation form = RESTAbstractTest.createMockForm("myForm", "myParam");
         String jsonForm = FormEncodingServerFactory.getEncoder().encode(form);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/myForm.formdef", jsonForm);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/myForm.formdef", jsonForm);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
         FormRepresentationDecoder decoder = EasyMock.createMock(FormRepresentationDecoder.class);
@@ -677,9 +677,9 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         props.append("form1AutoForm.formdef=AAAAA\n");
         props.append("formItemDefinition_item1.json=AAAAA\n");
         props.append("formItemDefinition_item2.json=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/formItemDefinition_item1.json", jsonItem1);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/formItemDefinition_item2.json", jsonItem2);        
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/formItemDefinition_item1.json", jsonItem1);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/formItemDefinition_item2.json", jsonItem2);        
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("Unexpected call"))).times(3);
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -702,7 +702,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         props.append("form1AutoForm.formdef=AAAAA\n");
         props.append("formItemDefinition_someItem.json=AAAAA\n");
         props.append("form2AutoForm.formdef=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IOException("Problem reading one item"))).times(2);
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -770,9 +770,9 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         props.append("form1AutoForm.formdef=AAAAA\n");
         props.append("somethingElse.json=AAAAA\n");
         props.append("form2AutoForm.formdef=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form1AutoForm.formdef", jsonForm1);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/form2AutoForm.formdef", jsonForm2);        
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form1AutoForm.formdef", jsonForm1);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/form2AutoForm.formdef", jsonForm2);        
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("Unexpected call"))).times(3);
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -814,7 +814,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         props.append("form1AutoForm.formdef=AAAAA\n");
         props.append("somethingElse.json=AAAAA\n");
         props.append("form2AutoForm.formdef=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IOException("Problem reading one form"))).times(2);
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
@@ -856,7 +856,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
         HttpClient client = EasyMock.createMock(HttpClient.class);
         Map<String, String> responses = new HashMap<String, String>();
-        responses.put("DELETE http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/myForm.formdef", "OK");
+        responses.put("DELETE http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/myForm.formdef", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
         service.getHelper().setClient(client);
@@ -917,7 +917,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         GuvnorFormDefinitionService service = createService("http://www.redhat.com", "", "");
         HttpClient client = EasyMock.createMock(HttpClient.class);
         Map<String, String> responses = new HashMap<String, String>();
-        responses.put("DELETE http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/myItem.json", "OK");
+        responses.put("DELETE http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/myItem.json", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockDeleteMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).once();
         service.getHelper().setClient(client);
@@ -973,7 +973,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses3 = new HashMap<String, String>();
         
         Map<String, Integer> statuses1 = new HashMap<String, Integer>();
-        statuses1.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/template.txt", 404);
+        statuses1.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/template.txt", 404);
         responses2.put("POST http://www.redhat.com/rest/packages/somePackage/assets", "OK");
         responses3.put("PUT http://www.redhat.com/rest/packages/somePackage/assets/template/source", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
@@ -996,7 +996,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses1 = new HashMap<String, String>();
         Map<String, String> responses2 = new HashMap<String, String>();
         
-        responses1.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/template.txt", "old template content");
+        responses1.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/template.txt", "old template content");
         responses2.put("PUT http://www.redhat.com/rest/packages/somePackage/assets/template/source", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses1, new IllegalArgumentException("unexpected call"))).once();
@@ -1034,7 +1034,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         HttpClient client = EasyMock.createMock(HttpClient.class);
 
         Map<String, Integer> statuses1 = new HashMap<String, Integer>();
-        statuses1.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/template.txt", 404);
+        statuses1.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/template.txt", 404);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(statuses1)).once();
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockPostMethod.class))).andThrow(new NullPointerException()).once();
@@ -1060,7 +1060,7 @@ public class GuvnorFormDefinitionServiceTest extends TestCase {
         Map<String, String> responses2 = new HashMap<String, String>();
         
         Map<String, Integer> statuses1 = new HashMap<String, Integer>();
-        statuses1.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/template.txt", 404);
+        statuses1.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/template.txt", 404);
         responses2.put("POST http://www.redhat.com/rest/packages/somePackage/assets", "OK");
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(statuses1)).once();

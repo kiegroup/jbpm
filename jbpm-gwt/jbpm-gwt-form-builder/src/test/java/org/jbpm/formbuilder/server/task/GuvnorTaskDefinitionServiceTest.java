@@ -44,11 +44,11 @@ public class GuvnorTaskDefinitionServiceTest extends TestCase {
         props.append("sampleProcess1.bpmn2=AAAAA\n");
         props.append("anotherThing.txt=AAAAA\n");
         props.append("sampleProcess2.bpmn2=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
         String process1Content = IOUtils.toString(getClass().getResourceAsStream("GuvnorGetProcessTasksTest.bpmn2"));
         String process2Content = IOUtils.toString(getClass().getResourceAsStream("GuvnorGetProcessTasksTest2.bpmn2"));
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/sampleProcess1.bpmn2", process1Content);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/sampleProcess2.bpmn2", process2Content);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/sampleProcess1.bpmn2", process1Content);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/sampleProcess2.bpmn2", process2Content);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).times(3);
         service.getHelper().setClient(client);
@@ -75,10 +75,10 @@ public class GuvnorTaskDefinitionServiceTest extends TestCase {
         props.append("sampleProcess1.bpmn2=AAAAA\n");
         props.append("anotherThing.txt=AAAAA\n");
         props.append("sampleProcess2.bpmn2=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
         String process2Content = IOUtils.toString(getClass().getResourceAsStream("GuvnorGetProcessTasksTest2.bpmn2"));
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/sampleProcess1.bpmn2", "");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/sampleProcess2.bpmn2", process2Content);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/sampleProcess1.bpmn2", "");
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/sampleProcess2.bpmn2", process2Content);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).times(3);
         service.getHelper().setClient(client);
@@ -105,11 +105,11 @@ public class GuvnorTaskDefinitionServiceTest extends TestCase {
         props.append("sampleProcess1.bpmn2=AAAAA\n");
         props.append("anotherThing.txt=AAAAA\n");
         props.append("sampleProcess2.bpmn2=AAAAA\n");
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/", props.toString());
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/", props.toString());
         String process1Content = IOUtils.toString(getClass().getResourceAsStream("GuvnorGetProcessTasksTest.bpmn2"));
         String process2Content = IOUtils.toString(getClass().getResourceAsStream("GuvnorGetProcessTasksTest2.bpmn2"));
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/sampleProcess1.bpmn2", process1Content);
-        responses.put("GET http://www.redhat.com/org.drools.guvnor.Guvnor/api/packages/somePackage/sampleProcess2.bpmn2", process2Content);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/sampleProcess1.bpmn2", process1Content);
+        responses.put("GET http://www.redhat.com/org.drools.guvnor.GuvnorDrools/api/packages/somePackage/sampleProcess2.bpmn2", process2Content);
         EasyMock.expect(client.executeMethod(EasyMock.isA(MockGetMethod.class))).
             andAnswer(new MockAnswer(responses, new IllegalArgumentException("unexpected call"))).times(3);
         service.getHelper().setClient(client);
