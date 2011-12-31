@@ -117,11 +117,11 @@ public class ExportTemplateServletTest extends TestCase {
         return new ExportTemplateServlet() {
             private static final long serialVersionUID = 1L;
             @Override
-            protected FormDefinitionService createFormService() {
+            protected FormDefinitionService createFormService(HttpServletRequest request) {
                 return formService;
             }
             @Override
-            protected TaskDefinitionService createTaskService() {
+            protected TaskDefinitionService createTaskService(HttpServletRequest request) {
                 return taskService;
             }
         };

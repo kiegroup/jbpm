@@ -52,8 +52,8 @@ public class ExportTemplateServlet extends HttpServlet {
         try {
             if (notEmpty(profile) && "jbpm".equals(profile)) {
                 String uuid = req.getParameter("uuid");
-                TaskDefinitionService taskService = createTaskService();
-                FormDefinitionService formService = createFormService();
+                TaskDefinitionService taskService = createTaskService(req);
+                FormDefinitionService formService = createFormService(req);
                 String packageName = taskService.getContainingPackage(uuid);
                 FormRepresentation form = formService.getFormByUUID(packageName, uuid);
                 if (notEmpty(form.getProcessName()) || notEmpty(form.getTaskId())) {
@@ -80,14 +80,14 @@ public class ExportTemplateServlet extends HttpServlet {
         }
     }
 
-    protected TaskDefinitionService createTaskService() {
+    protected TaskDefinitionService createTaskService(HttpServletRequest request) {
     	return (TaskDefinitionService) WebApplicationContextUtils.
-    		getWebApplicationContext(getServletContext()).getBean("guvnorTaskService");
+    		getWebApplicationContext(request.getSession().getServletContext()).getBean("guvnorTaskService");
     }
     
-    protected FormDefinitionService createFormService() {
+    protected FormDefinitionService createFormService(HttpServletRequest request) {
     	return (FormDefinitionService) WebApplicationContextUtils.
-		getWebApplicationContext(getServletContext()).getBean("guvnorFormService");
+		getWebApplicationContext(request.getSession().getServletContext()).getBean("guvnorFormService");
     }
 
     private boolean notEmpty(String value) {

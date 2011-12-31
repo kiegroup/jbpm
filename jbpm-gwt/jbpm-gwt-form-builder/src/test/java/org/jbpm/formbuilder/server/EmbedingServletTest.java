@@ -398,12 +398,11 @@ public class EmbedingServletTest extends TestCase {
          return new EmbedingServlet() {
             private static final long serialVersionUID = 1L;
             @Override
-            protected FormDefinitionService createFormService(String usr, String pwd) {
+            protected FormDefinitionService createFormService(HttpServletRequest request, String usr, String pwd) {
                 return formService;
             }
             @Override
-            protected TaskDefinitionService createTaskService(String usr,
-                    String pwd) {
+            protected TaskDefinitionService createTaskService(HttpServletRequest request, String usr, String pwd) {
                 return taskService;
             }
         };

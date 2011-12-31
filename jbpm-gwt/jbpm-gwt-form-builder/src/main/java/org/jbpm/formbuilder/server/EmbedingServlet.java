@@ -59,8 +59,8 @@ public class EmbedingServlet extends HttpServlet {
         String profile = request.getParameter("profile");
         String usr = request.getParameter("usr");
         String pwd = request.getParameter("pwd");
-        TaskDefinitionService taskService = createTaskService(usr, pwd);
-        FormDefinitionService formService = createFormService(usr, pwd);
+        TaskDefinitionService taskService = createTaskService(request, usr, pwd);
+        FormDefinitionService formService = createFormService(request, usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         JsonObject json = new JsonObject();
         json.addProperty("embedded", profile);
@@ -95,8 +95,8 @@ public class EmbedingServlet extends HttpServlet {
         String profile = request.getParameter("profile");
         String usr = request.getParameter("usr");
         String pwd = request.getParameter("pwd");
-        TaskDefinitionService taskService = createTaskService(usr, pwd);
-        FormDefinitionService formService = createFormService(usr, pwd);
+        TaskDefinitionService taskService = createTaskService(request, usr, pwd);
+        FormDefinitionService formService = createFormService(request, usr, pwd);
         FormRepresentationEncoder encoder = FormEncodingFactory.getEncoder();
         JsonObject json = new JsonObject();
         json.addProperty("embedded", profile);
@@ -131,9 +131,9 @@ public class EmbedingServlet extends HttpServlet {
         }
     }
 
-    protected FormDefinitionService createFormService(String usr, String pwd) {
+    protected FormDefinitionService createFormService(HttpServletRequest request, String usr, String pwd) {
     	GuvnorFormDefinitionService service = (GuvnorFormDefinitionService) WebApplicationContextUtils.
-    		getWebApplicationContext(getServletContext()).getBean("guvnorFormService");
+    		getWebApplicationContext(request.getSession().getServletContext()).getBean("guvnorFormService");
     	if (usr != null && pwd != null) {
     		service.setUser(usr);
     		service.setPassword(pwd);
@@ -144,9 +144,9 @@ public class EmbedingServlet extends HttpServlet {
     	return service;
     }
 
-    protected TaskDefinitionService createTaskService(String usr, String pwd) {
+    protected TaskDefinitionService createTaskService(HttpServletRequest request, String usr, String pwd) {
     	GuvnorTaskDefinitionService service = (GuvnorTaskDefinitionService) WebApplicationContextUtils.
-			getWebApplicationContext(getServletContext()).getBean("guvnorTaskService");
+			getWebApplicationContext(request.getSession().getServletContext()).getBean("guvnorTaskService");
     	if (usr != null && pwd != null) {
     		service.setUser(usr);
     		service.setPassword(pwd);
