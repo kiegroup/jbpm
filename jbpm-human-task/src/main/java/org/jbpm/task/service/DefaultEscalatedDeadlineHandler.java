@@ -139,13 +139,7 @@ public class DefaultEscalatedDeadlineHandler
             // we won't impl constraints for now
             //escalation.getConstraints()
             String language = "en-UK";
-            for ( Notification notification : escalation.getNotifications() ) {
-                if ( notification.getNotificationType() == NotificationType.Email) {
-                    executeEmailNotification( (EmailNotification) notification, task, em );
-                }        
-            }
-
-
+            // run reassignment first to allow notification to be send to new potential owners
             if ( !escalation.getReassignments().isEmpty()) {
                 // get first and ignore the rest.
                 Reassignment reassignment = escalation.getReassignments().get( 0 );
@@ -154,7 +148,12 @@ public class DefaultEscalatedDeadlineHandler
                 List potentialOwners = new ArrayList( reassignment.getPotentialOwners() );
                 task.getPeopleAssignments().setPotentialOwners( potentialOwners );
                 em.getTransaction().commit();
-            }            
+            }       
+            for ( Notification notification : escalation.getNotifications() ) {
+                if ( notification.getNotificationType() == NotificationType.Email) {
+                    executeEmailNotification( (EmailNotification) notification, task, em );
+                }        
+            }
         }
         em.getTransaction().begin();
         deadline.setEscalated( true );
