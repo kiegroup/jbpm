@@ -18,11 +18,10 @@ package org.jbpm.formbuilder.client.menu;
 import org.jbpm.formapi.client.menu.FBMenuItem;
 
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
-import com.google.gwt.user.client.ui.IsWidget;
 
-public interface MenuView extends IsWidget {
+public interface MenuView {
 
-    void setDragController(PickupDragController dragController);
+    void startDropController(PickupDragController dragController);
 
     void addItem(String accordionName, FBMenuItem item);
 

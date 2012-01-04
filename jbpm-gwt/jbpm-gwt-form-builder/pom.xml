@@ -148,6 +148,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>com.google.gwt</groupId>
+      <artifactId>gwt-dev</artifactId>
+      <version>${gwt.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.googlecode.gwtmosaic</groupId>
       <artifactId>gwt-mosaic</artifactId>
       <version>0.4.0-rc4</version>

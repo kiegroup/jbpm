@@ -24,13 +24,10 @@ import org.jbpm.formbuilder.client.bus.MenuItemFromServerEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemFromServerHandler;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveEvent;
 import org.jbpm.formbuilder.client.bus.MenuItemRemoveHandler;
-import org.jbpm.formbuilder.client.command.DisposeDropController;
 import org.jbpm.formbuilder.client.menu.items.CustomMenuItem;
 
-import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Menu presenter. Handles the adding and
@@ -49,12 +46,7 @@ public class MenuPresenter {
         this.view = menuView;
         this.bus = CommonGlobals.getInstance().getEventBus();
         this.dragController = CommonGlobals.getInstance().getDragController();
-        this.dragController.registerDropController(new DisposeDropController(this.view.asWidget()));
-        this.view.setDragController(this.dragController);
-        
-        dragController.setBehaviorMultipleSelection(false);
-        dragController.setConstrainWidgetToBoundaryPanel(false);
-        dragController.addDragHandler(new DragHandlerAdapter());
+        this.view.startDropController(this.dragController);
 
         this.bus.addHandler(MenuItemAddedEvent.TYPE, new MenuItemAddedHandler() {
             @Override
@@ -94,9 +86,5 @@ public class MenuPresenter {
                 }
             }
         });
-    }
-
-    public Widget getView() {
-        return view.asWidget();
     }
 }

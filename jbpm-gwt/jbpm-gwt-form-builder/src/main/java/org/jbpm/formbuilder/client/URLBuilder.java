@@ -20,70 +20,70 @@ import com.google.gwt.http.client.URL;
 
 public class URLBuilder {
 
-    protected static String getMenuItemsURL(String contextPath) {
+    public static String getMenuItemsURL(String contextPath) {
         return getBaseUrl() + contextPath + "/menu/items/";
     }
 
-    protected static String getMenuOptionsURL(String contextPath) {
+    public static String getMenuOptionsURL(String contextPath) {
         return getBaseUrl() + contextPath + "/menu/options/";
     }
     
-    protected static String saveFormURL(String contextPath, String packageName) {
+    public static String saveFormURL(String contextPath, String packageName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).append("/form/definitions/package/").append(packageName).toString();
     }
 
-    protected static String saveFormItemURL(String contextPath, String packageName, String formItemName) {
+    public static String saveFormItemURL(String contextPath, String packageName, String formItemName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).append("/form/items/package/").
             append(packageName).append("/name/").append(encode(formItemName)).toString();
     }
     
-    protected static String deleteFormURL(String contextPath, String packageName, String formName) {
+    public static String deleteFormURL(String contextPath, String packageName, String formName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).append("/form/definitions/package/").
             append(packageName).append("/id/").append(formName).toString();
     }
 
-    protected static String deleteFormItemURL(String contextPath,
+    public static String deleteFormItemURL(String contextPath,
             String packageName, String formItemName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).append("/formItems/package/").
             append(packageName).append("/formItemName/").append(encode(formItemName)).toString();
     }
 
-    protected static String generateFormURL(String contextPath, String language) {
+    public static String generateFormURL(String contextPath, String language) {
         return new StringBuilder(getBaseUrl()).append(contextPath).append("/form/preview/lang/").append(language).toString();
     }
 
-    protected static String getIoAssociationsURL(String contextPath, String packageName) {
+    public static String getIoAssociationsURL(String contextPath, String packageName) {
         return getBaseUrl() + contextPath + "/io/package/" + packageName + "/";
     }
 
-    protected static String getIoAssociationURL(String contextPath, String pkgName, String processName, String taskName) {
+    public static String getIoAssociationURL(String contextPath, String pkgName, String processName, String taskName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).append("/io/package/").append(pkgName).
             append("/process/").append(encode(processName)).append("/task/").append(encode(taskName)).toString();
     }
 
-    protected static String getValidationsURL(String contextPath) {
+    public static String getValidationsURL(String contextPath) {
         return getBaseUrl() + contextPath + "/menu/validations/";
     }
     
-    protected static String getFormURL(String contextPath, String packageName, String formName) {
+    public static String getFormURL(String contextPath, String packageName, String formName) {
         return new StringBuilder(getFormsURL(contextPath, packageName)).append("/id/").append(encode(formName)).toString();
     }
     
-    protected static String getFormsURL(String contextPath, String packageName) {
+    public static String getFormsURL(String contextPath, String packageName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).
             append("/form/definitions/package/").append(packageName).toString();
     }
 
-    protected static String getRepresentationMappingsURL(String contextPath) {
+    public static String getRepresentationMappingsURL(String contextPath) {
         return getBaseUrl() + contextPath + "/menu/mappings";
     }
 
-    protected static String loadFormTemplateURL(String contextPath, String language) {
+    public static String loadFormTemplateURL(String contextPath, String language) {
         return new StringBuilder(getBaseUrl()).append(contextPath).
             append("/form/template/lang/").append(encode(language)).toString();
     }
 
-    protected static String uploadFileURL(String contextPath, String packageName) {
+    public static String uploadFileURL(String contextPath, String packageName) {
         return new StringBuilder(getBaseUrl()).append(contextPath).
             append("/files/package/").append(packageName).toString();
     }

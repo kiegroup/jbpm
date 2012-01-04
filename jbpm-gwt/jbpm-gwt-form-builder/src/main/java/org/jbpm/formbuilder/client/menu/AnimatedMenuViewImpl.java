@@ -24,7 +24,9 @@ import org.gwt.mosaic.ui.client.layout.BoxLayout;
 import org.gwt.mosaic.ui.client.layout.BoxLayoutData;
 import org.gwt.mosaic.ui.client.layout.LayoutPanel;
 import org.jbpm.formapi.client.menu.FBMenuItem;
+import org.jbpm.formbuilder.client.command.DisposeDropController;
 
+import com.allen_sauer.gwt.dnd.client.DragHandlerAdapter;
 import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.StackPanel;
@@ -60,8 +62,13 @@ public class AnimatedMenuViewImpl extends ScrollPanel implements MenuView {
     }
     
     @Override
-    public void setDragController(PickupDragController dragController) {
+    public void startDropController(PickupDragController dragController) {
         this.dragController = dragController;
+        this.dragController.registerDropController(new DisposeDropController(this));
+        
+        this.dragController.setBehaviorMultipleSelection(false);
+        this.dragController.setConstrainWidgetToBoundaryPanel(false);
+        this.dragController.addDragHandler(new DragHandlerAdapter());
     }
 
     @Override
