@@ -177,7 +177,7 @@ public class StartEventHandler extends AbstractNodeHandler {
 			org.w3c.dom.Node ssubNode = subNode.getFirstChild();
 			String from = ssubNode.getTextContent();
 			String to = ssubNode.getNextSibling().getTextContent();
-			Assignment assignment = new Assignment(null, from, to);
+			Assignment assignment = new Assignment(language, from, to);
 			dialectBuilder.getAssignmentBuilder().build(null, assignment,
 					"message", target, null, false);
 			AssignmentAction assignmentAction = (AssignmentAction) assignment
