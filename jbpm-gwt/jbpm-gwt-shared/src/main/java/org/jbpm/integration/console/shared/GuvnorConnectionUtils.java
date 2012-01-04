@@ -318,11 +318,11 @@ public class GuvnorConnectionUtils {
     }
     
     public String getGuvnorConnectTimeout() {
-    	return isEmpty(properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY)) ? "" : properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY).trim();
+    	return isEmpty(properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY).trim();
     }
     
     public String getGuvnorReadTimeout() {
-    	return isEmpty(properties.getProperty(GUVNOR_READTIMEOUT_KEY)) ? "" : properties.getProperty(GUVNOR_READTIMEOUT_KEY).trim();
+    	return isEmpty(properties.getProperty(GUVNOR_READTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_READTIMEOUT_KEY).trim();
     }
     
     protected Properties getGuvnorProperties() {
