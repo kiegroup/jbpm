@@ -11,22 +11,23 @@ import org.drools.spi.ProcessContext;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.instance.impl.AssignmentAction;
 
+@SuppressWarnings("serial")
 public class StartProcessEventListener implements EventListener, Serializable {
 	
     private String              processId;
     private List<EventFilter>   eventFilters;
     private Map<String, String> inMappings;
     private final List<AssignmentAction> actions;
-    private transient final InternalProcessRuntime processInstance;
+    private transient final InternalProcessRuntime _rt;
 
     public StartProcessEventListener(String processId,
                                      List<EventFilter> eventFilters,
-                                     Map<String, String> inMappings, List<AssignmentAction> actions, ProcessRuntimeImpl processInstance) {
+                                     Map<String, String> inMappings, List<AssignmentAction> actions, ProcessRuntimeImpl rt) {
         this.processId = processId;
         this.eventFilters = eventFilters;
         this.inMappings = inMappings;
         this.actions = actions;
-        this.processInstance = processInstance;
+        this._rt = rt;
     }
 
     public String[] getEventTypes() {
@@ -46,15 +47,15 @@ public class StartProcessEventListener implements EventListener, Serializable {
             params = new HashMap<String, Object>();
             for ( Map.Entry<String, String> entry : inMappings.entrySet() ) {
                 if ( "event".equals( entry.getValue() ) ) {
-//                    params.put( entry.getKey(),
-//                                event );
+                    params.put( entry.getKey(),
+                                event );
                 } else {
                     params.put( entry.getKey(),
                                 entry.getValue() );
                 }
             }
         }
-		org.jbpm.process.instance.ProcessInstance startProcess = (org.jbpm.process.instance.ProcessInstance) processInstance
+		org.jbpm.process.instance.ProcessInstance startProcess = (org.jbpm.process.instance.ProcessInstance) _rt
 				.startProcess(processId, params);
 
 		InternalKnowledgeRuntime knowledgeRuntime = startProcess
