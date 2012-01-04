@@ -55,15 +55,15 @@ public class StartProcessEventListener implements EventListener, Serializable {
                 }
             }
         }
-		org.jbpm.process.instance.ProcessInstance startProcess = (org.jbpm.process.instance.ProcessInstance) _rt
+		org.jbpm.process.instance.ProcessInstance instance = (org.jbpm.process.instance.ProcessInstance) _rt
 				.startProcess(processId, params);
 
-		InternalKnowledgeRuntime knowledgeRuntime = startProcess
+		InternalKnowledgeRuntime knowledgeRuntime = instance
 				.getKnowledgeRuntime();
 
 		ProcessContext context = new ProcessContext(knowledgeRuntime);
 
-		context.setProcessInstance(startProcess);
+		context.setProcessInstance(instance);
 
 		Map<String, Object> metadata = null;
 		for (AssignmentAction assignment : actions) {
