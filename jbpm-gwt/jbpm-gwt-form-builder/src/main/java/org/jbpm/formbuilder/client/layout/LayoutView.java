@@ -17,6 +17,7 @@ package org.jbpm.formbuilder.client.layout;
 
 import org.jbpm.formbuilder.client.form.FBForm;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.IsWidget;
 
@@ -24,5 +25,7 @@ public interface LayoutView extends IsWidget {
 
     FBForm getFormDisplay();
 
+    void startDropController(PickupDragController controller, IsWidget widget);
+    
     HasWidgets getUnderlyingLayout(Integer x, Integer y);
 }

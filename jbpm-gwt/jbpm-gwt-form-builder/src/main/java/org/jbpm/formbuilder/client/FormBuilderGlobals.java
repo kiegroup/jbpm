@@ -16,6 +16,7 @@
 package org.jbpm.formbuilder.client;
 
 import org.jbpm.formbuilder.client.messages.I18NConstants;
+import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 /**
  * Base singleton to obtain global variables, like service callers and event buses
@@ -29,6 +30,7 @@ public class FormBuilderGlobals {
     
     private I18NConstants i18n;
     private FormBuilderService service;
+    private FormBuilderResources resources = FormBuilderResources.INSTANCE;
     
     private FormBuilderGlobals() {
     }
@@ -52,4 +54,12 @@ public class FormBuilderGlobals {
     public FormBuilderService getService() {
         return service;
     }
+
+    public void registerResources(FormBuilderResources resources) {
+    	this.resources = resources;
+    }
+    
+	public FormBuilderResources getResources() {
+		return resources;
+	}
 }

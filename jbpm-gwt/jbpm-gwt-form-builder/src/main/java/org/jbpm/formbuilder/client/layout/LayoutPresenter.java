@@ -45,7 +45,6 @@ import org.jbpm.formbuilder.client.bus.ui.TaskSelectedEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskSelectedHandler;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewEvent;
 import org.jbpm.formbuilder.client.bus.ui.UpdateFormViewHandler;
-import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 import org.jbpm.formbuilder.shared.task.TaskPropertyRef;
@@ -71,15 +70,15 @@ public class LayoutPresenter {
     private final LayoutView layoutView;
     
     public LayoutPresenter(LayoutView view) {
+    	final PickupDragController dragController = CommonGlobals.getInstance().getDragController();
         this.layoutView = view;
-        final PickupDragController dragController = CommonGlobals.getInstance().getDragController();
-        dragController.registerDropController(new DropFormItemController(layoutView.asWidget(), layoutView));
+        this.layoutView.startDropController(dragController, layoutView);
         
         this.bus.addHandler(RegisterLayoutEvent.TYPE, new RegisterLayoutHandler() {
             @Override
             public void onEvent(RegisterLayoutEvent event) {
                 LayoutFormItem item = event.getLayout();
-                dragController.registerDropController(new DropFormItemController(item, layoutView));
+                layoutView.startDropController(dragController, item);
             }
         });
         
@@ -113,7 +112,7 @@ public class LayoutPresenter {
                 dataSnapshot.put("newAction", event.getAction());
                 dataSnapshot.put("newProcessId", event.getProcessId());
                 dataSnapshot.put("newTaskId", event.getTaskId());
-                dataSnapshot.put("newMehtod", event.getMethod());
+                dataSnapshot.put("newMethod", event.getMethod());
                 dataSnapshot.put("newEnctype", event.getEnctype());
                 bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
                     @Override

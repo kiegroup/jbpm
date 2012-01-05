@@ -18,6 +18,8 @@ package org.jbpm.formbuilder.client.toolbar;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.formapi.common.panels.ConfirmDialog;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -90,6 +92,12 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
         }
     }
 
+    public void showDialog(String confirmText, ClickHandler okButtonHandler) {
+    	ConfirmDialog dialog = new ConfirmDialog(confirmText);
+    	dialog.addOkButtonHandler(okButtonHandler);
+    	dialog.show();
+    }
+    
     private void saveMessageRef(String name, ToolRegistration reg) {
         if (name != null && reg != null) {
             messages.put(name, reg);

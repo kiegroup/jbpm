@@ -13,7 +13,6 @@ import com.google.gwt.event.shared.EventBus;
 
 public class RoleUtils {
 
-	private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
 	private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 	private final EventBus bus = CommonGlobals.getInstance().getEventBus();
 	private final List<String> roles = new ArrayList<String>();
@@ -25,13 +24,21 @@ public class RoleUtils {
 	}
 	
 	private RoleUtils() {
-        try {
-	        server.getCurrentRoles(new FormBuilderService.RolesResponseHandler() {
-				@Override
-				public void onResponse(List<String> responseRoles) {
-					roles.addAll(responseRoles);
-				}
-			});
+        reload();
+	}
+
+	public void reload() {
+		try {
+			roles.clear();
+			FormBuilderService server = FormBuilderGlobals.getInstance().getService();
+			if (server != null) {
+				server.getCurrentRoles(new FormBuilderService.RolesResponseHandler() {
+					@Override
+					public void onResponse(List<String> responseRoles) {
+						roles.addAll(responseRoles);
+					}
+				});
+			}
         } catch (FormBuilderException e) {
         	bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.RolesNotRead(), e));
         }

@@ -15,8 +15,10 @@
  */
 package org.jbpm.formbuilder.client.toolbar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jbpm.formapi.client.CommonGlobals;
-import org.jbpm.formapi.common.panels.ConfirmDialog;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationEvent;
 import org.jbpm.formbuilder.client.bus.GetFormRepresentationResponseEvent;
@@ -47,32 +49,34 @@ public class ToolBarPresenter {
     private final ToolBarView view;
     private final EventBus bus = CommonGlobals.getInstance().getEventBus();
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+    private final FormBuilderResources resources = FormBuilderGlobals.getInstance().getResources();
     private final UndoRedoManager mgr = UndoRedoManager.getInstance();
 
     private final ToolRegistration saveRef;
+    private final List<ToolRegistration> messageRefs = new ArrayList<ToolRegistration>();
     
     public ToolBarPresenter(ToolBarView toolBarView) {
         this.view = toolBarView;
 
-        this.saveRef = this.view.addButton(FormBuilderResources.INSTANCE.saveButton(), i18n.SaveChangesButton(), new ClickHandler() {
+        this.saveRef = this.view.addButton(resources.saveButton(), i18n.SaveChangesButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(SAVE_TYPE));
             }
         });
-        this.view.addButton(FormBuilderResources.INSTANCE.refreshButton(), i18n.RefreshFromServerButton(), new ClickHandler() {
+        this.view.addButton(resources.refreshButton(), i18n.RefreshFromServerButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 bus.fireEvent(new GetFormRepresentationEvent(LOAD_TYPE));
             }
         });
-        this.view.addButton(FormBuilderResources.INSTANCE.undoButton(), i18n.UndoButton(), new ClickHandler() {
+        this.view.addButton(resources.undoButton(), i18n.UndoButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 mgr.undo();
             }
         });
-        this.view.addButton(FormBuilderResources.INSTANCE.redoButton(), i18n.RedoButton(), new ClickHandler() {
+        this.view.addButton(resources.redoButton(), i18n.RedoButton(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 mgr.redo();
@@ -83,8 +87,7 @@ public class ToolBarPresenter {
             @Override
             public void onEvent(final GetFormRepresentationResponseEvent event) {
                 if (LOAD_TYPE.equals(event.getSaveType())) {
-                    final ConfirmDialog dialog = new ConfirmDialog(i18n.RefreshButtonWarning());
-                    dialog.addOkButtonHandler(new ClickHandler() {
+                	view.showDialog(i18n.RefreshButtonWarning(), new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent clickEvent) {
                             if (LOAD_TYPE.equals(event.getSaveType())) {
@@ -94,7 +97,6 @@ public class ToolBarPresenter {
                             }
                         }
                     });
-                    dialog.show();
                 }
             }
         });
@@ -109,10 +111,14 @@ public class ToolBarPresenter {
         bus.addHandler(TaskSelectedEvent.TYPE, new TaskSelectedHandler() {
             @Override
             public void onSelectedTask(TaskSelectedEvent event) {
-                if (event.getSelectedTask() != null) {
-                    view.addMessage(i18n.PackageLabel(), event.getSelectedTask().getPackageName());
-                    view.addMessage(i18n.ProcessLabel(), event.getSelectedTask().getProcessId());
-                    view.addMessage(i18n.TaskNameLabel(), event.getSelectedTask().getTaskName());
+            	if (event.getSelectedTask() == null) {
+            		for (ToolRegistration messageRef : messageRefs) {
+            			messageRef.remove();
+            		}
+            	} else {
+                    messageRefs.add(view.addMessage(i18n.PackageLabel(), event.getSelectedTask().getPackageName()));
+                    messageRefs.add(view.addMessage(i18n.ProcessLabel(), event.getSelectedTask().getProcessId()));
+                    messageRefs.add(view.addMessage(i18n.TaskNameLabel(), event.getSelectedTask().getTaskName()));
                 }
             }
         });

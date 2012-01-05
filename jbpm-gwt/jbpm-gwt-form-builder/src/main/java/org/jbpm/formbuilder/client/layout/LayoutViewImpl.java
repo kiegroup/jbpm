@@ -16,9 +16,12 @@
 package org.jbpm.formbuilder.client.layout;
 
 import org.jbpm.formapi.client.form.LayoutFormItem;
+import org.jbpm.formbuilder.client.command.DropFormItemController;
 import org.jbpm.formbuilder.client.form.FBForm;
 
+import com.allen_sauer.gwt.dnd.client.PickupDragController;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -38,6 +41,11 @@ public class LayoutViewImpl extends ScrollPanel implements LayoutView {
         new LayoutPresenter(this);
     }
 
+    @Override
+    public void startDropController(PickupDragController controller, IsWidget layout) {
+    	controller.registerDropController(new DropFormItemController(layout.asWidget(), this));
+    }
+    
     @Override
     public HasWidgets getUnderlyingLayout(Integer x, Integer y) {
         for (Widget widget : formDisplay) {

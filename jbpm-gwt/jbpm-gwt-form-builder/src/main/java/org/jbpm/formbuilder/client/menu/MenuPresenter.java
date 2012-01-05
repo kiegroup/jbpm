@@ -53,14 +53,13 @@ public class MenuPresenter {
             public void onEvent(MenuItemAddedEvent event) {
             	String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
-            	if (RoleUtils.getInstance().hasOnlyUserPrivileges()) {
+                if (RoleUtils.getInstance().hasDesignPrivileges()) {
+            		view.addItem(group, item);
+            	} else if (RoleUtils.getInstance().hasOnlyUserPrivileges()) {
             		if (item instanceof CustomMenuItem) {
             			view.addItem(group, item);
             		}
             	} 
-            	if (RoleUtils.getInstance().hasDesignPrivileges()) {
-            		view.addItem(group, item);
-            	}
             }
         });
         this.bus.addHandler(MenuItemRemoveEvent.TYPE, new MenuItemRemoveHandler() {
@@ -76,13 +75,12 @@ public class MenuPresenter {
             public void onEvent(MenuItemFromServerEvent event) {
                 String group = event.getGroupName();
                 FBMenuItem item = event.getMenuItem();
-                if (RoleUtils.getInstance().hasOnlyUserPrivileges()) {
+                if (RoleUtils.getInstance().hasDesignPrivileges()) {
+                	view.addItem(group, item);
+                } else if (RoleUtils.getInstance().hasOnlyUserPrivileges()) {
                 	if (item instanceof CustomMenuItem) {
                 		view.addItem(group, item);
                 	}
-                }
-                if (RoleUtils.getInstance().hasDesignPrivileges()) {
-                	view.addItem(group, item);
                 }
             }
         });

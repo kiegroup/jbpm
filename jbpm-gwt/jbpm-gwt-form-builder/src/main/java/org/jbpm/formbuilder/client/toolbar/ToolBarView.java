@@ -24,4 +24,5 @@ public interface ToolBarView {
 
     ToolRegistration addMessage(String label, String value);
 
+    void showDialog(String confirmText, ClickHandler okButtonHandler);
 }
