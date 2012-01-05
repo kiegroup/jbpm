@@ -58,6 +58,10 @@ public class DefaultSignalManager implements SignalManager {
 		eventListeners.add(eventListener);
 	}
 	
+	public void removeAll() {
+		processEventListeners = new HashMap<String, List<EventListener>>();		
+	}
+	
 	public void removeEventListener(String type, EventListener eventListener) {
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);

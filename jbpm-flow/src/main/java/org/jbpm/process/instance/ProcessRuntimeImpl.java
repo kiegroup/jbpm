@@ -220,7 +220,8 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         kruntime.getKnowledgeBase().addEventListener(knowledgeBaseListener);
     }
     
-    private void initProcessEventListener(Process process) {
+    @SuppressWarnings({ "deprecation", "unchecked" })
+	private void initProcessEventListener(Process process) {
     	if ( process instanceof RuleFlowProcess ) {
             Node startNode = ((RuleFlowProcess) process).getStart();
             if (startNode != null && startNode instanceof StartNode) {
