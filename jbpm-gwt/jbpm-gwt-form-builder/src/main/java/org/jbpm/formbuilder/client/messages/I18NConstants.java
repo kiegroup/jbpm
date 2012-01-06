@@ -284,6 +284,15 @@ public interface I18NConstants extends Messages {
     String PopulateComboBoxScriptHelperAddHeader();
     String PopulateComboBoxScriptHelperCheckBoxId();
     String PopulateComboBoxScriptHelperName();
+    String ToggleScriptHelperIdField();
+    String ToggleScriptHelperActionOnEvent();
+    String ToggleScriptHelperHidingStrategy();
+    String ToggleScriptHelperToggleAction();
+    String ToggleScriptHelperShowAction();
+    String ToggleScriptHelperHideAction();
+    String ToggleScriptHelperHiddenStrategy();
+    String ToggleScriptHelperCollapseStrategy();
+    String ToggleScriptHelperName();
     String NoHeadersLoadedLabel();
     String ScriptHelperNullEditor();
 	String RolesNotRead();
