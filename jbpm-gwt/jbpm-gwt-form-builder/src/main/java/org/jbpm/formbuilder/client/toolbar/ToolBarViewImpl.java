@@ -15,9 +15,6 @@
  */
 package org.jbpm.formbuilder.client.toolbar;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.jbpm.formapi.common.panels.ConfirmDialog;
 
 import com.google.gwt.dom.client.Style;
@@ -36,8 +33,6 @@ import com.google.gwt.user.client.ui.Image;
 public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
 
     private HorizontalPanel hPanel = new HorizontalPanel();
-    
-    private Map<String, ToolRegistration> messages = new HashMap<String, ToolRegistration>();
     
     public ToolBarViewImpl() {
         setSize("100%", "100%");
@@ -70,7 +65,6 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
 
     @Override
     public ToolRegistration addMessage(String name, String value) {
-        clearOldMessageRef(name);
         if (value != null && !"".equals(value)) {
             final HTML label = new HTML("<strong>" + name + ":</strong> " + value);
             hPanel.add(label);
@@ -82,7 +76,6 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
                     hPanel.remove(label);
                 }
             };
-            saveMessageRef(name, reg);
             return reg;
         } else {
             return new ToolRegistration() {
@@ -96,20 +89,5 @@ public class ToolBarViewImpl extends AbsolutePanel implements ToolBarView {
     	ConfirmDialog dialog = new ConfirmDialog(confirmText);
     	dialog.addOkButtonHandler(okButtonHandler);
     	dialog.show();
-    }
-    
-    private void saveMessageRef(String name, ToolRegistration reg) {
-        if (name != null && reg != null) {
-            messages.put(name, reg);
-        }
-    }
-    
-    protected void clearOldMessageRef(String name) {
-        if (name != null) {
-            ToolRegistration oldLabelRef = messages.remove(name);
-            if (oldLabelRef != null) {
-                oldLabelRef.remove();
-            }
-        }
     }
 }

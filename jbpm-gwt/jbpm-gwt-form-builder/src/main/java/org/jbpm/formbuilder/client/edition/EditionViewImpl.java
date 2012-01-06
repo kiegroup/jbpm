@@ -30,6 +30,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -114,7 +115,10 @@ public class EditionViewImpl extends ScrollPanel implements EditionView {
     private Map<String, Object> asPropertiesMap(Grid grid) {
         Map<String, Object> map = new HashMap<String, Object>();
         for (int row = 1; row < grid.getRowCount() - 1; row++) {
-            map.put(((Label) grid.getWidget(row, 0)).getText(), ((TextBox) grid.getWidget(row, 1)).getValue());
+            map.put(
+            	((Label) grid.getWidget(row, 0)).getText(), 
+            	((HasValue<?>) grid.getWidget(row, 1)).getValue()
+            );
         }
         return map;
     }

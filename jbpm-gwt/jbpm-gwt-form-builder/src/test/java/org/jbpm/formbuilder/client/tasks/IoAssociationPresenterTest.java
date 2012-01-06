@@ -8,8 +8,10 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.common.handler.RightClickHandler;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
+import org.jbpm.formbuilder.client.MockHandlerRegistration;
 import org.jbpm.formbuilder.client.bus.ExistingTasksResponseEvent;
 import org.jbpm.formbuilder.client.bus.ui.EmbededIOReferenceEvent;
 import org.jbpm.formbuilder.client.bus.ui.TaskNameFilterEvent;
@@ -155,5 +157,31 @@ public class IoAssociationPresenterTest extends TestCase {
 		new IoAssociationPresenter(view);
 		bus.fireEvent(new EmbededIOReferenceEvent(null, "jbpm"));
 		EasyMock.verify(view, service, i18n, filterView, advancedView);
+	}
+	
+	public void testNewTaskRow() throws Exception {
+		TaskRef task = new TaskRef();
+		TaskRow row = EasyMock.createMock(TaskRow.class);
+		EasyMock.expect(row.addRightClickHandler(EasyMock.isA(RightClickHandler.class))).
+			andReturn(new MockHandlerRegistration()).once();
+		EasyMock.expect(view.createTaskRow(EasyMock.same(task), EasyMock.eq(false))).
+			andReturn(row);
+		EasyMock.replay(view, service, i18n, filterView, advancedView, row);
+		IoAssociationPresenter presenter = new IoAssociationPresenter(view);
+		TaskRow row2 = presenter.newTaskRow(task, false);
+		EasyMock.verify(view, service, i18n, filterView, advancedView, row);
+		assertNotNull("row2 shouldn't be null", row2);
+		assertSame("row and row2 should be the same", row, row2);
+	}
+	
+	public void testAddQuickFormHandling() throws Exception {
+		TaskRow row = EasyMock.createMock(TaskRow.class);
+		EasyMock.expect(row.addRightClickHandler(EasyMock.isA(RightClickHandler.class))).
+			andReturn(new MockHandlerRegistration()).once();
+		
+		EasyMock.replay(view, service, i18n, filterView, advancedView, row);
+		IoAssociationPresenter presenter = new IoAssociationPresenter(view);
+		presenter.addQuickFormHandling(row);
+		EasyMock.verify(view, service, i18n, filterView, advancedView, row);
 	}
 }

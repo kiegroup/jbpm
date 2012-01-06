@@ -89,7 +89,7 @@ public class IoAssociationPresenter implements IoAssociationView.Presenter {
     
     @Override
     public TaskRow newTaskRow(final TaskRef task, boolean even) {
-        TaskRow row = new TaskRow(task, even);
+        TaskRow row = view.createTaskRow(task, even);
         row.addRightClickHandler(new RightClickHandler() {
             @Override
             public void onRightClick(RightClickEvent event) {

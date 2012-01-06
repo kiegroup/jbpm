@@ -37,4 +37,5 @@ public interface IoAssociationView {
 
     void disableSearch();
 
+	TaskRow createTaskRow(TaskRef task, boolean even);
 }

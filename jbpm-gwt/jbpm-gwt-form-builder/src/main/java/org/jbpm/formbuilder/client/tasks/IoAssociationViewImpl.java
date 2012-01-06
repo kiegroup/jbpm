@@ -76,4 +76,9 @@ public class IoAssociationViewImpl extends AbsolutePanel implements IoAssociatio
 	public SearchFilterView getSearch() {
 		return filterView;
 	}
+    
+    @Override
+    public TaskRow createTaskRow(TaskRef task, boolean even) {
+    	return new TaskRow(task, even);
+    }
 }
