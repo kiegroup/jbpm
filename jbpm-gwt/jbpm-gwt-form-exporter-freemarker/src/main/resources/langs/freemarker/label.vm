@@ -1,6 +1,7 @@
 #set ($classParam = ${language.getParam("class", $item.cssName)})
 #set ($width = ${language.getStyleParam("width", $item.width)})
 #set ($height = ${language.getStyleParam("height", $item.height)})
+#set ($idParam = ${language.getStyleParam("id", $item.id)})
 #set ($sytle = "$width$height")
 <#assign value="">
 <\#if $locale??>
@@ -57,4 +58,4 @@
       <\#if $__val> $valueFormatted <\#else> $labelFormatted </\#if>
 </\#macro>
 #set ($oneventxParam = ${language.getOnEventParams($item)})
-<span #if($oneventxParam)$oneventxParam#end#if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nlabel label="#if($value)$value#end" /></span>
+<span #if($oneventxParam)$oneventxParam#end#if($idParam)$idParam#end#if($classParam)$classParam#end#if($styleParam)$styleParam#end><@printi18nlabel label="#if($value)$value#end" /></span>

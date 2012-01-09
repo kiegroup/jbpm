@@ -15,24 +15,13 @@
  */
 package org.jbpm.formbuilder.client.effect.scripthandlers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formapi.shared.api.FBScript;
-import org.jbpm.formapi.shared.api.FBScriptHelper;
-import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.effect.scriptviews.PopulateComboBoxScriptHelperView;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -40,95 +29,40 @@ import com.gwtent.reflection.client.Reflectable;
  * 
  */
 @Reflectable
-public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptHelper {
+public class PopulateComboBoxScriptHelper extends AbstractScriptHelper {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
     
-    private final TextBox url = new TextBox();
-    private final ListBox method = new ListBox();
-    private final ListBox resultStatus = new ListBox();
-    private final ListBox responseLanguage = new ListBox();
-    private final TextBox resultXPath = new TextBox();
-    private final TextBox subPathForKeys = new TextBox();
-    private final TextBox subPathForValues = new TextBox();
-    private final TextBox checkBoxId = new TextBox();
+    private String url = "";
+    private String method = "";
+    private String resultStatus = "";
+    private String responseLanguage = "";
+    private String resultXPath = "";
+    private String subPathForKeys = "";
+    private String subPathForValues = "";
+    private String checkBoxId = "";
     
-    private final HeaderViewPanel headerViewPanel = new HeaderViewPanel();
+    private Map<String, String> headers = new HashMap<String, String>();
+
+	private PopulateComboBoxScriptHelperView view;
 
     public PopulateComboBoxScriptHelper() {
         super();
-        setWidget(0, 0, new Label(i18n.PopulateComboBoxScriptHelperUrl()));
-        setWidget(0, 1, url);
-        setWidget(1, 0, new Label(i18n.PopulateComboBoxScriptHelperMethod()));
-        populateMethodList();
-        setWidget(1, 1, method);
-        setWidget(2, 0, new Label(i18n.PopulateComboBoxScriptHelperResultStatus()));
-        populateResultStatusList();
-        setWidget(2, 1, resultStatus);
-        setWidget(3, 0, new Label(i18n.PopulateComboBoxScriptHelperResponseLanguage()));
-        populateResponseLanguageList();
-        setWidget(3, 1, responseLanguage);
-        setWidget(4, 0, new Label(i18n.PopulateComboBoxScriptHelperResultPath()));
-        setWidget(4, 1, resultXPath);
-        setWidget(5, 0, new Label(i18n.PopulateComboBoxScriptHelperSubPathForKeys()));
-        setWidget(5, 1, subPathForKeys);
-        setWidget(6, 0, new Label(i18n.PopulateComboBoxScriptHelperSubPathForValues()));
-        setWidget(6, 1, subPathForValues);
-        setWidget(7, 0, new Label(i18n.PopulateComboBoxScriptHelperSendHeaders()));
-        setWidget(7, 1, new Button(i18n.PopulateComboBoxScriptHelperAddHeader(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                headerViewPanel.addHeaderRow("", "");
-            }
-        }));
-        setWidget(8, 0, headerViewPanel);
-        getFlexCellFormatter().setColSpan(8, 0, 2);
-        setWidget(9, 0, new Label(i18n.PopulateComboBoxScriptHelperCheckBoxId()));
-        setWidget(9, 1, checkBoxId);
-    }
-    
-    
-    private void populateResponseLanguageList() {
-        responseLanguage.addItem("xml");
-        responseLanguage.addItem("json");
-    }
-    
-    private void populateResultStatusList() {
-        resultStatus.addItem("200 - OK", "200");
-        resultStatus.addItem("201 - Created", "201");
-        resultStatus.addItem("404 - Not found", "404");
-        resultStatus.addItem("500 - Server error", "500");
-    }
-
-    private void populateMethodList() {
-        method.addItem("GET");
-        method.addItem("POST");
-        method.addItem("PUT");
-        method.addItem("DELETE");
-    }
-    
-    @Override
-    public void setScript(FBScript script) {
-        List<FBScriptHelper> helpers = script.getHelpers();
-        if (helpers == null) {
-            helpers = new ArrayList<FBScriptHelper>();
-        }
-        if (!helpers.contains(this)) {
-            helpers.add(this);
-        }
-        script.setHelpers(helpers);
     }
     
     @Override
     public Map<String, Object> getDataMap() {
-        String urlValue = this.url.getValue();
-        String methodValue = this.method.getValue(this.method.getSelectedIndex());
-        String resultStatusValue = this.method.getValue(this.resultStatus.getSelectedIndex());
-        String resultPathValue = this.resultXPath.getValue();
-        String subPathForKeysValue = this.subPathForKeys.getValue();
-        String subPathForValuesValue = this.subPathForValues.getValue();
-        String checkBoxIdValue = this.checkBoxId.getValue();
-        String responseLanguageValue = this.responseLanguage.getValue(this.responseLanguage.getSelectedIndex());
+    	if (this.view != null) {
+    		this.view.writeDataTo(this);
+    	}
+        String urlValue = this.url;
+        String methodValue = this.method;
+        String resultStatusValue = this.resultStatus;
+        String resultPathValue = this.resultXPath;
+        String subPathForKeysValue = this.subPathForKeys;
+        String subPathForValuesValue = this.subPathForValues;
+        String checkBoxIdValue = this.checkBoxId;
+        String responseLanguageValue = this.responseLanguage;
         
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("@className", RestServiceScriptHelper.class.getName());
@@ -141,7 +75,7 @@ public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptH
         map.put("checkBoxIdValue", checkBoxIdValue);
         map.put("responseLanguageValue", responseLanguageValue);
         Map<String, Object> headersMap = new HashMap<String, Object>();
-        for (Map.Entry<String, String> entry : headerViewPanel.getHeaders()) {
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
             headersMap.put(entry.getKey(), entry.getValue());
         }
         map.put("headers", headersMap);
@@ -149,7 +83,7 @@ public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptH
     }
 
     @Override
-    public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
+    public void setDataMap(Map<String, Object> dataMap) {
         String urlValue = (String) dataMap.get("urlValue");
         if (urlValue == null) urlValue = "";
         String methodValue = (String) dataMap.get("methodValue");
@@ -169,83 +103,74 @@ public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptH
         @SuppressWarnings("unchecked")
         Map<String, Object> headerMap = (Map<String, Object>) dataMap.get("headers"); 
 
-        this.url.setValue(urlValue);
-        for (int index = 0; index < this.method.getItemCount(); index++) {
-            if (this.method.getValue(index).equals(methodValue)) {
-                this.method.setSelectedIndex(index);
-                break;
-            }
-        }
-        for (int index = 0; index < this.resultStatus.getItemCount(); index++) {
-            if (this.resultStatus.getValue(index).equals(resultStatusValue)) {
-                this.resultStatus.setSelectedIndex(index);
-                break;
-            }
-        }
-        this.resultXPath.setValue(resultPathValue);
-        for (int index = 0; index < this.responseLanguage.getItemCount(); index++) {
-            if (this.responseLanguage.getValue(index).equals(responseLanguageValue)) {
-                this.responseLanguage.setSelectedIndex(index);
-                break;
-            }
-        }
-        headerViewPanel.clear();
+        this.url = urlValue;
+        this.method = methodValue;
+        this.resultStatus = resultStatusValue;
+        this.resultXPath = resultPathValue;
+        this.responseLanguage = responseLanguageValue;
+        this.headers.clear();
         if (headerMap != null) {
             for (Map.Entry<String, Object> entry : headerMap.entrySet()) {
-                headerViewPanel.addHeaderRow(entry.getKey(), (String) entry.getValue());
+                headers.put(entry.getKey(), (String) entry.getValue());
             }
         }
-        this.subPathForKeys.setValue(subPathForKeysValue);
-        this.subPathForValues.setValue(subPathForValuesValue);
-        this.checkBoxId.setValue(checkBoxIdValue);
+        this.subPathForKeys = subPathForKeysValue;
+        this.subPathForValues = subPathForValuesValue;
+        this.checkBoxId = checkBoxIdValue;
+        if (view != null) {
+        	view.readDataFrom(this);
+        }
     }
 
     @Override
     public String asScriptContent() {
         long id = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder();
-        sb.append("var checkBoxRef" + id + " = document.getElementById('" + checkBoxId.getValue() + "');\n");
-        sb.append("var url" + id + " = \"" + url.getValue() + "\";\n");
-        sb.append("var method" + id + " = \"" + method.getValue(method.getSelectedIndex()) + "\";\n");
-        sb.append("var xmlhttp" + id + ";\n");
-        sb.append("if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari\n");
-        sb.append("   xmlhttp" + id + "=new XMLHttpRequest();\n");
-        sb.append("} else {// code for IE6, IE5\n");
-        sb.append("   xmlhttp" + id + "=new ActiveXObject(\"Microsoft.XMLHTTP\");\n");
-        sb.append("}\n");
-        sb.append("xmlhttp" + id + ".onreadystatechange=function() {\n");
-        sb.append("   if (xmlhttp" + id + ".readyState==4 && xmlhttp" + id + ".status==" + resultStatus.getValue(resultStatus.getSelectedIndex()) + ") {\n");  
-        sb.append("      var xmlDoc" + id + " = null;\n");
-        sb.append("      if (window.ActiveXObject) { // code for IE\n");
-        sb.append("         xmlDoc" + id + "=new ActiveXObject(\"Microsoft.XMLDOM\");\n");
-        sb.append("         xmlDoc" + id + ".write(xmlhttp" + id + ".responseText);\n");
-        sb.append("      } else if (document.implementation && document.implementation.createDocument) { // code for Mozilla, Firefox, Opera, etc.\n");
-        sb.append("         xmlDoc" + id + "=document.implementation.createDocument(\"\",\"\",null);\n");
-        sb.append("         xmlDoc" + id + ".write(xmlhttp" + id + ".responseText);\n");
-        sb.append("      } else {\n");
-        sb.append("         alert('Your browser cannot handle this script');\n");
-        sb.append("      }\n");
-        sb.append("      var xmlNodeList" + id + " = xmlDoc" + id + ".selectNodes(\"" + resultXPath.getValue() + "\");\n");
-        sb.append("      checkBoxRef" + id + ".options.length = 0; //clears combobox\n");
-        sb.append("      for (var idx = 0; idx < xmlNodeList" + id + ".length; idx++ ) {\n");
-        sb.append("         var opt = document.createElement('option');\n");
-        sb.append("         opt.value = xmlNodeList" + id + ".item(idx).getElementsByTagName('" + subPathForKeys.getValue() + "')[0].nodeValue;\n");
-        sb.append("         opt.innerText = xmlNodeList" + id + ".item(idx).getElementsByTagName('" + subPathForValues.getValue() + "')[0].nodeValue;\n");
-        sb.append("         checkBoxRef" + id + ".options.add(opt);\n");
-        sb.append("      }\n");
-        sb.append("   }\n");
-        sb.append("}\n");
-        for (Map.Entry<String, String> header : headerViewPanel.getHeaders()) {
-            sb.append("xmlhttp" + id + ".setRequestHeader(\"" + header.getKey() + "\",\"" + header.getValue() + "\");\n");
+        sb.append("var checkBoxRef" + id + " = document.getElementById('" + checkBoxId + "');");
+        sb.append("var url" + id + " = \"" + url + "\";");
+        sb.append("var method" + id + " = \"" + method + "\";");
+        sb.append("var xmlhttp" + id + ";");
+        sb.append("if (window.XMLHttpRequest) {/* code for IE7+, Firefox, Chrome, Opera, Safari*/");
+        sb.append("   xmlhttp" + id + "=new XMLHttpRequest();");
+        sb.append("} else {/* code for IE6, IE5*/");
+        sb.append("   xmlhttp" + id + "=new ActiveXObject(\"Microsoft.XMLHTTP\");");
+        sb.append("}");
+        sb.append("xmlhttp" + id + ".onreadystatechange=function() {");
+        sb.append("   if (xmlhttp" + id + ".readyState==4 && xmlhttp" + id + ".status==" + resultStatus + ") {");  
+        sb.append("      var xmlDoc" + id + " = null;");
+        sb.append("      if (window.ActiveXObject) { /* code for IE*/");
+        sb.append("         xmlDoc" + id + "=new ActiveXObject(\"Microsoft.XMLDOM\");");
+        sb.append("         xmlDoc" + id + ".write(xmlhttp" + id + ".responseText);");
+        sb.append("      } else if (document.implementation && document.implementation.createDocument) { /* code for Mozilla, Firefox, Opera, etc.*/");
+        sb.append("         xmlDoc" + id + "=document.implementation.createDocument(\"\",\"\",null);");
+        sb.append("         xmlDoc" + id + ".write(xmlhttp" + id + ".responseText);");
+        sb.append("      } else {");
+        sb.append("         alert('Your browser cannot handle this script');");
+        sb.append("      }");
+        sb.append("      var xmlNodeList" + id + " = xmlDoc" + id + ".selectNodes(\"" + resultXPath + "\");");
+        sb.append("      checkBoxRef" + id + ".options.length = 0; /*clears combobox*/");
+        sb.append("      for (var idx = 0; idx < xmlNodeList" + id + ".length; idx++ ) {");
+        sb.append("         var opt = document.createElement('option');");
+        sb.append("         opt.value = xmlNodeList" + id + ".item(idx).getElementsByTagName('" + subPathForKeys + "')[0].nodeValue;");
+        sb.append("         opt.innerText = xmlNodeList" + id + ".item(idx).getElementsByTagName('" + subPathForValues + "')[0].nodeValue;");
+        sb.append("         checkBoxRef" + id + ".options.add(opt);");
+        sb.append("      }");
+        sb.append("   }");
+        sb.append("}");
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            sb.append("xmlhttp" + id + ".setRequestHeader(\"" + header.getKey() + "\",\"" + header.getValue() + "\");");
         }
-        sb.append("xmlhttp" + id + ".open(method" + id + ", url" + id + ", true);\n");
-        sb.append("xmlhttp" + id + ".send();\n");
+        sb.append("xmlhttp" + id + ".open(method" + id + ", url" + id + ", true);");
+        sb.append("xmlhttp" + id + ".send();");
         return sb.toString();
     }
 
     @Override
     public Widget draw() {
-        return this;
+    	if (view == null) {
+    		view = new PopulateComboBoxScriptHelperView(this);
+    	}
+        return view;
     }
     
     @Override
@@ -253,4 +178,75 @@ public class PopulateComboBoxScriptHelper extends FlexTable implements FBScriptH
         return i18n.PopulateComboBoxScriptHelperName();
     }
 
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getMethod() {
+		return method;
+	}
+
+	public void setMethod(String method) {
+		this.method = method;
+	}
+
+	public String getResultStatus() {
+		return resultStatus;
+	}
+
+	public void setResultStatus(String resultStatus) {
+		this.resultStatus = resultStatus;
+	}
+
+	public String getResponseLanguage() {
+		return responseLanguage;
+	}
+
+	public void setResponseLanguage(String responseLanguage) {
+		this.responseLanguage = responseLanguage;
+	}
+
+	public String getResultXPath() {
+		return resultXPath;
+	}
+
+	public void setResultXPath(String resultXPath) {
+		this.resultXPath = resultXPath;
+	}
+
+	public String getSubPathForKeys() {
+		return subPathForKeys;
+	}
+
+	public void setSubPathForKeys(String subPathForKeys) {
+		this.subPathForKeys = subPathForKeys;
+	}
+
+	public String getSubPathForValues() {
+		return subPathForValues;
+	}
+
+	public void setSubPathForValues(String subPathForValues) {
+		this.subPathForValues = subPathForValues;
+	}
+
+	public String getCheckBoxId() {
+		return checkBoxId;
+	}
+
+	public void setCheckBoxId(String checkBoxId) {
+		this.checkBoxId = checkBoxId;
+	}
+
+	public Map<String, String> getHeaders() {
+		return headers;
+	}
+
+	public void setHeaders(Map<String, String> headers) {
+		this.headers = headers;
+	}
 }

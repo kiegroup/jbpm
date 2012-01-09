@@ -15,7 +15,6 @@
  */
 package org.jbpm.formapi.common.reflect;
 
-
 import com.gwtent.reflection.client.ClassType;
 import com.gwtent.reflection.client.Constructor;
 import com.gwtent.reflection.client.TypeOracle;
@@ -23,12 +22,13 @@ import com.gwtent.reflection.client.TypeOracle;
 public class ReflectionHelper {
 
     public static Object newInstance(String klass) throws Exception {
-        ClassType<?> classType = TypeOracle.Instance.getClassType(klass);
-        Constructor<?> constructor = classType.findConstructor();
-        return constructor.newInstance();
-        /*Class<?> clazz = Class.forName(klass);
-        Constructor<?> c = clazz.getDeclaredConstructor();
-        c.setAccessible(true);
-        return c.newInstance();*/
+    	if (TypeOracle.Instance == null) { //TypeOracle.Instance is null on server side
+    		Class<?> clazz = com.google.gwt.user.client.rpc.impl.ReflectionHelper.loadClass(klass);
+    		return com.google.gwt.user.client.rpc.impl.ReflectionHelper.newInstance(clazz);
+    	} else {
+	   		ClassType<?> classType = TypeOracle.Instance.getClassType(klass);
+	        Constructor<?> constructor = classType.findConstructor();
+	        return constructor.newInstance();
+    	}
     }
 }

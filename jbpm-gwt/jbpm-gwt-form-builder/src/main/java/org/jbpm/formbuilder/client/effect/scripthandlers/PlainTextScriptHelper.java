@@ -19,12 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.formapi.shared.api.FBScript;
-import org.jbpm.formapi.shared.api.FBScriptHelper;
-import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -32,55 +29,73 @@ import com.gwtent.reflection.client.Reflectable;
  * 
  */
 @Reflectable
-public class PlainTextScriptHelper implements FBScriptHelper {
+public class PlainTextScriptHelper extends AbstractScriptHelper {
 
     private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
-    private final TextArea scriptPanel = new TextArea();
+    private String scriptPanel = "";
+    
+    private PlainTextScriptHelperView view;
     
     public PlainTextScriptHelper() {
-        scriptPanel.setCharacterWidth(50);
-        scriptPanel.setVisibleLines(15);
+    	super();
     }
     
     @Override
     public void setScript(FBScript script) {
         if (script != null) {
-            this.scriptPanel.setValue(script.getContent());
+            this.scriptPanel = script.getContent();
         }
     }
     
     @Override
     public Map<String, Object> getDataMap() {
         Map<String, Object> dataMap = new HashMap<String, Object>();
-        String value = this.scriptPanel.getValue();
+        String value = this.scriptPanel;
+        value = value.replaceAll("\"", "\\\"").replaceAll("\n", "");
         dataMap.put("@className", PlainTextScriptHelper.class.getName());
         dataMap.put("scriptPanel", value);
         return dataMap;
     }
 
     @Override
-    public void setDataMap(Map<String, Object> dataMap) throws FormEncodingException {
+    public void setDataMap(Map<String, Object> dataMap) {
         String value = (String) dataMap.get("scriptPanel");
         if (value == null) {
-            this.scriptPanel.setValue("");
+            this.scriptPanel = "";
         } else {
-            this.scriptPanel.setValue(value);
+            this.scriptPanel = value;
+        }
+        if (view != null) {
+        	view.readDataFrom(this);
         }
     }
 
     @Override
     public String asScriptContent() {
-        return this.scriptPanel.getValue();
+    	if (view != null) {
+    		view.writeDataTo(this);
+    	}
+        return this.scriptPanel;
     }
 
     @Override
     public Widget draw() {
-        return this.scriptPanel;
+    	if (view == null) {
+    		view = new PlainTextScriptHelperView(this);
+    	}
+    	return view;
     }
 
     @Override
     public String getName() {
         return i18n.PlainTextScriptHelperName();
     }
-
+    
+    public void setScriptPanel(String scriptPanel) {
+		this.scriptPanel = scriptPanel;
+	}
+    
+    public String getScriptPanel() {
+		return scriptPanel;
+	}
 }

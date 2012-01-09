@@ -15,66 +15,45 @@
  */
 package org.jbpm.formbuilder.client.effect.scripthandlers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.jbpm.formapi.shared.api.FBScript;
-import org.jbpm.formapi.shared.api.FBScriptHelper;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.effect.scriptviews.ToggleScriptHelperView;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class ToggleScriptHelper extends FlexTable implements FBScriptHelper {
+public class ToggleScriptHelper extends AbstractScriptHelper {
 
-	private static final String TOGGLE = "toggle";
-	private static final String SHOW = "show";
-	private static final String HIDE = "hide";
+	public static final String TOGGLE = "toggle";
+	public static final String SHOW = "show";
+	public static final String HIDE = "hide";
+	public static final String HIDING_STRATEGY_COLLAPSE = "collapse";
+	public static final String HIDING_STRATEGY_HIDDEN = "hidden";
 	
-	private final TextBox idField = new TextBox();
-	private final ListBox actionOnEvent = new ListBox();
-	private final ListBox hidingStrategy = new ListBox();
+    private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+
+	private String idField = "";
+	private String actionOnEvent = TOGGLE;
+	private String hidingStrategy = HIDING_STRATEGY_HIDDEN;
 	
-	private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+	private ToggleScriptHelperView view;
 	
 	public ToggleScriptHelper() {
 		super();
-        setWidget(0, 0, new Label(i18n.ToggleScriptHelperIdField()));
-        setWidget(0, 1, idField);
-        setWidget(1, 0, new Label(i18n.ToggleScriptHelperActionOnEvent()));
-        populateActionOnEventList();
-        setWidget(1, 1, actionOnEvent);
-        setWidget(2, 0, new Label(i18n.ToggleScriptHelperHidingStrategy()));
-        populateHidingStrategyList();
-        setWidget(2, 1, hidingStrategy);
-	}
-	
-	private void populateActionOnEventList() {
-		actionOnEvent.addItem(i18n.ToggleScriptHelperToggleAction(), TOGGLE);
-		actionOnEvent.addItem(i18n.ToggleScriptHelperHideAction(), HIDE);
-		actionOnEvent.addItem(i18n.ToggleScriptHelperShowAction(), SHOW);
-		actionOnEvent.setSelectedIndex(0);
-	}
-	
-	private void populateHidingStrategyList() {
-		hidingStrategy.addItem(i18n.ToggleScriptHelperHiddenStrategy(), "hidden");
-		hidingStrategy.addItem(i18n.ToggleScriptHelperCollapseStrategy(), "collapse");
-		hidingStrategy.setSelectedIndex(0);
 	}
 	
 	@Override
 	public Map<String, Object> getDataMap() {
-        String idFieldValue = this.idField.getValue();
-        String actionOnEventValue = this.actionOnEvent.getValue(this.actionOnEvent.getSelectedIndex());
-        String hidingStrategyValue = this.hidingStrategy.getValue(this.hidingStrategy.getSelectedIndex());
+		if (view != null) {
+			view.writeDataTo(this);
+		}
+        String idFieldValue = this.idField;
+        String actionOnEventValue = this.actionOnEvent;
+        String hidingStrategyValue = this.hidingStrategy;
         
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("@className", ToggleScriptHelper.class.getName());
@@ -90,53 +69,53 @@ public class ToggleScriptHelper extends FlexTable implements FBScriptHelper {
 		String actionOnEventValue = (String) dataMap.get("actionOnEvent");
 		String hidingStrategyValue = (String) dataMap.get("hidingStrategy");
 		
-		this.idField.setValue(idFieldValue);
-		for (int index = 0; index < this.actionOnEvent.getItemCount(); index++) {
-            if (this.actionOnEvent.getValue(index).equals(actionOnEventValue)) {
-                this.actionOnEvent.setSelectedIndex(index);
-                break;
-            }
-        }
-		for (int index = 0; index < this.hidingStrategy.getItemCount(); index++) {
-            if (this.hidingStrategy.getValue(index).equals(hidingStrategyValue)) {
-                this.hidingStrategy.setSelectedIndex(index);
-                break;
-            }
-        }
-
+		this.idField = idFieldValue;
+		this.actionOnEvent = actionOnEventValue;
+		this.hidingStrategy = hidingStrategyValue;
+		
+		if (this.view != null) {
+			this.view.readDataFrom(this);
+		}
 	}
 
 	@Override
 	public String asScriptContent() {
+		if (view != null) {
+			view.writeDataTo(this);
+		}
 		long id = System.currentTimeMillis();
         StringBuilder sb = new StringBuilder();
-        String actionValue = actionOnEvent.getValue(actionOnEvent.getSelectedIndex());
-        String strategy = hidingStrategy.getValue(hidingStrategy.getSelectedIndex());
-        sb.append("var elementToggle" + id + " = document.getElementById('" + idField.getValue() + "');\n");
-        sb.append("if (elementToggle" + id + " != null) {\n");
+        String actionValue = actionOnEvent;
+        String strategy = hidingStrategy;
+        sb.append("var elementToggle" + id + " = document.getElementById('" + idField + "');");
+        sb.append("if (elementToggle" + id + " != null) {");
         if (actionValue.equals(HIDE)) {
         	//hide script
-        	sb.append("   elementToggle" + id + ".style.visibility = '" + strategy + "';\n");
+        	sb.append("   elementToggle" + id + ".style.visibility = '" + strategy + "';");
         }
         if (actionValue.equals(SHOW)) {
         	//show script
-        	sb.append("   elementToggle" + id + ".style.visibility = 'visible';\n");
+        	sb.append("   elementToggle" + id + ".style.visibility = 'visible';");
         }
-        if (actionValue.equals(SHOW)) {
+        if (actionValue.equals(TOGGLE)) {
         	//show if not visible, hide if visible script
-            sb.append("   if (elementToggle" + id + ".style.visibility == 'visible') {\n");
-        	sb.append("      elementToggle" + id + ".style.visibility = '" + strategy + "';\n");
-            sb.append("   } else {// code for IE6, IE5\n");
-            sb.append("      elementToggle" + id + ".style.visibility = 'visible';\n");
-            sb.append("   }\n");
+            sb.append("   if (elementToggle" + id + ".style.visibility == 'visible') {");
+        	sb.append("      elementToggle" + id + ".style.visibility = '" + strategy + "';");
+            sb.append("   } else {");
+            sb.append("      elementToggle" + id + ".style.visibility = 'visible';");
+            sb.append("   }");
         }
-        sb.append("}\n");
+        sb.append("}");
         return sb.toString();
 	}
 
 	@Override
 	public Widget draw() {
-		return this;
+		if (view == null) {
+			view = new ToggleScriptHelperView(this);
+			view.readDataFrom(this);
+		}
+		return view;
 	}
 
 	@Override
@@ -144,15 +123,27 @@ public class ToggleScriptHelper extends FlexTable implements FBScriptHelper {
 		return i18n.ToggleScriptHelperName();
 	}
 
-    @Override
-    public void setScript(FBScript script) {
-        List<FBScriptHelper> helpers = script.getHelpers();
-        if (helpers == null) {
-            helpers = new ArrayList<FBScriptHelper>();
-        }
-        if (!helpers.contains(this)) {
-            helpers.add(this);
-        }
-        script.setHelpers(helpers);
-    }
+	public String getIdField() {
+		return idField;
+	}
+
+	public void setIdField(String idField) {
+		this.idField = idField;
+	}
+
+	public String getActionOnEvent() {
+		return actionOnEvent;
+	}
+
+	public void setActionOnEvent(String actionOnEvent) {
+		this.actionOnEvent = actionOnEvent;
+	}
+
+	public String getHidingStrategy() {
+		return hidingStrategy;
+	}
+
+	public void setHidingStrategy(String hidingStrategy) {
+		this.hidingStrategy = hidingStrategy;
+	}
 }

@@ -278,7 +278,6 @@ public class EventHandlingEffectView extends PopupPanel {
         };
     }
 
-    
     private void populateScriptHelperView(FBScript script) {
         List<FBScriptHelper> helpers = getHelpersForEvent(script);
         ScriptHelperListPanel editorPanel = new ScriptHelperListPanel();

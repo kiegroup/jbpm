@@ -36,7 +36,6 @@ import com.gwtent.reflection.client.Reflectable;
 public class EventHandlingFormEffect extends FBFormEffect {
 
     private final EventBus bus = CommonGlobals.getInstance().getEventBus();
-    private Map<String, FBScript> eventActions = new HashMap<String, FBScript>();
     
     public EventHandlingFormEffect() {
         super("Event handling", true);
@@ -44,23 +43,13 @@ public class EventHandlingFormEffect extends FBFormEffect {
     
     @Override
     protected void createStyles() {
-        FBFormItem item = getItem();
-        item.setEventActions(this.eventActions);
     }
 
     @Override
     public PopupPanel createPanel() {
-        this.eventActions.clear();
-        for (String evtName : getPossibleEvents()) {
-            this.eventActions.put(evtName, null);
-        }
         return new EventHandlingEffectView(this);
     }
     
-    public void setEventActions(Map<String, FBScript> eventActions) {
-        this.eventActions = eventActions;
-    }
-
     @Override
     public boolean isValidForItem(FBFormItem item) {
         return super.isValidForItem(item) && item.getEventActions() != null && !item.getEventActions().isEmpty();
@@ -80,33 +69,42 @@ public class EventHandlingFormEffect extends FBFormEffect {
     
     public void storeEventAction(String eventName, FBScript script) {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
-        dataSnapshot.put("oldScript", eventActions.get(eventName));
+        dataSnapshot.put("oldScript", getItem().getEventActions().get(eventName));
         dataSnapshot.put("newScript", script);
         dataSnapshot.put("eventName", eventName);
+        dataSnapshot.put("eventActions", getItem().getEventActions());
+        dataSnapshot.put("item", getItem());
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
             @Override
+            @SuppressWarnings("unchecked")
             public void undoAction(UndoableEvent event) {
                 FBScript script = (FBScript) event.getData("oldScript");
                 String eventName = (String) event.getData("eventName");
+                Map<String, FBScript> eventActions = (Map<String, FBScript>) event.getData("eventActions");
+                FBFormItem item = (FBFormItem) event.getData("item");
                 eventActions.put(eventName, script);
+                item.setEventActions(eventActions);
             }
             @Override
             public void onEvent(UndoableEvent event) { }
             @Override
+            @SuppressWarnings("unchecked")
             public void doAction(UndoableEvent event) {
                 FBScript script = (FBScript) event.getData("newScript");
                 String eventName = (String) event.getData("eventName");
+                Map<String, FBScript> eventActions = (Map<String, FBScript>) event.getData("eventActions");
+                FBFormItem item = (FBFormItem) event.getData("item");
                 eventActions.put(eventName, script);
+                item.setEventActions(eventActions);
             }
         }));
     }
     
     public void confirmEventAction(String eventName, FBScript script) {
         Map<String, Object> dataSnapshot = new HashMap<String, Object>();
-        dataSnapshot.put("oldScript", eventActions.get(eventName));
+        dataSnapshot.put("oldScript", getItem().getEventActions().get(eventName));
         dataSnapshot.put("newScript", script);
-        dataSnapshot.put("oldEventActions", getItemActions());
-        dataSnapshot.put("newEventActions", this.eventActions);
+        dataSnapshot.put("eventActions", getItemActions());
         dataSnapshot.put("eventName", eventName);
         dataSnapshot.put("item", getItem());
         bus.fireEvent(new UndoableEvent(dataSnapshot, new UndoableHandler() {
@@ -115,7 +113,7 @@ public class EventHandlingFormEffect extends FBFormEffect {
                 FBScript script = (FBScript) event.getData("oldScript");
                 String eventName = (String) event.getData("eventName");
                 FBFormItem item = (FBFormItem) event.getData("item");
-                Map<String, FBScript> eventActions = (Map<String, FBScript>) event.getData("oldEventActions");
+                Map<String, FBScript> eventActions = (Map<String, FBScript>) event.getData("eventActions");
                 eventActions.put(eventName, script);
                 item.setEventActions(eventActions);
             }
@@ -126,7 +124,7 @@ public class EventHandlingFormEffect extends FBFormEffect {
                 FBScript script = (FBScript) event.getData("newScript");
                 String eventName = (String) event.getData("eventName");
                 FBFormItem item = (FBFormItem) event.getData("item");
-                Map<String, FBScript> eventActions = (Map<String, FBScript>) event.getData("newEventActions");
+                Map<String, FBScript> eventActions = (Map<String, FBScript>) event.getData("eventActions");
                 eventActions.put(eventName, script);
                 item.setEventActions(eventActions);
             }

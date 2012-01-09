@@ -74,7 +74,9 @@ public class FBScript implements Mappable {
         if (helpers != null && !helpers.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (FBScriptHelper helper : helpers) {
-                sb.append(helper.asScriptContent());
+                String asScriptContent = helper.asScriptContent();
+                asScriptContent = asScriptContent.replaceAll("\"", "\\\"").replaceAll("\n", "");
+				sb.append(asScriptContent);
             }
             return sb.toString();
         }
