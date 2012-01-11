@@ -1,5 +1,7 @@
 package org.jbpm.integration.console;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 
 import org.jbpm.integration.JbpmTestCase;
@@ -7,50 +9,57 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 import org.junit.Test;
 
 
-public class CommandDelegateTest extends JbpmTestCase {
-    
+public class CommandDelegateTest extends JbpmTestCase{
+	private CommandDelegate delegate = new CommandDelegate();
+	
+	
 	@Test
 	public void testGetProcesses() {
-		assertEquals("Minimal Process", CommandDelegate.getProcesses().get(1).getName());
+		assertEquals("Minimal Process" ,delegate.getProcesses().get(1).getName());
+		
 	}
 	
 	@Test
 	public void testGetProcess() {
-		assertEquals("Minimal Process" , CommandDelegate.getProcess("Minimal").getName());
+		
+		
+		assertEquals("Minimal Process" ,delegate.getProcess("Minimal").getName());
+		
 	}
-	
 	@Test
 	public void testGetProcessByName(){
-		assertEquals("Minimal", CommandDelegate.getProcessByName("Minimal Process").getId());
+		
+		assertEquals("Minimal" ,delegate.getProcessByName("Minimal Process").getId());
 	}
 	
 	@Test(expected=UnsupportedOperationException.class)
 	public void testRemoveProcess(){
-	    CommandDelegate.removeProcess("312");
+		
+		delegate.removeProcess("312");
 	}	
 	
 	@Test
 	public void testStartInstance(){
-		ProcessInstanceLog instance = CommandDelegate.startProcess("Minimal", null);
+		ProcessInstanceLog instance = delegate.startProcess("Minimal", null);
 		assertEquals("Minimal", instance.getProcessId());
 	}
 	
 	@Test
 	public void testGetProcessInstanceLog() {
-		ProcessInstanceLog instance =  CommandDelegate.startProcess("Minimal", null);
-		assertEquals(instance.getId(), CommandDelegate.getProcessInstanceLog(instance.getProcessInstanceId() + "").getId());
+		ProcessInstanceLog instance = delegate.startProcess("Minimal", null);
+		assertEquals(instance.getId(), delegate.getProcessInstanceLog(instance.getProcessInstanceId() + "").getId());
 	}
 	
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testAbortProcessInstance(){
-	    HashMap<String,Object> variables = new HashMap<String, Object>();
-	    variables.put("key", "value");
-
-	    CommandDelegate.startProcess("UserTask", variables);
-
-	    CommandDelegate.abortProcessInstance("3");
-	    CommandDelegate.getProcessInstanceVariables("3");
+		HashMap<String,Object> variables = new HashMap<String, Object>();
+		variables.put("key", "value");
+		
+		delegate.startProcess("UserTask", variables);
+		
+		delegate.abortProcessInstance("3");
+		delegate.getProcessInstanceVariables("3");
 	}
 
 	@Test
@@ -58,18 +67,18 @@ public class CommandDelegateTest extends JbpmTestCase {
 		HashMap<String,Object> variables = new HashMap<String, Object>();
 		variables.put("key", "value");
 		
-		ProcessInstanceLog instance = CommandDelegate.startProcess("UserTask", variables);
+		ProcessInstanceLog instance = delegate.startProcess("UserTask", variables);
 		
-		assertEquals(variables, CommandDelegate.getProcessInstanceVariables(instance.getProcessInstanceId() + ""));
+		assertEquals(variables, delegate.getProcessInstanceVariables(instance.getProcessInstanceId() + ""));
 	}
 	
 	@Test
 	public void testSetProcessInstanceVariables(){
-		ProcessInstanceLog instance = CommandDelegate.startProcess("UserTask", null);
+		ProcessInstanceLog instance = delegate.startProcess("UserTask", null);
 		HashMap<String,Object> newVariables = new HashMap<String, Object>();
 		newVariables.put("key", "value2");
-		CommandDelegate.setProcessInstanceVariables(instance.getId() + "", newVariables);
-		assertEquals(newVariables, CommandDelegate.getProcessInstanceVariables(instance.getId() + ""));
+		delegate.setProcessInstanceVariables(instance.getId() + "", newVariables);
+		assertEquals(newVariables, delegate.getProcessInstanceVariables(instance.getId() + ""));
 	}
 	
 	@Test

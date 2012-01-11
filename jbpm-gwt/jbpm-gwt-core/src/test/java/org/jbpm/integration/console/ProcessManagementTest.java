@@ -1,5 +1,7 @@
 package org.jbpm.integration.console;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 import java.util.List;
 
