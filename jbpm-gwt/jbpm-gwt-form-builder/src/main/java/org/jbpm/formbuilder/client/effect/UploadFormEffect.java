@@ -85,9 +85,6 @@ public class UploadFormEffect extends FBFormEffect {
         return new UploadFormEffectView(this);
     }
 
-    /**
-     * @return
-     */
     public List<String> getAllowedTypes() {
         HasSourceReference item = (HasSourceReference) getItem();
         return item.getAllowedTypes();

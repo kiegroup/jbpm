@@ -49,6 +49,10 @@
   <servlet-name>exportTemplate</servlet-name>
   <servlet-class>org.jbpm.formbuilder.server.ExportTemplateServlet</servlet-class>
  </servlet>
+ <servlet>
+  <servlet-name>upload</servlet-name>
+  <servlet-class>org.jbpm.formbuilder.server.FileUploadServlet</servlet-class>
+ </servlet>
 
  <servlet-mapping>
   <servlet-name>embed</servlet-name>
@@ -61,6 +65,14 @@
  <servlet-mapping>
   <servlet-name>resteasy</servlet-name>
   <url-pattern>/rest/*</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+  <servlet-name>upload</servlet-name>
+  <url-pattern>/uploadAction</url-pattern>
+ </servlet-mapping>
+ <servlet-mapping>
+  <servlet-name>upload</servlet-name>
+  <url-pattern>/uploadFile</url-pattern>
  </servlet-mapping>
 
  <security-constraint>

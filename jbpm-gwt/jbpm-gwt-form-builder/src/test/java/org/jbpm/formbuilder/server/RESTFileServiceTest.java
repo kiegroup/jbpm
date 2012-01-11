@@ -127,7 +127,7 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         restService.setFileService(fileService);
         Object[] mocks = requestMocks.toArray();
         EasyMock.replay(mocks);
-        Response resp = restService.getFiles((HttpServletRequest) mocks[0], "somePackage", "tmp"); 
+        Response resp = restService.getFiles((HttpServletRequest) mocks[0], "somePackage", new String[] {"tmp"}); 
         EasyMock.verify(mocks);
         Object objDto = assertXmlOkResponse(resp);
         assertTrue("objDto should be of type FileListDTO", objDto instanceof FileListDTO);
@@ -153,7 +153,7 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         restService.setFileService(fileService);
         Object[] mocks = requestMocks.toArray();
         EasyMock.replay(mocks);
-        Response resp = restService.getFiles((HttpServletRequest) mocks[0], "somePackage", "tmp"); 
+        Response resp = restService.getFiles((HttpServletRequest) mocks[0], "somePackage", new String[] {"tmp"}); 
         EasyMock.verify(mocks);
         Object objDto = assertXmlOkResponse(resp);
         assertTrue("objDto should be of type FileListDTO", objDto instanceof FileListDTO);
@@ -174,7 +174,7 @@ public class RESTFileServiceTest extends RESTAbstractTest {
         restService.setFileService(fileService);
         Object[] mocks = requestMocks.toArray();
         EasyMock.replay(mocks);
-        Response resp = restService.getFiles((HttpServletRequest) mocks[0], "somePackage", "tmp"); 
+        Response resp = restService.getFiles((HttpServletRequest) mocks[0], "somePackage", new String[] {"tmp"}); 
         EasyMock.verify(mocks);
         assertNotNull("resp shouldn't be null", resp);
         assertStatus(resp.getStatus(), Status.INTERNAL_SERVER_ERROR);

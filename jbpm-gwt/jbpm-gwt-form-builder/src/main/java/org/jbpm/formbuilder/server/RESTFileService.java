@@ -17,6 +17,8 @@ package org.jbpm.formbuilder.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -116,11 +118,15 @@ public class RESTFileService extends RESTBaseService {
     }
 
     @GET @Path("/package/{pkgName}/")
-    public Response getFiles(@Context HttpServletRequest request, @PathParam("pkgName") String packageName, @QueryParam("type") String fileType) {
+    public Response getFiles(@Context HttpServletRequest request, @PathParam("pkgName") String packageName, @QueryParam("type") String[] fileTypes) {
         setContext(request.getSession().getServletContext());
         try {
-            List<String> files = fileService.loadFilesByType(packageName, fileType);
-            FileListDTO dto = new FileListDTO(files);
+        	List<String> allFiles = new ArrayList<String>();
+        	for (String fileType : fileTypes) {
+        		allFiles.addAll(fileService.loadFilesByType(packageName, fileType));
+        	}
+        	Collections.sort(allFiles);
+            FileListDTO dto = new FileListDTO(allFiles);
             return Response.ok(dto, MediaType.APPLICATION_XML).build();
         } catch (FileException e) {
             return error("Problem loading file names", e);

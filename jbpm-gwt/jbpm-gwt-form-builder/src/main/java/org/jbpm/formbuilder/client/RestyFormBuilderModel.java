@@ -23,6 +23,7 @@ import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.Resource;
 import org.fusesource.restygwt.client.TextCallback;
 import org.jbpm.formapi.client.CommonGlobals;
+import org.jbpm.formapi.client.FormBuilderException;
 import org.jbpm.formapi.client.bus.ui.NotificationEvent;
 import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
 import org.jbpm.formapi.client.effect.FBFormEffect;
@@ -256,6 +257,49 @@ public class RestyFormBuilderModel implements FormBuilderService {
             bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingForm(""), e));
         }
     }
+
+    @Override
+    public void deleteFile(String url) throws FormBuilderException {
+        Resource resource = new Resource(URLBuilder.deleteFileURL(this.contextPath, this.packageName, url));
+        try {
+            resource.delete().send(new RequestCallback() {
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingFile(""), exception));
+                }
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    int code = response.getStatusCode();
+                    if (code != Response.SC_ACCEPTED && code != Response.SC_NO_CONTENT && code != Response.SC_OK) {
+                        bus.fireEvent(new NotificationEvent(Level.WARN, i18n.ErrorDeletingFile(String.valueOf(code))));
+                    } else {
+                        bus.fireEvent(new NotificationEvent(Level.INFO, i18n.FileDeleted()));
+                    }
+                }
+            });
+        } catch (RequestException e) {
+            bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.ErrorDeletingForm(""), e));
+        }
+    }
+    
+	@Override
+	public void getFiles(List<String> types, final FilesLoadedHandler handler) {
+        String url = URLBuilder.getFilesURL(this.contextPath, this.packageName, types);
+        Resource resource = new Resource(url);
+        resource.get().send(new SimpleTextCallback(i18n.CouldntFindFiles("")) {
+            @Override
+            public void onSuccess(Method method, String response) {
+                if (method.getResponse().getStatusCode() == Response.SC_OK) {
+                    List<String> list = helper.readFiles(response);
+                    handler.onFilesLoaded(list);
+                } else {
+                    bus.fireEvent(new NotificationEvent(Level.ERROR, i18n.CouldntFindFiles(
+                    		String.valueOf(method.getResponse().getStatusCode()))));
+                }
+            }
+        });
+	}
+
 
     @Override
     public void deleteFormItem(String formItemName, FormItemRepresentation formItem) {

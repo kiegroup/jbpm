@@ -565,4 +565,30 @@ public class XmlParseHelper {
 		}
 		return retval;
 	}
+
+    /**
+     * Ment to parse an XML response with the following format:
+     * <code>
+     * &lt;files&gt;<br>
+     * &nbsp;&nbsp;&lt;file&gt;${url}&lt;/file&gt;<br>
+     * &lt;/files&gt;<br>
+     * </code>
+     * 
+     * @param responseText the XML response.
+     * @return a list of Strings representing names of files.
+     */
+    public List<String> readFiles(String responseText) {
+        Document xml = XMLParser.parse(responseText);
+        NodeList list = xml.getElementsByTagName("file");
+        List<String> retval = new ArrayList<String>();
+        if (list != null) {
+            for (int index = 0; index < list.getLength(); index++) {
+                Node node = list.item(index);
+                String url = getText(node);
+                retval.add(url);
+            }
+        }
+        return retval;
+    }
+
 }

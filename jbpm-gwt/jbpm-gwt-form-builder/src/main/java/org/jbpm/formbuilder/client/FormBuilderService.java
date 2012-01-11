@@ -67,6 +67,8 @@ public interface FormBuilderService {
      */
     void deleteForm(FormRepresentation form) throws FormBuilderException;
     
+	void deleteFile(String url) throws FormBuilderException;
+    
     /**
      * Deletes a UI component from the server
      * @param formItemName The UI component name
@@ -181,4 +183,6 @@ public interface FormBuilderService {
     void setPackageName(String packageName);
 
 	void logout();
+
+	void getFiles(List<String> types, FilesLoadedHandler handler);
 }

@@ -15,34 +15,107 @@
  */
 package org.jbpm.formbuilder.client.effect.view;
 
-import java.util.Iterator;
+import gwtupload.client.IUploadStatus.Status;
+import gwtupload.client.IUploader;
+import gwtupload.client.IUploader.OnFinishUploaderHandler;
+import gwtupload.client.SingleUploader;
+
 import java.util.List;
 
-import org.jbpm.formapi.client.CommonGlobals;
-import org.jbpm.formapi.client.bus.ui.NotificationEvent;
-import org.jbpm.formapi.client.bus.ui.NotificationEvent.Level;
+import org.jbpm.formbuilder.client.FilesLoadedHandler;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.FormBuilderService;
 import org.jbpm.formbuilder.client.effect.UploadFormEffect;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
-import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class UploadFormEffectView extends PopupPanel {
+	
+	private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+	private final FormBuilderService server = FormBuilderGlobals.getInstance().getService();
+	
+	private final UploadFormEffect effect;
+	private final SingleUploader uploader  = new SingleUploader();
+	private final VerticalPanel panel = new VerticalPanel();
+	private final FilesDataPanel dataTable = new FilesDataPanel();
+	
+	public UploadFormEffectView(UploadFormEffect formEffect) {
+		this.effect = formEffect;
+		
+		HorizontalPanel uploadPanel = new HorizontalPanel();
+		uploadPanel.add(new Label(i18n.UploadAFile()));
+		startUploader();
+		uploadPanel.add(uploader);
+		
+		VerticalPanel selectPanel = new VerticalPanel();
+		selectPanel.add(new Label(i18n.SelectAFile()));
+		selectPanel.add(dataTable);
+		
+		HorizontalPanel buttonPanel = new HorizontalPanel();
+		buttonPanel.add(createConfirmButton());
+		buttonPanel.add(createCancelButton());
+		
+		panel.add(uploadPanel);
+		panel.add(selectPanel);
+		panel.add(buttonPanel);
+		
+		this.server.getFiles(this.effect.getAllowedTypes(), new FilesLoadedHandler() {
+			@Override
+			public void onFilesLoaded(List<String> files) {
+				dataTable.setFiles(files);
+			}
+		});
+		setWidget(panel);
+	}
 
+	private void startUploader() {
+		this.uploader.setAutoSubmit(true);
+		this.uploader.setServletPath(server.getUploadFileURL());
+		this.uploader.addOnFinishUploadHandler(new OnFinishUploaderHandler() {
+			@Override
+			public void onFinish(IUploader uploader) {
+				if (uploader.getStatus() == Status.SUCCESS) {
+					String url = uploader.fileUrl();
+					dataTable.addNewFile(url);
+				}
+			}
+		});
+	}
+	
+	private Button createCancelButton() {
+        Button cancelButton = new Button(i18n.CancelButton(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                hide();
+            }
+        });
+        return cancelButton;
+    }
+
+    private Button createConfirmButton() {
+        Button confirmButton = new Button(i18n.ConfirmButton(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+            	String url = dataTable.getSelection();
+            	if (url == null) {
+            		Window.alert(i18n.YouMustSelectAnItem(i18n.ConfirmButton(), i18n.CancelButton()));
+            	} else {
+            		effect.setSrcUrl(url);
+            		hide();
+            	}
+            }
+        });
+        return confirmButton;
+    }
+/*
     private final UploadFormEffect effect;
     private final FileUpload fileInput = new FileUpload();
     private final FormPanel form = new FormPanel();
@@ -52,7 +125,7 @@ public class UploadFormEffectView extends PopupPanel {
     
     public UploadFormEffectView(UploadFormEffect formEffect) {
         this.effect = formEffect;
-        InputElement.as(fileInput.getElement()).setAccept(toString(this.effect.getAllowedTypes()));        
+        InputElement.as(fileInput.getElement()).setAccept(toString(this.effect.getAllowedTypes()));
         VerticalPanel content = new VerticalPanel();
         form.setAction(server.getUploadFileURL());
         form.setMethod(FormPanel.METHOD_POST);
@@ -134,5 +207,5 @@ public class UploadFormEffectView extends PopupPanel {
         });
         return confirmButton;
     }
-
+*/
 }
