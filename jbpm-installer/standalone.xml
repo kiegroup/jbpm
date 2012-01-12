@@ -76,6 +76,16 @@
                 <suffix value=".yyyy-MM-dd"/>
             </periodic-rotating-file-handler>
 
+            <logger category="org.jboss.modules">
+                <level name="INFO"/>
+            </logger>
+            <logger category="org.jboss.vfs.util">
+                <level name="INFO"/>
+            </logger>
+            <logger category="org.jboss.weld">
+                <level name="INFO"/>
+            </logger>
+            
             <logger category="com.arjuna">
                 <level name="WARN"/>
             </logger>

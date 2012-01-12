@@ -32,6 +32,7 @@
       </not>
     </condition>
   </target>
+
   <target name="download.h2" depends="download.h2.check" if="h2.not.available">
     <echo message="Getting h2 ..." />
     <mkdir dir="${install.home}/db/driver"/>
@@ -118,10 +119,10 @@
   <!-- Download JBoss AS -->
   <target name="check.jboss.version">
     <condition property="jboss.version.is.5">
-      <equals arg1="${jboss.server.version}" arg2="5.1.0.GA" />
+      <equals arg1="${jboss.server.version}" arg2="${jboss.server.version.5}" />
     </condition>
     <condition property="jboss.version.is.7">
-      <equals arg1="${jboss.server.version}" arg2="7.0.2.Final" />
+      <equals arg1="${jboss.server.version}" arg2="${jboss.server.version.7}" />
     </condition>
   </target>
   <target name="download.jboss.check">
@@ -337,9 +338,6 @@
     <mkdir dir="${install.home}/target/jbpm-gwt-console-server-war"/>
     <unzip src="${install.home}/target/jbpm-gwt-console-server-${jBPM.version}.war"
            dest="${install.home}/target/jbpm-gwt-console-server-war"/>
-    <copy file="${install.home}/db/hibernate.cfg.xml"
-          tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/hibernate.cfg.xml"
-          overwrite="true" />
     <copy file="${install.home}/db/persistence.xml"
           tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/persistence.xml"
           overwrite="true" />
@@ -385,9 +383,6 @@
     <mkdir dir="${install.home}/target/jbpm-gwt-console-server-war"/>
     <unzip src="${install.home}/target/jbpm-gwt-console-server-${jBPM.version}.war"
            dest="${install.home}/target/jbpm-gwt-console-server-war"/>
-    <copy file="${install.home}/db/hibernate.cfg.xml"
-          tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/hibernate.cfg.xml"
-          overwrite="true" />
     <copy file="${install.home}/db/persistence.xml"
           tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/persistence.xml"
           overwrite="true" />
@@ -536,6 +531,19 @@
     <delete dir="${eclipse.home}/droolsjbpm-update-site"/>
   </target>
 
+  <!-- MySQL jBoss files -->
+  <property name="mysql.module.dir">${jboss.home}/modules/com/mysql/main/</property> 
+
+  <target name="install.db.files" depends="check.jboss.version,download.mysql.driver" if="jboss.version.is.7">
+    <mkdir dir="${mysql.module.dir}" />
+    <copy file="${mysql.driver.jar}" tofile="${mysql.module.dir}/mysql-connector-java.jar" />
+    <copy file="db/mysql_module.xml" tofile="${mysql.module.dir}/module.xml" />
+  </target>
+
+  <target name="remove.db.files" depends="check.jboss.version" if="jboss.version.is.7">
+    <delete dir="${jboss.home}/modules/com/mysql" />
+  </target>
+
   <!-- Install Demo -->
   <target name="install.demo" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
 
@@ -554,6 +562,7 @@
       <classpath location="${install.home}/db/driver/h2.jar" />
     </java>
   </target>
+
   <!-- Stop H2 server -->
   <target name="stop.h2" depends="download.h2">
     <java classname="org.h2.tools.Server" fork="true">
@@ -614,6 +623,7 @@
     </waitfor>
     <fail if="jboss.timeout" message="JBoss AS5 did not start within 10 minutes"/>
   </target>
+
   <!-- Stop JBoss AS -->
   <target name="stop.jboss">
     <antcall target="stop.jboss5" />
@@ -706,8 +716,14 @@
   <!-- Start Demo (No Eclipse)--> 
   <target name="start.demo.noeclipse" depends="start.h2,start.jboss,start.human.task" />	
   
+  <!-- Start Demo (Database)--> 
+  <target name="start.demo.db" depends="install.db.files,start.jboss,start.human.task" />	
+  
   <!-- Stop Demo -->
   <target name="stop.demo" depends="stop.h2,stop.jboss" />
+
+  <!-- Stop Demo (Database) -->
+  <target name="stop.demo.db" depends="stop.jboss,remove.db.files" />
 
   <!-- ############ CLEAN ############ -->
 	
