@@ -531,19 +531,6 @@
     <delete dir="${eclipse.home}/droolsjbpm-update-site"/>
   </target>
 
-  <!-- MySQL jBoss files -->
-  <property name="mysql.module.dir">${jboss.home}/modules/com/mysql/main/</property> 
-
-  <target name="install.db.files" depends="check.jboss.version,download.mysql.driver" if="jboss.version.is.7">
-    <mkdir dir="${mysql.module.dir}" />
-    <copy file="${mysql.driver.jar}" tofile="${mysql.module.dir}/mysql-connector-java.jar" />
-    <copy file="db/mysql_module.xml" tofile="${mysql.module.dir}/module.xml" />
-  </target>
-
-  <target name="remove.db.files" depends="check.jboss.version" if="jboss.version.is.7">
-    <delete dir="${jboss.home}/modules/com/mysql" />
-  </target>
-
   <!-- Install Demo -->
   <target name="install.demo" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
 
@@ -552,6 +539,9 @@
 
   <!-- Install Demo (No Eclipse) -->
   <target name="install.demo.noeclipse" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM.runtime" />
+
+  <!-- Install Demo (DB == No Eclipse) -->
+  <target name="install.demo.db" depends="install.demo.noeclipse" />
   
   <!-- ############ START/STOP ############ -->
 
@@ -691,6 +681,7 @@
     <fileset dir="${install.home}/runtime" includes="**/*.jar"/>
     <fileset dir="${install.home}/db/driver" includes="**/*.jar"/>
   </path>
+ 
   <target name="start.human.task">
     <mkdir dir="${install.home}/task-service/target"/>
     <javac srcdir="${install.home}/task-service/src" destdir="${install.home}/task-service/target" classpathref="classpath.human.task">
