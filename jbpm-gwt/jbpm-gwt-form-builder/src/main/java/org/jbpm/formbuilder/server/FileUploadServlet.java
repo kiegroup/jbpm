@@ -24,8 +24,8 @@ public class FileUploadServlet extends UploadAction {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		fileService = (FileService) WebApplicationContextUtils.
-			getWebApplicationContext(config.getServletContext());
+		WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
+		fileService = ServiceFactory.getInstance().getFileService();
 	}
 	
 	public String executeAction(HttpServletRequest request,

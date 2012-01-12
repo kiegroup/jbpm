@@ -88,12 +88,12 @@ public class URLBuilder {
 
     public static String uploadFileURL(String contextPath, String packageName) {
         return new StringBuilder(getBaseUrl()).
-        	append("/uploadFile?packageName=").
+        	append("uploadFile?packageName=").
             append(packageName).toString();
     }
 
     public static String uploadActionURL() {
-        return getBaseUrl() + "/uploadAction";
+        return new StringBuilder(getBaseUrl()).append("uploadAction").toString();
     }
 
     private static String encode(String string) { 
