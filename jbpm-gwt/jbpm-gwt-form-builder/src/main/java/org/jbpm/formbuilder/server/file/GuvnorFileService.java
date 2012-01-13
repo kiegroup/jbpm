@@ -118,8 +118,9 @@ public class GuvnorFileService implements FileService, InitializingBean {
             } finally {
                 create.releaseConnection();
             }
-            return (this.baseUrl + "/org.drools.guvnor.Guvnor/api/packages/" + 
-            		URLEncoder.encode(packageName + "/" + assetName, GuvnorHelper.ENCODING) + 
+            return (this.baseUrl + "/org.drools.guvnor.GuvnorDrools/api/packages/" + 
+            		URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/" + 
+            		URLEncoder.encode(assetName, GuvnorHelper.ENCODING) + 
             		"." + assetExt);
         } catch (Exception e) {
             throw new FileException("Problem storing file", e);

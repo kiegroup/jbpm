@@ -38,7 +38,7 @@ public class FileUploadServlet extends UploadAction {
 				if (packageName != null && !"".equals(packageName)) {
 					// uploadFile called. Store it.
 					try {
-						fileService.storeFile(packageName, fileName, content);
+						return fileService.storeFile(packageName, fileName, content);
 					} catch (FileException e) {
 			            request.getSession().getServletContext().log("Couldn't store file", e);
 					}

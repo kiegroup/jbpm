@@ -83,7 +83,7 @@ public class UploadFormEffectView extends PopupPanel {
 			@Override
 			public void onFinish(IUploader uploader) {
 				if (uploader.getStatus() == Status.SUCCESS) {
-					String url = uploader.fileUrl();
+					String url = uploader.getServerInfo().message;
 					dataTable.addNewFile(url);
 				}
 			}

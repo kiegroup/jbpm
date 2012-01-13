@@ -116,7 +116,7 @@ public class URLBuilder {
 
 	public static String deleteFileURL(String contextPath, String packageName, String url) {
 		return new StringBuilder(getBaseUrl()).append(contextPath).append("/files/package/").
-			append(encode(packageName)).append("/").append(url).toString();
+			append(encode(packageName)).append(url).toString();
 	}
 
 	public static String getFilesURL(String contextPath, String packageName, List<String> types) {

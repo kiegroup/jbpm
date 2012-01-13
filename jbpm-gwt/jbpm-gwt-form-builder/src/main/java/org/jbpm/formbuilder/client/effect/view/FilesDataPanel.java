@@ -93,7 +93,7 @@ public class FilesDataPanel extends ScrollPanel {
 					@Override
 					public void onClick(ClickEvent event) {
 						try {
-							server.deleteFile(url);
+							server.deleteFile(toFileName(url));
 							RowFormatter formatter = table.getRowFormatter();
 							int rowNumber = 0;
 							for (; rowNumber < table.getRowCount(); rowNumber++) {
@@ -107,6 +107,7 @@ public class FilesDataPanel extends ScrollPanel {
 						}
 					}
 				});
+				dialog.show();
 			}
 		});
 	}
@@ -126,14 +127,31 @@ public class FilesDataPanel extends ScrollPanel {
 	}
 	
 	public void addNewFile(String url) {
-		final FocusPanel labelPanel = createLabelPanel(url);
-		if (isEmpty) {
-			table.clear();
+		if (!contains(url)) {
+			final FocusPanel labelPanel = createLabelPanel(url);
+			if (isEmpty) {
+				table.clear();
+			}
+			int row = table.getRowCount();
+			table.setWidget(row, 0, labelPanel);
+			Element rowElem = table.getRowFormatter().getElement(row);
+			table.setWidget(row, 1, createDeleteButton(rowElem, url));
+			labelPanel.setFocus(true);
+			setSelection(url);
 		}
-		int row = table.getRowCount();
-		table.setWidget(row, 0, labelPanel);
-		Element rowElem = table.getRowFormatter().getElement(row);
-		table.setWidget(row, 1, createDeleteButton(rowElem, url));
-		setSelection(url);
+	}
+	
+	private boolean contains(String url) {
+		String fileName = toFileName(url);
+		for (int row = 0; row < table.getRowCount(); row++) {
+			FocusPanel labelPanel = (FocusPanel) table.getWidget(row, 0);
+			if (labelPanel != null && labelPanel.getWidget() != null) {
+				Label label = (Label) labelPanel.getWidget();
+				if (label.getText().equals(fileName)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }
