@@ -80,7 +80,7 @@ public class ClientScriptFormItem extends FBFormItem implements HasSourceReferen
     @Override
     public List<String> getAllowedTypes() {
         List<String> retval = new ArrayList<String>();
-        retval.add("text/javascript");
+        retval.add("js");
         return retval;
     }
     

@@ -213,11 +213,11 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSource
     @Override
     public List<String> getAllowedTypes() {
         ArrayList<String> retval = new ArrayList<String>();
-        retval.add("image/jpeg");
-        retval.add("image/jpg");
-        retval.add("image/png");
-        retval.add("image/gif");
-        retval.add("image/svg");
+        retval.add("jpeg");
+        retval.add("jpg");
+        retval.add("png");
+        retval.add("gif");
+        retval.add("svg");
         return retval;
     }
 }

@@ -219,7 +219,7 @@ public class CSSLayoutFormItem extends LayoutFormItem implements HasSourceRefere
     @Override
     public List<String> getAllowedTypes() {
         ArrayList<String> retval = new ArrayList<String>();
-        retval.add("text/css");
+        retval.add("css");
         return retval;
     }
 }

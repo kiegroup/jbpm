@@ -13,10 +13,13 @@ import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.FocusEvent;
+import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.HTMLTable.RowFormatter;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -36,14 +39,14 @@ public class FilesDataPanel extends ScrollPanel {
 		setWidget(table);
 	}
 	
-	public void setFiles(List<String> files) {
+	public void setFiles(List<String> urls) {
 		table.clear();
-		if (files != null && !files.isEmpty()) {
+		if (urls != null && !urls.isEmpty()) {
 			isEmpty = false;
-			for (int row = 0; row < files.size(); row++) {
-				final String url = files.get(row);
-				final Label label = createLabel(url);
-				table.setWidget(row, 0, label);
+			for (int row = 0; row < urls.size(); row++) {
+				final String url = urls.get(row);
+				final FocusPanel labelPanel = createLabelPanel(url);
+				table.setWidget(row, 0, labelPanel);
 				Element rowElem = table.getRowFormatter().getElement(row);
 				table.setWidget(row, 1, createDeleteButton(rowElem, url));
 			}
@@ -52,22 +55,24 @@ public class FilesDataPanel extends ScrollPanel {
 		}
 	}
 
-	private Label createLabel(final String url) {
-		final Label label = new Label(url);
-		label.addClickHandler(new ClickHandler() {
+	private FocusPanel createLabelPanel(final String url) {
+		final FocusPanel panel = new FocusPanel();
+		panel.setStyleName("fbFilesDataPanel");
+		panel.addFocusHandler(new FocusHandler() {
 			@Override
-			public void onClick(ClickEvent event) {
-				if (label.getStyleName().equals("fbFilesDataPanelSelected")) {
-					label.setStyleName("fbFilesDataPanel");
+			public void onFocus(FocusEvent event) {
+				if (panel.getStyleName().equals("fbFilesDataPanelSelected")) {
+					panel.setStyleName("fbFilesDataPanel");
 					setSelection(null);
 				} else {
 					deselectAllLabels();
-					label.setStyleName("fbFilesDataPanel");
+					panel.setStyleName("fbFilesDataPanelSelected");
 					setSelection(url);
 				}
 			}
 		});
-		return label;
+		panel.setWidget(new Label(toFileName(url)));
+		return panel;
 	}
 	
 	private void deselectAllLabels() {
@@ -121,13 +126,12 @@ public class FilesDataPanel extends ScrollPanel {
 	}
 	
 	public void addNewFile(String url) {
-		url = toFileName(url);
-		final Label label = createLabel(url);
+		final FocusPanel labelPanel = createLabelPanel(url);
 		if (isEmpty) {
 			table.clear();
 		}
 		int row = table.getRowCount();
-		table.setWidget(row, 0, label);
+		table.setWidget(row, 0, labelPanel);
 		Element rowElem = table.getRowFormatter().getElement(row);
 		table.setWidget(row, 1, createDeleteButton(rowElem, url));
 		setSelection(url);

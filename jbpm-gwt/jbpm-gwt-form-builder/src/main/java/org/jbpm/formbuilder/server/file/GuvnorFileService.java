@@ -182,6 +182,7 @@ public class GuvnorFileService implements FileService, InitializingBean {
         	String loadUrl = helper.getRestBaseUrl() + 
         			URLEncoder.encode(packageName, GuvnorHelper.ENCODING) + "/assets/";
         	load = helper.createGetMethod(loadUrl);
+        	load.addRequestHeader("Accept", "application/xml");
             helper.setAuth(client, load);
             client.executeMethod(load);
             PackageAssetsDTO dto = helper.jaxbTransformation(PackageAssetsDTO.class, 
@@ -202,7 +203,7 @@ public class GuvnorFileService implements FileService, InitializingBean {
                 String refLink = asset.getRefLink();
                 String fileName = refLink.substring(refLink.lastIndexOf('/') + 1);
                 fileName += "." + asset.getMetadata().getFormat();
-                retval.add(fileName);
+                retval.add(helper.getApiSearchUrl(packageName) + fileName);
             }
             return retval;
         } catch (IOException e) {

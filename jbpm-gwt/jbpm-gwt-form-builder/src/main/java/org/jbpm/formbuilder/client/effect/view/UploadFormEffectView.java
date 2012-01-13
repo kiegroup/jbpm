@@ -109,12 +109,14 @@ public class UploadFormEffectView extends PopupPanel {
             		Window.alert(i18n.YouMustSelectAnItem(i18n.ConfirmButton(), i18n.CancelButton()));
             	} else {
             		effect.setSrcUrl(url);
+            		effect.createStyles();
             		hide();
             	}
             }
         });
         return confirmButton;
     }
+    
 /*
     private final UploadFormEffect effect;
     private final FileUpload fileInput = new FileUpload();
