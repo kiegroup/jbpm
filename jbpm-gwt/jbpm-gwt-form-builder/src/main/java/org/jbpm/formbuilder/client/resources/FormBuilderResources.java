@@ -161,6 +161,12 @@ public interface FormBuilderResources extends ClientBundle {
     @Source("images/image_rolodex.png")
     ImageResource imageRolodex();
     
+    @Source("images/summary.png")
+    ImageResource summary();
+    
+    @Source("images/fieldSet.png")
+	ImageResource fieldSet();
+    
     @Source("images/file_input_with_progress_bar.png")
     ImageResource fileInputWithProgressBar();
 

@@ -40,7 +40,7 @@ import com.gwtent.reflection.client.Reflectable;
  * UI form item. Represents a label
  */
 @Reflectable
-public class LabelFormItem extends FBFormItem implements I18NFormItem  {
+public class LabelFormItem extends FBFormItem implements I18NFormItem {
 
     private final Label label = new Label("Label");
     
