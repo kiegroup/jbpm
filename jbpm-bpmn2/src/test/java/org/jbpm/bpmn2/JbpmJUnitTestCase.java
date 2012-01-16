@@ -53,7 +53,6 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 	public StatefulKnowledgeSession ksession;
 	
 	private WorkingMemoryInMemoryLogger logger;
-	private JPAProcessInstanceDbLog log;
 
 	public JbpmJUnitTestCase() {
 		this(false);
@@ -149,9 +148,7 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 		    
 		    StatefulKnowledgeSession result = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
 		    new JPAWorkingMemoryDbLogger(result);
-		    if (log == null) {
-		    	log = new JPAProcessInstanceDbLog(result.getEnvironment());
-		    }
+		    JPAProcessInstanceDbLog.setEnvironment(result.getEnvironment());
 		    return result;
 		} else {
 			StatefulKnowledgeSession result = kbase.newStatefulKnowledgeSession();
@@ -236,7 +233,7 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 			names.add(nodeName);
 		}
 		if (persistence) {
-			List<NodeInstanceLog> logs = log.findNodeInstances(processInstanceId);
+			List<NodeInstanceLog> logs = JPAProcessInstanceDbLog.findNodeInstances(processInstanceId);
 			if (logs != null) {
 				for (NodeInstanceLog l: logs) {
 					String nodeName = l.getNodeName();
@@ -266,10 +263,7 @@ public abstract class JbpmJUnitTestCase extends TestCase {
 	
 	protected void clearHistory() {
 		if (persistence) {
-			if (log == null) {
-				log = new JPAProcessInstanceDbLog();
-			}
-			log.clear();
+			JPAProcessInstanceDbLog.clear();
 		} else {
 			logger.clear();
 		}
