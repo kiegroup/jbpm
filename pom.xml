@@ -118,8 +118,85 @@
             <argLine>-Xmx1024m -XX:MaxPermSize=128m</argLine>
           </configuration>
         </plugin> 
-      </plugins>
-     </pluginManagement>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.8</version>
+		  <configuration>
+			<!-- Default configuration for all reports -->
+			<excludePackageNames>org.jbpm.examples*</excludePackageNames>
+			<links>
+			  <link>http://docs.jboss.org/jbpm/v5.2/javadocs/</link>
+			</links>
+			<tags>
+			  <tag>
+				<name>model</name>
+				<placement>a</placement>
+				<head>Model:</head>
+			  </tag>
+			  <tag>
+				<name>generated</name>
+				<placement>a</placement>
+				<head>Generated Class</head>
+			  </tag>
+			  <tag>
+				<name>ordered</name>
+				<placement>a</placement>
+				<head>Ordered Sequence</head>
+			  </tag>
+			</tags>
+			<groups>
+			  <group>
+				<title>BPMN</title>
+				<packages>org.jbpm.bpmn2*</packages>
+			  </group>
+			  <group>
+				<title>Compiler</title>
+				<packages>org.jbpm.compiler*</packages>
+			  </group>
+			  <group>
+			    <title>Console</title>
+				<packages>org.jbpm.integration*</packages>
+			  </group>
+			  <group>
+			    <title>Process</title>
+				<packages>org.jbpm.process*</packages>
+			  </group>
+			  <group>
+			    <title>Ruleflow</title>
+				<packages>org.jbpm.ruleflow*</packages>
+			  </group>
+			  <group>
+			    <title>Task</title>
+				<packages>org.jbpm.task*</packages>
+			  </group>
+			  <group>
+			    <title>Workflow</title>
+				<packages>org.jbpm.workflow*</packages>
+			  </group>
+			  <!--
+			  <group>
+			    <title>Examples</title>
+				<packages>org.jbpm.examples*</packages>
+			  </group>
+			  -->
+			</groups>
+		  </configuration>
+		  <executions>
+			<execution>
+			  <id>aggregate</id>
+              <goals>
+                <goal>aggregate</goal>
+              </goals>
+              <phase>site</phase>
+              <configuration>
+                <!-- Specific configuration for the aggregate report -->
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+	  </plugins>
+    </pluginManagement>
   </build>
 
   <profiles>
