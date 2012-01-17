@@ -10,45 +10,38 @@ import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formapi.client.form.LayoutFormItem;
 import org.jbpm.formapi.client.form.PhantomPanel;
-import org.jbpm.formapi.common.panels.FieldSetPanel;
 import org.jbpm.formapi.shared.api.FormItemRepresentation;
-import org.jbpm.formapi.shared.api.items.FieldSetPanelRepresentation;
+import org.jbpm.formapi.shared.api.items.MenuPanelRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class FieldSetLayoutFormItem extends LayoutFormItem {
-
+public class MenuLayoutFormItem extends LayoutFormItem {
+	
 	private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
 	
+	private final HorizontalPanel panel = new HorizontalPanel();
+	
+	private String type;
 	private String cssClassName;
 	private String id;
-	private String legend;
+	private String dir;
 
-	private LabelFormItem legendPanel = new LabelFormItem();
-    private FieldSetPanel panel = new FieldSetPanel(legendPanel) {
-        @Override
-        public boolean remove(Widget w) {
-            if (w instanceof FBFormItem) {
-                removeItem((FBFormItem) w);
-            }
-            return super.remove(w);
-        }
-    };
-	
-	public FieldSetLayoutFormItem() {
+	public MenuLayoutFormItem() {
 		this(new ArrayList<FBFormEffect>());
 	}
 	
-	public FieldSetLayoutFormItem(List<FBFormEffect> formEffects) {
+	public MenuLayoutFormItem(List<FBFormEffect> formEffects) {
 		super(formEffects);
-		setSize("250px", "120px");
-        panel.setSize(getWidth(), getHeight());
-		add(panel);
+		this.panel.setBorderWidth(0);
+		setSize("200px", "90px");
+		this.panel.setSize(getWidth(), getHeight());
+		add(this.panel);
 	}
 
 	@Override
@@ -75,8 +68,8 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
 		return super.add(item);
 	}
 	
-    @Override
-    public void add(PhantomPanel phantom, int x, int y) {
+	@Override
+	public void add(PhantomPanel phantom, int x, int y) {
         for (int index = 0; index < panel.getWidgetCount(); index++) {
             Widget item = panel.getWidget(index);
             int left = item.getAbsoluteLeft();
@@ -88,7 +81,7 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
                 break;
             }
         }
-    }
+	}
 
 	@Override
 	public HasWidgets getPanel() {
@@ -101,8 +94,9 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
         formItemPropertiesMap.put("height", getHeight());
         formItemPropertiesMap.put("width", getWidth());
         formItemPropertiesMap.put("cssClassName", this.cssClassName);
-        formItemPropertiesMap.put("legend", this.legend);
-        formItemPropertiesMap.put("id", id);
+        formItemPropertiesMap.put("dir", this.dir);
+        formItemPropertiesMap.put("id", this.id);
+        formItemPropertiesMap.put("type", this.type);
         return formItemPropertiesMap;
 	}
 
@@ -111,82 +105,87 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
         this.setHeight(extractString(asPropertiesMap.get("height")));
         this.setWidth(extractString(asPropertiesMap.get("width")));
         this.cssClassName = extractString(asPropertiesMap.get("cssClassName"));
+        this.dir = extractString(asPropertiesMap.get("dir"));
         this.id = extractString(asPropertiesMap.get("id"));
-        this.legend = extractString(asPropertiesMap.get("legend"));
+        this.type = extractString(asPropertiesMap.get("type"));
         
         populate(this.panel);
 
 	}
 
-	private void populate(FieldSetPanel panel) {
+	private void populate(HorizontalPanel panel) {
 		if (getHeight() != null) {
 			panel.setHeight(getHeight());
 		}
 		if (this.cssClassName != null) {
 			panel.setStyleName(cssClassName);
 		}
-		if (this.legend != null) {
-			panel.setLegend(legend);
+		if (this.dir != null) {
+			panel.getElement().setDir(dir);
 		}
 		if (this.id != null) {
-			panel.setId(id);
+			panel.getElement().setId(id);
 		}
 		if (getWidth() != null) {
 			panel.setWidth(getWidth());
 		}
+		if (this.type != null) {
+			panel.setStyleName(type + " " + panel.getStyleName());
+		}
 	}
 
 	@Override
-    public void populate(FormItemRepresentation rep) throws FormBuilderException {
-        if (!(rep instanceof FieldSetPanelRepresentation)) {
-            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "FieldSetPanelRepresentation"));
+	public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof MenuPanelRepresentation)) {
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "MenuPanelRepresentation"));
         }
         super.populate(rep);
-        FieldSetPanelRepresentation fsrep = (FieldSetPanelRepresentation) rep;
+        MenuPanelRepresentation mrep = (MenuPanelRepresentation) rep;
         
-    	this.cssClassName = fsrep.getCssClassName();
-    	this.id = fsrep.getId();
-    	this.legend = fsrep.getLegend();
-        if (fsrep.getWidth() != null && !"".equals(fsrep.getWidth())) {
-            setWidth(fsrep.getWidth());
+    	this.cssClassName = mrep.getCssClassName();
+    	this.id = mrep.getId();
+    	this.dir = mrep.getDir();
+    	this.type = mrep.getType();
+        if (mrep.getWidth() != null && !"".equals(mrep.getWidth())) {
+            setWidth(mrep.getWidth());
         }
-        if (fsrep.getHeight() != null && !"".equals(fsrep.getHeight())) {
-            setHeight(fsrep.getHeight());
+        if (mrep.getHeight() != null && !"".equals(mrep.getHeight())) {
+            setHeight(mrep.getHeight());
         }
         
         populate(this.panel);
         
-        if (fsrep.getItems() != null) {
-            for (FormItemRepresentation item : fsrep.getItems()) {
+        if (mrep.getItems() != null) {
+            for (FormItemRepresentation item : mrep.getItems()) {
                 add(super.createItem(item));
             }
         }
-        
-    }
-
+	}
+	
 	@Override
 	public FormItemRepresentation getRepresentation() {
-		FieldSetPanelRepresentation rep = super.getRepresentation(new FieldSetPanelRepresentation());
+		MenuPanelRepresentation rep = super.getRepresentation(new MenuPanelRepresentation());
 		rep.setCssClassName(this.cssClassName);
 		rep.setId(this.id);
 		rep.setHeight(getHeight());
 		rep.setWidth(getWidth());
-		rep.setLegend(this.legend);
+		rep.setDir(this.dir);
+		rep.setType(this.type);
 		List<FormItemRepresentation> items = new ArrayList<FormItemRepresentation>();
 		for (FBFormItem item : getItems()) {
 			items.add(item.getRepresentation());
 		}
-		rep.setI18n(legendPanel.getI18nMap());
 		rep.setItems(items);
 		return rep;
 	}
 
 	@Override
 	public FBFormItem cloneItem() {
-		FieldSetLayoutFormItem clone = super.cloneItem(new FieldSetLayoutFormItem(getFormEffects()));
+		MenuLayoutFormItem clone = super.cloneItem(new MenuLayoutFormItem(getFormEffects()));
         clone.cssClassName = this.cssClassName;
         clone.id = this.id;
-        clone.legend = this.legend;
+        clone.dir = this.dir;
+        clone.type = this.type;
         clone.populate(clone.panel);
         for (FBFormItem item : getItems()) {
             clone.add(item.cloneItem());
@@ -196,26 +195,14 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
 
 	@Override
 	public Widget cloneDisplay(Map<String, Object> formData) {
-		FieldSetPanel fsp = new FieldSetPanel(new LabelFormItem(getFormEffects()));
-        populate(fsp);
-        String value = (String) getInputValue(formData);
-        if (value != null) {
-            fsp.setLegend(value);
-        } else {
-            String locale = (String) formData.get(FormBuilderGlobals.BASE_LOCALE);
-            fsp.setLegend(this.legend);
-            if (locale != null) {
-                String i18nText = legendPanel.getI18n(locale);
-                if (i18nText != null && !"".equals(i18nText)) {
-                    fsp.setLegend(i18nText);
-                }
-            }
-        }
-        super.populateActions(fsp.getElement());
+		HorizontalPanel hp = new HorizontalPanel();
+		hp.setBorderWidth(0);
+        populate(hp);
+        super.populateActions(hp.getElement());
         for (FBFormItem item : getItems()) {
-            fsp.add(item.cloneDisplay(formData));
+            hp.add(item.cloneDisplay(formData));
         }
-        return fsp;
+		return hp;
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.formapi.client.FormBuilderException;
 import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formapi.client.form.I18NFormItem;
@@ -15,6 +16,7 @@ import org.jbpm.formapi.shared.api.FormItemRepresentation;
 import org.jbpm.formapi.shared.api.items.SummaryRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
 import org.jbpm.formbuilder.client.form.I18NUtils;
+import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
@@ -22,6 +24,8 @@ import com.gwtent.reflection.client.Reflectable;
 @Reflectable
 public class SummaryFormItem extends OptionsFormItem implements I18NFormItem {
 
+	private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+	
 	private final ListWidget listWidget = new ListWidget();
 	private final I18NUtils utils = new I18NUtils();
 
@@ -102,6 +106,31 @@ public class SummaryFormItem extends OptionsFormItem implements I18NFormItem {
 		rep.setItems(this.listWidget.getItems());
 		return rep;
 	}
+
+    @Override
+    public void populate(FormItemRepresentation rep) throws FormBuilderException {
+        if (!(rep instanceof SummaryRepresentation)) {
+            throw new FormBuilderException(i18n.RepNotOfType(rep.getClass().getName(), "SummaryRepresentation"));
+        }
+        super.populate(rep);
+        SummaryRepresentation srep = (SummaryRepresentation) rep;
+        this.cssClassName = srep.getCssClassName();
+        this.dir = srep.getDir();
+        if (srep.getWidth() != null && !"".equals(srep.getWidth())) {
+            setWidth(srep.getWidth());
+        }
+        if (srep.getHeight() != null && !"".equals(srep.getHeight())) {
+            setHeight(srep.getHeight());
+        }
+        
+        this.utils.saveI18nMap(srep.getI18n());
+        this.id = srep.getId();
+        this.scrollLeft = srep.getScrollLeft();
+        this.scrollTop = srep.getScrollTop();
+        
+        populate(this.listWidget);
+    }
+
 
 	@Override
 	public Widget cloneDisplay(Map<String, Object> formData) {

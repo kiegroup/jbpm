@@ -1,4 +1,20 @@
 {   "Layout Components": [ 
+        {   "className": "org.jbpm.formbuilder.client.menu.items.HorizontalLayoutMenuItem",
+            "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
+                "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
+            ],
+            "effects": [
+                { "className": "org.jbpm.formbuilder.client.effect.RemoveEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CopyFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.CutFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.PasteFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.DoneEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.ResizeEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.MoveItemFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.EventHandlingFormEffect" },
+                { "className": "org.jbpm.formbuilder.client.effect.SaveAsMenuOptionFormEffect"}
+            ]
+        },
         {   "className": "org.jbpm.formbuilder.client.menu.items.FieldSetLayoutMenuItem",
             "allowedEvents": [ "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseout",
                 "onmouseover", "onmouseup", "onkeydown", "onkeypress", "onkeyup"
