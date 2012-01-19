@@ -192,8 +192,8 @@ public class CommandDelegate {
             if ("Mina".equals(TaskManagement.TASK_SERVICE_STRATEGY)) {
                 CommandBasedWSHumanTaskHandler handler = new CommandBasedWSHumanTaskHandler(ksession);
                 handler.setConnection(
-                    jbpmconsoleproperties.getProperty("jbpm.console.task.service.host"),
-                    new Integer(jbpmconsoleproperties.getProperty("jbpm.console.task.service.port")));
+                    jbpmconsoleproperties.getProperty("jbpm.console.task.service.host").trim(),
+                    new Integer(jbpmconsoleproperties.getProperty("jbpm.console.task.service.port").trim()));
                 ksession.getWorkItemManager().registerWorkItemHandler(
                     "Human Task", handler);
                 handler.connect();
