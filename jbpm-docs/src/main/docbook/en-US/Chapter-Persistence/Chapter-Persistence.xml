@@ -33,6 +33,15 @@
     persistence strategies.  By default, if you do not configure the
     process engine otherwise, process instances are not made persistent.</para>
 
+    <para>The runtime persistence data should in general be considered internal, meaning that you
+    probably should not try to access these database tables directly and especially not try
+    to modify these directly (as changing the runtime state of process instances without the
+    engine knowing might have unexpected side-effects).  In most cases where information about
+    the current execution state of process instances is required, the use of a history log
+    is mostly recommended (see below).  In some cases, it might still be useful to for example
+    query the internal database tables directly, but you should only do this if you know what
+    you are doing.</para>
+
     <section>
       <title>Binary Persistence</title>
     
@@ -41,20 +50,34 @@
     into a binary dataset. When you use persistence with jBPM, this 
     mechanism is used to save or retrieve the process instance state 
     from the database. The same mechanism is also applied to the 
-    session state and work item states.</para> 
+    session state and any work item states.</para> 
+
+    <para>When the process instance state is persisted, two things
+    happen: 
+    <itemizedlist>
+      <listitem>First, the process instance information is transformed 
+      into a binary blob. For performance reasons, a custom serialization 
+      mechanism is used and not normal Java serialization.</listitem>
+      <listitem>This blob is then stored, alongside other metadata about 
+      this process instance. This metadata includes, among other things, 
+      the process instance id, process id, and the process start date.</listitem>
+    </itemizedlist>
+    </para>
+
+    <para>Apart from the process instance state, the session itself can 
+    also store some state, such as the state of timer jobs, or the session 
+    data that the any business rules would be evaluated over.  
+    This session state is stored separately as a binary blob, along with 
+    the id of the session and some metadata. You can always restore session 
+    state by reloading the session with the given id.  The session id can 
+    be retrieved using <code>ksession.getId()</code>.</para>
 
     <para>Note that the process instance binary datasets are usually 
     relatively small, as they only contain the minimal execution state 
     of the process instance.  For a simple process instance, this usually 
     contains one or a few node instances, i.e., any node that is currently 
-    executing, and, possibly, some variable values.</para>
+    executing, and any existing variable values.</para>
     
-    <para>One of the main reasons to use binary persistence is that it 
-    means that backwards (and "forwards" compatibility) is very easy: 
-    if new features or other modifications end up meaning that more data 
-    or new types of data need to be saved, we can take care of fixing 
-    backwards/forwards compatibility in the marshalling code.</para> 
-
     <para>As a result of jBPM using marshalling, the data model is both 
     simple and small:</para>
 
@@ -85,9 +108,6 @@
         <listitem><code>optlock</code>: the version field that serves as 
         its optimistic lock value</listitem>
       </itemizedlist>
-      While values internal to your process instance (process variables, 
-      for example) will be stored in the process instance, facts used 
-      in rules used by your process are saved in the session. 
     </para>
 
     <para>The <code>processinstanceinfo</code> entity contains the state 
