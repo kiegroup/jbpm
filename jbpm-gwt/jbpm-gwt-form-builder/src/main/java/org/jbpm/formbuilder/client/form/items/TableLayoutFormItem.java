@@ -50,28 +50,43 @@ public class TableLayoutFormItem extends LayoutFormItem {
     private Grid grid = new Grid(1, 1) {
         @Override
         public boolean remove(Widget widget) {
-            if (widget instanceof FBFormItem) {
-                return TableLayoutFormItem.this.remove(widget);
+        	if (widget instanceof FBFormItem) {
+                boolean found = false;
+                int row = 0, column = 0;
+                while (row < super.getRowCount() && !found) {
+                    for (column = 0; column < super.getColumnCount() && !found; ) {
+                    	Widget cellWidget = super.getWidget(row, column);
+                        if (cellWidget != null && cellWidget.equals(widget)) {
+                        	found = true;
+                        }
+                        if (found) break; else column++;
+                    }
+                    if (found) break; else row++;
+                }
+                if (found) {
+                	super.remove(widget);
+                	getCellFormatter().getElement(row, column).setInnerHTML("&nbsp");
+                }
+                return found;
             } else if (widget instanceof PhantomPanel) {
                 boolean retval = false;
                 int row = 0, column = 0;
                 while (row < super.getRowCount() && !retval) {
                     for (column = 0; column < super.getColumnCount() && !retval; column++) {
                         if (super.getWidget(row, column) != null && isPhantom(super.getWidget(row, column))) {
-                            retval = true;
+                        	getCellFormatter().getElement(row, column).setInnerHTML("&nbsp");
                             break;
                         }
                     }
                     if (retval) break; else row++; 
                 }
                 if (retval) {
-                    if (super.getWidget(row, column) != null) {
-                        super.getWidget(row, column).getElement().getParentElement().setInnerHTML("&nbsp;");
-                    }
+                	super.remove(widget);
+                	getCellFormatter().getElement(row, column).setInnerHTML("&nbsp");
                 }
                 return retval;
             } else {
-                return super.remove(widget);
+            	return super.remove(widget);
             }
         }
     };
@@ -192,7 +207,10 @@ public class TableLayoutFormItem extends LayoutFormItem {
                 Element cellElement = grid.getCellFormatter().getElement(row, column);
                 if (x > cellElement.getAbsoluteLeft() && x < cellElement.getAbsoluteRight() &&
                     y > cellElement.getAbsoluteTop() && y < cellElement.getAbsoluteBottom() &&
-                    (grid.getWidget(row, column) == null || isWhiteSpace(grid.getWidget(row, column)) || isPhantom(grid.getWidget(row, column)))) {
+                    (grid.getWidget(row, column) == null || 
+                    		isWhiteSpace(grid.getWidget(row, column)) || 
+                    		isPhantom(grid.getWidget(row, column)))
+                    ) {
                     found = true;
                     break;
                 }
@@ -377,23 +395,8 @@ public class TableLayoutFormItem extends LayoutFormItem {
     }
     
     @Override
-    public boolean remove(Widget child) {
-        boolean removed = false;
-        if (child instanceof FBFormItem) {
-            for (int i = 0; i < grid.getRowCount(); i++) {
-                for (int j = 0; j < grid.getColumnCount(); j++) {
-                    if (grid.getWidget(i, j) != null && grid.getWidget(i, j).equals(child)) {
-                        removed = super.remove(child);
-                        ////WARN dom used: seems the only way of fixing deleted cell bug
-                        grid.getWidget(i, j).getElement().getParentElement().setInnerHTML("&nbsp;");
-                        break;
-                    }
-                }
-            }
-        } else {
-            removed = super.remove(child);
-        }
-        return removed;
+    public boolean removeItem(FBFormItem item) {
+    	return false;
     }
     
     @Override

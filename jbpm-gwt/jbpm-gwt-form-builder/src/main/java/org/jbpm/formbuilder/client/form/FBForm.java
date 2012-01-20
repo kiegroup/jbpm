@@ -377,8 +377,8 @@ public class FBForm extends FlowPanel implements FBCompositeItem {
         }
         if (phantom != null) {
             int index = getWidgetIndex(phantom);
-            insert(item, index);
             remove(phantom);
+            insert(item, index);
         } else {
             add(item);
         }

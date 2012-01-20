@@ -147,17 +147,25 @@ public class DropFormItemController extends AbstractDropController {
                 Integer y = (Integer) event.getData("y");
                 if (formItem != null) {
                     bus.fireEvent(new FormItemRemovedEvent(formItem));
-                    HasWidgets panel = layoutView.getUnderlyingLayout(x, y);
-                    if (panel instanceof FBForm) {
-                        FBForm formDisplay = (FBForm) panel;
-                        formDisplay.remove(movable);
+                    HasWidgets dropContainer = layoutView.getUnderlyingLayout(x, y);
+                    Widget previousContainer = formItem.getParent();
+                    if (previousContainer instanceof FBForm) {
+                    	FBForm formDisplay = (FBForm) previousContainer;
+                    	formDisplay.remove(movable);
+                    	formDisplay.remove(formItem);
+                    } else {
+                    	LayoutFormItem layoutItem = (LayoutFormItem) ((Widget) previousContainer).getParent();
+                    	layoutItem.remove(movable);
+                    	layoutItem.remove(formItem);
+                    }
+                    if (dropContainer instanceof FBForm) {
+                        FBForm formDisplay = (FBForm) dropContainer;
                         formDisplay.replacePhantom(formItem);
                     } else {
-                        LayoutFormItem layoutItem = (LayoutFormItem) ((Widget) panel).getParent();
-                        layoutItem.remove(movable);
+                        LayoutFormItem layoutItem = (LayoutFormItem) ((Widget) dropContainer).getParent();
                         layoutItem.replacePhantom(formItem);
                     }
-                    bus.fireEvent(new FormItemAddedEvent(formItem, (Widget) panel));
+                    bus.fireEvent(new FormItemAddedEvent(formItem, (Widget) dropContainer));
                 }
             }
         }));

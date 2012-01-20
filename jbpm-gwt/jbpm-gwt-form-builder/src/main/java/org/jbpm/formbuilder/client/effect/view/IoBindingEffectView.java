@@ -36,7 +36,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -80,19 +80,19 @@ public class IoBindingEffectView extends PopupPanel {
             }
         });
         
-        Grid grid = new Grid(3,2);
-        grid.setWidget(0, 0, new Label(i18n.LabelInput()));
-        grid.setWidget(0, 1, inputList);
-        grid.setWidget(1, 0, new Label(i18n.LabelOutput()));
-        grid.setWidget(1, 1, outputList);
-        grid.setWidget(2, 0, externalDataCheckbox);
-        grid.setWidget(2, 1, createExternalDataPanel());
-        grid.setWidget(3, 0, applyButton);
-        grid.setWidget(3, 1, cancelButton);
+        FlexTable table = new FlexTable();
+        table.setWidget(0, 0, new Label(i18n.LabelInput()));
+        table.setWidget(0, 1, inputList);
+        table.setWidget(1, 0, new Label(i18n.LabelOutput()));
+        table.setWidget(1, 1, outputList);
+        table.setWidget(2, 0, externalDataCheckbox);
+        table.setWidget(2, 1, createExternalDataPanel());
+        table.setWidget(3, 0, applyButton);
+        table.setWidget(3, 1, cancelButton);
         
         VerticalPanel vPanel = new VerticalPanel();
         vPanel.add(title);
-        vPanel.add(grid);
+        vPanel.add(table);
         setWidget(vPanel);
     }
 

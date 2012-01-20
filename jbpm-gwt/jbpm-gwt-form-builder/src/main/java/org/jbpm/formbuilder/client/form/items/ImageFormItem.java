@@ -137,10 +137,10 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSource
         ImageFormItem clone = new ImageFormItem(getFormEffects());
         clone.altText = this.altText;
         clone.setHeight(this.getHeight());
+        clone.setWidth(this.getWidth());
         clone.id = this.id;
         clone.url = this.url;
         clone.saveI18nMap(getI18nMap());
-        clone.setWidth(this.getWidth());
         clone.populate(clone.image);
         return clone;
     }
