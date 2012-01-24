@@ -148,6 +148,7 @@ public interface I18NConstants extends Messages {
     String MenuItemNumberField();
     String MenuItemAudio();
     String MenuItemVideo();
+    String MenuItemCanvas();
     
     String NotEmptyValidationName();
     String EqualToValidationName();
@@ -314,5 +315,6 @@ public interface I18NConstants extends Messages {
 	
 	String AudioNotSupported();
 	String VideoNotSupported();
+	String CanvasNotSupported();
 	
 }

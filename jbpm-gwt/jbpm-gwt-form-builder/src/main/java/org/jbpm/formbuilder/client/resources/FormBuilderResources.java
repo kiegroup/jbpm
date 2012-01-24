@@ -181,11 +181,17 @@ public interface FormBuilderResources extends ClientBundle {
 
     @Source("images/video.png")
     ImageResource video();
+    
+    @Source("images/canvas.png")
+    ImageResource canvas();
 
 	@Source("images/file_input_with_progress_bar.png")
     ImageResource fileInputWithProgressBar();
 
     @Source("images/flexible_table_icon.png")
     ImageResource flexibleTable();
+    
+    @Source("images/canvas_not_supported.svg")
+    ImageResource canvasNotSupported();
 
 }
