@@ -56,6 +56,7 @@ public class AudioFormItem extends FBFormItem implements HasSourceReference {
 		if (audio == null) {
 			add(notSupported);
 		} else {
+			audio.setControls(true);
 			add(audio);
 		}
 		setWidth("300px");
@@ -102,6 +103,7 @@ public class AudioFormItem extends FBFormItem implements HasSourceReference {
 	        if (this.dataType != null) {
 	        	audio.getElement().setPropertyObject("type", this.dataType);
 	        }
+	        audio.setControls(true);
 		}
     }
 

@@ -25,4 +25,4 @@
   #end
 #end
 
-<audio $typeParam #if($dataParam)$dataParam#end autoplay controls #if($styleParam)$styleParam#end#if($classParam)$classParam#end#if($idParam)$idParam#end></audio>
+<audio $typeParam #if($dataParam)$dataParam#end controls #if($styleParam)$styleParam#end#if($classParam)$classParam#end#if($idParam)$idParam#end></audio>

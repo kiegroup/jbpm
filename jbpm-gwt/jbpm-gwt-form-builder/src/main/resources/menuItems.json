@@ -211,7 +211,7 @@
                 { "className": "org.jbpm.formbuilder.client.effect.IoBindingEffect" }
             ]
         },
-        {   "className": "org.jbpm.formbuilder.client.menu.items.RangeFieldFormItem",
+        {   "className": "org.jbpm.formbuilder.client.menu.items.RangeFieldMenuItem",
             "allowedEvents": [ "onblur", "onchange", "onclick", "ondblclick", "onfocus",
                 "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup",
                 "onkeydown", "onkeypress", "onkeyup", "onselect"

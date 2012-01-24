@@ -58,8 +58,11 @@ public class VideoFormItem extends FBFormItem implements HasSourceReference {
 		} else {
 			add(video);
 		}
+		video.setWidth("300px");
+		video.setHeight("200px");
+		video.setControls(true);
 		setWidth("300px");
-        setHeight("50px");
+		setHeight("200px");
 	}
 
 	@Override
@@ -102,6 +105,7 @@ public class VideoFormItem extends FBFormItem implements HasSourceReference {
 	        if (this.dataType != null) {
 	        	video.getElement().setPropertyObject("type", this.dataType);
 	        }
+	        video.setControls(true);
 		}
     }
 
