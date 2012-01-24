@@ -169,10 +169,23 @@ public interface FormBuilderResources extends ClientBundle {
     
     @Source("images/menu_layout_icon.png")
 	ImageResource menuLayout();
+    
+    @Source("images/rangeField.png")
+    ImageResource rangeField();
+
+    @Source("images/numberField.png")
+	ImageResource numberField();
+    
+    @Source("images/audio.png")
+    ImageResource audio();
+
+    @Source("images/video.png")
+    ImageResource video();
 
 	@Source("images/file_input_with_progress_bar.png")
     ImageResource fileInputWithProgressBar();
 
     @Source("images/flexible_table_icon.png")
     ImageResource flexibleTable();
+
 }

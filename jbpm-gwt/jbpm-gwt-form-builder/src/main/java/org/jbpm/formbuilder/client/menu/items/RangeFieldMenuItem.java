@@ -21,7 +21,7 @@ import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formapi.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.form.items.MenuLayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.RangeFieldFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
@@ -29,34 +29,34 @@ import com.google.gwt.user.client.ui.Label;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class MenuLayoutMenuItem extends FBMenuItem {
+public class RangeFieldMenuItem extends FBMenuItem {
 
-	public MenuLayoutMenuItem() {
+	public RangeFieldMenuItem() {
 		super();
 	}
 	
-	public MenuLayoutMenuItem(List<FBFormEffect> formEffects) {
+	public RangeFieldMenuItem(List<FBFormEffect> formEffects) {
 		super(formEffects);
 	}
 	
 	@Override
-	protected ImageResource getIconUrl() {
-		return FormBuilderResources.INSTANCE.menuLayout();
+	public Label getDescription() {
+		return new Label(FormBuilderGlobals.getInstance().getI18n().MenuItemRangeField());
 	}
 
 	@Override
-	public Label getDescription() {
-		return new Label(FormBuilderGlobals.getInstance().getI18n().MenuItemMenuLayout());
+	protected ImageResource getIconUrl() {
+		return FormBuilderResources.INSTANCE.rangeField();
 	}
 
 	@Override
 	public FBMenuItem cloneWidget() {
-		return clone(new MenuLayoutMenuItem());
+		return clone(new RangeFieldMenuItem());
 	}
 
 	@Override
 	public FBFormItem buildWidget() {
-		return build(new MenuLayoutFormItem());
+		return build(new RangeFieldFormItem());
 	}
 
 }

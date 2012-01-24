@@ -191,6 +191,11 @@ public abstract class FBFormItem extends FocusPanel {
     protected String extractString(Object obj) {
         return obj == null ? "" : obj.toString();
     }
+    
+    protected Double extractDouble(Object obj) {
+    	String s = extractString(obj);
+    	return s.equals("") ? null : Double.valueOf(s);
+    }
 
     public List<FBFormEffect> getFormEffects() {
         return this.effects;

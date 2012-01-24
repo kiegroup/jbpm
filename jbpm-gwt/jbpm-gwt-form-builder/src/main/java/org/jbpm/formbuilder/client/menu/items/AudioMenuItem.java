@@ -21,7 +21,7 @@ import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formapi.client.form.FBFormItem;
 import org.jbpm.formapi.client.menu.FBMenuItem;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
-import org.jbpm.formbuilder.client.form.items.MenuLayoutFormItem;
+import org.jbpm.formbuilder.client.form.items.AudioFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
@@ -29,34 +29,34 @@ import com.google.gwt.user.client.ui.Label;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class MenuLayoutMenuItem extends FBMenuItem {
+public class AudioMenuItem extends FBMenuItem {
 
-	public MenuLayoutMenuItem() {
+	public AudioMenuItem() {
 		super();
 	}
-	
-	public MenuLayoutMenuItem(List<FBFormEffect> formEffects) {
+
+	public AudioMenuItem(List<FBFormEffect> formEffects) {
 		super(formEffects);
-	}
-	
-	@Override
-	protected ImageResource getIconUrl() {
-		return FormBuilderResources.INSTANCE.menuLayout();
 	}
 
 	@Override
 	public Label getDescription() {
-		return new Label(FormBuilderGlobals.getInstance().getI18n().MenuItemMenuLayout());
+        return new Label(FormBuilderGlobals.getInstance().getI18n().MenuItemAudio());
+	}
+
+	@Override
+	protected ImageResource getIconUrl() {
+		return FormBuilderResources.INSTANCE.audio();
 	}
 
 	@Override
 	public FBMenuItem cloneWidget() {
-		return clone(new MenuLayoutMenuItem());
+		return clone(new AudioMenuItem());
 	}
 
 	@Override
 	public FBFormItem buildWidget() {
-		return build(new MenuLayoutFormItem());
+		return build(new AudioFormItem());
 	}
 
 }

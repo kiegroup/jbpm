@@ -134,7 +134,7 @@ public class ImageFormItem extends FBFormItem implements I18NFormItem, HasSource
 
     @Override
     public FBFormItem cloneItem() {
-        ImageFormItem clone = new ImageFormItem(getFormEffects());
+        ImageFormItem clone = super.cloneItem(new ImageFormItem());
         clone.altText = this.altText;
         clone.setHeight(this.getHeight());
         clone.setWidth(this.getWidth());

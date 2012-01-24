@@ -25,7 +25,6 @@ import org.jbpm.formbuilder.client.form.items.TextFieldFormItem;
 import org.jbpm.formbuilder.client.resources.FormBuilderResources;
 
 import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.gwtent.reflection.client.Reflectable;
 
@@ -42,7 +41,7 @@ public class TextFieldMenuItem extends FBMenuItem {
 
     @Override
     public Label getDescription() {
-        return new HTML("<strong>" + FormBuilderGlobals.getInstance().getI18n().MenuItemTextField() + "</strong>");
+        return new Label(FormBuilderGlobals.getInstance().getI18n().MenuItemTextField());
     }
     
     @Override

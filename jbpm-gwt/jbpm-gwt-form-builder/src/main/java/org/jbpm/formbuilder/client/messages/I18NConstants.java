@@ -144,6 +144,10 @@ public interface I18NConstants extends Messages {
     String MenuItemSummary();
     String MenuItemFieldSet();
     String MenuItemMenuLayout();
+    String MenuItemRangeField();
+    String MenuItemNumberField();
+    String MenuItemAudio();
+    String MenuItemVideo();
     
     String NotEmptyValidationName();
     String EqualToValidationName();
@@ -307,5 +311,8 @@ public interface I18NConstants extends Messages {
     String ErrorDeletingFile(String statusCode);
 	String CouldntFindFiles(String string);
 	String YouMustSelectAnItem(String toButton, String elseButton);
+	
+	String AudioNotSupported();
+	String VideoNotSupported();
 	
 }

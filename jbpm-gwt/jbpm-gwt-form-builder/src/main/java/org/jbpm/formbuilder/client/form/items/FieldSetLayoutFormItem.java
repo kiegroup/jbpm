@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 JBoss Inc 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jbpm.formbuilder.client.form.items;
 
 import java.util.ArrayList;
@@ -8,12 +23,14 @@ import java.util.Map;
 import org.jbpm.formapi.client.FormBuilderException;
 import org.jbpm.formapi.client.effect.FBFormEffect;
 import org.jbpm.formapi.client.form.FBFormItem;
+import org.jbpm.formapi.client.form.I18NFormItem;
 import org.jbpm.formapi.client.form.LayoutFormItem;
 import org.jbpm.formapi.client.form.PhantomPanel;
 import org.jbpm.formapi.common.panels.FieldSetPanel;
 import org.jbpm.formapi.shared.api.FormItemRepresentation;
 import org.jbpm.formapi.shared.api.items.FieldSetPanelRepresentation;
 import org.jbpm.formbuilder.client.FormBuilderGlobals;
+import org.jbpm.formbuilder.client.form.I18NUtils;
 import org.jbpm.formbuilder.client.messages.I18NConstants;
 
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -21,16 +38,17 @@ import com.google.gwt.user.client.ui.Widget;
 import com.gwtent.reflection.client.Reflectable;
 
 @Reflectable
-public class FieldSetLayoutFormItem extends LayoutFormItem {
+public class FieldSetLayoutFormItem extends LayoutFormItem implements I18NFormItem {
 
 	private final I18NConstants i18n = FormBuilderGlobals.getInstance().getI18n();
+
+	private final I18NUtils utils = new I18NUtils();
 	
 	private String cssClassName;
 	private String id;
 	private String legend;
 
-	private LabelFormItem legendPanel = new LabelFormItem();
-    private FieldSetPanel panel = new FieldSetPanel(legendPanel) {
+    private FieldSetPanel panel = new FieldSetPanel() {
         @Override
         public boolean remove(Widget w) {
             if (w instanceof FBFormItem) {
@@ -176,7 +194,7 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
 		for (FBFormItem item : getItems()) {
 			items.add(item.getRepresentation());
 		}
-		rep.setI18n(legendPanel.getI18nMap());
+		rep.setI18n(getI18nMap());
 		rep.setItems(items);
 		return rep;
 	}
@@ -196,7 +214,7 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
 
 	@Override
 	public Widget cloneDisplay(Map<String, Object> formData) {
-		FieldSetPanel fsp = new FieldSetPanel(new LabelFormItem(getFormEffects()));
+		FieldSetPanel fsp = new FieldSetPanel();
         populate(fsp);
         String value = (String) getInputValue(formData);
         if (value != null) {
@@ -205,7 +223,7 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
             String locale = (String) formData.get(FormBuilderGlobals.BASE_LOCALE);
             fsp.setLegend(this.legend);
             if (locale != null) {
-                String i18nText = legendPanel.getI18n(locale);
+                String i18nText = getI18n(locale);
                 if (i18nText != null && !"".equals(i18nText)) {
                     fsp.setLegend(i18nText);
                 }
@@ -218,4 +236,33 @@ public class FieldSetLayoutFormItem extends LayoutFormItem {
         return fsp;
 	}
 
+	@Override
+	public boolean containsLocale(String localeName) {
+		return utils.containsLocale(localeName);
+	}
+	
+	@Override
+	public Format getFormat() {
+		return utils.getFormat();
+	}
+	
+	@Override
+	public String getI18n(String key) {
+		return utils.getI18n(key);
+	}
+	
+	@Override
+	public Map<String, String> getI18nMap() {
+		return utils.getI18nMap();
+	}
+	
+	@Override
+	public void saveI18nMap(Map<String, String> i18nMap) {
+		utils.saveI18nMap(i18nMap);
+	}
+	
+	@Override
+	public void setFormat(Format format) {
+		utils.setFormat(format);
+	}
 }

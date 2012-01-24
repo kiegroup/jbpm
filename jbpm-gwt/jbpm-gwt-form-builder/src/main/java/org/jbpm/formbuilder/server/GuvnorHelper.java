@@ -168,7 +168,7 @@ public class GuvnorHelper {
     
     public String getApiSearchUrl(String pkgName) throws UnsupportedEncodingException {
         return new StringBuilder(this.baseUrl).
-            append("/org.drools.guvnor.GuvnorDrools/api/packages/").
+            append("/org.drools.guvnor.Guvnor/api/packages/").
             append(URLEncoder.encode(pkgName, ENCODING)).append("/").toString();
     }
 
