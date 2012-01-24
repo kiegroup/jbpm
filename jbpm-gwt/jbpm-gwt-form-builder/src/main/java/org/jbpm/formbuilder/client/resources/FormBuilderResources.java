@@ -17,6 +17,8 @@ package org.jbpm.formbuilder.client.resources;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.DataResource;
+import com.google.gwt.resources.client.DataResource.MimeType;
 import com.google.gwt.resources.client.ImageResource;
 
 /**
@@ -192,6 +194,7 @@ public interface FormBuilderResources extends ClientBundle {
     ImageResource flexibleTable();
     
     @Source("images/canvas_not_supported.svg")
-    ImageResource canvasNotSupported();
+    @MimeType("image/svg+xml")
+    DataResource canvasNotSupported();
 
 }

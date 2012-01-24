@@ -43,7 +43,7 @@ public class CanvasFormItem extends FBFormItem implements HasSourceReference {
 	private final Canvas canvas = Canvas.createIfSupported();
 	private final Label notSupported = new Label(i18n.CanvasNotSupported());
 	
-	private String fallbackUrl = FormBuilderResources.INSTANCE.canvasNotSupported().getURL();
+	private String fallbackUrl = FormBuilderResources.INSTANCE.canvasNotSupported().getUrl();
 	private String cssClassName;
 	private String id;
 	private String dataType;
