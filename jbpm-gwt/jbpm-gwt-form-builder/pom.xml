@@ -15,7 +15,7 @@
   </properties>
   
   <build>
-    <finalName>jbpm-form-builder</finalName>
+    <finalName>jbpm-form-builder-${project.version}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
