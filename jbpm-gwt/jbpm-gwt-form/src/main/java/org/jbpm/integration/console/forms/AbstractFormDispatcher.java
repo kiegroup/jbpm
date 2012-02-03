@@ -20,8 +20,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -42,9 +45,14 @@ import org.jbpm.formapi.server.trans.TranslatorException;
 import org.jbpm.formapi.server.trans.TranslatorFactory;
 import org.jbpm.formapi.shared.api.FormRepresentation;
 import org.jbpm.formapi.shared.form.FormEncodingException;
+import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
 import org.jbpm.integration.console.shared.GuvnorFormUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 /**
  * @author Kris Verlaenen
@@ -89,13 +97,29 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 	
 	public InputStream getTemplate(String name) {
         // try to find on guvnor
-		 GuvnorFormUtils guvnorUtils = new GuvnorFormUtils();
-		 String content = guvnorUtils.getFormFromGuvnor(name);
+		 GuvnorFormUtils formUtils = new GuvnorFormUtils();
+		 String content = formUtils.getFormFromGuvnor(name);
 		 if (content != null && !"".equals(content)) {
 			 try {
 				 return new ByteArrayInputStream(content.getBytes("UTF-8"));
 			 } catch (UnsupportedEncodingException e) {
 				 logger.warn("Couldn't parse content to UTF-8", e);
+			 }
+		 } else { // try to find it the old way (backward compatibility)
+			 try {
+				 GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
+				 String templateName;
+				 if(guvnorUtils.templateExistsInRepo(name + "-taskform")) {
+					 templateName = name + "-taskform";
+				 } else if(guvnorUtils.templateExistsInRepo(name)) {
+					 templateName = name;
+				 } else {
+					 return null;
+				 }
+				 return guvnorUtils.getFormTemplateFromGuvnor(templateName);
+			 } catch (Throwable t) {
+				 logger.error("Could not load process template from Guvnor: " + t.getMessage());
+				 return null;
 			 }
 		 }
 	     // try to find on classpath
@@ -141,15 +165,45 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 						return name + "_DataSource";
 					}
 				});
+			} else { // try to find it the old way (backward compatibility)
+				freemarker.template.Configuration cfg = new freemarker.template.Configuration();
+				cfg.setObjectWrapper(new DefaultObjectWrapper());
+				cfg.setTemplateUpdateDelay(0);
+				Template temp = new Template(name, new InputStreamReader(src), cfg);
+				final ByteArrayOutputStream bout = new ByteArrayOutputStream();
+				Writer out = new OutputStreamWriter(bout);
+				temp.process(renderContext, out);
+				out.flush();
+				merged = new DataHandler(new DataSource() {
+					public InputStream getInputStream() throws IOException {
+						return new ByteArrayInputStream(bout.toByteArray());
+					}
+					public OutputStream getOutputStream() throws IOException {
+						return bout;
+					}
+					public String getContentType() {
+						return "*/*";
+					}
+					public String getName() {
+						return name + "_DataSource";
+					}
+				});
 			}
 		} catch (TranslatorException e) {
-			logger.error("Couldn't translate the form " + formUrl + " in the " + language + " language");
+			logger.error("Couldn't translate the form " + formUrl + " in the " + language + " language", e);
+			throw new RuntimeException("Failed to process form template", e);
 		} catch (RendererException e) {
-			logger.error("Couldn't render the form " + formUrl + " in the " + language + " language");
+			logger.error("Couldn't render the form " + formUrl + " in the " + language + " language", e);
+			throw new RuntimeException("Failed to process form template", e);
 		} catch (FormEncodingException e) {
-			logger.error("Couldn't decode the form " + formUrl + " in the " + language + " language");
+			logger.error("Couldn't decode the form " + formUrl + " in the " + language + " language", e);
+			throw new RuntimeException("Failed to process form template", e);
 		} catch (IOException e) {
-			logger.error("Couldn't write out the form " + formUrl + " in the " + language + " language");
+			logger.error("Couldn't write out the form " + formUrl + " in the " + language + " language", e);
+			throw new RuntimeException("Failed to process form template", e);
+		} catch (TemplateException e) {
+			logger.error("failed to process form template", e);
+			throw new RuntimeException("Failed to process form template", e);
 		}
 		return merged;
 	}
