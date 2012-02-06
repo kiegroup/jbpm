@@ -285,7 +285,7 @@
                         </login-module>
                     </authentication>
                 </security-domain>
-                <security-domain name="jbpm-form-builder" cache-type"default">
+                <security-domain name="jbpm-form-builder" cache-type="default">
                     <authentication>
                         <login-module code="UsersRoles" flag="required">
                             <module-option name="usersProperties" value="${jboss.server.config.dir}/users.properties"/>
