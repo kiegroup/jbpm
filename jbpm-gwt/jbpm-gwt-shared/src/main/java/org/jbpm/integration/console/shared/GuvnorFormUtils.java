@@ -23,8 +23,6 @@ public class GuvnorFormUtils {
 	    		 String templateName;
 	    		 if(utils.templateExistsInRepo(name)) {
 	    			 templateName = name;
-	    		 } else if(utils.templateExistsInRepo(name + "-taskform")) {
-	    			 templateName = name + "-taskform";
 	    		 } else {
 	    			 return null;
 	    		 }
@@ -50,8 +48,6 @@ public class GuvnorFormUtils {
 				String templateName;
 				if (utils.templateExistsInRepo(name)) {
 					templateName = name;
-				} else if (utils.templateExistsInRepo(name + "-taskform")) {
-					templateName = name + "-taskform";
 				} else {
 					return null;
 				}
