@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 import java.util.Properties;
-
-import javax.swing.Renderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +21,10 @@ public class GuvnorFormUtils {
 		if (utils.guvnorExists()) {
 	    	 try {
 	    		 String templateName;
-	    		 if(utils.templateExistsInRepo(name + "-taskform")) {
-	    			 templateName = name + "-taskform";
-	    		 } else if(utils.templateExistsInRepo(name)) {
+	    		 if(utils.templateExistsInRepo(name)) {
 	    			 templateName = name;
+	    		 } else if(utils.templateExistsInRepo(name + "-taskform")) {
+	    			 templateName = name + "-taskform";
 	    		 } else {
 	    			 return null;
 	    		 }
@@ -43,7 +40,7 @@ public class GuvnorFormUtils {
 	}
 	
     public String getFormDefinitionURLFromGuvnor(String templateName) {
-    	return utils.getFormTemplateURLFromGuvnor(templateName, "formdef");
+    	return utils.getFormTemplateURLFromGuvnor(templateName, "drl");
     }
 
 	
@@ -51,10 +48,10 @@ public class GuvnorFormUtils {
 		if (utils.guvnorExists()) {
 			try {
 				String templateName;
-				if (utils.templateExistsInRepo(name + "-taskform")) {
-					templateName = name + "-taskform";
-				} else if (utils.templateExistsInRepo(name)) {
+				if (utils.templateExistsInRepo(name)) {
 					templateName = name;
+				} else if (utils.templateExistsInRepo(name + "-taskform")) {
+					templateName = name + "-taskform";
 				} else {
 					return null;
 				}

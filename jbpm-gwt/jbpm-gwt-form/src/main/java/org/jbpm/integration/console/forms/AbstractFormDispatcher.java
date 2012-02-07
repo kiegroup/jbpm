@@ -101,9 +101,14 @@ public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 		 String content = formUtils.getFormFromGuvnor(name);
 		 if (content != null && !"".equals(content)) {
 			 try {
-				 return new ByteArrayInputStream(content.getBytes("UTF-8"));
-			 } catch (UnsupportedEncodingException e) {
-				 logger.warn("Couldn't parse content to UTF-8", e);
+				 FormEncodingServerFactory.getDecoder().decode(content);
+				 try {
+					 return new ByteArrayInputStream(content.getBytes("UTF-8"));
+				 } catch (UnsupportedEncodingException e) {
+					 logger.warn("Couldn't parse content to UTF-8", e);
+				 }
+			 } catch (FormEncodingException e) {
+				 logger.warn("Couldn't decode form as from form-builder generation", e);
 			 }
 		 } else { // try to find it the old way (backward compatibility)
 			 try {
