@@ -31,7 +31,7 @@
 
   <set-property name="export" value="yes"/>
   <extend-property name="locale" values="es_ES" />
-  <set-property name="user.agent" value="gecko1_8" />
+  <set-property name="user.agent" value="gecko1_8,safari" />
 
   <entry-point class="org.jbpm.formbuilder.client.FormBuilderEntryPoint" />
 

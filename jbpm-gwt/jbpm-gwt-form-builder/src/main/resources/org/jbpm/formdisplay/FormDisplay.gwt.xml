@@ -20,7 +20,7 @@
   <inherits name="org.timepedia.exporter.Exporter" />
 
   <set-property name="export" value="yes"/>
-  <set-property name="user.agent" value="gecko1_8" />
+  <set-property name="user.agent" value="gecko1_8,safari" />
 
   <entry-point class="org.jbpm.formdisplay.client.FormDisplayEntryPoint" />
 

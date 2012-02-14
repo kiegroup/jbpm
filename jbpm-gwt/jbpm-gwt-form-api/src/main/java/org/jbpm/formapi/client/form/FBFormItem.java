@@ -270,13 +270,25 @@ public abstract class FBFormItem extends FocusPanel {
         return external;
     }
     
+    protected void setWidgetHeight(String widgetHeight) {
+    	this.widgetHeight = widgetHeight;
+    }
+    
+    protected void setWidgetWidth(String widgetWidth) {
+    	this.widgetWidth = widgetWidth;
+    }
+    
+    protected void setEffects(List<FBFormEffect> effects) {
+    	this.effects = effects;
+    }
+    
     protected <T extends FBFormItem> T cloneItem(T clone) {
-        clone.validations = this.validations;
-        clone.widgetHeight = this.widgetHeight;
-        clone.widgetWidth = this.widgetWidth;
-        clone.effects = this.effects;
-        clone.input = this.input;
-        clone.output = this.output;
+        clone.setValidations(this.validations);
+        clone.setWidgetHeight(this.widgetHeight);
+        clone.setWidgetWidth(this.widgetWidth);
+        clone.setEffects(this.effects);
+        clone.setInput(this.input);
+        clone.setOutput(this.output);
         return clone;
     }
     
