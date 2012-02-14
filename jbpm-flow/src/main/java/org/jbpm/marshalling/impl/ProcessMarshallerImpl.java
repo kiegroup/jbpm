@@ -144,9 +144,9 @@ public class ProcessMarshallerImpl implements ProcessMarshaller {
         List<ProcessInstance> processInstanceList = new ArrayList<ProcessInstance>();
         while ( stream.readShort() == PersisterEnums.PROCESS_INSTANCE ) {
         	String processType = stream.readUTF();
-        	ProcessInstance processInstance 
-        	    = ProcessMarshallerRegistry.INSTANCE.getMarshaller(processType).readProcessInstance(context);
-        	processInstanceList.add(processInstance);
+                ProcessInstance processInstance
+                    = ProcessMarshallerRegistry.INSTANCE.getMarshaller(processType).readProcessInstance(context);
+                processInstanceList.add(processInstance);
         }
         return processInstanceList;
     }

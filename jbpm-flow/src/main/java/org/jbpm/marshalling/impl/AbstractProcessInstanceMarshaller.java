@@ -437,7 +437,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
 			        // This is the new way 
 			        else if( index == -2 ) { 
 			            String strategyClassName = context.stream.readUTF();
-			            if ( ! StringUtils.isEmpty(strategyClassName) ) { 
+			            if ( ! StringUtils.isEmpty(strategyClassName) ) {
 			                strategy = context.resolverStrategyFactory.getStrategyObject(strategyClassName);
 			                if( strategy == null ) { 
 			                    throw new IllegalStateException( "No strategy of type " + strategyClassName + " available." );

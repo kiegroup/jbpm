@@ -42,6 +42,7 @@ public class ProcessInstanceResolverStrategyTest {
     
     @Test
     public void testAccept() {
+        assertTrue(true);
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
         WorkflowProcessImpl process = new WorkflowProcessImpl();

@@ -46,7 +46,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
+public class JPAWorkingMemoryDbLoggerTest /*extends JbpmTestCase*/ {
 
     private HashMap<String, Object> context;
     private Logger logger = LoggerFactory.getLogger(JPAWorkingMemoryDbLoggerTest.class);

@@ -38,7 +38,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
+public class WorkingMemoryDbLoggerTest /*extends JbpmTestCase*/ {
     
     private HashMap<String, Object> context;
 

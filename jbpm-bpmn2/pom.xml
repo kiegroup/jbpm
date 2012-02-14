@@ -65,7 +65,7 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-flow-builder</artifactId>
-    </dependency>
+    </dependency> 
     <!--dependency>
       <groupId>net.sf.saxon</groupId>
       <artifactId>saxon</artifactId>

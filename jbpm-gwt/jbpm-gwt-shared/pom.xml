@@ -32,16 +32,16 @@
           <artifactId>slf4j-log4j12</artifactId>
         </dependency>
         <dependency>
-  		   <groupId>commons-codec</groupId>
-  		   <artifactId>commons-codec</artifactId>
-		</dependency>
+  	  <groupId>commons-codec</groupId>
+  	  <artifactId>commons-codec</artifactId>
+	</dependency>
         <dependency>
-            <groupId>com.sun.xml.stream</groupId>
-            <artifactId>sjsxp</artifactId>
+          <groupId>com.sun.xml.stream</groupId>
+          <artifactId>sjsxp</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.xml</groupId>
-            <artifactId>jsr173</artifactId>
+          <groupId>javax.xml</groupId>
+          <artifactId>jsr173</artifactId>
         </dependency>
 	</dependencies>
 

@@ -15,6 +15,7 @@ import org.drools.persistence.util.PersistenceUtil;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.junit.Test;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -88,5 +89,4 @@ public class JpaBasedPersistenceTest extends MapPersistenceTest {
         }
         return size;
     }
-
 }

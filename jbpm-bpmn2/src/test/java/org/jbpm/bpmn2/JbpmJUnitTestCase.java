@@ -35,6 +35,7 @@ import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
+
 /**
  * Base test case for the jbpm-bpmn2 module. 
  *
