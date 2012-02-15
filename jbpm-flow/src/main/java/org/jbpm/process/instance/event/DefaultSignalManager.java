@@ -46,6 +46,10 @@ public class DefaultSignalManager implements SignalManager {
 		return kruntime;
 	}
 
+	public List<EventListener> getEventListener(String type) {
+		return processEventListeners.get(type);
+	}
+	
 	public void addEventListener(String type, EventListener eventListener) {
 		if (processEventListeners == null) {
 			processEventListeners = new HashMap<String, List<EventListener>>();
@@ -61,7 +65,7 @@ public class DefaultSignalManager implements SignalManager {
 	public void removeAll() {
 		processEventListeners = new HashMap<String, List<EventListener>>();		
 	}
-	
+		
 	public void removeEventListener(String type, EventListener eventListener) {
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
@@ -76,7 +80,7 @@ public class DefaultSignalManager implements SignalManager {
 		kruntime.executeQueuedActions();
 	}
 	
-	public void internalSignalEvent(String type, Object event) {
+	public void internalSignalEvent(String type, Object event) {	
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {

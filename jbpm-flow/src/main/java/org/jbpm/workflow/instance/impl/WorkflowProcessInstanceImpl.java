@@ -36,6 +36,7 @@ import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.process.instance.event.DefaultSignalManager;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.EventNode;
@@ -379,10 +380,24 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			listeners = new CopyOnWriteArrayList<EventListener>();
 			eventListeners.put(type, listeners);
 			if (external) {
-				((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
-					.getSignalManager().addEventListener(type, this);
+				DefaultSignalManager signalManager = (DefaultSignalManager) ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
+				.getSignalManager();
+				List<EventListener> eventListenerList = signalManager.getEventListener(type);	
+				if (null != eventListenerList) {
+					Iterator<EventListener> eventListenerIterator = eventListenerList.iterator();
+					while(eventListenerIterator.hasNext()){
+						ProcessInstance processInstanceListener = (ProcessInstance) eventListenerIterator.next();
+						if(null != processInstanceListener) {
+							if(processInstanceListener.getId() == this.getId()){
+								signalManager.removeEventListener(type, processInstanceListener);
+							}
+						}
+					}
+				}
+				signalManager.addEventListener(type, this);
 			}
 		}
+		
 		listeners.add(listener);
 	}
 
