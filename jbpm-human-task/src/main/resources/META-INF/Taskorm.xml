@@ -586,4 +586,15 @@ where
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
+      <named-query name="TasksByProcessInstanceId">
+          <query>
+select
+    t
+from
+    Task t
+where
+    t.taskData.processInstanceId = :processInstanceId
+          </query>
+          <!-- hint name="org.hibernate.timeout" value="200"/ -->
+      </named-query>
 </entity-mappings>

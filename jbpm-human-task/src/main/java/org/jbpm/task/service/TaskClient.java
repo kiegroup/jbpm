@@ -35,6 +35,7 @@ import org.jbpm.task.service.TaskClientHandler.DeleteAttachmentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.DeleteCommentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
+import org.jbpm.task.service.TaskClientHandler.GetTasksResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.QueryGenericResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.SetDocumentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskOperationResponseHandler;
@@ -425,6 +426,18 @@ public class TaskClient implements AsyncTaskService{
 				                    responseHandler);
 		connector.write(cmd);
 	}
+
+    public void getTasksByProcessInstanceId(long processInstanceId,
+    		GetTasksResponseHandler responseHandler) {
+    	List<Object> args = new ArrayList<Object>(1);
+    	args.add(processInstanceId);
+    	Command cmd = new Command( counter.getAndIncrement(),
+    			CommandName.QueryTasksByProcessInstanceId,
+    			args);
+    	handler.addResponseHandler( cmd.getId(),
+    			responseHandler);
+    	connector.write(cmd);
+    }
 
     public void getTasksAssignedAsBusinessAdministrator(String userId,
                                                         String language,

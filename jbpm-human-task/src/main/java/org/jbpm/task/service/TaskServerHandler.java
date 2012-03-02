@@ -212,6 +212,17 @@ public class TaskServerHandler {
                     session.write(resultsCmnd);
                     break;
                 }
+                case QueryTasksByProcessInstanceId: {
+                    response = CommandName.QueryTasksByProcessInstanceIdResponse;
+                    List<Task> result = taskSession.getTasksByProcessInstanceId((Long) cmd.getArguments().get(0));
+                    List args = new ArrayList(1);
+                    args.add(result);
+                    Command resultsCmnd = new Command(cmd.getId(),
+                            CommandName.QueryTasksByProcessInstanceIdResponse,
+                            args);
+                    session.write(resultsCmnd);
+                    break;
+                }
                 case QueryTasksOwned: {
                     response = CommandName.QueryTaskSummaryResponse;
                     List<TaskSummary> results = taskSession.getTasksOwned((String) cmd.getArguments().get(0),

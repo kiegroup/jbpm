@@ -118,6 +118,17 @@ public class JPAProcessInstanceDbLog {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    public static List<ProcessInstanceLog> findInactiveProcessInstances(String processId) {
+        EntityManager em = getEntityManager();
+        UserTransaction ut = joinTransaction(em);
+        List<ProcessInstanceLog> result = getEntityManager()
+            .createQuery("FROM ProcessInstanceLog p WHERE p.processId = :processId AND p.end is not null")
+                .setParameter("processId", processId).getResultList();
+        closeEntityManager(em, ut);
+        return result;
+    }
+
     public static ProcessInstanceLog findProcessInstance(long processInstanceId) {
         EntityManager em = getEntityManager();
         UserTransaction ut = joinTransaction(em);
