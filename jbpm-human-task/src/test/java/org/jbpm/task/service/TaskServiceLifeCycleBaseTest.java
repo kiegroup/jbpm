@@ -1582,9 +1582,18 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
        		nominateHandler.waitTillDone(DEFAULT_WAIT_TIME);
        		fail("Shouldn't be successful");
         } catch (RuntimeException e) { //expected
-        	assertNotNull(nominateHandler.getError());
-        	assertNotNull(nominateHandler.getError().getMessage());
-        	assertTrue(nominateHandler.getError().getMessage().contains("Created"));
+          assertNotNull(nominateHandler.getError());
+          assertNotNull(nominateHandler.getError().getMessage());
+          String somethingAboutCreated = "Created";
+          String errorMessage = null;
+          if( nominateHandler.getError().getCause() != null ) { 
+            errorMessage = nominateHandler.getError().getCause().getMessage();
+          }
+          else { 
+            errorMessage = nominateHandler.getError().getMessage();
+          }
+          assertTrue("Error message does not contain '" + somethingAboutCreated + "' : " + errorMessage, 
+                    errorMessage.contains(somethingAboutCreated));
         }
         
         //shouldn't affect the assignments

@@ -51,8 +51,8 @@ public abstract class TaskServiceCommentsAndAttachmentsBaseTest extends BaseTest
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
         client.disconnect();
+        super.tearDown();
     }
 
 	public void testAddRemoveComment() {

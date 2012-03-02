@@ -162,17 +162,17 @@ public abstract class BaseTest extends TestCase {
         boolean thirdDeadlineMet = false;
         for( Item item : handler.getList() ) { 
             long deadlineTime = item.getDeadline().getDate().getTime();
-            if( deadlineTime == now + 22000 ) { 
+            if( deadlineTime == now + 20000 ) { 
                 firstDeadlineMet = true;
             }
-            else if( deadlineTime == now + 24000 ) { 
+            else if( deadlineTime == now + 22000 ) { 
                 secondDeadlineMet = true;
             }
-            else if( deadlineTime == now + 26000 ) { 
+            else if( deadlineTime == now + 24000 ) { 
                 thirdDeadlineMet = true;
             }
             else { 
-                fail( deadlineTime + " is not an expected deadline time." );
+                fail( deadlineTime + " is not an expected deadline time. Now is [" + now + "]." );
             }
         }
         
