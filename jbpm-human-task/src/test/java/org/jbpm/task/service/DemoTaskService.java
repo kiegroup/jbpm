@@ -16,12 +16,14 @@
 
 package org.jbpm.task.service;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -39,7 +41,8 @@ public class DemoTaskService {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.task");
-        TaskService taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
+	EscalatedDeadlineHandler handler = buildDeadlineHnadler();
+        TaskService taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener(), handler);
         TaskServiceSession taskSession = taskService.createSession();
         // Add users
         Map vars = new HashMap();
@@ -117,4 +120,38 @@ public class DemoTaskService {
         return MVEL.executeExpression( compiler.compile( context ), vars );
     }
 
+    protected static EscalatedDeadlineHandler buildDeadlineHnadler() {
+        Properties emailProperties = new Properties();
+        Properties userInfoProperties = new Properties();
+        String emailPropertiesParam = System.getProperty("jbpm.task.server.email");
+        String userInfoPropertiesParam = System.getProperty("jbpm.task.server.userinfo");
+        
+        if (emailProperties == null || userInfoPropertiesParam == null) {
+            System.out.println("jBPM-task server: no email or userinfo properties found, escalation won't be configured!!!");
+            return null;
+        }
+        
+        try {
+            // check classpath...
+            InputStream inEmail = DemoTaskService.class.getResourceAsStream(emailPropertiesParam);
+            InputStream inUserInfo = DemoTaskService.class.getResourceAsStream(userInfoPropertiesParam);
+            
+            // check file system...
+            if (inEmail == null) {
+                inEmail = new FileInputStream(emailPropertiesParam);
+            }
+            if (inUserInfo == null) {
+                inUserInfo = new FileInputStream(userInfoPropertiesParam);
+            }
+            emailProperties.load(inEmail);
+            userInfoProperties.load(inUserInfo);
+            
+            DefaultEscalatedDeadlineHandler handler = new DefaultEscalatedDeadlineHandler(emailProperties);
+            handler.setUserInfo(new DefaultUserInfo(userInfoProperties));
+            
+            return handler;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

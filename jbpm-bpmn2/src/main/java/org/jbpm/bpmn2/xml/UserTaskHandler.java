@@ -23,12 +23,15 @@ import java.util.Map;
 
 import org.drools.compiler.xml.XmlDumper;
 import org.drools.process.core.Work;
-import org.drools.process.core.impl.WorkImpl;
 import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.HumanTaskNode;
+import org.jbpm.workflow.core.node.TaskDeadline;
+import org.jbpm.workflow.core.node.TaskNotification;
+import org.jbpm.workflow.core.node.TaskReassignment;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -63,6 +66,8 @@ public class UserTaskHandler extends TaskHandler {
    //     		readDataOutputAssociation(xmlNode, humanTaskNode, dataOutputs);
         	} else if ("potentialOwner".equals(nodeName)) {
         		owners.add(readPotentialOwner(xmlNode, humanTaskNode));
+        	} else if ("extensionElements".equals(nodeName)) {
+        	    readExtensionElements(xmlNode, humanTaskNode);
         	}
     		xmlNode = xmlNode.getNextSibling();
         }
@@ -75,6 +80,114 @@ public class UserTaskHandler extends TaskHandler {
         }
     }
     
+    protected void readExtensionElements(org.w3c.dom.Node xmlNode, HumanTaskNode humanTaskNode) {
+        NodeList childs = xmlNode.getChildNodes();
+        List<TaskDeadline> deadlines = null;
+        for (int i = 0; i < childs.getLength(); i++) {
+            org.w3c.dom.Node element = childs.item(i);
+            
+            if ("deadline".equals(element.getNodeName())) {
+                TaskDeadline deadline = readDeadline(element, humanTaskNode);
+                if (deadlines == null) {
+                    deadlines = new ArrayList<TaskDeadline>();
+                }
+                deadlines.add(deadline);
+            }
+        }
+        if (deadlines != null) {
+            humanTaskNode.getWork().setParameter("Deadlines", deadlines);
+        }
+        
+    }
+
+    protected TaskDeadline readDeadline(org.w3c.dom.Node element, HumanTaskNode humanTaskNode) {
+        TaskDeadline deadline = new TaskDeadline();
+        
+        String type = ((Element)element).getAttribute("type");
+        String expires = ((Element)element).getAttribute("expires");
+        if (!"start".equals(type) && !"complete".equals(type)) {
+            throw new IllegalArgumentException("Deadline for user task " 
+                    + humanTaskNode.getName() + " is invalid (start|completed are supported)");
+        }
+        
+        if (expires == null || expires.length() == 0) {
+            throw new IllegalArgumentException("Deadline for user task " 
+                    + humanTaskNode.getName() + " is not set");
+        }
+        
+        deadline.setExpires(expires);
+        deadline.setType(type);
+        
+        // handle reassignment and notification
+        element = element.getFirstChild();
+        while (element != null) {
+            if ("reassignment".equals(element.getNodeName())) {
+                TaskReassignment reassignment = new TaskReassignment();
+                String reassignUsers = ((Element)element).getAttribute("users");
+                String reassignGroups = ((Element)element).getAttribute("groups");
+                
+                if (reassignGroups == null && reassignUsers == null) {
+                    throw new IllegalArgumentException("Deadline->Reassignment for user task " 
+                            + humanTaskNode.getName() + " does not have owners to reassign");
+                }
+                reassignment.setReassignUsers(reassignUsers);
+                reassignment.setReassignGroups(reassignGroups);
+                
+                deadline.addReassignment(reassignment);
+            } else if ("notification".equals(element.getNodeName())) {
+                TaskNotification notification = new TaskNotification();
+                
+                String notificationType = ensureDefault(((Element)element).getAttribute("type"), "email");
+                if (!"email".equals(notificationType)) {
+                    throw new IllegalArgumentException("Deadline->Notification for user task " 
+                            + humanTaskNode.getName() + " only email notification is supported");
+                }
+                notification.setType(notificationType);
+                
+                // process details of email notification, as that is the only one supported for now
+                NodeList notificationDetails = element.getChildNodes();
+                
+                for (int x = 0; x < notificationDetails.getLength(); x++) {
+                    org.w3c.dom.Node detail = notificationDetails.item(x);
+                    
+                    if ("subject".equals(detail.getNodeName())) {
+                        String locale = ensureDefault(((Element)detail).getAttribute("locale"), "en-UK");
+                        String subject = detail.getTextContent();
+                        
+                        notification.addSubject(locale, subject);
+                    } else if ("body".equals(detail.getNodeName())) {
+                        String locale = ensureDefault(((Element)detail).getAttribute("locale"), "en-UK");
+                        String body = detail.getTextContent();
+                        
+                        notification.addBody(locale, body);
+                    } else if ("address".equals(detail.getNodeName())) {
+                        String recipients = ((Element)detail).getAttribute("recipients");
+                        String grouprecipients = ((Element)detail).getAttribute("grouprecipients");
+                        String from = ((Element)detail).getAttribute("from");
+                        String replyTo = ((Element)detail).getAttribute("replyTo");
+                        
+                        if (recipients == null && grouprecipients == null) {
+                            throw new IllegalArgumentException("Deadline->Notification for user task " 
+                                    + humanTaskNode.getName() + " no recipients defined");
+                        }
+                        
+                        notification.setRecipients(recipients);
+                        notification.setGroupRecipients(grouprecipients);
+                        notification.setSender(from);
+                        notification.setReceiver(replyTo);
+                    }
+                }
+                
+                deadline.addNotification(notification);
+            }
+            
+            element = element.getNextSibling();
+        }
+        
+        return deadline;
+        
+    }
+
     protected String readPotentialOwner(org.w3c.dom.Node xmlNode, HumanTaskNode humanTaskNode) {
 		return xmlNode.getFirstChild().getFirstChild().getFirstChild().getTextContent();
     }
@@ -158,6 +271,14 @@ public class UserTaskHandler extends TaskHandler {
 				"        <targetRef>" + XmlDumper.replaceIllegalChars(entry.getValue()) + "</targetRef>" + EOL);
 			xmlDump.append("      </dataOutputAssociation>" + EOL);
 		}
+	}
+	
+	private String ensureDefault(String value, String defaultValue) {
+	    if (value == null) {
+	        return defaultValue;
+	    }
+	    
+	    return value;
 	}
 
 }

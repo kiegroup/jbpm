@@ -16,14 +16,16 @@
 
 package org.jbpm.task.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.persistence.EntityManager;
 
@@ -47,8 +49,6 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.jbpm.task.UserInfo;
-import org.mvel2.MVEL;
-import org.mvel2.compiler.ExpressionCompiler;
 import org.mvel2.templates.TemplateRuntime;
 
 public class DefaultEscalatedDeadlineHandler
@@ -69,12 +69,14 @@ public class DefaultEscalatedDeadlineHandler
         handler = new EmailWorkItemHandler();
         
         String host = properties.getProperty( "mail.smtp.host", "localhost" );
-        String port = properties.getProperty( "mail.smtp.port", "25" );     
+        String port = properties.getProperty( "mail.smtp.port", "25" );    
+        String user = properties.getProperty( "mail.smtp.user" );
+        String password = properties.getProperty( "mail.smtp.password" ); 
         
         from = properties.getProperty( "from", null );
         replyTo = properties.getProperty( "replyTo", null );
         
-        handler.setConnection( host, port, null, null );
+        handler.setConnection( host, port, user, password );
     }
     
     public DefaultEscalatedDeadlineHandler() {
@@ -83,11 +85,13 @@ public class DefaultEscalatedDeadlineHandler
         ChainedProperties conf = new ChainedProperties("drools.email.conf",  ClassLoaderUtil.getClassLoader( null, getClass(), false ) );
         String host = conf.getProperty( "host", null );
         String port = conf.getProperty( "port", "25" );
+        String user = conf.getProperty( "user", null );
+        String password = conf.getProperty( "password", null ); 
         
         from = conf.getProperty( "from", null );
         replyTo = conf.getProperty( "replyTo", null );
         
-        handler.setConnection( host, port, null, null );
+        handler.setConnection( host, port, user, password );
  
     }
     
@@ -135,13 +139,7 @@ public class DefaultEscalatedDeadlineHandler
             // we won't impl constraints for now
             //escalation.getConstraints()
             String language = "en-UK";
-            for ( Notification notification : escalation.getNotifications() ) {
-                if ( notification.getNotificationType() == NotificationType.Email) {
-                    executeEmailNotification( (EmailNotification) notification, task, em );
-                }        
-            }
-
-
+            // run reassignment first to allow notification to be send to new potential owners
             if ( !escalation.getReassignments().isEmpty()) {
                 // get first and ignore the rest.
                 Reassignment reassignment = escalation.getReassignments().get( 0 );
@@ -150,7 +148,12 @@ public class DefaultEscalatedDeadlineHandler
                 List potentialOwners = new ArrayList( reassignment.getPotentialOwners() );
                 task.getPeopleAssignments().setPotentialOwners( potentialOwners );
                 em.getTransaction().commit();
-            }            
+            }       
+            for ( Notification notification : escalation.getNotifications() ) {
+                if ( notification.getNotificationType() == NotificationType.Email) {
+                    executeEmailNotification( (EmailNotification) notification, task, em );
+                }        
+            }
         }
         em.getTransaction().begin();
         deadline.setEscalated( true );
@@ -190,8 +193,18 @@ public class DefaultEscalatedDeadlineHandler
             Content content = em.find( Content.class,
                                        taskData.getDocumentContentId() );
             if ( content != null ) {
-                ExpressionCompiler compiler = new ExpressionCompiler( new String( content.getContent() ) );
-                doc = (Map<String, Object>) MVEL.executeExpression( compiler.compile() );
+//                ExpressionCompiler compiler = new ExpressionCompiler( new String( content.getContent() ) );
+//                doc = (Map<String, Object>) MVEL.executeExpression( compiler.compile() );
+                ByteArrayInputStream bs = new ByteArrayInputStream(content.getContent());
+                try {
+                    ObjectInputStream oIn = new ObjectInputStream(bs);
+                    doc = (Map<String, Object>)oIn.readObject();
+
+                    oIn.close();
+                    bs.close();
+                } catch (Exception e) {
+                    // TODO: handle exception
+                }
             } else {
                 doc = Collections.emptyMap();
             }
@@ -234,6 +247,14 @@ public class DefaultEscalatedDeadlineHandler
             Map<String, Object> vars = new HashMap<String, Object>();
             vars.put( "doc",
                       doc );
+            // add internal items to be able to reference them in templates
+            vars.put("processInstanceId", taskData.getProcessInstanceId());
+            vars.put("processSessionId", taskData.getProcessSessionId());
+            vars.put("workItemId", taskData.getWorkItemId());            
+            vars.put("expirationTime", taskData.getExpirationTime());
+            vars.put("taskId", task.getId());
+            vars.put("owners", task.getPeopleAssignments().getPotentialOwners());
+            
             String subject = (String) TemplateRuntime.eval( header.getSubject(),
                                                             vars );
             String body = (String) TemplateRuntime.eval( header.getBody(),

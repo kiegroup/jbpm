@@ -29,9 +29,13 @@ import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.AbstractBaseResponseHandler;
+import org.jbpm.workflow.core.node.TaskDeadline;
+import org.jbpm.workflow.core.node.TaskNotification;
+import org.jbpm.workflow.core.node.TaskReassignment;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -202,7 +206,40 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
                 e.printStackTrace();
             }
         }
-
+        // handle deadlines if they are defined
+        @SuppressWarnings("unchecked")
+        List<TaskDeadline> taskDeadlines = (List<TaskDeadline>) workItem.getParameter("Deadlines");
+        if (taskDeadlines != null) {
+            Deadlines deadlinesTotal = new Deadlines();
+            
+            List<Deadline> startDeadlines = new ArrayList<Deadline>();
+            List<Deadline> endDeadlines = new ArrayList<Deadline>();
+            for (TaskDeadline taskDeadline : taskDeadlines) {
+                
+                Deadline deadline = new Deadline();
+                deadline.setDate(new Date(System.currentTimeMillis() + Long.parseLong(taskDeadline.getExpires())));
+                
+                List<Escalation> escalations = assembleEscalation(taskDeadline, businessAdministrators);
+                
+                deadline.setEscalations(escalations);
+                if ("start".equals(taskDeadline.getType())) {
+                    
+                    startDeadlines.add(deadline);
+                    
+                } else if ("complete".equals(taskDeadline.getType())) {
+                    
+                    endDeadlines.add(deadline);
+                }
+            }
+            
+            if(!startDeadlines.isEmpty()) {
+                deadlinesTotal.setStartDeadlines(startDeadlines);
+            }
+            if (!endDeadlines.isEmpty()) {
+                deadlinesTotal.setEndDeadlines(endDeadlines);
+            }
+            task.setDeadlines(deadlinesTotal);
+        }
         client.addTask(task, content, null);
     }
 
@@ -216,6 +253,101 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
         GetTaskResponseHandler abortTaskResponseHandler =
                 new AbortTaskResponseHandler(client);
         client.getTaskByWorkItemId(workItem.getId(), abortTaskResponseHandler);
+    }
+    
+    private List<Escalation> assembleEscalation(TaskDeadline deadline, List<OrganizationalEntity> businessAdministrators) {
+        List<Escalation> escalations = new ArrayList<Escalation>();
+        
+        Escalation escalation = new Escalation();
+        escalations.add(escalation);
+        
+        escalation.setName("Default escalation");
+        if (deadline.getNotifications() != null) {
+            
+            for (TaskNotification taskNotification : deadline.getNotifications()) {
+            
+                List<Notification> notifications = new ArrayList<Notification>();
+                
+                EmailNotification emailNotification = new EmailNotification();
+                notifications.add(emailNotification);
+                
+                emailNotification.setBusinessAdministrators(businessAdministrators);
+                
+                Map<String, EmailNotificationHeader> emailHeaders = new HashMap<String, EmailNotificationHeader>();
+                List<I18NText> subjects = new ArrayList<I18NText>();
+                List<I18NText> names = new ArrayList<I18NText>();
+                List<OrganizationalEntity> notificationRecipients = new ArrayList<OrganizationalEntity>();
+                
+                for (String locale : taskNotification.getSubjects().keySet()) {
+                    EmailNotificationHeader emailHeader = new EmailNotificationHeader();
+                    emailHeader.setBody(taskNotification.getBodies().get(locale));
+                    emailHeader.setFrom(taskNotification.getSender());
+                    emailHeader.setReplyTo(taskNotification.getReceiver());
+                    emailHeader.setLanguage(locale);
+                    emailHeader.setSubject(taskNotification.getSubjects().get(locale));
+                    
+                    emailHeaders.put(locale, emailHeader);
+                    
+                    subjects.add(new I18NText(locale, emailHeader.getSubject()));
+                    
+                    names.add(new I18NText(locale, emailHeader.getSubject()));
+                }
+                
+                String recipients = taskNotification.getRecipients();
+                if (recipients != null && recipients.trim().length() > 0) {
+                    String[] recipientsIds = recipients.split(",");
+                    for (String id: recipientsIds) {
+                        notificationRecipients.add(new User(id.trim()));
+                    }
+                }
+                String groupRecipients = taskNotification.getGroupRecipients();
+                if (groupRecipients != null && groupRecipients.trim().length() > 0) {
+                    String[] groupRecipientsIds = groupRecipients.split(",");
+                    
+                    for (String id: groupRecipientsIds) {
+                        notificationRecipients.add(new Group(id.trim()));
+                    }
+                }
+                
+                emailNotification.setEmailHeaders(emailHeaders);
+                emailNotification.setNames(names);
+                emailNotification.setRecipients(notificationRecipients);
+                emailNotification.setSubjects(subjects);
+                
+                escalation.setNotifications(notifications);
+                
+            }
+        }
+        
+        if (deadline.getReassignments() != null) {
+            List<Reassignment> reassignments = new ArrayList<Reassignment>();
+            for (TaskReassignment taskReassignment : deadline.getReassignments()) {
+                Reassignment reassignment = new Reassignment();
+                List<OrganizationalEntity> reassignmentUsers = new ArrayList<OrganizationalEntity>();
+                String recipients = taskReassignment.getReassignUsers();
+                if (recipients != null && recipients.trim().length() > 0) {
+                    String[] recipientsIds = recipients.split(",");
+                    for (String id: recipientsIds) {
+                        reassignmentUsers.add(new User(id.trim()));
+                    }
+                }
+                
+                recipients = taskReassignment.getReassignGroups();
+                if (recipients != null && recipients.trim().length() > 0) {
+                    String[] recipientsIds = recipients.split(",");
+                    for (String id: recipientsIds) {
+                        reassignmentUsers.add(new Group(id.trim()));
+                    }
+                }
+                reassignment.setPotentialOwners(reassignmentUsers);
+                
+                reassignments.add(reassignment);
+            }
+            
+            escalation.setReassignments(reassignments);
+        }
+        
+        return escalations;
     }
 
     private static class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {

@@ -1,10 +1,13 @@
 package org.jbpm.task.servlet;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -34,6 +37,9 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.jbpm.task.query.TaskSummary;
+import org.jbpm.task.service.DefaultEscalatedDeadlineHandler;
+import org.jbpm.task.service.DefaultUserInfo;
+import org.jbpm.task.service.EscalatedDeadlineHandler;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 import org.jbpm.task.service.mina.MinaTaskServer;
@@ -47,7 +53,8 @@ public class HumanTaskServiceServlet extends HttpServlet {
 
 	public void init() throws ServletException {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.task");
-        TaskService taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener());
+        EscalatedDeadlineHandler handler = buildDeadlineHnadler();
+        TaskService taskService = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener(), handler);
         TaskServiceSession taskSession = taskService.createSession();
         // Add users
         Map vars = new HashMap();
@@ -117,6 +124,41 @@ public class HumanTaskServiceServlet extends HttpServlet {
         context.addImport( "User", User.class );
 
         return MVEL.executeExpression( compiler.compile( context ), vars );
+    }
+    
+    protected EscalatedDeadlineHandler buildDeadlineHnadler() {
+        Properties emailProperties = new Properties();
+        Properties userInfoProperties = new Properties();
+        String emailPropertiesParam = System.getProperty("jbpm.task.server.email");
+        String userInfoPropertiesParam = System.getProperty("jbpm.task.server.userinfo");
+        
+        if (emailProperties == null || userInfoPropertiesParam == null) {
+            System.out.println("jBPM-task server: no email or userinfo properties found, escalation won't be configured!!!");
+            return null;
+        }
+        
+        try {
+            // check classpath...
+            InputStream inEmail = this.getClass().getResourceAsStream(emailPropertiesParam);
+            InputStream inUserInfo = this.getClass().getResourceAsStream(userInfoPropertiesParam);
+            
+            // check file system...
+            if (inEmail == null) {
+                inEmail = new FileInputStream(emailPropertiesParam);
+            }
+            if (inUserInfo == null) {
+                inUserInfo = new FileInputStream(userInfoPropertiesParam);
+            }
+            emailProperties.load(inEmail);
+            userInfoProperties.load(inUserInfo);
+            
+            DefaultEscalatedDeadlineHandler handler = new DefaultEscalatedDeadlineHandler(emailProperties);
+            handler.setUserInfo(new DefaultUserInfo(userInfoProperties));
+            
+            return handler;
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     protected void doGet(HttpServletRequest request,

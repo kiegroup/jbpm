@@ -16,6 +16,17 @@
 
 package org.jbpm.process.workitem.wsht;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.drools.SystemEventListenerFactory;
 import org.drools.runtime.KnowledgeRuntime;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -24,8 +35,30 @@ import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.eventmessaging.Payload;
-import org.jbpm.task.*;
-import org.jbpm.task.event.*;
+import org.jbpm.task.AccessType;
+import org.jbpm.task.Content;
+import org.jbpm.task.Deadline;
+import org.jbpm.task.Deadlines;
+import org.jbpm.task.EmailNotification;
+import org.jbpm.task.EmailNotificationHeader;
+import org.jbpm.task.Escalation;
+import org.jbpm.task.Group;
+import org.jbpm.task.I18NText;
+import org.jbpm.task.Notification;
+import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.PeopleAssignments;
+import org.jbpm.task.Reassignment;
+import org.jbpm.task.Status;
+import org.jbpm.task.SubTasksStrategy;
+import org.jbpm.task.SubTasksStrategyFactory;
+import org.jbpm.task.Task;
+import org.jbpm.task.TaskData;
+import org.jbpm.task.User;
+import org.jbpm.task.event.TaskCompletedEvent;
+import org.jbpm.task.event.TaskEvent;
+import org.jbpm.task.event.TaskEventKey;
+import org.jbpm.task.event.TaskFailedEvent;
+import org.jbpm.task.event.TaskSkippedEvent;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
@@ -33,12 +66,9 @@ import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
 import org.jbpm.task.service.responsehandlers.AbstractBaseResponseHandler;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.jbpm.workflow.core.node.TaskDeadline;
+import org.jbpm.workflow.core.node.TaskNotification;
+import org.jbpm.workflow.core.node.TaskReassignment;
 
 public class WSHumanTaskHandler implements WorkItemHandler {
 
@@ -205,6 +235,41 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 				e.printStackTrace();
 			}
 		}
+		
+		// handle deadlines if they are defined
+		@SuppressWarnings("unchecked")
+        List<TaskDeadline> taskDeadlines = (List<TaskDeadline>) workItem.getParameter("Deadlines");
+		if (taskDeadlines != null) {
+		    Deadlines deadlinesTotal = new Deadlines();
+		    
+		    List<Deadline> startDeadlines = new ArrayList<Deadline>();
+		    List<Deadline> endDeadlines = new ArrayList<Deadline>();
+		    for (TaskDeadline taskDeadline : taskDeadlines) {
+		        
+		        Deadline deadline = new Deadline();
+		        deadline.setDate(new Date(System.currentTimeMillis() + Long.parseLong(taskDeadline.getExpires())));
+                
+                List<Escalation> escalations = assembleEscalation(taskDeadline, businessAdministrators);
+                
+                deadline.setEscalations(escalations);
+		        if ("start".equals(taskDeadline.getType())) {
+		            
+		            startDeadlines.add(deadline);
+		            
+		        } else if ("complete".equals(taskDeadline.getType())) {
+		            
+		            endDeadlines.add(deadline);
+		        }
+		    }
+		    
+		    if(!startDeadlines.isEmpty()) {
+		        deadlinesTotal.setStartDeadlines(startDeadlines);
+		    }
+		    if (!endDeadlines.isEmpty()) {
+		        deadlinesTotal.setEndDeadlines(endDeadlines);
+		    }
+		    task.setDeadlines(deadlinesTotal);
+		}
 
 		client.addTask(task, content, null);
 	}
@@ -219,6 +284,103 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 		GetTaskResponseHandler abortTaskResponseHandler =
     		new AbortTaskResponseHandler(client);
     	client.getTaskByWorkItemId(workItem.getId(), abortTaskResponseHandler);
+	}
+	
+	private List<Escalation> assembleEscalation(TaskDeadline deadline, List<OrganizationalEntity> businessAdministrators) {
+	    List<Escalation> escalations = new ArrayList<Escalation>();
+        
+        Escalation escalation = new Escalation();
+        escalations.add(escalation);
+        
+        escalation.setName("Default escalation");
+        if (deadline.getNotifications() != null) {
+            
+            for (TaskNotification taskNotification : deadline.getNotifications()) {
+            
+                List<Notification> notifications = new ArrayList<Notification>();
+                
+                EmailNotification emailNotification = new EmailNotification();
+                notifications.add(emailNotification);
+                
+                emailNotification.setBusinessAdministrators(businessAdministrators);
+                
+                Map<String, EmailNotificationHeader> emailHeaders = new HashMap<String, EmailNotificationHeader>();
+                List<I18NText> subjects = new ArrayList<I18NText>();
+                List<I18NText> names = new ArrayList<I18NText>();
+                List<OrganizationalEntity> notificationRecipients = new ArrayList<OrganizationalEntity>();
+                
+                for (String locale : taskNotification.getSubjects().keySet()) {
+                    EmailNotificationHeader emailHeader = new EmailNotificationHeader();
+                    emailHeader.setBody(taskNotification.getBodies().get(locale));
+                    emailHeader.setFrom(taskNotification.getSender());
+                    emailHeader.setReplyTo(taskNotification.getReceiver());
+                    emailHeader.setLanguage(locale);
+                    emailHeader.setSubject(taskNotification.getSubjects().get(locale));
+                    
+                    emailHeaders.put(locale, emailHeader);
+                    
+                    subjects.add(new I18NText(locale, emailHeader.getSubject()));
+                    
+                    names.add(new I18NText(locale, emailHeader.getSubject()));
+                }
+                
+                String recipients = taskNotification.getRecipients();
+                if (recipients != null && recipients.trim().length() > 0) {
+                    String[] recipientsIds = recipients.split(",");
+                    
+                    for (String id: recipientsIds) {
+                        notificationRecipients.add(new User(id.trim()));
+                    }
+                    
+                }
+                String groupRecipients = taskNotification.getGroupRecipients();
+                if (groupRecipients != null && groupRecipients.trim().length() > 0) {
+                    String[] groupRecipientsIds = groupRecipients.split(",");
+                    
+                    for (String id: groupRecipientsIds) {
+                        notificationRecipients.add(new Group(id.trim()));
+                    }
+                }
+                
+                emailNotification.setEmailHeaders(emailHeaders);
+                emailNotification.setNames(names);
+                emailNotification.setRecipients(notificationRecipients);
+                emailNotification.setSubjects(subjects);
+                
+                escalation.setNotifications(notifications);
+                
+            }
+        }
+        
+        if (deadline.getReassignments() != null) {
+            List<Reassignment> reassignments = new ArrayList<Reassignment>();
+            for (TaskReassignment taskReassignment : deadline.getReassignments()) {
+                Reassignment reassignment = new Reassignment();
+                List<OrganizationalEntity> reassignmentUsers = new ArrayList<OrganizationalEntity>();
+                String recipients = taskReassignment.getReassignUsers();
+                if (recipients != null && recipients.trim().length() > 0) {
+                    String[] recipientsIds = recipients.split(",");
+                    for (String id: recipientsIds) {
+                        reassignmentUsers.add(new User(id.trim()));
+                    }
+                }
+                
+                recipients = taskReassignment.getReassignGroups();
+                if (recipients != null && recipients.trim().length() > 0) {
+                    String[] recipientsIds = recipients.split(",");
+                    for (String id: recipientsIds) {
+                        reassignmentUsers.add(new Group(id.trim()));
+                    }
+                }
+                reassignment.setPotentialOwners(reassignmentUsers);
+                
+                reassignments.add(reassignment);
+            }
+            
+            escalation.setReassignments(reassignments);
+        }
+        
+        return escalations;
 	}
     
     private static class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
