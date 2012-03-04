@@ -308,6 +308,22 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_ABORTED );
 	}
 
+	public void suspendProcessInstance(long processInstanceId) {
+		ProcessInstance processInstance = getProcessInstance(processInstanceId);
+		if ( processInstance == null ) {
+            throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
+        }
+        ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_SUSPENDED );
+	}
+
+	public void resumeProcessInstance(long processInstanceId) {
+		ProcessInstance processInstance = getProcessInstance(processInstanceId);
+		if ( processInstance == null ) {
+            throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
+        }
+        ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_ACTIVE );
+	}
+
 	public WorkItemManager getWorkItemManager() {
 		return kruntime.getWorkItemManager();
 	}
