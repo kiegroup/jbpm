@@ -263,6 +263,17 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 			processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
 		}
+		if (state == ProcessInstance.STATE_SUSPENDED) {
+			removeEventListeners();
+			for (NodeInstance nodeInstance : nodeInstances) {
+				if (nodeInstance instanceof StateBasedNodeInstance) {
+					((StateBasedNodeInstance) nodeInstance).removeEventListeners();
+				}
+			}
+		}
+		if (state == ProcessInstance.STATE_ACTIVE) {
+			reconnect();
+		}
 	}
 
 	public void disconnect() {
@@ -277,13 +288,15 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 	public void reconnect() {
 		super.reconnect();
-		for (NodeInstance nodeInstance : nodeInstances) {
-			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
-				((EventBasedNodeInstanceInterface) nodeInstance)
-						.addEventListeners();
+		if(getState() != ProcessInstance.STATE_SUSPENDED) {
+			for (NodeInstance nodeInstance : nodeInstances) {
+				if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
+					((EventBasedNodeInstanceInterface) nodeInstance)
+							.addEventListeners();
+				}
 			}
+			addEventListeners();
 		}
-		addEventListeners();
 	}
 
 	public String toString() {
@@ -398,6 +411,15 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			}
 		}
 		
+		if(listener instanceof NodeInstance) {
+			for(EventListener _listener : listeners) {
+				if(_listener instanceof NodeInstance) {
+					if(((NodeInstance)_listener).getId() == ((NodeInstance)listener).getId()) {
+						listeners.remove(_listener);
+					}
+				}
+			}
+		}
 		listeners.add(listener);
 	}
 
