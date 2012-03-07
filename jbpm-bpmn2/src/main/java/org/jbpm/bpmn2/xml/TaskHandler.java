@@ -281,6 +281,7 @@ public class TaskHandler extends AbstractNodeHandler {
 						composite.getNode(5), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
 				);
 
+				composite.setMetaData("hidden", true);
 				start.setMetaData("hidden", true);
 				join.setMetaData("hidden", true);
 				split.setMetaData("hidden", true);
