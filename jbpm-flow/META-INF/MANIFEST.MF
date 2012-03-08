@@ -29,7 +29,7 @@ Export-Package: org.jbpm.process.instance.event;uses:="org.jbpm.proces
  ,org.jbpm.process.instance.impl,org.jbpm.process.instance,org.jbpm.wo
  rkflow.instance,org.jbpm.process.core,org.jbpm.process.instance.conte
  xt";version="5.2.0.SNAPSHOT",org.jbpm.process.instance.impl.factory;u
- ses:="org.jbpm.process.instance.impl,org.jbpm.process.core,org.jbpm.p
+ ses:="org.jbpm.process.core,org.jbpm.process.instance.impl,org.jbpm.p
  rocess.instance.context,org.jbpm.process.instance";version="5.2.0.SNA
  PSHOT",org.jbpm.process.core.context.variable;uses:="org.jbpm.workflo
  w.core.node,org.jbpm.process.core,org.jbpm.process.core.context";vers
@@ -40,8 +40,8 @@ Export-Package: org.jbpm.process.instance.event;uses:="org.jbpm.proces
  .workflow.core,org.jbpm.workflow.instance.node,org.jbpm.process.core,
  org.jbpm.process.instance,org.jbpm.process.core.context.exception,org
  .jbpm.process.instance.context.swimlane,org.jbpm.process.instance.con
- text.exception,org.jbpm.process.core.context.variable,org.jbpm.proces
- s.instance.impl.factory,org.jbpm.process.core.context.swimlane,org.jb
+ text.exception,org.jbpm.process.instance.impl.factory,org.jbpm.proces
+ s.core.context.variable,org.jbpm.process.core.context.swimlane,org.jb
  pm.process.instance.context.variable,org.mvel2.integration,org.mvel2,
  org.jbpm.workflow.instance,javax.xml.xpath,net.sf.saxon.xpath,javax.x
  ml.transform,net.sf.saxon.pattern,net.sf.saxon.om,javax.xml.parsers,n
@@ -83,7 +83,7 @@ Export-Package: org.jbpm.process.instance.event;uses:="org.jbpm.proces
  ss.instance.timer";version="5.2.0.SNAPSHOT",org.jbpm.workflow.core;us
  es:="org.jbpm.process.core";version="5.2.0.SNAPSHOT",org.jbpm.workflo
  w.instance.context;uses:="org.jbpm.process.instance,org.jbpm.workflow
- .instance,org.jbpm.process.instance.impl,org.jbpm.process.core,org.jb
+ .instance,org.jbpm.process.core,org.jbpm.process.instance.impl,org.jb
  pm.process.instance.context";version="5.2.0.SNAPSHOT",org.jbpm.rulefl
  ow.core.validation;uses:="org.jbpm.ruleflow.core,org.jbpm.process.cor
  e.validation,org.jbpm.process.core.validation.impl,org.jbpm.process.c
@@ -91,37 +91,38 @@ Export-Package: org.jbpm.process.instance.event;uses:="org.jbpm.proces
  ow.core.impl,org.mvel2.compiler,org.jbpm.process.core.timer,org.jbpm.
  workflow.core.node";version="5.2.0.SNAPSHOT",org.jbpm.ruleflow.instan
  ce;uses:="org.jbpm.workflow.instance.impl,org.jbpm.ruleflow.core,org.
- jbpm.workflow.core.node,org.jbpm.workflow.instance,org.jbpm.process.i
- nstance";version="5.2.0.SNAPSHOT",org.jbpm.ruleflow.core;uses:="org.j
- bpm.workflow.core,org.jbpm.ruleflow.core.factory,org.jbpm.workflow.co
- re.impl,org.jbpm.workflow.core.node,org.jbpm.process.core.context.exc
- eption,org.jbpm.process.core,org.jbpm.process.core.context.variable,o
- rg.jbpm.process.core.context.swimlane,org.jbpm.process.core.validatio
- n,org.jbpm.ruleflow.core.validation";version="5.2.0.SNAPSHOT",org.jbp
- m.ruleflow.core.factory;uses:="org.jbpm.workflow.core,org.jbpm.proces
- s.instance.impl,org.jbpm.ruleflow.core,org.jbpm.workflow.core.impl,or
- g.jbpm.workflow.core.node,org.jbpm.process.core.context.exception,org
- .jbpm.process.core,org.jbpm.process.core.context.variable,org.jbpm.pr
- ocess.core.event,org.jbpm.process.core.timer";version="5.2.0.SNAPSHOT
- ",org.jbpm.marshalling.impl;uses:="org.jbpm.workflow.instance.node,or
- g.jbpm.process.core,org.jbpm.process.instance,org.jbpm.process.instan
- ce.context.variable,org.jbpm.process.instance.context.exclusive,org.j
- bpm.workflow.instance.impl,org.jbpm.process.instance.context.swimlane
- ,org.jbpm.workflow.instance,org.jbpm.process.instance.timer,org.jbpm.
- ruleflow.instance";version="5.2.0.SNAPSHOT",org.jbpm.osgi.flow.core;u
- ses:="org.jbpm.marshalling.impl,org.jbpm.process.instance,org.osgi.fr
- amework";version="5.2.0.SNAPSHOT"
+ jbpm.workflow.instance,org.jbpm.process.instance";version="5.2.0.SNAP
+ SHOT",org.jbpm.ruleflow.core;uses:="org.jbpm.workflow.core,org.jbpm.r
+ uleflow.core.factory,org.jbpm.workflow.core.impl,org.jbpm.workflow.co
+ re.node,org.jbpm.process.core.context.exception,org.jbpm.process.core
+ ,org.jbpm.process.core.context.variable,org.jbpm.process.core.context
+ .swimlane,org.jbpm.process.core.validation,org.jbpm.ruleflow.core.val
+ idation";version="5.2.0.SNAPSHOT",org.jbpm.ruleflow.core.factory;uses
+ :="org.jbpm.workflow.core,org.jbpm.ruleflow.core,org.jbpm.process.ins
+ tance.impl,org.jbpm.workflow.core.impl,org.jbpm.workflow.core.node,or
+ g.jbpm.process.core.context.exception,org.jbpm.process.core,org.jbpm.
+ process.core.context.variable,org.jbpm.process.core.event,org.jbpm.pr
+ ocess.core.timer";version="5.2.0.SNAPSHOT",org.jbpm.marshalling.impl;
+ uses:="org.jbpm.workflow.instance.node,org.jbpm.process.core,org.jbpm
+ .process.instance,org.jbpm.process.instance.context.variable,org.jbpm
+ .workflow.instance.impl,org.jbpm.process.instance.context.exclusive,o
+ rg.jbpm.process.instance.context.swimlane,org.jbpm.workflow.instance.
+ impl.factory,org.jbpm.workflow.instance,org.jbpm.workflow.core.node,o
+ rg.jbpm.process.instance.timer,org.jbpm.ruleflow.instance";version="5
+ .2.0.SNAPSHOT",org.jbpm.osgi.flow.core;uses:="org.jbpm.marshalling.im
+ pl,org.jbpm.process.instance,org.osgi.framework";version="5.2.0.SNAPS
+ HOT"
 Tool: Bnd-0.0.357
 Bundle-Name: jBPM :: Flow
 Created-By: 1.6.0_20 (Apple Inc.)
-Require-Bundle: org.drools.core;bundle-version="5.3.0.SNAPSHOT"
-Bundle-Vendor: JBoss Inc.
+Require-Bundle: org.drools.core;bundle-version="5.3.0.CR1"
+Bundle-Vendor: JBoss by Red Hat
 DynamicImport-Package: *
 Bundle-Version: 5.2.0.SNAPSHOT
-Bnd-LastModified: 1305719954706
+Bnd-LastModified: 1318247011846
 Bundle-Activator: org.jbpm.osgi.flow.core.Activator
 Bundle-ManifestVersion: 2
-Bundle-Description: jBPM: a Business Process Management (BPM) Suite
+Bundle-Description: jBPM Flow
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Import-Package: javax.swing,javax.swing.border,javax.swing.event,javax
  .xml.namespace,javax.xml.parsers,javax.xml.transform,javax.xml.xpath,
