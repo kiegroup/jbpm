@@ -414,7 +414,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		if(listener instanceof NodeInstance) {
 			for(EventListener _listener : listeners) {
 				if(_listener instanceof NodeInstance) {
-					if(((NodeInstance)_listener).getId() == ((NodeInstance)listener).getId()) {
+					if(((NodeInstance)_listener).getNodeId() == ((NodeInstance)listener).getNodeId()) {
 						listeners.remove(_listener);
 					}
 				}
