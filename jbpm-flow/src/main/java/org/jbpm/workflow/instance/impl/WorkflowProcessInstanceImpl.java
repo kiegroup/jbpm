@@ -48,6 +48,7 @@ import org.jbpm.workflow.instance.node.EventBasedNodeInstanceInterface;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstanceInterface;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
+import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 
 /**
  * Default implementation of a RuleFlow process instance.
@@ -413,8 +414,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		
 		if(listener instanceof NodeInstance) {
 			for(EventListener _listener : listeners) {
-				if(_listener instanceof NodeInstance) {
-					if(((NodeInstance)_listener).getNodeId() == ((NodeInstance)listener).getNodeId()) {
+				if(_listener instanceof WorkItemNodeInstance) {
+					if(((WorkItemNodeInstance)_listener).getWorkItemId() == ((WorkItemNodeInstance)listener).getWorkItemId()) {
 						listeners.remove(_listener);
 					}
 				}
