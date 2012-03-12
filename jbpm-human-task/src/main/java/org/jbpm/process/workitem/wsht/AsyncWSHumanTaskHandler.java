@@ -202,6 +202,8 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
                 e.printStackTrace();
             }
         }
+        
+        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
 
         client.addTask(task, content, null);
     }
