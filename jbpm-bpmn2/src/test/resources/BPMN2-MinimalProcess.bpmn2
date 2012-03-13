@@ -9,6 +9,9 @@
              xmlns:tns="http://www.jboss.org/drools">
 
   <process id="Minimal" name="Minimal Process" tns:packageName="com.sample">
+    <!-- process variables -->
+    <property id="x" itemSubjectRef="_xItem"/>
+
     <startEvent id="_1" name="StartProcess"/>
     <sequenceFlow sourceRef="_1" targetRef="_2"/>
     <scriptTask id="_2" name="Hello">
