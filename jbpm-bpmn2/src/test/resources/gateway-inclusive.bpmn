@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.jboss.org/drools"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_xItem" structureRef="Integer" />
+
+  <process processType="Private" isExecutable="true" id="eclipse.gateway-inclusive" name="eclipse.gateway-inclusive" tns:packageName="org.jboss.qa.brms.jbpm.functional.bpmn2.eclipse" >
+
+    <!-- process variables -->
+    <property id="x" itemSubjectRef="_xItem"/>
+
+    <!-- nodes -->
+    <startEvent id="_1" name="start" />
+    <endEvent id="_2" name="end" />
+    <inclusiveGateway id="_3" name="fork" gatewayDirection="Diverging" />
+    <exclusiveGateway id="_4" name="join" gatewayDirection="Converging" />
+    <scriptTask id="_5" name="script1" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("first path");</script>
+    </scriptTask>
+    <scriptTask id="_6" name="script2" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("second path");</script>
+    </scriptTask>
+    <scriptTask id="_7" name="script3" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("third path");</script>
+    </scriptTask>
+    <scriptTask id="_8" name="finalScript" scriptFormat="http://www.java.com/java" >
+      <script>System.out.println("final script task triggered!");kcontext.setVariable("x", x+1);</script>
+    </scriptTask>
+
+    <!-- connections -->
+    <sequenceFlow id="_8-_2" sourceRef="_8" targetRef="_2" />
+    <sequenceFlow id="_1-_3" sourceRef="_1" targetRef="_3" />
+    <sequenceFlow id="_7-_4" sourceRef="_7" targetRef="_4" />
+    <sequenceFlow id="_6-_4" sourceRef="_6" targetRef="_4" />
+    <sequenceFlow id="_5-_4" sourceRef="_5" targetRef="_4" />
+    <sequenceFlow id="_3-_5" sourceRef="_3" targetRef="_5" name="constraint1" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return x &gt; 10;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_3-_6" sourceRef="_3" targetRef="_6" name="constraint2" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return x &gt; 1;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_3-_7" sourceRef="_3" targetRef="_7" name="constraint3" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" language="http://www.java.com/java" >return x &gt; 100;</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_4-_8" sourceRef="_4" targetRef="_8" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="eclipse.gateway-inclusive" >
+      <bpmndi:BPMNShape bpmnElement="_1" >
+        <dc:Bounds x="16" y="96" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_2" >
+        <dc:Bounds x="543" y="92" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_3" >
+        <dc:Bounds x="96" y="96" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_4" >
+        <dc:Bounds x="289" y="96" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_5" >
+        <dc:Bounds x="177" y="16" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_6" >
+        <dc:Bounds x="177" y="96" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_7" >
+        <dc:Bounds x="177" y="176" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_8" >
+        <dc:Bounds x="394" y="96" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_8-_2" >
+        <di:waypoint x="434" y="120" />
+        <di:waypoint x="567" y="116" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_1-_3" >
+        <di:waypoint x="40" y="120" />
+        <di:waypoint x="120" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_7-_4" >
+        <di:waypoint x="217" y="200" />
+        <di:waypoint x="313" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_4" >
+        <di:waypoint x="217" y="120" />
+        <di:waypoint x="313" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_5-_4" >
+        <di:waypoint x="217" y="40" />
+        <di:waypoint x="313" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_3-_5" >
+        <di:waypoint x="120" y="120" />
+        <di:waypoint x="217" y="40" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_3-_6" >
+        <di:waypoint x="120" y="120" />
+        <di:waypoint x="217" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_3-_7" >
+        <di:waypoint x="120" y="120" />
+        <di:waypoint x="217" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_4-_8" >
+        <di:waypoint x="313" y="120" />
+        <di:waypoint x="434" y="120" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

@@ -487,6 +487,25 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
 				"com.sample.test", params);
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+        
+        /**
+         * Check console output.
+         * documentation:
+         * 5.6.2. Converging gateway
+         * ...XOR or exclusive means that it continues as soon as one of its incoming branches has been completed. 
+         * If it is triggered from more than one incoming connection, it will trigger the next node for each of those triggers.
+         */
+        public void testInclusiveSplitExclusiveJoin() throws Exception {
+                KnowledgeBase kbase = createKnowledgeBase("gateway-inclusive.bpmn");
+		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("x", 15);
+		WorkflowProcessInstance wpi;
+                wpi = (WorkflowProcessInstance)ksession.startProcess("eclipse.gateway-inclusive", params);
+                int x = (Integer)wpi.getVariable("x");            
+                assertEquals(WorkflowProcessInstance.STATE_COMPLETED, wpi.getState());
+                assertEquals(17, x); //according to documentation, final script task should be fired 2x
+        }
 
 	// public void testExclusiveSplitXPath() throws Exception {
 	// KnowledgeBase kbase =
