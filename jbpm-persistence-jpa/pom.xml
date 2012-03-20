@@ -25,6 +25,7 @@
         <directory>src/test/filtered-resources</directory>
         <filtering>true</filtering>
       </testResource>
+      
     </testResources>
   
     <plugins>
