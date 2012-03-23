@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.Map;
 
 import org.eclipse.emf.common.util.DiagnosticChain;
-import org.eclipse.emf.common.util.ResourceLocator;
 
 import org.eclipse.emf.ecore.EPackage;
 
@@ -88,7 +87,6 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	protected EPackage getEPackage() {
 	  return DroolsPackage.eINSTANCE;
 	}
@@ -99,8 +97,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	protected boolean validate(int classifierID, Object value, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	protected boolean validate(int classifierID, Object value, DiagnosticChain diagnostics, Map context) {
 		switch (classifierID) {
 			case DroolsPackage.DOCUMENT_ROOT:
 				return validateDocumentRoot((DocumentRoot)value, diagnostics, context);
@@ -121,7 +118,7 @@ public class DroolsValidator extends EObjectValidator {
 			case DroolsPackage.TASK_NAME_TYPE:
 				return validateTaskNameType((String)value, diagnostics, context);
 			case DroolsPackage.VERSION_TYPE:
-				return validateVersionType((BigInteger)value, diagnostics, context);
+				return validateVersionType((String)value, diagnostics, context);
 			default:
 				return true;
 		}
@@ -132,7 +129,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateDocumentRoot(DocumentRoot documentRoot, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateDocumentRoot(DocumentRoot documentRoot, DiagnosticChain diagnostics, Map context) {
 		return validate_EveryDefaultConstraint(documentRoot, diagnostics, context);
 	}
 
@@ -141,7 +138,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateGlobalType(GlobalType globalType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateGlobalType(GlobalType globalType, DiagnosticChain diagnostics, Map context) {
 		return validate_EveryDefaultConstraint(globalType, diagnostics, context);
 	}
 
@@ -150,7 +147,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateImportType(ImportType importType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateImportType(ImportType importType, DiagnosticChain diagnostics, Map context) {
 		return validate_EveryDefaultConstraint(importType, diagnostics, context);
 	}
 
@@ -159,7 +156,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateOnEntryScriptType(OnEntryScriptType onEntryScriptType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateOnEntryScriptType(OnEntryScriptType onEntryScriptType, DiagnosticChain diagnostics, Map context) {
 		return validate_EveryDefaultConstraint(onEntryScriptType, diagnostics, context);
 	}
 
@@ -168,7 +165,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateOnExitScriptType(OnExitScriptType onExitScriptType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateOnExitScriptType(OnExitScriptType onExitScriptType, DiagnosticChain diagnostics, Map context) {
 		return validate_EveryDefaultConstraint(onExitScriptType, diagnostics, context);
 	}
 
@@ -177,7 +174,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validatePackageNameType(String packageNameType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validatePackageNameType(String packageNameType, DiagnosticChain diagnostics, Map context) {
 		return true;
 	}
 
@@ -186,7 +183,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validatePriorityType(BigInteger priorityType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validatePriorityType(BigInteger priorityType, DiagnosticChain diagnostics, Map context) {
 		boolean result = validatePriorityType_Min(priorityType, diagnostics, context);
 		return result;
 	}
@@ -205,7 +202,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validatePriorityType_Min(BigInteger priorityType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validatePriorityType_Min(BigInteger priorityType, DiagnosticChain diagnostics, Map context) {
 		boolean result = priorityType.compareTo(PRIORITY_TYPE__MIN__VALUE) >= 0;
 		if (!result && diagnostics != null)
 			reportMinViolation(DroolsPackage.Literals.PRIORITY_TYPE, priorityType, PRIORITY_TYPE__MIN__VALUE, true, diagnostics, context);
@@ -217,7 +214,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateRuleFlowGroupType(String ruleFlowGroupType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateRuleFlowGroupType(String ruleFlowGroupType, DiagnosticChain diagnostics, Map context) {
 		return true;
 	}
 
@@ -226,7 +223,7 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateTaskNameType(String taskNameType, DiagnosticChain diagnostics, Map<Object, Object> context) {
+	public boolean validateTaskNameType(String taskNameType, DiagnosticChain diagnostics, Map context) {
 		return true;
 	}
 
@@ -235,44 +232,8 @@ public class DroolsValidator extends EObjectValidator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public boolean validateVersionType(BigInteger versionType, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		boolean result = validateVersionType_Min(versionType, diagnostics, context);
-		return result;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @see #validateVersionType_Min
-	 */
-	public static final BigInteger VERSION_TYPE__MIN__VALUE = new BigInteger("0");
-
-	/**
-	 * Validates the Min constraint of '<em>Version Type</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public boolean validateVersionType_Min(BigInteger versionType, DiagnosticChain diagnostics, Map<Object, Object> context) {
-		boolean result = versionType.compareTo(VERSION_TYPE__MIN__VALUE) >= 0;
-		if (!result && diagnostics != null)
-			reportMinViolation(DroolsPackage.Literals.VERSION_TYPE, versionType, VERSION_TYPE__MIN__VALUE, true, diagnostics, context);
-		return result;
-	}
-
-	/**
-	 * Returns the resource locator that will be used to fetch messages for this validator's diagnostics.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public ResourceLocator getResourceLocator() {
-		// TODO
-		// Specialize this to return a resource locator for messages specific to this validator.
-		// Ensure that you remove @generated or mark it @generated NOT
-		return super.getResourceLocator();
+	public boolean validateVersionType(String versionType, DiagnosticChain diagnostics, Map context) {
+		return true;
 	}
 
 } //DroolsValidator

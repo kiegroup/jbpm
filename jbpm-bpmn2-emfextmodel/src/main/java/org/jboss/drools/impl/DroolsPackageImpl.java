@@ -531,10 +531,6 @@ public class DroolsPackageImpl extends EPackageImpl implements DroolsPackage {
 		// Obtain other dependent packages
 		XMLTypePackage theXMLTypePackage = (XMLTypePackage)EPackage.Registry.INSTANCE.getEPackage(XMLTypePackage.eNS_URI);
 
-		// Create type parameters
-
-		// Set bounds for type parameters
-
 		// Add supertypes to classes
 
 		// Initialize classes and features; add operations and parameters
@@ -572,7 +568,7 @@ public class DroolsPackageImpl extends EPackageImpl implements DroolsPackage {
 		initEDataType(priorityTypeEDataType, BigInteger.class, "PriorityType", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 		initEDataType(ruleFlowGroupTypeEDataType, String.class, "RuleFlowGroupType", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 		initEDataType(taskNameTypeEDataType, String.class, "TaskNameType", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
-		initEDataType(versionTypeEDataType, BigInteger.class, "VersionType", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
+		initEDataType(versionTypeEDataType, String.class, "VersionType", IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS);
 
 		// Create resource
 		createResource(eNS_URI);
@@ -803,8 +799,7 @@ public class DroolsPackageImpl extends EPackageImpl implements DroolsPackage {
 		   source, 
 		   new String[] {
 			 "name", "version_._type",
-			 "baseType", "http://www.eclipse.org/emf/2003/XMLType#integer",
-			 "minInclusive", "0"
+			 "baseType", "http://www.eclipse.org/emf/2003/XMLType#string"
 		   });
 	}
 

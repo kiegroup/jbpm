@@ -63,7 +63,6 @@ public class DroolsFactoryImpl extends EFactoryImpl implements DroolsFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
 			case DroolsPackage.DOCUMENT_ROOT: return createDocumentRoot();
@@ -81,7 +80,6 @@ public class DroolsFactoryImpl extends EFactoryImpl implements DroolsFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	public Object createFromString(EDataType eDataType, String initialValue) {
 		switch (eDataType.getClassifierID()) {
 			case DroolsPackage.PACKAGE_NAME_TYPE:
@@ -104,7 +102,6 @@ public class DroolsFactoryImpl extends EFactoryImpl implements DroolsFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
 	public String convertToString(EDataType eDataType, Object instanceValue) {
 		switch (eDataType.getClassifierID()) {
 			case DroolsPackage.PACKAGE_NAME_TYPE:
@@ -249,8 +246,8 @@ public class DroolsFactoryImpl extends EFactoryImpl implements DroolsFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public BigInteger createVersionTypeFromString(EDataType eDataType, String initialValue) {
-		return (BigInteger)XMLTypeFactory.eINSTANCE.createFromString(XMLTypePackage.Literals.INTEGER, initialValue);
+	public String createVersionTypeFromString(EDataType eDataType, String initialValue) {
+		return (String)XMLTypeFactory.eINSTANCE.createFromString(XMLTypePackage.Literals.STRING, initialValue);
 	}
 
 	/**
@@ -259,7 +256,7 @@ public class DroolsFactoryImpl extends EFactoryImpl implements DroolsFactory {
 	 * @generated
 	 */
 	public String convertVersionTypeToString(EDataType eDataType, Object instanceValue) {
-		return XMLTypeFactory.eINSTANCE.convertToString(XMLTypePackage.Literals.INTEGER, instanceValue);
+		return XMLTypeFactory.eINSTANCE.convertToString(XMLTypePackage.Literals.STRING, instanceValue);
 	}
 
 	/**
@@ -277,7 +274,6 @@ public class DroolsFactoryImpl extends EFactoryImpl implements DroolsFactory {
 	 * @deprecated
 	 * @generated
 	 */
-	@Deprecated
 	public static DroolsPackage getPackage() {
 		return DroolsPackage.eINSTANCE;
 	}

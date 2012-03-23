@@ -71,11 +71,11 @@ public interface DocumentRoot extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>XMLNS Prefix Map</em>' map.
 	 * @see org.jboss.drools.DroolsPackage#getDocumentRoot_XMLNSPrefixMap()
-	 * @model mapType="org.eclipse.emf.ecore.EStringToStringMapEntry<org.eclipse.emf.ecore.EString, org.eclipse.emf.ecore.EString>" transient="true"
+	 * @model mapType="org.eclipse.emf.ecore.EStringToStringMapEntry" keyType="java.lang.String" valueType="java.lang.String" transient="true"
 	 *        extendedMetaData="kind='attribute' name='xmlns:prefix'"
 	 * @generated
 	 */
-	EMap<String, String> getXMLNSPrefixMap();
+	EMap getXMLNSPrefixMap();
 
 	/**
 	 * Returns the value of the '<em><b>XSI Schema Location</b></em>' map.
@@ -89,11 +89,11 @@ public interface DocumentRoot extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>XSI Schema Location</em>' map.
 	 * @see org.jboss.drools.DroolsPackage#getDocumentRoot_XSISchemaLocation()
-	 * @model mapType="org.eclipse.emf.ecore.EStringToStringMapEntry<org.eclipse.emf.ecore.EString, org.eclipse.emf.ecore.EString>" transient="true"
+	 * @model mapType="org.eclipse.emf.ecore.EStringToStringMapEntry" keyType="java.lang.String" valueType="java.lang.String" transient="true"
 	 *        extendedMetaData="kind='attribute' name='xsi:schemaLocation'"
 	 * @generated
 	 */
-	EMap<String, String> getXSISchemaLocation();
+	EMap getXSISchemaLocation();
 
 	/**
 	 * Returns the value of the '<em><b>Global</b></em>' containment reference.
@@ -320,13 +320,13 @@ public interface DocumentRoot extends EObject {
 	 * </p>
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Version</em>' attribute.
-	 * @see #setVersion(BigInteger)
+	 * @see #setVersion(String)
 	 * @see org.jboss.drools.DroolsPackage#getDocumentRoot_Version()
 	 * @model dataType="org.jboss.drools.VersionType"
 	 *        extendedMetaData="kind='attribute' name='version' namespace='##targetNamespace'"
 	 * @generated
 	 */
-	BigInteger getVersion();
+	String getVersion();
 
 	/**
 	 * Sets the value of the '{@link org.jboss.drools.DocumentRoot#getVersion <em>Version</em>}' attribute.
@@ -336,6 +336,6 @@ public interface DocumentRoot extends EObject {
 	 * @see #getVersion()
 	 * @generated
 	 */
-	void setVersion(BigInteger value);
+	void setVersion(String value);
 
 } // DocumentRoot
