@@ -18,17 +18,18 @@ package org.jbpm.integration.console;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.security.Principal;
+import java.security.acl.Group;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
+import javax.security.auth.Subject;
+import javax.security.jacc.PolicyContext;
 
 import org.drools.SystemEventListenerFactory;
 import org.jboss.bpm.console.client.model.TaskRef;
@@ -54,7 +55,6 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 	private int port = 9123;
 	private TaskService service;
 	private TaskClient client;
-	private Map<String, List<String>> groupListMap = new HashMap<String, List<String>>();
 
 	public void setConnection(String ipAddress, int port) {
 		this.ipAddress = ipAddress;
@@ -71,50 +71,14 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 					throw new IllegalArgumentException(
 						"Could not connect task client");
 				}
-				loadUserGroups();
+				
 			}
 		} else if ("Local".equals(TASK_SERVICE_STRATEGY)) {
 			if (service == null) {
 				org.jbpm.task.service.TaskService taskService = HumanTaskService.getService();
 				service = new LocalTaskService(taskService);
-				loadUserGroups();
+				
 			}
-		}
-	}
-	
-	private void loadUserGroups() {
-		try {
-			ClassLoader loader = Thread.currentThread().getContextClassLoader();
-			URL url = null;
-			String propertyName = "roles.properties";
-
-			if (loader instanceof URLClassLoader) {
-				URLClassLoader ucl = (URLClassLoader) loader;
-				url = ucl.findResource(propertyName);
-			}
-			if (url == null) {
-				url = loader.getResource(propertyName);
-			}
-			if (url == null) {
-				System.out.println("No properties file: " + propertyName + " found");
-			} else {
-				Properties bundle = new Properties();
-				InputStream is = url.openStream();
-				if (is != null) {
-					bundle.load(is);
-					is.close();
-				} else {
-					throw new IOException("Properties file " + propertyName	+ " not available");
-				}
-				Enumeration<?> propertyNames = bundle.propertyNames();
-				while (propertyNames.hasMoreElements()) {
-					String key = (String) propertyNames.nextElement();
-					String value = bundle.getProperty(key);
-					groupListMap.put(key, Arrays.asList(value.split(",")));
-				}
-			}
-		} catch (Throwable t) {
-			t.printStackTrace();
 		}
 	}
 	
@@ -138,7 +102,7 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 			if (idRef == null) {
 				client.release(taskId, userId, responseHandler);
 			} else if (idRef.equals(userId)) {
-				List<String> roles = groupListMap.get(userId);
+				List<String> roles = getCallerRoles();
 				if (roles == null) {
 					client.claim(taskId, idRef, responseHandler);
 				} else {
@@ -152,7 +116,7 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 			if (idRef == null) {
 				service.release(taskId, userId);
 			} else if (idRef.equals(userId)) {
-				List<String> roles = groupListMap.get(userId);
+				List<String> roles = getCallerRoles();
 				if (roles == null) {
 					service.claim(taskId, idRef);
 				} else {
@@ -161,7 +125,23 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 			} else {
 				service.delegate(taskId, userId, idRef);
 			}
-		}
+		} else {
+            BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
+            if (idRef == null) {
+                client.release(taskId, userId, responseHandler);
+            } else if (idRef.equals(userId)) {
+                List<String> roles = getCallerRoles();
+                if (roles == null) {
+                    client.claim(taskId, idRef, responseHandler);
+                } else {
+                    client.claim(taskId, idRef, roles, responseHandler);
+                }
+            } else {
+                client.delegate(taskId, userId, idRef, responseHandler);
+            }
+            responseHandler.waitTillDone(5000);
+        }
+
 	}
 
 	public void completeTask(long taskId, Map data, String userId) {
@@ -244,7 +224,8 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 		connect();
         List<TaskRef> result = new ArrayList<TaskRef>();
 		try {
-			List<String> roles = groupListMap.get(idRef);
+            
+			List<String> roles = getCallerRoles();
 			List<TaskSummary> tasks = null;
 			if ("Mina".equals(TASK_SERVICE_STRATEGY)) {
 				BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
@@ -269,5 +250,37 @@ public class TaskManagement implements org.jboss.bpm.console.server.integration.
 		}
 		return result;
 	}
+
+    private List<String> getCallerRoles() {
+        List<String> roles = null;
+        try {
+            Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+    
+            if (subject != null) {
+                Set<Principal> principals = subject.getPrincipals();
+    
+                if (principals != null) {
+                    roles = new ArrayList<String>();
+                    for (Principal principal : principals) {
+                        if (principal instanceof Group  && "Roles".equalsIgnoreCase(principal.getName())) {
+                            Enumeration<? extends Principal> groups = ((Group) principal).members();
+                            
+                            while (groups.hasMoreElements()) {
+                                Principal groupPrincipal = (Principal) groups.nextElement();
+                                roles.add(groupPrincipal.getName());
+                               
+                            }
+                            break;
+    
+                        }
+    
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return roles;
+    }
 
 }
