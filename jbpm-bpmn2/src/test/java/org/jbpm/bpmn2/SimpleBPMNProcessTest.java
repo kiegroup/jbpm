@@ -35,6 +35,7 @@ import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.command.CommandFactory;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.process.DefaultProcessEventListener;
@@ -984,6 +985,39 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
 				workItemHandler);
 		ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
 	}
+        
+        /**
+         * Reproducer:
+         * Adhoc subprocess does not end when completion condition is not set; even after triggering non-terminate end node 
+         * inside.
+         */
+        public void testAdhocSubprocessEnd() throws Exception {
+            String processId = "designer.subprocess-adhoc";
+            KnowledgeBase kbase = createKnowledgeBase("subprocess-adhoc.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+            
+            TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+            ksession.addEventListener(eventListener);
+
+            ProcessInstance pi = (ProcessInstance) ksession.execute(CommandFactory.newStartProcess(processId));
+
+            assertTrue(eventListener.wasProcessStarted(processId));
+            assertTrue(eventListener.wasNodeTriggered("start"));
+            assertTrue(eventListener.wasNodeLeft("start"));
+            assertTrue(eventListener.wasNodeTriggered("adhoc"));
+
+            ksession.execute(CommandFactory.newSignalEvent(pi.getId(), "script1", null));
+            assertTrue(eventListener.wasNodeTriggered("script1"));
+            ksession.execute(CommandFactory.newSignalEvent(pi.getId(), "script2", null));
+            assertTrue(eventListener.wasNodeTriggered("script2"));
+            ksession.execute(CommandFactory.newSignalEvent(pi.getId(), "script3", null));
+            assertTrue(eventListener.wasNodeTriggered("script3"));
+            assertTrue(eventListener.wasNodeLeft("script3"));
+            assertTrue(eventListener.wasNodeTriggered("innerEnd"));
+            assertTrue(eventListener.wasNodeLeft("adhoc"));
+            assertTrue(eventListener.wasNodeTriggered("end"));
+            assertTrue(eventListener.wasProcessCompleted(processId));
+        }
 
 	public void testAdHocSubProcessAutoComplete() throws Exception {
 		KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory
