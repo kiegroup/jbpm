@@ -1783,6 +1783,30 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
 		ProcessInstance processInstance = ksession.startProcess("Composite");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+        
+        /**
+         * Conditional sequence flow is supported in Guvnor BPMN designer (even  in minimal perspective), but jBPM engine cannot 
+         * parse this definition:
+         * "This type of node cannot have more than one outgoing connection!" 
+         */
+        public void testConditionalFlow() throws Exception {
+            String processId = "designer.conditional-flow";
+            
+            KnowledgeBase kbase = createKnowledgeBase("conditional-flow.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+            TrackingProcessEventListener listener = new TrackingProcessEventListener();
+            ksession.addEventListener(listener);
+            WorkflowProcessInstance wpi = (WorkflowProcessInstance) ksession.execute(CommandFactory.newStartProcess(processId));
+
+            assertTrue(listener.wasProcessStarted(processId));
+            assertTrue(listener.wasNodeTriggered("start"));
+            assertTrue(listener.wasNodeLeft("start"));
+            assertTrue(listener.wasNodeTriggered("script"));
+            assertEquals(5, ((Integer)wpi.getVariable("x")).intValue());
+            assertTrue(listener.wasNodeLeft("script"));
+            assertTrue(listener.wasNodeTriggered("end1"));
+            assertTrue(listener.wasProcessCompleted(processId));
+        }
 
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory
