@@ -1019,6 +1019,52 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
             assertTrue(eventListener.wasProcessCompleted(processId));
         }
 
+        /**
+         * Reproducer:
+         * Adhoc subprocess does not end when completion condition has following value:
+         * <![CDATA[getActivityInstanceAttribute(&quot;numberOfActiveInstances&quot;) == 0]]>
+         * which is legal output from Guvnor BPMN designer (it does XML escaping when you save or export process definition).
+         * On the other hand, process ends as expected when condition is:
+         * <![CDATA[getActivityInstanceAttribute("numberOfActiveInstances") == 0]]>
+         */
+        public void testAdHocSubProcessAutoCompleteQuot() throws Exception {
+            String processId = "designer.subprocess-adhoc-autocomplete";
+            KnowledgeBase kbase = createKnowledgeBase("subprocess-adhoc-autocomplete-quot.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+                 
+            TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+            ksession.addEventListener(eventListener);
+            
+            TestWorkItemHandler handler = new TestWorkItemHandler();    
+            
+            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);       
+            WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.startProcess(processId);
+
+            assertTrue(eventListener.wasProcessStarted(processId));
+            assertTrue(eventListener.wasNodeTriggered("start"));
+            assertTrue(eventListener.wasNodeLeft("start"));
+
+            assertTrue(eventListener.wasNodeTriggered("adhoc"));
+
+            ksession.signalEvent("task1", null, pi.getId());
+            assertTrue(eventListener.wasNodeTriggered("task1"));
+
+            ksession.signalEvent("task2", null, pi.getId());
+            assertTrue(eventListener.wasNodeTriggered("task2"));
+
+            List<WorkItem> workItems = handler.getWorkItems();
+            WorkItem wi1 = workItems.get(0);
+            WorkItem wi2 = workItems.get(1);
+            ksession.getWorkItemManager().completeWorkItem(wi1.getId(), null);
+
+            assertFalse(eventListener.wasNodeLeft("adhoc"));
+
+            ksession.getWorkItemManager().completeWorkItem(wi2.getId(), null);
+
+            assertTrue(eventListener.wasNodeLeft("adhoc"));
+            assertTrue(eventListener.wasProcessCompleted(processId));       
+        }
+        
 	public void testAdHocSubProcessAutoComplete() throws Exception {
 		KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory
 				.newKnowledgeBuilderConfiguration();
