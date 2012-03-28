@@ -44,7 +44,7 @@ public class ProcessMultiThreadPersistenceTest {
 
     private static HashMap<String, Object> context;
 
-    private static final int LOOPS = 20;
+    private static final int LOOPS = 100;
 
     public static void main(String args[]) {
 	ProcessMultiThreadPersistenceTest test = new ProcessMultiThreadPersistenceTest();
