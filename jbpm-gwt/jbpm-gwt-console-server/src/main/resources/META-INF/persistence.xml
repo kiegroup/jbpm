@@ -10,17 +10,12 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="http://java.sun.com/xml/ns/persistence">
 
- <!--persistence-unit name="ProcessService">
-  <jta-data-source>java:/DefaultDS</jta-data-source>
-  <properties>
-   <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-  </properties>
- </persistence-unit-->
-
   <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>java:jdbc/testDS1</jta-data-source>       
     <mapping-file>META-INF/JBPMorm.xml</mapping-file>
+    <mapping-file>META-INF/ProcessInstanceInfo.hbm.xml</mapping-file>
+
     <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
     <class>org.drools.persistence.info.SessionInfo</class>
     <class>org.drools.persistence.info.WorkItemInfo</class>
