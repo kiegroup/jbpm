@@ -35,6 +35,7 @@ import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.command.Command;
 import org.drools.command.CommandFactory;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
@@ -1063,6 +1064,48 @@ public class SimpleBPMNProcessTest extends JbpmJUnitTestCase {
 
             assertTrue(eventListener.wasNodeLeft("adhoc"));
             assertTrue(eventListener.wasProcessCompleted(processId));       
+        }
+        
+        /**
+         * Reproducer.
+         * the completion condition is limited only to:
+         * getActivityInstanceAttribute("numberOfActiveInstances") == 0
+         * 
+         * Even when only the number is different (getActivityInstanceAttribute("numberOfActiveInstances") == 1) and there is
+         * exactly one active task inside the subprocess, the ad-hoc subprocess does not end.
+         */
+        public void testAdHocSubProcessAutoCompleteOne() throws Exception {
+            String processId = "handwritten.subprocess-adhoc-autocomplete";
+            KnowledgeBase kbase = createKnowledgeBase("subprocess-adhoc-autocomplete-one.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+            
+            TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+            ksession.addEventListener(eventListener);
+
+            TestWorkItemHandler handler = new TestWorkItemHandler();    
+            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+            WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.startProcess(processId);
+
+            assertTrue(eventListener.wasProcessStarted(processId));
+            assertTrue(eventListener.wasNodeTriggered("start"));
+            assertTrue(eventListener.wasNodeLeft("start"));
+            assertTrue(eventListener.wasNodeTriggered("adhoc"));
+
+            List<Command<?>> commands = new ArrayList<Command<?>>();
+            commands.add((Command<?>)CommandFactory.newSignalEvent(pi.getId(), "task1", null));
+            commands.add((Command<?>)CommandFactory.newSignalEvent(pi.getId(), "task2", null));
+            ksession.execute((Command<?>)CommandFactory.newBatchExecution(commands));
+
+            assertTrue(eventListener.wasNodeTriggered("task1"));
+            assertTrue(eventListener.wasNodeTriggered("task2"));
+
+            WorkItem wi = handler.getWorkItems().get(0);
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+
+            assertTrue(eventListener.wasNodeLeft("adhoc"));
+
+            assertTrue(eventListener.wasProcessCompleted(processId));    
         }
         
 	public void testAdHocSubProcessAutoComplete() throws Exception {
