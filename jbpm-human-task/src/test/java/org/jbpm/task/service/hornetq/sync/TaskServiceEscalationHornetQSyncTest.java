@@ -31,9 +31,9 @@ public class TaskServiceEscalationHornetQSyncTest extends TaskServiceEscalationB
         server = new HornetQTaskServer(taskService, 5446);
         Thread thread = new Thread(server);
         thread.start();
-        System.out.println("Waiting for the HornetQTask Server to come up");
+        logger.debug("Waiting for the HornetQTask Server to come up");
         while (!server.isRunning()) {
-            System.out.print(".");
+
             Thread.sleep(50);
         }
 

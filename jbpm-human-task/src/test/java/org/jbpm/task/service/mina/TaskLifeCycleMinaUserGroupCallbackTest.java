@@ -19,9 +19,6 @@ package org.jbpm.task.service.mina;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskServiceLifeCycleBaseUserGroupCallbackTest;
-import org.jbpm.task.service.mina.MinaTaskClientConnector;
-import org.jbpm.task.service.mina.MinaTaskClientHandler;
-import org.jbpm.task.service.mina.MinaTaskServer;
 
 public class TaskLifeCycleMinaUserGroupCallbackTest extends TaskServiceLifeCycleBaseUserGroupCallbackTest {
 
@@ -31,9 +28,9 @@ public class TaskLifeCycleMinaUserGroupCallbackTest extends TaskServiceLifeCycle
         server = new MinaTaskServer(taskService);
         Thread thread = new Thread(server);
         thread.start();
-        System.out.println("Waiting for the MinaTask Server to come up");
+        logger.debug("Waiting for the MinaTask Server to come up");
         while (!server.isRunning()) {
-            System.out.print(".");
+
             Thread.sleep( 50 );
         }
         client = new TaskClient(new MinaTaskClientConnector("client 1",

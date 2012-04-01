@@ -29,7 +29,6 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.service.MockEscalatedDeadlineHandler;
-import org.jbpm.task.service.MockEscalatedDeadlineHandler.Item;
 import org.jbpm.task.service.TaskServer;
 
 
@@ -43,9 +42,7 @@ public abstract class TaskServiceEscalationBaseSyncTest extends BaseTest {
     }
 
     public void testUnescalatedDeadlines() throws Exception {
-        Map vars = new HashMap();
-        vars.put("users", users);
-        vars.put("groups", groups);
+        Map<String, Object> vars = fillVariables();
 
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();
         taskService.setEscalatedDeadlineHandler(handler);
@@ -64,9 +61,7 @@ public abstract class TaskServiceEscalationBaseSyncTest extends BaseTest {
     }
 
     public void testUnescalatedDeadlinesOnStartup() throws Exception {
-        Map vars = new HashMap();
-        vars.put("users", users);
-        vars.put("groups", groups);
+        Map<String, Object> vars = fillVariables();
 
         //Reader reader;
         Reader reader = new InputStreamReader(TaskServiceEscalationBaseSyncTest.class.getResourceAsStream("../../../QueryData_UnescalatedDeadlines.mvel"));

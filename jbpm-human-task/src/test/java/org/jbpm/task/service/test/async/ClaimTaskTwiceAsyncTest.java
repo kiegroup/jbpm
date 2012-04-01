@@ -56,7 +56,4 @@ public class ClaimTaskTwiceAsyncTest extends ClaimTaskTwiceTest {
         ((AsyncTaskServiceWrapper) client).disconnect();
     }
     
-    public void testMultipleClientsOneTask() throws Exception { 
-        fixmetestMultipleClientsOneTask();
-    }
 }

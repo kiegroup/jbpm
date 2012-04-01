@@ -17,8 +17,7 @@
 package org.jbpm.task.service;
 
 import java.io.StringReader;
-import java.util.Date;
-import java.util.HashMap;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.jbpm.task.AccessType;
@@ -26,8 +25,6 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.Content;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
@@ -49,11 +46,8 @@ public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
     }
 
 	public void testAddRemoveOutput() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
-        
+        Map<String, Object> vars = fillVariables();
+   
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, activationTime = now,";
         str += "actualOwner = new User('Darth Vader')}),";
         str += "deadlines = new Deadlines(),";
@@ -114,11 +108,8 @@ public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
     }
     
     public void testAddRemoveFault() throws Exception {
-    	Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
-        
+        Map<String, Object> vars = fillVariables();
+     
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, activationTime = now,";
         str += "actualOwner = new User('Darth Vader')}),";
         str += "deadlines = new Deadlines(),";
@@ -182,11 +173,10 @@ public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
     } 
     
     public void testSetPriority() throws Exception {
-    	Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
-        
+        testSetPriority(fillVariables(), client);
+    }
+    
+    public static void testSetPriority(Map vars, Object client) throws Exception {
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, activationTime = now,";
         str += "actualOwner = new User('Darth Vader')}),";
         str += "deadlines = new Deadlines(),";
@@ -195,20 +185,39 @@ public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
         str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
             
         BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
-        Task task = ( Task )  eval( new StringReader( str ), vars );
-        client.addTask( task, null, addTaskResponseHandler );
+        Task task = ( Task ) TaskService.eval( new StringReader( str ), vars );
+        
+        try { 
+            Method addTaskMethod = getMethod(client, "addTask");
+            addTaskMethod.invoke(client, task, null, addTaskResponseHandler );
+        } catch(Exception e) { 
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
         
         long taskId = addTaskResponseHandler.getTaskId();
         
         int newPriority = 33;
         
         BlockingTaskOperationResponseHandler setPriorityResponseHandler = new BlockingTaskOperationResponseHandler();
-        client.setPriority(taskId, "Darth Vader", newPriority, setPriorityResponseHandler );
+        try { 
+            Method setPriorityMethod = getMethod(client, "setPriority");
+            setPriorityMethod.invoke(client, taskId, "Darth Vader", newPriority, setPriorityResponseHandler );
+        } catch(Exception e) { 
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
         setPriorityResponseHandler.waitTillDone(1000);
         assertFalse( setPriorityResponseHandler.hasError() );
         
         BlockingGetTaskResponseHandler getTaskResponseHandler = new BlockingGetTaskResponseHandler(); 
-        client.getTask( taskId, getTaskResponseHandler );
+        try { 
+            Method getTaskMethod = getMethod(client, "getTask");
+            getTaskMethod.invoke(client, taskId, getTaskResponseHandler);
+        } catch(Exception e) { 
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
         Task task1 = getTaskResponseHandler.getTask();
         assertNotSame(task, task1);
         assertFalse(  task.equals( task1) );
@@ -220,5 +229,17 @@ public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
         task.setPriority( newPriority );
         task.getTaskData().setStatus( Status.Created );
         assertEquals(task, task1);       
+    }
+    
+    private static Method getMethod(Object object, String methodName) { 
+        Method [] methods = object.getClass().getDeclaredMethods();
+        Method methodFound = null;
+        for( int i = 0; i < methods.length; ++i ) { 
+            if( methodName.equals(methods[i].getName()) ) { 
+               methodFound = methods[i];
+               break;
+            }
+        }
+        return methodFound;
     }
 }

@@ -31,8 +31,6 @@ import org.jbpm.task.service.jms.JMSTaskServer;
 
 /**
  * Test case to see if this component works.
- * 
- * @author Mariano De Maio
  */
 public class JMSTaskServerSyncTest extends TestCase {
 

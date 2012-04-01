@@ -17,8 +17,6 @@ package org.jbpm.task.service;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +24,6 @@ import org.jbpm.task.AccessType;
 import org.jbpm.task.BaseTestNoUserGroupSetup;
 import org.jbpm.task.Content;
 import org.jbpm.task.OrganizationalEntity;
-import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.User;
@@ -44,10 +41,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     protected TaskClient client;
 
     public void testNewTaskWithNoPotentialOwners() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -76,10 +70,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
 
     public void testNewTaskWithSinglePotentialOwner() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -107,10 +98,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testNewTaskWithContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ] ], }),";                        
@@ -149,10 +137,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testNewTaskWithLargeContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ] ], }),";                        
@@ -191,15 +176,12 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
         BlockingGetContentResponseHandler getContentResponseHandler = new BlockingGetContentResponseHandler();
         client.getContent(contentId, getContentResponseHandler);
         Content content = getContentResponseHandler.getContent();
-        System.out.println(new String(content.getContent()));
+        logger.debug(new String(content.getContent()));
         assertEquals(largeContent, new String(content.getContent()));
     }
     
     public void testClaimWithMultiplePotentialOwners() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -237,10 +219,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
 
     public void testClaimWithGroupAssignee() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -281,10 +260,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
 
     public void testStartFromReadyStateWithPotentialOwner() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -323,10 +299,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testStartFromReadyStateWithIncorrectPotentialOwner() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -373,10 +346,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testStartFromReserved() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -416,10 +386,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testStartFromReservedWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -467,10 +434,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testStop() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -512,10 +476,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testStopWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -565,10 +526,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }   
     
     public void testReleaseFromInprogress() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -612,10 +570,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testReleaseFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -659,10 +614,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }     
     
     public void testReleaseWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -712,10 +664,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
 
     public void testSuspendFromReady() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -756,10 +705,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testSuspendFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -804,10 +750,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testSuspendFromReservedWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -857,10 +800,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testResumeFromReady() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -912,10 +852,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testResumeFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -972,10 +909,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testResumeFromReservedWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1025,10 +959,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }     
           
     public void testSkipFromReady() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = true} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ] }),";                        
@@ -1060,10 +991,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
     
     public void testSkipFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = true} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ] }),";                        
@@ -1100,10 +1028,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }     
     
     public void testDelegateFromReady() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1137,10 +1062,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }     
     
     public void testDelegateFromReserved() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1186,10 +1108,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }     
     
     public void testDelegateFromReservedWithIncorrectUser() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1241,10 +1160,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }  
     
     public void testForwardFromReady() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1278,10 +1194,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }  
     
     public void testForwardFromReserved() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1326,10 +1239,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }     
     
     public void testForwardFromReservedWithIncorrectUser() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1380,10 +1290,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }      
     
     public void testComplete() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1426,10 +1333,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
         
     public void testCompleteWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1478,10 +1382,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
 
     public void testCompleteWithContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1534,10 +1435,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
         
     public void testFail() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1580,10 +1478,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testFailWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1632,10 +1527,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }    
 
     public void testFailWithContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1695,10 +1587,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testRegisterRemove() throws Exception {
-        Map <String, Object> vars = new HashMap<String, Object>();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'], users['darth'] ], }),";                        
@@ -1744,10 +1633,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testRemoveNotInRecipientList() {
-        Map <String, Object> vars = new HashMap<String, Object>();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
@@ -1804,10 +1690,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
      * state Created.
      */
     public void testNominateOnOtherThanCreated() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'] ] ,";
@@ -1861,11 +1744,8 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testNominateWithIncorrectUser() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
-        
+        Map<String, Object> vars = fillVariables();
+     
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['bobba'] ] } ),";                        
         str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
@@ -1904,10 +1784,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testNominateToUser() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'], users['bobba'] ] } ),";                        
@@ -1940,10 +1817,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testNominateToGroup() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'], users['bobba'] ] } ),";                        
@@ -1976,10 +1850,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testActivate() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { ";
@@ -2011,10 +1882,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testActivateWithIncorrectUser() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [ users['darth'], users['bobba'] ], ";
@@ -2047,10 +1915,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testActivateFromIncorrectStatus() {
-        Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [ users['darth'], users['bobba'] ], ";
@@ -2082,10 +1947,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testExitFromReady() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -2111,10 +1973,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }  
     
     public void testExitFromReserved() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -2141,10 +2000,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }  
     
     public void testExitFromInProgress() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -2178,10 +2034,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }  
 
     public void testExitFromSuspended() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -2216,10 +2069,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     }
     
     public void testExitPermissionDenied() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -2251,10 +2101,7 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     } 
     
     public void testExitNotAvailableToUsers() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba']], businessAdministrators = [ users['admin']] }),";                        

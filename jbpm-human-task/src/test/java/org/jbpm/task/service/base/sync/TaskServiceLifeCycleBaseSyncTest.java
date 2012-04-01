@@ -16,13 +16,8 @@
 
 package org.jbpm.task.service.base.sync;
 
-import org.jbpm.task.service.local.*;
-import org.jbpm.task.TaskService;
-import org.jbpm.task.service.*;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,10 +27,12 @@ import org.jbpm.task.Content;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
+import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.FaultData;
 import org.jbpm.task.service.PermissionDeniedException;
+import org.jbpm.task.service.TaskServer;
 
 public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
 
@@ -44,10 +41,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     protected TaskService client;
 
     public void testNewTaskWithNoPotentialOwners() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -68,10 +62,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
 
     public void testNewTaskWithSinglePotentialOwner() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -93,10 +84,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testNewTaskWithContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ] ], }),";                        
@@ -128,10 +116,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testNewTaskWithLargeContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ] ], }),";                        
@@ -163,15 +148,12 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
         
         
         Content content = client.getContent(contentId);
-        System.out.println(new String(content.getContent()));
+        logger.debug(new String(content.getContent()));
         assertEquals(largeContent, new String(content.getContent()));
     }
     
     public void testClaimWithMultiplePotentialOwners() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -202,10 +184,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
 
     public void testClaimWithGroupAssignee() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -239,10 +218,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
 
     public void testStartFromReadyStateWithPotentialOwner() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -270,10 +246,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testStartFromReadyStateWithIncorrectPotentialOwner() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -310,10 +283,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testStartFromReserved() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -346,10 +316,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testStartFromReservedWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -386,10 +353,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testStop() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -421,10 +385,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testStopWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -467,10 +428,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }   
     
     public void testReleaseFromInprogress() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -507,10 +465,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testReleaseFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -544,10 +499,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }     
     
     public void testReleaseWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -590,10 +542,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
 
     public void testSuspendFromReady() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -627,10 +576,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testSuspendFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -662,10 +608,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testSuspendFromReservedWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -705,10 +648,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testResumeFromReady() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -748,10 +688,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testResumeFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -796,10 +733,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testResumeFromReservedWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -837,10 +771,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }     
           
     public void testSkipFromReady() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = true} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ] }),";                        
@@ -862,10 +793,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
     
     public void testSkipFromReserved() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = true} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ] }),";                        
@@ -893,10 +821,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }     
     
     public void testDelegateFromReady() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -922,10 +847,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }     
     
     public void testDelegateFromReserved() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -962,10 +884,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }     
     
     public void testDelegateFromReservedWithIncorrectUser() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1004,10 +923,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }  
     
     public void testForwardFromReady() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1033,10 +949,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }  
     
     public void testForwardFromReserved() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1075,10 +988,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }     
     
     public void testForwardFromReservedWithIncorrectUser() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1123,10 +1033,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }      
     
     public void testComplete() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1161,10 +1068,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
         
     public void testCompleteWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1205,10 +1109,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
 
     public void testCompleteWithContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1251,10 +1152,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
         
     public void testFail() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1288,10 +1186,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testFailWithIncorrectUser() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1334,10 +1229,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }    
 
     public void testFailWithContent() {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1380,44 +1272,39 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
         Content content = client.getContent(contentId);
         assertEquals("content", new String(content.getContent()));
     }
-    //@TODO: FIX IT, looks like a persistence problem around persistent bags for local impl
-//    public void testRegisterRemove() throws Exception {
-//    	Map <String, Object> vars = new HashMap<String, Object>();     
-//        vars.put( "users", users );
-//        vars.put( "groups", groups );
-//        vars.put( "now", new Date() );
-//        
-//        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
-//        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'], users['darth'] ], }),";                        
-//        str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
-//
-//        
-//        Task task = ( Task )  eval( new StringReader( str ), vars );
-//        client.addTask( task, null );
-//        
-//        long taskId = task.getId();               
-//       
-//        client.register(taskId, users.get("bobba").getId());
-//
-//        
-//        Task task1 = client.getTask(taskId);
-//        List<OrganizationalEntity> myRecipientTasks = task1.getPeopleAssignments().getRecipients();
-//        
-//        assertNotNull(myRecipientTasks);
-//        assertEquals(1, myRecipientTasks.size());
-//        assertTrue(task1.getPeopleAssignments().getRecipients().contains(users.get("bobba")));
-//        
-//        client.remove(taskId, users.get("bobba").getId());
-//        
-//        Task task2 = client.getTask( taskId );
-//        assertFalse(task2.getPeopleAssignments().getRecipients().contains(users.get("bobba")));
-//    }
+    
+    // TODO: FIX IT, looks like a persistence problem around persistent bags for local impl
+    public void testRegisterRemove() throws Exception {
+    	  Map <String, Object> vars = fillVariables();
+        
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'], users['darth'] ], }),";                        
+        str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
+
+        
+        Task task = ( Task )  eval( new StringReader( str ), vars );
+        client.addTask( task, null );
+        
+        long taskId = task.getId();               
+       
+        client.register(taskId, users.get("bobba").getId());
+
+        
+        Task task1 = client.getTask(taskId);
+        List<OrganizationalEntity> myRecipientTasks = task1.getPeopleAssignments().getRecipients();
+        
+        assertNotNull(myRecipientTasks);
+        assertEquals(1, myRecipientTasks.size());
+        assertTrue(task1.getPeopleAssignments().getRecipients().contains(users.get("bobba")));
+        
+        client.remove(taskId, users.get("bobba").getId());
+        
+        Task task2 = client.getTask( taskId );
+        assertFalse(task2.getPeopleAssignments().getRecipients().contains(users.get("bobba")));
+    }
     
     public void testRemoveNotInRecipientList() {
-    	Map <String, Object> vars = new HashMap<String, Object>();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
@@ -1467,26 +1354,19 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
      * state Created.
      */
     public void testNominateOnOtherThanCreated() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'] ] ,";
         str += " potentialOwners = [ users['darth'], users['bobba'] ] } ),";                        
         str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
 
-        
         Task task = ( Task )  eval( new StringReader( str ), vars );
         client.addTask( task, null );
         
         long taskId = task.getId();
         
-        
         client.start( taskId, users.get("bobba").getId());
-        
-        
        
        	try {
        		List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
@@ -1508,10 +1388,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testNominateWithIncorrectUser() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['bobba'] ] } ),";                        
@@ -1544,10 +1421,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testNominateToUser() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'], users['bobba'] ] } ),";                        
@@ -1574,10 +1448,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testNominateToGroup() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'], users['bobba'] ] } ),";                        
@@ -1604,10 +1475,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testActivate() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { ";
@@ -1633,10 +1501,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testActivateWithIncorrectUser() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+        Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [ users['darth'], users['bobba'] ], ";
@@ -1662,10 +1527,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testActivateFromIncorrectStatus() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [ users['darth'], users['bobba'] ], ";
@@ -1691,10 +1553,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testExitFromReady() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	  Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1716,10 +1575,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }  
     
     public void testExitFromReserved() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	  Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1741,10 +1597,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }  
     
     public void testExitFromInProgress() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	  Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1769,10 +1622,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }  
 
     public void testExitFromSuspended() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	  Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1797,10 +1647,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     }
     
     public void testExitPermissionDenied() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	  Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1825,10 +1672,7 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
     } 
     
     public void testExitNotAvailableToUsers() {
-    	Map <String, Object> vars = new HashMap<String, Object>();
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );
+    	  Map <String, Object> vars = fillVariables();
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba']], businessAdministrators = [ users['admin']] }),";                        

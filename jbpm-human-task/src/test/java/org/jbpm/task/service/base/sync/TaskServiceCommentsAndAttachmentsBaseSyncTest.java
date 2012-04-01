@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.task.AccessType;
-import org.jbpm.task.AsyncTaskService;
 import org.jbpm.task.Attachment;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Comment;
@@ -32,13 +31,6 @@ import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.service.TaskServer;
-import org.jbpm.task.service.responsehandlers.BlockingAddAttachmentResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingAddCommentResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingDeleteAttachmentResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingDeleteCommentResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 import org.jbpm.task.utils.CollectionUtils;
 
 public abstract class TaskServiceCommentsAndAttachmentsBaseSyncTest extends BaseTest {
@@ -57,10 +49,7 @@ public abstract class TaskServiceCommentsAndAttachmentsBaseSyncTest extends Base
     }
 
     public void testAddRemoveComment() {
-        Map vars = new HashMap();
-        vars.put("users", users);
-        vars.put("groups", groups);
-        vars.put("now", new Date());
+        Map<String, Object> vars = fillVariables();
 
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, activationTime = now}), ";
         str += "deadlines = new Deadlines(),";
@@ -138,10 +127,7 @@ public abstract class TaskServiceCommentsAndAttachmentsBaseSyncTest extends Base
     }
 
     public void testAddRemoveAttachment() throws Exception {
-        Map vars = new HashMap();
-        vars.put("users", users);
-        vars.put("groups", groups);
-        vars.put("now", new Date());
+        Map<String, Object> vars = fillVariables();
 
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, activationTime = now}), ";
         str += "deadlines = new Deadlines(),";

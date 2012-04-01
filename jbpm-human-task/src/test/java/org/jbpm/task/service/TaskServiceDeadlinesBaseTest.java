@@ -17,7 +17,7 @@
 package org.jbpm.task.service;
 
 import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,9 +37,6 @@ import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
-import org.jbpm.task.service.DefaultEscalatedDeadlineHandler;
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
@@ -55,10 +52,7 @@ public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
     private Wiser wiser;
 
     public void testDelayedEmailNotificationOnDeadline() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() ); 
+        Map<String, Object> vars = fillVariables();
         
         DefaultEscalatedDeadlineHandler notificationHandler = new DefaultEscalatedDeadlineHandler( getConf() );
         WorkItemManager manager = new DefaultWorkItemManager( null );
@@ -74,10 +68,10 @@ public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
         
         taskService.setEscalatedDeadlineHandler( notificationHandler );
         
-        String string = toString( new InputStreamReader( getClass().getResourceAsStream( "../DeadlineWithNotification.mvel" ) ) );
+        Reader reader =  new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.DeadlineWithNotification ) );
+        Task task = ( Task )  eval( reader, vars );
             
         BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
-        Task task = ( Task )  eval( new StringReader( string ), vars );
         client.addTask( task, null, addTaskResponseHandler );
         long taskId = addTaskResponseHandler.getTaskId();    
                                         
@@ -125,11 +119,8 @@ public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
     }
     
     public void testDelayedReassignmentOnDeadline() throws Exception {
-        Map vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() ); 
-        
+        Map<String, Object> vars = fillVariables();
+     
         DefaultEscalatedDeadlineHandler notificationHandler = new DefaultEscalatedDeadlineHandler(getConf());
         WorkItemManager manager = new DefaultWorkItemManager( null );
         notificationHandler.setManager( manager );
@@ -148,10 +139,10 @@ public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
         
         taskService.setEscalatedDeadlineHandler( notificationHandler );
         
-        String string = toString( new InputStreamReader( getClass().getResourceAsStream( "../DeadlineWithReassignment.mvel" ) ) );
+        Reader reader =  new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.DeadlineWithReassignment ) );
             
         BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
-        Task task = ( Task )  eval( new StringReader( string ), vars );               
+        Task task = ( Task )  eval( reader, vars );               
         client.addTask( task, null, addTaskResponseHandler );
         long taskId = addTaskResponseHandler.getTaskId();    
         
@@ -180,7 +171,7 @@ public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
         task = getTaskHandler.getTask();
         assertEquals( Status.Ready, task.getTaskData().getStatus()  );
         potentialOwners = task.getPeopleAssignments().getPotentialOwners();
-        System.out.println( potentialOwners );
+        logger.debug( potentialOwners.toString() );
         ids = new ArrayList<String>(potentialOwners.size());
         for ( OrganizationalEntity entity : potentialOwners ) {
             ids.add( entity.getId() );

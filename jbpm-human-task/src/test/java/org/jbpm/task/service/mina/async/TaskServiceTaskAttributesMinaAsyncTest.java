@@ -15,9 +15,9 @@ public class TaskServiceTaskAttributesMinaAsyncTest extends TaskServiceTaskAttri
         server = new MinaTaskServer( taskService );
         Thread thread = new Thread( server );
         thread.start();
-        System.out.println("Waiting for the MinaTask Server to come up");
+        logger.debug("Waiting for the MinaTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
         client = new TaskClient(new MinaTaskClientConnector("client 1",

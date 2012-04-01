@@ -35,9 +35,9 @@ public class WSHumanTaskHandlerMinaSyncTest extends WSHumanTaskHandlerBaseSyncTe
         server = new MinaTaskServer(taskService);
         Thread thread = new Thread(server);
         thread.start();
-        System.out.println("Waiting for the Mina Server to come up");
+        logger.debug("Waiting for the Mina Server to come up");
         while (!server.isRunning()) {
-            System.out.print(".");
+
             Thread.sleep(50);
         }
         setClient(new AsyncTaskServiceWrapper(new TaskClient(new MinaTaskClientConnector("client 1",

@@ -172,12 +172,12 @@ public abstract class TaskLifeCycleBaseSyncTest extends BaseTest {
         }
 
         public void completeWorkItem(long l, Map<String, Object> map) {
-            System.out.println("WorkItem Completed");
+            logger.debug("WorkItem Completed");
             completed.add(l);
         }
 
         public void abortWorkItem(long l) {
-            System.out.println("WorkItem Aborted");
+            logger.debug("WorkItem Aborted");
             aborted.add(l);
         }
 

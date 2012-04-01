@@ -21,9 +21,6 @@ import org.drools.util.ChainedProperties;
 import org.drools.util.ClassLoaderUtil;
 import org.jbpm.task.service.IcalBaseTest;
 import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
-import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
-import org.jbpm.task.service.hornetq.HornetQTaskServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.subethamail.wiser.Wiser;
@@ -41,9 +38,9 @@ public class IcalHornetQTest extends IcalBaseTest {
         server = new HornetQTaskServer(taskService, 5446);
         Thread thread = new Thread(server);
         thread.start();
-		System.out.println("Waiting for the HornetQTask Server to come up");
+		logger.debug("Waiting for the HornetQTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
 

@@ -17,7 +17,6 @@
 package org.jbpm.process.workitem.wsht.hornetq;
 
 import org.drools.SystemEventListenerFactory;
-import org.drools.runtime.StatefulKnowledgeSession;
 import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.process.workitem.wsht.WSHumanTaskHandlerBaseTest;
 import org.jbpm.task.TestStatefulKnowledgeSession;
@@ -37,9 +36,9 @@ public class WSHumanTaskHandlerHornetQTest extends WSHumanTaskHandlerBaseTest {
 		server = new HornetQTaskServer(taskService, 5446);
 		Thread thread = new Thread(server);
 		thread.start();
-		System.out.println("Waiting for the HornetQTask Server to come up");
+		logger.debug("Waiting for the HornetQTask Server to come up");
 		while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
 		setClient(new TaskClient(new HornetQTaskClientConnector("client 1",

@@ -17,10 +17,8 @@
 package org.jbpm.task.service;
 
 import java.io.InputStreamReader;
-import java.io.StringReader;
+import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,9 +36,6 @@ import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.User;
-import org.jbpm.task.service.DefaultEscalatedDeadlineHandler;
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
@@ -56,10 +51,7 @@ public abstract class TaskServiceDeadlinesBaseUserGroupCallbackTest extends Base
     private Wiser wiser;
 
     public void testDelayedEmailNotificationOnDeadline() throws Exception {
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() ); 
+        Map<String, Object> vars = fillVariables();
         
         DefaultEscalatedDeadlineHandler notificationHandler = new DefaultEscalatedDeadlineHandler( getConf() );
         WorkItemManager manager = new DefaultWorkItemManager( null );
@@ -75,10 +67,10 @@ public abstract class TaskServiceDeadlinesBaseUserGroupCallbackTest extends Base
         
         taskService.setEscalatedDeadlineHandler( notificationHandler );
         
-        String string = toString( new InputStreamReader( getClass().getResourceAsStream( "../DeadlineWithNotification.mvel" ) ) );
+        Reader reader = new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.DeadlineWithNotification ) );
+        Task task = ( Task )  eval( reader, vars );
             
         BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
-        Task task = ( Task )  eval( new StringReader( string ), vars );
         if(task.getPeopleAssignments() != null && task.getPeopleAssignments().getBusinessAdministrators() != null) {
             List<OrganizationalEntity> businessAdmins = new ArrayList<OrganizationalEntity>();
             businessAdmins.add(new User("Administrator"));
@@ -132,11 +124,8 @@ public abstract class TaskServiceDeadlinesBaseUserGroupCallbackTest extends Base
     }
     
     public void testDelayedReassignmentOnDeadline() throws Exception {
-        Map vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() ); 
-        
+        Map<String, Object> vars = fillVariables();
+
         DefaultEscalatedDeadlineHandler notificationHandler = new DefaultEscalatedDeadlineHandler(getConf());
         WorkItemManager manager = new DefaultWorkItemManager( null );
         notificationHandler.setManager( manager );
@@ -155,10 +144,10 @@ public abstract class TaskServiceDeadlinesBaseUserGroupCallbackTest extends Base
         
         taskService.setEscalatedDeadlineHandler( notificationHandler );
         
-        String string = toString( new InputStreamReader( getClass().getResourceAsStream( "../DeadlineWithReassignment.mvel" ) ) );
+        Reader reader = new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.DeadlineWithReassignment ) );
+        Task task = ( Task )  eval( reader, vars );         
             
         BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
-        Task task = ( Task )  eval( new StringReader( string ), vars );         
         if(task.getPeopleAssignments() != null && task.getPeopleAssignments().getBusinessAdministrators() != null) {
             List<OrganizationalEntity> businessAdmins = new ArrayList<OrganizationalEntity>();
             businessAdmins.add(new User("Administrator"));
@@ -193,7 +182,7 @@ public abstract class TaskServiceDeadlinesBaseUserGroupCallbackTest extends Base
         task = getTaskHandler.getTask();
         assertEquals( Status.Ready, task.getTaskData().getStatus()  );
         potentialOwners = task.getPeopleAssignments().getPotentialOwners();
-        System.out.println( potentialOwners );
+        logger.debug( potentialOwners.toString() );
         ids = new ArrayList<String>(potentialOwners.size());
         for ( OrganizationalEntity entity : potentialOwners ) {
             ids.add( entity.getId() );

@@ -20,7 +20,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +28,6 @@ import org.jbpm.task.BaseTestNoUserGroupSetup;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Task;
 import org.jbpm.task.User;
-import org.jbpm.task.service.MockEscalatedDeadlineHandler.Item;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 
 public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends BaseTestNoUserGroupSetup {
@@ -42,9 +40,7 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
     }
     
     public void testUnescalatedDeadlines() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
+        Map<String, Object> vars = fillVariables();
 
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();
         taskService.setEscalatedDeadlineHandler( handler );  
@@ -71,9 +67,7 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
     }
     
     public void testUnescalatedDeadlinesOnStartup() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
+        Map<String, Object> vars = fillVariables();
 
         //Reader reader;
         Reader reader = new InputStreamReader( TaskServiceEscalationBaseUserGroupCallbackTest.class.getResourceAsStream( "../QueryData_UnescalatedDeadlines.mvel" ) );

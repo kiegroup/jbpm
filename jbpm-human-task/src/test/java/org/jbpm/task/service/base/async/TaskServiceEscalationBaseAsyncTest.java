@@ -19,7 +19,6 @@ package org.jbpm.task.service.base.async;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,9 +43,7 @@ public abstract class TaskServiceEscalationBaseAsyncTest extends BaseTest {
     }
     
     public void testUnescalatedDeadlines() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
+        Map<String, Object> vars = fillVariables();
 
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();
         taskService.setEscalatedDeadlineHandler( handler );  
@@ -67,9 +64,7 @@ public abstract class TaskServiceEscalationBaseAsyncTest extends BaseTest {
     }
     
     public void testUnescalatedDeadlinesOnStartup() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
+        Map<String, Object> vars = fillVariables();
 
         //Reader reader;
         Reader reader = new InputStreamReader( getClass().getResourceAsStream( "../../../QueryData_UnescalatedDeadlines.mvel" ) );

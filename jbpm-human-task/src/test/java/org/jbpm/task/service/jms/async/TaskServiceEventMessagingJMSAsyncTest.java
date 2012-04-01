@@ -54,9 +54,9 @@ public class TaskServiceEventMessagingJMSAsyncTest extends TaskServiceEventMessa
 		server = new JMSTaskServer(taskService, serverProperties, context);
 		Thread thread = new Thread(server);
 		thread.start();
-		System.out.println("Waiting for the JMS Task Server to come up");
+		logger.debug("Waiting for the JMS Task Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
         

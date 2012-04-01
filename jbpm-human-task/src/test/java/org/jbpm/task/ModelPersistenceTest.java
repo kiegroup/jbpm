@@ -20,7 +20,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -331,9 +330,8 @@ public class ModelPersistenceTest extends BaseTest {
                       task2 );
         
         Reader reader = new InputStreamReader( getClass().getResourceAsStream( "FullyPopulatedTask.mvel" ) );
-        Map  vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );          
+        Map<String, Object> vars = fillVariables();
+    
         vars.put( "bytes1", new byte[]{1, 0, 0, 1} ); 
         Task task3= (Task) eval( reader, vars );               
         

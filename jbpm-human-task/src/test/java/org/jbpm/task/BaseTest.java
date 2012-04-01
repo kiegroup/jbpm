@@ -16,7 +16,6 @@
 
 package org.jbpm.task;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Date;
@@ -36,15 +35,12 @@ import org.jbpm.task.service.SendIcal;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 import org.jbpm.task.service.UserGroupCallbackManager;
-import org.mvel2.MVEL;
-import org.mvel2.ParserContext;
-import org.mvel2.compiler.ExpressionCompiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class BaseTest extends TestCase {
 
-    protected Logger logger;
+    protected static Logger logger;
     
     protected EntityManagerFactory emf;
 
@@ -78,7 +74,6 @@ public abstract class BaseTest extends TestCase {
         disableUserGroupCallback();
         
         logger = LoggerFactory.getLogger(getClass());
-        logger.info("Starting test");
     }
 
     protected void tearDown() throws Exception {
@@ -117,42 +112,26 @@ public abstract class BaseTest extends TestCase {
         }
     }
 
-    public Object eval(Reader reader,
-                       Map vars) {
-        try {
-            return eval(toString(reader),
-                    vars);
-        } catch (IOException e) {
-            throw new RuntimeException("Exception Thrown",
-                    e);
-        }
-    }
-
-    public String toString(Reader reader) throws IOException {
-        StringBuilder sb = new StringBuilder(1024);
-        int charValue;
-
-        while ((charValue = reader.read()) != -1) {
-            sb.append((char) charValue);
-        }
-        return sb.toString();
-    }
-
-    public Object eval(String str, Map vars) {
-        ExpressionCompiler compiler = new ExpressionCompiler(str.trim());
-
-        ParserContext context = new ParserContext();
-        context.addPackageImport("org.jbpm.task");
-        context.addPackageImport("org.jbpm.task.service");
-        context.addPackageImport("org.jbpm.task.query");
-        context.addPackageImport("java.util");
-
+    public static Object eval(Reader reader, Map vars) {
         vars.put("now", new Date());
-        return MVEL.executeExpression(compiler.compile(context), vars);
+        return TaskService.eval(reader, vars);
+    }
+    
+    public Object eval(String str, Map vars) {
+        vars.put("now", new Date());
+        return TaskService.eval(str, vars);
+    }
+    
+    protected Map<String, Object> fillVariables() { 
+        Map <String, Object> vars = new HashMap<String, Object>();
+        vars.put( "users", users );
+        vars.put( "groups", groups );        
+        vars.put( "now", new Date() );
+        return vars;
     }
     
     protected static void testDeadlines(long now, MockEscalatedDeadlineHandler handler) throws Exception { 
-        int sleep = 30000;
+        int sleep = 8000;
         handler.wait(3, sleep);
 
         assertEquals(3, handler.getList().size());
@@ -162,13 +141,13 @@ public abstract class BaseTest extends TestCase {
         boolean thirdDeadlineMet = false;
         for( Item item : handler.getList() ) { 
             long deadlineTime = item.getDeadline().getDate().getTime();
-            if( deadlineTime == now + 20000 ) { 
+            if( deadlineTime == now + 2000 ) { 
                 firstDeadlineMet = true;
             }
-            else if( deadlineTime == now + 22000 ) { 
+            else if( deadlineTime == now + 4000 ) { 
                 secondDeadlineMet = true;
             }
-            else if( deadlineTime == now + 24000 ) { 
+            else if( deadlineTime == now + 6000 ) { 
                 thirdDeadlineMet = true;
             }
             else { 

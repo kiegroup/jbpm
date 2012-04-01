@@ -27,21 +27,17 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
 import org.jbpm.task.query.DeadlineSummary;
 import org.jbpm.task.service.MockEscalatedDeadlineHandler;
+import org.jbpm.task.service.MvelFilePath;
 
 public class QueryTest extends BaseTest {
 
     public void testUnescalatedDeadlines() throws Exception {
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();
         taskService.setEscalatedDeadlineHandler( handler );       
-        Map vars = new HashMap();
-        vars.put( "users",
-                  users );
-        vars.put( "groups",
-                  groups );
-
+        Map<String, Object> vars = fillVariables();
 
         //Reader reader;
-        Reader reader = new InputStreamReader( getClass().getResourceAsStream( "QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.UnescalatedDeadlines ) );
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         for ( Task task : tasks ) {

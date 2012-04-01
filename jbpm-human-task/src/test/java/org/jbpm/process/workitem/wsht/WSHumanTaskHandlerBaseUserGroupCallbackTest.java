@@ -82,7 +82,7 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertEquals("Comment", taskSummary.getDescription());
         assertEquals(Status.Ready, taskSummary.getStatus());
 
-        System.out.println("Claiming task " + taskSummary.getId());
+        logger.debug("Claiming task " + taskSummary.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().claim(taskSummary.getId(), "Darth Vader", operationResponseHandler);
         PermissionDeniedException denied = null;
@@ -93,7 +93,7 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         }
 
         assertNull("Should get permissed denied exception", denied);
-        System.out.println("Claimed task " + taskSummary.getId());
+        logger.debug("Claimed task " + taskSummary.getId());
 
         //Check if the parent task is InProgress
         BlockingGetTaskResponseHandler getTaskResponseHandler = new BlockingGetTaskResponseHandler();
@@ -125,17 +125,17 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertEquals(Status.Reserved, task.getStatus());
         assertEquals("Darth Vader", task.getActualOwner().getId());
 
-        System.out.println("Starting task " + task.getId());
+        logger.debug("Starting task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(task.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started task " + task.getId());
+        logger.debug("Started task " + task.getId());
 
-        System.out.println("Failing task " + task.getId());
+        logger.debug("Failing task " + task.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().fail(task.getId(), "Darth Vader", null, operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Failed task " + task.getId());
+        logger.debug("Failed task " + task.getId());
 
         assertTrue(manager.waitTillAborted(MANAGER_ABORT_WAIT_TIME));
     }
@@ -163,11 +163,11 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertEquals(Status.Reserved, task.getStatus());
         assertEquals("Darth Vader", task.getActualOwner().getId());
 
-        System.out.println("Skipping task " + task.getId());
+        logger.debug("Skipping task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().skip(task.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Skipped task " + task.getId());
+        logger.debug("Skipped task " + task.getId());
 
         assertTrue(manager.waitTillAborted(MANAGER_ABORT_WAIT_TIME));
     }
@@ -295,13 +295,13 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         in.close();
         assertEquals("This is the content", data);
 
-        System.out.println("Starting task " + task.getId());
+        logger.debug("Starting task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(task.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started task " + task.getId());
+        logger.debug("Started task " + task.getId());
 
-        System.out.println("Completing task " + task.getId());
+        logger.debug("Completing task " + task.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         ContentData result = new ContentData();
         result.setAccessType(AccessType.Inline);
@@ -313,7 +313,7 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         result.setContent(bos.toByteArray());
         getClient().complete(task.getId(), "Darth Vader", result, operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Completed task " + task.getId());
+        logger.debug("Completed task " + task.getId());
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
         Map<String, Object> results = manager.getResults();
@@ -371,13 +371,13 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
                 assertEquals("10", data.get("Priority"));
                 assertEquals("MyObjectValue", ((MyObject)((Map<String, Object>)data.get("MyMap")).get("MyObjectInsideTheMap")).getValue());
 
-        System.out.println("Starting task " + task.getId());
+        logger.debug("Starting task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(task.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started task " + task.getId());
+        logger.debug("Started task " + task.getId());
 
-        System.out.println("Completing task " + task.getId());
+        logger.debug("Completing task " + task.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         ContentData result = new ContentData();
         result.setAccessType(AccessType.Inline);
@@ -389,7 +389,7 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         result.setContent(bos.toByteArray());
         getClient().complete(task.getId(), "Darth Vader", result, operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Completed task " + task.getId());
+        logger.debug("Completed task " + task.getId());
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
         Map<String, Object> results = manager.getResults();
@@ -452,11 +452,11 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         Thread.sleep(500);
 
         //Start the parent task
-        System.out.println("Starting task " + task.getId());
+        logger.debug("Starting task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(task.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started task " + task.getId());
+        logger.debug("Started task " + task.getId());
 
         //Check if the parent task is InProgress
         BlockingGetTaskResponseHandler getTaskResponseHandler = new BlockingGetTaskResponseHandler();
@@ -476,18 +476,18 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertNotNull(subTaskSummary2);
 
         //Starting the sub task 1
-        System.out.println("Starting sub task " + subTaskSummary1.getId());
+        logger.debug("Starting sub task " + subTaskSummary1.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(subTaskSummary1.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started sub task " + subTaskSummary1.getId());
+        logger.debug("Started sub task " + subTaskSummary1.getId());
 
         //Starting the sub task 2
-        System.out.println("Starting sub task " + subTaskSummary2.getId());
+        logger.debug("Starting sub task " + subTaskSummary2.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(subTaskSummary2.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started sub task " + subTaskSummary2.getId());
+        logger.debug("Started sub task " + subTaskSummary2.getId());
 
         //Check if the child task 1 is InProgress
         getTaskResponseHandler = new BlockingGetTaskResponseHandler();
@@ -504,18 +504,18 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertEquals(users.get("darth"), subTask2.getTaskData().getActualOwner());
 
         // Complete the child task 1
-        System.out.println("Completing sub task " + subTask1.getId());
+        logger.debug("Completing sub task " + subTask1.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().complete(subTask1.getId(), "Darth Vader", null, operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Completed sub task " + subTask1.getId());
+        logger.debug("Completed sub task " + subTask1.getId());
 
         // Complete the child task 2
-        System.out.println("Completing sub task " + subTask2.getId());
+        logger.debug("Completing sub task " + subTask2.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().complete(subTask2.getId(), "Darth Vader", null, operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Completed sub task " + subTask2.getId());
+        logger.debug("Completed sub task " + subTask2.getId());
 
         //Check if the child task 1 is Completed
 
@@ -597,11 +597,11 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         Thread.sleep(500);
 
         //Start the parent task
-        System.out.println("Starting task " + task.getId());
+        logger.debug("Starting task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(task.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started task " + task.getId());
+        logger.debug("Started task " + task.getId());
 
         //Check if the parent task is InProgress
         BlockingGetTaskResponseHandler getTaskResponseHandler = new BlockingGetTaskResponseHandler();
@@ -621,18 +621,18 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertNotNull(subTaskSummary2);
 
         //Starting the sub task 1
-        System.out.println("Starting sub task " + subTaskSummary1.getId());
+        logger.debug("Starting sub task " + subTaskSummary1.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(subTaskSummary1.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started sub task " + subTaskSummary1.getId());
+        logger.debug("Started sub task " + subTaskSummary1.getId());
 
         //Starting the sub task 2
-        System.out.println("Starting sub task " + subTaskSummary2.getId());
+        logger.debug("Starting sub task " + subTaskSummary2.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().start(subTaskSummary2.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Started sub task " + subTaskSummary2.getId());
+        logger.debug("Started sub task " + subTaskSummary2.getId());
 
         //Check if the child task 1 is InProgress
         getTaskResponseHandler = new BlockingGetTaskResponseHandler();
@@ -649,11 +649,11 @@ public abstract class WSHumanTaskHandlerBaseUserGroupCallbackTest extends BaseTe
         assertEquals(users.get("darth"), subTask2.getTaskData().getActualOwner());
 
         // Complete the parent task
-        System.out.println("Completing parent task " + parentTask.getId());
+        logger.debug("Completing parent task " + parentTask.getId());
         operationResponseHandler = new BlockingTaskOperationResponseHandler();
         getClient().skip(parentTask.getId(), "Darth Vader", operationResponseHandler);
         operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
-        System.out.println("Completed parent task " + parentTask.getId());
+        logger.debug("Completed parent task " + parentTask.getId());
 
         //Check if the child task 1 is Completed
         getTaskResponseHandler = new BlockingGetTaskResponseHandler();

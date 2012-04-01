@@ -20,9 +20,6 @@ import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskServiceEventMessagingBaseTest;
-import org.jbpm.task.service.mina.MinaTaskClientConnector;
-import org.jbpm.task.service.mina.MinaTaskClientHandler;
-import org.jbpm.task.service.mina.MinaTaskServer;
 
 public class TaskServiceEventMessagingMinaTest extends TaskServiceEventMessagingBaseTest {
 
@@ -32,9 +29,9 @@ public class TaskServiceEventMessagingMinaTest extends TaskServiceEventMessaging
         server = new MinaTaskServer(taskService);
         Thread thread = new Thread(server);
         thread.start();
-        System.out.println("Waiting for the MinaTask Server to come up");
+        logger.debug("Waiting for the MinaTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
         

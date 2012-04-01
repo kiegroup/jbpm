@@ -17,7 +17,6 @@
 package org.jbpm.process.workitem.wsht.mina;
 
 import org.drools.SystemEventListenerFactory;
-import org.drools.runtime.StatefulKnowledgeSession;
 import org.jbpm.process.workitem.wsht.WSHumanTaskHandler;
 import org.jbpm.process.workitem.wsht.WSHumanTaskHandlerBaseTest;
 import org.jbpm.task.TestStatefulKnowledgeSession;
@@ -37,9 +36,9 @@ public class WSHumanTaskHandlerMinaTest extends WSHumanTaskHandlerBaseTest {
 		server = new MinaTaskServer(taskService);
 		Thread thread = new Thread(server);
 		thread.start();
-		System.out.println("Waiting for the Mina Server to come up");
+		logger.debug("Waiting for the Mina Server to come up");
 		while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
 		setClient(new TaskClient(new MinaTaskClientConnector("client 1",

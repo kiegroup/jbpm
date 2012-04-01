@@ -21,10 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.task.Group;
-import org.jbpm.task.OrganizationalEntity;
-import org.jbpm.task.UserInfo;
-
 public class MockUserInfo implements UserInfo {
 
     private Map<Group, List<OrganizationalEntity>> groups = new HashMap<Group, List<OrganizationalEntity>>();

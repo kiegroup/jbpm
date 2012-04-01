@@ -16,7 +16,6 @@
 
 package org.jbpm.task.service.base.sync;
 
-import org.jbpm.task.service.*;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -27,8 +26,8 @@ import java.util.Map;
 import javax.mail.BodyPart;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.mail.internet.MimeMessage.RecipientType;
+import javax.mail.internet.MimeMultipart;
 
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.MockUserInfo;
@@ -47,10 +46,7 @@ public abstract class IcalBaseSyncTest extends BaseTest {
 	private String emailPort;    
 
 	public void testSendWithStartandEndDeadline() throws Exception {
-        Map vars = new HashMap();
-        vars.put("users", users);
-        vars.put("groups", groups);
-        vars.put("now", new Date());
+        Map<String, Object> vars = fillVariables();
 
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, createdBy = users['tony'], activationTime = now}), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) {potentialOwners = [users['steve' ], users['tony' ]]}), ";
@@ -155,10 +151,7 @@ public abstract class IcalBaseSyncTest extends BaseTest {
     }
     
     public void testSendWithStartDeadline() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() );
+        Map<String, Object> vars = fillVariables();
 
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, createdBy = users['tony'], activationTime = now}), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) {potentialOwners = [users['steve' ], users['tony' ]]}), ";
@@ -230,10 +223,7 @@ public abstract class IcalBaseSyncTest extends BaseTest {
     }    
     
     public void testSendWithEndDeadline() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() );
+        Map<String, Object> vars = fillVariables();
 
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, createdBy = users['tony'], activationTime = now}), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) {potentialOwners = [users['steve' ], users['tony' ]]}), ";
@@ -307,10 +297,7 @@ public abstract class IcalBaseSyncTest extends BaseTest {
     }
     
     public void testSendWithNoDeadline() throws Exception {
-        Map vars = new HashMap();
-        vars.put( "users", users );
-        vars.put( "groups", groups );
-        vars.put( "now", new Date() );
+        Map<String, Object> vars = fillVariables();
 
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { createdOn = now, createdBy = users['tony'], activationTime = now}), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) {potentialOwners = [users['steve' ], users['tony' ]]}), ";

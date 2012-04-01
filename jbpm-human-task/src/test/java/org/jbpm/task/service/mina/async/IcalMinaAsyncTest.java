@@ -39,9 +39,9 @@ public class IcalMinaAsyncTest extends IcalBaseAsyncTest {
 		server = new MinaTaskServer(taskService);
 		Thread thread = new Thread(server);
 		thread.start();
-		System.out.println("Waiting for the MinaTask Server to come up");
+		logger.debug("Waiting for the MinaTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
 

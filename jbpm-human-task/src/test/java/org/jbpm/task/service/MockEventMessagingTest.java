@@ -18,8 +18,6 @@ package org.jbpm.task.service;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,14 +28,10 @@ import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
 import org.jbpm.task.event.TaskClaimedEvent;
 import org.jbpm.task.event.TaskEventKey;
-import org.jbpm.task.service.Operation;
 
 public class MockEventMessagingTest extends BaseTest {    
     public void testMockTransport() throws Exception {      
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );                
+        Map<String, Object> vars = fillVariables();
 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";

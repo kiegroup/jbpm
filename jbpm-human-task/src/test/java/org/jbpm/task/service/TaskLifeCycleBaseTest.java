@@ -17,8 +17,6 @@
 package org.jbpm.task.service;
 
 import java.io.StringReader;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +28,6 @@ import org.jbpm.task.Task;
 import org.jbpm.task.event.TaskCompletedEvent;
 import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingEventResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
@@ -45,10 +41,7 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
 
     @SuppressWarnings("unchecked")
 	public void testLifeCycle() throws Exception {      
-        Map<String, Object> vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );                
+        Map<String, Object> vars = fillVariables();
 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { workItemId = 1 } ), ";
@@ -102,10 +95,7 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
   
     @SuppressWarnings("unchecked")
 	public void testLifeCycleMultipleTasks() throws Exception {      
-        Map<String, Object> vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );                
+        Map<String, Object> vars = fillVariables();
 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { workItemId = 1 } ), ";

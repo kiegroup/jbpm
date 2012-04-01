@@ -19,9 +19,6 @@ package org.jbpm.task.service.hornetq;
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskServiceCommentsAndAttachmentsBaseTest;
-import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
-import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
-import org.jbpm.task.service.hornetq.HornetQTaskServer;
 
 public class TaskServiceCommentsAndAttachmentsHornetQTest extends TaskServiceCommentsAndAttachmentsBaseTest {
 
@@ -31,9 +28,9 @@ public class TaskServiceCommentsAndAttachmentsHornetQTest extends TaskServiceCom
 		server = new HornetQTaskServer(taskService, 5446);
         Thread thread = new Thread(server);
         thread.start();
-		System.out.println("Waiting for the HornetQTask Server to come up");
+		logger.debug("Waiting for the HornetQTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
         

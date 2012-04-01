@@ -17,8 +17,6 @@
 package org.jbpm.task.service.base.async;
 
 import java.io.StringReader;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.eventmessaging.EventKey;
@@ -42,10 +40,7 @@ public abstract class TaskServiceEventMessagingBaseAsyncTest extends BaseTest {
     protected AsyncTaskService client;
 
     public void testClaimEvent() throws Exception {      
-        Map  vars = new HashMap();     
-        vars.put( "users", users );
-        vars.put( "groups", groups );        
-        vars.put( "now", new Date() );                
+        Map<String, Object> vars = fillVariables();
 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";

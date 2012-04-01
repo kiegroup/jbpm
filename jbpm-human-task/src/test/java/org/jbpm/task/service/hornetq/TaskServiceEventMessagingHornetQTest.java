@@ -20,9 +20,6 @@ import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskServiceEventMessagingBaseTest;
-import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
-import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
-import org.jbpm.task.service.hornetq.HornetQTaskServer;
 
 public class TaskServiceEventMessagingHornetQTest extends TaskServiceEventMessagingBaseTest {
 
@@ -32,9 +29,9 @@ public class TaskServiceEventMessagingHornetQTest extends TaskServiceEventMessag
         server = new HornetQTaskServer(taskService, 5446);
         Thread thread = new Thread(server);
         thread.start();
-		System.out.println("Waiting for the HornetQTask Server to come up");
+		logger.debug("Waiting for the HornetQTask Server to come up");
         while (!server.isRunning()) {
-        	System.out.print(".");
+
         	Thread.sleep( 50 );
         }
         
