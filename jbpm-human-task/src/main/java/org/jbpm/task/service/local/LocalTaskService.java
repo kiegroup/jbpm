@@ -15,12 +15,16 @@
  */
 package org.jbpm.task.service.local;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.eventmessaging.EventTriggerTransport;
 import org.jbpm.eventmessaging.Payload;
+import org.jbpm.task.AccessType;
 import org.jbpm.task.Attachment;
 import org.jbpm.task.Comment;
 import org.jbpm.task.Content;
@@ -35,42 +39,44 @@ import org.jbpm.task.service.TaskServiceSession;
 
 /**
  *
- * @author salaboy
+ * 
  */
 public class LocalTaskService implements TaskService {
 
-    private TaskServiceSession taskServiceSession;
+    private org.jbpm.task.service.TaskService service;
+    private TaskServiceSession session;
 
-    public LocalTaskService(TaskServiceSession taskServiceSession) {
-        this.taskServiceSession = taskServiceSession;
+    public LocalTaskService(org.jbpm.task.service.TaskService taskService) {
+        this.service = taskService;
+        this.session = service.createSession();
     }
 
     public void activate(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Activate, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Activate, taskId, userId, null, null, null);
     }
 
     public void addAttachment(long taskId, Attachment attachment, Content content) {
-        taskServiceSession.addAttachment(taskId, attachment, content);
+        session.addAttachment(taskId, attachment, content);
     }
 
     public void addComment(long taskId, Comment comment) {
-        taskServiceSession.addComment(taskId, comment);
+        session.addComment(taskId, comment);
     }
 
     public void addTask(Task task, ContentData content) {
-        taskServiceSession.addTask(task, content);
+        session.addTask(task, content);
     }
 
     public void claim(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Claim, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Claim, taskId, userId, null, null, null);
     }
 
     public void claim(long taskId, String userId, List<String> groupIds) {
-        taskServiceSession.taskOperation(Operation.Claim, taskId, userId, null, null, groupIds);
+        session.taskOperation(Operation.Claim, taskId, userId, null, null, groupIds);
     }
 
     public void complete(long taskId, String userId, ContentData outputData) {
-        taskServiceSession.taskOperation(Operation.Complete, taskId, userId, null, outputData, null);
+        session.taskOperation(Operation.Complete, taskId, userId, null, outputData, null);
     }
 
     public boolean connect() {
@@ -84,23 +90,23 @@ public class LocalTaskService implements TaskService {
     }
 
     public void delegate(long taskId, String userId, String targetUserId) {
-        taskServiceSession.taskOperation(Operation.Delegate, taskId, userId, targetUserId, null, null);
+        session.taskOperation(Operation.Delegate, taskId, userId, targetUserId, null, null);
     }
 
     public void deleteAttachment(long taskId, long attachmentId, long contentId) {
-        taskServiceSession.deleteAttachment(taskId, attachmentId, contentId);
+        session.deleteAttachment(taskId, attachmentId, contentId);
     }
 
     public void deleteComment(long taskId, long commentId) {
-        taskServiceSession.deleteComment(taskId, commentId);
+        session.deleteComment(taskId, commentId);
     }
 
     public void deleteFault(long taskId, String userId) {
-        taskServiceSession.deleteFault(taskId, userId);
+        session.deleteFault(taskId, userId);
     }
 
     public void deleteOutput(long taskId, String userId) {
-        taskServiceSession.deleteOutput(taskId, userId);
+        session.deleteOutput(taskId, userId);
     }
 
     public void disconnect() throws Exception {
@@ -108,132 +114,132 @@ public class LocalTaskService implements TaskService {
     }
     
     public void exit(long taskId, String userId) {
-    	taskServiceSession.taskOperation(Operation.Exit, taskId, userId, null, null, null);
+    	session.taskOperation(Operation.Exit, taskId, userId, null, null, null);
     }
 
     public void fail(long taskId, String userId, FaultData faultData) {
-        taskServiceSession.taskOperation(Operation.Fail, taskId, userId, null, faultData, null);
+        session.taskOperation(Operation.Fail, taskId, userId, null, faultData, null);
     }
 
     public void forward(long taskId, String userId, String targetEntityId) {
-        taskServiceSession.taskOperation(Operation.Forward, taskId, userId, targetEntityId, null, null);
+        session.taskOperation(Operation.Forward, taskId, userId, targetEntityId, null, null);
     }
 
     public Content getContent(long contentId) {
-        return taskServiceSession.getContent(contentId);
+        return session.getContent(contentId);
     }
 
     public List<TaskSummary> getSubTasksAssignedAsPotentialOwner(long parentId, String userId, String language) {
-        return taskServiceSession.getSubTasksAssignedAsPotentialOwner(parentId, userId, language);
+        return session.getSubTasksAssignedAsPotentialOwner(parentId, userId, language);
     }
 
     public List<TaskSummary> getSubTasksByParent(long parentId) {
-        return taskServiceSession.getSubTasksByParent(parentId, null);
+        return session.getSubTasksByParent(parentId, null);
     }
 
     public Task getTask(long taskId) {
-        return taskServiceSession.getTask(taskId);
+        return session.getTask(taskId);
     }
 
     public Task getTaskByWorkItemId(long workItemId) {
-        return taskServiceSession.getTaskByWorkItemId(workItemId);
+        return session.getTaskByWorkItemId(workItemId);
     }
 
     public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, String language) {
-        return taskServiceSession.getTasksAssignedAsBusinessAdministrator(userId, language);
+        return session.getTasksAssignedAsBusinessAdministrator(userId, language);
     }
 
     public List<TaskSummary> getTasksAssignedAsExcludedOwner(String userId, String language) {
-        return taskServiceSession.getTasksAssignedAsExcludedOwner(userId, language);
+        return session.getTasksAssignedAsExcludedOwner(userId, language);
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language) {
-        return taskServiceSession.getTasksAssignedAsPotentialOwner(userId, language);
+        return session.getTasksAssignedAsPotentialOwner(userId, language);
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language) {
-        return taskServiceSession.getTasksAssignedAsPotentialOwner(userId, groupIds, language);
+        return session.getTasksAssignedAsPotentialOwner(userId, groupIds, language);
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, int firstResult, int maxResult) {
-        return taskServiceSession.getTasksAssignedAsPotentialOwner(userId, groupIds, language, firstResult, maxResult);
+        return session.getTasksAssignedAsPotentialOwner(userId, groupIds, language, firstResult, maxResult);
     }
 
     public List<TaskSummary> getTasksAssignedAsRecipient(String userId, String language) {
-        return taskServiceSession.getTasksAssignedAsRecipient(userId, language);
+        return session.getTasksAssignedAsRecipient(userId, language);
     }
 
     public List<TaskSummary> getTasksAssignedAsTaskInitiator(String userId, String language) {
-        return taskServiceSession.getTasksAssignedAsTaskInitiator(userId, language);
+        return session.getTasksAssignedAsTaskInitiator(userId, language);
     }
 
     public List<TaskSummary> getTasksAssignedAsTaskStakeholder(String userId, String language) {
-        return taskServiceSession.getTasksAssignedAsTaskStakeholder(userId, language);
+        return session.getTasksAssignedAsTaskStakeholder(userId, language);
     }
 
     public List<TaskSummary> getTasksOwned(String userId, String language) {
-        return taskServiceSession.getTasksOwned(userId, language);
+        return session.getTasksOwned(userId, language);
     }
 
     public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
-        taskServiceSession.nominateTask(taskId, userId, potentialOwners);
+        session.nominateTask(taskId, userId, potentialOwners);
     }
 
     public List<?> query(String qlString, Integer size, Integer offset) {
-        return taskServiceSession.query(qlString, size, offset);
+        return session.query(qlString, size, offset);
     }
 
     public void register(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Register, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Register, taskId, userId, null, null, null);
     }
 
     public void registerForEvent(EventKey key, boolean remove, EventResponseHandler responseHandler) {
-        SimpleEventTransport transport = new SimpleEventTransport(taskServiceSession, responseHandler, remove);
-        taskServiceSession.getService().getEventKeys().register(key, transport);
+        SimpleEventTransport transport = new SimpleEventTransport(session, responseHandler, remove);
+        service.getEventKeys().register(key, transport);
     }
 
     public void release(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Release, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Release, taskId, userId, null, null, null);
     }
 
     public void remove(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Remove, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Remove, taskId, userId, null, null, null);
     }
 
     public void resume(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Resume, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Resume, taskId, userId, null, null, null);
     }
 
     public void setDocumentContent(long taskId, Content content) {
-        taskServiceSession.setDocumentContent(taskId, content);
+        session.setDocumentContent(taskId, content);
     }
 
     public void setFault(long taskId, String userId, FaultData fault) {
-        taskServiceSession.setFault(taskId, userId, fault);
+        session.setFault(taskId, userId, fault);
     }
 
     public void setOutput(long taskId, String userId, ContentData outputContentData) {
-        taskServiceSession.setOutput(taskId, userId, outputContentData);
+        session.setOutput(taskId, userId, outputContentData);
     }
 
     public void setPriority(long taskId, String userId, int priority) {
-        taskServiceSession.setPriority(taskId, userId, priority);
+        session.setPriority(taskId, userId, priority);
     }
 
     public void skip(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Skip, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Skip, taskId, userId, null, null, null);
     }
 
     public void start(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Start, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Start, taskId, userId, null, null, null);
     }
 
     public void stop(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Stop, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Stop, taskId, userId, null, null, null);
     }
 
     public void suspend(long taskId, String userId) {
-        taskServiceSession.taskOperation(Operation.Suspend, taskId, userId, null, null, null);
+        session.taskOperation(Operation.Suspend, taskId, userId, null, null, null);
     }
 
     private static class SimpleEventTransport implements EventTriggerTransport {
@@ -255,9 +261,4 @@ public class LocalTaskService implements TaskService {
         }
     }
     
-    public void dispose() { 
-        if( taskServiceSession.getEntityManager().isOpen() ) { 
-            taskServiceSession.dispose();
-        }
-    }
 }

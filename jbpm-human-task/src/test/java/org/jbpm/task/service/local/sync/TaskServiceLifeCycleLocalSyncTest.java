@@ -27,7 +27,7 @@ public class TaskServiceLifeCycleLocalSyncTest extends TaskServiceLifeCycleBaseS
         super.setUp();
         
 
-        client = new LocalTaskService(taskSession);
+        client = new LocalTaskService(taskService);
         
     }
 

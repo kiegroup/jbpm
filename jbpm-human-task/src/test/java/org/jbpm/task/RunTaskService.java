@@ -16,7 +16,6 @@
 
 package org.jbpm.task;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Date;
@@ -28,15 +27,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.drools.SystemEventListenerFactory;
-import org.jbpm.task.Group;
-import org.jbpm.task.User;
 import org.jbpm.task.service.SendIcal;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 import org.jbpm.task.service.mina.MinaTaskServer;
-import org.mvel2.MVEL;
-import org.mvel2.ParserContext;
-import org.mvel2.compiler.ExpressionCompiler;
 
 public class RunTaskService {
 
@@ -93,34 +87,9 @@ public class RunTaskService {
 		emf.close();
 	}
 
-	public Object eval(Reader reader, Map<String, Object> vars) {
-		try {
-			return eval(toString(reader), vars);
-		} catch (IOException e) {
-			throw new RuntimeException("Exception Thrown", e);
-		}
-	}
+    public Object eval(Reader reader, Map<String, Object> vars) {
+        vars.put("now", new Date());
+        return TaskService.eval(reader, vars);
+    }
 
-	public String toString(Reader reader) throws IOException {
-		int charValue = 0;
-		StringBuffer sb = new StringBuffer(1024);
-		while ((charValue = reader.read()) != -1) {
-			// result = result + (char) charValue;
-			sb.append((char) charValue);
-		}
-		return sb.toString();
-	}
-
-	public Object eval(String str, Map<String, Object> vars) {
-		ExpressionCompiler compiler = new ExpressionCompiler(str.trim());
-
-		ParserContext context = new ParserContext();
-		context.addPackageImport("org.drools.task");
-		context.addPackageImport("org.drools.task.service");
-		context.addPackageImport("org.drools.task.query");
-		context.addPackageImport("java.util");
-
-		vars.put("now", new Date());
-		return MVEL.executeExpression(compiler.compile(context), vars);
-	}
 }

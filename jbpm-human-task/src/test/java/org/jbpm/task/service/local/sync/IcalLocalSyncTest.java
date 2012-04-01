@@ -17,10 +17,10 @@
 package org.jbpm.task.service.local.sync;
 
 import org.drools.util.ChainedProperties;
+import org.drools.util.ClassLoaderUtil;
 import org.jbpm.task.service.base.sync.IcalBaseSyncTest;
 import org.jbpm.task.service.local.LocalTaskService;
 import org.subethamail.wiser.Wiser;
-import org.drools.util.ClassLoaderUtil;
 
 public class IcalLocalSyncTest extends IcalBaseSyncTest {
 
@@ -34,7 +34,7 @@ public class IcalLocalSyncTest extends IcalBaseSyncTest {
 
 		
 
-		client = new LocalTaskService(taskSession);
+		client = new LocalTaskService(taskService);
 		
 
 		setWiser(new Wiser());

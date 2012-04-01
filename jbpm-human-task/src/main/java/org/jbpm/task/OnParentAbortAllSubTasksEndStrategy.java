@@ -17,6 +17,7 @@
 package org.jbpm.task;
 
 import java.util.List;
+
 import javax.persistence.Entity;
 
 import org.jbpm.task.event.InternalTaskEventListener;
@@ -26,7 +27,6 @@ import org.jbpm.task.service.TaskServiceSession;
 
 /**
  *
- * @author salaboy
  */
 @Entity
 public class OnParentAbortAllSubTasksEndStrategy extends SubTasksStrategy {

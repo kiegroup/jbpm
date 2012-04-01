@@ -27,7 +27,7 @@ import org.jbpm.task.service.FaultData;
 
 /**
  *
- * @author salaboy
+ *
  */
 public interface TaskService {
 

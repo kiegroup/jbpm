@@ -24,19 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.BaseTestNoUserGroupSetup;
-import org.jbpm.task.Deadline;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Task;
 import org.jbpm.task.User;
-import org.jbpm.task.service.EscalatedDeadlineHandler;
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServer;
-import org.jbpm.task.service.TaskService;
-import org.jbpm.task.service.TaskServiceEscalationBaseUserGroupCallbackTest.MockEscalatedDeadlineHandler.Item;
+import org.jbpm.task.service.MockEscalatedDeadlineHandler.Item;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 
 public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends BaseTestNoUserGroupSetup {
@@ -74,21 +67,7 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
             addTaskResponseHandler.waitTillDone( 3000 );
         }
 
-        handler.wait( 3, 30000 );
-        
-        assertEquals( 3, handler.list.size() );
-        
-        Item item0 = handler.list.get( 0 );        
-        assertEquals( now + 20000,
-                      item0.getDeadline().getDate().getTime() );
-        
-        Item item1 = handler.list.get( 1 );
-        assertEquals( now + 22000,
-                      item1.getDeadline().getDate().getTime() );
-        
-        Item item2 = handler.list.get( 2 );
-        assertEquals( now + 24000,
-                      item2.getDeadline().getDate().getTime() );        
+        testDeadlines(now, handler);
     }
     
     public void testUnescalatedDeadlinesOnStartup() throws Exception {
@@ -117,114 +96,7 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
         // now create a new service, to see if it initiates from the DB correctly
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();
         TaskService local = new TaskService(emf, SystemEventListenerFactory.getSystemEventListener(), handler);      
-                
-        handler.wait( 3, 30000 );
-        
-        assertEquals( 3, handler.list.size() );
 
-        Item item0 = handler.list.get( 0 );
-        assertEquals( item0.getDeadline().getDate().getTime(),
-                      now + 20000 );
-        
-        Item item1 = handler.list.get( 1 );
-        assertEquals( item1.getDeadline().getDate().getTime(),
-                      now + 22000 );
-        
-        Item item2 = handler.list.get( 2 );
-        assertEquals( item2.getDeadline().getDate().getTime(),
-                      now + 24000 );            
+        testDeadlines(now, handler);
     }
-
-    public static class MockEscalatedDeadlineHandler
-        implements
-        EscalatedDeadlineHandler {
-
-        List<Item> list = new ArrayList<Item>();
-        
-        TaskService taskService;
-
-        public void executeEscalatedDeadline(Task task,
-                                             Deadline deadline,
-                                             EntityManager em,
-                                             TaskService taskService) {
-            list.add( new Item( task,
-                                deadline,
-                                em,
-                                taskService ) );
-        }
-        
-        public List<Item> getList() {
-            return this.list;
-        }
-
-        public static class Item {
-            Task          task;
-            Deadline      deadline;
-            EntityManager em;
-
-            public Item(Task task,
-                        Deadline deadline,
-                        EntityManager em,
-                        TaskService taskService) {
-                this.deadline = deadline;
-                this.em = em;
-                this.task = task;
-            }
-
-            public Task getTask() {
-                return task;
-            }
-
-            public void setTask(Task task) {
-                this.task = task;
-            }
-
-            public Deadline getDeadline() {
-                return deadline;
-            }
-
-            public void setDeadline(Deadline deadline) {
-                this.deadline = deadline;
-            }
-
-            public EntityManager getEntityManager() {
-                return em;
-            }
-
-            public void setEntityManager(EntityManager em) {
-                this.em = em;
-            }
-
-            public EntityManager getEm() {
-                return em;
-            }
-
-            public void setEm(EntityManager em) {
-                this.em = em;
-            }                        
-        }   
-        
-        public synchronized void wait(int totalSize, int totalWait) {
-            int wait = 0;
-            int size = 0;
-            
-            while ( true ) {
-                synchronized ( list ) {
-                    size = list.size();
-                }
-                
-                if ( size >= totalSize || wait >= totalWait ) {
-                    break;
-                }
-                
-                try {
-                    Thread.sleep( 250 );
-                } catch( Exception e ) {
-                    throw new RuntimeException( "Unable to sleep", e);
-                }
-                wait += 250;
-            }
-        }
-    }
-    
 }

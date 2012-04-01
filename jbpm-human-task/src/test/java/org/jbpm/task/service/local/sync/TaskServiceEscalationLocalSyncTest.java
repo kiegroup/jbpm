@@ -26,7 +26,7 @@ public class TaskServiceEscalationLocalSyncTest extends TaskServiceEscalationBas
 		super.setUp();
 		
 
-		client = new LocalTaskService(taskSession);
+		client = new LocalTaskService(taskService);
 		
 	}
 

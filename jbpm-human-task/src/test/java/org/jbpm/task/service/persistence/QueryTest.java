@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.task;
+package org.jbpm.task.service.persistence;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -23,9 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
 import org.jbpm.task.query.DeadlineSummary;
-import org.jbpm.task.service.TaskServiceEscalationBaseTest.MockEscalatedDeadlineHandler;
+import org.jbpm.task.service.MockEscalatedDeadlineHandler;
 
 public class QueryTest extends BaseTest {
 
@@ -49,22 +50,34 @@ public class QueryTest extends BaseTest {
         long now = ((Date)vars.get( "now" )).getTime();
         
         // should be three, one is marked as escalated
-        List<DeadlineSummary> list = taskSession.getUnescalatedDeadlines();
+        TaskPersistenceManager tpm = new TaskPersistenceManager(emf);
+        List<DeadlineSummary> list = tpm.getUnescalatedDeadlines();
         
         assertEquals( 3,
                       list.size() );
 
-        DeadlineSummary result = list.get( 0 );
-        assertEquals( now + 20000,
-                      result.getDate().getTime() );
-
-        result = list.get( 1 );
-        assertEquals( now + 22000 ,
-                      result.getDate().getTime() );
-
-        result = list.get( 2 );
-        assertEquals( now + 24000,
-                      result.getDate().getTime());    
+        boolean firstDeadlineMet = false;
+        boolean secondDeadlineMet = false;
+        boolean thirdDeadlineMet = false;
+        for( DeadlineSummary summary : list ) { 
+            long deadlineTime = summary.getDate().getTime();
+            if( deadlineTime == now + 2000 ) { 
+                firstDeadlineMet = true;
+            }
+            else if( deadlineTime == now + 4000 ) { 
+                secondDeadlineMet = true;
+            }
+            else if( deadlineTime == now + 6000 ) { 
+                thirdDeadlineMet = true;
+            }
+            else { 
+                fail( deadlineTime + " is not an expected deadline time." );
+            }
+        }
+        
+        assertTrue( "First deadline was not met." , firstDeadlineMet );
+        assertTrue( "Second deadline was not met." , secondDeadlineMet );
+        assertTrue( "Third deadline was not met." , thirdDeadlineMet ); 
     }
 
 }
