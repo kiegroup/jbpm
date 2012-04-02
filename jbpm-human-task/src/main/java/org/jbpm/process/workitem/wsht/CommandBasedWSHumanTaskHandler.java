@@ -353,7 +353,7 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 
 		public void execute(Task task) {
 			if (task != null) {
-				client.skip(task.getId(), "Administrator", null);
+				client.exit(task.getId(), "Administrator", null);
 			}
 		}
     }

@@ -26,7 +26,7 @@ import org.jboss.drools.*;
  * @see org.jboss.drools.DroolsPackage
  * @generated
  */
-public class DroolsSwitch<T> {
+public class DroolsSwitch {
 	/**
 	 * The cached model package
 	 * <!-- begin-user-doc -->
@@ -54,7 +54,7 @@ public class DroolsSwitch<T> {
 	 * @return the first non-null result returned by a <code>caseXXX</code> call.
 	 * @generated
 	 */
-	public T doSwitch(EObject theEObject) {
+	public Object doSwitch(EObject theEObject) {
 		return doSwitch(theEObject.eClass(), theEObject);
 	}
 
@@ -65,16 +65,16 @@ public class DroolsSwitch<T> {
 	 * @return the first non-null result returned by a <code>caseXXX</code> call.
 	 * @generated
 	 */
-	protected T doSwitch(EClass theEClass, EObject theEObject) {
+	protected Object doSwitch(EClass theEClass, EObject theEObject) {
 		if (theEClass.eContainer() == modelPackage) {
 			return doSwitch(theEClass.getClassifierID(), theEObject);
 		}
 		else {
-			List<EClass> eSuperTypes = theEClass.getESuperTypes();
+			List eSuperTypes = theEClass.getESuperTypes();
 			return
 				eSuperTypes.isEmpty() ?
 					defaultCase(theEObject) :
-					doSwitch(eSuperTypes.get(0), theEObject);
+					doSwitch((EClass)eSuperTypes.get(0), theEObject);
 		}
 	}
 
@@ -85,35 +85,35 @@ public class DroolsSwitch<T> {
 	 * @return the first non-null result returned by a <code>caseXXX</code> call.
 	 * @generated
 	 */
-	protected T doSwitch(int classifierID, EObject theEObject) {
+	protected Object doSwitch(int classifierID, EObject theEObject) {
 		switch (classifierID) {
 			case DroolsPackage.DOCUMENT_ROOT: {
 				DocumentRoot documentRoot = (DocumentRoot)theEObject;
-				T result = caseDocumentRoot(documentRoot);
+				Object result = caseDocumentRoot(documentRoot);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DroolsPackage.GLOBAL_TYPE: {
 				GlobalType globalType = (GlobalType)theEObject;
-				T result = caseGlobalType(globalType);
+				Object result = caseGlobalType(globalType);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DroolsPackage.IMPORT_TYPE: {
 				ImportType importType = (ImportType)theEObject;
-				T result = caseImportType(importType);
+				Object result = caseImportType(importType);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DroolsPackage.ON_ENTRY_SCRIPT_TYPE: {
 				OnEntryScriptType onEntryScriptType = (OnEntryScriptType)theEObject;
-				T result = caseOnEntryScriptType(onEntryScriptType);
+				Object result = caseOnEntryScriptType(onEntryScriptType);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
 			case DroolsPackage.ON_EXIT_SCRIPT_TYPE: {
 				OnExitScriptType onExitScriptType = (OnExitScriptType)theEObject;
-				T result = caseOnExitScriptType(onExitScriptType);
+				Object result = caseOnExitScriptType(onExitScriptType);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -132,7 +132,7 @@ public class DroolsSwitch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseDocumentRoot(DocumentRoot object) {
+	public Object caseDocumentRoot(DocumentRoot object) {
 		return null;
 	}
 
@@ -147,7 +147,7 @@ public class DroolsSwitch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseGlobalType(GlobalType object) {
+	public Object caseGlobalType(GlobalType object) {
 		return null;
 	}
 
@@ -162,7 +162,7 @@ public class DroolsSwitch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseImportType(ImportType object) {
+	public Object caseImportType(ImportType object) {
 		return null;
 	}
 
@@ -177,7 +177,7 @@ public class DroolsSwitch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseOnEntryScriptType(OnEntryScriptType object) {
+	public Object caseOnEntryScriptType(OnEntryScriptType object) {
 		return null;
 	}
 
@@ -192,7 +192,7 @@ public class DroolsSwitch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseOnExitScriptType(OnExitScriptType object) {
+	public Object caseOnExitScriptType(OnExitScriptType object) {
 		return null;
 	}
 
@@ -207,7 +207,7 @@ public class DroolsSwitch<T> {
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject)
 	 * @generated
 	 */
-	public T defaultCase(EObject object) {
+	public Object defaultCase(EObject object) {
 		return null;
 	}
 
