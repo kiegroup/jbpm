@@ -203,8 +203,12 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 
 	@SuppressWarnings("unchecked")
 	public void completeTask(long taskId, String outcome, Map data, String userId) {
-		data.put("outcome", outcome);
-		completeTask(taskId, data, userId);
+	    if ("jbpm_skip_task".equalsIgnoreCase(outcome)) {
+	        skipTask(taskId, userId);
+	    } else {
+    		data.put("outcome", outcome);
+    		completeTask(taskId, data, userId);
+	    }
 	}
 
 	public void releaseTask(long taskId, String userId) {
@@ -272,6 +276,19 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 			t.printStackTrace();
 		}
 		return result;
+	}
+	
+	public void skipTask(long taskId, String userId) {
+	    connect();
+	    if ("Mina".equals(TASK_SERVICE_STRATEGY)) {
+            BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
+            
+            client.skip(taskId, userId, responseHandler);
+            responseHandler.waitTillDone(5000);           
+        } else if ("Local".equals(TASK_SERVICE_STRATEGY)) {
+            service.skip(taskId, userId);
+        }
+	    
 	}
 
 }
