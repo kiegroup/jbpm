@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +54,13 @@ import org.jbpm.task.event.TaskFailedEvent;
 import org.jbpm.task.event.TaskSkippedEvent;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.TaskClientHandler.AddTaskResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.mina.MinaTaskClientHandler;
 import org.jbpm.task.service.responsehandlers.AbstractBaseResponseHandler;
+import org.jbpm.task.utils.OnErrorAction;
 
 public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 
@@ -65,14 +68,25 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 	private int port = 9123;
 	private TaskClient client;
 	private KnowledgeRuntime session;
+	private OnErrorAction action;
 	
 	public CommandBasedWSHumanTaskHandler(KnowledgeRuntime session) {
 		this.session = session;
+		this.action = OnErrorAction.LOG;
+	}
+	
+	public CommandBasedWSHumanTaskHandler(KnowledgeRuntime session, OnErrorAction action) {
+		this.session = session;
+		this.action = action;
 	}
 
 	public void setConnection(String ipAddress, int port) {
 		this.ipAddress = ipAddress;
 		this.port = port;
+	}
+	
+	public void setAction(OnErrorAction action) {
+		this.action = action;
 	}
 	
 	public void connect() {
@@ -214,7 +228,9 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 				e.printStackTrace();
 			}
                 }
-		client.addTask(task, content, null);
+
+		client.addTask(task, content, new TaskAddedHandler(workItem.getId()));
+
 	}
 	
 	public void dispose() throws Exception {
@@ -227,6 +243,39 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 		GetTaskResponseHandler abortTaskResponseHandler = new AbortTaskResponseHandler();
     	client.getTaskByWorkItemId(workItem.getId(), abortTaskResponseHandler);
 	}
+	
+	private class TaskAddedHandler extends AbstractBaseResponseHandler implements AddTaskResponseHandler {
+
+		private long workItemId;
+		
+		public TaskAddedHandler(long workItemId) {
+			this.workItemId = workItemId;
+		}
+		public void execute(long taskId) {
+			
+		}
+
+		@Override
+		public synchronized void setError(RuntimeException error) {		
+			super.setError(error);
+			if (action.equals(OnErrorAction.ABORT)) {
+				session.getWorkItemManager().abortWorkItem(workItemId);
+				
+			} else if (action.equals(OnErrorAction.RETHROW)) {
+				throw getError();
+				
+			} else if (action.equals(OnErrorAction.LOG)) {
+				StringBuffer log = new StringBuffer();
+				log.append(new Date() + ": Error when creating task on task server for work item id " + workItemId);
+				log.append(". Error reported by task server: " + getError().getMessage() + ". ");
+				log.append("Stack trace:\n");
+				System.err.println(log);
+				getError().printStackTrace(System.err);
+			}
+			
+		}
+	
+    }
     
     private class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
         
