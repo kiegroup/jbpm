@@ -43,5 +43,9 @@
     	<artifactId>jbpm-gwt-shared</artifactId>
     	<scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-gwt-core</artifactId>
+    </dependency>
   </dependencies>
 </project>
