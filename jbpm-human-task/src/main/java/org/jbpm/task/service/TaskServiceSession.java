@@ -598,6 +598,11 @@ public class TaskServiceSession extends TaskPersistenceManagerAccessor {
         doCallbackUserOperation(userId);
         return tpm.queryTasksWithUserIdAndLanguage("TasksOwned", userId, language);
     }
+    
+    public List<TaskSummary> getTasksOwned(final String userId, List<Status> status, final String language) {
+        doCallbackUserOperation(userId);
+        return tpm.queryTasksWithUserIdStatusAndLanguage("TasksOwnedWithParticularStatus", userId, status, language);
+    }
 
     public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(final String userId,
                                                                      final String language) {

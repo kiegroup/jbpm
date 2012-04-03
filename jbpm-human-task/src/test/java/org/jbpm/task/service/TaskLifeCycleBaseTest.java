@@ -17,6 +17,7 @@
 package org.jbpm.task.service;
 
 import java.io.StringReader;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -127,11 +128,31 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
         assertEquals(1, tasks.size());
         assertEquals(Status.Reserved, tasks.get(0).getStatus());
         
+        //No task in 'Ready' status for bobba
+        taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
+        client.getTasksOwned(users.get( "bobba" ).getId(), Arrays.asList(new Status[]{Status.Ready}) ,"en-UK", taskSummaryResponseHandler);
+        tasks = taskSummaryResponseHandler.getResults(); 
+        assertTrue(tasks.isEmpty());
+        
+        //1 task in 'Reserved' status for bobba
+        taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
+        client.getTasksOwned(users.get( "bobba" ).getId(), Arrays.asList(new Status[]{Status.Reserved}) ,"en-UK", taskSummaryResponseHandler);
+        tasks = taskSummaryResponseHandler.getResults(); 
+        assertEquals(1, tasks.size());
+        assertEquals(Status.Reserved, tasks.get(0).getStatus());
+        
         BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
         client.start( taskId, users.get( "bobba" ).getId(), responseHandler );  
 
         taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
         client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", taskSummaryResponseHandler);
+        tasks = taskSummaryResponseHandler.getResults(); 
+        assertEquals(1, tasks.size());
+        assertEquals(Status.InProgress, tasks.get(0).getStatus());
+        
+        //1 task in 'InProgress or Ready' status for bobba
+        taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
+        client.getTasksOwned(users.get( "bobba" ).getId(), Arrays.asList(new Status[]{Status.InProgress, Status.Ready}) ,"en-UK", taskSummaryResponseHandler);
         tasks = taskSummaryResponseHandler.getResults(); 
         assertEquals(1, tasks.size());
         assertEquals(Status.InProgress, tasks.get(0).getStatus());

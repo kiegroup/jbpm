@@ -29,6 +29,7 @@ import org.jbpm.task.Attachment;
 import org.jbpm.task.Comment;
 import org.jbpm.task.Content;
 import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
@@ -198,6 +199,10 @@ public class LocalTaskService implements TaskService {
 
     public List<TaskSummary> getTasksOwned(String userId, String language) {
         return session.getTasksOwned(userId, language);
+    }
+    
+    public List<TaskSummary> getTasksOwned(String userId, List<Status> status, String language) {
+        return session.getTasksOwned(userId, status, language);
     }
 
     public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
