@@ -37,19 +37,13 @@ import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.local.LocalTaskService;
-import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
-import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
 public class TaskManagement extends SessionInitializer implements org.jboss.bpm.console.server.integration.TaskManagement {
 	
 	private static int clientCounter = 0;
     
-	private boolean local = false;
 	private TaskService service;
-	private TaskClient client;
+
 	private Map<String, List<String>> groupListMap = new HashMap<String, List<String>>();
 	
 	public TaskManagement () {
@@ -57,21 +51,12 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 	}
 
 	public void connect() {
-	    if (client == null) {
+	    if (service == null) {
 	        
-    	    Properties jbpmConsoleProperties = StatefulKnowledgeSessionUtil.getJbpmConsoleProperties();
-    	    if ("Local".equalsIgnoreCase(jbpmConsoleProperties.getProperty("jbpm.console.task.service.strategy", TaskClientFactory.DEFAULT_TASK_SERVICE_STRATEGY))) {
-    	        if (service == null) {
-                    org.jbpm.task.service.TaskService taskService = HumanTaskService.getService();
-                    service = new LocalTaskService(taskService);
-    	        }
-    	        local = true;
-                
-            } else  {
-                client = TaskClientFactory.newInstance(jbpmConsoleProperties, "org.jbpm.integration.console.TaskManagement"+clientCounter);
-                local = false;
-                clientCounter++;
-            }
+    	    Properties jbpmConsoleProperties = StatefulKnowledgeSessionUtil.getJbpmConsoleProperties();   
+            service = TaskClientFactory.newInstance(jbpmConsoleProperties, "org.jbpm.integration.console.TaskManagement"+clientCounter);
+            clientCounter++;
+       
     	    loadUserGroups();
 	    }
 		
@@ -115,61 +100,33 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 	
 	public TaskRef getTaskById(long taskId) {
 		connect();
-		Task task = null;
-		if (local) {
-		    task = service.getTask(taskId);
-		} else{
-		    BlockingGetTaskResponseHandler responseHandler = new BlockingGetTaskResponseHandler();
-            client.getTask(taskId, responseHandler);
-            task = responseHandler.getTask();
-		}
+		Task task = service.getTask(taskId);
+		
         return Transform.task(task);
 	}
 
 	public void assignTask(long taskId, String idRef, String userId) {
 		connect(); 
-		if (local) {
-			if (idRef == null) {
-				service.release(taskId, userId);
-			} else if (idRef.equals(userId)) {
-				List<String> roles = groupListMap.get(userId);
-				if (roles == null) {
-					service.claim(taskId, idRef);
-				} else {
-					service.claim(taskId, idRef, roles);
-				}
+		
+		if (idRef == null) {
+			service.release(taskId, userId);
+		} else if (idRef.equals(userId)) {
+			List<String> roles = groupListMap.get(userId);
+			if (roles == null) {
+				service.claim(taskId, idRef);
 			} else {
-				service.delegate(taskId, userId, idRef);
+				service.claim(taskId, idRef, roles);
 			}
 		} else {
-            BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
-            if (idRef == null) {
-                client.release(taskId, userId, responseHandler);
-            } else if (idRef.equals(userId)) {
-                List<String> roles = groupListMap.get(userId);
-                if (roles == null) {
-                    client.claim(taskId, idRef, responseHandler);
-                } else {
-                    client.claim(taskId, idRef, roles, responseHandler);
-                }
-            } else {
-                client.delegate(taskId, userId, idRef, responseHandler);
-            }
-            responseHandler.waitTillDone(5000);
-        }
+			service.delegate(taskId, userId, idRef);
+		}
+		
 	}
 
 	public void completeTask(long taskId, Map data, String userId) {
 		connect();
-		 
-		    
-		if (local) {
-			service.start(taskId, userId);
-		} else {
-            BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
-            client.start(taskId, userId, responseHandler);
-            responseHandler.waitTillDone(5000);
-        } 
+		
+		service.start(taskId, userId);
 		
 		ContentData contentData = null;
 		if (data != null) {
@@ -187,13 +144,8 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 			}
 		}
   
-		if (local) {
-			service.complete(taskId, userId, contentData);
-		} else {
-            BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
-            client.complete(taskId, userId, contentData, responseHandler);
-            responseHandler.waitTillDone(5000);
-        }
+		service.complete(taskId, userId, contentData);
+		
 	}
 
 	@SuppressWarnings("unchecked")
@@ -210,28 +162,16 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 		// TODO: this method is not being invoked, it's using
 		// assignTask with null parameter instead
 		connect(); 
-		
-		if (local) {
-			service.release(taskId, userId);
-		} else {
-            BlockingTaskOperationResponseHandler responseHandler = new BlockingTaskOperationResponseHandler();
-            client.release(taskId, userId, responseHandler);
-            responseHandler.waitTillDone(5000);         
-        } 
+		service.release(taskId, userId);
+		 
 	}
 
 	public List<TaskRef> getAssignedTasks(String idRef) {
 		connect();
         List<TaskRef> result = new ArrayList<TaskRef>();
 		try {
-			List<TaskSummary> tasks = null;
-			if (local) {
-				tasks = service.getTasksOwned(idRef, "en-UK");
-			} else {
-                BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
-                client.getTasksOwned(idRef, "en-UK", responseHandler);
-                tasks = responseHandler.getResults();
-            }
+			List<TaskSummary> tasks = service.getTasksOwned(idRef, "en-UK");
+			
 	        for (TaskSummary task: tasks) {
 	        	if (task.getStatus() == Status.Reserved) {
 	        		result.add(Transform.task(task));
@@ -250,21 +190,13 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 		try {
 			List<String> roles = groupListMap.get(idRef);
 			List<TaskSummary> tasks = null;
-			if (local) {
-				if (roles == null) {
-					tasks = service.getTasksAssignedAsPotentialOwner(idRef, "en-UK");
-				} else {
-					tasks = service.getTasksAssignedAsPotentialOwner(idRef, roles, "en-UK");
-				}
+			
+			if (roles == null) {
+				tasks = service.getTasksAssignedAsPotentialOwner(idRef, "en-UK");
 			} else {
-                BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
-                if (roles == null) {
-                    client.getTasksAssignedAsPotentialOwner(idRef, "en-UK", responseHandler);
-                } else {
-                    client.getTasksAssignedAsPotentialOwner(idRef, roles, "en-UK", responseHandler);
-                }
-                tasks = responseHandler.getResults();               
-            }
+				tasks = service.getTasksAssignedAsPotentialOwner(idRef, roles, "en-UK");
+			}
+			
 			
 	        for (TaskSummary task: tasks) {
 	        	result.add(Transform.task(task));
