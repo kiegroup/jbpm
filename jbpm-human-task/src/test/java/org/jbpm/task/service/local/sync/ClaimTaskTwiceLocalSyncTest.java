@@ -31,5 +31,7 @@ public class ClaimTaskTwiceLocalSyncTest extends ClaimTaskTwiceTest {
         return client;
     }
     
-    
+    protected void cleanupClient(TaskService client) throws Exception { 
+        ((LocalTaskService) client).disconnect();
+    }
 }
