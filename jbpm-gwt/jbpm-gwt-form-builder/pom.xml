@@ -4,7 +4,7 @@
   <parent>
     <artifactId>jbpm-gwt</artifactId>
     <groupId>org.jbpm</groupId>
-    <version>5.3.0-SNAPSHOT</version>
+    <version>5.3.0.CR1</version>
   </parent>
   
   <artifactId>jbpm-gwt-form-builder</artifactId>
@@ -116,10 +116,10 @@
       <artifactId>gwtx</artifactId>
       <version>1.5.3</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.drools</groupId>
       <artifactId>droolsjbpm-ide-common</artifactId>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>com.allen-sauer.gwt.dnd</groupId>
       <artifactId>gwt-dnd</artifactId>
@@ -236,10 +236,10 @@
       <artifactId>gwt-visualization</artifactId>
       <version>1.0.2</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.drools</groupId>
       <artifactId>guvnor-repository</artifactId>
-    </dependency>
+    </dependency-->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>

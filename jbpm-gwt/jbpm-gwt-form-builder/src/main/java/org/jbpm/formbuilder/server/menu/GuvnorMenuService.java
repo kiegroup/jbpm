@@ -32,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs.AllFileSelector;
 import org.apache.commons.vfs.FileObject;
 import org.apache.commons.vfs.VFS;
-import org.drools.repository.utils.IOUtils;
 import org.jbpm.formapi.shared.form.FormEncodingException;
 import org.jbpm.formapi.shared.form.FormEncodingFactory;
 import org.jbpm.formapi.shared.form.FormRepresentationDecoder;
