@@ -58,7 +58,7 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
 
     @After
     public void tearDown() throws Exception {
-        PersistenceUtil.tearDown(context);
+        PersistenceUtil.cleanUp(context);
     }
 
     @Test
