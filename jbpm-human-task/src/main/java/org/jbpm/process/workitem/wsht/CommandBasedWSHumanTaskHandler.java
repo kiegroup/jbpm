@@ -226,6 +226,9 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 				e.printStackTrace();
 			}
                 }
+		
+		task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
+		
 		client.addTask(task, content, null);
 	}
 	
