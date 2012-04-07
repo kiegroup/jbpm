@@ -34,19 +34,12 @@ public class BAMPersistenceManager {
     
     private BAMTransactionManager ttxm;
     private EntityManager em;
-    private final EntityManagerFactory emf;
 
     
     BAMPersistenceManager(EntityManagerFactory entityManagerFactory) { 
-        this.emf = entityManagerFactory;
-        this.ttxm = BAMTransactionManager.getInstance(emf);
-        this.em = emf.createEntityManager();
-    }
-    
-    BAMPersistenceManager(BAMPersistenceManager tpm) { 
-        this.emf = tpm.emf;
-        this.ttxm = BAMTransactionManager.getInstance(emf);
-        this.em = emf.createEntityManager();
+        
+        this.ttxm = BAMTransactionManager.getInstance(entityManagerFactory);
+        this.em = entityManagerFactory.createEntityManager();
     }
     
     //=====

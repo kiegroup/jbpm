@@ -16,14 +16,24 @@
 
 package org.jbpm.process.audit;
 
-import static org.drools.persistence.util.PersistenceUtil.*;
-import static org.junit.Assert.*;
+import static org.drools.persistence.util.PersistenceUtil.DATASOURCE;
+import static org.drools.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
+import static org.drools.persistence.util.PersistenceUtil.createEnvironment;
+import static org.drools.persistence.util.PersistenceUtil.getDatasourceProperties;
+import static org.drools.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
+import static org.drools.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.persistence.Persistence;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
@@ -46,14 +56,39 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bitronix.tm.resource.jdbc.PoolingDataSource;
+
 public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
 
-    private HashMap<String, Object> context;
+    private HashMap<String, Object> context = null;
     private Logger logger = LoggerFactory.getLogger(JPAWorkingMemoryDbLoggerTest.class);
 
+//  @Before
+//  public void setUp() throws Exception {
+//      context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
+//  }
     @Before
     public void setUp() throws Exception {
-        context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
+        // FIXME use hardcoded settings for h2 as bitronix.tm.resource.jdbc.lrc.LrcXADataSource does not rollback bam operations
+        // properly while org.h2.jdbcx.JdbcDataSource does it
+        // maybe because we try to control/emulate XA on two entity managers (one for engine and the other for bam)
+        if (getDatasourceProperties().getProperty("driverClassName").startsWith("org.h2")) {
+            context = new HashMap<String, Object>();
+            PoolingDataSource ds = new PoolingDataSource();
+            ds.setUniqueName("jdbc/testDS1");
+            ds.setClassName("org.h2.jdbcx.JdbcDataSource");
+            ds.setMaxPoolSize(5);
+            ds.setAllowLocalTransactions(true);
+            ds.getDriverProperties().put("user", "sa");
+            ds.getDriverProperties().put("password", "");
+            ds.getDriverProperties().put("URL", "jdbc:h2:mem:mydb");
+            ds.init(); 
+            
+            context.put(DATASOURCE, ds);
+            context.put(ENTITY_MANAGER_FACTORY, Persistence.createEntityManagerFactory(JBPM_PERSISTENCE_UNIT_NAME));
+        } else {
+            context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
+        }
     }
 
     @After
@@ -313,6 +348,43 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
         assertTrue(processInstances.isEmpty());
     }
     
+    @Test
+    public void testLoggerWithRollback() throws Exception {
+        
+        // load the process
+        KnowledgeBase kbase = createKnowledgeBase();
+        // create a new session
+        Environment env = createEnvironment(context);
+        JPAProcessInstanceDbLog.setEnvironment(env);
+
+        
+        Properties properties = new Properties();
+        properties.put("drools.processInstanceManagerFactory", "org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory");
+        properties.put("drools.processSignalManagerFactory", "org.jbpm.persistence.processinstance.JPASignalManagerFactory");
+        KnowledgeSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
+        StatefulKnowledgeSession session = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, config, env);
+        new JPAWorkingMemoryDbLogger(session);
+        
+        session.getWorkItemManager().registerWorkItemHandler("Human Task", new ThrowExceptionWorkItemHandler());
+
+        // record the initial count to compare to later
+        List<ProcessInstanceLog> processInstances = JPAProcessInstanceDbLog.findProcessInstances("com.sample.ruleflow");
+        assertEquals(0, processInstances.size());
+        try {
+            // start process instance
+            session.startProcess("com.sample.ruleflow").getId();
+            fail("Should not be here");
+        } catch (Exception e) {
+            // exception should be thrown on purpose to rollback transaction
+            
+        }
+        logger.debug("Checking process instances for process 'com.sample.ruleflow'");
+        processInstances = JPAProcessInstanceDbLog.findProcessInstances("com.sample.ruleflow");
+        assertEquals(0, processInstances.size());
+        JPAProcessInstanceDbLog.clear();
+
+    }
+    
     private KnowledgeBase createKnowledgeBase() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(new ClassPathResource("ruleflow.rf"), ResourceType.DRF);
@@ -321,5 +393,18 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
         return kbase;
+    }
+    
+    private class ThrowExceptionWorkItemHandler implements WorkItemHandler {
+
+        public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+            throw new RuntimeException("Do rollback");
+            
+        }
+
+        public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+            
+        }
+        
     }
 }
