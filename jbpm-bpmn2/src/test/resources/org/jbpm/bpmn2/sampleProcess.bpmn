@@ -12,7 +12,7 @@
              xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
              xmlns:tns="http://www.jboss.org/drools">
 
-  <itemDefinition id="_xItem" structureRef="" />
+  <itemDefinition id="_xItem" structureRef="Integer" />
 
   <process processType="Private" isExecutable="true" id="org.drools.command.SampleProcess" name="Sample Process" tns:packageName="defaultPackage" >
 
