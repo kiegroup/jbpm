@@ -24,9 +24,11 @@ import java.util.Map;
 import org.jbpm.task.AccessType;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Content;
+import org.jbpm.task.Group;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
+import org.jbpm.task.User;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
@@ -42,7 +44,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     protected TaskClient client;
 
     public void testNewTaskWithNoPotentialOwners() {
-        Map<String, Object> vars = fillVariables();
+        runTestNewTaskWithNoPotentialOwners(client, users, groups);
+    }
+    
+    public static void runTestNewTaskWithNoPotentialOwners(TaskClient client, Map<String, User> users, Map<String, Group> groups) { 
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -64,7 +70,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
 
     public void testNewTaskWithSinglePotentialOwner() {
-        Map<String, Object> vars = fillVariables();
+        runTestNewTaskWithSinglePotentialOwner(client, users, groups);
+    }
+    
+    public static void runTestNewTaskWithSinglePotentialOwner(TaskClient client, Map<String, User> users, Map<String, Group> groups) { 
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -86,7 +96,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testNewTaskWithContent() {
-        Map<String, Object> vars = fillVariables();
+        runTestNewTaskWithContent(client, users, groups);
+    }
+
+    public static void runTestNewTaskWithContent(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ] ], }),";                        
@@ -118,7 +132,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testNewTaskWithLargeContent() {
-        Map<String, Object> vars = fillVariables();
+        runTestNewTaskWithLargeContent(client, users, groups);
+    }
+
+    public static void runTestNewTaskWithLargeContent(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ] ], }),";                        
@@ -150,12 +168,16 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
         BlockingGetContentResponseHandler getContentResponseHandler = new BlockingGetContentResponseHandler();
         client.getContent(contentId, getContentResponseHandler);
         Content content = getContentResponseHandler.getContent();
-        logger.debug(new String(content.getContent()));
+
         assertEquals(largeContent, new String(content.getContent()));
     }
     
     public void testClaimWithMultiplePotentialOwners() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestClaimWithMultiplePotentialOwners(client, users, groups);
+    }
+
+    public static void runTestClaimWithMultiplePotentialOwners(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -186,7 +208,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
 
     public void testClaimWithGroupAssignee() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestClaimWithGroupAssignee(client, users, groups);
+    }
+
+    public static void runTestClaimWithGroupAssignee(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -220,7 +246,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
 
     public void testStartFromReadyStateWithPotentialOwner() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestStartFromReadyStateWithPotentialOwner(client, users, groups);
+    }
+
+    public static void runTestStartFromReadyStateWithPotentialOwner(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -252,7 +282,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testStartFromReadyStateWithIncorrectPotentialOwner() {
-        Map<String, Object> vars = fillVariables();
+        runTestStartFromReadyStateWithIncorrectPotentialOwner(client, users, groups);
+    }
+
+    public static void runTestStartFromReadyStateWithIncorrectPotentialOwner(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -292,7 +326,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testStartFromReserved() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestStartFromReserved(client, users, groups);
+    }
+
+    public static void runTestStartFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -325,7 +363,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testStartFromReservedWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runTestStartFromReservedWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestStartFromReservedWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -366,7 +408,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testStop() {
-        Map<String, Object> vars = fillVariables();
+        runTestStop(client, users, groups);
+    }
+
+    public static void runTestStop(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -401,7 +447,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testStopWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runTestStopWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestStopWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -444,7 +494,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }   
     
     public void testReleaseFromInprogress() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestReleaseFromInprogress(client, users, groups);
+    }
+
+    public static void runTestReleaseFromInprogress(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -481,7 +535,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testReleaseFromReserved() {
-        Map<String, Object> vars = fillVariables();
+        runTestReleaseFromReserved(client, users, groups);
+    }
+
+    public static void runTestReleaseFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -518,7 +576,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }     
     
     public void testReleaseWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runTestReleaseWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestReleaseWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -561,7 +623,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
 
     public void testSuspendFromReady() {
-        Map<String, Object> vars = fillVariables();
+        runTestSuspendFromReady(client, users, groups);
+    }
+
+    public static void runTestSuspendFromReady(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -595,7 +661,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testSuspendFromReserved() {
-        Map<String, Object> vars = fillVariables();
+        runTestSuspendFromReserved(client, users, groups);
+    }
+
+    public static void runTestSuspendFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -633,7 +703,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testSuspendFromReservedWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runtestSuspendFromReservedWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runtestSuspendFromReservedWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -676,7 +750,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testResumeFromReady() {
-        Map<String, Object> vars = fillVariables();
+        runTestResumeFromReady(client, users, groups);
+    }
+
+    public static void runTestResumeFromReady(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -722,7 +800,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testResumeFromReserved() {
-        Map<String, Object> vars = fillVariables();
+        runTestResumeFromReserved(client, users, groups);
+    }
+
+    public static void runTestResumeFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -772,7 +854,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testResumeFromReservedWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runTestResumeFromReservedWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestResumeFromReservedWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -815,7 +901,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }     
           
     public void testSkipFromReady() {
-        Map<String, Object> vars = fillVariables();
+        runTestSkipFromReady(client, users, groups);
+    }
+
+    public static void runTestSkipFromReady(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = true} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ] }),";                        
@@ -840,7 +930,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
     
     public void testSkipFromReserved() {
-        Map<String, Object> vars = fillVariables();
+        runTestSkipFromReserved(client, users, groups);
+    }
+
+    public static void runTestSkipFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = true} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ] }),";                        
@@ -870,7 +964,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }     
     
     public void testDelegateFromReady() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestDelegateFromReady(client, users, groups);
+    }
+
+    public static void runTestDelegateFromReady(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -897,7 +995,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }     
     
     public void testDelegateFromReserved() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestDelegateFromReserved(client, users, groups);
+    }
+
+    public static void runTestDelegateFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -936,7 +1038,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }     
     
     public void testDelegateFromReservedWithIncorrectUser() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestDelegateFromReservedWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestDelegateFromReservedWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -980,7 +1086,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }  
     
     public void testForwardFromReady() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestForwardFromReady(client, users, groups);
+    }
+
+    public static void runTestForwardFromReady(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1008,7 +1118,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }  
     
     public void testForwardFromReserved() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestForwardFromReserved(client, users, groups);
+    }
+
+    public static void runTestForwardFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1047,7 +1161,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }     
     
     public void testForwardFromReservedWithIncorrectUser() throws Exception {
-        Map<String, Object> vars = fillVariables();
+        runTestForwardFromReservedWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestForwardFromReservedWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1092,7 +1210,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }      
     
     public void testComplete() {
-        Map<String, Object> vars = fillVariables();
+        runTestComplete(client, users, groups);
+    }
+
+    public static void runTestComplete(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1129,7 +1251,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
         
     public void testCompleteWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runTestCompleteWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestCompleteWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1172,7 +1298,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
 
     public void testCompleteWithContent() {
-        Map<String, Object> vars = fillVariables();
+        runTestCompleteWithContent(client, users, groups);
+    }
+
+    public static void runTestCompleteWithContent(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1219,7 +1349,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
         
     public void testFail() {
-        Map<String, Object> vars = fillVariables();
+        runTestFail(client, users, groups);
+    }
+
+    public static void runTestFail(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1256,7 +1390,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testFailWithIncorrectUser() {
-        Map<String, Object> vars = fillVariables();
+        runTestFailWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestFailWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1299,7 +1437,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }    
 
     public void testFailWithContent() {
-        Map<String, Object> vars = fillVariables();
+        runTestFailWithContent(client, users, groups);
+    }
+
+    public static void runTestFailWithContent(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
@@ -1349,7 +1491,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testRegisterRemove() throws Exception {
-        Map <String, Object> vars = fillVariables();
+        runTestRegisterRemove(client, users, groups);
+    }
+
+    public static void runTestRegisterRemove(TaskClient client, Map<String, User> users, Map<String, Group> groups) throws Exception {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'], users['darth'] ], }),";                        
@@ -1389,7 +1535,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testRemoveNotInRecipientList() {
-        Map <String, Object> vars = fillVariables();
+        runTestRemoveNotInRecipientList(client, users, groups);
+    }
+
+    public static void runTestRemoveNotInRecipientList(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
@@ -1440,7 +1590,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
      * state Created.
      */
     public void testNominateOnOtherThanCreated() {
-        Map <String, Object> vars = fillVariables();
+        runTestNominateOnOtherThanCreated(client, users, groups);
+    }
+
+    public static void runTestNominateOnOtherThanCreated(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'] ] ,";
@@ -1488,7 +1642,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testNominateWithIncorrectUser() {
-        Map <String, Object> vars = fillVariables();
+        runTestNominateWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestNominateWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['bobba'] ] } ),";                        
@@ -1522,7 +1680,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testNominateToUser() {
-        Map <String, Object> vars = fillVariables();
+        runTestNominateToUser(client, users, groups);
+    }
+
+    public static void runTestNominateToUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'], users['bobba'] ] } ),";                        
@@ -1549,7 +1711,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testNominateToGroup() {
-        Map <String, Object> vars = fillVariables();
+        runTestNominateToGroup(client, users, groups);
+    }
+
+    public static void runTestNominateToGroup(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [ users['darth'], users['bobba'] ] } ),";                        
@@ -1576,7 +1742,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testActivate() {
-    	Map <String, Object> vars = fillVariables();
+        runTestActivate(client, users, groups);
+    }
+
+    public static void runTestActivate(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { ";
@@ -1602,7 +1772,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testActivateWithIncorrectUser() {
-    	Map <String, Object> vars = fillVariables();
+        runTestActivateWithIncorrectUser(client, users, groups);
+    }
+
+    public static void runTestActivateWithIncorrectUser(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [ users['darth'], users['bobba'] ], ";
@@ -1629,7 +1803,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testActivateFromIncorrectStatus() {
-        Map <String, Object> vars = fillVariables();
+        runTestActivateFromIncorrectStatus(client, users, groups);
+    }
+
+    public static void runTestActivateFromIncorrectStatus(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { status = Status.Ready } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [ users['darth'], users['bobba'] ], ";
@@ -1655,7 +1833,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testExitFromReady() {
-        Map <String, Object> vars = fillVariables();
+        runTestExitFromReady(client, users, groups);
+    }
+
+    public static void runTestExitFromReady(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1681,7 +1863,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }  
     
     public void testExitFromReserved() {
-        Map <String, Object> vars = fillVariables();
+        runTestExitFromReserved(client, users, groups);
+    }
+
+    public static void runTestExitFromReserved(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1708,7 +1894,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }  
     
     public void testExitFromInProgress() {
-        Map <String, Object> vars = fillVariables();
+        runTestExitFromInProgress(client, users, groups);
+    }
+
+    public static void runTestExitFromInProgress(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1742,7 +1932,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }  
 
     public void testExitFromSuspended() {
-        Map <String, Object> vars = fillVariables();
+        runTestExitFromSuspended(client, users, groups);
+    }
+
+    public static void runTestExitFromSuspended(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1777,7 +1971,11 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     }
     
     public void testExitPermissionDenied() {
-        Map <String, Object> vars = fillVariables();
+        runTestExitPermissionDenied(client, users, groups);
+    }
+
+    public static void runTestExitPermissionDenied(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba' ], users['darth'] ], businessAdministrators = [ users['admin']] }),";                        
@@ -1809,7 +2007,15 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
     } 
     
     public void testExitNotAvailableToUsers() {
-        Map <String, Object> vars = fillVariables();
+        runTestExitNotAvailableToUsers(client, users, groups);
+    }
+
+    public static void runTestExitNotAvailableToUsers(TaskClient client, Map<String, User> users, Map<String, Group> groups) {
+        BlockingTaskSummaryResponseHandler taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
+        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", taskSummaryResponseHandler);
+        int initialNumTasks = taskSummaryResponseHandler.getResults().size();
+        
+        Map<String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba']], businessAdministrators = [ users['admin']] }),";                        
@@ -1834,10 +2040,10 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
         task = taskResponseHandler.getTask();
         assertEquals(  Status.Exited, task.getTaskData().getStatus() );  
         
-        BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
-        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", responseHandler);
-        List<TaskSummary> exitedTasks = responseHandler.getResults();
-        assertEquals(0, exitedTasks.size());
+        taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
+        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", taskSummaryResponseHandler);
+        List<TaskSummary> exitedTasks = taskSummaryResponseHandler.getResults();
+        assertEquals(initialNumTasks, exitedTasks.size());
         
     } 
 }

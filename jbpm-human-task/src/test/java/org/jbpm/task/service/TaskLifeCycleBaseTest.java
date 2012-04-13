@@ -23,8 +23,10 @@ import java.util.Map;
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.Payload;
 import org.jbpm.task.BaseTest;
+import org.jbpm.task.Group;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
+import org.jbpm.task.User;
 import org.jbpm.task.event.TaskCompletedEvent;
 import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.query.TaskSummary;
@@ -39,10 +41,13 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
 	protected TaskServer server;
 	protected TaskClient client;
 
-    @SuppressWarnings("unchecked")
-	public void testLifeCycle() throws Exception {      
-        Map<String, Object> vars = fillVariables();
-
+	public void testLifeCycle() throws Exception {    
+        runTestLifeCycle(client, users, groups);
+	}
+	
+	public static void runTestLifeCycle(TaskClient client, Map<String, User> users,Map<String, Group> groups ) { 
+        Map<String, Object> vars = fillVariables(users, groups);
+        
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { workItemId = 1 } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['bobba']], }),";                        
@@ -93,9 +98,12 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
         assertEquals( Status.Completed , task1.getTaskData().getStatus() );         
     }
   
-    @SuppressWarnings("unchecked")
-	public void testLifeCycleMultipleTasks() throws Exception {      
-        Map<String, Object> vars = fillVariables();
+	public void testLifeCycleMultipleTasks() throws Exception { 
+	    runTestLifeCycle(client, users, groups);
+	}
+	
+	public static void runTestLifeCycleMultipleTasks(TaskClient client, Map<String, User> users,Map<String, Group> groups ) { 
+        Map<String, Object> vars = fillVariables(users, groups);
 
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { workItemId = 1 } ), ";
