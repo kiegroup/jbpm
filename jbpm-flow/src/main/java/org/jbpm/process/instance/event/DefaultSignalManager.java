@@ -32,6 +32,7 @@ import org.drools.marshalling.impl.MarshallerWriteContext;
 import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
 public class DefaultSignalManager implements SignalManager {
 	
@@ -85,7 +86,11 @@ public class DefaultSignalManager implements SignalManager {
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {
 				for (EventListener eventListener: eventListeners) {
-					eventListener.signalEvent(type, event);
+				    if(eventListener instanceof WorkflowProcessInstanceImpl) {
+				        kruntime.getProcessInstance(((WorkflowProcessInstanceImpl) eventListener).getId()).signalEvent(type, event);
+				    } else {
+	                    eventListener.signalEvent(type, event);				        
+				    }
 				}
 			}
 		}
