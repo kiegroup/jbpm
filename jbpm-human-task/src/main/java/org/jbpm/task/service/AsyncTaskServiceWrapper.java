@@ -29,6 +29,7 @@ import org.jbpm.task.Attachment;
 import org.jbpm.task.Comment;
 import org.jbpm.task.Content;
 import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
@@ -488,6 +489,19 @@ public class AsyncTaskServiceWrapper implements TaskService {
     public List<TaskSummary> getTasksOwned(String userId, String language) {
         BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
         taskService.getTasksOwned(userId, language, responseHandler);
+        try {
+            responseHandler.waitTillDone(timeout);
+        } catch (Exception e) {
+            if (responseHandler.getError() != null) {
+                throw responseHandler.getError();
+            }
+        }
+        return responseHandler.getResults();
+    }
+    
+    public List<TaskSummary> getTasksOwned(String userId, List<Status> status, String language) {
+        BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+        taskService.getTasksOwned(userId, status, language, responseHandler);
         try {
             responseHandler.waitTillDone(timeout);
         } catch (Exception e) {
