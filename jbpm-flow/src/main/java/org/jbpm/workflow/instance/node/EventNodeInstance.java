@@ -47,9 +47,11 @@ public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInst
     		}
     		variableScopeInstance.setVariable(variableName, event);
     	}
+        trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
     	triggerCompleted();
     }
     
+    @Override
     public void internalTrigger(final NodeInstance from, String type) {
     	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
