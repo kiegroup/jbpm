@@ -268,12 +268,51 @@ public class GuvnorConnectionUtils {
         }
     }
     
+    public List<String> getBuiltPackageNames() {
+    	List<String> allPackageNames = getPackageNames();
+    	
+    	List<String> builtPackageNames = new ArrayList<String>();
+    	for(String nextPkg : allPackageNames) {
+    		if(canBuildPackage(nextPkg)) {
+    			builtPackageNames.add(nextPkg);
+    		} else {
+    			logger.info("Excluding package: " + nextPkg + " because it cannot be built.");
+    		}
+    	}
+    	
+    	return builtPackageNames;
+    }
+    
+    public boolean canBuildPackage(String packageName) {
+    	try {	
+    		String packagesBinaryURL = getGuvnorProtocol()
+                + "://"
+                + getGuvnorHost()
+                + "/"
+                + getGuvnorSubdomain()
+                + "/rest/packages/" + packageName + "/binary";
+    	
+    	
+    		URL checkURL = new URL(packagesBinaryURL);
+            HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
+            checkConnection.setRequestMethod("GET");
+            checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+            checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
+            applyAuth(checkConnection);
+            checkConnection.connect();
+            return checkConnection.getResponseCode() == 200;
+    	} catch(Exception e) {
+    		return false;
+    	}
+    }
+
+    
     public StringReader createChangeSet() {
         try {
             StringTemplate changeSetTemplate = new StringTemplate(
                     readFile(GuvnorConnectionUtils.class.getResourceAsStream("/ChangeSet.st")));
             TemplateInfo info = new TemplateInfo(getGuvnorProtocol(), getGuvnorHost(), 
-                    getGuvnorUsr(), getGuvnorPwd(), getGuvnorSubdomain(), getPackageNames());
+                    getGuvnorUsr(), getGuvnorPwd(), getGuvnorSubdomain(), getBuiltPackageNames());
             changeSetTemplate.setAttribute("data",  info.getData());
             return new StringReader(changeSetTemplate.toString());
         } catch (IOException e) {
