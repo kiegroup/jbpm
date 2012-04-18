@@ -25,6 +25,26 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
+    
+    <plugins>
+      <plugin>
+        <!--  ensure that db files are deleted before _any_ run 
+              otherwise we get tests failing because of leftover db's -->
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+         <filesets>
+            <fileset>
+              <directory>${basedir}</directory>
+              <includes>
+                <include>btm*</include>
+                <include>*.db</include>
+              </includes>
+            </fileset>
+         </filesets>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencies>
@@ -65,6 +85,23 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hornetq</groupId>
+      <artifactId>hornetq-core</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.netty</groupId>
+      <artifactId>netty</artifactId>
+      <version>3.2.0.CR1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.security</groupId>
+      <artifactId>jacc</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Following 2 dependencies needed for making the build work with JDK5 -->
@@ -121,38 +158,8 @@
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-persistence-jpa</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-gwt-shared</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hornetq</groupId>
-      <artifactId>hornetq-core</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.netty</groupId>
-      <artifactId>netty</artifactId>
-      <version>3.2.0.CR1</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.security</groupId>
-      <artifactId>jacc</artifactId>
-      <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
+
 
   <profiles>
     <profile>
