@@ -82,11 +82,7 @@ public class JPAProcessInstanceDbLog {
     public static void setEnvironment(Environment newEnv) { 
         env = newEnv;
     }
-    
-    public void og() { 
-        
-    }
-    
+
     @SuppressWarnings("unchecked")
     public static List<ProcessInstanceLog> findProcessInstances() {
         EntityManager em = getEntityManager();
