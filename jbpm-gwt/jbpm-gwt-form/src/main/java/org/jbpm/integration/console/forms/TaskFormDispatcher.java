@@ -52,7 +52,8 @@ public class TaskFormDispatcher extends AbstractFormDispatcher {
             } catch (IOException e) {
                 throw new RuntimeException("Could not load jbpm.console.properties", e);
             }
-            service = TaskClientFactory.newInstance(properties, "org.jbpm.integration.console.forms.TaskFormDispatcher"+clientCounter);
+            service =TaskClientFactory.newInstance(properties, "org.jbpm.integration.console.forms.TaskFormDispatcher"+clientCounter);
+	    clientCounter++;
         }
     }
 
