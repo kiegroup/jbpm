@@ -181,7 +181,6 @@ from
     left join t.names as name,
     OrganizationalEntity potentialOwners
 where
-    t.archived = false and
     potentialOwners.id = :userId and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
 
@@ -286,7 +285,6 @@ from
     left join t.names as name,
     OrganizationalEntity potentialOwners
 where
-    t.archived = false and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
 
@@ -391,7 +389,6 @@ from
     left join t.names as name,
     OrganizationalEntity potentialOwners
 where
-    t.archived = false and
     potentialOwners.id = :groupId and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
 
