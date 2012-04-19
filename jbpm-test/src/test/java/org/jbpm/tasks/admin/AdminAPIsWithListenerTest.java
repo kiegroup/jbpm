@@ -29,8 +29,7 @@ import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
-import org.drools.event.process.DefaultProcessEventListener;
-import org.drools.event.process.ProcessCompletedEvent;
+
 import org.drools.io.impl.ClassPathResource;
 import org.drools.logger.KnowledgeRuntimeLoggerFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
@@ -38,10 +37,7 @@ import org.drools.persistence.util.PersistenceUtil;
 import org.drools.runtime.Environment;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
-import org.jbpm.persistence.objects.MedicalRecord;
-import org.jbpm.persistence.objects.MockUserInfo;
-import org.jbpm.persistence.objects.Patient;
-import org.jbpm.persistence.objects.RecordRow;
+
 import org.jbpm.process.workitem.wsht.SyncWSHumanTaskHandler;
 import org.jbpm.task.AccessType;
 import org.jbpm.task.Content;
@@ -295,16 +291,7 @@ public class AdminAPIsWithListenerTest {
         return MVEL.executeExpression(compiler.compile(context), vars);
     }
 
-    private MedicalRecord getTaskContent(TaskSummary summary) throws IOException, ClassNotFoundException {
-        logger.info(" >>> Getting Task Content = " + summary.getId());
-        Content content = this.localTaskService.getContent(summary.getId());
-
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(content.getContent()));
-        Object readObject = ois.readObject();
-        logger.info(" >>> Object = " + readObject);
-        return (MedicalRecord) readObject;
-    }
-
+   
     /**
      * Convert a Map<String, Object> into a ContentData object.
      *
