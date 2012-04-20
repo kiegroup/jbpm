@@ -46,22 +46,22 @@ import freemarker.template.Template;
  */
 public abstract class AbstractFormDispatcher implements FormDispatcherPlugin {
 
-	private static final Logger logger = LoggerFactory.getLogger(AbstractFormDispatcher.class);
-	
-	public URL getDispatchUrl(FormAuthorityRef ref) {
-		StringBuffer sb = new StringBuffer();
-		Properties properties = new Properties();
-		try {
-			properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
-		} catch (IOException e) {
-			throw new RuntimeException("Could not load jbpm.console.properties", e);
-		}
-		sb.append("http://");
-		sb.append(properties.getProperty("jbpm.console.server.host").trim());
-		sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port").trim()));
-		sb.append("/gwt-console-server/rs/form/" + getType(ref) + "/");
-		sb.append(ref.getReferenceId());
-		sb.append("/render");
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFormDispatcher.class);
+    
+    public URL getDispatchUrl(FormAuthorityRef ref) {
+        StringBuffer sb = new StringBuffer();
+        Properties properties = new Properties();
+        try {
+            properties.load(AbstractFormDispatcher.class.getResourceAsStream("/jbpm.console.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load jbpm.console.properties", e);
+        }
+        sb.append("http://");
+        sb.append(properties.getProperty("jbpm.console.server.host").trim());
+        sb.append(":").append(new Integer(properties.getProperty("jbpm.console.server.port").trim()));
+        sb.append("/" + properties.getProperty("jbpm.console.server.context", "gwt-console-server") + "/rs/form/" + getType(ref) + "/");
+        sb.append(ref.getReferenceId());
+        sb.append("/render");
 
 		try {
 			return new URL(sb.toString());
