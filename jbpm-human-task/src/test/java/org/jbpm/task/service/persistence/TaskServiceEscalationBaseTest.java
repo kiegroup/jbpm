@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.task.service;
+package org.jbpm.task.service.persistence;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -22,11 +22,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
+import org.jbpm.task.service.MockEscalatedDeadlineHandler;
+import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.TaskServer;
+import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 
 public abstract class TaskServiceEscalationBaseTest extends BaseTest {
@@ -68,13 +70,14 @@ public abstract class TaskServiceEscalationBaseTest extends BaseTest {
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();
         
-        EntityManager em = emf.createEntityManager();
-        em.getTransaction().begin();
+        TaskPersistenceManager tpm = new TaskPersistenceManager(emf);
+        tpm.beginTransaction();
         for ( Task task : tasks ) {
             // for this one we put the task in directly;
-            em.persist( task );
+            tpm.saveEntity(task);
         }
-        em.getTransaction().commit();
+        tpm.endTransaction(true);
+        tpm.endPersistenceContext();
 
         // now create a new service, to see if it initiates from the DB correctly
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();

@@ -18,7 +18,7 @@ package org.jbpm.task.service.hornetq;
 
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServiceEscalationBaseTest;
+import org.jbpm.task.service.persistence.TaskServiceEscalationBaseTest;
 
 public class TaskServiceEscalationHornetQTest extends TaskServiceEscalationBaseTest {
 

@@ -18,7 +18,7 @@ package org.jbpm.task.service.mina;
 
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServiceEscalationBaseTest;
+import org.jbpm.task.service.persistence.TaskServiceEscalationBaseTest;
 
 public class TaskServiceEscalationMinaTest extends TaskServiceEscalationBaseTest {
 
