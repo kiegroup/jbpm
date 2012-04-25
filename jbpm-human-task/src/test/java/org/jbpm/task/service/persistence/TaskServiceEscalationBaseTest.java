@@ -22,10 +22,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
 import org.jbpm.task.service.MockEscalatedDeadlineHandler;
+import org.jbpm.task.service.MvelFilePath;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.TaskService;
@@ -47,7 +50,7 @@ public abstract class TaskServiceEscalationBaseTest extends BaseTest {
         taskService.setEscalatedDeadlineHandler( handler );  
         
         //Reader reader;
-        Reader reader = new InputStreamReader( TaskServiceEscalationBaseTest.class.getResourceAsStream( "../QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( TaskServiceEscalationBaseTest.class.getResourceAsStream( MvelFilePath.UnescalatedDeadlines ) );
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();
@@ -65,12 +68,18 @@ public abstract class TaskServiceEscalationBaseTest extends BaseTest {
         Map<String, Object> vars = fillVariables();
 
         //Reader reader;
-        Reader reader = new InputStreamReader( TaskServiceEscalationBaseTest.class.getResourceAsStream( "../QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( TaskServiceEscalationBaseTest.class.getResourceAsStream( MvelFilePath.UnescalatedDeadlines ) );
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();
         
-        TaskPersistenceManager tpm = new TaskPersistenceManager(emf);
+        EntityManager em = emf.createEntityManager();
+        TaskPersistenceManager tpm;
+        if( useJTA ) { 
+            tpm = new TaskPersistenceManager(em, new TaskJTATransactionManager());
+        } else { 
+            tpm = new TaskPersistenceManager(em);
+        }
         tpm.beginTransaction();
         for ( Task task : tasks ) {
             // for this one we put the task in directly;

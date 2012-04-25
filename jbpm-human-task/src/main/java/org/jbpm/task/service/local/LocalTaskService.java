@@ -107,6 +107,10 @@ public class LocalTaskService implements TaskService {
         // do nothing 
     }
     
+    public void dispose() {
+        session.dispose();
+    }
+    
     public void exit(long taskId, String userId) {
     	session.taskOperation(Operation.Exit, taskId, userId, null, null, null);
     }

@@ -35,10 +35,6 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
     protected TaskServer server;
     protected TaskClient client;
 
-    public void testDummy() {
-        assertTrue( true );
-    }
-    
     public void testUnescalatedDeadlines() throws Exception {
         Map<String, Object> vars = fillVariables();
 
