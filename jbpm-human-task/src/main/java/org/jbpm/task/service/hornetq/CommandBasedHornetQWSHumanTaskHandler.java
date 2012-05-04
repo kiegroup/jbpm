@@ -244,7 +244,7 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
         if (isAutoClaim(workItem, task)) {
         	handler = new AutoClaimTaskAddedHandler(workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));
         }
-        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
+        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, session == null?null:session.getEnvironment()));
         client.addTask(task, content, handler);
 	}
 	

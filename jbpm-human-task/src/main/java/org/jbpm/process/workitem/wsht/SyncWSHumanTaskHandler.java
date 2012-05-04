@@ -281,9 +281,10 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
                 logger.error(e.getMessage(), e);
             }
         }
-        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
+        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, session == null?null:session.getEnvironment()));
         try {
         	client.addTask(task, content);
+        	task = client.getTask(task.getId());
             if (isAutoClaim(workItem, task)) {
                 autoClaim(workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));
             }

@@ -22,15 +22,21 @@ import static org.junit.Assert.assertNull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.drools.ClockType;
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.WorkingMemory;
@@ -55,17 +61,22 @@ import org.drools.event.process.DefaultProcessEventListener;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
+import org.drools.impl.EnvironmentFactory;
 import org.drools.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.ResourceFactory;
 import org.drools.process.core.datatype.impl.type.ObjectDataType;
+import org.drools.runtime.Environment;
+import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.conf.ClockTypeOption;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
 import org.drools.runtime.process.WorkflowProcessInstance;
 import org.drools.runtime.rule.FactHandle;
+import org.drools.time.SessionPseudoClock;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.DataStore;
 import org.jbpm.bpmn2.core.Definitions;
@@ -78,10 +89,10 @@ import org.jbpm.bpmn2.xml.BPMNExtensionsSemanticModule;
 import org.jbpm.bpmn2.xml.BPMNSemanticModule;
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.compiler.xml.XmlProcessReader;
+import org.jbpm.process.core.timer.BusinessCalendarImpl;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -2005,6 +2016,56 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
         output.put("isCheckedCheckbox", "true");
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), output);
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
+    }
+    
+	public void testIntermediateCatchEventTimerDurationWithBusinessCalendar() throws Exception {
+		KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventTimerDurationDays.bpmn2");
+		
+		KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+		conf.setOption(ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ));
+		
+		Environment env = EnvironmentFactory.newEnvironment();
+		
+		StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession(conf, env);
+		
+		SessionPseudoClock clock = ( SessionPseudoClock) ksession.getSessionClock();
+		// use a fixed date to be always Wednesday as timer is set to 3 days
+		Date fixedDate = parseToDateWithTime("2012-02-01 12:00");
+        clock.advanceTime( fixedDate.getTime() - clock.getCurrentTime(), TimeUnit.MILLISECONDS ); 
+        
+        System.out.println(new Date(clock.getCurrentTime()));
+        // use empty config to make use of defaults
+ 		Properties config = new Properties();
+ 		env.set("jbpm.business.calendar", new BusinessCalendarImpl(config, clock));
+        
+		ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+				new DoNothingWorkItemHandler());
+		ProcessInstance processInstance = ksession
+				.startProcess("IntermediateCatchEvent");
+		assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+		// advance time for 3 days (scheduled time on timer)
+		clock.advanceTime(3, TimeUnit.DAYS);
+		ksession.fireAllRules();
+		// timer should not fire as it's based on business calendar
+		assertProcessInstanceActive(processInstance.getId(), ksession);
+		// advance for 2 more days to move to Monday when timer should fire
+		clock.advanceTime(2, TimeUnit.DAYS);
+		ksession.fireAllRules();
+		assertProcessInstanceCompleted(processInstance.getId(), ksession);
+		ksession.dispose();
+	}
+	
+	private Date parseToDateWithTime(String dateString) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        
+        Date testTime;
+        try {
+            testTime = sdf.parse(dateString);
+            
+            return testTime;
+        } catch (ParseException e) {
+            return null;
+        }        
     }
 
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {

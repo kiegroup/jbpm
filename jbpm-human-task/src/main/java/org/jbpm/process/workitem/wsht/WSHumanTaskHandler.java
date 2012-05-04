@@ -266,7 +266,7 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 			}
 		}
 
-		task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
+		task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, session == null?null:session.getEnvironment()));
 		TaskAddedHandler handler = new TaskAddedHandler(manager, workItem.getId());
         if (isAutoClaim(workItem, task)) {
         	handler = new AutoClaimTaskAddedHandler(manager, workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));

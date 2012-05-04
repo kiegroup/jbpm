@@ -35,6 +35,7 @@ import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.process.DefaultProcessEventListener;
 import org.drools.event.process.ProcessStartedEvent;
+import org.drools.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
@@ -55,6 +56,11 @@ import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 
 public class StandaloneBPMNProcessTest extends TestCase {
+	
+	@Override
+	protected void tearDown() {
+		KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
+	}
 	
     public void testMinimalProcess() throws Exception {
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-MinimalProcess.bpmn2");

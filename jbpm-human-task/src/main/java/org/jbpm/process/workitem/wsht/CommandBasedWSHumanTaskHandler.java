@@ -276,7 +276,7 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 		        logger.error(e.getMessage(), e);
 		    }
 		}
-		task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
+		task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, session.getEnvironment()));
 		TaskAddedHandler handler = new TaskAddedHandler(workItem.getId());
         if (isAutoClaim(workItem, task)) {
         	handler = new AutoClaimTaskAddedHandler(workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));

@@ -70,7 +70,7 @@ public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmJUnitTestCase {
         List<String> groups = new ArrayList<String>();
         groups.add("PM");
         List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner(taskUser, groups, locale);
-        assertEquals(2, list.size());
+        assertEquals(1, list.size());
         
         TaskSummary task = list.get(0);
         taskService.claim(task.getId(), taskUser);
