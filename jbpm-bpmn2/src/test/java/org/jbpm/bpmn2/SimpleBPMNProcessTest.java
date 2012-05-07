@@ -16,6 +16,9 @@
 
 package org.jbpm.bpmn2;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -38,8 +41,6 @@ import org.drools.builder.ResourceType;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.process.DefaultProcessEventListener;
-import org.drools.event.process.ProcessCompletedEvent;
-import org.drools.event.process.ProcessNodeLeftEvent;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
@@ -52,6 +53,7 @@ import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
 import org.drools.runtime.process.WorkflowProcessInstance;
+import org.drools.runtime.rule.FactHandle;
 import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.DataStore;
 import org.jbpm.bpmn2.core.Definitions;
@@ -67,6 +69,7 @@ import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -1761,6 +1764,44 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		ProcessInstance processInstance = ksession.startProcess("Composite");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+
+    public void testIntermediateCatchEventConditionFilterByProcessInstance()throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventConditionFilterByProcessInstance.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        Map<String,Object> params1 = new HashMap<String,Object>();
+        params1.put("personId", Long.valueOf(1L));
+        Person person1 = new Person();
+        person1.setId(1L);
+        WorkflowProcessInstance pi1 = (WorkflowProcessInstance) ksession.createProcessInstance("IntermediateCatchEventConditionFilterByProcessInstance", params1);
+        long pi1id = pi1.getId();
+        
+        ksession.insert(pi1);
+        FactHandle personHandle1 = ksession.insert(person1);
+        
+        ksession.startProcessInstance(pi1.getId());
+        
+        Map<String,Object> params2 = new HashMap<String,Object>();
+        params2.put("personId", Long.valueOf(2L));
+        Person person2 = new Person();
+        person2.setId(2L);
+        
+        WorkflowProcessInstance pi2 = (WorkflowProcessInstance) ksession.createProcessInstance("IntermediateCatchEventConditionFilterByProcessInstance", params2);
+        long pi2id = pi2.getId();
+        
+        ksession.insert(pi2);
+        FactHandle personHandle2 = ksession.insert(person2);
+        
+        ksession.startProcessInstance(pi2.getId());
+        
+        person1.setName("John");
+        ksession.update(personHandle1, person1);
+        
+        
+        
+        assertNull("First process should be completed", ksession.getProcessInstance(pi1id));
+        assertNotNull("Second process should NOT be completed", ksession.getProcessInstance(pi2id));
+
+    }
 
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory
