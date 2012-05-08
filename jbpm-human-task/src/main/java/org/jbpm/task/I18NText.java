@@ -36,7 +36,7 @@ public class I18NText implements Externalizable {
 
     private String language;
 
-    @Lob
+    @Lob @Column(length=65535)
     private String text;
 
     public I18NText() {

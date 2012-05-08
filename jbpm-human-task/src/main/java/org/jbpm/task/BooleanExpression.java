@@ -21,20 +21,23 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.SequenceGenerator;
 
 @Entity
 public class BooleanExpression implements Externalizable {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long   id;
     private String type;
     
-    @Lob
+    @Lob @Column(length=65535)
     private String expression;
     
     public BooleanExpression() {
