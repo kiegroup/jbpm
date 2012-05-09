@@ -74,18 +74,19 @@ public class TaskClientFactory {
     
     public static TaskClient newAsyncInstance(Properties properties, String connectorId) {
         TaskClient client = null;
+        String defaultPort = null;
         String strategy = properties.getProperty("jbpm.console.task.service.strategy", DEFAULT_TASK_SERVICE_STRATEGY);
         if ("Mina".equalsIgnoreCase(strategy)) {
             if (client == null) {
                 client = new TaskClient(new MinaTaskClientConnector(connectorId,
                                         new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-                
+                defaultPort = "9123";
             }
         } else if ("HornetQ".equalsIgnoreCase(strategy)) {
             if (client == null) {
                 client = new TaskClient(new HornetQTaskClientConnector(connectorId,
                                         new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-                
+                defaultPort = "5445";
             }
         } else if ("JMS".equalsIgnoreCase(strategy)) {
             if (client == null) {
@@ -102,11 +103,12 @@ public class TaskClientFactory {
         }
         
         boolean connected = client.connect(properties.getProperty("jbpm.console.task.service.host", DEFAULT_IP_ADDRESS),
-                Integer.parseInt(properties.getProperty("jbpm.console.task.service.port", Integer.toString(DEFAULT_PORT))));
+                Integer.parseInt(properties.getProperty("jbpm.console.task.service.port", defaultPort)));
         if (!connected) {
             throw new IllegalArgumentException("Could not connect task client");
         }
         
         return client;
     }
+    
 }
