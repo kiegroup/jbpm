@@ -17,6 +17,8 @@
 package org.jbpm.workflow.instance.impl;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,9 @@ import java.util.Map;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.definition.process.Connection;
 import org.drools.definition.process.Node;
+import org.drools.event.ProcessNodeTriggeredEventImpl;
+import org.drools.event.process.ProcessEventListener;
+import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.runtime.process.NodeInstance;
 import org.drools.runtime.process.NodeInstanceContainer;
 import org.jbpm.process.core.Context;
@@ -109,6 +114,42 @@ public abstract class NodeInstanceImpl implements
 
 	public void cancel() {
 		nodeInstanceContainer.removeNodeInstance(this);
+		boolean hidden = false;
+		if (getNode().getMetaData().get("hidden") != null) {
+			hidden = true;
+		}
+		InternalKnowledgeRuntime kruntime = getProcessInstance()
+				.getKnowledgeRuntime();
+		InternalProcessRuntime processRuntime = (InternalProcessRuntime) kruntime.getProcessRuntime();
+		if (!hidden) {
+			List<ProcessEventListener> listeners = processRuntime
+			.getProcessEventSupport()
+			.getEventListeners();
+			final ProcessNodeTriggeredEvent event = new ProcessNodeTriggeredEventImpl(this, kruntime);
+			for(ProcessEventListener listener : listeners) {
+				try {
+					Method method = listener.getClass().getDeclaredMethod("afterNodeCanceled", ProcessNodeTriggeredEvent.class);
+					if(method != null) {
+						method.invoke(listener, event);
+					}
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	public final void trigger(NodeInstance from, String type) {
