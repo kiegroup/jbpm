@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -52,7 +53,8 @@ public class Deadline implements Externalizable {
     @JoinColumn(name = "Deadline_Escalation_Id", nullable = true)    
     private List<Escalation> escalations = Collections.emptyList();
     
-    private boolean escalated;
+    @Basic
+    private Short escalated = 0;
     
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
@@ -66,7 +68,8 @@ public class Deadline implements Externalizable {
         CollectionUtils.writeI18NTextList( documentation, out );
         CollectionUtils.writeEscalationList( escalations, out );
         
-        out.writeBoolean( escalated );
+        out.writeShort(escalated);
+        
     }
     
     public void readExternal(ObjectInput in) throws IOException,
@@ -79,7 +82,7 @@ public class Deadline implements Externalizable {
         documentation = CollectionUtils.readI18NTextList( in );
         escalations = CollectionUtils.readEscalationList( in );   
         
-        escalated = in.readBoolean();
+        escalated = in.readShort();
     }
 
     public long getId() {
@@ -114,12 +117,19 @@ public class Deadline implements Externalizable {
         this.escalations = escalations;
     }
 
-    public boolean isEscalated() {
-        return escalated;
+    public Boolean isEscalated() {
+        if (escalated == null) {
+            return null;
+        }
+        return (escalated == 1) ? Boolean.TRUE : Boolean.FALSE;
     }
 
-    public void setEscalated(boolean escalated) {
-        this.escalated = escalated;
+    public void setEscalated(Boolean escalated) {
+        if (escalated == null) {
+            this.escalated = null;
+        } else {
+            this.escalated = (escalated == true) ? new Short("1") : new Short("0");
+        }
     }
 
     @Override
@@ -129,23 +139,35 @@ public class Deadline implements Externalizable {
         result = prime * result + ((date == null) ? 0 : date.hashCode());
         result = prime * result + CollectionUtils.hashCode( documentation );
         result = prime * result + CollectionUtils.hashCode( escalations );
-        result = prime * result + (escalated ? 1231 : 1237);
+        result = prime * result + (isEscalated() ? 1231 : 1237);
         result = prime * result + (int) (id ^ (id >>> 32));
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if ( this == obj ) return true;
-        if ( obj == null ) return false;
-        if ( !(obj instanceof Deadline) ) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Deadline)) {
+            return false;
+        }
         Deadline other = (Deadline) obj;
         
         if ( date == null ) {
-            if ( other.date != null ) return false;
-        } else if ( date.getTime() != other.date.getTime() ) return false;
+            if (other.date != null) {
+                return false;
+            }
+        } else if (date.getTime() != other.date.getTime()) {
+            return false;
+        }
         
-        if ( escalated != other.escalated ) return false;                        
+        if (isEscalated() != other.isEscalated()) {
+            return false;
+        }
     
         return CollectionUtils.equals( documentation, other.documentation ) && CollectionUtils.equals( escalations, other.escalations );        
     }
