@@ -34,9 +34,8 @@ import org.jbpm.task.service.mina.MinaTaskClientHandler;
 
 public class TaskClientFactory {
     
-    public static final String DEFAULT_TASK_SERVICE_STRATEGY = "Mina";
+    public static final String DEFAULT_TASK_SERVICE_STRATEGY = "HornetQ";
     public static final String DEFAULT_IP_ADDRESS = "127.0.0.1";
-    public static final int DEFAULT_PORT = 9123;
 
     /**
      * Produces new instance of TaskClient based on given properties and assignes as connector identifier given connectorId.
@@ -86,7 +85,7 @@ public class TaskClientFactory {
             if (client == null) {
                 client = new TaskClient(new HornetQTaskClientConnector(connectorId,
                                         new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-                defaultPort = "5445";
+                defaultPort = "5446";
             }
         } else if ("JMS".equalsIgnoreCase(strategy)) {
             if (client == null) {
