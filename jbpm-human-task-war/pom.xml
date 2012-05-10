@@ -44,6 +44,7 @@
     <dependency>
     	<groupId>org.jboss.netty</groupId>
     	<artifactId>netty</artifactId>
+	<version>3.2.0.Final</version>
     	<scope>provided</scope>
     </dependency>
 
