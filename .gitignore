@@ -20,3 +20,4 @@ bin/
 # Test info
 /settings*.xml
 /lib-jdbc/
+bitronix-default-config.properties
