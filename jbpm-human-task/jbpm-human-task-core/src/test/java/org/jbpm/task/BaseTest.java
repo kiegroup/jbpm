@@ -38,7 +38,7 @@ import org.jbpm.task.service.UserGroupCallbackManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bitronix.tm.resource.jdbc.PoolingDataSource;
+//import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public abstract class BaseTest extends TestCase {
 
@@ -53,7 +53,7 @@ public abstract class BaseTest extends TestCase {
     protected TaskServiceSession taskSession;
 
     protected final boolean useJTA = false;
-    private PoolingDataSource ds;
+//    private PoolingDataSource ds;
     
     protected EntityManagerFactory createEntityManagerFactory() { 
         return Persistence.createEntityManagerFactory("org.jbpm.task");
@@ -69,16 +69,16 @@ public abstract class BaseTest extends TestCase {
         SendIcal.initInstance(conf);
 
         if( useJTA ) { 
-            ds = new PoolingDataSource();
-            ds.setUniqueName( "jdbc/taskDS" );
-            ds.setClassName( "bitronix.tm.resource.jdbc.lrc.LrcXADataSource" );
-            ds.setMaxPoolSize( 3 );
-            ds.setAllowLocalTransactions( true );
-            ds.getDriverProperties().put( "user", "sa" );
-            ds.getDriverProperties().put( "password", "sasa" );
-            ds.getDriverProperties().put( "url", "jdbc:h2:mem:taskDb" );
-            ds.getDriverProperties().put( "driverClassName", "org.h2.Driver" );
-            ds.init();
+//            ds = new PoolingDataSource();
+//            ds.setUniqueName( "jdbc/taskDS" );
+//            ds.setClassName( "bitronix.tm.resource.jdbc.lrc.LrcXADataSource" );
+//            ds.setMaxPoolSize( 3 );
+//            ds.setAllowLocalTransactions( true );
+//            ds.getDriverProperties().put( "user", "sa" );
+//            ds.getDriverProperties().put( "password", "sasa" );
+//            ds.getDriverProperties().put( "url", "jdbc:h2:mem:taskDb" );
+//            ds.getDriverProperties().put( "driverClassName", "org.h2.Driver" );
+//            ds.init();
         }
         
         // Use persistence.xml configuration
@@ -101,7 +101,7 @@ public abstract class BaseTest extends TestCase {
         taskSession.dispose();
         emf.close();
         if( useJTA ) { 
-            ds.close();
+//            ds.close();
         }
     }
     
