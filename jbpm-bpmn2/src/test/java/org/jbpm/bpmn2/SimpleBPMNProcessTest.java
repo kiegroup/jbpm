@@ -1361,6 +1361,7 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		ProcessInstance processInstance = ksession
 				.startProcess("ErrorEndEvent");
 		assertProcessInstanceAborted(processInstance.getId(), ksession);
+		assertEquals("error", ((org.jbpm.process.instance.ProcessInstance)processInstance).getOutcome());
 	}
 
 	public void testEscalationEndEventProcess() throws Exception {
