@@ -21,16 +21,18 @@ import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.node.EventNode;
-import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 
 /**
  * Runtime counterpart of an event node.
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
-public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInstanceInterface {
+public class EventNodeInstance extends ExtendedNodeInstanceImpl implements EventNodeInstanceInterface {
 
     private static final long serialVersionUID = 510l;
+    
+    private Object _var=null;
 
     public void signalEvent(String type, Object event) {
     	String variableName = getEventNode().getVariableName();
@@ -47,12 +49,22 @@ public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInst
     		}
     		variableScopeInstance.setVariable(variableName, event);
     	}
-        trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+    	variableName = "__variable__";
+    	VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+    			resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
+    	if (variableScopeInstance == null) {
+    		throw new IllegalArgumentException(
+    				"Could not find variable for event node: " + variableName);
+    	}
+    	_var = variableScopeInstance.getVariable(variableName);
+    	
+    trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
     	triggerCompleted();
     }
     
     @Override
     public void internalTrigger(final NodeInstance from, String type) {
+        super.internalTrigger(from, type);
     	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "An EventNode only accepts default incoming connections!");
@@ -67,5 +79,9 @@ public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInst
     public void triggerCompleted() {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }
-    
+
+    public Object getVar() {
+        return _var;
+    }
+
 }
