@@ -384,7 +384,34 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                         String eventType = "Compensate-" + uniqueId;
                         ((EventTypeFilter) ((EventNode) node).getEventFilters()
                                 .get(0)).setType(eventType);
+                    } else if (type.startsWith("Message-")) {
+                        boolean cancelActivity = (Boolean) node.getMetaData()
+                                .get("CancelActivity");
+                        CompositeContextNode compositeNode = (CompositeContextNode) attachedNode;
+                        ExceptionScope exceptionScope = (ExceptionScope) compositeNode
+                                .getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+                        if (exceptionScope == null) {
+                            exceptionScope = new ExceptionScope();
+                            compositeNode.addContext(exceptionScope);
+                            compositeNode.setDefaultContext(exceptionScope);
+                        }
+                        String messageCode = (String) node.getMetaData()
+                                .get("MessageEvent");
+                        ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
+                        exceptionHandler
+                                .setAction(new DroolsConsequenceAction(
+                                        "java",
+                                        (cancelActivity ? "((org.jbpm.workflow.instance.NodeInstance) kcontext.getNodeInstance()).cancel();"
+                                                : "")
+                                                + "kcontext.getProcessInstance().signalEvent(\"Message-"
+                                                + attachedTo
+                                                + "-"
+                                                + messageCode + "\", null);"));
+                        exceptionHandler.setFaultVariable("__variable__");
+                        exceptionScope.setExceptionHandler(messageCode,
+                                exceptionHandler);
                     }
+
                 }
             }
         }
