@@ -52,11 +52,9 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     	variableName = "__variable__";
     	VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
     			resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
-    	if (variableScopeInstance == null) {
-    		throw new IllegalArgumentException(
-    				"Could not find variable for event node: " + variableName);
+    	if (variableScopeInstance != null) {
+        	_var = variableScopeInstance.getVariable(variableName);
     	}
-    	_var = variableScopeInstance.getVariable(variableName);
     	
     trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
     	triggerCompleted();
