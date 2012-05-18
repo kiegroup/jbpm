@@ -35,6 +35,8 @@ import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.command.Command;
+import org.drools.command.CommandFactory;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.process.DefaultProcessEventListener;
@@ -1714,7 +1716,7 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		ProcessInstance processInstance = ksession
 				.startProcess("process", null);
 	}
-
+	
 	public void testLinkIntermediateEvent() throws Exception {
 
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateLinkEvent.bpmn2");
@@ -1730,6 +1732,28 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
 		ProcessInstance processInstance = ksession.startProcess("Composite");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+	}
+	
+	public void testExecuteStartProcessCommand() throws Exception {
+	    KnowledgeBase kbase = createKnowledgeBase("BPMN2-RuleTask.bpmn2");
+	    KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+	    kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-RuleTask.drl"), ResourceType.DRL);
+	    if (kbuilder.hasErrors()) {
+	        for (KnowledgeBuilderError error : kbuilder.getErrors()) {
+                logger.error(error.toString());
+            }
+            throw new IllegalArgumentException(
+                    "Errors while parsing knowledge base");
+	    }
+	    kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
+	    
+	    StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+	    
+	    List<Command<?>> cmds = new ArrayList<Command<?>>();
+        cmds.add(CommandFactory.newStartProcess("RuleTask"));
+        ksession.execute(CommandFactory.newBatchExecution(cmds));
+	    
+	    ksession.execute(CommandFactory.newBatchExecution(cmds));
 	}
 
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
