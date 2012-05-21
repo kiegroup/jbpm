@@ -193,6 +193,10 @@ public abstract class NodeInstanceImpl implements
 				if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {
 					return;
 				}
+				NodeInstanceContainer nodeInstanceContainer = (NodeInstanceContainer) getNodeInstanceContainer();
+				if(nodeInstanceContainer instanceof CompositeNodeInstance && ((CompositeNodeInstance) nodeInstanceContainer).isCanceled()) {
+					return;
+				}
 				triggerConnection(connection);
 			}
 		}
