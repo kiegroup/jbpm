@@ -139,22 +139,6 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
     		+ "-" + getStateNode().getUniqueId();
     }
     
-    private boolean checkProcessInstance(Activation activation) {
-    	final Map<?, ?> declarations = activation.getSubRule().getOuterDeclarations();
-        for ( Iterator<?> it = declarations.values().iterator(); it.hasNext(); ) {
-            Declaration declaration = (Declaration) it.next();
-            if ("processInstance".equals(declaration.getIdentifier())) {
-            	Object value = declaration.getValue(
-        			((StatefulKnowledgeSessionImpl) getProcessInstance().getKnowledgeRuntime()).session,
-        			((InternalFactHandle) activation.getTuple().get(declaration)).getObject());
-            	if (value instanceof ProcessInstance) {
-            		return ((ProcessInstance) value).getId() == getProcessInstance().getId();
-            	}
-        	}
-        }
-        return true;
-    }
-    
     public void activationCreated(ActivationCreatedEvent event) {
         Connection selected = null;
         for (Connection connection: getNode().getOutgoingConnections(NodeImpl.CONNECTION_DEFAULT_TYPE)) {
