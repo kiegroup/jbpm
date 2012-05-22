@@ -1270,7 +1270,20 @@ public abstract class TaskServiceLifeCycleBaseSyncTest extends BaseTest {
         assertEquals("content", new String(content.getContent()));
     }
     
-    // TODO: FIX IT, looks like a persistence problem around persistent bags for local impl
+    /**
+     * The issue here has to do with the fact that hibernate uses lazy initialization. 
+     * Actually, what's happening is that one of the collections retrieved isn't retrieved "for update", 
+     * so that the proxy collection instance retrieved can't be updated. 
+     * (The collection instance can't be updated because hibernate doesn't allowed that unless the collection 
+     * has been retrieved "for update" -- which is actually logical.)
+     * 
+     * This, of course, only happens when using the LocalTaskService. Why? Because the LocalTaskService
+     * "shares" a persistence context with the client. If I spent another half-hour, I could explain
+     * why that causes this particular problem. 
+     * Regardless,  I can't stress enough how much that complicates the situation here, and, especially, 
+     * why that makes the LocalTaskService a significantly different variant of the TaskService
+     * than the HornetQ, Mina or other transport medium based instances.  
+     */
     public void FIXME_testRegisterRemove() throws Exception {
     	  Map <String, Object> vars = fillVariables();
         

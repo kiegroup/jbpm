@@ -42,7 +42,8 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
         taskService.setEscalatedDeadlineHandler( handler );  
         
         //Reader reader;
-        Reader reader = new InputStreamReader( TaskServiceEscalationBaseUserGroupCallbackTest.class.getResourceAsStream( "../QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( 
+                TaskServiceEscalationBaseUserGroupCallbackTest.class.getResourceAsStream( MvelFilePath.UnescalatedDeadlines ));
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();
@@ -66,7 +67,8 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
         Map<String, Object> vars = fillVariables();
 
         //Reader reader;
-        Reader reader = new InputStreamReader( TaskServiceEscalationBaseUserGroupCallbackTest.class.getResourceAsStream( "../QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( 
+                    TaskServiceEscalationBaseUserGroupCallbackTest.class.getResourceAsStream( MvelFilePath.UnescalatedDeadlines ));
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();

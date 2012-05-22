@@ -12,6 +12,8 @@
 # Test data
 /activemq-data
 /data
+/settings-db.xml
+/lib-jdbc/
 
 # modules present in master but not here
 /jbpm-human-task-core

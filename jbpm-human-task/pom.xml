@@ -113,10 +113,56 @@
       <artifactId>btm</artifactId>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
+  <properties>
+    <maven.btm.maxPoolSize>16</maven.btm.maxPoolSize>
+    
+    <maven.tx.type>RESOURCE_LOCAL</maven.tx.type>
+    <maven.data.source/>
+    <!--  
+    <maven.tx.type>JTA</maven.tx.type>
+    <maven.data.source>&lt;jta-data-source&gt;jdbc/taskDS&lt;/jta-data-source&gt;</maven.data.source>
+    -->
+    
+    <!-- H2
+     -->
+    <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
+    <maven.datasource.classname>bitronix.tm.resource.jdbc.lrc.LrcXADataSource</maven.datasource.classname>
+    <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
+    <maven.jdbc.db.name/>
+    <maven.jdbc.db.port/>
+    <maven.jdbc.db.server/>     
+    <maven.jdbc.username>sa</maven.jdbc.username>
+    <maven.jdbc.password>sasa</maven.jdbc.password>
+    <maven.jdbc.url>jdbc:h2:mem:test;MVCC=true</maven.jdbc.url>
+    <maven.jdbc.schema/>
+  </properties>
+
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+      </testResource>
+      <testResource>
+        <directory>src/test/filtered-resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+    
     <plugins>
+      <!-- human-task requires JDK 6 to run (because of HornetQ dependencies) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+        </configuration>
+      </plugin>
+      
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>hibernate3-maven-plugin</artifactId>
