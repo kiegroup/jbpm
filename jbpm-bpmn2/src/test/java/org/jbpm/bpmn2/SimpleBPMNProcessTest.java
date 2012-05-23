@@ -1950,6 +1950,21 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		ProcessInstance processInstance = ksession.startProcess("Composite");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+	
+    public void testNullVariableInScriptTaskProcess() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-NullVariableInScriptTaskProcess.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        ProcessInstance process = ksession.startProcess("nullVariableInScriptAfterTimer");
+
+        assertEquals(ProcessInstance.STATE_ACTIVE, process.getState());
+       
+        long sleep = 1000;
+        logger.debug("Sleeping " + sleep/1000 + " seconds." );
+        Thread.sleep(sleep);
+        
+        assertTrue(ProcessInstance.STATE_ABORTED == process.getState());
+        
+    }
 
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory
