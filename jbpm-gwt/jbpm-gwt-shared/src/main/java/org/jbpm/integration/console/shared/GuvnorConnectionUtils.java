@@ -319,7 +319,7 @@ public class GuvnorConnectionUtils {
 
     
     public StringReader createChangeSet() {
-        return createChangeSet(getPackageNames());
+        return createChangeSet(getBuiltPackageNames());
     }
     
     public StringReader createChangeSet(List<String> packageNames) {
