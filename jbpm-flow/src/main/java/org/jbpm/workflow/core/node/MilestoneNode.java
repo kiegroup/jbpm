@@ -53,10 +53,6 @@ public class MilestoneNode extends StateBasedNode implements Constrainable {
             throw new IllegalArgumentException(
                 "This type of node only accepts default incoming connection type!");
         }
-        if (getFrom() != null) {
-            throw new IllegalArgumentException(
-                "This type of node cannot have more than one incoming connection!");
-        }
     }
 
     public void validateAddOutgoingConnection(final String type, final Connection connection) {
@@ -64,10 +60,6 @@ public class MilestoneNode extends StateBasedNode implements Constrainable {
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "This type of node only accepts default outgoing connection type!");
-        }
-        if (getTo() != null) {
-            throw new IllegalArgumentException(
-                "This type of node cannot have more than one outgoing connection!");
         }
     }
     
