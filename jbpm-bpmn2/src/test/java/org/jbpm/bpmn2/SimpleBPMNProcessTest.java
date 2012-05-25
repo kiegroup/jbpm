@@ -84,7 +84,6 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
         }
         super.setUp();
     }
-    
 	public void testMinimalProcess() throws Exception {
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-MinimalProcess.bpmn2");
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
@@ -1273,7 +1272,7 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 				list.add(event.getProcessInstance().getId());
 			}
 		});
-		ksession.signalEvent("MyStartSignal", "NewValue");
+		ksession.signalEvent("MySignal", "NewValue");
 		assertEquals(1, list.size());
 	}
 
@@ -1288,7 +1287,7 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 				list.add(event.getProcessInstance().getId());
 			}
 		});
-		ksession.signalEvent("MyStartSignal", "NewValue");
+		ksession.signalEvent("MySignal", "NewValue");
 		assertEquals(1, list.size());
 	}
 
