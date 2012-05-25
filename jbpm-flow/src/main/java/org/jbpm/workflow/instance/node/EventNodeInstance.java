@@ -56,7 +56,11 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         	_var = variableScopeInstance.getVariable(variableName);
     	}
     	
-    trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+    	// if it is boundary event, trigger() has not been called, so call it here
+    	// if it is normal flow, trigger() has been called already, so do not call again, only call trigerCompleted()
+    	if(getEventNode().getMetaData("AttachedTo") != null) {
+    		trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+    	}
     	triggerCompleted();
     }
     
