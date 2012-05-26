@@ -20,7 +20,13 @@ import java.util.List;
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.process.workitem.wsht.BlockingAddTaskResponseHandler;
-import org.jbpm.task.*;
+import org.jbpm.task.AsyncTaskService;
+import org.jbpm.task.Attachment;
+import org.jbpm.task.Comment;
+import org.jbpm.task.Content;
+import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.Status;
+import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.responsehandlers.BlockingAddAttachmentResponseHandler;
@@ -34,10 +40,6 @@ import org.jbpm.task.service.responsehandlers.BlockingSetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
-/**
- *
- * @author salaboy
- */
 public class AsyncTaskServiceWrapper implements TaskService {
 
     private int timeout = 10000;
@@ -485,6 +487,19 @@ public class AsyncTaskServiceWrapper implements TaskService {
         }
     }
 
+    /**
+     * This method allows the user to exercise the query of his/her choice. 
+     * This method will be deleted in future versions. 
+     * </p>
+     * Only select queries are currently supported, for obvious reasons. 
+     * 
+     * @param qlString The query string. 
+     * @param size     Maximum number of results to return.
+     * @param offset   The offset from the beginning of the result list determining the first result. 
+     * 
+     * @return         The result of the query. 
+     */
+    @Deprecated
     public List<?> query(String qlString, Integer size, Integer offset) {
         BlockingQueryGenericResponseHandler responseHandler = new BlockingQueryGenericResponseHandler();
         taskService.query(qlString, size, offset, responseHandler);

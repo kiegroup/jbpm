@@ -15,16 +15,19 @@
  */
 package org.jbpm.task.service.local;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.eventmessaging.EventTriggerTransport;
 import org.jbpm.eventmessaging.Payload;
-import org.jbpm.task.*;
+import org.jbpm.task.Attachment;
+import org.jbpm.task.Comment;
+import org.jbpm.task.Content;
+import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.Status;
+import org.jbpm.task.Task;
+import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.FaultData;
@@ -191,6 +194,19 @@ public class LocalTaskService implements TaskService {
         session.nominateTask(taskId, userId, potentialOwners);
     }
 
+    /**
+     * This method allows the user to exercise the query of his/her choice. 
+     * This method will be deleted in future versions. 
+     * </p>
+     * Only select queries are currently supported, for obvious reasons. 
+     * 
+     * @param qlString The query string. 
+     * @param size     Maximum number of results to return.
+     * @param offset   The offset from the beginning of the result list determining the first result. 
+     * 
+     * @return         The result of the query. 
+     */
+    @Deprecated
     public List<?> query(String qlString, Integer size, Integer offset) {
         return session.query(qlString, size, offset);
     }
