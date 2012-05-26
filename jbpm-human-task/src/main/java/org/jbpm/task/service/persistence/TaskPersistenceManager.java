@@ -327,7 +327,7 @@ public class TaskPersistenceManager {
             throw new IncorrectParametersException("Expected an even number of parameters, not " + parameterValues.length);
         }
         
-        for( int i = 0; i < parameterValues.length;  i += 2 ) {
+        for( int i = 0; i < parameterValues.length;  ++i ) {
             String parameterName = null;
             if( parameterValues[i] instanceof String ) { 
                 parameterName = (String) parameterValues[i];
