@@ -16,13 +16,13 @@
 
 package org.jbpm.task.service;
 
-import org.jbpm.task.AsyncTaskService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
+import org.jbpm.task.AsyncTaskService;
 import org.jbpm.task.Attachment;
 import org.jbpm.task.Comment;
 import org.jbpm.task.Content;
@@ -592,6 +592,19 @@ public class TaskClient implements AsyncTaskService{
         connector.write( cmd );
     }
     
+    /**
+     * This method allows the user to exercise a query of his/her choice. 
+     * This method will be deleted in future versions. 
+     * </p>
+     * Only select queries are currently supported, for obvious reasons. 
+     * 
+     * @param qlString The query string. 
+     * @param size     Maximum number of results to return.
+     * @param offset   The offset from the beginning of the result list determining the first result. 
+     * 
+     * @return         The result of the query. 
+     */
+    @Deprecated
     public void query(String qlString, 
     					 Integer size, 
     					 Integer offset, 

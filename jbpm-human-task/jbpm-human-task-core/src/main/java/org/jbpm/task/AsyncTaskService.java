@@ -16,13 +16,9 @@
 package org.jbpm.task;
 
 import java.util.List;
+
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
-import org.jbpm.task.Attachment;
-import org.jbpm.task.Comment;
-import org.jbpm.task.Content;
-import org.jbpm.task.OrganizationalEntity;
-import org.jbpm.task.Task;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.FaultData;
 import org.jbpm.task.service.TaskClientHandler.AddAttachmentResponseHandler;
@@ -38,9 +34,6 @@ import org.jbpm.task.service.TaskClientHandler.TaskOperationResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskSummaryResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
-/**
- *
- */
 public interface AsyncTaskService {
 
     void activate(long taskId, String userId, TaskOperationResponseHandler responseHandler);
@@ -115,6 +108,19 @@ public interface AsyncTaskService {
 
     void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners, TaskOperationResponseHandler responseHandler);
 
+    /**
+     * This method allows the user to exercise the query of his/her choice. 
+     * This method will be deleted in future versions. 
+     * </p>
+     * Only select queries are currently supported, for obvious reasons. 
+     * 
+     * @param qlString The query string. 
+     * @param size     Maximum number of results to return.
+     * @param offset   The offset from the beginning of the result list determining the first result. 
+     * 
+     * @return         The result of the query. 
+     */
+    @Deprecated
     void query(String qlString, Integer size, Integer offset, QueryGenericResponseHandler responseHandler);
 
     void register(long taskId, String userId, TaskOperationResponseHandler responseHandler);
