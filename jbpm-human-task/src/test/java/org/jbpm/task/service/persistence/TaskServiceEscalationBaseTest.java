@@ -90,8 +90,8 @@ public abstract class TaskServiceEscalationBaseTest extends BaseTest {
 
         // now create a new service, to see if it initiates from the DB correctly
         MockEscalatedDeadlineHandler handler = new MockEscalatedDeadlineHandler();
-        new TaskService(emf, SystemEventListenerFactory.getSystemEventListener(), handler);      
-
+        new TaskService(emf, SystemEventListenerFactory.getSystemEventListener(), handler);   
+        
         testDeadlines(now, handler);
     }
 
