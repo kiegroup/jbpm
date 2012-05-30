@@ -19,8 +19,6 @@ package org.jbpm.task.service.base.sync;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -118,67 +116,6 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
         assertEquals("darth@domain.com", ((InternetAddress) msg.getRecipients(RecipientType.TO)[1]).getAddress());
     }
     
-    public void testDelayedEmailNotificationOnDeadlineContentSingleObject() throws Exception {
-        Map<String, Object> vars = fillVariables();
-
-        DefaultEscalatedDeadlineHandler notificationHandler = new DefaultEscalatedDeadlineHandler(getConf());
-        WorkItemManager manager = new DefaultWorkItemManager(null);
-        notificationHandler.setManager(manager);
-
-        MockUserInfo userInfo = new MockUserInfo();
-        userInfo.getEmails().put(users.get("tony"), "tony@domain.com");
-        userInfo.getEmails().put(users.get("darth"), "darth@domain.com");
-        userInfo.getLanguages().put(users.get("tony"), "en-UK");
-        userInfo.getLanguages().put(users.get("darth"), "en-UK");
-        notificationHandler.setUserInfo(userInfo);
-
-        taskService.setEscalatedDeadlineHandler(notificationHandler);
-        Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotificationContentSingleObject));
-        Task task = (Task) eval(reader, vars);
-     
-        client.addTask(task, null);
-        long taskId = task.getId();
-
-        Content content = new Content();
-        String contentString = "'singleobject'";
-        content.setContent(contentString.getBytes());
-       
-        client.setDocumentContent(taskId, content);
-        long contentId = content.getId();
-      
-        content = client.getContent(contentId);
-        assertEquals(contentString, new String(content.getContent()) );
-
-        // emails should not be set yet
-        assertEquals(0, getWiser().getMessages().size());
-        Thread.sleep(100);
-        // nor yet
-        assertEquals(0, getWiser().getMessages().size());
-        long time = 0;
-        while (getWiser().getMessages().size() != 2 && time < 15000) {
-            Thread.sleep(500);
-            time = 500;
-        }
-
-        // 1 email with two recipients should now exist
-        assertEquals(2, getWiser().getMessages().size());
-        List<String> list = new ArrayList<String>(2);
-        list.add(getWiser().getMessages().get(0).getEnvelopeReceiver());
-        list.add(getWiser().getMessages().get(1).getEnvelopeReceiver());
-
-        assertTrue(list.contains("tony@domain.com"));
-        assertTrue(list.contains("darth@domain.com"));
-
-        MimeMessage msg = ((WiserMessage) getWiser().getMessages().get(0)).getMimeMessage();
-        assertEquals("'singleobject'", msg.getContent());
-        assertEquals("'singleobject'", msg.getSubject());
-        assertEquals("from@domain.com", ((InternetAddress) msg.getFrom()[0]).getAddress());
-        assertEquals("replyTo@domain.com", ((InternetAddress) msg.getReplyTo()[0]).getAddress());
-        assertEquals("tony@domain.com", ((InternetAddress) msg.getRecipients(RecipientType.TO)[0]).getAddress());
-        assertEquals("darth@domain.com", ((InternetAddress) msg.getRecipients(RecipientType.TO)[1]).getAddress());
-
-    }
-    
     public void testDelayedEmailNotificationOnDeadlineTaskCompleted() throws Exception {
         Map<String, Object> vars = fillVariables();
 
@@ -214,7 +151,6 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
         long taskId = task.getId();
 
         Content content = new Content();
-        
         String emailContent = "{body=My Body, subject=My Subject}";
         content.setContent(emailContent.getBytes());
         client.setDocumentContent(taskId, content);
@@ -240,8 +176,12 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
 
         // no email should ne sent as task was completed before deadline was triggered
         assertEquals(0, getWiser().getMessages().size());
+        task = client.getTask(taskId);
+        assertEquals(Status.Completed, task.getTaskData().getStatus());
+        assertEquals(0, task.getDeadlines().getStartDeadlines().size());
+        assertEquals(0, task.getDeadlines().getEndDeadlines().size());
         
-        assertEquals(Status.Completed, client.getTask(taskId).getTaskData().getStatus());
+        
     }
     
     public void testDelayedEmailNotificationOnDeadlineTaskFailed() throws Exception {
@@ -305,8 +245,10 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
 
         // no email should ne sent as task was completed before deadline was triggered
         assertEquals(0, getWiser().getMessages().size());
-        
-        assertEquals(Status.Failed, client.getTask(taskId).getTaskData().getStatus());
+        task = client.getTask(taskId);
+        assertEquals(Status.Failed, task.getTaskData().getStatus());
+        assertEquals(0, task.getDeadlines().getStartDeadlines().size());
+        assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
 
     public void testDelayedEmailNotificationOnDeadlineTaskSkipped() throws Exception {
@@ -369,7 +311,10 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
 
         // no email should ne sent as task was completed before deadline was triggered
         assertEquals(0, getWiser().getMessages().size());
-        assertEquals(Status.Obsolete, client.getTask(taskId).getTaskData().getStatus());
+        task = client.getTask(taskId);
+        assertEquals(Status.Obsolete, task.getTaskData().getStatus());
+        assertEquals(0, task.getDeadlines().getStartDeadlines().size());
+        assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
          
     public void testDelayedEmailNotificationOnDeadlineTaskExited() throws Exception {
@@ -432,8 +377,10 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
 
         // no email should ne sent as task was completed before deadline was triggered
         assertEquals(0, getWiser().getMessages().size());
-        
-        assertEquals(Status.Exited, client.getTask(taskId).getTaskData().getStatus());
+        task = client.getTask(taskId);
+        assertEquals(Status.Exited, task.getTaskData().getStatus());
+        assertEquals(0, task.getDeadlines().getStartDeadlines().size());
+        assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
     
     //TODO: this test is not working for the local implementation and needs to be fixed  
