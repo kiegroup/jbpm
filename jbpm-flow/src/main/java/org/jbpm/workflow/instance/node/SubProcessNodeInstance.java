@@ -120,9 +120,10 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         } else {
 	    	ProcessInstance processInstance = ( ProcessInstance )
 	    		((ProcessInstance) getProcessInstance()).getKnowledgeRuntime()
-	    			.startProcess(processId, parameters);
+	    			.createProcessInstance(processId, parameters);
 	    	this.processInstanceId = processInstance.getId();
-	    	((ProcessInstanceImpl) processInstance).setMetaData("ParentProcessInstanceId", processInstance.getId());
+	    	((ProcessInstanceImpl) processInstance).setMetaData("ParentProcessInstanceId", getProcessInstance().getId());
+	    	((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().startProcessInstance(processInstance.getId());
 	    	if (!getSubProcessNode().isWaitForCompletion()) {
 	    		triggerCompleted();
 	    	} else if (processInstance.getState() == ProcessInstance.STATE_COMPLETED) {
