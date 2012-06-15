@@ -603,8 +603,8 @@ public class RuleFlowProcessValidator implements ProcessValidator {
             }
 
             else {
-                errors.add(new ProcessValidationErrorImpl(process,
-                        "Unknown node type '" + node.getClass().getName() + "'"));
+//                errors.add(new ProcessValidationErrorImpl(process,
+//                        "Unknown node type '" + node.getClass().getName() + "'"));
             }
         }
 
@@ -642,9 +642,9 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                 .hasNext();) {
             final Node node = it.next();
             if (Boolean.FALSE.equals(processNodes.get(node))) {
-                errors.add(new ProcessValidationErrorImpl(process, "Node '"
-                        + node.getName() + "' [" + node.getId()
-                        + "] has no connection to the start node."));
+//                errors.add(new ProcessValidationErrorImpl(process, "Node '"
+//                        + node.getName() + "' [" + node.getId()
+//                        + "] has no connection to the start node."));
             }
         }
     }
