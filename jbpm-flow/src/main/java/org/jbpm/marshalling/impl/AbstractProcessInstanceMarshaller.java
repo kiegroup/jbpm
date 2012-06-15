@@ -60,6 +60,7 @@ import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.JoinInstance;
 import org.jbpm.workflow.instance.node.MilestoneNodeInstance;
 import org.jbpm.workflow.instance.node.RuleSetNodeInstance;
+import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
 import org.jbpm.workflow.instance.node.StateNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
@@ -364,6 +365,18 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 }
             }
             stream.writeShort(PersisterEnums.END);
+        } else if (nodeInstance.getClass().getName().contains("StatusSubProcessNodeInstance")) {
+            stream.writeShort(200);
+            List<Long> timerInstances =
+                ((StateBasedNodeInstance) nodeInstance).getTimerInstances();
+	        if (timerInstances != null) {
+	            stream.writeInt(timerInstances.size());
+	            for (Long id : timerInstances) {
+	                stream.writeLong(id);
+	            }
+	        } else {
+	            stream.writeInt(0);
+	        }
         } else {
             throw new IllegalArgumentException("Unknown node instance type: " + nodeInstance);
         }
@@ -654,6 +667,22 @@ public abstract class AbstractProcessInstanceMarshaller implements
                     ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances(timerInstances);
                 }
                 break;
+            case 200:
+			try {
+				nodeInstance = (NodeInstanceImpl) ((CreateNewNodeFactory) NodeInstanceFactoryRegistry.INSTANCE.registry.get(Class.forName("com.intalio.bpm.engine.status.subprocess.StatusSubProcessNode"))).cls.newInstance();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
+              nbTimerInstances = stream.readInt();
+              if (nbTimerInstances > 0) {
+                  List<Long> timerInstances = new ArrayList<Long>();
+                  for (int i = 0; i < nbTimerInstances; i++) {
+                      timerInstances.add(stream.readLong());
+                  }
+                  ((StateBasedNodeInstance) nodeInstance).internalSetTimerInstances(timerInstances);
+              }
+              break;
             default:
                 throw new IllegalArgumentException("Unknown node type: " + nodeType);
         }
