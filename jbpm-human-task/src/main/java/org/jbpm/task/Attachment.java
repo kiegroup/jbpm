@@ -43,7 +43,7 @@ public class Attachment implements Externalizable {
     /**
      * current "inline" and "URL" are allowed, this is extendable though and others may be added
      */
-    private AccessType accessType;
+    private AccessType accessType = AccessType.Unknown;
 
     /**
      * MIME type
@@ -62,11 +62,22 @@ public class Attachment implements Externalizable {
     
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
+        if( name == null ) { 
+            name = "";
+        }
         out.writeUTF( name );
         out.writeUTF( accessType.toString() );
+        if( contentType == null ) {
+          contentType = "";
+        }
         out.writeUTF( contentType );
+        // There are no guarantees that attachedBy is not null == potential bug
         attachedBy.writeExternal( out );
-        out.writeLong( attachedAt.getTime() );
+        long attachedAtTime = 0;
+        if( attachedAt != null ) { 
+            attachedAtTime = attachedAt.getTime();
+        }
+        out.writeLong( attachedAtTime );
         out.writeInt( size );
         out.writeLong( attachmentContentId );
     }
