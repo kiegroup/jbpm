@@ -39,6 +39,7 @@ import org.jbpm.task.Escalation;
 import org.jbpm.task.Group;
 import org.jbpm.task.Notification;
 import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.OrganizationalEntityPK;
 import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Reassignment;
 import org.jbpm.task.Status;
@@ -411,11 +412,15 @@ public class TaskServiceSession {
         groupIds = doUserGroupCallbackOperation(userId, groupIds);
         doCallbackUserOperation(targetEntityId);
         if (targetEntityId != null) {
-            targetEntity = getEntity(OrganizationalEntity.class, targetEntityId);
+        	try {
+        		targetEntity = getEntity(OrganizationalEntity.class,  new OrganizationalEntityPK(targetEntityId, "user"));
+        	} catch (EntityNotFoundException e) {
+        		targetEntity = getEntity(OrganizationalEntity.class,  new OrganizationalEntityPK(targetEntityId, "group"));
+			}
         }
 
         final Task task = getTask(taskId);
-        User user = getEntity(User.class, userId);
+        User user = getEntity(User.class, new OrganizationalEntityPK(userId, "user"));
         
         boolean transactionOwner = false;
         try {
@@ -887,7 +892,7 @@ public class TaskServiceSession {
         doCallbackOperationForPotentialOwners(potentialOwners);
         
     	final Task task = getEntity(Task.class, taskId);
-    	final User user = getEntity(User.class, userId);
+    	final User user = getEntity(User.class, new OrganizationalEntityPK(userId, "user"));
     	if (isAllowed(user, null, task.getPeopleAssignments().getBusinessAdministrators())) {
 	    	doOperationInTransaction(new TransactedOperation() {
 				public void doOperation() {

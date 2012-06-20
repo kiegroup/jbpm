@@ -115,11 +115,12 @@ public class QueryTest extends BaseTest {
             + "    left join t.taskData.actualOwner as actualOwner"
             + "    left join t.subjects as subject"
             + "    left join t.descriptions as description"
-            + "    left join t.names as name,"
+            + "    left join t.names as name" 
+            + "	   left join t.peopleAssignments.potentialOwners as pos,"
             + "    OrganizationalEntity potOwn"
             + " where"
-            + "    potOwn.id = :userId and"
-            + "    potOwn in elements ( t.peopleAssignments.potentialOwners  ) and"
+            + "    potOwn.id.id = :userId and"
+            + "    potOwn.id in pos and"
             + "    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and"
             + "    t.taskData.expirationTime is null";
 
@@ -133,8 +134,8 @@ public class QueryTest extends BaseTest {
         TaskPersistenceManager tpm = new TaskPersistenceManager(emf.createEntityManager());
         String name = "Bobba Fet";
         Task task = new Task();
-        User bobba = new User();
-        bobba.setId(name);
+        User bobba = new User(name);
+        
         
         task.setPriority(55);
         TaskData taskData = new TaskData();

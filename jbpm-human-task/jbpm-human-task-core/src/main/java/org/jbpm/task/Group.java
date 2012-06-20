@@ -21,19 +21,21 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
+//@DiscriminatorValue("group")
 public class Group extends OrganizationalEntity
     implements
     Externalizable {
 
     public Group() {
-        super();
+        super("", "group");
     }
 
     public Group(String id) {
-        super( id );
+        super( id, "group" );
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {

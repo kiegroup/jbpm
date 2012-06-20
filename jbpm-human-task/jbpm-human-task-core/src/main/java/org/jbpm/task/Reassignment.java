@@ -49,7 +49,7 @@ public class Reassignment implements Externalizable {
     private List<I18NText>             documentation = Collections.emptyList();
     
     @ManyToMany
-    @JoinTable(name = "Reassignment_potentialOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
+    @JoinTable(name = "Reassignment_potentialOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = {@JoinColumn(name = "entity_id"),@JoinColumn(name = "DTYPE")})    
     private List<OrganizationalEntity> potentialOwners = Collections.emptyList();
 
     public void writeExternal(ObjectOutput out) throws IOException {

@@ -38,7 +38,7 @@ public class Delegation  implements Externalizable {
     private AllowedToDelegate                    allowedToDelegate;
     
     @ManyToMany
-    @JoinTable(name = "Delegation_delegates", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
+    @JoinTable(name = "Delegation_delegates", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = {@JoinColumn(name = "entity_id"),@JoinColumn(name = "DTYPE")})    
     private List<OrganizationalEntity> delegates = Collections.emptyList();
     
     public void writeExternal(ObjectOutput out) throws IOException {

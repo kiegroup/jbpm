@@ -21,18 +21,21 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
+//@DiscriminatorValue("user")
 public class User extends OrganizationalEntity implements Externalizable{
     
     public User() {
-        super();
+        super("", "user");
     }
     
     public User(String id) {
-        super(id);
+        super(id, "user");
     }
+    
     
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal( out );

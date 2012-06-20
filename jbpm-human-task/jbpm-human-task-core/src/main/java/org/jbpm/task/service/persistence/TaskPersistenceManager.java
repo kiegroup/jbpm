@@ -23,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.jbpm.task.Group;
+import org.jbpm.task.OrganizationalEntityPK;
 import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.User;
@@ -220,14 +221,14 @@ public class TaskPersistenceManager {
     }
     
     public boolean userExists(String userId) { 
-        if( em.find(User.class, userId) == null ) { 
+        if( em.find(User.class, new OrganizationalEntityPK(userId, "user")) == null ) { 
             return false;
         }
         return true;
     }
     
     public boolean groupExists(String groupId) { 
-        if( em.find(Group.class, groupId) == null ) { 
+        if( em.find(Group.class, new OrganizationalEntityPK(groupId, "group")) == null ) { 
             return false;
         }
         return true;

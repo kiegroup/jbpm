@@ -21,42 +21,42 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 @Entity
 public abstract class OrganizationalEntity implements Externalizable {
     
-    @Id
-    private String id;   
-    
+	@EmbeddedId
+	private OrganizationalEntityPK id;
+
     public OrganizationalEntity() {
     }
-        
     
-    public OrganizationalEntity(String id ) {
-        this.id = id;
+    public OrganizationalEntity(String id, String type) {
+    	this.id = new OrganizationalEntityPK(id, type);
     }
-    
+            
     public void writeExternal(ObjectOutput out) throws IOException {
-        // id should never be "", given that it's the only field here!
-        if( id == null ) { 
-            id = "";
-        }
-        out.writeUTF( id );
+
+        out.writeObject( id );
     } 
     
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
-        id = in.readUTF();
+        id = (OrganizationalEntityPK) in.readObject();
     }      
     
     public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        return id.getId();
     }
 
 
@@ -78,6 +78,7 @@ public abstract class OrganizationalEntity implements Externalizable {
         if ( id == null ) {
             if ( other.id != null ) return false;
         } else if ( !id.equals( other.id ) ) return false;
+        
         return true;
     }     
     

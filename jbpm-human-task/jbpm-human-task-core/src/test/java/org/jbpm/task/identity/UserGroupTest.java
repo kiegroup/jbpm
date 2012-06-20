@@ -65,4 +65,18 @@ public class UserGroupTest extends BaseTestNoUserGroupSetup {
         
         taskSession.addGroup(group2);
     }
+    
+    @Test
+    public void testAddUserGroupWithSameName() {
+    	User user = new User("mike");
+        assertFalse(taskSession.getTaskPersistenceManager().userExists(user.getId()));
+        taskSession.addUser(user);
+        
+        assertTrue(taskSession.getTaskPersistenceManager().userExists(user.getId()));
+        
+        Group group2 = new Group("mike");
+        
+        taskSession.addGroup(group2);
+        assertTrue(taskSession.getTaskPersistenceManager().groupExists(group2.getId()));
+    }
 }

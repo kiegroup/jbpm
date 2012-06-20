@@ -37,8 +37,7 @@ public class DataModelTest extends BaseTest {
         
         // Scope to make sure no references from setup present later
         {
-            User user = new User();
-            user.setId("mriet"); // ;P
+            User user = new User("mriet");// ;P
         
             taskSession.addUser(user);
         
