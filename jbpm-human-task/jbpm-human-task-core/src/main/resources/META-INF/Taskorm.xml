@@ -27,12 +27,13 @@ from
     left join t.taskData.createdBy as createdBy   
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.businessAdministrators as bas,
     OrganizationalEntity businessAdministrator
 where
     t.archived = 0 and
-    businessAdministrator.id = :userId and
-    businessAdministrator in elements ( t.peopleAssignments.businessAdministrators  )  and
+    businessAdministrator.id.id = :userId and
+    businessAdministrator.id in bas  and
 
     (
     name.language = :language
@@ -77,12 +78,13 @@ from
     left join t.taskData.createdBy as createdBy
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as exos,
     OrganizationalEntity excludedOwners
 where
     t.archived = 0 and
-    excludedOwners.id = :userId and
-    excludedOwners in elements ( t.peopleAssignments.excludedOwners  )  and
+    excludedOwners.id.id = :userId and
+    excludedOwners.id in exos  and
 
     (
     name.language = :language
@@ -128,12 +130,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.potentialOwners as pos,
     OrganizationalEntity potentialOwners
 where
     t.archived = 0 and
-    potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners.id.id = :userId and
+    potentialOwners.id in pos and
 
     (
     name.language = :language
@@ -181,12 +184,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.potentialOwners pos,
     OrganizationalEntity potentialOwners
 where
     t.archived = 0 and
-    potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners.id.id = :userId and
+    potentialOwners.id in pos  and
 
     (
     name.language = :language
@@ -234,12 +238,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.potentialOwners pos,
     OrganizationalEntity potentialOwners
 where
     t.archived = 0 and
-    ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    ( potentialOwners.id.id = :userId or potentialOwners.id.id in (:groupIds) ) and
+    potentialOwners.id in pos  and
 
     (
     name.language = :language
@@ -287,12 +292,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.potentialOwners as pos,
     OrganizationalEntity potentialOwners
 where
     t.archived = 0 and
-    ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    ( potentialOwners.id.id = :userId or potentialOwners.id.id in (:groupIds) ) and
+    potentialOwners.id in pos  and
 
     (
     name.language = :language
@@ -340,12 +346,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.potentialOwners as pos,
     OrganizationalEntity potentialOwners
 where
     t.archived = 0 and
-    potentialOwners.id = :groupId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners.id.id = :groupId and
+    potentialOwners.id in pos  and
 
     (
     name.language = :language
@@ -394,13 +401,14 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.potentialOwners as pos,
     OrganizationalEntity potentialOwners
 where
     t.archived = 0 and
     t.taskData.parentId = :parentId and
-    potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners.id.id = :userId and
+    potentialOwners.id in pos  and
 
     (
     name.language = :language
@@ -499,12 +507,13 @@ from
     left join t.taskData.createdBy as createdBy
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.recipients as rs,
     OrganizationalEntity recipients
 where
     t.archived = 0 and
-    recipients.id = :userId and
-    recipients in elements ( t.peopleAssignments.recipients  )  and
+    recipients.id.id = :userId and
+    recipients.id in rs  and
 
     (
     name.language = :language
@@ -553,58 +562,8 @@ from
     OrganizationalEntity taskInitiator
 where
     t.archived = 0 and
-    taskInitiator.id = :userId and
-    taskInitiator = t.peopleAssignments.taskInitiator and
-
-    (
-    name.language = :language
-    or t.names.size = 0
-    ) and
-
-    (
-    subject.language = :language
-    or t.subjects.size = 0
-    ) and
-
-    (
-    description.language = :language
-    or t.descriptions.size = 0
-    ) and
-
-    t.taskData.expirationTime is null
-          </query>
-          <!-- hint name="org.hibernate.timeout" value="200"/ -->
-      </named-query>
-      <named-query name="TasksAssignedAsTaskStakeholder">
-          <query>
-select
-     new org.jbpm.task.query.TaskSummary(
-     t.id,
-     t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
-     t.taskData.status,
-     t.priority,
-     t.taskData.skipable,
-     t.taskData.actualOwner,
-     createdBy,
-     t.taskData.createdOn,
-     t.taskData.activationTime,
-     t.taskData.expirationTime,
-     t.taskData.processId,
-     t.taskData.processSessionId)
-from
-    Task t 
-    left join t.taskData.createdBy as createdBy
-    left join t.subjects as subject
-    left join t.descriptions as description
-    left join t.names as name,
-    OrganizationalEntity taskStakeholder
-where
-    t.archived = 0 and
-    taskStakeholder.id = :userId and
-    taskStakeholder in elements ( t.peopleAssignments.taskStakeholders  )  and
+    taskInitiator.id.id = :userId and
+    t.peopleAssignments.taskInitiator.id.id= :userId and
 
     (
     name.language = :language
@@ -652,7 +611,7 @@ from
     left join t.names as name
 where
     t.archived = 0 and
-    t.taskData.actualOwner.id = :userId and
+    t.taskData.actualOwner.id.id = :userId and
 
     (
     name.language = :language
@@ -673,6 +632,59 @@ where
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
+      
+      <named-query name="TasksAssignedAsTaskStakeholder">
+          <query>
+select
+     new org.jbpm.task.query.TaskSummary(
+     t.id,
+     t.taskData.processInstanceId,
+     name.text,
+     subject.text,
+     description.text,
+     t.taskData.status,
+     t.priority,
+     t.taskData.skipable,
+     t.taskData.actualOwner,
+     createdBy,
+     t.taskData.createdOn,
+     t.taskData.activationTime,
+     t.taskData.expirationTime,
+     t.taskData.processId,
+     t.taskData.processSessionId)
+from
+    Task t 
+    left join t.taskData.createdBy as createdBy
+    left join t.subjects as subject
+    left join t.descriptions as description
+    left join t.names as name
+    left join t.peopleAssignments.taskStakeholders as tshs,
+    OrganizationalEntity taskStakeholder
+where
+    t.archived = 0 and
+    taskStakeholder.id.id = :userId and
+    taskStakeholder.id in tshs  and
+
+    (
+    name.language = :language
+    or t.names.size = 0
+    ) and
+
+    (
+    subject.language = :language
+    or t.subjects.size = 0
+    ) and
+
+    (
+    description.language = :language
+    or t.descriptions.size = 0
+    ) and
+
+    t.taskData.expirationTime is null
+          </query>
+          <!-- hint name="org.hibernate.timeout" value="200"/ -->
+      </named-query>
+      
 
     <named-query name="TasksByStatus">
         <query>
@@ -898,7 +910,7 @@ from
     left join t.descriptions as description
     left join t.names as name
 where
-    t.taskData.actualOwner.id = :userId and
+    t.taskData.actualOwner = :userId and
 
     t.taskData.status in (:status) and
 
