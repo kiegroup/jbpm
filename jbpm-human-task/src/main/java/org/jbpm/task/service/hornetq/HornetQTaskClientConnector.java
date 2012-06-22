@@ -58,6 +58,8 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 	private ServerLocator serverLocator;
 	private ClientProducer producer;
 	private ClientConsumer consumer;
+	
+	private Thread responsesThread; 
 
 	public HornetQTaskClientConnector(String name, BaseClientHandler handler) {
 		if (name == null) {
@@ -97,28 +99,48 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 
 			createClientQueue();
 
-			Thread responsesThread = new Thread(new Runnable() {
+			responsesThread = new Thread(new Runnable() {
 
-				public void run() {
-					try {
-						consumer = session.createConsumer(name);
-						while (true) {
-							ClientMessage serverMessage = consumer.receive();
-							if (serverMessage!=null) {
-								((HornetQTaskClientHandler)handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
-							}
-						}
-					}
-					catch (HornetQException e) {
-						if (e.getCode()!=HornetQException.OBJECT_CLOSED) {
-							throw new RuntimeException("Client Exception with class " + getClass() + " using port " + port, e);
-						}
-						logger.info(e.getMessage());
-					}
-					catch (Exception e) {
-						throw new RuntimeException("Client Exception with class " + getClass() + " using port " + port, e);
-					}
-				}
+            public void run() {
+                try {
+                    consumer = session.createConsumer(name);
+                } catch (HornetQException e) {
+                    logger.error("Error creating consumer. ", e);
+                    if (e.getCode() == HornetQException.OBJECT_CLOSED) {
+                        logger.info(e.getMessage());
+                        return;
+                    }
+                    throw new RuntimeException("Client Exception with class " + getClass()
+                            + " using port " + port, e);
+                }
+
+
+                while (!consumer.isClosed()) {
+                    try {
+                        ClientMessage serverMessage = consumer.receive();
+                        if (serverMessage != null) {
+                            ((HornetQTaskClientHandler) handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
+                        }
+                    } catch (HornetQException e) {
+                        if (e.getCode() == HornetQException.OBJECT_CLOSED) {
+                        	try {
+                            	logger.warn("Connection lost, trying to reconnect...");
+            					disconnect();
+            					connect();
+            				} catch (Exception e1) {
+            					logger.error("Reconnecting failed, exiting...", e);
+            					return;
+            				}
+                        } else {
+                        	logger.error("HornetQ Exception with class " + getClass() + " using port " + port, e);
+                        }
+                    } catch (Exception e) {
+                    	// LOG the exception and continue receiving messages.
+                        logger.error("Client Exception with class " + getClass() + " using port " + port, e);
+                    }
+                }
+
+            }
 			});
 			responsesThread.start();
 			session.start();
@@ -158,6 +180,8 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 				consumer.close();
 			}
 			serverLocator.close();
+			
+			responsesThread.interrupt();
 		}
 	}
 
@@ -174,7 +198,24 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
 		} catch (IOException e) {
 			throw new RuntimeException("Error creating message", e);
 		} catch (HornetQException e) {
-			throw new RuntimeException("Error writing message", e);
+			if (e.getCode() == HornetQException.OBJECT_CLOSED) {
+                try {
+                	logger.warn("Connection lost, trying to reconnect...");
+					disconnect();
+					boolean connected = connect();
+                    if (connected) {
+                        // retry sending
+                        write(object);
+                    } else {
+                        throw e;
+ }
+				} catch (Exception e1) {
+					throw new RuntimeException("Error writing message (Reconnecting failed, exiting...)", e);
+				}
+               
+            } else {
+            	throw new RuntimeException("Error writing message", e);
+            }
 		}
 	}
 
