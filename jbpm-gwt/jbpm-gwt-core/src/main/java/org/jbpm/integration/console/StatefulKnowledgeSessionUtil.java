@@ -194,10 +194,8 @@ public class StatefulKnowledgeSessionUtil {
                 sconf.setProperty( "drools.resource.scanner.interval", "10" );
                 ResourceFactory.getResourceChangeScannerService().configure( sconf );
                 ResourceFactory.getResourceChangeScannerService().start();
-                ResourceFactory.getResourceChangeNotifierService().start();
-                KnowledgeAgentConfiguration aconf = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
-                aconf.setProperty("drools.agent.newInstance", "false");
-                kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default", aconf);
+                ResourceFactory.getResourceChangeNotifierService().start();				
+                initializeKnowledgeAgent();
                 kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet()));
                 kbase = kagent.getKnowledgeBase();
             } catch (Throwable t) {
@@ -436,7 +434,7 @@ public class StatefulKnowledgeSessionUtil {
             }
         }
     }
-    
+
     public static synchronized void checkPackagesFromGuvnor() {
         GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
         if(guvnorUtils.guvnorExists()) {
@@ -445,12 +443,32 @@ public class StatefulKnowledgeSessionUtil {
             guvnorPackages.removeAll(knownPackages);
             
             if (guvnorPackages.size() > 0) {
-                kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet(guvnorPackages)));
-                knownPackages.addAll(guvnorPackages);
+                try {
+                    initializeKnowledgeAgent();
+                    kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet(guvnorPackages)));
+                    knownPackages.addAll(guvnorPackages);
+                } catch (Throwable t) {
+                    logger.error("Could not load processes from Guvnor: " + t.getMessage(), t);
+                }
             }
+        } else {
+            logger.warn("Could not connect to Guvnor.");
         }
     }
     
+    private static synchronized void initializeKnowledgeAgent() throws Throwable {
+        if (kagent == null) {
+            try {
+                KnowledgeAgentConfiguration aconf = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
+                aconf.setProperty("drools.agent.newInstance", "false");
+                kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default", aconf);			
+            } catch (Throwable t) {
+                logger.error("Could not initialize Guvnor Knowledge Agent: " + t.getMessage(), t);
+                throw t;
+            }
+        }
+    }
+		
     public static KnowledgeAgent getKagent() {
         return kagent;
     }
