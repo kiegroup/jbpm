@@ -71,6 +71,7 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
     private WorkItemManager manager = null;
     private KnowledgeRuntime session;
     private OnErrorAction action;
+    protected Map<TaskEventKey, EventResponseHandler> eventHandlers = new HashMap<TaskEventKey, EventResponseHandler>();
     
 
     public AsyncWSHumanTaskHandler() {
@@ -125,10 +126,13 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
         TaskEventKey key = new TaskEventKey(TaskCompletedEvent.class, -1);
         TaskCompletedHandler eventResponseHandler = new TaskCompletedHandler(manager, client);
         client.registerForEvent(key, false, eventResponseHandler);
+        eventHandlers.put(key, eventResponseHandler);
         key = new TaskEventKey(TaskFailedEvent.class, -1);
         client.registerForEvent(key, false, eventResponseHandler);
+        eventHandlers.put(key, eventResponseHandler);
         key = new TaskEventKey(TaskSkippedEvent.class, -1);
         client.registerForEvent(key, false, eventResponseHandler);
+        eventHandlers.put(key, eventResponseHandler);
     }
 
     public void setManager(WorkItemManager manager) {
@@ -262,6 +266,11 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
     }
 
     public void dispose() throws Exception {
+        for (TaskEventKey key : eventHandlers.keySet()) {
+            client.unregisterForEvent(key);
+        }
+        eventHandlers.clear();
+        
         if (client != null) {
             client.disconnect();
         }

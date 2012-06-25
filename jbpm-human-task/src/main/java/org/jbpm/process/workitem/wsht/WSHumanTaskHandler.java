@@ -76,6 +76,8 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 	private boolean initialized = false;
 	private KnowledgeRuntime session;
 	private OnErrorAction action;
+	
+	protected Map<TaskEventKey, EventResponseHandler> eventHandlers = new HashMap<TaskEventKey, EventResponseHandler>();
 
 	public WSHumanTaskHandler() { 
 		this.action = OnErrorAction.LOG;
@@ -121,10 +123,13 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 			TaskEventKey key = new TaskEventKey(TaskCompletedEvent.class, -1);           
 			TaskCompletedHandler eventResponseHandler = new TaskCompletedHandler(manager, client);
 			client.registerForEvent(key, false, eventResponseHandler);
+			eventHandlers.put(key, eventResponseHandler);
 			key = new TaskEventKey(TaskFailedEvent.class, -1);           
 			client.registerForEvent(key, false, eventResponseHandler);
+			eventHandlers.put(key, eventResponseHandler);
 			key = new TaskEventKey(TaskSkippedEvent.class, -1);           
 			client.registerForEvent(key, false, eventResponseHandler);
+			eventHandlers.put(key, eventResponseHandler);
 			initialized = true;
 		}
 	}
@@ -261,7 +266,11 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 	}
 	
 	public void dispose() throws Exception {
-		if (client != null) {
+	    for (TaskEventKey key : eventHandlers.keySet()) {
+            client.unregisterForEvent(key);
+        }
+        eventHandlers.clear();
+	    if (client != null) {
 			client.disconnect();
 		}
 	}

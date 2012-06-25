@@ -220,6 +220,10 @@ public class LocalTaskService implements TaskService {
         service.getEventKeys().register(key, transport);
     }
 
+    public void unregisterForEvent(EventKey key) {
+        service.getEventKeys().removeKey(key);
+    }
+    
     public void release(long taskId, String userId) {
         session.taskOperation(Operation.Release, taskId, userId, null, null, null);
     }

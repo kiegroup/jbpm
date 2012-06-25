@@ -72,6 +72,7 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 	
 	private TaskClient client;
 	private KnowledgeRuntime session;
+	protected Map<TaskEventKey, EventResponseHandler> eventHandlers = new HashMap<TaskEventKey, EventResponseHandler>();
 	
 	public CommandBasedHornetQWSHumanTaskHandler(KnowledgeRuntime session) {
 		this.session = session;
@@ -99,10 +100,13 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 		TaskEventKey key = new TaskEventKey(TaskCompletedEvent.class, -1);           
 		TaskCompletedHandler eventResponseHandler = new TaskCompletedHandler();
 		client.registerForEvent(key, false, eventResponseHandler);
+		eventHandlers.put(key, eventResponseHandler);
 		key = new TaskEventKey(TaskFailedEvent.class, -1);           
 		client.registerForEvent(key, false, eventResponseHandler);
+		eventHandlers.put(key, eventResponseHandler);
 		key = new TaskEventKey(TaskSkippedEvent.class, -1);           
 		client.registerForEvent(key, false, eventResponseHandler);
+		eventHandlers.put(key, eventResponseHandler);
 	}
 
 	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
@@ -234,7 +238,12 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 	}
 	
 	public void dispose() throws Exception {
-		if (client != null) {
+        for (TaskEventKey key : eventHandlers.keySet()) {
+            client.unregisterForEvent(key);
+        }
+        eventHandlers.clear();
+        
+	    if (client != null) {
 			client.disconnect();
 		}
 	}
