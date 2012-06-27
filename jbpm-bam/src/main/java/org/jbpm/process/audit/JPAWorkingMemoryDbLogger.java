@@ -20,8 +20,11 @@ import java.util.Date;
 import java.util.List;
 
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TransactionRequiredException;
 import javax.transaction.NotSupportedException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
@@ -38,6 +41,7 @@ import org.drools.impl.StatelessKnowledgeSessionImpl;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.KnowledgeRuntime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +52,8 @@ import org.slf4j.LoggerFactory;
 public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
 
     private static Logger logger = LoggerFactory.getLogger(JPAWorkingMemoryDbLogger.class);
+    
+    private static final String[] KNOWN_UT_JNDI_KEYS = new String[] {"UserTransaction", "java:jboss/UserTransaction", System.getProperty("jbpm.ut.jndi.lookup")};
     
     protected Environment env;
 
@@ -170,18 +176,29 @@ public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
     private static UserTransaction joinTransaction(EntityManager em) {
         boolean newTx = false;
         UserTransaction ut = null;
-        try { 
-            ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
-            if( ut.getStatus() == Status.STATUS_NO_TRANSACTION ) { 
-                ut.begin();
-                newTx = true;
-            }
-        } catch(Exception e) { 
-            logger.error("Unable to find or open a transaction: " + e.getMessage());
-            e.printStackTrace();
-        }
+       
+        try {
+        	em.joinTransaction();
         
-        em.joinTransaction(); 
+        } catch (TransactionRequiredException e) {
+			ut = findUserTransaction();
+			try {
+				if( ut != null && ut.getStatus() == Status.STATUS_NO_TRANSACTION ) { 
+	                ut.begin();
+	                newTx = true;
+	                // since new transaction was started em must join it
+	                em.joinTransaction();
+	            } 
+			} catch(Exception ex) {
+				throw new IllegalStateException("Unable to find or open a transaction: " + ex.getMessage(), ex);
+			}
+			
+			if (!newTx) {
+            	// rethrow TransactionRequiredException if UserTransaction was not found or started
+            	throw e;
+            }
+		}
+
        
         if( newTx ) { 
             return ut;
@@ -212,5 +229,27 @@ public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
             e.printStackTrace();
         }
     }
-    
+
+    protected static UserTransaction findUserTransaction() {
+    	InitialContext context = null;
+    	try {
+            context = new InitialContext();
+            return (UserTransaction) context.lookup( "java:comp/UserTransaction" );
+        } catch ( NamingException ex ) {
+        	
+        	for (String utLookup : KNOWN_UT_JNDI_KEYS) {
+        		if (utLookup != null) {
+		        	try {
+		        		UserTransaction ut = (UserTransaction) context.lookup(utLookup);
+		        		return ut;
+					} catch (NamingException e) {
+						logger.debug("User Transaction not found in JNDI under " + utLookup);
+						
+					}
+        		}
+        	}
+        	logger.warn("No user transaction found under known names");
+        	return null;
+        }
+    }
 }
