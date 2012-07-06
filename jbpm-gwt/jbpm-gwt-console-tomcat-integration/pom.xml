@@ -3,7 +3,7 @@
   <parent>
     <artifactId>jbpm-gwt</artifactId>
     <groupId>org.jbpm</groupId>
-    <version>5.2.2.Final</version>
+    <version>5.2.3-SNAPSHOT</version>
   </parent>
   <artifactId>jbpm-gwt-console-tomcat-integration</artifactId>
   <name>jBPM :: Tomcat integration</name>
