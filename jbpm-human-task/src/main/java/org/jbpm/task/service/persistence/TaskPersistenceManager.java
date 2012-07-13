@@ -65,6 +65,8 @@ public class TaskPersistenceManager {
     
     private TaskTransactionManager ttxm;
     private EntityManager em;
+    
+    private boolean sharedEntityManager = false;
 
     public final static String FIRST_RESULT = "firstResult";
     public final static String MAX_RESULTS = "maxResults";
@@ -79,6 +81,16 @@ public class TaskPersistenceManager {
         this.ttxm = ttxm;
     }
 
+    public void setUseSharedEntityManager(boolean sharedEntityManager)
+    {
+    	this.sharedEntityManager = sharedEntityManager;
+    }
+
+    public boolean isSharedEntityManager()
+    {
+    	return sharedEntityManager;
+    }
+    
     //=====
     // dealing with transactions
     //=====
@@ -91,7 +103,10 @@ public class TaskPersistenceManager {
 
     public void endTransaction(boolean txOwner) { 
         try { 
-            ttxm.commit(em, txOwner);
+		if(!sharedEntityManager) {
+                em.flush();
+                ttxm.commit(em, txOwner);
+            }
         } catch(RuntimeException re) { 
             logger.error("Unable to commit, rolling back transaction.", re);
             this.ttxm.rollback(em, txOwner);
@@ -118,21 +133,44 @@ public class TaskPersistenceManager {
             ttxm = null;
             return;
         }
-        
+
+        if(sharedEntityManager) {
+/*
+            try { 
+                em.flush();
+            }
+            catch( Exception e ) { 
+                // Don't worry about it, we're cleaning up.
+                // logger.error("Exception in taskPersistenceManager.endPersistenceContext()", e);
+            }
+		try { 
+                ttxm.dispose(); 
+            }
+            catch( Throwable t ) { 
+                // Don't worry about it, we're cleaning up.
+                //logger.error("Exception in taskPersistenceManager.endPersistenceContext()", t);
+            }
+            this.ttxm = null;
+*/
+            return;
+        }
+
         boolean closeEm = em.isOpen();
         if ( closeEm  ) { 
             try { 
                 ttxm.dispose();
-                em.clear();
+                em.clear(); 
             }
             catch( Throwable t ) { 
-                // Don't worry about it, we're cleaning up. 
+                // Don't worry about it, we're cleaning up.
+            	logger.error("Exception in taskPersistenceManager.endPersistenceContext()", t);
             }
             try { 
                 em.close();
             }
             catch( Exception e ) { 
                 // Don't worry about it, we're cleaning up.
+            	logger.error("Exception in taskPersistenceManager.endPersistenceContext()", e);
             }
         }
         
@@ -184,10 +222,10 @@ public class TaskPersistenceManager {
     }
     
     public Object findEntity(Class<?> entityClass, Object primaryKey) { 
-        return this.em.find(entityClass, primaryKey);
+    	return this.em.find(entityClass, primaryKey);
     }
     
-    public void deleteEntity(Object entity) { 
+    public void deleteEntity(Object entity) {
         em.remove(entity);
     }
     
@@ -215,14 +253,14 @@ public class TaskPersistenceManager {
     }
     
     public boolean groupExists(String groupId) { 
-        if( em.find(Group.class, groupId) == null ) { 
+    	if( em.find(Group.class, groupId) == null ) { 
             return false;
         }
         return true;
     }
     
     public List<TaskSummary> queryTasksWithUserIdAndLanguage(String queryName, String userId, String language) { 
-        HashMap<String, Object> params = new HashMap<String, Object>();
+    	HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
         params.put("language", language);
         
@@ -231,7 +269,7 @@ public class TaskPersistenceManager {
     }
     
     public List<TaskSummary> queryTasksWithUserIdGroupsAndLanguage(String queryName, String userId, List<String> groupIds, String language) { 
-        HashMap<String, Object> params = new HashMap<String, Object>();
+    	HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
         params.put("groupIds", groupIds);
         params.put("language", language);
@@ -251,7 +289,7 @@ public class TaskPersistenceManager {
      * @return
      */
     public Object queryWithParametersInTransaction(String queryName, Map<String, Object> params, boolean singleResult) { 
-        Object result = null;
+    	Object result = null;
         
         boolean txOwner = false;
         boolean operationSuccessful = false;

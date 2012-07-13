@@ -25,6 +25,8 @@ import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.TaskServiceSession;
 
 /**
+ * Add tpm.setUseSharedEntityManager(true);
+ * 
  * THE ONLY ACCEPTED USE OF THIS CLASS IS AS AN INJECTED CLASS.
  *  
  * DO NOT USE THIS CLASS IN ANY OTHER WAY. 
@@ -82,7 +84,9 @@ public class TaskSessionSpringFactoryImpl implements TaskSessionFactory {
             tpm = new TaskPersistenceManager(emf.createEntityManager(), ttxm);
         } else {
             tpm = new TaskPersistenceManager(springEM, ttxm);
-            ttxm.begin(null);
+            tpm.setUseSharedEntityManager(true);
+            //Must comment ou this line setUseJTA(true) does not work with this line
+            //ttxm.begin(null);
         }
         return new TaskServiceSession(taskService, tpm);
     }
@@ -94,6 +98,7 @@ public class TaskSessionSpringFactoryImpl implements TaskSessionFactory {
             tpm = new TaskPersistenceManager(emf.createEntityManager(), ttxm);
         } else {
             tpm = new TaskPersistenceManager(springEM, ttxm);
+            tpm.setUseSharedEntityManager(true);
         }
         return new TasksAdminImpl(tpm);
     }

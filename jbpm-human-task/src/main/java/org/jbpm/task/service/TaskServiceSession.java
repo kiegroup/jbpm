@@ -70,6 +70,8 @@ public class TaskServiceSession {
     }
     
     public void dispose() {
+    	logger.debug("TaskServiceSession.dispose():: ");
+    	
         tpm.dispose();
         if( ruleBases != null ) { 
             ruleBases.clear();
@@ -164,6 +166,8 @@ public class TaskServiceSession {
 
     public void addTask(final Task task, final ContentData contentData)
         throws CannotAddTaskException {
+    	
+    	logger.debug("TaskServiceSession.addTask(task):: ");
         
         doCallbackOperationForPeopleAssignments(task.getPeopleAssignments());
         doCallbackOperationForTaskData(task.getTaskData());
@@ -186,7 +190,7 @@ public class TaskServiceSession {
         
         doOperationInTransaction(new TransactedOperation() {
             public void doOperation() {
-                tpm.saveEntity(task);
+            	tpm.saveEntity(task);
 
                 if (contentData != null) {
                     Content content = new Content(contentData.getContent());
@@ -396,6 +400,9 @@ public class TaskServiceSession {
     public void taskOperation(final Operation operation, final long taskId, final String userId,
                               final String targetEntityId, final ContentData data,
                               List<String> groupIds) throws TaskException {
+    	
+    	logger.debug("TaskServiceSession.taskOperation():: operation:{}, taskId:{}, userId{}",
+    		new Object [] {operation.toString(), new Long(taskId), userId} );
         OrganizationalEntity targetEntity = null;
 
         groupIds = doUserGroupCallbackOperation(userId, groupIds);
@@ -448,6 +455,7 @@ public class TaskServiceSession {
             
             // We may not be the tx owner -- but something has gone wrong.
             // ..which is why we make ourselves owner, and roll the tx back. 
+        	logger.error("TaskServiceSession.taskOperation()", re);
             boolean takeOverTransaction = true;
             tpm.rollBackTransaction(takeOverTransaction);
 
@@ -466,10 +474,12 @@ public class TaskServiceSession {
 	            break;
 	        }
 	        case Complete: {
-	            postTaskCompleteOperation(task);
+	        	logger.debug("TaskServiceSession.postTaskCompleteOperation(task):: " + operation.toString());
+	        	postTaskCompleteOperation(task);
 	            break;
 	        }
 	        case Fail: {
+	        	logger.debug("TaskServiceSession.postTaskFailOperation(task):: " + operation.toString());
 	            postTaskFailOperation(task);
 	            break;
 	        }
@@ -499,6 +509,8 @@ public class TaskServiceSession {
     
     private void postTaskCompleteOperation(final Task task) {
         // trigger event support
+    	logger.debug("TaskServiceSession.postTaskCompleteOperation(task):: ");
+    	
         service.getEventSupport().fireTaskCompleted(task.getId(), task.getTaskData().getActualOwner().getId());
     }
 
@@ -985,7 +997,7 @@ public class TaskServiceSession {
      * @param operation operation to execute
      */
     private void doOperationInTransaction(final TransactedOperation operation) {
-
+    	
         boolean txOwner = false;
         boolean operationSuccessful = false;
         boolean txStarted = false;
@@ -998,6 +1010,9 @@ public class TaskServiceSession {
             
             tpm.endTransaction(txOwner);
         } catch(Exception e) {
+        	
+        	logger.error("taskServiceSession.doOperationInTransaction()", e);
+
             tpm.rollBackTransaction(txOwner);
             
             String message; 
