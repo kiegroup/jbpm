@@ -59,6 +59,9 @@ public class JPAProcessInstanceDbLog {
 
     private static Logger logger = LoggerFactory.getLogger(JPAProcessInstanceDbLog.class);
     
+    /**
+     * This is dangerous
+     */
     private static volatile Environment env;
     private static EntityManagerFactory emf;
     
@@ -214,6 +217,10 @@ public class JPAProcessInstanceDbLog {
      * @throws Exception if something goes wrong. 
      */
     private static UserTransaction joinTransaction(EntityManager em) {
+        Boolean useJTA = (Boolean) env.get("IS_JTA_TRANSACTION");
+        boolean isJTA = true;
+        if (useJTA != null) isJTA = useJTA.booleanValue();
+    	if (!isJTA) return null;
         boolean newTx = false;
         UserTransaction ut = null;
         try { 
@@ -247,7 +254,12 @@ public class JPAProcessInstanceDbLog {
     private static void closeEntityManager(EntityManager em, UserTransaction ut) {
         em.flush(); // This saves any changes made
         em.clear(); // This makes sure that any returned entities are no longer attached to this entity manager/persistence context
-        em.close(); // and this closes the entity manager
+ 
+        Boolean useSharedEntityManager = (Boolean) env.get("IS_SHARED_ENTITY_MANAGER");
+        boolean isSharedEntityManager = false;
+        if (useSharedEntityManager != null) isSharedEntityManager = useSharedEntityManager.booleanValue();
+        if (!isSharedEntityManager) em.close(); // and this closes the entity manager
+        
         try { 
             if( ut != null ) { 
                 // There's a tx running, close it.
@@ -272,6 +284,10 @@ public class JPAProcessInstanceDbLog {
         if (env == null) {
             em = emf.createEntityManager();
         } else {
+        	boolean useSharedEntityManager = (Boolean) env.get("IS_SHARED_ENTITY_MANAGER");
+        	if (useSharedEntityManager) {
+        		return (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
+        	}
             EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
             em = emf.createEntityManager(); 
         }
