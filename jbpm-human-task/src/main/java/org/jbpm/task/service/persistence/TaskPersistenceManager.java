@@ -65,6 +65,8 @@ public class TaskPersistenceManager {
     
     private TaskTransactionManager ttxm;
     private EntityManager em;
+    
+    private boolean sharedEntityManager = false;
 
     public final static String FIRST_RESULT = "firstResult";
     public final static String MAX_RESULTS = "maxResults";
@@ -79,6 +81,16 @@ public class TaskPersistenceManager {
         this.ttxm = ttxm;
     }
 
+    public void setUseSharedEntityManager(boolean sharedEntityManager)
+    {
+    	this.sharedEntityManager = sharedEntityManager;
+    }
+
+    public boolean isSharedEntityManager()
+    {
+    	return sharedEntityManager;
+    }
+    
     //=====
     // dealing with transactions
     //=====
@@ -119,6 +131,18 @@ public class TaskPersistenceManager {
             return;
         }
         
+        if (sharedEntityManager) {
+/*
+        	try {
+        		ttxm.dispose();        		
+        	} catch( Throwable t ) { 
+                // Don't worry about it, we're cleaning up.
+            	logger.error("taskPersistenceManager.endPersistenceContext()::sharedEntityManager", t);
+            }
+        	this.ttxm = null;
+*/
+        	return;
+        }
         boolean closeEm = em.isOpen();
         if ( closeEm  ) { 
             try { 
