@@ -18,7 +18,7 @@ package org.jbpm.task.service.local.sync;
 import org.jbpm.task.service.base.sync.TaskLifeCycleBaseSyncTest;
 import org.jbpm.task.service.local.LocalTaskService;
 
-public class TaskLifeCycleMinaLocalTest extends TaskLifeCycleBaseSyncTest {
+public class TaskLifeCycleLocalTest extends TaskLifeCycleBaseSyncTest {
 
     @Override
     protected void setUp() throws Exception {

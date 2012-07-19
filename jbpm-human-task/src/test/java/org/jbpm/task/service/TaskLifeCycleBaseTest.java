@@ -88,6 +88,8 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
         
         responseHandler = new BlockingTaskOperationResponseHandler();
         client.complete( taskId, users.get( "bobba" ).getId(), null, responseHandler );
+        responseHandler.waitTillDone(1000);
+        Date completedBy = new Date();
         
         taskSummaryResponseHandler = new BlockingTaskSummaryResponseHandler();
         client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", taskSummaryResponseHandler);
@@ -101,11 +103,14 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
         BlockingGetTaskResponseHandler getTaskResponseHandler = new BlockingGetTaskResponseHandler(); 
         client.getTask( taskId, getTaskResponseHandler );
         Task task1 = getTaskResponseHandler.getTask();
-        assertEquals( Status.Completed , task1.getTaskData().getStatus() );         
+        assertEquals( Status.Completed , task1.getTaskData().getStatus() );   
+        Date completedOn = task1.getTaskData().getCompletedOn();
+        assertTrue( "Completed on date was empty!", completedOn != null );
+        assertTrue( "Completed on date is incorrect.", completedBy.after(completedOn) );
     }
   
 	public void testLifeCycleMultipleTasks() throws Exception { 
-	    runTestLifeCycle(client, users, groups);
+	    runTestLifeCycleMultipleTasks(client, users, groups);
 	}
 	
 	public static void runTestLifeCycleMultipleTasks(TaskClient client, Map<String, User> users,Map<String, Group> groups ) { 

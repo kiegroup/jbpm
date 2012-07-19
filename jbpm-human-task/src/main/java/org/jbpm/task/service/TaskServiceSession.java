@@ -491,6 +491,7 @@ public class TaskServiceSession {
     }
 
     private void taskCompleteOperation(final Task task, final ContentData data) {
+        task.getTaskData().setCompletedOn(new Date());
         if (data != null) {
         	setOutput(task.getId(), task.getTaskData().getActualOwner().getId(), data);
         }
