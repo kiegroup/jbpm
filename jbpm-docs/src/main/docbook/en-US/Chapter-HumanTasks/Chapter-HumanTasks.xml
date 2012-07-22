@@ -963,6 +963,7 @@ public interface UserInfo {
       HornetQ
       <itemizedlist>
         <listitem>hornetq.port : port used to bind HornetQ server (default 5446)</listitem>
+        <listitem>hornetq.host : host/ip address used to bind HornetQ server (default localhost)</listitem>
       </itemizedlist>
       JMS
       <itemizedlist>
