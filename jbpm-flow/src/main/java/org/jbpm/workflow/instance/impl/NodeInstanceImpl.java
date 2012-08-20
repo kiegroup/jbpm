@@ -137,7 +137,8 @@ public abstract class NodeInstanceImpl implements
 					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// ignore if some listener does not care about canceled notes
+//					e.printStackTrace();
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
