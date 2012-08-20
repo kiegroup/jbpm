@@ -139,6 +139,10 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     public void cancel() {
+    	if(isCanceled())
+    	{
+    		return;
+    	}
     		isCanceled = true;
         while (!nodeInstances.isEmpty()) {
             NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
