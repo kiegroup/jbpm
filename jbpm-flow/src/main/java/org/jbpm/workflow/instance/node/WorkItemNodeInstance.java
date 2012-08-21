@@ -111,6 +111,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             } catch (WorkItemHandlerNotFoundException wihnfe){
                 getProcessInstance().setState( ProcessInstance.STATE_ABORTED );
                 throw wihnfe;
+            } catch (RuntimeException wihnfe){
+                getProcessInstance().setState( ProcessInstance.STATE_ABORTED );
+                throw wihnfe;
             }
         }
         if (!workItemNode.isWaitForCompletion()) {
