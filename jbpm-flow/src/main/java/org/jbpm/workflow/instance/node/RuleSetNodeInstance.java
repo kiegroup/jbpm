@@ -35,6 +35,7 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
     }
 
     public void internalTrigger(final NodeInstance from, String type) {
+    	super.internalTrigger(from, type);
         if ( !org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals( type ) ) {
             throw new IllegalArgumentException( "A RuleSetNode only accepts default incoming connections!" );
         }
