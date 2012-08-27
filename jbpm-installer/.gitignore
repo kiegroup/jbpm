@@ -16,5 +16,6 @@ runtime/
 workspace/
 repository.xml
 
-# test logs
+# test logs/data
 /derby.log
+data/
