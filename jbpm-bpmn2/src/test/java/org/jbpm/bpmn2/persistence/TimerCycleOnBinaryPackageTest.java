@@ -180,6 +180,98 @@ public class TimerCycleOnBinaryPackageTest {
         ksession.dispose();
         emf.close();
     }
+    
+    @Test
+    public void testStartTimerCycleFromDiscDRL() throws Exception {
+
+        // load up the knowledge base
+        KnowledgeBase kbase = readKnowledgeBaseFromDiscDRL();
+        Environment env = EnvironmentFactory.newEnvironment();
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+        env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
+
+        StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
+
+        new JPAWorkingMemoryDbLogger(ksession);
+        int sessionId = ksession.getId();
+
+        final List<String> list = new ArrayList<String>();
+        ksession.setGlobal("list", list);
+
+        ((StatefulKnowledgeSessionImpl) ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+                .getCommandService().getContext()).getStatefulKnowledgesession()).session.addEventListener(new TriggerRulesEventListener(ksession));
+
+        ksession.fireAllRules();
+
+        Thread.sleep(5000);
+
+        assertEquals(2, list.size());
+        System.out.println("dispose");
+        ksession.dispose();
+
+        ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
+        new JPAWorkingMemoryDbLogger(ksession);
+
+        final List<String> list2 = new ArrayList<String>();
+        ksession.setGlobal("list", list2);
+
+        ((StatefulKnowledgeSessionImpl) ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+                .getCommandService().getContext()).getStatefulKnowledgesession()).session.addEventListener(new TriggerRulesEventListener(ksession));
+
+        ksession.fireAllRules();
+
+        Thread.sleep(5000);
+
+        assertEquals(3, list2.size());
+        ksession.dispose();
+        emf.close();
+    }
+    
+     @Test
+    public void testStartTimerCycleFromClasspathDRL() throws Exception {
+
+        // load up the knowledge base
+        KnowledgeBase kbase = readKnowledgeBaseDRL();
+        Environment env = EnvironmentFactory.newEnvironment();
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+        env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
+
+        StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
+
+        new JPAWorkingMemoryDbLogger(ksession);
+        int sessionId = ksession.getId();
+
+        final List<String> list = new ArrayList<String>();
+        ksession.setGlobal("list", list);
+
+        ((StatefulKnowledgeSessionImpl) ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+                .getCommandService().getContext()).getStatefulKnowledgesession()).session.addEventListener(new TriggerRulesEventListener(ksession));
+
+        ksession.fireAllRules();
+
+        Thread.sleep(5000);
+
+        assertEquals(2, list.size());
+        System.out.println("dispose");
+        ksession.dispose();
+
+        ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
+        new JPAWorkingMemoryDbLogger(ksession);
+
+        final List<String> list2 = new ArrayList<String>();
+        ksession.setGlobal("list", list2);
+
+        ((StatefulKnowledgeSessionImpl) ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+                .getCommandService().getContext()).getStatefulKnowledgesession()).session.addEventListener(new TriggerRulesEventListener(ksession));
+
+        ksession.fireAllRules();
+
+        Thread.sleep(5000);
+
+        assertEquals(3, list2.size());
+        ksession.dispose();
+        emf.close();
+    }
 
     private KnowledgeBase readKnowledgeBaseFromDisc() throws Exception {
 
@@ -204,6 +296,33 @@ public class TimerCycleOnBinaryPackageTest {
 
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-StartTimerCycle.bpmn2"), ResourceType.BPMN2);
+
+        return kbuilder.newKnowledgeBase();
+    }
+    
+    private KnowledgeBase readKnowledgeBaseFromDiscDRL() throws Exception {
+
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newClassPathResource("rules-timer.drl"), ResourceType.DRL);
+        File packageFile = null;
+        // build and store compiled package
+        for (KnowledgePackage pkg : kbuilder.getKnowledgePackages()) {
+            packageFile = new File(System.getProperty("java.io.tmpdir") + File.separator + pkg.getName() + ".pkg");
+            writePackage(pkg, packageFile);
+
+            // store first package only
+            break;
+        }
+        kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newFileResource(packageFile), ResourceType.PKG);
+
+        return kbuilder.newKnowledgeBase();
+    }
+
+    private KnowledgeBase readKnowledgeBaseDRL() throws Exception {
+
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newClassPathResource("rules-timer.drl"), ResourceType.DRL);
 
         return kbuilder.newKnowledgeBase();
     }
