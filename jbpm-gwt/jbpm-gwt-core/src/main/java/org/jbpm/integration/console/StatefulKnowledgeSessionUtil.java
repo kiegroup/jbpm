@@ -30,6 +30,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
@@ -94,21 +96,32 @@ public class StatefulKnowledgeSessionUtil {
     
     private static int ksessionId = 0;
     private static Properties _jbpmConsoleProperties = new Properties();
-    private static KnowledgeAgent kagent;
+    private static KnowledgeAgent kagent = null;
     private static Set<String> knownPackages;
    
     protected StatefulKnowledgeSessionUtil() {
     }
-   
-    @Override
-    protected void finalize() throws Throwable { 
-        dispose();
+
+    public static class StatefulKnowledgeSessionUtilDisposeListener implements ServletContextListener {
+
+        public void contextInitialized(ServletContextEvent servletContextEvent) {
+            // Do nothing
+        }
+
+        public void contextDestroyed(ServletContextEvent servletContextEvent) {
+            dispose();
+        }
     }
     
-    protected void dispose() { 
-       SessionHolder.statefulKnowledgeSession.dispose(); 
-       _jbpmConsoleProperties = null;
-       SessionHolder.statefulKnowledgeSession = null;
+    public static void dispose() {
+        if (kagent != null) {
+            logger.debug("Disposing StatefulKnowledgeSessionUtil");
+            SessionHolder.statefulKnowledgeSession.dispose();
+            _jbpmConsoleProperties = null;
+            SessionHolder.statefulKnowledgeSession = null;
+            kagent.dispose();
+            kagent = null;
+        }
     }
    
     /**
