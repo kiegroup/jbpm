@@ -20,8 +20,6 @@
       <groupId>org.jboss.bpm</groupId>
       <artifactId>gwt-console-server-jbpm</artifactId>
       <type>war</type>
-      <!-- overwrite parent pom version -->
-      <version>${console.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.bpm</groupId>
@@ -30,8 +28,6 @@
     <dependency>
       <groupId>org.jboss.bpm</groupId>
       <artifactId>gwt-console-server-integration</artifactId>
-      <!-- overwrite parent pom version -->
-      <version>${console.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
@@ -61,11 +57,6 @@
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
-    <dependency>
-        <groupId>net.sf.trove4j</groupId>
-        <artifactId>trove4j</artifactId>
-    </dependency>
-    
 
     <!-- provided (by container at runtime) -->
     <dependency>
