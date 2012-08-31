@@ -13,8 +13,6 @@
   <fileSets>
     <fileSet>
         <excludes>
-            <!-- exclude>WEB-INF/persistence.xml</exclude> -->
-            <exclude>WEB-INF/jboss-web.xml</exclude>
             <exclude>src/</exclude>
             <exclude>.*</exclude>
             <exclude>.settings/</exclude>
@@ -42,6 +40,7 @@
       <unpack>true</unpack>
       <unpackOptions>
         <excludes>
+          <exclude>WEB-INF/classes/META-INF/persistence.xml</exclude>
           <exclude>WEB-INF/lib/netty-*.jar</exclude>
           
           <!-- hibernate 3 transitive deps -->
