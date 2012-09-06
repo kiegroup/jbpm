@@ -27,12 +27,19 @@ import java.util.Properties;
 
 import javax.activation.DataHandler;
 
+import org.drools.impl.EnvironmentFactory;
+import org.drools.marshalling.ObjectMarshallingStrategy;
+import org.drools.runtime.Environment;
+import org.drools.runtime.EnvironmentName;
 import org.jboss.bpm.console.server.plugin.FormAuthorityRef;
 import org.jbpm.integration.console.TaskClientFactory;
 import org.jbpm.task.Content;
 import org.jbpm.task.I18NText;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
+import org.jbpm.task.utils.ContentMarshallerContext;
+import org.jbpm.task.utils.ContentMarshallerHelper;
+import org.jbpm.task.utils.MarshalledContentWrapper;
 
 /**
  * @author Kris Verlaenen
@@ -104,7 +111,15 @@ public class TaskFormDispatcher extends AbstractFormDispatcher {
             Map<?, ?> map = (Map) input;
             for (Map.Entry<?, ?> entry: map.entrySet()) {
                 if (entry.getKey() instanceof String) {
-                    renderContext.put((String) entry.getKey(), entry.getValue());
+                    MarshalledContentWrapper val = (MarshalledContentWrapper)entry.getValue();
+                    
+                    Environment env = EnvironmentFactory.newEnvironment();
+                    ContentMarshallerContext cmc = new ContentMarshallerContext();
+                    ObjectMarshallingStrategy[] strats = (ObjectMarshallingStrategy[])env.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);
+                    cmc.addStrategy(strats[0]);
+                    Object o = ContentMarshallerHelper.unmarshall("org.drools.marshalling.impl.SerializablePlaceholderResolverStrategy", val.getContent(), cmc, env);
+                    
+                    renderContext.put((String) entry.getKey(), o);
                 }
             }
         }
