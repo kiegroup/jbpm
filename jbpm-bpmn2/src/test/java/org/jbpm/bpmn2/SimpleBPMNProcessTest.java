@@ -1827,7 +1827,24 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
         ksession.abortProcessInstance(processInstance.getId());
         assertProcessInstanceAborted(processInstance.getId(), ksession);
     }
-
+    
+    public void testUserTaskWithBooleanOutput() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-UserTaskWithBooleanOutput.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("com.sample.boolean");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        assertEquals("john", workItem.getParameter("ActorId"));
+        HashMap<String, Object> output = new HashMap<String, Object>();
+        output.put("isCheckedCheckbox", "true");
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), output);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+    }
 
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory
