@@ -16,7 +16,7 @@
 /lib-jdbc/
 
 # modules present in master but not here
-/jbpm-human-task-core-cdi
+/jbpm-human-task-services
 /jbpm-human-task-core
 /jbpm-human-task-hornetq
 /jbpm-human-task-jms

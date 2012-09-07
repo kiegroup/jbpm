@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -32,31 +31,83 @@
       <artifactId>slf4j-log4j12</artifactId>
     </dependency>
     <dependency>
-    	<groupId>com.h2database</groupId>
-    	<artifactId>h2</artifactId>
-    	<scope>test</scope>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.hornetq</groupId>
-    	<artifactId>hornetq-core</artifactId>
+      <groupId>org.hornetq</groupId>
+      <artifactId>hornetq-core</artifactId>
     </dependency>
     <dependency>
-    	<groupId>org.jboss.netty</groupId>
-    	<artifactId>netty</artifactId>
-	<version>3.2.0.Final</version>
-    	<scope>provided</scope>
+      <groupId>org.jboss.netty</groupId>
+      <artifactId>netty</artifactId>
+      <version>3.2.0.Final</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Test -->
     <dependency>
-    	<groupId>org.hibernate</groupId>
-    	<artifactId>hibernate-core</artifactId>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.hibernate</groupId>
-    	<artifactId>hibernate-entitymanager</artifactId>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <!--  It's necessary to build the EE6 war here instead of in jbpm-distribution 
+          because of problems caused by signing the wars -->
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.6</version>
+        <executions>
+          <execution>
+            <id>unpack-war</id>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <unzip
+                  src="${project.build.directory}/${project.artifactId}-${project.version}.war"
+                  dest="${project.build.directory}/upacked-war" />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>ee6</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/human-task-war-ee6.xml</descriptor>
+              </descriptors>
+              <archive>
+                <manifestEntries>
+                  <Dependencies>org.jboss.netty</Dependencies>
+                </manifestEntries>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
