@@ -2,36 +2,33 @@ Manifest-Version: 1.0
 Export-Package: org.jbpm.compiler.xml;uses:="org.jbpm.compiler.xml.pro
  cesses,javax.xml.parsers,org.xml.sax";version="5.2.0.SNAPSHOT",org.jb
  pm.process.workitem;uses:="org.mvel2";version="5.2.0.SNAPSHOT",org.jb
- pm.process.builder.dialect.xpath;uses:="org.mvel2,org.jbpm.process.bu
- ilder,org.jbpm.process.builder.dialect";version="5.2.0.SNAPSHOT",org.
- jbpm.process.builder.dialect.java;uses:="org.mvel2.templates,org.mvel
- 2.integration,org.mvel2.integration.impl,org.jbpm.process.builder,org
- .jbpm.process.builder.dialect,org.mvel2";version="5.2.0.SNAPSHOT",org
- .jbpm.compiler.xml.processes;uses:="org.w3c.dom,org.xml.sax,org.jbpm.
- compiler.xml,javax.xml.transform,javax.xml.transform.stream";version=
- "5.2.0.SNAPSHOT",org.jbpm.process.builder;uses:="org.jbpm.process.bui
- lder.dialect,org.jbpm.compiler";version="5.2.0.SNAPSHOT",org.jbpm.com
- piler;uses:="org.jbpm.compiler.xml.processes,org.jbpm.compiler.xml,ja
- vax.xml.parsers,org.jbpm.process.builder.dialect,org.jbpm.process.bui
- lder";version="5.2.0.SNAPSHOT",org.jbpm.process.builder.dialect;uses:
- ="org.jbpm.process.builder,org.jbpm.process.builder.dialect.java,org.
- jbpm.process.builder.dialect.mvel";version="5.2.0.SNAPSHOT",org.jbpm.
- process.builder.dialect.mvel;uses:="org.mvel2,org.jbpm.process.builde
- r,org.jbpm.process.builder.dialect";version="5.2.0.SNAPSHOT",org.jbpm
- .osgi.flow.compiler;uses:="org.jbpm.process.builder,org.osgi.framewor
- k";version="5.2.0.SNAPSHOT"
+ pm.process.builder.dialect.java;uses:="org.mvel2.templates,org.mvel2.
+ integration,org.mvel2.integration.impl,org.jbpm.process.builder,org.j
+ bpm.process.builder.dialect,org.mvel2";version="5.2.0.SNAPSHOT",org.j
+ bpm.compiler.xml.processes;uses:="org.w3c.dom,org.xml.sax,org.jbpm.co
+ mpiler.xml,javax.xml.transform,javax.xml.transform.stream";version="5
+ .2.0.SNAPSHOT",org.jbpm.process.builder;uses:="org.jbpm.process.build
+ er.dialect,org.jbpm.compiler";version="5.2.0.SNAPSHOT",org.jbpm.compi
+ ler;uses:="org.jbpm.compiler.xml.processes,org.jbpm.compiler.xml,java
+ x.xml.parsers,org.jbpm.process.builder.dialect,org.jbpm.process.build
+ er";version="5.2.0.SNAPSHOT",org.jbpm.process.builder.dialect;uses:="
+ org.jbpm.process.builder,org.jbpm.process.builder.dialect.java,org.jb
+ pm.process.builder.dialect.mvel";version="5.2.0.SNAPSHOT",org.jbpm.pr
+ ocess.builder.dialect.mvel;uses:="org.mvel2,org.jbpm.process.builder,
+ org.jbpm.process.builder.dialect";version="5.2.0.SNAPSHOT",org.jbpm.o
+ sgi.flow.compiler;uses:="org.osgi.framework";version="5.2.0.SNAPSHOT"
 Tool: Bnd-0.0.357
 Bundle-Name: jBPM :: Flow Builder
-Created-By: 1.6.0_20 (Apple Inc.)
+Created-By: 1.6.0_26 (Apple Inc.)
 Require-Bundle: org.jbpm.flow.core;bundle-version="5.2.0.SNAPSHOT", or
- g.drools.compiler;bundle-version="5.3.0.SNAPSHOT"
-Bundle-Vendor: JBoss Inc.
+ g.drools.compiler;bundle-version="5.3.0.CR1"
+Bundle-Vendor: JBoss by Red Hat
 DynamicImport-Package: *
 Bundle-Version: 5.2.0.SNAPSHOT
-Bnd-LastModified: 1305719957226
+Bnd-LastModified: 1338133790271
 Bundle-Activator: org.jbpm.osgi.flow.compiler.Activator
 Bundle-ManifestVersion: 2
-Bundle-Description: jBPM: a Business Process Management (BPM) Suite
+Bundle-Description: jBPM Flow Builder
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
 Import-Package: javax.xml.parsers,javax.xml.transform,javax.xml.transf
  orm.stream,org.mvel2;version="2.1",org.mvel2.integration;version="2.1
