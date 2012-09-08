@@ -10,16 +10,16 @@ Export-Package: org.jbpm.persistence.processinstance;uses:="org.drools
  s.persistence.map,org.drools.persistence";version="5.2.0.SNAPSHOT"
 Tool: Bnd-0.0.357
 Bundle-Name: jBPM :: JPA Persistence
-Created-By: 1.6.0_26 (Apple Inc.)
-Require-Bundle: org.drools.core;bundle-version="5.3.0.CR1",org.drools.
- compiler;bundle-version="5.3.0.CR1"
-Bundle-Vendor: JBoss by Red Hat
+Created-By: 1.6.0_20 (Apple Inc.)
+Require-Bundle: org.drools.core;bundle-version="5.3.0.SNAPSHOT",org.dr
+ ools.compiler;bundle-version="5.3.0.SNAPSHOT"
+Bundle-Vendor: JBoss Inc.
 DynamicImport-Package: *
 Bundle-Version: 5.2.0.SNAPSHOT
-Bnd-LastModified: 1338134442765
+Bnd-LastModified: 1305719959043
 Bundle-ManifestVersion: 2
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
-Bundle-Description: jBPM JPA Persistence
+Bundle-Description: jBPM: a Business Process Management (BPM) Suite
 Import-Package: javax.persistence,org.drools;version="5.3",org.drools.
  common;version="5.3",org.drools.definition.process;version="5.3",org.
  drools.impl;version="5.3",org.drools.marshalling.impl;version="5.3",o

@@ -297,8 +297,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         if ( workItemId == workItem.getId()
                 || ( workItemId == -1 && getWorkItem().getId() == workItem.getId()) ) {
             removeEventListeners();
-//            triggerCompleted(workItem);
-            getProcessInstance().setState( ProcessInstance.STATE_ABORTED );
+            triggerCompleted(workItem);
         }
     }
 
