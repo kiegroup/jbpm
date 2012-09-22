@@ -41,8 +41,6 @@ public class TaskServiceCommentsAndAttachmentsMinaTest extends TaskServiceCommen
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		client.disconnect();
-		server.stop();
 	}
 
 }

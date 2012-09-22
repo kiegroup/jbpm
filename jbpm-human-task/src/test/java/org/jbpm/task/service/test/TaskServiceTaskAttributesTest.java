@@ -18,10 +18,4 @@ public class TaskServiceTaskAttributesTest extends TaskServiceTaskAttributesBase
         client.connect();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		client.disconnect();
-		server.stop();
-	}
-
 }

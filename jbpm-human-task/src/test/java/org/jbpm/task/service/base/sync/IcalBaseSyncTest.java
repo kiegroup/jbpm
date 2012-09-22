@@ -34,6 +34,7 @@ import org.jbpm.task.MockUserInfo;
 import org.jbpm.task.Task;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.service.TaskServer;
+import org.junit.AfterClass;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
@@ -45,6 +46,11 @@ public abstract class IcalBaseSyncTest extends BaseTest {
 	private String emailHost;
 	private String emailPort;    
 
+    protected void tearDown() throws Exception {
+        getWiser().stop();
+        super.tearDown();
+    }
+    
 	public void testSendWithStartandEndDeadline() throws Exception {
         Map<String, Object> vars = fillVariables();
 

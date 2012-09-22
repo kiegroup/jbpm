@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package org.jbpm.task.service.test;
+package org.jbpm.task.service.test.sync;
 
 import static org.jbpm.task.service.test.impl.TestServerUtil.*;
 
+import org.drools.SystemEventListenerFactory;
+import org.jbpm.task.service.AsyncTaskServiceWrapper;
 import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServiceEscalationBaseUserGroupCallbackTest;
+import org.jbpm.task.service.base.sync.TaskServiceBaseSyncTest;
+import org.jbpm.task.service.mina.MinaTaskClientConnector;
+import org.jbpm.task.service.mina.MinaTaskClientHandler;
+import org.jbpm.task.service.mina.MinaTaskServer;
 import org.jbpm.task.service.test.impl.TestTaskServer;
 
-public class TaskServiceEscalationUserGroupCallbackTest extends TaskServiceEscalationBaseUserGroupCallbackTest {
+public class TaskServiceSyncTest extends TaskServiceBaseSyncTest {
 
     @Override
     protected void setUp() throws Exception {
@@ -30,7 +35,8 @@ public class TaskServiceEscalationUserGroupCallbackTest extends TaskServiceEscal
         
         server = startServer(taskService);
 
-        client = new TaskClient(createTestTaskClientConnector("client 1", (TestTaskServer) server));
+        TaskClient taskClient = new TaskClient(createTestTaskClientConnector("client 1", (TestTaskServer) server));
+        client = new AsyncTaskServiceWrapper(taskClient);
         client.connect();
     }
 

@@ -35,6 +35,12 @@ public abstract class TaskServiceBaseSyncTest extends BaseTest {
     protected TaskServer server;
     protected TaskService client;
 
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+    
     @SuppressWarnings("unchecked")
     public void testTasksOwnedQueryWithI18N() throws Exception {
         Map<String, Object> vars = new HashMap();

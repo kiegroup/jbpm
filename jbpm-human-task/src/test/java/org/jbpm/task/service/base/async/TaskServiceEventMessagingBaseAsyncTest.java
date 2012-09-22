@@ -39,6 +39,13 @@ public abstract class TaskServiceEventMessagingBaseAsyncTest extends BaseTest {
 	protected TaskServer server;
     protected AsyncTaskService client;
 
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }    
+    
     public void testClaimEvent() throws Exception {      
         Map<String, Object> vars = fillVariables();
 

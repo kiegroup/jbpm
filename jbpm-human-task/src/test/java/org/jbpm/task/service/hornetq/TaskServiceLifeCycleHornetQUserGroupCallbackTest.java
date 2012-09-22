@@ -36,10 +36,4 @@ public class TaskServiceLifeCycleHornetQUserGroupCallbackTest extends TaskServic
                                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 5446);
     }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.disconnect();
-        server.stop();
-    }
 }

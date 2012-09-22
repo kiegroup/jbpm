@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package org.jbpm.task.service.test;
+package org.jbpm.task.service.test.sync;
 
 import static org.jbpm.task.service.test.impl.TestServerUtil.*;
 
-import org.jbpm.task.service.TaskClient;
-import org.jbpm.task.service.TaskServiceEscalationBaseUserGroupCallbackTest;
+import java.util.Properties;
+
+import javax.naming.Context;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.drools.SystemEventListenerFactory;
+import org.easymock.EasyMock;
+import org.jbpm.task.MockUserInfo;
+import org.jbpm.task.service.*;
 import org.jbpm.task.service.test.impl.TestTaskServer;
 
-public class TaskServiceEscalationUserGroupCallbackTest extends TaskServiceEscalationBaseUserGroupCallbackTest {
-
+public class TaskServiceEventMessagingUserGroupCallbackTest extends TaskServiceEventMessagingBaseUserGroupCallbackTest {
+    
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -32,6 +39,14 @@ public class TaskServiceEscalationUserGroupCallbackTest extends TaskServiceEscal
 
         client = new TaskClient(createTestTaskClientConnector("client 1", (TestTaskServer) server));
         client.connect();
-    }
+        
+        MockUserInfo userInfo = new MockUserInfo();
+        userInfo.getEmails().put(users.get("tony"), "tony@domain.com");
+        userInfo.getEmails().put(users.get("steve"), "steve@domain.com");
 
+        userInfo.getLanguages().put(users.get("tony"), "en-UK");
+        userInfo.getLanguages().put(users.get("steve"), "en-UK");
+        taskService.setUserinfo(userInfo);
+    }
+    
 }

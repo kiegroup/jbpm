@@ -41,8 +41,9 @@ public abstract class TaskServiceTaskAttributesBaseTest extends BaseTest {
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
         client.disconnect();
+        server.stop();
+        super.tearDown();
     }
 
 	public void testAddRemoveOutput() {

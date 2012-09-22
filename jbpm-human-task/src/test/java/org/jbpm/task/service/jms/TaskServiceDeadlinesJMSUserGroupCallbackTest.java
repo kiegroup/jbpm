@@ -82,11 +82,4 @@ public class TaskServiceDeadlinesJMSUserGroupCallbackTest extends TaskServiceDea
         getWiser().start();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.disconnect();
-        server.stop();
-        getWiser().stop();
-    }
-
 }

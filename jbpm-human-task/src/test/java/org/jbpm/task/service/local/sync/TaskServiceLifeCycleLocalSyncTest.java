@@ -21,16 +21,10 @@ import org.jbpm.task.service.local.LocalTaskService;
 
 public class TaskServiceLifeCycleLocalSyncTest extends TaskServiceLifeCycleBaseSyncTest {
 
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         client = new LocalTaskService(taskService);
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        
-    }
-    
 }

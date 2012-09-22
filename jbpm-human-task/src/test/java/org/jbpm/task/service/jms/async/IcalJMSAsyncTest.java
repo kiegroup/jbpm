@@ -93,10 +93,10 @@ public class IcalJMSAsyncTest extends IcalBaseAsyncTest {
 
 	@AfterClass
 	protected void tearDown() throws Exception {
-		super.tearDown();
 		client.disconnect();
 		server.stop();
 		broker.stop();
 		getWiser().stop();
+		super.tearDown();
 	}
 }

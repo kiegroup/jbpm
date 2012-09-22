@@ -32,6 +32,13 @@ public abstract class TaskServiceTaskAttributesBaseUserGroupCallbackTest extends
     protected TaskServer server;
     protected TaskClient client;
 
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+    
 	public void testAddRemoveOutput() {
         Map<String, Object> vars = fillVariables();        
         

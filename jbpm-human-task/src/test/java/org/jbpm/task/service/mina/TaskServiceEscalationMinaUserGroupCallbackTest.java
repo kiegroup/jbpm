@@ -39,10 +39,4 @@ public class TaskServiceEscalationMinaUserGroupCallbackTest extends TaskServiceE
         client.connect("127.0.0.1", 9123);
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.disconnect();
-        server.stop();
-    }
-
 }

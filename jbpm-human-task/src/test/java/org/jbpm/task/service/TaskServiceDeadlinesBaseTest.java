@@ -54,6 +54,14 @@ public abstract class TaskServiceDeadlinesBaseTest extends BaseTest {
     private static String emailAddressTony = "tony@domain.com"; 
     private static String emailAddressDarth = "darth@domain.com"; 
     
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        getWiser().stop();
+        super.tearDown();
+    }
+    
     public void testDelayedEmailNotificationOnDeadline() throws Exception {
         Map<String, Object> vars = fillVariables();
         

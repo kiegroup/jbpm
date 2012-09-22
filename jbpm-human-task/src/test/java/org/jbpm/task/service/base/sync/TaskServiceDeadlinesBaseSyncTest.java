@@ -51,6 +51,19 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
     private Properties conf;
     private Wiser wiser;
 
+    protected void tearDown() throws Exception {
+        if( client != null ) { 
+            client.disconnect();
+        }
+        if( server != null ) { 
+            server.stop();
+        }
+        if( wiser != null ) { 
+            wiser.stop();
+        }
+        super.tearDown();
+    }
+
     public void testDelayedEmailNotificationOnDeadline() throws Exception {
         Map<String, Object> vars = fillVariables();
 
@@ -442,13 +455,6 @@ public abstract class TaskServiceDeadlinesBaseSyncTest extends BaseTest {
         assertTrue(ids.contains(users.get("jabba").getId()));
     }
 
-//	public void setClient(TaskClient client) {
-//		this.client = client;
-//	}
-//
-//	public TaskClient getClient() {
-//		return client;
-//	}
     public void setConf(Properties conf) {
         this.conf = conf;
     }

@@ -34,10 +34,4 @@ public class TaskLifeCycleTest extends TaskLifeCycleBaseTest {
         client.connect();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		client.disconnect();
-		server.stop();
-	}    
-
 }

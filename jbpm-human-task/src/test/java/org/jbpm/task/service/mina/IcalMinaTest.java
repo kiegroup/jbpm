@@ -52,11 +52,12 @@ public class IcalMinaTest extends IcalBaseTest {
 		getWiser().start();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		client.disconnect();
-		server.stop();
-		getWiser().stop();
-	}
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        getWiser().stop();
+        super.tearDown();
+    }
 
 }

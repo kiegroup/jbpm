@@ -28,9 +28,7 @@ import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.AsyncTaskService;
 import org.jbpm.task.BaseTest;
 import org.jbpm.task.Task;
-import org.jbpm.task.service.MockEscalatedDeadlineHandler;
-import org.jbpm.task.service.TaskServer;
-import org.jbpm.task.service.TaskService;
+import org.jbpm.task.service.*;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 
 public abstract class TaskServiceEscalationBaseAsyncTest extends BaseTest {
@@ -41,6 +39,12 @@ public abstract class TaskServiceEscalationBaseAsyncTest extends BaseTest {
     public void testDummy() {
         assertTrue( true );
     }
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
     
     public void testUnescalatedDeadlines() throws Exception {
         Map<String, Object> vars = fillVariables();
@@ -49,7 +53,7 @@ public abstract class TaskServiceEscalationBaseAsyncTest extends BaseTest {
         taskService.setEscalatedDeadlineHandler( handler );  
         
         //Reader reader;
-        Reader reader = new InputStreamReader( getClass().getResourceAsStream( "../../../QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.UnescalatedDeadlines ) );
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();
@@ -67,7 +71,7 @@ public abstract class TaskServiceEscalationBaseAsyncTest extends BaseTest {
         Map<String, Object> vars = fillVariables();
 
         //Reader reader;
-        Reader reader = new InputStreamReader( getClass().getResourceAsStream( "../../../QueryData_UnescalatedDeadlines.mvel" ) );
+        Reader reader = new InputStreamReader( getClass().getResourceAsStream( MvelFilePath.UnescalatedDeadlines ) );
         List<Task> tasks = (List<Task>) eval( reader,
                                               vars );
         long now = ((Date)vars.get( "now" )).getTime();

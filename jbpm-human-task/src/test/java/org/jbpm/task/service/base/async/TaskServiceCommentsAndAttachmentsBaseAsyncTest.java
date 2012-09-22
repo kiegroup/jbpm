@@ -49,9 +49,11 @@ public abstract class TaskServiceCommentsAndAttachmentsBaseAsyncTest extends Bas
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
         client.disconnect();
+        server.stop();
+        super.tearDown();
     }
+
 
     public void testAddRemoveComment() {
         Map<String, Object> vars = fillVariables();

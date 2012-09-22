@@ -36,16 +36,6 @@ public class TaskServiceCommentsAndAttachmentsMinaAsyncTest extends TaskServiceC
 
         	Thread.sleep( 50 );
         }
-
-		client = new TaskClient(new MinaTaskClientConnector("client 1",
-								new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-		client.connect("127.0.0.1", 9123);
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		client.disconnect();
-		server.stop();
 	}
 
 }

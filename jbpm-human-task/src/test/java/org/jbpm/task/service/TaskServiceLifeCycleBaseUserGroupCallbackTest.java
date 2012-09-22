@@ -40,6 +40,12 @@ public abstract class TaskServiceLifeCycleBaseUserGroupCallbackTest extends Base
     protected TaskServer server;
     protected TaskClient client;
 
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+    
     public void testNewTaskWithNoPotentialOwners() {
         Map <String, Object> vars = fillVariables();
         

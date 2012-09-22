@@ -50,10 +50,10 @@ public class IcalTest extends IcalBaseTest {
 
     @AfterClass
     protected void tearDown() throws Exception {
-        super.tearDown();
         client.disconnect();
         server.stop();
         getWiser().stop();
+        super.tearDown();
     }
 
 }

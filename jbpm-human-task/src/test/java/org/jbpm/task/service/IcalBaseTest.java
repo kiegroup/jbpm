@@ -44,7 +44,7 @@ public abstract class IcalBaseTest extends BaseTest {
 	private Wiser wiser;
 	private String emailHost;
 	private String emailPort;    
-
+    
 	public void testSendWithStartandEndDeadline() throws Exception {
         Map<String, Object> vars = fillVariables();
 

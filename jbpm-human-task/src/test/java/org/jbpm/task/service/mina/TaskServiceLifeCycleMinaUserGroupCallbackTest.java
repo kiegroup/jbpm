@@ -20,7 +20,7 @@ import org.drools.SystemEventListenerFactory;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskServiceLifeCycleBaseUserGroupCallbackTest;
 
-public class TaskLifeCycleMinaUserGroupCallbackTest extends TaskServiceLifeCycleBaseUserGroupCallbackTest {
+public class TaskServiceLifeCycleMinaUserGroupCallbackTest extends TaskServiceLifeCycleBaseUserGroupCallbackTest {
 
     @Override
     protected void setUp() throws Exception {
@@ -37,11 +37,5 @@ public class TaskLifeCycleMinaUserGroupCallbackTest extends TaskServiceLifeCycle
                 new MinaTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         client.connect("127.0.0.1", 9123);
     }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.disconnect();
-        server.stop();
-    }    
 
 }

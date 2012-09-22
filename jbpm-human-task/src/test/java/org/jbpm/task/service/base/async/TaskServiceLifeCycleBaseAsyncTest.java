@@ -21,18 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.task.AccessType;
-import org.jbpm.task.AsyncTaskService;
-import org.jbpm.task.BaseTest;
-import org.jbpm.task.Content;
-import org.jbpm.task.OrganizationalEntity;
-import org.jbpm.task.Status;
-import org.jbpm.task.Task;
+import org.jbpm.task.*;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.FaultData;
-import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.TaskServer;
+import org.jbpm.task.service.*;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
@@ -45,6 +36,12 @@ public abstract class TaskServiceLifeCycleBaseAsyncTest extends BaseTest {
 
     protected TaskServer server;
     protected AsyncTaskService client;
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
 
     public void testNewTaskWithNoPotentialOwners() {
         Map<String, Object> vars = fillVariables();
@@ -1841,7 +1838,11 @@ public abstract class TaskServiceLifeCycleBaseAsyncTest extends BaseTest {
     
      
     public void testClaimConflictAndRetry() {
-        Map <String, Object> vars = fillVariables();
+        runTestClaimConflictAndRetry(client, users, groups);
+    }
+    
+    public static void runTestClaimConflictAndRetry(AsyncTaskService client, Map<String, User> users, Map<String, Group> groups) {
+        Map <String, Object> vars = fillVariables(users, groups);
         
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['salaboy'], users['bobba']], businessAdministrators = [ users['admin']] }),";                        
@@ -1860,6 +1861,7 @@ public abstract class TaskServiceLifeCycleBaseAsyncTest extends BaseTest {
         List<TaskSummary> salaboyTasks = responseHandler.getResults();
 
         // We know that there is just one task available so we get the first one
+        assertTrue("Couldn't find any tasks for salaboy!", salaboyTasks.size() > 0);
         Long salaboyTaskId = salaboyTasks.get(0).getId();
 
         // In order to check the task status we need to get the real task
@@ -1896,29 +1898,15 @@ public abstract class TaskServiceLifeCycleBaseAsyncTest extends BaseTest {
             // The Task is gone.. salaboy needs to retry
             assertNotNull(ex);
         }
-        
-        
-        
-        
-
-
-
     }
 
     
     public void testClaimNextAvailable() {
-
-
-        
-       
-
         Map <String, Object> vars = fillVariables();
         // Create a local instance of the TaskService
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { skipable = false} ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [users['salaboy'], users['bobba']], businessAdministrators = [ users['admin']] }),";                        
         str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
-
-        
 
         // Deploy the Task Definition to the Task Component
         BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
@@ -1935,11 +1923,6 @@ public abstract class TaskServiceLifeCycleBaseAsyncTest extends BaseTest {
         client.getTasksAssignedAsPotentialOwnerByStatus(users.get( "salaboy" ).getId(),status,  "en-UK", responseHandler);
         List<TaskSummary> salaboyTasks = responseHandler.getResults();
         assertEquals(0, salaboyTasks.size());
-        
-        
-
-
-
     } 
     
 }

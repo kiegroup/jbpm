@@ -69,10 +69,4 @@ public class TaskServiceJMSUserGroupCallbackTest extends TaskServiceBaseUserGrou
         client.connect();
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.disconnect();
-        server.stop();
-    }
-
 }

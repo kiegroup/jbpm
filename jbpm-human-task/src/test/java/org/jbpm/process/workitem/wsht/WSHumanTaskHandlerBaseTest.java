@@ -34,9 +34,7 @@ import org.jbpm.task.Status;
 import org.jbpm.task.Task;
 import org.jbpm.task.TestStatefulKnowledgeSession;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.ContentData;
-import org.jbpm.task.service.PermissionDeniedException;
-import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.*;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
@@ -49,6 +47,7 @@ public abstract class WSHumanTaskHandlerBaseTest extends BaseTest {
 	private static final int MANAGER_ABORT_WAIT_TIME = DEFAULT_WAIT_TIME;
 
 	private TaskClient client;
+	protected TaskServer server;
 	private WorkItemHandler handler;
 
 	public void setClient(TaskClient client) {
@@ -59,6 +58,10 @@ public abstract class WSHumanTaskHandlerBaseTest extends BaseTest {
 		return client;
 	}
 
+	protected void tearDown() throws Exception {
+	    super.tearDown();
+	}
+	   
 	public void testTask() throws Exception {
 		TestWorkItemManager manager = new TestWorkItemManager();
         WorkItemImpl workItem = new WorkItemImpl();

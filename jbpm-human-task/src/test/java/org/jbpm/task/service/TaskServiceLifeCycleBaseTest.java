@@ -47,6 +47,12 @@ public abstract class TaskServiceLifeCycleBaseTest extends BaseTest {
         runTestNewTaskWithNoPotentialOwners(client, users, groups);
     }
     
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+    
     public static void runTestNewTaskWithNoPotentialOwners(TaskClient client, Map<String, User> users, Map<String, Group> groups) { 
         Map<String, Object> vars = fillVariables(users, groups);
         

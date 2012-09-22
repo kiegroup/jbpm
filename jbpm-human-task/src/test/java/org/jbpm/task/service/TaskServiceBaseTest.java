@@ -40,6 +40,12 @@ public abstract class TaskServiceBaseTest extends BaseTest {
 	protected TaskServer server;
     protected TaskClient client;
 
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+    
     public void testTasksOwnedQueryWithI18N() throws Exception {
         runTestTasksOwnedQueryWithI18N(client, users, groups);
     }
@@ -146,16 +152,13 @@ public abstract class TaskServiceBaseTest extends BaseTest {
         Map<String, Object>  vars = fillVariables(users, groups);
         
         BlockingAllOpenTasksForUseResponseHandler getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(),
-                              "en-UK",
-                              getTasksHandler );
+        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", getTasksHandler );
         List<TaskSummary> actual = getTasksHandler.getResults();
         int originalSize = actual.size();
         
         //Reader reader;
         Reader reader = new InputStreamReader( TaskServiceBaseTest.class.getResourceAsStream(MvelFilePath.TasksPotentialOwner) );
-        List<Task> tasks = (List<Task>) eval( reader,
-                                              vars );
+        List<Task> tasks = (List<Task>) eval( reader, vars );
         for ( Task task : tasks ) {
             BlockingAddTaskResponseHandler addTaskHandler = new BlockingAddTaskResponseHandler();
             client.addTask( task, null, addTaskHandler );
@@ -163,12 +166,9 @@ public abstract class TaskServiceBaseTest extends BaseTest {
 
         // Test UK I18N  
         getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(),
-                              "en-UK",
-                              getTasksHandler );
+        client.getTasksAssignedAsPotentialOwner(users.get( "bobba" ).getId(), "en-UK", getTasksHandler );
         actual = getTasksHandler.getResults();
-        assertEquals( originalSize + 2,
-                      actual.size() );
+        assertEquals( originalSize + 2, actual.size() );
     }
 
     public void testPeopleAssignmentQueries() {
@@ -204,45 +204,30 @@ public abstract class TaskServiceBaseTest extends BaseTest {
         }
 
         reader = new InputStreamReader( TaskServiceBaseTest.class.getResourceAsStream( MvelFilePath.PeopleAssignmentQuerries ) );
-        Map<String, List<TaskSummary>> expected = (Map<String, List<TaskSummary>>) eval( reader,
-                                                                                         vars );
+        Map<String, List<TaskSummary>> expected = (Map<String, List<TaskSummary>>) eval( reader, vars );
 
         getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsTaskInitiator( users.get( "darth" ).getId(),
-                                                "en-UK",
-                                                getTasksHandler );
+        client.getTasksAssignedAsTaskInitiator( users.get( "darth" ).getId(), "en-UK", getTasksHandler );
         List<TaskSummary> actual = getTasksHandler.getResults();
-        assertEquals( darthSize + 1,
-                      actual.size() );
-        assertTrue( CollectionUtils.equals( expected.get( "darth" ),
-                                            actual.subList(0, 1) ) );
+        assertEquals( darthSize + 1, actual.size() );
+        assertTrue( CollectionUtils.equals( expected.get( "darth" ), actual.subList(0, 1) ) );
 
         getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsBusinessAdministrator( users.get( "steve" ).getId(),
-                                                        "en-UK",
-                                                        getTasksHandler );
+        client.getTasksAssignedAsBusinessAdministrator( users.get( "steve" ).getId(), "en-UK", getTasksHandler );
         actual = getTasksHandler.getResults();
         assertTrue( CollectionUtils.equals( expected.get( "steve" ),
                                             actual.subList(0, expected.get("steve").size()) ) );
 
+        getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
+        client.getTasksAssignedAsExcludedOwner( users.get( "liz" ).getId(), "en-UK", getTasksHandler );
+        actual = getTasksHandler.getResults();
+        assertEquals( lizSize + 2, actual.size() );
+        assertTrue( CollectionUtils.equals( expected.get( "liz" ), actual.subList(0, expected.get("liz").size()) ) );
 
         getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsExcludedOwner( users.get( "liz" ).getId(),
-                                                "en-UK",
-                                                getTasksHandler );
+        client.getTasksAssignedAsPotentialOwner( users.get( "bobba" ).getId(), "en-UK", getTasksHandler );
         actual = getTasksHandler.getResults();
-        assertEquals( lizSize + 2,
-                      actual.size() );
-        assertTrue( CollectionUtils.equals( expected.get( "liz" ),
-                                            actual.subList(0, expected.get("liz").size()) ) );
-
-        getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsPotentialOwner( users.get( "bobba" ).getId(),
-                                                 "en-UK",
-                                                 getTasksHandler );
-        actual = getTasksHandler.getResults();
-        assertEquals( bobbaSize + 3,
-                      actual.size() );
+        assertEquals( bobbaSize + 3, actual.size() );
         for( TaskSummary orig : expected.get("bobba") ) { 
             boolean matchFound = false;
             for( TaskSummary ts : actual ) { 
@@ -255,14 +240,10 @@ public abstract class TaskServiceBaseTest extends BaseTest {
         }
 
         getTasksHandler = new BlockingAllOpenTasksForUseResponseHandler();
-        client.getTasksAssignedAsRecipient( users.get( "sly" ).getId(),
-                                            "en-UK",
-                                            getTasksHandler );
+        client.getTasksAssignedAsRecipient( users.get( "sly" ).getId(), "en-UK", getTasksHandler );
         actual = getTasksHandler.getResults();
-        assertEquals( slySize + 1,
-                      actual.size() );
-        assertTrue( CollectionUtils.equals( expected.get( "sly" ),
-                                            actual.subList(0, expected.get("sly").size()) ) );
+        assertEquals( slySize + 1, actual.size() );
+        assertTrue( CollectionUtils.equals( expected.get( "sly" ), actual.subList(0, expected.get("sly").size()) ) );
     }
 
 	public static class BlockingAllOpenTasksForUseResponseHandler

@@ -41,6 +41,12 @@ public abstract class TaskLifeCycleBaseSyncTest extends BaseTest {
     protected TaskServer server;
     protected TaskService client;
 
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+    
     @SuppressWarnings("unchecked")
     public void testLifeCycle() throws Exception {
         Map<String, Object> vars = new HashMap();

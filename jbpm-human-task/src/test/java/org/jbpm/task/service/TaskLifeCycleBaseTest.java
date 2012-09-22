@@ -43,10 +43,16 @@ public abstract class TaskLifeCycleBaseTest extends BaseTest {
 	protected TaskServer server;
 	protected TaskClient client;
 
-	public void testLifeCycle() throws Exception {    
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }   
+    
+    public void testLifeCycle() throws Exception {    
         runTestLifeCycle(client, users, groups);
-	}
-	
+    }
+    
 	public static void runTestLifeCycle(TaskClient client, Map<String, User> users,Map<String, Group> groups ) { 
         Map<String, Object> vars = fillVariables(users, groups);
         

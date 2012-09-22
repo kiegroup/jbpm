@@ -32,10 +32,7 @@ public class IcalLocalSyncTest extends IcalBaseSyncTest {
 		setEmailHost(props.getProperty("host", "locahost"));
 		setEmailPort(props.getProperty("port", "2345"));        
 
-		
-
 		client = new LocalTaskService(taskService);
-		
 
 		setWiser(new Wiser());
 		getWiser().setHostname(getEmailHost());
@@ -43,9 +40,8 @@ public class IcalLocalSyncTest extends IcalBaseSyncTest {
 		getWiser().start();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		getWiser().stop();
-	}
-
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        super.tearDown();
+    }
 }

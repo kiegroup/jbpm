@@ -39,10 +39,12 @@ public abstract class TaskServiceEscalationBaseTest extends BaseTest {
 	protected TaskServer server;
 	protected TaskClient client;
 
-    public void testDummy() {
-        assertTrue( true );
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
     }
-    
+
     public void testUnescalatedDeadlines() throws Exception {
         Map<String, Object> vars = fillVariables();
 

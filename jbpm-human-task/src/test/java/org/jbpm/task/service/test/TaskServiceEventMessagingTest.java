@@ -42,11 +42,5 @@ public class TaskServiceEventMessagingTest extends TaskServiceEventMessagingBase
         userInfo.getLanguages().put(users.get("steve"), "en-UK");
         taskService.setUserinfo(userInfo);
     }
-
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.disconnect();
-        server.stop();
-    }    
     
 }

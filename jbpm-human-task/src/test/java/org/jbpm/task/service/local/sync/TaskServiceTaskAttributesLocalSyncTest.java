@@ -10,11 +10,6 @@ public class TaskServiceTaskAttributesLocalSyncTest extends TaskServiceTaskAttri
         super.setUp();
        
         client = new LocalTaskService(taskService);
-        
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        
-    }
 }

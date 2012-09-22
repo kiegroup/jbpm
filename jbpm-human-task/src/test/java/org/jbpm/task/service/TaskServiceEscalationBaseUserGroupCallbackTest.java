@@ -35,6 +35,14 @@ public abstract class TaskServiceEscalationBaseUserGroupCallbackTest extends Bas
     protected TaskServer server;
     protected TaskClient client;
 
+
+    protected void tearDown() throws Exception {
+        client.disconnect();
+        server.stop();
+        super.tearDown();
+    }
+
+    
     public void testUnescalatedDeadlines() throws Exception {
         Map<String, Object> vars = fillVariables();
 

@@ -71,8 +71,6 @@ public class TaskServiceCommentsAndAttachmentsJMSTest extends TaskServiceComment
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		client.disconnect();
-		server.stop();
 	}
 
 }
