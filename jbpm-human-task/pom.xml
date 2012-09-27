@@ -13,10 +13,20 @@
   <artifactId>jbpm-human-task</artifactId>
   <name>jBPM :: Human Task</name>
 
+  <properties>
+    <shrinkwrap.version>1.1.0-alpha-3</shrinkwrap.version>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-workitems</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jivesoftware</groupId>
+          <artifactId>smack</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.mvel</groupId>
@@ -114,41 +124,36 @@
       <scope>test</scope>
     </dependency>
 
-  </dependencies>
-
-  <properties>
-    <maven.btm.maxPoolSize>16</maven.btm.maxPoolSize>
-    
-    <maven.tx.type>RESOURCE_LOCAL</maven.tx.type>
-    <maven.data.source/>
-    <!--  
-    <maven.tx.type>JTA</maven.tx.type>
-    <maven.data.source>&lt;jta-data-source&gt;jdbc/taskDS&lt;/jta-data-source&gt;</maven.data.source>
+    <!-- dependencies testing -->
+    <dependency>
+      <groupId>org.jboss.shrinkwrap</groupId>
+      <artifactId>shrinkwrap-impl-base</artifactId>
+      <version>${shrinkwrap.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+      <version>${shrinkwrap.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
+      <version>2.0.0-alpha-3</version>
+    </dependency>
     -->
-    
-    <!-- H2
-     -->
-    <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
-    <maven.datasource.classname>bitronix.tm.resource.jdbc.lrc.LrcXADataSource</maven.datasource.classname>
-    <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
-    <maven.jdbc.db.name/>
-    <maven.jdbc.db.port/>
-    <maven.jdbc.db.server/>     
-    <maven.jdbc.username>sa</maven.jdbc.username>
-    <maven.jdbc.password>sasa</maven.jdbc.password>
-    <maven.jdbc.url>jdbc:h2:mem:test;MVCC=true</maven.jdbc.url>
-    <maven.jdbc.schema/>
-  </properties>
+  </dependencies>
 
   <build>
     <testResources>
       <testResource>
         <directory>src/test/resources</directory>
-        <filtering>false</filtering>
       </testResource>
       <testResource>
-        <directory>src/test/filtered-resources</directory>
-        <filtering>true</filtering>
+        <directory>src/test/package</directory>
+        <targetPath>${project.build.directory}/package</targetPath>
       </testResource>
     </testResources>
     
@@ -187,23 +192,5 @@
       </plugin>    
     </plugins>  
   </build>
-
-  <profiles>
-    <profile>
-      <id>hibernate-4</id>
-      <dependencies>
-        <dependency>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate-core</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.hibernate</groupId>
-          <artifactId>hibernate-entitymanager</artifactId>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 
 </project>

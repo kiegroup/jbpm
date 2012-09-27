@@ -10,6 +10,7 @@
 /*.iml
 
 # Test data
+/*.db
 /activemq-data
 /data
 /settings-db.xml
