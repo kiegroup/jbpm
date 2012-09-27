@@ -70,17 +70,14 @@ public class TaskSessionFactoryImpl implements TaskSessionFactory {
     }
     
     public TaskServiceSession createTaskServiceSession() {
-        TaskPersistenceManager tpm;
-        if( useJTA ) { 
-            tpm = new TaskPersistenceManager(emf.createEntityManager(), new TaskJTATransactionManager());
-        }
-        else { 
-            tpm = new TaskPersistenceManager(emf.createEntityManager());
-        }
-        return new TaskServiceSession(taskService, tpm);
+        return new TaskServiceSession(taskService, createTaskPersistenceManager());
     }
 
     public TasksAdmin createTaskAdmin() {
+        return new TasksAdminImpl(createTaskPersistenceManager());
+    }
+    
+    private TaskPersistenceManager createTaskPersistenceManager() { 
         TaskPersistenceManager tpm;
         if( useJTA ) { 
             tpm = new TaskPersistenceManager(emf.createEntityManager(), new TaskJTATransactionManager());
@@ -88,7 +85,7 @@ public class TaskSessionFactoryImpl implements TaskSessionFactory {
         else { 
             tpm = new TaskPersistenceManager(emf.createEntityManager());
         }
-        return new TasksAdminImpl(tpm);
+        return tpm;
     }
 
 }
