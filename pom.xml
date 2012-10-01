@@ -29,7 +29,6 @@
   <url>http://www.jboss.org/jbpm/</url>
 
   <properties>
-    <console.version>2.3.6.Final</console.version>
     
     <!--
      These are properties used in the database profiles. Some of them must be initialized
