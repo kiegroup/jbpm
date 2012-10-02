@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>5.2.0-SNAPSHOT</version>
+    <version>5.4.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-bam</artifactId>
@@ -18,40 +18,71 @@
     <testResources>
         <testResource>
             <directory>src/test/resources</directory>
+            <filtering>false</filtering>
+        </testResource>
+        <testResource>
+            <directory>src/test/filtered-resources</directory>
             <filtering>true</filtering>
         </testResource>
     </testResources>
+    
+    <plugins>
+      <plugin>
+        <!--  ensure that db files are deleted before _any_ run 
+              otherwise we get tests failing because of leftover db's -->
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+         <filesets>
+            <fileset>
+              <directory>${basedir}</directory>
+              <includes>
+                <include>btm*</include>
+                <include>JPADroolsFlow.*.db</include>
+              </includes>
+            </fileset>
+         </filesets>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
-  
+ 
   <dependencies>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-flow-builder</artifactId>
-    </dependency>
+    </dependency> 
     <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-persistence-jpa</artifactId>
-      <scope>test</scope>
+      <groupId>org.hibernate.javax.persistence</groupId>
+      <artifactId>hibernate-jpa-2.0-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-persistence-jpa</artifactId>
-      <type>test-jar</type>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.persistence</groupId>
-      <artifactId>persistence-api</artifactId>
-    </dependency>
+    <!-- Only for the classes which use Hibernate, and we need to deprecate/delete these.. -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-jpa</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-persistence-jpa</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -60,13 +91,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-annotations</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-commons-annotations</artifactId>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -78,6 +104,31 @@
       <groupId>org.codehaus.btm</groupId>
       <artifactId>btm</artifactId>
       <scope>test</scope>
-    </dependency>    	
-  </dependencies>                                
+    </dependency>
+  </dependencies>
+ 
+  <properties>
+    <maven.jdbc.url>jdbc:h2:mem:bamTest;MVCC=TRUE</maven.jdbc.url>
+
+  </properties>
+  
+  <profiles>
+    <profile>
+      <id>hibernate-4</id>
+       <dependencies>
+         <!-- compile necessary for hibernate based (logger) classes -->
+         <dependency>
+           <groupId>org.hibernate</groupId>
+           <artifactId>hibernate-core</artifactId>
+           <scope>compile</scope>
+         </dependency>
+         <dependency>
+           <groupId>org.hibernate</groupId>
+           <artifactId>hibernate-entitymanager</artifactId>
+           <scope>compile</scope>
+         </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>

@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 import org.drools.WorkItemHandlerNotFoundException;
 import org.drools.definition.process.Node;
 import org.drools.process.core.Work;
+import org.drools.process.core.datatype.DataType;
+import org.drools.process.core.datatype.impl.type.ObjectDataType;
 import org.drools.process.instance.WorkItem;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.process.instance.impl.WorkItemImpl;
@@ -32,6 +34,7 @@ import org.drools.runtime.KnowledgeRuntime;
 import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.NodeInstance;
 import org.drools.spi.ProcessContext;
+import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -51,7 +54,6 @@ import org.mvel2.MVEL;
 public class WorkItemNodeInstance extends StateBasedNodeInstance implements EventListener {
     
     private static final long serialVersionUID = 510l;
-    private static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{(\\S+)\\}", Pattern.DOTALL);
     
     private long workItemId = -1;
     protected transient WorkItem workItem;
@@ -220,6 +222,12 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                             } catch (Throwable t) {
                                 // do nothing
                             }
+                        }
+                        Variable varDef = variableScopeInstance.getVariableScope().findVariable(association.getTarget());
+                        DataType dataType = varDef.getType();
+                        // exclude java.lang.Object as it is considered unknown type
+                        if (!dataType.getStringType().endsWith("java.lang.Object") && value instanceof String) {
+                            value = dataType.readValue((String) value);
                         }
                         variableScopeInstance.setVariable(association.getTarget(), value);
                     } else {

@@ -27,6 +27,7 @@ import org.drools.definition.process.Connection;
 import org.drools.definition.process.NodeContainer;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextResolver;
+import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.node.CompositeNode;
 
@@ -49,6 +50,8 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     private NodeContainer nodeContainer;
     private Map<String, Context> contexts = new HashMap<String, Context>();
     private Map<String, Object> metaData = new HashMap<String, Object>();
+    
+    protected Map<ConnectionRef, Constraint> constraints = new HashMap<ConnectionRef, Constraint>();
 
     public NodeImpl() {
         this.id = -1;
@@ -193,8 +196,12 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
         if (list.size() == 1) {
         	return list.get(0);
         }
-        throw new IllegalArgumentException(
+        if (System.getProperty("jbpm.enable.multi.con") != null) { 
+        	return list.get(0);
+        } else {
+        	throw new IllegalArgumentException(
     		"Trying to retrieve the from connection but multiple connections are present");
+        }
     }
 
     /** Helper method for nodes that have at most one default outgoing connection */
@@ -207,8 +214,12 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
         if (list.size() == 1) {
         	return list.get(0);
         }
-        throw new IllegalArgumentException(
+        if (System.getProperty("jbpm.enable.multi.con") != null) { 
+        	return list.get(0);
+        } else {
+        	throw new IllegalArgumentException(
     		"Trying to retrieve the to connection but multiple connections are present");
+        }
     }
 
     /** Helper method for nodes that have multiple default incoming connections */
@@ -262,6 +273,47 @@ public abstract class NodeImpl implements Node, Serializable, ContextResolver {
     
     public void setMetaData(Map<String, Object> metaData) {
     	this.metaData = metaData;
+    }
+    
+    public Constraint getConstraint(final Connection connection) {
+        if ( connection == null ) {
+            throw new IllegalArgumentException( "connection is null" );
+        }
+
+        
+       ConnectionRef ref = new ConnectionRef(connection.getTo().getId(), connection.getToType());
+       return this.constraints.get(ref);
+       
+    }
+
+    public Constraint internalGetConstraint(final ConnectionRef ref) {
+        return this.constraints.get(ref);
+    }
+
+    public void setConstraint(final Connection connection,
+                              final Constraint constraint) {
+    	if ( connection == null ) {
+            throw new IllegalArgumentException( "connection is null" );
+        }
+        if (!getDefaultOutgoingConnections().contains(connection)) {
+            throw new IllegalArgumentException("connection is unknown:" + connection);
+        }
+        addConstraint(
+            new ConnectionRef(connection.getTo().getId(), connection.getToType()),
+            constraint);
+
+    }
+
+    public void addConstraint(ConnectionRef connectionRef, Constraint constraint) {
+    	if (connectionRef == null) {
+    		throw new IllegalArgumentException(
+				"A " + this.getName() + " node only accepts constraints linked to a connection");
+    	}
+        this.constraints.put(connectionRef, constraint);
+    }
+
+    public Map<ConnectionRef, Constraint> getConstraints() {
+        return Collections.unmodifiableMap( this.constraints );
     }
     
 }

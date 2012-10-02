@@ -16,7 +16,13 @@
 
 package org.jbpm.integration.console;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.drools.definition.process.Process;
+import org.drools.runtime.process.NodeInstance;
 import org.jboss.bpm.console.client.model.ProcessDefinitionRef;
 import org.jboss.bpm.console.client.model.ProcessInstanceRef;
 import org.jboss.bpm.console.client.model.TaskRef;
@@ -25,8 +31,13 @@ import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.task.I18NText;
 import org.jbpm.task.Task;
 import org.jbpm.task.query.TaskSummary;
+import org.jbpm.workflow.instance.node.EventNodeInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Transform {
+    
+    private static final Logger logger = LoggerFactory.getLogger(Transform.class);
 	
 	public static ProcessDefinitionRef processDefinition(Process process) {
 		long version = 0;
@@ -42,7 +53,7 @@ public class Transform {
 		return result;
 	}
 	
-	public static ProcessInstanceRef processInstance(ProcessInstanceLog processInstance) {
+	public static ProcessInstanceRef processInstance(ProcessInstanceLog processInstance, Collection<NodeInstance> activeNodes) {
 		ProcessInstanceRef result = new ProcessInstanceRef(
 			processInstance.getProcessInstanceId() + "",
 			processInstance.getProcessId(),
@@ -52,6 +63,37 @@ public class Transform {
 		TokenReference token = new TokenReference(
 			processInstance.getProcessInstanceId() + "", null, "");
 		result.setRootToken(token);
+		
+		if (activeNodes != null && !activeNodes.isEmpty()) {
+		    try {
+    		    Iterator<NodeInstance> it = activeNodes.iterator();
+    		    List<TokenReference> children = new ArrayList<TokenReference>();
+    		    TokenReference childToken = null;
+    		    StringBuffer nodeNames = new StringBuffer();
+    		    while (it.hasNext()) {
+    		        NodeInstance nodeInstance = (NodeInstance) it.next();
+    		        childToken = new TokenReference(processInstance.getProcessInstanceId() +"", null, nodeInstance.getNodeName());
+    		        if (nodeNames.length() > 0){
+    		            nodeNames.append(", ");
+    		        }
+    		        nodeNames.append(nodeInstance.getNodeName());
+                    if (nodeInstance instanceof EventNodeInstance) {
+                        String type = ((EventNodeInstance)nodeInstance).getEventNode().getType();
+                        if (type != null && !type.startsWith("Message-")) {
+                            childToken.setName(type);
+                            childToken.setCanBeSignaled(true);
+                        }
+                        
+                    }
+                    
+                    children.add(childToken);
+                }
+    		    token.setChildren(children);
+    		    token.setCurrentNodeName(nodeNames.toString());
+		    } catch (Exception e) {
+		        logger.error("Error when collecting node information", e);
+            }
+		}
 		return result;
 	}
 	
@@ -59,10 +101,10 @@ public class Transform {
 		return new TaskRef(
 			task.getId(),
 			Long.toString(task.getProcessInstanceId()),
-			"",
+			task.getProcessId() == null ? "" : task.getProcessId(),
 			task.getName(),
 			task.getActualOwner() == null ? null : task.getActualOwner().getId(),
-			false,
+			!task.isSkipable(),
 			false);
 	}
 
@@ -76,10 +118,10 @@ public class Transform {
 		return new TaskRef(
 			task.getId(),
 			Long.toString(task.getTaskData().getProcessInstanceId()),
-			"",
+			task.getTaskData().getProcessId() == null ? "" : task.getTaskData().getProcessId(),
 			name,
 			task.getTaskData().getActualOwner() == null ? null : task.getTaskData().getActualOwner().getId(),
-			false,
+			!task.getTaskData().isSkipable(),
 			false);
 	}
 

@@ -18,16 +18,25 @@ package org.jbpm.workflow.instance.node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.drools.RuntimeDroolsException;
+import org.drools.common.InternalFactHandle;
+import org.drools.event.rule.ActivationCreatedEvent;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
+import org.drools.rule.Declaration;
+import org.drools.runtime.KnowledgeRuntime;
 import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.NodeInstance;
+import org.drools.runtime.rule.impl.InternalAgenda;
+import org.drools.spi.Activation;
 import org.drools.time.TimeUtils;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
@@ -44,7 +53,7 @@ import org.mvel2.MVEL;
 public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl implements EventBasedNodeInstanceInterface, EventListener {
 	
 	private static final long serialVersionUID = 510l;
-    private static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{(\\S+)\\}", Pattern.DOTALL);
+    protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
 
 	private List<Long> timerInstances;
 
@@ -69,15 +78,46 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 				}
 			}
 		}
+       
+		if (getEventBasedNode().getBoundaryEvents() != null) {
+		    
+		    for (String name : getEventBasedNode().getBoundaryEvents()) {
+                
+                boolean isActive = ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
+                    .isRuleActiveInRuleFlowGroup("DROOLS_SYSTEM", name, getProcessInstance().getId());
+                if (isActive) {
+                    getProcessInstance().getKnowledgeRuntime().signalEvent(name, null);
+                } else {
+                    addActivationListener();
+                }
+		    }
+		}
+
 	}
 	
     protected TimerInstance createTimerInstance(Timer timer) {
     	TimerInstance timerInstance = new TimerInstance();
-    	timerInstance.setDelay(resolveValue(timer.getDelay()));
-    	if (timer.getPeriod() == null) {
-    		timerInstance.setPeriod(0);
+    	KnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+    	if (kruntime != null && kruntime.getEnvironment().get("jbpm.business.calendar") != null){
+        	BusinessCalendar businessCalendar = (BusinessCalendar) kruntime.getEnvironment().get("jbpm.business.calendar");
+        	
+        	String delay = resolveVariable(timer.getDelay());
+        	
+        	timerInstance.setDelay(businessCalendar.calculateBusinessTimeAsDuration(delay));
+        	
+        	if (timer.getPeriod() == null) {
+                timerInstance.setPeriod(0);
+            } else {
+                String period = resolveVariable(timer.getPeriod());
+                timerInstance.setPeriod(businessCalendar.calculateBusinessTimeAsDuration(period));
+            }
     	} else {
-    		timerInstance.setPeriod(resolveValue(timer.getPeriod()));
+	    	timerInstance.setDelay(resolveValue(timer.getDelay()));
+	    	if (timer.getPeriod() == null) {
+	    		timerInstance.setPeriod(0);
+	    	} else {
+	    		timerInstance.setPeriod(resolveValue(timer.getPeriod()));
+	    	}
     	}
     	timerInstance.setTimerId(timer.getId());
     	return timerInstance;
@@ -87,36 +127,42 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     	try {
     		return TimeUtils.parseTimeString(s);
     	} catch (RuntimeDroolsException e) {
-    		// cannot parse delay, trying to interpret it
-    		Map<String, String> replacements = new HashMap<String, String>();
-    		Matcher matcher = PARAMETER_MATCHER.matcher(s);
-            while (matcher.find()) {
-            	String paramName = matcher.group(1);
-            	if (replacements.get(paramName) == null) {
-                	VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-                    	resolveContextInstance(VariableScope.VARIABLE_SCOPE, paramName);
-                    if (variableScopeInstance != null) {
-                        Object variableValue = variableScopeInstance.getVariable(paramName);
-                    	String variableValueString = variableValue == null ? "" : variableValue.toString(); 
-    	                replacements.put(paramName, variableValueString);
-                    } else {
-                    	try {
-                    		Object variableValue = MVEL.eval(paramName, new NodeInstanceResolverFactory(this));
-    	                	String variableValueString = variableValue == null ? "" : variableValue.toString();
-    	                	replacements.put(paramName, variableValueString);
-                    	} catch (Throwable t) {
-    	                    System.err.println("Could not find variable scope for variable " + paramName);
-    	                    System.err.println("when trying to replace variable in processId for sub process " + getNodeName());
-    	                    System.err.println("Continuing without setting process id.");
-                    	}
-                    }
-            	}
-            }
-            for (Map.Entry<String, String> replacement: replacements.entrySet()) {
-            	s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
-            }
+    		s = resolveVariable(s);
             return TimeUtils.parseTimeString(s);
     	}
+    }
+    
+    private String resolveVariable(String s) {
+    	// cannot parse delay, trying to interpret it
+		Map<String, String> replacements = new HashMap<String, String>();
+		Matcher matcher = PARAMETER_MATCHER.matcher(s);
+        while (matcher.find()) {
+        	String paramName = matcher.group(1);
+        	if (replacements.get(paramName) == null) {
+            	VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+                	resolveContextInstance(VariableScope.VARIABLE_SCOPE, paramName);
+                if (variableScopeInstance != null) {
+                    Object variableValue = variableScopeInstance.getVariable(paramName);
+                	String variableValueString = variableValue == null ? "" : variableValue.toString(); 
+	                replacements.put(paramName, variableValueString);
+                } else {
+                	try {
+                		Object variableValue = MVEL.eval(paramName, new NodeInstanceResolverFactory(this));
+	                	String variableValueString = variableValue == null ? "" : variableValue.toString();
+	                	replacements.put(paramName, variableValueString);
+                	} catch (Throwable t) {
+	                    System.err.println("Could not find variable scope for variable " + paramName);
+	                    System.err.println("when trying to replace variable in processId for sub process " + getNodeName());
+	                    System.err.println("Continuing without setting process id.");
+                	}
+                }
+        	}
+        }
+        for (Map.Entry<String, String> replacement: replacements.entrySet()) {
+        	s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
+        }
+        
+        return s;
     }
 
     public void signalEvent(String type, Object event) {
@@ -125,7 +171,14 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
             if (timerInstances.contains(timerInstance.getId())) {
                 triggerTimer(timerInstance);
             }
-    	}
+    	} else if (type.equals(getActivationType())) {
+            if (event instanceof ActivationCreatedEvent) {
+                String name = ((ActivationCreatedEvent)event).getActivation().getRule().getName();
+                if (checkProcessInstance((Activation) ((ActivationCreatedEvent)event).getActivation())) {
+                    ((ActivationCreatedEvent)event).getKnowledgeRuntime().signalEvent(name, null);
+                }
+            }
+        }
     }
     
     private void triggerTimer(TimerInstance timerInstance) {
@@ -138,7 +191,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     }
     
     public String[] getEventTypes() {
-    	return new String[] { "timerTriggered" };
+    	return new String[] { "timerTriggered", getActivationType()};
     }
     
     public void triggerCompleted() {
@@ -161,6 +214,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 
 	protected void triggerCompleted(String type, boolean remove) {
 		cancelTimers();
+		removeActivationListener();
 		super.triggerCompleted(type, remove);
 	}
 	
@@ -175,6 +229,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     public void cancel() {
         cancelTimers();
         removeEventListeners();
+        removeActivationListener();
         super.cancel();
     }
     
@@ -189,4 +244,32 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 		}
 	}
 	
+	private String getActivationType() {
+	    return "RuleFlowStateEvent-" + this.getProcessInstance().getProcessId();
+	}
+	
+    private void addActivationListener() {
+        getProcessInstance().addEventListener(getActivationType(), this, true);
+    }
+    
+    private void removeActivationListener() {
+        getProcessInstance().addEventListener(getActivationType(), this, true);
+    }
+    
+    protected boolean checkProcessInstance(Activation activation) {
+        final Map<?, ?> declarations = activation.getSubRule().getOuterDeclarations();
+        for ( Iterator<?> it = declarations.values().iterator(); it.hasNext(); ) {
+            Declaration declaration = (Declaration) it.next();
+            if ("processInstance".equals(declaration.getIdentifier())
+            		|| "org.drools.runtime.process.WorkflowProcessInstance".equals(declaration.getTypeName())) {
+                Object value = declaration.getValue(
+                    ((StatefulKnowledgeSessionImpl) getProcessInstance().getKnowledgeRuntime()).session,
+                    ((InternalFactHandle) activation.getTuple().get(declaration)).getObject());
+                if (value instanceof ProcessInstance) {
+                    return ((ProcessInstance) value).getId() == getProcessInstance().getId();
+                }
+            }
+        }
+        return true;
+    }
 }

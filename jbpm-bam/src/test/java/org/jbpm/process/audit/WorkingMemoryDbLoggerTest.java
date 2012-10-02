@@ -16,8 +16,12 @@
 
 package org.jbpm.process.audit;
 
+import static org.jbpm.persistence.util.PersistenceUtil.*;
+import static org.junit.Assert.*;
+
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
@@ -26,13 +30,34 @@ import org.drools.RuleBaseFactory;
 import org.drools.SessionConfiguration;
 import org.drools.StatefulSession;
 import org.drools.compiler.PackageBuilder;
-import org.drools.impl.EnvironmentFactory;
 import org.drools.rule.Package;
-import org.jbpm.JbpmTestCase;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
+/**
+ * This class tests the following classes: 
+ * <ul>
+ * <li>WorkingMemoryDbLogger</li>
+ * <li>ProcessInstanceDbLog</li>
+ * </ul>
+ */
 public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
+    
+    private HashMap<String, Object> context;
 
+    @Before
+    public void setUp() throws Exception {
+        context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        cleanUp(context);
+    }
+    
+    @Test
 	public void testLogger1() {
         // load the process
         RuleBase ruleBase = createKnowledgeBase();
@@ -41,7 +66,7 @@ public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
 		properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
 		properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
 		SessionConfiguration config = new SessionConfiguration(properties);
-        StatefulSession session = ruleBase.newStatefulSession(config, EnvironmentFactory.newEnvironment());
+        StatefulSession session = ruleBase.newStatefulSession(config, createEnvironment(context));
         new WorkingMemoryDbLogger(session);
         session.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
 
@@ -68,7 +93,8 @@ public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
         }
         ProcessInstanceDbLog.clear();
 	}
-	
+
+    @Test
 	public void testLogger2() {
         // load the process
         RuleBase ruleBase = createKnowledgeBase();
@@ -77,7 +103,7 @@ public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
 		properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
 		properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
 		SessionConfiguration config = new SessionConfiguration(properties);
-        StatefulSession session = ruleBase.newStatefulSession(config, EnvironmentFactory.newEnvironment());
+        StatefulSession session = ruleBase.newStatefulSession(config, createEnvironment(context));
         new WorkingMemoryDbLogger(session);
         session.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
 
@@ -101,7 +127,8 @@ public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
         }
         ProcessInstanceDbLog.clear();
 	}
-	
+
+    @Test
 	public void testLogger3() {
         // load the process
         RuleBase ruleBase = createKnowledgeBase();
@@ -110,7 +137,7 @@ public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
 		properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
 		properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
 		SessionConfiguration config = new SessionConfiguration(properties);
-        StatefulSession session = ruleBase.newStatefulSession(config, EnvironmentFactory.newEnvironment());
+        StatefulSession session = ruleBase.newStatefulSession(config, createEnvironment(context));
         new WorkingMemoryDbLogger(session);
         session.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
 
@@ -144,11 +171,11 @@ public class WorkingMemoryDbLoggerTest extends JbpmTestCase {
         // create a builder
         PackageBuilder builder = new PackageBuilder();
         // load the process
-        Reader source = new InputStreamReader(
-            WorkingMemoryDbLoggerTest.class.getResourceAsStream("/ruleflow.rf"));
+        Reader source = new InputStreamReader(WorkingMemoryDbLoggerTest.class.getResourceAsStream("/ruleflow.rf"));
         builder.addProcessFromXml(source);
-        source = new InputStreamReader(
-    		WorkingMemoryDbLoggerTest.class.getResourceAsStream("/ruleflow2.rf"));
+        source = new InputStreamReader(WorkingMemoryDbLoggerTest.class.getResourceAsStream("/ruleflow2.rf"));
+        builder.addProcessFromXml(source);
+        source = new InputStreamReader(WorkingMemoryDbLoggerTest.class.getResourceAsStream("/ruleflow3.rf"));
         builder.addProcessFromXml(source);
         // create the knowledge base 
         Package pkg = builder.getPackage();

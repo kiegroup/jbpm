@@ -10,13 +10,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="http://java.sun.com/xml/ns/persistence">
 
- <!--persistence-unit name="ProcessService">
-  <jta-data-source>java:/DefaultDS</jta-data-source>
-  <properties>
-   <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-  </properties>
- </persistence-unit-->
-
   <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>java:jdbc/testDS1</jta-data-source>       
@@ -24,10 +17,13 @@
     <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
     <class>org.drools.persistence.info.SessionInfo</class>
     <class>org.drools.persistence.info.WorkItemInfo</class>
+    <class>org.jbpm.process.audit.ProcessInstanceLog</class>
+    <class>org.jbpm.process.audit.NodeInstanceLog</class>
+    <class>org.jbpm.process.audit.VariableInstanceLog</class>
     <properties>
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>          
       <property name="hibernate.max_fetch_depth" value="3"/>
-      <property name="hibernate.hbm2ddl.auto" value="create" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
       <property name="hibernate.show_sql" value="false" />  
       <property name="hibernate.transaction.manager_lookup_class" value="org.hibernate.transaction.JBossTransactionManagerLookup" />
     </properties>        

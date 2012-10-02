@@ -14,7 +14,7 @@
   <itemDefinition id="_subXItem" />
   <itemDefinition id="_subYItem" />
 
-  <process processType="Private" isExecutable="true" id="SubProcess" name="Sub Process" >
+  <process processType="Private" isExecutable="true" id="SubProcess" name="Sub Process" tns:version="1" >
 
     <!-- process variables -->
     <property id="subX" itemSubjectRef="_subXItem"/>

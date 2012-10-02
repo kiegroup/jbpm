@@ -11,3 +11,6 @@
 
 # Test data
 /activemq-data
+/data
+settings-db.xml
+lib-jdbc/

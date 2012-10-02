@@ -40,7 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 public class GuvnorConnectionUtils {
     public static final String GUVNOR_PROTOCOL_KEY = "guvnor.protocol";
@@ -49,15 +49,17 @@ public class GuvnorConnectionUtils {
     public static final String GUVNOR_PWD_KEY = "guvnor.pwd";
     public static final String GUVNOR_PACKAGES_KEY = "guvnor.packages";
     public static final String GUVNOR_SUBDOMAIN_KEY = "guvnor.subdomain";
+    public static final String GUVNOR_CONNECTTIMEOUT_KEY = "guvnor.connect.timeout";
+    public static final String GUVNOR_READTIMEOUT_KEY = "guvnor.read.timeout";
+    public static final String GUVNOR_SNAPSHOT_NAME = "guvnor.snapshot.name";
     public static final String EXT_BPMN = "bpmn";
     public static final String EXT_BPMN2 = "bpmn2";
     
     private static final Logger logger = LoggerFactory.getLogger(GuvnorConnectionUtils.class);
+    private static Properties properties = new Properties();
     
-    private Properties properties;
-    
-    public GuvnorConnectionUtils(Properties properties) {
-        this.properties = properties;
+    static {
+        properties = PropertyLoader.getJbpmConsoleProperties();
     }
     
     public String getProcessImageURLFromGuvnor(String processId) {
@@ -79,11 +81,22 @@ public class GuvnorConnectionUtils {
                         + getGuvnorSubdomain()
                         + "/org.drools.guvnor.Guvnor/package/"
                         + pkg
-                        + "/LATEST/"
+                        + "/" + getGuvnorSnapshotName() + "/"
                         + URLEncoder.encode(processId, "UTF-8")
                         + "-image.png";
                         
-                        return imageBinaryURL;
+                        URL checkURL = new URL(imageBinaryURL);
+                        HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
+                        checkConnection.setRequestMethod("GET");
+                        checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+                        checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
+                        applyAuth(checkConnection);
+                        checkConnection.connect();
+                       
+                        if (checkConnection.getResponseCode() == 200) {
+                            return imageBinaryURL;    
+                        }
+                        
                     } catch (Exception e) {
                        logger.error("Could not read process image: " + e.getMessage());
                        throw new RuntimeException("Could not read process image: " + e.getMessage());
@@ -96,6 +109,10 @@ public class GuvnorConnectionUtils {
     }
     
     public String getFormTemplateURLFromGuvnor(String templateName) {
+        return getFormTemplateURLFromGuvnor(templateName, "drl");
+    }
+    
+    public String getFormTemplateURLFromGuvnor(String templateName, String format) {
         List<String> allPackages = getPackageNames();
         try {
             for(String pkg : allPackages) {
@@ -113,7 +130,8 @@ public class GuvnorConnectionUtils {
                 HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
                 checkConnection.setRequestMethod("GET");
                 checkConnection.setRequestProperty("Accept", "application/atom+xml");
-                checkConnection.setReadTimeout(2 * 1000);
+                checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+                checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
                 applyAuth(checkConnection);
                 checkConnection.connect();
                 if(checkConnection.getResponseCode() == 200) {
@@ -125,9 +143,9 @@ public class GuvnorConnectionUtils {
                     + getGuvnorSubdomain()
                     + "/org.drools.guvnor.Guvnor/package/"
                     + pkg
-                    + "/LATEST/"
+                    + "/" + getGuvnorSnapshotName() + "/"
                     + URLEncoder.encode(templateName, "UTF-8")
-                    + ".drl";
+                    + "." + format;
                     
                     return toReturnURL;
                 }
@@ -244,7 +262,7 @@ public class GuvnorConnectionUtils {
         List<String> allPackages = getPackageNamesFromGuvnor();
         if(!isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY))) {
             // make sure that all user defined package names are in the list of provided packages
-            String[] providedPackages = properties.getProperty(GUVNOR_PACKAGES_KEY).split( ",\\s*" );
+            String[] providedPackages = properties.getProperty(GUVNOR_PACKAGES_KEY).trim().split( ",\\s*" );
             List<String> retList = new ArrayList<String>();
             for(String pkg : providedPackages) {
                 if(allPackages.contains(pkg)) {
@@ -257,12 +275,51 @@ public class GuvnorConnectionUtils {
         }
     }
     
+    public List<String> getBuiltPackageNames() {
+    	List<String> allPackageNames = getPackageNames();
+    	List<String> builtPackageNames = new ArrayList<String>();
+    	for(String nextPkg : allPackageNames) {
+    		if(canBuildPackage(nextPkg)) {
+    			builtPackageNames.add(nextPkg);
+    	    } else {
+    	    	logger.info("Excluding package: " + nextPkg + " because it cannot be built.");
+    	    }
+    	}
+    	return builtPackageNames;
+    }
+    
+	public boolean canBuildPackage(String packageName) {
+		try {
+			String packagesBinaryURL = getGuvnorProtocol() + "://"
+					+ getGuvnorHost() + "/" + getGuvnorSubdomain()
+					+ "/rest/packages/" + packageName + "/binary";
+
+			URL checkURL = new URL(packagesBinaryURL);
+			HttpURLConnection checkConnection = (HttpURLConnection) checkURL
+					.openConnection();
+			checkConnection.setRequestMethod("GET");
+			checkConnection.setConnectTimeout(Integer
+					.parseInt(getGuvnorConnectTimeout()));
+			checkConnection.setReadTimeout(Integer
+					.parseInt(getGuvnorReadTimeout()));
+			applyAuth(checkConnection);
+			checkConnection.connect();
+			return checkConnection.getResponseCode() == 200;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+    
     public StringReader createChangeSet() {
+        return createChangeSet(getBuiltPackageNames());
+    }
+    
+    public StringReader createChangeSet(List<String> packageNames) {
         try {
             StringTemplate changeSetTemplate = new StringTemplate(
                     readFile(GuvnorConnectionUtils.class.getResourceAsStream("/ChangeSet.st")));
             TemplateInfo info = new TemplateInfo(getGuvnorProtocol(), getGuvnorHost(), 
-                    getGuvnorUsr(), getGuvnorPwd(), getGuvnorSubdomain(), getPackageNames());
+                    getGuvnorUsr(), getGuvnorPwd(), getGuvnorSubdomain(), packageNames);
             changeSetTemplate.setAttribute("data",  info.getData());
             return new StringReader(changeSetTemplate.toString());
         } catch (IOException e) {
@@ -273,12 +330,12 @@ public class GuvnorConnectionUtils {
     
 
     public String getGuvnorProtocol() {
-        return isEmpty(properties.getProperty(GUVNOR_PROTOCOL_KEY)) ? "" : properties.getProperty(GUVNOR_PROTOCOL_KEY);
+        return isEmpty(properties.getProperty(GUVNOR_PROTOCOL_KEY)) ? "" : properties.getProperty(GUVNOR_PROTOCOL_KEY).trim();
     }
     
     public String getGuvnorHost() {
         if(!isEmpty(properties.getProperty(GUVNOR_HOST_KEY))) {
-            String retStr = properties.getProperty(GUVNOR_HOST_KEY);
+            String retStr = properties.getProperty(GUVNOR_HOST_KEY).trim();
             if(retStr.startsWith("/")){
                 retStr = retStr.substring(1);
             }
@@ -292,19 +349,35 @@ public class GuvnorConnectionUtils {
     }
     
     public String getGuvnorSubdomain() {
-        return isEmpty(properties.getProperty(GUVNOR_SUBDOMAIN_KEY)) ? "" : properties.getProperty(GUVNOR_SUBDOMAIN_KEY);
+        return isEmpty(properties.getProperty(GUVNOR_SUBDOMAIN_KEY)) ? "" : properties.getProperty(GUVNOR_SUBDOMAIN_KEY).trim();
     }
     
     public String getGuvnorUsr() {
-        return isEmpty(properties.getProperty(GUVNOR_USR_KEY)) ? "" : properties.getProperty(GUVNOR_USR_KEY);
+        return isEmpty(properties.getProperty(GUVNOR_USR_KEY)) ? "" : properties.getProperty(GUVNOR_USR_KEY).trim();
     }
     
     public String getGuvnorPwd() {
-        return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY);
+        return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
     }
     
     public String getGuvnorPackages() {
-        return isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY)) ? "" : properties.getProperty(GUVNOR_PACKAGES_KEY);
+        return isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY)) ? "" : properties.getProperty(GUVNOR_PACKAGES_KEY).trim();
+    }
+    
+    public String getGuvnorConnectTimeout() {
+        return isEmpty(properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY).trim();
+    }
+    
+    public String getGuvnorReadTimeout() {
+        return isEmpty(properties.getProperty(GUVNOR_READTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_READTIMEOUT_KEY).trim();
+    }
+    
+    public String getGuvnorSnapshotName() {
+    	return isEmpty(properties.getProperty(GUVNOR_SNAPSHOT_NAME)) ? "LATEST" : properties.getProperty(GUVNOR_SNAPSHOT_NAME).trim();
+    }
+    
+    protected Properties getGuvnorProperties() {
+        return properties;
     }
     
     private List<String> getPackageNamesFromGuvnor() {
@@ -322,7 +395,10 @@ public class GuvnorConnectionUtils {
             while (reader.hasNext()) {
                 if (reader.next() == XMLStreamReader.START_ELEMENT) {
                     if ("title".equals(reader.getLocalName())) {
-                        packages.add(reader.getElementText());
+                        String pname = reader.getElementText();
+                        if(!pname.equalsIgnoreCase("Packages")) {
+                             packages.add(pname);
+                        }
                     }
                 }
             }
@@ -351,11 +427,30 @@ public class GuvnorConnectionUtils {
                 HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
                 checkConnection.setRequestMethod("GET");
                 checkConnection.setRequestProperty("Accept", "application/atom+xml");
-                checkConnection.setReadTimeout(2 * 1000);
+                checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+                checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
                 applyAuth(checkConnection);
                 checkConnection.connect();
                 if(checkConnection.getResponseCode() == 200) {
-                    return true;
+                    
+                    XMLInputFactory factory = XMLInputFactory.newInstance();
+                    XMLStreamReader reader = factory
+                            .createXMLStreamReader(checkConnection.getInputStream());
+                    
+                    boolean foundFormFormat = false;
+                    while (reader.hasNext()) {
+                        if (reader.next() == XMLStreamReader.START_ELEMENT) {
+                            if ("format".equals(reader.getLocalName())) {
+                                reader.next();
+                                String pname = reader.getElementText();
+                                if ("flt".equalsIgnoreCase(pname) || "ftl".equalsIgnoreCase(pname)) {
+                                    foundFormFormat = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    return foundFormFormat;
                 }
             }
         } catch (Exception e) {
@@ -366,31 +461,25 @@ public class GuvnorConnectionUtils {
         return false;
     }
     
-    private void applyAuth(HttpURLConnection connection) {
-        BASE64Encoder enc = new sun.misc.BASE64Encoder();
-        String userpassword = getGuvnorUsr() + ":" + getGuvnorPwd();
-        String encodedAuthorization = enc.encode(userpassword.getBytes());
+    protected void applyAuth(HttpURLConnection connection) {
+        String auth = getGuvnorUsr() + ":" + getGuvnorPwd();
         connection.setRequestProperty("Authorization", "Basic "
-                + encodedAuthorization);
+                + Base64.encodeBase64String(auth.getBytes()));
     }
-    
+
     private InputStream getInputStreamForImageURL(String urlLocation, String requestMethod) throws Exception {
         URL url = new URL(urlLocation);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         connection.setRequestMethod(requestMethod);
         connection
-                .setRequestProperty(
-                        "User-Agent",
-                        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        connection
-                .setRequestProperty("Accept",
-                        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
-        connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+        .setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
+        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
         connection.setRequestProperty("charset", "UTF-8");
-        connection.setReadTimeout(10 * 1000);
-
+        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
         applyAuth(connection);
 
         connection.connect();
@@ -404,19 +493,14 @@ public class GuvnorConnectionUtils {
 
         connection.setRequestMethod(requestMethod);
         connection
-                .setRequestProperty(
-                        "User-Agent",
-                        "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        connection
-                .setRequestProperty("Accept",
-                        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        connection.setRequestProperty("Accept-Language", "en-us,en;q=0.5");
-        connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+        .setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
+        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
         connection.setRequestProperty("charset", "UTF-8");
-        connection.setReadTimeout(10 * 1000);
-
+        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
         applyAuth(connection);
-
         connection.connect();
 
         BufferedReader sreader = new BufferedReader(new InputStreamReader(
@@ -427,12 +511,12 @@ public class GuvnorConnectionUtils {
         while ((line = sreader.readLine()) != null) {
             stringBuilder.append(line + "\n");
         }
-
+        
         return new ByteArrayInputStream(stringBuilder.toString().getBytes(
                 "UTF-8"));
     }
     
-    private boolean isEmpty(final CharSequence str) {
+    protected boolean isEmpty(final CharSequence str) {
         if ( str == null || str.length() == 0 ) {
             return true;
         }
@@ -458,10 +542,34 @@ public class GuvnorConnectionUtils {
         }
     }
     
+    public boolean guvnorExists() {
+        String checkURLStr = getGuvnorProtocol()
+                + "://"
+                + getGuvnorHost()
+                + "/"
+                + getGuvnorSubdomain()
+                + "/rest/packages/";
+        
+        try {
+            URL checkURL = new URL(checkURLStr);
+            HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
+            checkConnection.setRequestMethod("GET");
+            checkConnection.setRequestProperty("Accept", "application/atom+xml");
+            checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+            checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
+            applyAuth(checkConnection);
+            checkConnection.connect();
+            return (checkConnection.getResponseCode() == 200);
+        } catch (Exception e) {
+            logger.error("Error checking guvnor existence: " + e.getMessage());
+            return false;
+        } 
+    }
+    
     private class TemplateInfo {
         List<String> data = new ArrayList<String>();
         
-        public TemplateInfo(String protocol, String host, String usr, String pwd, 
+        public TemplateInfo(String protocol, String host, String usr, String pwd,
                 String subdomain, List<String> packages) {
             for(String pkg : packages) {
                 StringBuffer sb = new StringBuffer();
@@ -469,7 +577,7 @@ public class GuvnorConnectionUtils {
                 sb.append(protocol).append("://");
                 sb.append(host).append("/");
                 sb.append(subdomain).append("/").append("org.drools.guvnor.Guvnor/package/");
-                sb.append(pkg).append("/LATEST\"");
+                sb.append(pkg).append("/" + getGuvnorSnapshotName() + "\"");
                 sb.append(" type=\"PKG\"");
                 if(!isEmpty(usr) && !isEmpty(pwd)) {
                     sb.append(" basicAuthentication=\"enabled\"");

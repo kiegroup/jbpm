@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0"
+<chapter id="ch.core-basics"
+         version="5.0"
          xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
          xml:base="../" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:ns="http://docbook.org/ns/docbook">
-  <title>Core Engine: Basics</title>
+  <title id="ch.core-basics.title" >Core Engine: Basics</title>
 
   <figure>
     <mediaobject>
@@ -36,10 +37,10 @@
     <section>
       <title>Using the graphical BPMN2 Editor</title>
 
-      <para>The graphical BPMN2 editor is a editor that allows you to create a process
+      <para>The graphical BPMN2 editor is an editor that allows you to create a process
       by dragging and dropping different nodes on a canvas and editing the properties of these
       nodes.  The graphical BPMN2 editor is part of the jBPM / Drools Eclipse plugin.  Once
-      you have set up a jBPM project (see the installer for creating an working Eclipse
+      you have set up a jBPM project (see the installer for creating a working Eclipse
       environment where you can start), you can start adding processes.  When in a project,
       launch the "New" wizard (use Ctrl+N) or right-click the directory you would like to put
       your process in and select "New", then "File".  Give the file a name and the extension
@@ -188,7 +189,13 @@ factory
     // Connections
     .connection(1, 2)
     .connection(2, 3);
-RuleFlowProcess process = factory.validate().getProcess();</programlisting>
+RuleFlowProcess process = factory.validate().getProcess();
+KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+kbuilder.add(ResourceFactory.newByteArrayResource(
+    XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes()), ResourceType.BPMN2);
+KnowledgeBase kbase = kbuilder.newKnowledgeBase();
+StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+ksession.startProcess("org.jbpm.HelloWorld");</programlisting>
         
       <para>You can see that we start by calling the static <code>createProcess()</code>
       method from the <code>RuleFlowProcessFactory</code> class.  This method creates
@@ -230,7 +237,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
   
   <para>The following chapters will describe the different constructs that you can use
   to model your processes (and their properties) in detail.  Executable processes in BPMN consist
-  of a different types of nodes being connected to each other using sequence flows.
+  of different types of nodes being connected to each other using sequence flows.
   The BPMN 2.0 specification defines three main types of nodes:</para>
   <itemizedlist>
     <listitem><emphasis>Events</emphasis>: They are used to model the occurrence of a particular
@@ -239,7 +246,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
     indicate events that might occur during the execution of the process).</listitem>
     <listitem><emphasis>Activities</emphasis>: These define the different actions that need to be
     performed during the execution of the process.  Different types of tasks exist, depending on 
-    the type of activity you are trying to model (e.g. human task, service task, etc.) and actvities
+    the type of activity you are trying to model (e.g. human task, service task, etc.) and activities
     could also be nested (using different types of sub-processes).</listitem>
     <listitem><emphasis>Gateways</emphasis>: Can be used to define multiple paths in the process.
     Depending on the type of gateway, these might indicate parallel execution, choice, etc.</listitem>
@@ -294,7 +301,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
         <listitem>
           <para><emphasis>Swimlanes</emphasis>: Specify the swimlanes used in this process
           for assigning human tasks. See chapter
-          <quote><link linkend='ch.Human_Tasks' endterm="ch.Human_Tasks.title"/></quote>
+          <quote><link linkend='ch.human-tasks' endterm="ch.human-tasks.title"/></quote>
           for details.</para>
         </listitem>
 
@@ -355,7 +362,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
 
         <para>The end of the process.  A process
         should have one or more end events.  The End Event should have one incoming
-        connection and cannot have outgoing connections.  It contains the following
+        connection and cannot have any outgoing connections.  It contains the following
         properties:</para>
         <itemizedlist>
           <listitem> 
@@ -366,17 +373,17 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
             <para><emphasis>Name</emphasis>: The display name of the node.</para>
           </listitem>
           <listitem>
-            <para><emphasis>Terminate</emphasis>: An End Event can be terminating for
-            the entire process or just for the path. When a process instance is
+            <para><emphasis>Terminate</emphasis>: An End Event can terminate
+            the entire process or just the path. When a process instance is
             terminated, it means its state is set to completed and all other nodes 
             that might still be active (on parallel paths) in this
             process instance are cancelled. Non-terminating end events are simply ends
             for this path (execution of this branch will end here), but other parallel
-            paths can still continue.  A process instances will automatically complete
+            paths can still continue.  A process instance will automatically complete
             if there are no more active paths inside that process instance (for example,
             if a process instance reaches a non-terminating end node but there are no
             more active branches inside the process instance, the process instance
-            will be completed anyway).  Terminating end event are
+            will be completed anyway).  Terminating end events are
             visualized using a full circle inside the event node, non-terminating event
             nodes are empty.  Note that, if you use a terminating event node inside a sub-process,
             you are terminating the top-level process instance, not just that sub-process.</para>
@@ -415,7 +422,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
           </listitem>
           <listitem>
             <para><emphasis>FaultName</emphasis>: The name of the fault.  This
-            name is used to search for appriopriate exception handlers that is
+            name is used to search for appropriate exception handlers that are
             capable of handling this kind of fault.</para>
           </listitem>
           <listitem>
@@ -426,7 +433,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
         </itemizedlist>
         
         <para>Error handlers can be specified using boundary events.  This is however
-        currently only possible by doing this in XML directly.  We will
+        currently only possible when working with XML directly.  We will
         be adding support for graphically specifying this in the new BPMN2 editor.</para>
     
     </section>
@@ -470,20 +477,20 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
           <listitem>
             <para><emphasis>Timer delay</emphasis>: The delay that the node should 
             wait before triggering the first time. The expression should be of the form
-            <code>[#d][#h][#m][#s][#[ms]]</code>.  This means that you can specify the amount of days,
-            hours, minutes, seconds and multiseconds (which is the default if you don't
+            <code>[#d][#h][#m][#s][#[ms]]</code>.  This allows you to specify the number of days,
+            hours, minutes, seconds and milliseconds (which is the default if you don't
             specify anything).  For example, the expression "1h" will wait one hour
             before triggering the timer.  The expression could also use #{expr} to
             dynamically derive the delay based on some process variable.  Expr in this
             case could be a process variable, or a more complex expression based on a
-            process variable (e.g. myVariable.getValue()).</para>.
+            process variable (e.g. myVariable.getValue()).</para>
           </listitem>
           <listitem>
             <para><emphasis>Timer period</emphasis>: The period
             between two subsequent triggers.  If the period is 0, the timer should
             only be triggered once.   The expression should be of the form
-            <code>[#d][#h][#m][#s][#[ms]]</code>.  This means that you can specify the amount of days,
-            hours, minutes, seconds and multiseconds (which is the default if you don't
+            <code>[#d][#h][#m][#s][#[ms]]</code>. You can specify the number of days,
+            hours, minutes, seconds and milliseconds (which is the default if you don't
             specify anything).  For example, the expression "1h" will wait one hour
             before triggering the timer again.  The expression could also use #{expr} to
             dynamically derive the period based on some process variable.  Expr in this
@@ -493,7 +500,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
         </itemizedlist>
         
         <para>Timer events could also be specified as boundary events on sub-processes.
-        This is however currently only possible by doing this in XML directly.  We will
+        This is however currently only possible when working with XML directly.  We will
         be adding support for graphically specifying this in the new BPMN2 editor.</para>
         
     </section>
@@ -553,8 +560,8 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
         <programlisting>kcontext.getKnowledgeRuntime().signalEvent(
   eventType, data, kcontext.getProcessInstance().getId());</programlisting>
 
-        <para>A throwing signal events could also be used to model the signaling of an
-        event. This is however currently only possible by doing this in XML directly.  We will
+        <para>A throwing signal event could also be used to model the signaling of an
+        event. This is however currently only possible when working with XML directly.  We will
         be adding support for graphically specifying this in the new BPMN2 editor.</para>
         
     </section>
@@ -612,12 +619,12 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
             <listitem>When trying to create a higher-level business process, that should
             also be understood by business users, it is probably wise to avoid low-level
             implementation details inside the process, including inside these script tasks.
-            Script task could still be used to quickly manipulate variables etc. but
-            other concepts like a service task could be used to model more complex
+            A Script Task could still be used to quickly manipulate variables etc. but
+            other concepts like a Service Task could be used to model more complex
             behaviour in a higher-level manner.</listitem>
             <listitem>Scripts should be immediate.  They are using the engine thread
             to execute the script.  Scripts that could take some time to execute should
-            probably be modeled as an asynchronous service task.</listitem>
+            probably be modeled as an asynchronous Service Task.</listitem>
             <listitem>You should try to avoid contacting external services through a
             script node.  Not only does this usually violate the first two caveats, it
             is also interacting with external services without the knowledge of the engine,
@@ -794,7 +801,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
         
         <para>A user task should define the type of task that needs to be executed
         (using properties like TaskName, Comment, etc.) and who needs to perform it
-        (using either actorId or groupId).  Note that, if there is data related to
+        (using either actorId or groupId).  Note that if there is data related to
         this specific process instance that the end user needs when performing the
         task, this data should be passed as the content of the task.  The task for
         example does not have access to process variables.  Check out the chapter on
@@ -832,19 +839,21 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
             be executed.</para>
           </listitem>
           <listitem>
-            <para><emphasis>Wait for completion</emphasis>: If this property is true,
+            <para><emphasis>Wait for completion</emphasis> (by default true): If this property is true,
             this sub-process node will only continue if the child process that was started
             has terminated its execution (completed or aborted); otherwise it will 
             continue immediately after starting the subprocess (so it will not wait for
             its completion).</para>
           </listitem>
           <listitem>
-            <para><emphasis>Independent</emphasis>: If this property is true, the
+            <para><emphasis>Independent</emphasis> (by default true): If this property is true, the
             child process is started as an independent process, which means that the
             child process will not be terminated if this parent process is completed (or
             this sub-process node is cancelled for some other reason);
             otherwise the active sub-process will be cancelled on termination of the parent
-            process (or cancellation of the sub-process node).</para>
+            process (or cancellation of the sub-process node).  Note that you can only set
+            independent to "false" only when "Wait for completion" is set to true.
+            </para>
           </listitem>
           <listitem>
             <para><emphasis>On-entry and on-exit actions</emphasis>: Actions that are 
@@ -855,7 +864,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
             also define in- and out-mappings for variables.  The variables
             given in the "in" mapping will be used as parameters (with the associated 
             parameter name) when starting the process. The variables of the child process
-            that are defined the "out" mappings will be copied to the variables of this
+            that are defined for the "out" mappings will be copied to the variables of this
             process when the child process has been completed.  Note that you can use
              "out" mappings only when "Wait for completion" is set to true.</para>
           </listitem>
@@ -875,23 +884,26 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
         </mediaobject>
       </figure>
 
-        <para>Represents a set
-        of rules that need to be evaluated.  The rules are evaluated when the node
-        is reached.  A Rule Task should have one incoming connection and
-        one outgoing connection.  Rules are defined in separate files using the
-        Drools rule format.  Rules can become part of a specific ruleflow group
-        using the <literal>ruleflow-group</literal> attribute in the header of the rule.
-        When a Rule Task is reached in the process, the engine will start executing rules that are
-        part of the corresponding ruleflow-group (if any).  Execution will
-        automatically continue to the next node if there are no more active rules in
-        this ruleflow group.  This means that, during the execution of a ruleflow group,
-        it is possible that new activations belonging to the currently active
-        ruleflow group are added to the Agenda due to changes made to the facts by
+        <para>A Business Rule Task Represents a set of rules that need to be 
+        evaluated.  The rules are evaluated when the node is reached.  A Rule 
+        Task should have one incoming connection and one outgoing connection.  
+        Rules are defined in separate files using the Drools rule format.  Rules 
+        can become part of a specific ruleflow group using the <literal>ruleflow-group</literal> 
+        attribute in the header of the rule.</para>
+
+        <para>When a Rule Task is reached in the process, the engine will start 
+        executing rules that are part of the corresponding ruleflow-group (if any).  
+        Execution will automatically continue to the next node if there are 
+        no more active rules in this ruleflow group. As a result, during the 
+        execution of a ruleflow group, new activations belonging to the currently active
+        ruleflow group can be added to the Agenda due to changes made to the facts by
         the other rules. Note that the process will immediately continue with the
         next node if it encounters a ruleflow group where there are no active rules
-        at that time.  If the ruleflow group was already active, the ruleflow group
+        at that time.</para>
+        
+        <para>If the ruleflow group was already active, the ruleflow group
         will remain active and execution will only continue if all active rules of the
-        ruleflow group has been completed.  It contains the following properties:</para>
+        ruleflow group has been completed. It contains the following properties:</para>
         <itemizedlist>
           <listitem>
             <para><emphasis>Id</emphasis>: The id of the node (which is unique within
@@ -987,7 +999,7 @@ RuleFlowProcess process = factory.validate().getProcess();</programlisting>
             be iterated over.  The collection variable should be an array or
             of type <code>java.util.Collection</code>.  If the collection
             expression evaluates to null or an empty collection, the multiple
-            instances sub-process will be completed immediate and follow its
+            instances sub-process will be completed immediately and follow its
             outgoing connection.</para>
           </listitem>
           <listitem>
@@ -1226,6 +1238,26 @@ person.setAge(10);</programlisting>
         example can store the data associated to the event in a variable, etc. 
         Check the properties of the different node types for more information.</para>
         </listitem>
+        <listitem><para>Process variables can be accessed also from the Java code of your application. It is
+        done by casting of <code>ProcessInstance</code> to <code>WorkflowProcessInstance</code>.
+        See the following example:</para>
+        <programlisting language="java">variable = ((WorkflowProcessInstance) processInstance).getVariable("variableName");</programlisting>
+        <para>To list all the process variables see the following code snippet:</para>
+        <programlisting language="java">org.jbpm.process.instance.ProcessInstance processInstance = ...;
+VariableScopeInstance variableScope = (VariableScopeInstance) processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
+Map&lt;String, Object&gt; variables = variableScope.getVariables();</programlisting>
+        <para>Note that when you use persistence then you have to use a command based
+        approach to get all process variables:</para>
+            <programlisting language="java">Map&lt;String, Object&gt; variables = ksession.execute(new GenericCommand&lt;Map&lt;String, Object&gt;&gt;() {
+    public Map&lt;String, Object&gt; execute(Context context) {
+        StatefulKnowledgeSession ksession = ((KnowledgeCommandContext) context).getStatefulKnowledgesession();
+        org.jbpm.process.instance.ProcessInstance processInstance = (org.jbpm.process.instance.ProcessInstance) ksession.getProcessInstance(piId);
+        VariableScopeInstance variableScope = (VariableScopeInstance) processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
+        Map&lt;String, Object&gt; variables = variableScope.getVariables();
+        return variables;
+    }
+});</programlisting>
+        </listitem>
       </itemizedlist>
 
     <para>Finally, processes (and rules) all have access to globals, i.e.
@@ -1372,7 +1404,7 @@ System.out.println( person.name );
       <itemizedlist>
         <listitem><para>Internal event: Any action inside a process (e.g., the action of an
         action node, or an on-entry or on-exit action of some node) can signal the
-        occurence of an internal event to the surrounding process instance, using code
+        occurrence of an internal event to the surrounding process instance, using code
         like the following:</para>
         <programlisting language="java">kcontext.getProcessInstance().signalEvent(type, eventData);</programlisting></listitem>
         <listitem><para>External event: A process instance can be notified of an event
@@ -1409,8 +1441,8 @@ System.out.println( person.name );
     subsequent trigger activations. A period of 0 results in a one-shot timer.</para>
     
     <para>The (period and delay) expression should be of the form
-    [#d][#h][#m][#s][#[ms]].  This means that you can specify the amount of days,
-    hours, minutes, seconds and multiseconds (which is the default if you don't
+    [#d][#h][#m][#s][#[ms]].  You can specify the amount of days,
+    hours, minutes, seconds and milliseconds (which is the default if you don't
     specify anything).  For example, the expression "1h" will wait one hour
     before triggering the timer (again).</para>
 
@@ -1422,12 +1454,12 @@ System.out.println( person.name );
       <itemizedlist>
         <listitem><para>A Timer Event may be added to the process flow. Its activation
         starts the timer, and when it triggers, once or repeatedly, it activates the
-        Timer node's successor.  This means that the outgoing connection of a
+        Timer node's successor. Subsequently, the outgoing connection of a
         timer with a positive period is triggered multiple times. Cancelling a
         Timer node also cancels the associated timer, after which no more triggers
         will occur.</para></listitem>
         <listitem><para>Timers can be associated with a Sub-Process as a boundary event.
-        This is however currently only possible by doing this in XML directly.  We will
+        This is however currently only possible when working with XML directly.  We will
         be adding support for graphically specifying this in the new BPMN2 editor.</para></listitem>
       </itemizedlist>
 
@@ -1484,19 +1516,19 @@ System.out.println( person.name );
     <para>A process instance only contains the runtime state and is linked to a particular
     process (indirectly, using id references) that represents the process logic that needs
     to be followed when executing this process instance (this clear separation of definition
-    and runtime state allows reuse of the definition accross all process instances based
+    and runtime state allows reuse of the definition across all process instances based
     on this process and minimizes runtime state).  As a result, updating a running process
-    instance to a newer version so it used the new process logic instead of the old one is
+    instance to a newer version so it uses the new process logic instead of the old one is
     simply a matter of changing the referenced process id from the old to the new id.</para>
 
     <para>However, this does not take into account that the state of the process instance (the
     variable instances and the node instances) might need to be migrated as well.  In cases
     where the process is only extended and all existing wait states are kept, this is pretty
     straightforward, the runtime state of the process instance does not need to change at all.
-    However, it is also possible that a more sofisticated mapping is necessary.  For example,
+    However, it is also possible that a more sophisticated mapping is necessary.  For example,
     when an existing wait state is removed, or split into multiple wait states, an existing 
     process instance that is waiting in that state cannot simply be updated.  Or when a new
-    process variable is introduced, that variable might need to be initiazed correctly so it
+    process variable is introduced, that variable might need to be initiated correctly so it
     can be used in the remainder of the (updated) process.</para>
 
     <para>The WorkflowProcessInstanceUpgrader can be used to upgrade a workflow process
@@ -1504,7 +1536,7 @@ System.out.println( person.name );
     and the new process id. By default, jBPM will automatically map old node instances
     to new node instances with the same id.  But you can provide a mapping of the old (unique)
     node id to the new node id.  The unique node id is the node id, preceded by the node ids
-    of its parents (with a colon inbetween), to allow to uniquely identify a node when composite
+    of its parents (with a colon inbetween), to uniquely identify a node when composite
     nodes are used (as a node id is only unique within its node container.  The new node id
     is simply the new node id in the node container (so no unique node id here, simply the new
     node id).  The following code snippet shows a simple example.</para>
@@ -1540,69 +1572,74 @@ WorkflowProcessInstanceUpgrader.upgradeProcessInstance(
       
     <section>
       <title>Multi-threading</title>
+   
+    <para>In the following text, we will refer to two types of "multi-threading": 
+    <emphasis>logical</emphasis> and <emphasis>technical</emphasis>. 
+    <emphasis>Technical multi-threading</emphasis> is what happens when multiple 
+    threads or processes are started on a computer, for example by a Java or 
+    C program. <emphasis>Logical multi-threading</emphasis> is what we see in 
+    a BPM process after the process reaches a parallel gateway, for 
+    example. From a functional standpoint, the original process will then split 
+    into two processes that are executed in a parallel fashion.</para>
+
+    <para>Of course, the jBPM engine supports logical multi-threading: for example, 
+    processes that include a parallel gateway. We've chosen to implement logical 
+    multi-threading using one thread: a jBPM process that includes logical multi-threading 
+    will only be executed in one technical thread. The main reason for doing 
+    this is that multiple (technical) threads need to be be able to communicate 
+    state information with each other if they are working on the same process. 
+    This requirement brings with it a number of complications. While it might 
+    seem that multi-threading would bring performance benefits with it, the extra 
+    logic needed to make sure the different threads work together well means 
+    that this is not guaranteed. There is also the extra overhead incurred because 
+    we need to avoid race conditions and deadlocks.</para> 
+
+    <section>
+      <title>Engine execution</title>
+   
+    <para>In general, the jBPM engine executes actions in serial. For example, 
+    when the engine encounters a script task in a process, it will synchronously 
+    execute that script and wait for it to complete before continuing execution.  
+    Similarly, if a process encounters a parallel gateway, it will sequentially 
+    trigger each of the outgoing branches, one after the other. This is possible 
+    since execution is almost always instantaneous, meaning that it is extremely 
+    fast and produces almost no overhead. As a result, the user will usually 
+    not even notice this.  Similarly, action scripts in a process are also synchronously
+    executed, and the engine will wait for them to finish before continuing the 
+    process. For example, doing a <code>Thread.sleep(...)</code> as part of 
+    a script will not make the engine continue execution elsewhere but will 
+    block the engine thread during that period.</para>
     
-    <para>The engine itself allows you to run multiple threads on the same session.
-    A process instance itself however uses logical multi-threading to implement parallel
-    execution, not multiple real threads.  The main reason for doing this is that allowing
-    multiple threads to execute on the same process instance implicates that we have to
-    make sure that state is consistent across these threads, and that there are no race
-    conditions and deadlocks etc.  This can have a significant impact on performance, even
-    when multi-threading is not required.  Allowing real multi-threading on the same
-    process instance is also no guarantee on improved performance, as in general it leads
-    to decreased performance (due to overhead and conflicts).  Therefore, we only allow
-    one thread to be processing a specific process instance at each time.  It is however
-    simple to achieve logical multi-threading using asynchronous tasks, as explained below.
+    <para>The same principle applies to service tasks. When a service task is 
+    reached in a process, the engine will also invoke the handler of this service 
+    synchronously.  The engine will wait for the <code>completeWorkItem(...)</code> 
+    method to return before continuing execution. It is important that your 
+    service handler executes your service asynchronously if its execution is 
+    not instantaneous.</para>
+    
+    <para>An example of this would be a service task that invokes an external 
+    service.  Since the delay in invoking this service remotely and waiting for 
+    the results might be too long, it might be a good idea to invoke this service 
+    asynchronously. This means that the handler will only invoke the service 
+    and will notify the engine later when the results are available.  In the 
+    mean time, the process engine then continues execution of the process.  
     </para>
     
-    <para>In general, the engine executes the process sequentially.  For example, when
-    the engine encounters a script task in a process, it will synchronously execute that
-    script and wait for it to complete before continuing execution.  Similarly, if a process
-    encounters a parallel gateway, it will sequentially trigger each of the outgoing
-    branches, one after the other.  This is possible since execution is almost always
-    instantaneous, meaning that it is extremely fast and almost produces no overhead.  
-    As a result, the user usually doesn't even notice this.</para>
+    <para>Human tasks are a typical example of a service that needs to be invoked 
+    asynchronously, as we don't want the engine to wait until a human actor 
+    has responded to the request. The human task handler will only create a new task 
+    (on the task list of the assigned actor) when the human task node is triggered. 
+    The engine will then be able to continue execution on the rest of the process 
+    (if necessary) and the handler will notify the engine asynchronously when 
+    the user has completed the task.</para>
     
-    <para>When a service task is reached in the process, the engine will also invoke the
-    handler of this service synchronously.  This means that the engine will wait for
-    the completeWorkItem(..) method to return before continuing execution.  Therefore,
-    it is important that your service handler executes your service asynchronously if
-    its execution is not instantaneous.  Image for example you want to invoke an external
-    service.  Since the delay of invoking this service remotely and waiting for the results
-    might be too high, it might be a good idea to invoke this service asynchronously.  This
-    means that the handler will only invoke the service asynchronously and will notify
-    the engine if the results are available.  In the mean time, the process engine can
-    then continue execution elsewhere.  Similarly, your action scripts also be
-    instantaneous, as the engine will be waiting for it to execute.  For example, doing
-    Thread.sleep(..) as part of a script will not make the engine continue execution
-    elsewhere but will block the engine thread during that period.</para>
-    
-    <para>Human tasks are a typical example of a service that
-    needs to be invoked asynchronously, as we don't want the engine to wait until a human
-    actor has responded to the request.  Therefore, the human task handler will only
-    create a new task (on the task list of the assigned actor) when the human task node
-    is triggered.  The engine will then be able to continue execution on the rest of the
-    process (if necessary) and the handler will notify the engine asynchronously when the
-    user has completed the task.</para>
-    
-    <para>Image for example that you have a process that executes three service in
-    parallel using a parallel gateway.  The engine will first trigger the first service
-    when executing this process, in which case the first service will be invoked.  Since
-    the handler will invoke this service asynchronously, this service will be executing
-    separately.  The engine can in the mean while continue executing the rest of the
-    process, until the results of the service return.  So the engine will continue with
-    executing the second branch of the parallel gateway, triggering the second service
-    (asynchronously).  While the second service is also executing, it will then invoke the
-    third service as well.  At that point, all three services will be executing in parallel
-    and the engine will be waiting for the results to return.  As you can see, you can
-    achieve multi-threading and parallelism by making sure that the tasks that need to be
-    executed in parallel are invoked asynchronously</para>
-    
+    </section>
     <section>
       <title>Asynchronous handlers</title>
       
-      <para>How to implement an asynchronous service handler?  In general, this all
-      depends on the technology you're using.  If you're using only simple Java, you
-      can for example execute the actual service in a new thread:</para>
+      <para>How can we implement an asynchronous service handler? To start with, 
+      this depends on the technology you're using.  If you're only using 
+      Java, you could execute the actual service in a new thread:</para>
       
       <programlisting language="java">public class MyServiceTaskHandler implements WorkItemHandler {
         
@@ -1619,15 +1656,64 @@ WorkflowProcessInstanceUpgrader.upgradeProcessInstance(
       
 }</programlisting>
 
-      <para>In general, a handler usually will not implement the business logic to
-      perform the work item, but would rather contact an existing service to do the
-      hard work.  For example, the human task handler simply invokes the human task
-      service to add a task there.  To implement an asynchronous handler, you usually
-      have to simply do an asynchronous invocation of this service.  This usually
-      depends on the technology you use to do the communication, but this might be
-      as simple as asynchronously invoking a web service, sending a JMS message to
-      the external service, etc.</para>
+      <para>It's advisable to have your handler contact a service that 
+      executes the business operation, instead of having it perform the actual 
+      work.  If anything goes wrong with a business operation, it doesn't affect 
+      your process. The loose coupling that this provides also gives you greater 
+      flexibility in reusing services and developing them. </para>
       
+      <para>For example, you can have your human task handler simply invoke the 
+      human task service to add a task there. To implement an asynchronous handler, 
+      you usually have to simply do an asynchronous invocation of this service.  
+      This usually depends on the technology you use to do the communication, 
+      but this might be as simple as asynchronously invoking a web service, 
+      or sending a JMS message to the external service.</para>
+
+    </section>
+    <section>
+      <title>Multiple knowledge sessions and persistence</title>
+
+    <para>The simplest way to run multiple processes is to run them all using 
+    one knowledge session. However, there are cases in which it's necessary
+    to run multiple processes in different knowledge sessions, even in
+    different (technical) threads. Both are supported by jBPM.</para>
+
+    <para>When we add persistence (using a database, for example) to a situation
+    in which we have multiple knowledge sessions (and processes), there is a 
+    guideline that users should be aware of. The following paragraphs explain 
+    why this guideline is important to follow. 
+    <itemizedlist>
+       <listitem>Please make sure to use a database that allows row-level locks 
+       as well as table-level locks.</listitem>
+    </itemizedlist>
+    </para> 
+
+    <para>For example, a user could have a situation in which there are 2 
+    (or more) threads running, each with its own knowledge session instance. 
+    On each thread, jBPM processes are being started using the local knowledge 
+    session instance.</para>
+
+    <para>In this use case, a race condition exists in which both thread A and 
+    thread B will have coincidentally simultaneously finished a process. At 
+    this point, because persistence is being used, both thread A and B will 
+    be commiting changes to the databse. If row-level locks are 
+    <emphasis>not</emphasis> possible, then the following situation can occur: 
+    <itemizedlist>
+       <listitem>Thread A has a lock on the <code>ProcessInstanceInfo</code> table, having just
+       committed a change to that table.</listitem>
+       <listitem>Thread A <emphasis>wants</emphasis> a lock on the <code>SessionInfo</code> table
+       in order to commit a change there.</listitem>
+       <listitem>Thread B has the opposite situation: it has a lock on the <code>SessionInfo</code>
+       table, having just committed a change there.</listitem>
+       <listitem>Thread B <emphasis>wants</emphasis> a lock on the <code>ProcessInstanceInfo</code>
+       table, even though Thread <emphasis>A</emphasis> already has a lock on it</listitem>
+    </itemizedlist>
+    This is a deadlock situation which the database and application will not be able to solve. 
+    </para> 
+
+    <para>However, if row-level locks are posible (and enabled!!) in the database (and tables used), 
+    then this situation will not occur.</para>
+    
     </section>
 
   </section>

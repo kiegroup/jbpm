@@ -41,6 +41,7 @@ import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
+import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.ActionNode;
@@ -58,9 +59,10 @@ import org.jbpm.workflow.core.node.Trigger;
 import org.jbpm.workflow.core.node.WorkItemNode;
 
 public class XmlBPMNProcessDumper {
-
-    public static final String JAVA_LANGUAGE = "http://www.java.com/java";
-    public static final String RULE_LANGUAGE = "http://www.jboss.org/drools/rule";
+	
+	public static final String JAVA_LANGUAGE = "http://www.java.com/java";
+	public static final String MVEL_LANGUAGE = "http://www.mvel.org/2.0";
+	public static final String RULE_LANGUAGE = "http://www.jboss.org/drools/rule";
     public static final String XPATH_LANGUAGE = "http://www.w3.org/1999/XPath";
     public static final String ECMASCRIPT_DIALECT = "http://www.ecmascript.org";
     
@@ -106,65 +108,49 @@ public class XmlBPMNProcessDumper {
         String targetNamespace = (String) process.getMetaData().get(
                 "TargetNamespace");
         if (targetNamespace == null) {
-            targetNamespace = "http://www.jboss.org/drools";
+        	targetNamespace = "http://www.jboss.org/drools";
         }
-        xmlDump.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?> "
-                + EOL
-                + "<definitions id=\"Definition\""
-                + EOL
-                + "             targetNamespace=\""
-                + targetNamespace
-                + "\""
-                + EOL
-                + "             typeLanguage=\"http://www.java.com/javaTypes\""
-                + EOL
-                + "             expressionLanguage=\"http://www.mvel.org/2.0\""
-                + EOL
-                + "             xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\""
-                + EOL
-                + "             xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                + EOL
-                + "             xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\""
-                + EOL
-                + "             xmlns:g=\"http://www.jboss.org/drools/flow/gpd\""
-                + EOL
-                + (metaDataType == META_DATA_USING_DI ? "             xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\""
-                        + EOL
-                        + "             xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\""
-                        + EOL
-                        + "             xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\""
-                        + EOL
-                        : "")
-                + "             xmlns:tns=\"http://www.jboss.org/drools\">"
-                + EOL + EOL);
+    	xmlDump.append(
+    		"<?xml version=\"1.0\" encoding=\"UTF-8\"?> " + EOL +
+            "<definitions id=\"Definition\"" + EOL +
+            "             targetNamespace=\"" + targetNamespace + "\"" + EOL +
+            "             typeLanguage=\"http://www.java.com/javaTypes\"" + EOL +
+            "             expressionLanguage=\"http://www.mvel.org/2.0\"" + EOL +
+            "             xmlns=\"http://www.omg.org/spec/BPMN/20100524/MODEL\"" + EOL +
+            "             xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + EOL +
+            "             xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\"" + EOL +
+            "             xmlns:g=\"http://www.jboss.org/drools/flow/gpd\"" + EOL +
+            (metaDataType == META_DATA_USING_DI ? 
+                "             xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\"" + EOL +
+            	"             xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\"" + EOL +
+        		"             xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\"" + EOL : "") +
+            "             xmlns:tns=\"http://www.jboss.org/drools\">" + EOL + EOL);
 
-        // item definitions
-        VariableScope variableScope = (VariableScope) ((org.jbpm.process.core.Process) process)
-                .getDefaultContext(VariableScope.VARIABLE_SCOPE);
-        visitVariableScope(variableScope, "_", xmlDump);
-        visitSubVariableScopes(process.getNodes(), xmlDump);
-
-        visitInterfaces(process.getNodes(), xmlDump);
-
-        visitEscalations(process.getNodes(), xmlDump, new ArrayList<String>());
-        visitErrors(process.getNodes(), xmlDump, new ArrayList<String>());
-
-        // data stores
-        Definitions def = (Definitions) process.getMetaData()
-                .get("Definitions");
-        if (def != null && def.getDataStores() != null) {
-            for (DataStore dataStore : def.getDataStores()) {
-                visitDataStore(dataStore, xmlDump);
-            }
+    	// item definitions
+    	VariableScope variableScope = (VariableScope)
+    		((org.jbpm.process.core.Process) process).getDefaultContext(VariableScope.VARIABLE_SCOPE);
+    	visitVariableScope(variableScope, "_", xmlDump);
+    	visitSubVariableScopes(process.getNodes(), xmlDump);
+        
+	    visitInterfaces(process.getNodes(), xmlDump);
+	    
+	    visitEscalations(process.getNodes(), xmlDump, new ArrayList<String>());
+	    visitErrors(process.getNodes(), xmlDump, new ArrayList<String>());
+	       
+	    //data stores
+    	Definitions def = (Definitions) process.getMetaData().get("Definitions");
+    	if (def != null && def.getDataStores() != null) {
+    		for (DataStore dataStore : def.getDataStores()) {
+    			visitDataStore(dataStore, xmlDump);
+    		}
+    	}
+    	
+	    // the process itself
+		xmlDump.append("  <process processType=\"Private\" isExecutable=\"true\" ");
+        if (process.getId() == null || process.getId().trim().length() == 0) {
+        	((ProcessImpl) process).setId("com.sample.bpmn2");
         }
-
-        // the process itself
-        xmlDump.append("  <process processType=\"Private\" isExecutable=\"true\" ");
-        if (process.getId() != null) {
-            xmlDump.append("id=\""
-                    + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(process
-                            .getId()) + "\" ");
-        }
+        xmlDump.append("id=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(process.getId()) + "\" ");
         if (process.getName() != null) {
             xmlDump.append("name=\""
                     + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(process
@@ -520,39 +506,20 @@ public class XmlBPMNProcessDumper {
                             + "_MessageType\" />" + EOL + EOL);
                 }
             } else if (node instanceof EventNode) {
-                if (node.getMetaData().get("AttachedTo") == null) {
-                    List<EventFilter> filters = ((EventNode) node)
-                            .getEventFilters();
-                    if (filters.size() > 0) {
-                        String messageRef = ((EventTypeFilter) filters.get(0))
-                                .getType();
-                        if (messageRef.startsWith("Message-")) {
-                            messageRef = messageRef.substring(8);
-                            String messageType = (String) node.getMetaData()
-                                    .get("MessageType");
-                            xmlDump.append("  <itemDefinition id=\""
-                                    + XmlBPMNProcessDumper
-                                            .replaceIllegalCharsAttribute(messageRef)
-                                    + "Type\" "
-                                    + ("".equals(messageType)
-                                            || "java.lang.Object"
-                                                    .equals(messageType) ? ""
-                                            : "structureRef=\""
-                                                    + XmlBPMNProcessDumper
-                                                            .replaceIllegalCharsAttribute(messageType)
-                                                    + "\" ")
-                                    + "/>"
-                                    + EOL
-                                    + "  <message id=\""
-                                    + XmlBPMNProcessDumper
-                                            .replaceIllegalCharsAttribute(messageRef)
-                                    + "\" itemRef=\""
-                                    + XmlBPMNProcessDumper
-                                            .replaceIllegalCharsAttribute(messageRef)
-                                    + "Type\" />" + EOL + EOL);
-                        }
-                    }
-                }
+            	List<EventFilter> filters = ((EventNode) node).getEventFilters();
+            	if (filters.size() > 0) {
+	                String messageRef = ((EventTypeFilter) filters.get(0)).getType();
+	                if (messageRef.startsWith("Message-")) {
+		                messageRef = messageRef.substring(8);
+		                String messageType = (String) node.getMetaData().get("MessageType");
+		                xmlDump.append(
+		                    "  <itemDefinition id=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(messageRef) + "Type\" " + 
+		                    	("".equals(messageType) || "java.lang.Object".equals(messageType) ?
+                        			"" : "structureRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(messageType) + "\" ") + 
+                        			"/>" + EOL +
+		                    "  <message id=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(messageRef) + "\" itemRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(messageRef) + "Type\" />" + EOL + EOL);
+	                }
+            	}
             } else if (node instanceof StartNode) {
                 StartNode startNode = (StartNode) node;
                 if (startNode.getTriggers() != null

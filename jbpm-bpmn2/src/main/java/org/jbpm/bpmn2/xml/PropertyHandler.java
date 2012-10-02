@@ -21,7 +21,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.process.core.datatype.DataType;
+import org.drools.process.core.datatype.impl.type.BooleanDataType;
+import org.drools.process.core.datatype.impl.type.FloatDataType;
+import org.drools.process.core.datatype.impl.type.IntegerDataType;
 import org.drools.process.core.datatype.impl.type.ObjectDataType;
+import org.drools.process.core.datatype.impl.type.StringDataType;
 import org.drools.xml.BaseAbstractHandler;
 import org.drools.xml.ExtensibleXmlParser;
 import org.drools.xml.Handler;
@@ -70,6 +74,7 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
 		parser.startElementBuilder(localName, attrs);
 
 		final String id = attrs.getValue("id");
+		final String name = attrs.getValue("name");
 		final String itemSubjectRef = attrs.getValue("itemSubjectRef");
 
 		Object parent = parser.getParent();
@@ -79,7 +84,12 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
                 contextContainer.getDefaultContext(VariableScope.VARIABLE_SCOPE);
 			List variables = variableScope.getVariables();
 			Variable variable = new Variable();
-			variable.setName(id);
+			// if name is given use it as variable name instead of id
+			if (name != null && name.length() > 0) {
+			    variable.setName(name);
+			} else {
+			    variable.setName(id);
+			}
 			// retrieve type from item definition
 			DataType dataType = new ObjectDataType();
 			Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
@@ -87,7 +97,29 @@ public class PropertyHandler extends BaseAbstractHandler implements Handler {
 	        if (itemDefinitions != null) {
 	        	ItemDefinition itemDefinition = itemDefinitions.get(itemSubjectRef);
 	        	if (itemDefinition != null) {
-	        		dataType = new ObjectDataType(itemDefinition.getStructureRef());
+	        	    
+	        	    String structureRef = itemDefinition.getStructureRef();
+	        	    
+	        	    if ("java.lang.Boolean".equals(structureRef) || "Boolean".equals(structureRef)) {
+	        	        dataType = new BooleanDataType();
+	        	        
+	        	    } else if ("java.lang.Integer".equals(structureRef) || "Integer".equals(structureRef)) {
+	        	        dataType = new IntegerDataType();
+                        
+	        	    } else if ("java.lang.Float".equals(structureRef) || "Float".equals(structureRef)) {
+	        	        dataType = new FloatDataType();
+                        
+                    } else if ("java.lang.String".equals(structureRef) || "String".equals(structureRef)) {
+                        dataType = new StringDataType();
+
+                    }
+                    else if ("java.lang.Object".equals(structureRef) || "Object".equals(structureRef)) {
+                        dataType = new ObjectDataType(structureRef);
+                        
+                    } else {
+                        dataType = new ObjectDataType(structureRef);
+                    }
+	        		
 	        	}
 	        }
 			variable.setType(dataType);

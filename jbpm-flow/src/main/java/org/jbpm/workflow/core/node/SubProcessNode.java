@@ -36,6 +36,7 @@ public class SubProcessNode extends StateBasedNode implements Mappable {
 	private static final long serialVersionUID = 510l;
 	
 	private String processId;
+	private String processName;
 	private boolean waitForCompletion = true;
 
         private List<DataAssociation> inMapping = new LinkedList<DataAssociation>();
@@ -138,9 +139,9 @@ public class SubProcessNode extends StateBasedNode implements Mappable {
             throw new IllegalArgumentException(
                 "This type of node only accepts default incoming connection type!");
         }
-        if (getFrom() != null) {
+        if (getFrom() != null && System.getProperty("jbpm.enable.multi.con") == null) {
             throw new IllegalArgumentException(
-                "This type of node cannot have more than one incoming connection!");
+                 "This type of node cannot have more than one incoming connection!");
         }
     }
 
@@ -150,10 +151,18 @@ public class SubProcessNode extends StateBasedNode implements Mappable {
             throw new IllegalArgumentException(
                 "This type of node only accepts default outgoing connection type!");
         }
-        if (getTo() != null) {
+        if (getTo() != null && System.getProperty("jbpm.enable.multi.con") == null) {
             throw new IllegalArgumentException(
-                "This type of node cannot have more than one outgoing connection!");
+              "This type of node cannot have more than one outgoing connection!");
         }
+    }
+
+    public void setProcessName(String processName) {
+        this.processName = processName;
+    }
+
+    public String getProcessName() {
+        return processName;
     }
     
 }

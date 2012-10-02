@@ -31,6 +31,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.drools.definition.process.Connection;
 import org.drools.definition.process.Node;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -83,6 +84,39 @@ public class ForEachNodeInstance extends CompositeNodeInstance {
             return nodeInstance;
         }
         return super.getNodeInstance(node);
+    }
+    
+    private Collection<?> evaluateCollectionExpression(String collectionExpression) {
+        // TODO: should evaluate this expression using MVEL
+        Object collection = null;
+        VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+            resolveContextInstance(VariableScope.VARIABLE_SCOPE, collectionExpression);
+        if (variableScopeInstance != null) {
+            collection = variableScopeInstance.getVariable(collectionExpression);
+        } else {
+            try {
+                collection = MVEL.eval(collectionExpression, new NodeInstanceResolverFactory(this));
+            } catch (Throwable t) {
+                throw new IllegalArgumentException(
+                    "Could not find collection " + collectionExpression);
+            }
+            
+        }
+        if (collection == null) {
+            return Collections.EMPTY_LIST;
+        }
+        if (collection instanceof Collection<?>) {
+            return (Collection<?>) collection;
+        }
+        if (collection.getClass().isArray() ) {
+            List<Object> list = new ArrayList<Object>();
+            for (Object o: (Object[]) collection) {
+                list.add(o);
+            }
+            return list;
+        }
+        throw new IllegalArgumentException(
+            "Unexpected collection type: " + collection.getClass());
     }
     
     public class ForEachSplitNodeInstance extends NodeInstanceImpl {
@@ -242,10 +276,38 @@ public class ForEachNodeInstance extends CompositeNodeInstance {
         }
 
         public void internalTrigger(org.drools.runtime.process.NodeInstance from, String type) {
+            
+            if (getForEachNode().getOutputVariableName() != null) {
+                Collection outputCollection = evaluateCollectionExpression(getForEachNode().getOutputCollectionExpression());
+                if (outputCollection == null) {
+                    outputCollection = Collections.emptyList();
+                }
+            
+                VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+                ((NodeInstanceImpl)from).resolveContextInstance(VariableScope.VARIABLE_SCOPE, getForEachNode().getOutputVariableName());
+                Object outputVariable = null;
+                if (variableScopeInstance != null) {
+                    outputVariable = variableScopeInstance.getVariable(getForEachNode().getOutputVariableName());
+                }
+                outputCollection.add(outputVariable);
+                VariableScopeInstance subprocessVariableScopeInstance = (VariableScopeInstance)
+                ((NodeInstanceImpl)from).resolveContextInstance(VariableScope.VARIABLE_SCOPE, getForEachNode().getOutputCollectionExpression());
+                subprocessVariableScopeInstance.setVariable(getForEachNode().getOutputCollectionExpression(), outputCollection);
+            }
             if (getNodeInstanceContainer().getNodeInstances().size() == 1) {
             	((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
                 if (getForEachNode().isWaitForCompletion()) {
-                	triggerConnection(getForEachJoinNode().getTo());
+                	
+                	if (System.getProperty("jbpm.enable.multi.con") == null) {
+                		
+                		triggerConnection(getForEachJoinNode().getTo());
+                	} else {
+                	
+	                    List<Connection> connections = getForEachJoinNode().getOutgoingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+	                	for (Connection connection : connections) {
+	                	    triggerConnection(connection);
+	                	}
+                	}
                 }
             }
         }

@@ -1,15 +1,14 @@
 package org.jbpm.integration.console;
 
-import org.jbpm.integration.JbpmTestCase;
+import org.jbpm.integration.JbpmGwtCoreTestCase;
 import org.jbpm.task.service.BaseHandler;
 import org.jbpm.task.service.TaskClient;
 import org.jbpm.task.service.TaskClientConnector;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-public class TaskManagementTest extends JbpmTestCase {
+public class TaskManagementTest extends JbpmGwtCoreTestCase {
 	
 	TaskManagement taskManager;
 	
@@ -23,7 +22,7 @@ public class TaskManagementTest extends JbpmTestCase {
 		taskManager= null;
 	}
 	
-	@Test @Ignore
+	@Test 
 	public void testAssignTask(){
 		taskManager.connect();
 	}

@@ -58,15 +58,12 @@ import org.xml.sax.SAXException;
 
 public class TaskHandler extends AbstractNodeHandler {
     
-	private Map<String, String> dataInputs = new HashMap<String, String>();
-	private Map<String, String> dataOutputs = new HashMap<String, String>();
 
     protected Node createNode(Attributes attrs) {
         return new WorkItemNode();
     }
     
-    @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+	public Class<?> generateNodeFor() {
         return Node.class;
     }
 
@@ -97,24 +94,6 @@ public class TaskHandler extends AbstractNodeHandler {
     protected String getTaskName(final Element element) {
         return element.getAttribute("taskName");
     }
-    
-    protected void readIoSpecification(org.w3c.dom.Node xmlNode, Map<String, String> dataInputs, Map<String, String> dataOutputs) {
-    	org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-		while (subNode instanceof Element) {
-			String subNodeName = subNode.getNodeName();
-        	if ("dataInput".equals(subNodeName)) {
-        		String id = ((Element) subNode).getAttribute("id");
-        		String inputName = ((Element) subNode).getAttribute("name");
-        		dataInputs.put(id, inputName);
-        	}
-        	if ("dataOutput".equals(subNodeName)) {
-        		String id = ((Element) subNode).getAttribute("id");
-        		String outputName = ((Element) subNode).getAttribute("name");
-        		dataOutputs.put(id, outputName);
-        	}
-        	subNode = subNode.getNextSibling();
-		}
-    }
 
     protected void readDataInputAssociation(org.w3c.dom.Node xmlNode, WorkItemNode workItemNode, Map<String, String> dataInputs) {
 		// sourceRef
@@ -142,28 +121,30 @@ public class TaskHandler extends AbstractNodeHandler {
 			String to = subNode.getTextContent();
 			// assignment
 			subNode = subNode.getNextSibling();
-    		org.w3c.dom.Node subSubNode = subNode.getFirstChild();
-    		NodeList nl = subSubNode.getChildNodes();
-    		if (nl.getLength() > 1) {
-    		    // not supported ?
-    		    workItemNode.getWork().setParameter(dataInputs.get(to), subSubNode.getTextContent());
-    		    return;
-    		} else if (nl.getLength() == 0) {
-    		    return;
-    		}
-    		Object result = null;
-    		Object from = nl.item(0);
-    		if (from instanceof Text) {
-    		    String text = ((Text) from).getTextContent();
-    		    if (text.startsWith("\"") && text.endsWith("\"")) {
-                    result = text.substring(1, text.length() -1);
-    		    } else {
-    		        result = text;
-    		    }
-			} else {
-			    result = nl.item(0);
+			if (subNode != null) {
+	    		org.w3c.dom.Node subSubNode = subNode.getFirstChild();
+	    		NodeList nl = subSubNode.getChildNodes();
+	    		if (nl.getLength() > 1) {
+	    		    // not supported ?
+	    		    workItemNode.getWork().setParameter(dataInputs.get(to), subSubNode.getTextContent());
+	    		    return;
+	    		} else if (nl.getLength() == 0) {
+	    		    return;
+	    		}
+	    		Object result = null;
+	    		Object from = nl.item(0);
+	    		if (from instanceof Text) {
+	    		    String text = ((Text) from).getTextContent();
+	    		    if (text.startsWith("\"") && text.endsWith("\"")) {
+	                    result = text.substring(1, text.length() -1);
+	    		    } else {
+	    		        result = text;
+	    		    }
+				} else {
+				    result = nl.item(0);
+				}
+	    		workItemNode.getWork().setParameter(dataInputs.get(to), result);
 			}
-    		workItemNode.getWork().setParameter(dataInputs.get(to), result);
 		}
     }
     
@@ -333,8 +314,10 @@ public class TaskHandler extends AbstractNodeHandler {
         }
     }
 
+	@SuppressWarnings("unchecked")
 	protected void readMultiInstanceLoopCharacteristics(org.w3c.dom.Node xmlNode, ForEachNode forEachNode, ExtensibleXmlParser parser) {
-        // sourceRef
+	    
+	    // sourceRef
         org.w3c.dom.Node subNode = xmlNode.getFirstChild();
         while (subNode != null) {
             String nodeName = subNode.getNodeName();
@@ -356,6 +339,33 @@ public class TaskHandler extends AbstractNodeHandler {
                 if (variableName != null && variableName.trim().length() > 0) {
                 	forEachNode.setVariable(variableName, dataType);
                 }
+            } else if ("outputDataItem".equals(nodeName)) {
+                String variableName = ((Element) subNode).getAttribute("id");
+                String itemSubjectRef = ((Element) subNode).getAttribute("itemSubjectRef");
+                DataType dataType = null;
+                Map<String, ItemDefinition> itemDefinitions = (Map<String, ItemDefinition>)
+                    ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+                if (itemDefinitions != null) {
+                    ItemDefinition itemDefinition = itemDefinitions.get(itemSubjectRef);
+                    if (itemDefinition != null) {
+                        dataType = new ObjectDataType(itemDefinition.getStructureRef());
+                    }
+                }
+                if (dataType == null) {
+                    dataType = new ObjectDataType("java.lang.Object");
+                }
+                if (variableName != null && variableName.trim().length() > 0) {
+                    forEachNode.setOutputVariable(variableName, dataType);
+                }
+            } else if ("loopDataOutputRef".equals(nodeName)) {
+                
+                String outputDataRef = ((Element) subNode).getTextContent();
+                
+                String outputDataName = dataOutputs.get(outputDataRef);
+                if (outputDataName != null && outputDataName.trim().length() > 0) {
+                    forEachNode.setOutputCollectionExpression(outputDataName);
+                }
+                
             }
             else if("loopDataInput".equals(nodeName)) {
                 String inputVariable = subNode.getFirstChild().getTextContent();

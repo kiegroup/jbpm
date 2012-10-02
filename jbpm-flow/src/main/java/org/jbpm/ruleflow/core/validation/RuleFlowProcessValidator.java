@@ -315,7 +315,7 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                                     + node.getId()
                                     + "] has no outgoing connection."));
                 }
-                if (subProcess.getProcessId() == null) {
+                if (subProcess.getProcessId() == null && subProcess.getProcessName() == null) {
                     errors.add(new ProcessValidationErrorImpl(process,
                             "SubProcess node '" + node.getName() + "' ["
                                     + node.getId() + "] has no process id."));
@@ -324,6 +324,11 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                     for (Timer timer : subProcess.getTimers().keySet()) {
                         validateTimer(timer, node, process, errors);
                     }
+                }
+                if(!subProcess.isIndependent() && !subProcess.isWaitForCompletion()){
+                    errors.add(new ProcessValidationErrorImpl(process,
+                        "SubProcess node '" + node.getName() + "' [" + node.getId() + "] you can only set " +
+                         "independent to 'false' only when 'Wait for completion' is set to true."));
                 }
             } else if (node instanceof ActionNode) {
                 final ActionNode actionNode = (ActionNode) node;

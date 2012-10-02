@@ -106,6 +106,8 @@ public class SplitInstance extends NodeInstanceImpl {
             	((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
                 outgoing = split.getDefaultOutgoingConnections();
                 boolean found = false;
+            	List<NodeInstanceTrigger> nodeInstances = 
+            		new ArrayList<NodeInstanceTrigger>();
                 List<Connection> outgoingCopy = new ArrayList<Connection>(outgoing);
                 while (!outgoingCopy.isEmpty()) {
                     priority = Integer.MAX_VALUE;
@@ -129,11 +131,18 @@ public class SplitInstance extends NodeInstanceImpl {
                     if (selectedConstraint.evaluate( this,
                                                      selectedConnection,
                                                      selectedConstraint ) ) {
-                        triggerConnection(selectedConnection);
+                        nodeInstances.add(new NodeInstanceTrigger(followConnection(selectedConnection), selectedConnection.getToType()));
                         found = true;
                     }
                     outgoingCopy.remove(selectedConnection);
                 }
+                for (NodeInstanceTrigger nodeInstance: nodeInstances) {
+    	        	// stop if this process instance has been aborted / completed
+    	        	if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {
+    	        		return;
+    	        	}
+    	    		triggerNodeInstance(nodeInstance.getNodeInstance(), nodeInstance.getToType());
+    	        }
                 if ( !found ) {
                 	for ( final Iterator<Connection> iterator = outgoing.iterator(); iterator.hasNext(); ) {
                         final Connection connection = (Connection) iterator.next();
@@ -168,17 +177,14 @@ public class SplitInstance extends NodeInstanceImpl {
                 		throw new IllegalArgumentException(
             				"An Exclusive AND is only possible if the parent is a context instance container");
                 	}
-                	Map<NodeInstance, String> nodeInstances = new HashMap<NodeInstance, String>();
+                	Map<org.jbpm.workflow.instance.NodeInstance, String> nodeInstancesMap = new HashMap<org.jbpm.workflow.instance.NodeInstance, String>();
         	        for (Connection connection: connections) {
-        	        	nodeInstances.put(
-    	            		((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
-        	            		.getNodeInstance(connection.getTo()),
-    	            		connection.getToType());
+        	        	nodeInstancesMap.put(followConnection(connection), connection.getToType());
         	        }
-        	        for (NodeInstance nodeInstance: nodeInstances.keySet()) {
+        	        for (NodeInstance nodeInstance: nodeInstancesMap.keySet()) {
         	        	groupInstance.addNodeInstance(nodeInstance);
         	        }
-        	        for (Map.Entry<NodeInstance, String> entry: nodeInstances.entrySet()) {
+        	        for (Map.Entry<org.jbpm.workflow.instance.NodeInstance, String> entry: nodeInstancesMap.entrySet()) {
         	        	// stop if this process instance has been aborted / completed
         	        	if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {
         	        		return;
@@ -205,4 +211,5 @@ public class SplitInstance extends NodeInstanceImpl {
                 throw new IllegalArgumentException( "Illegal split type " + split.getType() );
         }
     }
+    
 }

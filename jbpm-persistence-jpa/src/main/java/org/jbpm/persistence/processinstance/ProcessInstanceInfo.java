@@ -10,41 +10,38 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.PreUpdate;
-import javax.persistence.Transient;
-import javax.persistence.Version;
 
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.common.InternalRuleBase;
+import org.drools.event.ProcessEventSupport;
 import org.drools.impl.InternalKnowledgeBase;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
+import org.drools.marshalling.impl.PersisterHelper;
+import org.drools.marshalling.impl.ProtobufMarshaller;
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
-import org.hibernate.annotations.CollectionOfElements;
+import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.marshalling.impl.ProcessInstanceMarshaller;
 import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
+import org.jbpm.marshalling.impl.ProtobufRuleFlowProcessInstanceMarshaller;
+import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 
-@Entity
+/**
+ * This is the object that contains the 
+ * marshalled byte stream of information representing the 
+ * ProcessInstance class. 
+ * 
+ * Because of Hibernate 3.3.x/3.4.x <-> 4.x  compatibility issues,
+ * the mapping for this class has been moved to 
+ */
 public class ProcessInstanceInfo{
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "InstanceId")
     private Long                              processInstanceId;
 
-    @Version
-    @Column(name = "OPTLOCK")
     private int                               version;
 
     private String                            processId;
@@ -52,23 +49,15 @@ public class ProcessInstanceInfo{
     private Date                              lastReadDate;
     private Date                              lastModificationDate;
     private int                               state;
-    // TODO How do I mark a process instance info as dirty when the process
-    // instance has changed (so that byte array is regenerated and saved) ?
-    private @Lob
-    byte[]                                    processInstanceByteArray;
-    
-//  @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-//  @JoinColumn(name = "processInstanceId")
-//  private Set<EventType>                    eventTypes         = new HashSet<EventType>();    
-    private @CollectionOfElements
 
-    @JoinTable(name = "EventTypes", joinColumns = @JoinColumn(name = "InstanceId"))
-    Set<String>                               eventTypes         = new HashSet<String>();
-    private @Transient
-    ProcessInstance                           processInstance;
-    private @Transient
-    Environment                               env;
+    byte[]                                    processInstanceByteArray;
+
+    private Set<String>                       eventTypes         = new HashSet<String>();
     
+    ProcessInstance                           processInstance;
+    
+    Environment                               env;
+
     protected ProcessInstanceInfo() {
     }
 
@@ -82,6 +71,25 @@ public class ProcessInstanceInfo{
                                Environment env) {
         this(processInstance);
         this.env = env;
+    }
+
+    /**
+     * Added in order to satisfy Hibernate AND the JBPMorm.xml:<ul>
+     * <li> Hibernate needs getter/setters for a the field that's mapped.
+     *   <ul><li>(field access is inefficient/dangerous, and not necessary)</li></ul></li>
+     * <li>The JBPMorm.xml queries reference .processInstanceId as well.</li>
+     * </ul>
+     * If we mapped the field using 'name="id"', the queries would thus fail.
+     * </p>
+     * So instead of that, we just add the getters and use 'name="processInstanceId"'.
+     * @return The processInstanceId field value. 
+     */
+    public Long getProcessInstanceId() { 
+        return processInstanceId;
+    }
+    
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
     }
 
     public Long getId() {
@@ -126,6 +134,7 @@ public class ProcessInstanceInfo{
                                                                                (InternalRuleBase) ((InternalKnowledgeBase) kruntime.getKnowledgeBase()).getRuleBase(),
                                                                                null,
                                                                                null,
+                                                                               ProtobufMarshaller.TIMER_READERS,
                                                                                this.env
                                                                               );
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
@@ -140,9 +149,6 @@ public class ProcessInstanceInfo{
         }
         return processInstance;
     }
-
-   
-
    
     private ProcessInstanceMarshaller getMarshallerFromContext(MarshallerReaderContext context) throws IOException {
         ObjectInputStream stream = context.stream;
@@ -158,6 +164,20 @@ public class ProcessInstanceInfo{
         stream.writeUTF( processInstanceType );
     }
 
+    /**
+     * Adding @PrePersist breaks things, because: <ul>
+     * <li>We retrieve/generate the marshaller (see below).</li> 
+     * <li>..and the marshaller retrieves the context instance</li>
+     * <li>..which actually (re)sets all variables in {@link VariableScopeInstance}.setContextInstanceContainer(...)</li>
+     * <li>This of course causes {@link ProcessEventSupport}.fireBeforeVariableChanged(...) to fire.</li>
+     * <li>Then the {@link org.jbpm.process.audit.JPAWorkingMemoryDbLogger} ends up logging a variable change 
+	 * -- but the associated process instance hasn't been persisted yet.</li> 
+     * <li>So the variable instance change is associated with process instance "0"</li>
+     * <li>...and can never be retrieved, because "0" is not a valid id.</li>
+     * </ul>
+     * </p>
+     * Normally, the variable change is logged after the following method has completed. 
+     */
     @PreUpdate
     public void update() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -175,8 +195,13 @@ public class ProcessInstanceInfo{
                                      processType );
             ProcessInstanceMarshaller marshaller = ProcessMarshallerRegistry.INSTANCE.getMarshaller( processType );
             
-                        marshaller.writeProcessInstance( context,
-                                                processInstance);
+            Object result = marshaller.writeProcessInstance( context,
+                                                             processInstance);
+            if( marshaller instanceof ProtobufRuleFlowProcessInstanceMarshaller && result != null ) {
+                JBPMMessages.ProcessInstance _instance = (JBPMMessages.ProcessInstance)result;
+                PersisterHelper.writeToStreamWithHeader( context, 
+                                                         _instance );
+            }
             context.close();
         } catch ( IOException e ) {
             throw new IllegalArgumentException( "IOException while storing process instance " + processInstance.getId() + ": " + e.getMessage() );
@@ -266,8 +291,20 @@ public class ProcessInstanceInfo{
     public Set<String> getEventTypes() {
         return eventTypes;
     }
+
+    public byte [] getProcessInstanceByteArray() { 
+        return processInstanceByteArray;
+    }
     
     public void clearProcessInstance(){
         processInstance = null;
+    }
+    
+    public Environment getEnv() { 
+        return env;
+    }
+    
+    public void setEnv(Environment env) { 
+        this.env = env;
     }
 }

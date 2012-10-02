@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -42,8 +43,10 @@ import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.process.instance.impl.ConstraintEvaluator;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
+import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 
 /**
@@ -57,63 +60,62 @@ public abstract class NodeInstanceImpl implements
 	private static final long serialVersionUID = 510l;
 
 	private long id;
-	private long nodeId;
-	private WorkflowProcessInstance processInstance;
-	private org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer;
-	private Map<String, Object> metaData = new HashMap<String, Object>();
+    private long nodeId;
+    private WorkflowProcessInstance processInstance;
+    private org.jbpm.workflow.instance.NodeInstanceContainer nodeInstanceContainer;
+    private Map<String, Object> metaData = new HashMap<String, Object>();
 
-	public void setId(final long id) {
-		this.id = id;
-	}
+    public void setId(final long id) {
+        this.id = id;
+    }
 
-	public long getId() {
-		return this.id;
-	}
+    public long getId() {
+        return this.id;
+    }
 
-	public void setNodeId(final long nodeId) {
-		this.nodeId = nodeId;
-	}
+    public void setNodeId(final long nodeId) {
+        this.nodeId = nodeId;
+    }
 
-	public long getNodeId() {
-		return this.nodeId;
-	}
+    public long getNodeId() {
+        return this.nodeId;
+    }
+    
+    public String getNodeName() {
+    	Node node = getNode();
+    	return node == null ? "" : node.getName();
+    }
 
-	public String getNodeName() {
-		Node node = getNode();
-		return node == null ? "" : node.getName();
-	}
+    public void setProcessInstance(final WorkflowProcessInstance processInstance) {
+        this.processInstance = processInstance;
+    }
 
-	public void setProcessInstance(final WorkflowProcessInstance processInstance) {
-		this.processInstance = processInstance;
-	}
+    public WorkflowProcessInstance getProcessInstance() {
+        return this.processInstance;
+    }
 
-	public WorkflowProcessInstance getProcessInstance() {
-		return this.processInstance;
-	}
+    public NodeInstanceContainer getNodeInstanceContainer() {
+        return this.nodeInstanceContainer;
+    }
+    
+    public void setNodeInstanceContainer(NodeInstanceContainer nodeInstanceContainer) {
+        this.nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstanceContainer;
+        if (nodeInstanceContainer != null) {
+            this.nodeInstanceContainer.addNodeInstance(this);
+        }
+    }
 
-	public NodeInstanceContainer getNodeInstanceContainer() {
-		return this.nodeInstanceContainer;
-	}
-
-	public void setNodeInstanceContainer(
-			NodeInstanceContainer nodeInstanceContainer) {
-		this.nodeInstanceContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstanceContainer;
-		if (nodeInstanceContainer != null) {
-			this.nodeInstanceContainer.addNodeInstance(this);
-		}
-	}
-
-	public Node getNode() {
-		return ((org.jbpm.workflow.core.NodeContainer) this.nodeInstanceContainer
-				.getNodeContainer()).internalGetNode(this.nodeId);
-	}
-
-	public boolean isInversionOfControl() {
-		return false;
-	}
-
-	public void cancel() {
-		nodeInstanceContainer.removeNodeInstance(this);
+    public Node getNode() {
+        return ((org.jbpm.workflow.core.NodeContainer)
+    		this.nodeInstanceContainer.getNodeContainer()).internalGetNode( this.nodeId );
+    }
+    
+    public boolean isInversionOfControl() {
+        return false;
+    }
+    
+    public void cancel() {
+        nodeInstanceContainer.removeNodeInstance(this);
 		boolean hidden = false;
 		if (getNode().getMetaData().get("hidden") != null) {
 			hidden = true;
@@ -151,136 +153,211 @@ public abstract class NodeInstanceImpl implements
 				}
 			}
 		}
-	}
-
-	public final void trigger(NodeInstance from, String type) {
-		boolean hidden = false;
-		if (getNode().getMetaData().get("hidden") != null) {
-			hidden = true;
-		}
-		InternalKnowledgeRuntime kruntime = getProcessInstance()
-				.getKnowledgeRuntime();
-		if (!hidden) {
-			((InternalProcessRuntime) kruntime.getProcessRuntime())
-					.getProcessEventSupport().fireBeforeNodeTriggered(this,
-							kruntime);
-		}
-		internalTrigger(from, type);
-		if (!hidden) {
-			((InternalProcessRuntime) kruntime.getProcessRuntime())
-					.getProcessEventSupport().fireAfterNodeTriggered(this,
-							kruntime);
-		}
-	}
-
-	public abstract void internalTrigger(NodeInstance from, String type);
-
-	protected void triggerCompleted(String type, boolean remove) {
-		if (remove) {
-			((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
-					.removeNodeInstance(this);
-		}
-		Node node = getNode();
-		List<Connection> connections = null;
-		if (node != null) {
-			connections = node.getOutgoingConnections(type);
-		}
-		if (connections == null || connections.isEmpty()) {
-			((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
-					.nodeInstanceCompleted(this, type);
-		} else {
-			for (Connection connection : connections) {
-				// stop if this process instance has been aborted / completed
-				if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {
-					return;
-				}
+    }
+    
+    public final void trigger(NodeInstance from, String type) {
+    	boolean hidden = false;
+    	if (getNode().getMetaData().get("hidden") != null) {
+    		hidden = true;
+    	}
+    	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+    	if (!hidden) {
+    		((InternalProcessRuntime) kruntime.getProcessRuntime())
+    			.getProcessEventSupport().fireBeforeNodeTriggered(this, kruntime);
+    	}
+        try {
+            internalTrigger(from, type);
+        }
+        catch (WorkflowRuntimeException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            throw new WorkflowRuntimeException(this, e);
+        }
+        if (!hidden) {
+        	((InternalProcessRuntime) kruntime.getProcessRuntime())
+        		.getProcessEventSupport().fireAfterNodeTriggered(this, kruntime);
+        }
+    }
+    
+    public abstract void internalTrigger(NodeInstance from, String type);
+    
+    protected void triggerCompleted(String type, boolean remove) {
+        if (remove) {
+            ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
+            	.removeNodeInstance(this);
+        }
+        Node node = getNode();
+        List<Connection> connections = null;
+        if (node != null) {
+        	if (System.getProperty("jbpm.enable.multi.con") != null && ((NodeImpl) node).getConstraints().size() > 0) {
+        		int priority = Integer.MAX_VALUE;
+        		connections = ((NodeImpl)node).getDefaultOutgoingConnections();
+                boolean found = false;
+            	List<NodeInstanceTrigger> nodeInstances = 
+            		new ArrayList<NodeInstanceTrigger>();
+                List<Connection> outgoingCopy = new ArrayList<Connection>(connections);
+                while (!outgoingCopy.isEmpty()) {
+                    priority = Integer.MAX_VALUE;
+                    Connection selectedConnection = null;
+                    ConstraintEvaluator selectedConstraint = null;
+                    for ( final Iterator<Connection> iterator = outgoingCopy.iterator(); iterator.hasNext(); ) {
+                        final Connection connection = (Connection) iterator.next();
+                        ConstraintEvaluator constraint = (ConstraintEvaluator) ((NodeImpl)node).getConstraint( connection );
+    
+                        if ( constraint != null  
+                                && constraint.getPriority() < priority
+                                && !constraint.isDefault() ) {
+                            priority = constraint.getPriority();
+                            selectedConnection = connection;
+                            selectedConstraint = constraint;
+                        }
+                    }
+                    if (selectedConstraint == null) {
+                    	break;
+                    }
+                    if (selectedConstraint.evaluate( this,
+                                                     selectedConnection,
+                                                     selectedConstraint ) ) {
+                        nodeInstances.add(new NodeInstanceTrigger(followConnection(selectedConnection), selectedConnection.getToType()));
+                        found = true;
+                    }
+                    outgoingCopy.remove(selectedConnection);
+                }
+                for (NodeInstanceTrigger nodeInstance: nodeInstances) {
+    	        	// stop if this process instance has been aborted / completed
+                	if (((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer()).getState() != ProcessInstance.STATE_ACTIVE) {
+    	        		return;
+    	        	}
 				NodeInstanceContainer nodeInstanceContainer = (NodeInstanceContainer) getNodeInstanceContainer();
 				if(nodeInstanceContainer instanceof CompositeNodeInstance && ((CompositeNodeInstance) nodeInstanceContainer).isCanceled()) {
 					return;
 				}
-				triggerConnection(connection);
-			}
-		}
-	}
-
-	protected void triggerConnection(Connection connection) {
-		boolean hidden = false;
-		if (getNode().getMetaData().get("hidden") != null) {
-			hidden = true;
-		}
-		InternalKnowledgeRuntime kruntime = getProcessInstance()
-				.getKnowledgeRuntime();
-		InternalProcessRuntime processRuntime = (InternalProcessRuntime) kruntime.getProcessRuntime();
-		if (!hidden) {
-			processRuntime
-					.getProcessEventSupport()
-					.fireBeforeNodeLeft(this, kruntime);
-		}
-		// check for exclusive group first
-		NodeInstanceContainer parent = getNodeInstanceContainer();
-		if (parent instanceof ContextInstanceContainer) {
-			List<ContextInstance> contextInstances = ((ContextInstanceContainer) parent)
-					.getContextInstances(ExclusiveGroup.EXCLUSIVE_GROUP);
-			if (contextInstances != null) {
-				for (ContextInstance contextInstance : new ArrayList<ContextInstance>(
-						contextInstances)) {
-					ExclusiveGroupInstance groupInstance = (ExclusiveGroupInstance) contextInstance;
-					if (groupInstance.containsNodeInstance(this)) {
-						for (NodeInstance nodeInstance : groupInstance
-								.getNodeInstances()) {
-							if (nodeInstance != this) {
-								((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-										.cancel();
-							}
-						}
-						((ContextInstanceContainer) parent)
-								.removeContextInstance(
-										ExclusiveGroup.EXCLUSIVE_GROUP,
-										contextInstance);
-					}
-
+    	    		triggerNodeInstance(nodeInstance.getNodeInstance(), nodeInstance.getToType());
+    	        }
+                if ( !found ) {
+                	for ( final Iterator<Connection> iterator = connections.iterator(); iterator.hasNext(); ) {
+                        final Connection connection = (Connection) iterator.next();
+                        ConstraintEvaluator constraint = (ConstraintEvaluator) ((NodeImpl)node).getConstraint( connection );
+                        if ( constraint.isDefault() ) {
+                        	triggerConnection(connection);
+                        	found = true;
+                            break;
+                        }
+                    }
+                }
+                if ( !found ) {
+                    throw new IllegalArgumentException( "Uncontrolled flow node could not find at least one valid outgoing connection " + getNode().getName() );
+                }     
+        	} else {
+        		connections = node.getOutgoingConnections(type);
+        	}
+        }
+        if (connections == null || connections.isEmpty()) {
+        	boolean hidden = false;
+        	Node currentNode = getNode();
+        	if (currentNode != null && currentNode.getMetaData().get("hidden") != null) {
+        		hidden = true;
+        	}
+        	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+        	if (!hidden) {
+        		((InternalProcessRuntime) kruntime.getProcessRuntime())
+        			.getProcessEventSupport().fireBeforeNodeLeft(this, kruntime);
+        	}
+        	// notify container
+            ((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
+        		.nodeInstanceCompleted(this, type);
+            if (!hidden) {
+            	((InternalProcessRuntime) kruntime.getProcessRuntime())
+            		.getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
+            }
+        } else {
+        	Map<org.jbpm.workflow.instance.NodeInstance, String> nodeInstances = 
+        		new HashMap<org.jbpm.workflow.instance.NodeInstance, String>();
+        	for (Connection connection: connections) {
+        		nodeInstances.put(followConnection(connection), connection.getToType());
+        	}
+        	for (Map.Entry<org.jbpm.workflow.instance.NodeInstance, String> nodeInstance: nodeInstances.entrySet()) {
+	        	// stop if this process instance has been aborted / completed
+	        	if (((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer()).getState() != ProcessInstance.STATE_ACTIVE) {
+	        		return;
+	        	}
+				NodeInstanceContainer nodeInstanceContainer = (NodeInstanceContainer) getNodeInstanceContainer();
+				if(nodeInstanceContainer instanceof CompositeNodeInstance && ((CompositeNodeInstance) nodeInstanceContainer).isCanceled()) {
+					return;
 				}
-			}
-		}
-		// here it triggers next node. inside connection is the from and to
-		// node.
-		this.triggerNextNode(connection);
-
-		if (!hidden) {
-			processRuntime.getProcessEventSupport().fireAfterNodeLeft(this,
-					kruntime);
-		}
-	}
-
-	private void triggerNextNode(Connection connection) {
-		org.jbpm.workflow.instance.NodeInstanceContainer nodeContainer = (org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer();
-		Node goToNode = connection.getTo();
-		org.jbpm.workflow.instance.NodeInstance goToNodeInstance = nodeContainer
-				.getNodeInstance(goToNode);
-		goToNodeInstance.trigger(this, connection.getToType());
-	}
-
-	public Context resolveContext(String contextId, Object param) {
-		return ((NodeImpl) getNode()).resolveContext(contextId, param);
-	}
-
-	public ContextInstance resolveContextInstance(String contextId, Object param) {
-		Context context = resolveContext(contextId, param);
-		if (context == null) {
-			return null;
-		}
-		ContextInstanceContainer contextInstanceContainer = getContextInstanceContainer(context
-				.getContextContainer());
-		if (contextInstanceContainer == null) {
-			throw new IllegalArgumentException(
-					"Could not find context instance container for context");
-		}
-		return contextInstanceContainer.getContextInstance(context);
-	}
-
-	private ContextInstanceContainer getContextInstanceContainer(
-			ContextContainer contextContainer) {
-		ContextInstanceContainer contextInstanceContainer = null;
+	    		triggerNodeInstance(nodeInstance.getKey(), nodeInstance.getValue());
+	        }
+        }
+    }
+    
+    protected org.jbpm.workflow.instance.NodeInstance followConnection(Connection connection) {
+    	// check for exclusive group first
+    	NodeInstanceContainer parent = getNodeInstanceContainer();
+    	if (parent instanceof ContextInstanceContainer) {
+    		List<ContextInstance> contextInstances = ((ContextInstanceContainer) parent).getContextInstances(ExclusiveGroup.EXCLUSIVE_GROUP);
+    		if (contextInstances != null) {
+    			for (ContextInstance contextInstance: new ArrayList<ContextInstance>(contextInstances)) {
+    				ExclusiveGroupInstance groupInstance = (ExclusiveGroupInstance) contextInstance;
+    				if (groupInstance.containsNodeInstance(this)) {
+    					for (NodeInstance nodeInstance: groupInstance.getNodeInstances()) {
+    						if (nodeInstance != this) {
+    							((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
+    						}
+    					}
+    					((ContextInstanceContainer) parent).removeContextInstance(ExclusiveGroup.EXCLUSIVE_GROUP, contextInstance);
+    				}
+    				
+    			}
+    		}
+    	}
+    	return (org.jbpm.workflow.instance.NodeInstance)
+    		((org.jbpm.workflow.instance.NodeInstanceContainer) getNodeInstanceContainer())
+            	.getNodeInstance(connection.getTo());
+    }
+    
+    protected void triggerNodeInstance(org.jbpm.workflow.instance.NodeInstance nodeInstance, String type) {
+    	boolean hidden = false;
+    	if (getNode().getMetaData().get("hidden") != null) {
+    		hidden = true;
+    	}
+    	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+    	if (!hidden) {
+    		((InternalProcessRuntime) kruntime.getProcessRuntime())
+    			.getProcessEventSupport().fireBeforeNodeLeft(this, kruntime);
+    	}
+    	// trigger next node
+        nodeInstance.trigger(this, type);
+        if (!hidden) {
+        	((InternalProcessRuntime) kruntime.getProcessRuntime())
+        		.getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
+        }
+    }
+    
+    protected void triggerConnection(Connection connection) {
+    	triggerNodeInstance(followConnection(connection), connection.getToType());
+    }
+    
+    public Context resolveContext(String contextId, Object param) {
+        return ((NodeImpl) getNode()).resolveContext(contextId, param);
+    }
+    
+    public ContextInstance resolveContextInstance(String contextId, Object param) {
+        Context context = resolveContext(contextId, param);
+        if (context == null) {
+            return null;
+        }
+        ContextInstanceContainer contextInstanceContainer
+        	= getContextInstanceContainer(context.getContextContainer());
+        if (contextInstanceContainer == null) {
+        	throw new IllegalArgumentException(
+    			"Could not find context instance container for context");
+        }
+        return contextInstanceContainer.getContextInstance(context);
+    }
+    
+    private ContextInstanceContainer getContextInstanceContainer(ContextContainer contextContainer) {
+    	ContextInstanceContainer contextInstanceContainer = null; 
 		if (this instanceof ContextInstanceContainer) {
 			contextInstanceContainer = (ContextInstanceContainer) this;
 		} else {
@@ -356,8 +433,23 @@ public abstract class NodeInstanceImpl implements
 		return this.metaData;
 	}
 
-	public void setMetaData(String name, Object data) {
-		this.metaData.put(name, data);
-	}
-
+    public void setMetaData(String name, Object data) {
+        this.metaData.put(name, data);
+    }
+    
+    protected class NodeInstanceTrigger {
+    	private org.jbpm.workflow.instance.NodeInstance nodeInstance;
+    	private String toType;
+    	public NodeInstanceTrigger(org.jbpm.workflow.instance.NodeInstance nodeInstance, String toType) {
+    		this.nodeInstance = nodeInstance;
+    		this.toType = toType;
+    	}
+    	public org.jbpm.workflow.instance.NodeInstance getNodeInstance() {
+    		return nodeInstance;
+    	}
+    	public String getToType() {
+    		return toType;
+    	}
+    }
+    
 }

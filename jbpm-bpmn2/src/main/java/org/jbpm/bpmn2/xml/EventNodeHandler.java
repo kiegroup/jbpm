@@ -117,7 +117,38 @@ public class EventNodeHandler extends AbstractNodeHandler {
                 xmlDump.append(">" + EOL);
                 xmlDump.append("      <compensateEventDefinition/>" + EOL);
                 endNode("boundaryEvent", xmlDump);
-            } 
+            }  else if (node.getMetaData().get("SignalName") != null) {
+                
+                boolean cancelActivity = (Boolean) eventNode.getMetaData("CancelActivity");
+                writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
+                xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
+                if (!cancelActivity) {
+                    xmlDump.append("cancelActivity=\"false\" ");
+                }
+                xmlDump.append(">" + EOL);
+                xmlDump.append("      <signalEventDefinition signalRef=\"" + type + "\"/>"+ EOL);
+                endNode("boundaryEvent", xmlDump);
+            }  else if (node.getMetaData().get("Condition") != null) {
+                
+                boolean cancelActivity = (Boolean) eventNode.getMetaData("CancelActivity");
+                writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
+                xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
+                if (!cancelActivity) {
+                    xmlDump.append("cancelActivity=\"false\" ");
+                }
+                xmlDump.append(">" + EOL);
+                xmlDump.append("      <conditionalEventDefinition>"+ EOL);
+                xmlDump.append("        <condition xsi:type=\"tFormalExpression\" language=\"http://www.jboss.org/drools/rule\">" + eventNode.getMetaData("Condition") +"</condition>"+ EOL);
+                xmlDump.append("      </conditionalEventDefinition>"+ EOL);
+                endNode("boundaryEvent", xmlDump);
+            } else if (type.startsWith("Message-")) {
+                type = type.substring(8);
+                writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
+                xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
+                xmlDump.append(">" + EOL);
+                xmlDump.append("      <messageEventDefinition messageRef=\"" + type + "\"/>" + EOL);
+                endNode("boundaryEvent", xmlDump);
+            }
 		}
 	}
 

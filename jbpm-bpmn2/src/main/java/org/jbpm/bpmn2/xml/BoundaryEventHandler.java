@@ -23,13 +23,17 @@ import java.util.Map;
 import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
+import org.jbpm.bpmn2.core.Message;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
+import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.EventNode;
+import org.jbpm.workflow.core.node.StateNode;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -74,6 +78,16 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
             } else if ("compensateEventDefinition".equals(nodeName)) {
                 // reuse already created EventNode
                 handleCompensationNode(node, element, uri, localName, parser, attachedTo, cancelActivity);
+                break;
+            } else if ("signalEventDefinition".equals(nodeName)) {
+                // reuse already created EventNode
+                handleSignalNode(node, element, uri, localName, parser, attachedTo, cancelActivity);
+                break;
+            } else if ("conditionalEventDefinition".equals(nodeName)) {
+                handleConditionNode(node, element, uri, localName, parser, attachedTo, cancelActivity);
+                break;
+            } else if ("messageEventDefinition".equals(nodeName)) {
+                handleMessageNode(node, element, uri, localName, parser, attachedTo, cancelActivity);
                 break;
             }
             xmlNode = xmlNode.getNextSibling();
@@ -204,6 +218,18 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
             final boolean cancelActivity) throws SAXException {
         super.handleNode(node, element, uri, localName, parser);
         EventNode eventNode = (EventNode) node;
+        NodeList childs = element.getChildNodes();
+        for (int i = 0; i < childs.getLength(); i++) {
+            if (childs.item(i) instanceof Element) {
+                Element el = (Element) childs.item(i);
+                if ("compensateEventDefinition".equalsIgnoreCase(el.getNodeName())) {
+                    String activityRef = el.getAttribute("activityRef");
+                    if (activityRef != null && activityRef.length() > 0) {
+                        eventNode.setMetaData("ActivityRef", activityRef);
+                    }
+                }
+            }
+        }
         eventNode.setMetaData("AttachedTo", attachedTo);
         List<EventFilter> eventFilters = new ArrayList<EventFilter>();
         EventTypeFilter eventFilter = new EventTypeFilter();
@@ -213,6 +239,111 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
         ((EventNode) node).setEventFilters(eventFilters);
     }
     
+    protected void handleSignalNode(final Node node, final Element element,
+            final String uri, final String localName,
+            final ExtensibleXmlParser parser, final String attachedTo,
+            final boolean cancelActivity) throws SAXException {
+        super.handleNode(node, element, uri, localName, parser);
+        EventNode eventNode = (EventNode) node;
+        eventNode.setMetaData("AttachedTo", attachedTo);
+        eventNode.setMetaData("CancelActivity", cancelActivity);
+        org.w3c.dom.Node xmlNode = element.getFirstChild();
+        while (xmlNode != null) {
+            String nodeName = xmlNode.getNodeName();
+            if ("dataOutputAssociation".equals(nodeName)) {
+                readDataOutputAssociation(xmlNode, eventNode);
+            } else if ("signalEventDefinition".equals(nodeName)) {
+                String type = ((Element) xmlNode).getAttribute("signalRef");
+                if (type != null && type.trim().length() > 0) {
+                    List<EventFilter> eventFilters = new ArrayList<EventFilter>();
+                    EventTypeFilter eventFilter = new EventTypeFilter();
+                    eventFilter.setType(type);
+                    eventFilters.add(eventFilter);
+                    eventNode.setEventFilters(eventFilters);
+                    eventNode.setScope("external");
+                    eventNode.setMetaData("SignalName", type);
+                }
+            }
+            xmlNode = xmlNode.getNextSibling();
+        }
+    }
+    
+    protected void handleConditionNode(final Node node, final Element element,
+            final String uri, final String localName,
+            final ExtensibleXmlParser parser, final String attachedTo,
+            final boolean cancelActivity) throws SAXException {
+        super.handleNode(node, element, uri, localName, parser);
+        EventNode eventNode = (EventNode) node;
+        eventNode.setMetaData("AttachedTo", attachedTo);
+        eventNode.setMetaData("CancelActivity", cancelActivity);
+        org.w3c.dom.Node xmlNode = element.getFirstChild();
+        while (xmlNode != null) {
+            String nodeName = xmlNode.getNodeName();
+            if ("conditionalEventDefinition".equals(nodeName)) {
+                org.w3c.dom.Node subNode = xmlNode.getFirstChild();
+                while (subNode != null) {
+                    String subnodeName = subNode.getNodeName();
+                    if ("condition".equals(subnodeName)) {
+                        eventNode.setMetaData("Condition", xmlNode.getTextContent());
+                        List<EventFilter> eventFilters = new ArrayList<EventFilter>();
+                        EventTypeFilter eventFilter = new EventTypeFilter();
+                        eventFilter.setType("Condition-" + attachedTo);
+                        eventFilters.add(eventFilter);
+                        eventNode.setScope("external");
+                        eventNode.setEventFilters(eventFilters);
+                        break;
+                    }
+                    subNode = subNode.getNextSibling();
+                }
+            }
+            xmlNode = xmlNode.getNextSibling();
+        }
+    }
+    
+    protected void handleMessageNode(final Node node, final Element element,
+            final String uri, final String localName,
+            final ExtensibleXmlParser parser, final String attachedTo,
+            final boolean cancelActivity) throws SAXException {
+        super.handleNode(node, element, uri, localName, parser);
+        EventNode eventNode = (EventNode) node;
+        eventNode.setMetaData("AttachedTo", attachedTo);
+        eventNode.setMetaData("CancelActivity", cancelActivity);
+        org.w3c.dom.Node xmlNode = element.getFirstChild();
+        while (xmlNode != null) {
+            String nodeName = xmlNode.getNodeName();
+            if ("dataOutputAssociation".equals(nodeName)) {
+                readDataOutputAssociation(xmlNode, eventNode);
+            } else if ("messageEventDefinition".equals(nodeName)) {
+                String messageRef = ((Element) xmlNode).getAttribute("messageRef");
+                Map<String, Message> messages = (Map<String, Message>) ((ProcessBuildData) parser
+                        .getData()).getMetaData("Messages");
+                if (messages == null) {
+                    throw new IllegalArgumentException("No messages found");
+                }
+                Message message = messages.get(messageRef);
+                if (message == null) {
+                    throw new IllegalArgumentException("Could not find message " + messageRef);
+                }
+                eventNode.setMetaData("MessageType", message.getType());
+                List<EventFilter> eventFilters = new ArrayList<EventFilter>();
+                EventTypeFilter eventFilter = new EventTypeFilter();
+                eventFilter.setType("Message-" + messageRef);
+                eventFilters.add(eventFilter);
+                eventNode.setScope("external");
+                eventNode.setEventFilters(eventFilters);
+            }
+            xmlNode = xmlNode.getNextSibling();
+        }
+    }
+    
+    protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode,  EventNode eventNode) {
+        // sourceRef
+        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
+        // targetRef
+        subNode = subNode.getNextSibling();
+        String to = subNode.getTextContent();
+        eventNode.setVariableName(to);
+    }
 	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
 	    throw new IllegalArgumentException("Writing out should be handled by specific handlers");
     }

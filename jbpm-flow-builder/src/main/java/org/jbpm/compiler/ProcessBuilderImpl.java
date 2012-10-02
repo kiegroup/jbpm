@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import org.drools.compiler.PackageRegistry;
 import org.drools.compiler.ParserError;
 import org.drools.compiler.ProcessBuilder;
 import org.drools.compiler.ProcessLoadError;
+import org.drools.compiler.ReturnValueDescr;
 import org.drools.definition.process.Connection;
 import org.drools.definition.process.Node;
 import org.drools.definition.process.NodeContainer;
@@ -49,6 +51,7 @@ import org.drools.rule.builder.dialect.java.JavaDialect;
 import org.jbpm.compiler.xml.ProcessSemanticModule;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.compiler.xml.processes.RuleFlowMigrator;
+import org.jbpm.process.builder.MultiConditionalSequenceFlowNodeBuilder;
 import org.jbpm.process.builder.ProcessBuildContext;
 import org.jbpm.process.builder.ProcessNodeBuilder;
 import org.jbpm.process.builder.ProcessNodeBuilderRegistry;
@@ -62,13 +65,18 @@ import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.process.core.validation.ProcessValidationError;
 import org.jbpm.process.core.validation.ProcessValidator;
+import org.jbpm.process.instance.impl.ReturnValueConstraintEvaluator;
+import org.jbpm.process.instance.impl.RuleConstraintEvaluator;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.core.validation.RuleFlowProcessValidator;
 import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.impl.ConnectionRef;
+import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
+import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.core.node.ConstraintTrigger;
+import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
 import org.jbpm.workflow.core.node.Split;
 import org.jbpm.workflow.core.node.StartNode;
@@ -78,8 +86,6 @@ import org.jbpm.workflow.core.node.Trigger;
 /**
  * A ProcessBuilder can be used to build processes based on XML files
  * containing a process definition.
- * 
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class ProcessBuilderImpl implements ProcessBuilder {
 
@@ -130,7 +136,7 @@ public class ProcessBuilderImpl implements ProcessBuilder {
             String rules = generateRules( process );
 //            System.out.println(rules);
             try {
-                packageBuilder.addPackageFromDrl( new StringReader( rules ) );
+                packageBuilder.addPackageFromDrl( new StringReader( rules ), resource );
             } catch ( IOException e ) {
                 // should never occur
                 e.printStackTrace( System.err );
@@ -227,6 +233,13 @@ public class ProcessBuilderImpl implements ProcessBuilder {
                 buildContexts( (ContextContainer) node,
                                context );
             }
+            
+            if (System.getProperty("jbpm.enable.multi.con") != null) {
+            	builder = ProcessNodeBuilderRegistry.INSTANCE.getNodeBuilder( NodeImpl.class );
+            	if (builder != null) {
+            		builder.build(process, processDescr, context, node);
+            	}
+            }
         }
     }
 
@@ -255,13 +268,13 @@ public class ProcessBuilderImpl implements ProcessBuilder {
                 }
             } else {
                 // @TODO could we maybe add something a bit more informative about what is wrong with the XML ?
-                this.errors.add( new ProcessLoadError( "unable to parse xml", null ) );
+                this.errors.add( new ProcessLoadError( resource, "unable to parse xml", null ) );
             }
         } catch ( FactoryConfigurationError e1 ) {
-            this.errors.add( new ProcessLoadError( "FactoryConfigurationError ", e1.getException()) );
+            this.errors.add( new ProcessLoadError( resource, "FactoryConfigurationError ", e1.getException()) );
         } catch ( Exception e2 ) {
         	e2.printStackTrace();
-            this.errors.add( new ProcessLoadError( "unable to parse xml", e2 ) );
+            this.errors.add( new ProcessLoadError( resource, "unable to parse xml", e2 ) );
         } finally {
             Thread.currentThread().setContextClassLoader( oldLoader );
         }
@@ -366,6 +379,9 @@ public class ProcessBuilderImpl implements ProcessBuilder {
                 }
             } else if ( nodes[i] instanceof NodeContainer ) {
                 generateRules( ((NodeContainer) nodes[i]).getNodes(), process, builder);
+            } else if ( nodes[i] instanceof EventNode ) {
+                EventNode state = (EventNode) nodes[i];
+                builder.append( createEventStateRule(process, state) );
             }
         }
     }
@@ -411,6 +427,24 @@ public class ProcessBuilderImpl implements ProcessBuilder {
 	    		"end \n\n";
     	}
 	}
+    
+    private String createEventStateRule(Process process, EventNode event) {
+        String condition = (String) event.getMetaData("Condition");
+        String attachedTo = (String) event.getMetaData("AttachedTo");
+        if (condition == null
+                || condition.trim().length() == 0) {
+            return "";
+        } else {
+            return 
+                "rule \"RuleFlowStateEvent-" + process.getId() + "-" + event.getUniqueId() + "-" + 
+                    attachedTo + "\" \n" + 
+                "      ruleflow-group \"DROOLS_SYSTEM\" \n" + 
+                "    when \n" + 
+                "      " + condition + "\n" + 
+                "    then \n" +
+                "end \n\n";
+        }
+    }
     
     private String createStateRules(Process process, StateNode state) {
         String result = "";

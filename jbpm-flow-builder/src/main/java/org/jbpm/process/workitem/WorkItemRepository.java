@@ -1,5 +1,6 @@
 package org.jbpm.process.workitem;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +26,10 @@ public class WorkItemRepository {
 				workDefinition.setDisplayName((String) workDefinitionMap.get("displayName"));
 				workDefinition.setIcon((String) workDefinitionMap.get("icon"));
 				workDefinition.setCustomEditor((String) workDefinitionMap.get("customEditor"));
+				workDefinition.setCategory((String) workDefinitionMap.get("category"));
+				workDefinition.setPath((String) workDefinitionMap.get("path"));
+				workDefinition.setFile((String) workDefinitionMap.get("file"));
+				workDefinition.setDocumentation((String) workDefinitionMap.get("documentation"));
 				Set<ParameterDefinition> parameters = new HashSet<ParameterDefinition>();
 				Map<String, DataType> parameterMap = (Map<String, DataType>) workDefinitionMap.get("parameters");
 				if (parameterMap != null) {
@@ -57,28 +62,43 @@ public class WorkItemRepository {
 			} catch (Throwable t) {
 				t.printStackTrace();
 			}
-			workDefinitions.addAll(getWorkDefinitionsMap(directory + "/" + s + "/" + s + ".conf"));
+			workDefinitions.addAll(getWorkDefinitionsMap(directory, s));
 		}
 		return workDefinitions;
 	}
 
 	private static String[] getDirectories(String path) {
-		String content = ConfFileUtils.URLContentsToString(
-			ConfFileUtils.getURL(path + "/index.conf", null, null));
+		String content = null;
+		try {
+			content = ConfFileUtils.URLContentsToString(
+				new URL(path + "/index.conf"));
+		} catch (Exception e) {
+			// Do nothing
+		}
 		if (content == null) {
 			return new String[0];
 		}
-		return content.split(System.getProperty("line.separator"));
+		return content.split("\n");
 	}
 
-	private static List<Map<String, Object>> getWorkDefinitionsMap(String path) {
-		String content = ConfFileUtils.URLContentsToString(
-			ConfFileUtils.getURL(path, null, null));
+	private static List<Map<String, Object>> getWorkDefinitionsMap(String parentPath, String file) {
+		String path = parentPath + "/" + file + "/" + file + ".wid";
+		String content = null;
+		try {
+			content = ConfFileUtils.URLContentsToString(new URL(path));
+		} catch (Exception e) {
+			// Do nothing
+		}
 		if (content == null) {
 			return new ArrayList<Map<String, Object>>();
 		}
 		try {
-			return (List<Map<String, Object>>) MVEL.eval(content, new HashMap());
+			List<Map<String, Object>> result = (List<Map<String, Object>>) MVEL.eval(content, new HashMap());
+			for (Map<String, Object> wid: result) {
+				wid.put("path", parentPath + "/" + file);
+				wid.put("file", file + ".wid");
+			}
+			return result;
 		} catch (Throwable t) {
 			System.err.println("Error occured while loading work definitions " + path);
 			t.printStackTrace();

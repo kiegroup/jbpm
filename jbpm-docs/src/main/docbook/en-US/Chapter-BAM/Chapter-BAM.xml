@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0"
+<chapter id="ch.bam"
+         version="5.0"
          xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
          xml:base="../" xmlns="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -24,7 +25,7 @@
   <section>
     <title>Reporting</title>
 
-    <para>By adding a history logger to the process engine, all relevent events
+    <para>By adding a history logger to the process engine, all relevant events
     are stored in the database.  This history log can be used to monitor and
     analyze the execution of your processes.  We are using the Eclipse BIRT
     (Business Intelligence Reporting Tool) to create reports that show the key
@@ -122,7 +123,7 @@ end</programlisting>
     detected, an additional validation could be added to the process, enforcing
     some sort of flow control to reduce the frequency of incoming requests.
     There is also the possibility of deploying additional logging rules as the
-    consequence of detecting problems. As soon as the situtation reverts back to
+    consequence of detecting problems. As soon as the situation reverts back to
     normal, such rules would be removed again.</para>
 
   </section>

@@ -16,6 +16,7 @@
 
 package org.jbpm.workflow.instance.node;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +27,8 @@ import org.drools.definition.process.Connection;
 import org.drools.definition.process.Node;
 import org.drools.definition.process.NodeContainer;
 import org.drools.runtime.process.EventListener;
-import org.jbpm.workflow.core.impl.NodeImpl;
+import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.core.node.EventNodeInterface;
@@ -50,6 +52,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();;
     private long nodeInstanceCounter = 0;
     private boolean isCanceled = false;
+    private int state = ProcessInstance.STATE_ACTIVE;
     
     public void setProcessInstance(WorkflowProcessInstance processInstance) {
     	super.setProcessInstance(processInstance);
@@ -61,13 +64,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 			if (node instanceof EventNode) {
 				if ("external".equals(((EventNode) node).getScope())) {
 					getProcessInstance().addEventListener(
-							((EventNode) node).getType(), new EventListener() {
-						public String[] getEventTypes() {
-							return null;
-						}
-						public void signalEvent(String type, Object event) {
-						}
-					}, true);
+						((EventNode) node).getType(), new DoNothingEventListener(), true);
 				}
 			}
     	}
@@ -327,6 +324,23 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     			"Completing a node instance that has no outgoing connection not supported.");
 	    }
 	}
+	
+	private static final class DoNothingEventListener implements EventListener, Serializable {
+		private static final long serialVersionUID = 5L;
+		public String[] getEventTypes() {
+			return null;
+		}
+		public void signalEvent(String type, Object event) {
+		}
+	}
+    
+    public void setState(final int state) {
+        this.state = state;
+    }
+
+    public int getState() {
+        return this.state;
+    }
 
 	public boolean isCanceled() {
 		return isCanceled;

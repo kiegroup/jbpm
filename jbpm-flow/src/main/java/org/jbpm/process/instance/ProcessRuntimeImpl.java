@@ -13,7 +13,7 @@ import org.drools.common.InternalRuleBase;
 import org.drools.definition.process.Node;
 import org.drools.definition.process.Process;
 import org.drools.event.ProcessEventSupport;
-import org.drools.event.RuleFlowGroupDeactivatedEvent;
+import org.drools.event.rule.RuleFlowGroupDeactivatedEvent;
 import org.drools.event.knowledgebase.AfterProcessAddedEvent;
 import org.drools.event.knowledgebase.AfterProcessRemovedEvent;
 import org.drools.event.knowledgebase.DefaultKnowledgeBaseEventListener;
@@ -22,8 +22,13 @@ import org.drools.event.rule.ActivationCreatedEvent;
 import org.drools.event.rule.DefaultAgendaEventListener;
 import org.drools.impl.InternalKnowledgeBase;
 import org.drools.rule.Rule;
+import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemManager;
+import org.drools.time.AcceptsTimerJobFactoryManager;
+import org.drools.time.impl.DefaultTimerJobFactoryManager;
+import org.drools.time.impl.TrackableTimeJobFactoryManager;
 import org.drools.util.CompositeClassLoader;
 import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
@@ -49,17 +54,27 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 
 	public ProcessRuntimeImpl(InternalKnowledgeRuntime kruntime) {
 		this.kruntime = kruntime;
+        AcceptsTimerJobFactoryManager jfm = ( AcceptsTimerJobFactoryManager ) kruntime.getTimerService();
+        if ( jfm.getTimerJobFactoryManager() instanceof DefaultTimerJobFactoryManager ) {
+            jfm.setTimerJobFactoryManager( new TrackableTimeJobFactoryManager() );
+        }		
+		((AcceptsTimerJobFactoryManager)kruntime.getTimerService()).setTimerJobFactoryManager( new TrackableTimeJobFactoryManager() );		
 		((CompositeClassLoader) getRootClassLoader()).addClassLoader( getClass().getClassLoader() );
 		initProcessInstanceManager();
 		initSignalManager();
 		timerManager = new TimerManager(kruntime, kruntime.getTimerService());
         processEventSupport = new ProcessEventSupport();
         initProcessEventListeners();
-        initProcessActivationListener();
+        initProcessActivationListener();        
 	}
 	
 	public ProcessRuntimeImpl(AbstractWorkingMemory workingMemory) {
 		this.workingMemory = workingMemory;
+		AcceptsTimerJobFactoryManager jfm = ( AcceptsTimerJobFactoryManager ) workingMemory.getTimerService();
+		if ( jfm.getTimerJobFactoryManager() instanceof DefaultTimerJobFactoryManager ) {
+		    jfm.setTimerJobFactoryManager( new TrackableTimeJobFactoryManager() );
+		}
+		
 		this.kruntime = (InternalKnowledgeRuntime) workingMemory.getKnowledgeRuntime();
 		((CompositeClassLoader) getRootClassLoader()).addClassLoader( getClass().getClassLoader() );
 		initProcessInstanceManager();
@@ -247,8 +262,8 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                             ((RuleFlowProcess) process).getMetaData().put("StartProcessEventListener", listener);
                         }
                     }
-                }
-            }
+        	    }
+        	}
         }
     }
     
@@ -276,7 +291,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                     // new activations of the rule associate with a state node
                     // signal process instances of that state node
                     String ruleName = event.getActivation().getRule().getName();
-                    if ( ruleName.startsWith( "RuleFlowStateNode-" ) ) {
+                    if ( ruleName.startsWith( "RuleFlowStateNode-" ) || ruleName.startsWith( "RuleFlowStateEvent-" ) ) {
                         int index = ruleName.indexOf( "-",
                                                       18 );
                         index = ruleName.indexOf( "-",
@@ -289,15 +304,18 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
                 }
 			}
     	});
-    	if (workingMemory != null) {
-	        workingMemory.addEventListener( new org.drools.event.DefaultAgendaEventListener() {
-	            public void afterRuleFlowGroupDeactivated(final RuleFlowGroupDeactivatedEvent event,
-	                                                      final WorkingMemory workingMemory) {
-	                signalManager.signalEvent( "RuleFlowGroup_" + event.getRuleFlowGroup().getName(),
-	                                           null );
-	            }
-	        } );
-    	}
+
+        kruntime.addEventListener(new DefaultAgendaEventListener() {
+            public void afterRuleFlowGroupDeactivated(final RuleFlowGroupDeactivatedEvent event) {
+            	if (kruntime instanceof StatefulKnowledgeSession) {
+                    signalManager.signalEvent( "RuleFlowGroup_" + event.getRuleFlowGroup().getName() + "_" + ((StatefulKnowledgeSession) kruntime).getId(),
+                            null );
+            	} else {
+                    signalManager.signalEvent( "RuleFlowGroup_" + event.getRuleFlowGroup().getName(),
+                            null );
+            	}
+            }
+        } );
     }
 
 	public void abortProcessInstance(long processInstanceId) {
@@ -343,8 +361,10 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 	public void dispose() {
         this.processEventSupport.reset();
         this.timerManager.dispose();
-        kruntime.getKnowledgeBase().removeEventListener(knowledgeBaseListener);
-        kruntime = null;
+        if( kruntime != null ) { 
+            kruntime.getKnowledgeBase().removeEventListener(knowledgeBaseListener);
+            kruntime = null;
+        }
         workingMemory = null;
 	}
 

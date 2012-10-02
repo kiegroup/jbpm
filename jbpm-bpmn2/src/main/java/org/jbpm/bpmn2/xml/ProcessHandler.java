@@ -38,23 +38,28 @@ import org.jbpm.bpmn2.core.Lane;
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.exception.ActionExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.core.context.swimlane.Swimlane;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.timer.Timer;
+import org.jbpm.process.instance.impl.CancelNodeInstanceAction;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Connection;
 import org.jbpm.workflow.core.Constraint;
+import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
 import org.jbpm.workflow.core.impl.ConnectionRef;
 import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.CompositeContextNode;
+import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.jbpm.workflow.core.node.Split;
+import org.jbpm.workflow.core.node.StateBasedNode;
 import org.jbpm.workflow.core.node.StateNode;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -119,6 +124,11 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 		((ProcessBuildData) parser.getData()).addProcess(process);
 		// register the definitions object as metadata of process.
 		process.setMetaData("Definitions", parser.getParent());
+		// register bpmn2 imports as meta data of process
+		Object typedImports = ((ProcessBuildData) parser.getData()).getMetaData("Bpmn2Imports");
+		if (typedImports != null) {
+		    process.setMetaData("Bpmn2Imports", typedImports);
+		}
 		return process;
 	}
 
@@ -290,8 +300,8 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
     public static void linkBoundaryEvents(NodeContainer nodeContainer) {
         for (Node node : nodeContainer.getNodes()) {
             if (node instanceof EventNode) {
-                String attachedTo = (String) node.getMetaData().get(
                         "AttachedTo");
+                final String attachedTo = (String) node.getMetaData().get("AttachedTo");
                 if (attachedTo != null) {
                     String type = ((EventTypeFilter) ((EventNode) node)
                             .getEventFilters().get(0)).getType();
@@ -305,35 +315,58 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                 "Could not find node to attach to: "
                                         + attachedTo);
                     }
+                    // 
+                    if (!(attachedNode instanceof StateBasedNode) && !type.startsWith("Compensate-")) {
+                        throw new IllegalArgumentException("Boundary events are supported only on StateBasedNode, found node: " + 
+                        		attachedNode.getClass().getName());
+                    }
+                    
                     if (type.startsWith("Escalation-")) {
-                        boolean cancelActivity = (Boolean) node.getMetaData()
-                                .get("CancelActivity");
-                        CompositeContextNode compositeNode = (CompositeContextNode) attachedNode;
-                        ExceptionScope exceptionScope = (ExceptionScope) compositeNode
-                                .getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+                        boolean cancelActivity = (Boolean) node.getMetaData().get("CancelActivity");
+                        String escalationCode = (String) node.getMetaData().get("EscalationEvent");
+                        
+                        ContextContainer compositeNode = (ContextContainer) attachedNode;
+                        ExceptionScope exceptionScope = (ExceptionScope) 
+                            compositeNode.getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
                         if (exceptionScope == null) {
                             exceptionScope = new ExceptionScope();
                             compositeNode.addContext(exceptionScope);
                             compositeNode.setDefaultContext(exceptionScope);
                         }
-                        String escalationCode = (String) node.getMetaData()
-                                .get("EscalationEvent");
+                        
                         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
-                        exceptionHandler
-                                .setAction(new DroolsConsequenceAction(
-                                        "java",
-                                        (cancelActivity ? "((org.jbpm.workflow.instance.NodeInstance) kcontext.getNodeInstance()).cancel();"
-                                                : "")
-                                                + "kcontext.getProcessInstance().signalEvent(\"Escalation-"
-                                                + attachedTo
-                                                + "-"
-                                                + escalationCode + "\", null);"));
-                        exceptionScope.setExceptionHandler(escalationCode,
-                                exceptionHandler);
+                        DroolsConsequenceAction action = null;
+                        
+                        if (attachedNode instanceof CompositeContextNode) {
+                            action = new DroolsConsequenceAction("java",
+                                (cancelActivity ? "((org.jbpm.workflow.instance.NodeInstance) kcontext.getNodeInstance()).cancel();" : "") +
+                                "kcontext.getProcessInstance().signalEvent(\"Escalation-" + attachedTo + "-" + escalationCode + "\", null);");
+                        } else {
+                            long attachedToNodeId = attachedNode.getId();
+                            
+                            
+                            action = new DroolsConsequenceAction("java", 
+                                    (cancelActivity ? "org.drools.runtime.process.WorkflowProcessInstance pi = (org.drools.runtime.process.WorkflowProcessInstance) kcontext.getProcessInstance();"+
+                                    "long nodeInstanceId = -1;"+
+                                    "for (org.drools.runtime.process.NodeInstance nodeInstance : pi.getNodeInstances()) {"+
+                                     "   if (" +attachedToNodeId +" == nodeInstance.getNodeId()) {"+
+                                     "       nodeInstanceId = nodeInstance.getId();"+
+                                     "       break;"+
+                                     "   }"+
+                                    "}"+
+                                    "    ((org.jbpm.workflow.instance.NodeInstance)((org.jbpm.workflow.instance.NodeInstanceContainer) context.getProcessInstance()).getNodeInstance(nodeInstanceId)).cancel();"+
+                                    "kcontext.getProcessInstance().signalEvent(\"Escalation-" + attachedTo + "-" + escalationCode + "\", null);" 
+                                    : "kcontext.getProcessInstance().signalEvent(\"Escalation-" + attachedTo + "-" + escalationCode + "\", null);"));
+                            
+                        }
+                        
+                        exceptionHandler.setAction(action);
+                        exceptionScope.setExceptionHandler(escalationCode, exceptionHandler);
+                       
                     } else if (type.startsWith("Error-")) {
-                        CompositeContextNode compositeNode = (CompositeContextNode) attachedNode;
-                        ExceptionScope exceptionScope = (ExceptionScope) compositeNode
-                                .getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+                        ContextContainer compositeNode = (ContextContainer) attachedNode;
+                        ExceptionScope exceptionScope = (ExceptionScope) 
+                            compositeNode.getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
                         if (exceptionScope == null) {
                             exceptionScope = new ExceptionScope();
                             compositeNode.addContext(exceptionScope);
@@ -342,22 +375,37 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                         String errorCode = (String) node.getMetaData().get(
                                 "ErrorEvent");
                         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
-                        exceptionHandler
-                                .setAction(new DroolsConsequenceAction(
-                                        "java",
-                                        "((org.jbpm.workflow.instance.NodeInstance) kcontext.getNodeInstance()).cancel();"
-                                                + "kcontext.getProcessInstance().signalEvent(\"Error-"
-                                                + attachedTo
-                                                + "-"
-                                                + errorCode
-                                                + "\", null);"));
-                        exceptionScope.setExceptionHandler(errorCode,
-                                exceptionHandler);
-                    } else if (type.startsWith("Timer-")) {
-                        boolean cancelActivity = (Boolean) node.getMetaData()
-                                .get("CancelActivity");
-                        StateBasedNode compositeNode = (StateBasedNode) attachedNode;
 
+                        DroolsConsequenceAction action = null;
+                        
+                        if (attachedNode instanceof CompositeContextNode) {
+                            action = new DroolsConsequenceAction("java",
+                                    "((org.jbpm.workflow.instance.NodeInstance) kcontext.getNodeInstance()).cancel();" +
+                                    "kcontext.getProcessInstance().signalEvent(\"Error-" + attachedTo + "-" + errorCode + "\", null);");
+                        } else {
+                            long attachedToNodeId = attachedNode.getId();
+                            
+                            
+                            action = new DroolsConsequenceAction("java", 
+                                    "org.drools.runtime.process.WorkflowProcessInstance pi = (org.drools.runtime.process.WorkflowProcessInstance) kcontext.getProcessInstance();"+
+                                    "long nodeInstanceId = -1;"+
+                                    "for (org.drools.runtime.process.NodeInstance nodeInstance : pi.getNodeInstances()) {"+
+                                    
+                                     "   if (" +attachedToNodeId +" == nodeInstance.getNodeId()) {"+
+                                     "       nodeInstanceId = nodeInstance.getId();"+
+                                     "       break;"+
+                                     "   }"+
+                                    "}" +
+                                    "if (nodeInstanceId > -1) {((org.jbpm.workflow.instance.NodeInstance)((org.jbpm.workflow.instance.NodeInstanceContainer) kcontext.getProcessInstance()).getNodeInstance(nodeInstanceId)).cancel();}"+
+                                    "kcontext.getProcessInstance().signalEvent(\"Error-" + attachedTo + "-" + errorCode + "\", null);");
+                            
+                        }
+                        
+                        exceptionHandler.setAction(action);
+                        exceptionScope.setExceptionHandler(errorCode, exceptionHandler);
+                    } else if (type.startsWith("Timer-")) {
+                        boolean cancelActivity = (Boolean) node.getMetaData().get("CancelActivity");
+                        StateBasedNode compositeNode = (StateBasedNode) attachedNode;
                         String timeDuration = (String) node.getMetaData().get("TimeDuration");
                         String timeCycle = (String) node.getMetaData().get("TimeCycle");
                         Timer timer = new Timer();
@@ -410,6 +458,43 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                         exceptionHandler.setFaultVariable("__variable__");
                         exceptionScope.setExceptionHandler(messageCode,
                                 exceptionHandler);
+                    } else if (type.startsWith("Condition-")) {
+                        String processId = ((RuleFlowProcess) nodeContainer).getId();
+                        String eventType = "RuleFlowStateEvent-" + processId + "-" + ((EventNode) node).getUniqueId() + "-" + attachedTo;
+                        ((EventTypeFilter) ((EventNode) node).getEventFilters().get(0)).setType(eventType);
+                        final long attachedToNodeId = attachedNode.getId();
+                        boolean cancelActivity = (Boolean) node.getMetaData().get("CancelActivity");
+                        if (cancelActivity) {
+                            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
+                            if (actions == null) {
+                                actions = new ArrayList<DroolsAction>();
+                            }
+                            DroolsConsequenceAction action =  new DroolsConsequenceAction("java", null);
+                            action.setMetaData("Action", new CancelNodeInstanceAction(attachedToNodeId));
+                            actions.add(action);
+                            ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+                        }
+                        
+                        // cancel boundary event when node is completed by removing filter
+                        final long id = node.getId();
+                        StateBasedNode stateBasedNode = (StateBasedNode) attachedNode;
+                        
+                        List<DroolsAction> actionsAttachedTo = stateBasedNode.getActions(StateBasedNode.EVENT_NODE_EXIT);
+                        if (actionsAttachedTo == null) {
+                            actionsAttachedTo = new ArrayList<DroolsAction>();
+                        }
+                        DroolsConsequenceAction actionAttachedTo =  new DroolsConsequenceAction("java", "" +
+                                "org.drools.definition.process.Node node = context.getNodeInstance().getNode().getNodeContainer().getNode(" +id+ ");" +
+                                "if (node instanceof org.jbpm.workflow.core.node.EventNode) {" +
+                                " ((org.jbpm.workflow.core.node.EventNode)node).getEventFilters().clear();" +
+                                "((org.jbpm.workflow.core.node.EventNode)node).addEventFilter(new org.jbpm.process.core.event.EventFilter () " +
+                                "{public boolean acceptsEvent(String type, Object event) { return false;}});" +
+                                "}");
+                     
+
+                        actionsAttachedTo.add(actionAttachedTo);
+                        stateBasedNode.setActions(StateBasedNode.EVENT_NODE_EXIT, actionsAttachedTo);
+                        stateBasedNode.addBoundaryEvents(eventType);
                     }
 
                 }
@@ -454,6 +539,58 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             }
         }
     }
+    
+	private void assignLanes(NodeContainer nodeContainer, Map<String, String> laneMapping) {
+	    for (Node node: nodeContainer.getNodes()) {
+	        String lane = null;
+	        String uniqueId = (String) node.getMetaData().get("UniqueId");
+	        if (uniqueId != null) {
+	            lane = laneMapping.get(uniqueId);
+	        } else {
+	            lane = laneMapping.get(XmlBPMNProcessDumper.getUniqueNodeId(node));
+	        }
+	        if (lane != null) {
+	            ((NodeImpl) node).setMetaData("Lane", lane);
+	            if (node instanceof HumanTaskNode) {
+	                ((HumanTaskNode) node).setSwimlane(lane);
+	            }
+	        }
+	        if (node instanceof NodeContainer) {
+	            assignLanes((NodeContainer) node, laneMapping);
+	        }
+	    }
+	}
+	
+	private static Constraint buildConstraint(SequenceFlow connection, NodeImpl node) {
+		if (connection.getExpression() == null) {
+			return null;
+		}
+		
+		Constraint constraint = new ConstraintImpl();
+		String defaultConnection = (String) node.getMetaData("Default");
+		if (defaultConnection != null && defaultConnection.equals(connection.getId())) {
+			constraint.setDefault(true);
+		}
+		if (connection.getName() != null) {
+			constraint.setName(connection.getName());
+		} else {
+			constraint.setName("");
+		}
+		if (connection.getType() != null) {
+			constraint.setType(connection.getType());
+		} else {
+			constraint.setType("code");
+		}
+		if (connection.getLanguage() != null) {
+			constraint.setDialect(connection.getLanguage());
+		}
+		if (connection.getExpression() != null) {
+			constraint.setConstraint(connection.getExpression());
+		}
+		constraint.setPriority(connection.getPriority());
+		
+		return constraint;
+	}
 
     private void assignLanes(NodeContainer nodeContainer,
             Map<String, String> laneMapping) {

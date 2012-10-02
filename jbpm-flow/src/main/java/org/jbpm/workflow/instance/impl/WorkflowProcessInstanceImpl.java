@@ -16,6 +16,7 @@
 
 package org.jbpm.workflow.instance.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -243,27 +244,28 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		}
 		variableScopeInstance.setVariable(name, value);
 	}
+	
+	public void setState(final int state, String outcome) {
+	    super.setState(state, outcome);
+        // TODO move most of this to ProcessInstanceImpl
+        if (state == ProcessInstance.STATE_COMPLETED
+                || state == ProcessInstance.STATE_ABORTED) {
+            InternalKnowledgeRuntime kruntime = getKnowledgeRuntime();
+            InternalProcessRuntime processRuntime = (InternalProcessRuntime) kruntime.getProcessRuntime();
+            processRuntime.getProcessEventSupport().fireBeforeProcessCompleted(this, kruntime);
+            // deactivate all node instances of this process instance
+            while (!nodeInstances.isEmpty()) {
+                NodeInstance nodeInstance = nodeInstances.get(0);
+                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
+                        .cancel();
+            }
+            removeEventListeners();
+            processRuntime.getProcessInstanceManager().removeProcessInstance(this);
+            processRuntime.getProcessEventSupport().fireAfterProcessCompleted(this, kruntime);
 
-	public void setState(final int state) {
-		super.setState(state);
-		// TODO move most of this to ProcessInstanceImpl
-		if (state == ProcessInstance.STATE_COMPLETED
-				|| state == ProcessInstance.STATE_ABORTED) {
-			InternalKnowledgeRuntime kruntime = getKnowledgeRuntime();
-			InternalProcessRuntime processRuntime = (InternalProcessRuntime) kruntime.getProcessRuntime();
-			processRuntime.getProcessEventSupport().fireBeforeProcessCompleted(this, kruntime);
-			// deactivate all node instances of this process instance
-			while (!nodeInstances.isEmpty()) {
-				NodeInstance nodeInstance = nodeInstances.get(0);
-				((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-						.cancel();
-			}
-			removeEventListeners();
-			processRuntime.getProcessInstanceManager().removeProcessInstance(this);
-			processRuntime.getProcessEventSupport().fireAfterProcessCompleted(this, kruntime);
+            processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
+        }
 
-			processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
-		}
 		if (state == ProcessInstance.STATE_SUSPENDED) {
 			removeEventListeners();
 			for (NodeInstance nodeInstance : nodeInstances) {
@@ -277,11 +279,17 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		}
 	}
 
+	public void setState(final int state) {
+		setState(state, null);
+	}
+
 	public void disconnect() {
 		removeEventListeners();
+		unregisterExternalEventNodeListeners();
+		
 		for (NodeInstance nodeInstance : nodeInstances) {
-			if (nodeInstance instanceof StateBasedNodeInstance) {
-				((StateBasedNodeInstance) nodeInstance).removeEventListeners();
+			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
+				((EventBasedNodeInstanceInterface) nodeInstance).removeEventListeners();
 			}
 		}
 		super.disconnect();
@@ -323,15 +331,17 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			if (node instanceof EventNode) {
 				if ("external".equals(((EventNode) node).getScope())) {
 					addEventListener(((EventNode) node).getType(),
-							new EventListener() {
-								public String[] getEventTypes() {
-									return null;
-								}
-
-								public void signalEvent(String type,
-										Object event) {
-								}
-							}, true);
+						new ExternalEventListener(), true);
+				}
+			}
+		}
+	}
+	
+	private void unregisterExternalEventNodeListeners() {
+		for (Node node : getWorkflowProcess().getNodes()) {
+			if (node instanceof EventNode) {
+				if ("external".equals(((EventNode) node).getScope())) {
+					externalEventListeners.remove(((EventNode) node).getType());
 				}
 			}
 		}
@@ -473,4 +483,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
         }
 	}
 
+	private class ExternalEventListener implements EventListener, Serializable {
+		private static final long serialVersionUID = 5L;
+		public String[] getEventTypes() {
+			return null;
+		}
+		public void signalEvent(String type,
+				Object event) {
+		}		
+	}
 }

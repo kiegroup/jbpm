@@ -24,17 +24,20 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
+@SequenceGenerator(name="processInstanceLogIdSeq", sequenceName="PROC_INST_LOG_ID_SEQ", allocationSize=1)
 public class ProcessInstanceLog implements Serializable {
     
 	private static final long serialVersionUID = 510l;
 	
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator="processInstanceLogIdSeq")
 	private long id;
+	
     private long processInstanceId;
     private String processId;
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,6 +46,13 @@ public class ProcessInstanceLog implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "end_date")
     private Date end;
+    
+    @Column(nullable=true)
+    private int status;
+    @Column(nullable=true)
+    private long parentProcessInstanceId;
+    @Column(nullable=true)
+    private String outcome;
     
     ProcessInstanceLog() {
     }
@@ -107,6 +117,9 @@ public class ProcessInstanceLog implements Serializable {
 				+ ((processId == null) ? 0 : processId.hashCode());
 		result = prime * result	+ (int) processInstanceId;
 		result = prime * result + ((start == null) ? 0 : start.hashCode());
+		result = prime * result   + (int) parentProcessInstanceId;
+		result = prime * result +  status;
+		result = prime * result + ((outcome == null) ? 0 : outcome.hashCode());
 		return result;
 	}
 
@@ -138,6 +151,41 @@ public class ProcessInstanceLog implements Serializable {
 				return false;
 		} else if (!start.equals(other.start))
 			return false;
+		
+		if (parentProcessInstanceId != other.parentProcessInstanceId)
+            return false;
+		if (status != other.status)
+            return false;
+		
+		if (outcome == null) {
+            if (other.outcome != null)
+                return false;
+        } else if (!outcome.equals(other.outcome))
+            return false;
 		return true;
 	}
+
+	public int getStatus() {
+        return status;
+    }
+
+	public void setStatus(int status) {
+        this.status = status;
+    }
+
+	public long getParentProcessInstanceId() {
+        return parentProcessInstanceId;
+    }
+
+	public void setParentProcessInstanceId(long parentProcessInstanceId) {
+        this.parentProcessInstanceId = parentProcessInstanceId;
+    }
+
+	public String getOutcome() {
+        return outcome;
+    }
+
+	public void setOutcome(String errorCode) {
+        this.outcome = errorCode;
+    }
 }

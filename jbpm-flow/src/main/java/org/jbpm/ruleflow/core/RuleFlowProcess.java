@@ -64,11 +64,21 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
     
     public Node getStart() {
         Node[] nodes = getNodes();
+        // int startNodeIndex = -1;
+        
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof StartNode || (nodes[i].getIncomingConnections().isEmpty() && nodes[i] instanceof Split)) {
                 return nodes[i];
+                // return start node that is not event based node
+                // if (((StartNode) nodes[i]).getTriggers() == null || ((StartNode) nodes[i]).getTriggers().isEmpty()) {
+                //     return (StartNode) nodes[i];
+                // }
+                // startNodeIndex = i;
             }
         }
+        // if (startNodeIndex > -1) {
+        //    return (StartNode) nodes[startNodeIndex];
+        // }
         return null;
     }
     
@@ -88,9 +98,13 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
 
         protected void validateAddNode(Node node) {
             super.validateAddNode(node);
-            if ((node instanceof StartNode) && (getStartNodeForValidation() != null)) {
-                throw new IllegalArgumentException(
-                    "A RuleFlowProcess cannot have more than one start node!");
+            StartNode startNode = getStartNodeForValidation();
+            if ((node instanceof StartNode) && (startNode != null && startNode.getTriggers() == null)) {
+                // ignore start nodes that are event based
+                if (((StartNode) node).getTriggers() == null || ((StartNode) node).getTriggers().isEmpty()) {
+                    throw new IllegalArgumentException(
+                        "A RuleFlowProcess cannot have more than one start node!");
+                }
             }
         }
         

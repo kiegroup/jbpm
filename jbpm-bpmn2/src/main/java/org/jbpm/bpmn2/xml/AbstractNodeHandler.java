@@ -17,8 +17,10 @@
 package org.jbpm.bpmn2.xml;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.drools.compiler.xml.XmlDumper;
 import org.drools.rule.builder.dialect.java.JavaDialect;
@@ -44,6 +46,8 @@ import org.xml.sax.SAXParseException;
 public abstract class AbstractNodeHandler extends BaseAbstractHandler implements Handler {
 
     protected final static String EOL = System.getProperty( "line.separator" );
+    protected Map<String, String> dataInputs = new HashMap<String, String>();
+    protected Map<String, String> dataOutputs = new HashMap<String, String>();
 
     public AbstractNodeHandler() {
         initValidParents();
@@ -196,8 +200,8 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 	                NodeList subNodeList = xmlNode.getChildNodes();
 	                for (int j = 0; j < subNodeList.getLength(); j++) {
 	                	org.w3c.dom.Node subXmlNode = subNodeList.item(j);
-	                	if ((type + "-script").equals(subXmlNode.getNodeName())) {
-				    		List<DroolsAction> actions = node.getActions(type);
+	                	if(subXmlNode.getNodeName().contains(type + "-script")) {
+	                		List<DroolsAction> actions = node.getActions(type);
 				    		if (actions == null) {
 				    			actions = new ArrayList<DroolsAction>();
 				            	node.setActions(type, actions);
@@ -262,7 +266,7 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
             String consequence = consequenceAction.getConsequence();
             if (consequence != null) {
                 xmlDump.append(">" + EOL + 
-                    "          <script>" + XmlDumper.replaceIllegalChars(consequence.trim()) + "</script>" + EOL);
+                    "          <tns:script>" + XmlDumper.replaceIllegalChars(consequence.trim()) + "</tns:script>" + EOL);
                 xmlDump.append("        </tns:" + type + "-script>" + EOL);
             } else {
             	xmlDump.append("/>" + EOL);
@@ -271,6 +275,24 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
     		throw new IllegalArgumentException(
 				"Unknown action " + action);
     	}
+    }
+    
+    protected void readIoSpecification(org.w3c.dom.Node xmlNode, Map<String, String> dataInputs, Map<String, String> dataOutputs) {
+        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
+        while (subNode instanceof Element) {
+            String subNodeName = subNode.getNodeName();
+            if ("dataInput".equals(subNodeName)) {
+                String id = ((Element) subNode).getAttribute("id");
+                String inputName = ((Element) subNode).getAttribute("name");
+                dataInputs.put(id, inputName);
+            }
+            if ("dataOutput".equals(subNodeName)) {
+                String id = ((Element) subNode).getAttribute("id");
+                String outputName = ((Element) subNode).getAttribute("name");
+                dataOutputs.put(id, outputName);
+            }
+            subNode = subNode.getNextSibling();
+        }
     }
     
 }

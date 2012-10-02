@@ -1,6 +1,7 @@
 package org.jbpm.persistence.session;
 
-import static org.jbpm.persistence.util.PersistenceUtil.*;
+import static org.drools.persistence.util.PersistenceUtil.*;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,13 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.InitialContext;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.transaction.UserTransaction;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
-import org.drools.base.MapGlobalResolver;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
@@ -28,48 +26,73 @@ import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.io.ResourceFactory;
 import org.drools.io.impl.ClassPathResource;
+import org.drools.marshalling.util.MarshallingTestUtil;
 import org.drools.persistence.jpa.JPAKnowledgeService;
+import org.drools.persistence.util.PersistenceUtil;
 import org.drools.runtime.Environment;
-import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItem;
-import org.jbpm.JbpmTestCase;
+import org.jbpm.persistence.session.objects.TestWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
+public class PersistentStatefulSessionTest {
 
-public class PersistentStatefulSessionTest extends JbpmTestCase {
+    private static Logger logger = LoggerFactory.getLogger(PersistentStatefulSessionTest.class);
+    
+    private HashMap<String, Object> context;
+    private Environment env;
 
-    PoolingDataSource ds1;
-
-    @Override
-    protected void setUp() throws Exception {
-        ds1 = setupPoolingDataSource();
+    @Rule
+    public TestName testName = new TestName();
+    
+    @Before
+    public void setUp() throws Exception {
+        String methodName = testName.getMethodName();
+        // Rules marshalling uses ObjectTypeNodes which screw up marshalling. 
+        if( "testLocalTransactionPerStatement".equals(methodName) 
+            || "testUserTransactions".equals(methodName) 
+            || "testPersistenceRuleSet".equals(methodName)
+            || "testSetFocus".equals(methodName)
+            // Constraints in ruleflows are rules as well (I'm guessing?), so OTN's again.. 
+            || "testPersistenceState".equals(methodName) ) { 
+            context = PersistenceUtil.setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME, false);
+        }
+        else { 
+            context = PersistenceUtil.setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
+        }
         
-        ds1.init();
+        env = PersistenceUtil.createEnvironment(context);
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        ds1.close();
+    @After
+    public void tearDown() throws Exception {
+        cleanUp(context);
     }
 
+    private static String ruleString = ""
+        + "package org.drools.test\n"
+        + "global java.util.List list\n"
+        + "rule rule1\n"
+        + "when\n"
+        + "  Integer(intValue > 0)\n"
+        + "then\n"
+        + "  list.add( 1 );\n"
+        + "end\n"
+        + "\n";
+        
+    @Test
     public void testLocalTransactionPerStatement() {
-        String str = "";
-        str += "package org.drools.test\n";
-        str += "global java.util.List list\n";
-        str += "rule rule1\n";
-        str += "when\n";
-        str += "  Integer(intValue > 0)\n";
-        str += "then\n";
-        str += "  list.add( 1 );\n";
-        str += "end\n";
-        str += "\n";
-
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add( ResourceFactory.newByteArrayResource( str.getBytes() ),
+        kbuilder.add( ResourceFactory.newByteArrayResource( ruleString.getBytes() ),
                       ResourceType.DRL );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
 
@@ -78,14 +101,6 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         }
 
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         List<?> list = new ArrayList<Object>();
@@ -104,20 +119,10 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
 
     }
 
+    @Test
     public void testUserTransactions() throws Exception {
-        String str = "";
-        str += "package org.drools.test\n";
-        str += "global java.util.List list\n";
-        str += "rule rule1\n";
-        str += "when\n";
-        str += "  $i : Integer(intValue > 0)\n";
-        str += "then\n";
-        str += "  list.add( $i );\n";
-        str += "end\n";
-        str += "\n";
-
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add( ResourceFactory.newByteArrayResource( str.getBytes() ),
+        kbuilder.add( ResourceFactory.newByteArrayResource( ruleString.getBytes() ),
                       ResourceType.DRL );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
 
@@ -127,24 +132,10 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
 
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
-
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         ut.commit();
-
-        //      EntityManager em = emf.createEntityManager();
-        //      SessionInfo sInfo = em.find( SessionInfo.class, 1 );
-        //      assertNotNull( sInfo );
-        //      //System.out.println( "session creation : " + sInfo.getVersion() );
-        //      em.close();
 
         List<?> list = new ArrayList<Object>();
 
@@ -156,7 +147,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         ksession.insert( 1 );
         ksession.insert( 2 );
         ut.commit();
-//
+
         // insert and rollback
         ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
@@ -171,7 +162,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertEquals( 2,
                       list.size() );
 
-//        // insert and commit
+        // insert and commit
         ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
         ksession.insert( 3 );
@@ -205,6 +196,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
                       list.size() );
     }
 
+    @Test
     public void testPersistenceWorkItems() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "WorkItemsProcess.rf" ),
@@ -212,19 +204,13 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
-
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
+        int origNumObjects = ksession.getObjects().size();
         int id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         ksession.insert( "TestString" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
 
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
@@ -265,28 +251,21 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
 
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         processInstance = ksession.getProcessInstance( processInstance.getId() );
-        assertEquals( 1,
+        assertEquals( origNumObjects + 1,
                       ksession.getObjects().size() );
         for ( Object o : ksession.getObjects() ) {
-            System.out.println( o );
+            logger.debug( o.toString() );
         }
         assertNull( processInstance );
 
     }
     
+    @Test
     public void testPersistenceWorkItems2() throws Exception {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add( new ClassPathResource( "WorkItemsProcess.rf" ),
-                      ResourceType.DRF );
+        kbuilder.add( new ClassPathResource( "WorkItemsProcess.rf" ), ResourceType.DRF );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int id = ksession.getId();
@@ -296,7 +275,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         ksession.insert( "TestString" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
 
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
@@ -337,25 +316,19 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertEquals( 1,
                       ksession.getObjects().size() );
         for ( Object o : ksession.getObjects() ) {
-            System.out.println( o );
+            logger.debug( o.toString() );
         }
         assertNull( processInstance );
 
     }
     
+    @Test
     public void testPersistenceWorkItems3() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "WorkItemsProcess.rf" ),
                       ResourceType.DRF );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         ksession.getWorkItemManager().registerWorkItemHandler("MyWork", new SystemOutWorkItemHandler());
@@ -364,25 +337,18 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
     
+    @Test
     public void testPersistenceState() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add( new ClassPathResource( "StateProcess.rf" ),
-                      ResourceType.DRF );
+        kbuilder.add( new ClassPathResource( "StateProcess.rf" ), ResourceType.DRF );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY, emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );        
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
 
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         processInstance = ksession.getProcessInstance( processInstance.getId() );
@@ -396,6 +362,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertNull( processInstance );
     }
     
+    @Test
     public void testPersistenceRuleSet() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "RuleSetProcess.rf" ),
@@ -404,13 +371,6 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
                       ResourceType.DRL );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY, emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );        
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int id = ksession.getId();
@@ -430,6 +390,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertNull( processInstance );
     }
     
+    @Test
     public void testPersistenceEvents() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "EventsProcess.rf" ),
@@ -437,18 +398,11 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
-
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
 
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
@@ -478,6 +432,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertNull( processInstance );
     }
     
+    @Test
     public void testProcessListener() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "WorkItemsProcess.rf" ),
@@ -485,61 +440,54 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
-
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         final List<ProcessEvent> events = new ArrayList<ProcessEvent>();
         ProcessEventListener listener = new ProcessEventListener() {
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
-                System.out.println("After node left: " + event.getNodeInstance().getNodeName());
+                logger.debug("After node left: " + event.getNodeInstance().getNodeName());
                 events.add(event);              
             }
             public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
-                System.out.println("After node triggered: " + event.getNodeInstance().getNodeName());
+                logger.debug("After node triggered: " + event.getNodeInstance().getNodeName());
                 events.add(event);              
             }
             public void afterProcessCompleted(ProcessCompletedEvent event) {
-                System.out.println("After process completed");
+                logger.debug("After process completed");
                 events.add(event);              
             }
             public void afterProcessStarted(ProcessStartedEvent event) {
-                System.out.println("After process started");
+                logger.debug("After process started");
                 events.add(event);              
             }
             public void beforeNodeLeft(ProcessNodeLeftEvent event) {
-                System.out.println("Before node left: " + event.getNodeInstance().getNodeName());
+                logger.debug("Before node left: " + event.getNodeInstance().getNodeName());
                 events.add(event);              
             }
             public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
-                System.out.println("Before node triggered: " + event.getNodeInstance().getNodeName());
+                logger.debug("Before node triggered: " + event.getNodeInstance().getNodeName());
                 events.add(event);              
             }
             public void beforeProcessCompleted(ProcessCompletedEvent event) {
-                System.out.println("Before process completed");
+                logger.debug("Before process completed");
                 events.add(event);              
             }
             public void beforeProcessStarted(ProcessStartedEvent event) {
-                System.out.println("Before process started");
+                logger.debug("Before process started");
                 events.add(event);              
             }
             public void afterVariableChanged(ProcessVariableChangedEvent event) {
-                System.out.println("After Variable Changed");
+                logger.debug("After Variable Changed");
                 events.add(event);  
             }
             public void beforeVariableChanged(ProcessVariableChangedEvent event) {
-                System.out.println("Before Variable Changed");
+                logger.debug("Before Variable Changed");
                 events.add(event); 
             }
         };
         ksession.addEventListener(listener);
         
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
         
         assertEquals(12, events.size());
         assertTrue(events.get(0) instanceof ProcessStartedEvent);
@@ -559,11 +507,12 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         events.clear();
         
         processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
         
         assertTrue(events.isEmpty());
     }
 
+    @Test
     public void testPersistenceSubProcess() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "SuperProcess.rf" ),
@@ -573,16 +522,11 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int id = ksession.getId();
         
         ProcessInstance processInstance = ksession.startProcess( "com.sample.SuperProcess" );
-        System.out.println( "Started process instance " + processInstance.getId() );
+        logger.debug( "Started process instance " + processInstance.getId() );
 
         TestWorkItemHandler handler = TestWorkItemHandler.getInstance();
         WorkItem workItem = handler.getWorkItem();
@@ -612,23 +556,18 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
 
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         processInstance = ksession.getProcessInstance( processInstance.getId() );
-        assertNull( processInstance );
+        assertNull( "Process did not complete.", processInstance );
     }
     
+    @Test
     public void testPersistenceVariables() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( "VariablesProcess.rf" ), ResourceType.DRF );
         for (KnowledgeBuilderError error: kbuilder.getErrors()) {
-            System.out.println(error);
+            logger.debug(error.toString());
         }
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
-
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY, emf );
-
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int id = ksession.getId();
@@ -668,6 +607,7 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
         assertNull( processInstance );
     }
 
+    @Test
     public void testSetFocus() {
         String str = "";
         str += "package org.drools.test\n";
@@ -692,14 +632,6 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
 
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
 
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory( PERSISTENCE_UNIT_NAME );
-        Environment env = KnowledgeBaseFactory.newEnvironment();
-        env.set( EnvironmentName.ENTITY_MANAGER_FACTORY,
-                 emf );
-        env.set( EnvironmentName.TRANSACTION_MANAGER,
-                 TransactionManagerServices.getTransactionManager() );
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() );
-
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         List<?> list = new ArrayList<Object>();
 
@@ -717,5 +649,4 @@ public class PersistentStatefulSessionTest extends JbpmTestCase {
                       list.size() );
     }
 
-    
 }
