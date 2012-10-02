@@ -83,6 +83,8 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import org.drools.runtime.process.WorkItemHandler;
+
 public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 
     private Logger logger = LoggerFactory.getLogger(SimpleBPMNProcessTest.class);

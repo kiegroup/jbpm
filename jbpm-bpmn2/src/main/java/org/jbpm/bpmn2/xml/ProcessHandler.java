@@ -300,7 +300,6 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
     public static void linkBoundaryEvents(NodeContainer nodeContainer) {
         for (Node node : nodeContainer.getNodes()) {
             if (node instanceof EventNode) {
-                        "AttachedTo");
                 final String attachedTo = (String) node.getMetaData().get("AttachedTo");
                 if (attachedTo != null) {
                     String type = ((EventTypeFilter) ((EventNode) node)
@@ -592,27 +591,5 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 		return constraint;
 	}
 
-    private void assignLanes(NodeContainer nodeContainer,
-            Map<String, String> laneMapping) {
-        for (Node node : nodeContainer.getNodes()) {
-            String lane = null;
-            String uniqueId = (String) node.getMetaData().get("UniqueId");
-            if (uniqueId != null) {
-                lane = laneMapping.get(uniqueId);
-            } else {
-                lane = laneMapping.get(XmlBPMNProcessDumper
-                        .getUniqueNodeId(node));
-            }
-            if (lane != null) {
-                ((NodeImpl) node).setMetaData("Lane", lane);
-                if (node instanceof HumanTaskNode) {
-                    ((HumanTaskNode) node).setSwimlane(lane);
-                }
-            }
-            if (node instanceof NodeContainer) {
-                assignLanes((NodeContainer) node, laneMapping);
-            }
-        }
-    }
 
 }
