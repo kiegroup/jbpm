@@ -129,7 +129,7 @@ public class JPAProcessInstanceDbLog {
         EntityManager em = getEntityManager();
         UserTransaction ut = joinTransaction(em);
         List<NodeInstanceLog> result = getEntityManager()
-            .createQuery("FROM NodeInstanceLog n WHERE n.processInstanceId = :processInstanceId ORDER BY date")
+            .createQuery("FROM NodeInstanceLog n WHERE n.processInstanceId = :processInstanceId ORDER BY date,id")
                 .setParameter("processInstanceId", processInstanceId).getResultList();
         closeEntityManager(em, ut);
         return result;
@@ -140,7 +140,7 @@ public class JPAProcessInstanceDbLog {
         EntityManager em = getEntityManager();
         UserTransaction ut = joinTransaction(em);
         List<NodeInstanceLog> result = getEntityManager()
-            .createQuery("FROM NodeInstanceLog n WHERE n.processInstanceId = :processInstanceId AND n.nodeId = :nodeId ORDER BY date")
+            .createQuery("FROM NodeInstanceLog n WHERE n.processInstanceId = :processInstanceId AND n.nodeId = :nodeId ORDER BY date,id")
                 .setParameter("processInstanceId", processInstanceId)
                 .setParameter("nodeId", nodeId).getResultList();
         closeEntityManager(em, ut);
