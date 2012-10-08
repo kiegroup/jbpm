@@ -1,11 +1,17 @@
 package org.jbpm.bpmn2;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.drools.KnowledgeBase;
 import org.drools.event.process.DefaultProcessEventListener;
 import org.drools.event.process.ProcessNodeLeftEvent;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
+import org.drools.runtime.process.WorkItem;
+import org.jbpm.bpmn2.JbpmBpmn2TestCase.TestWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 
 public class SimplePersistenceBPMNProcessTest extends JbpmBpmn2TestCase {
@@ -72,4 +78,77 @@ public class SimplePersistenceBPMNProcessTest extends JbpmBpmn2TestCase {
         assertNodeTriggered(processInstance.getId(), "StartProcess", "UserTask", "EndProcess", "event");
     }
 
+    public void testInclusiveSplitAndJoin() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoin.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 15);
+        ProcessInstance processInstance = ksession.startProcess(
+                "com.sample.test", params);
+        
+        List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+        
+        assertEquals(2, activeWorkItems.size());
+        restoreSession(ksession, true);
+        
+        for (WorkItem wi : activeWorkItems) {
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+    }
+    
+    public void testInclusiveSplitAndJoinNested() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinNested.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 15);
+        ProcessInstance processInstance = ksession.startProcess(
+                "com.sample.test", params);
+        
+        List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+        
+        assertEquals(2, activeWorkItems.size());
+        restoreSession(ksession, true);
+        
+        for (WorkItem wi : activeWorkItems) {
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        
+        activeWorkItems = workItemHandler.getWorkItems();
+        assertEquals(2, activeWorkItems.size());
+        restoreSession(ksession, true);
+        
+        for (WorkItem wi : activeWorkItems) {
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+    }
+    
+    public void testInclusiveSplitAndJoinEmbedded() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinEmbedded.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 15);
+        ProcessInstance processInstance = ksession.startProcess(
+                "com.sample.test", params);
+        
+        List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+        
+        assertEquals(2, activeWorkItems.size());
+        restoreSession(ksession, true);
+        
+        for (WorkItem wi : activeWorkItems) {
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+    }
 }

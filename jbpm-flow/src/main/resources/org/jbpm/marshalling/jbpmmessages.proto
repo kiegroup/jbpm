@@ -44,6 +44,7 @@ message ProcessInstance {
     repeated NodeInstance node_instance = 7;
     repeated Variable variable = 8;
     repeated ExclusiveGroupInstance exclusive_group = 10;
+    repeated GatewayScope gateway_scope = 11;
 
     message SwimlaneContextInstance {
         optional string swimlane = 1;
@@ -58,6 +59,12 @@ message ProcessInstance {
 
     message ExclusiveGroupInstance {
         repeated int64 group_node_instance_id = 1;
+    }
+
+    message GatewayScope {
+        optional string nodeName = 1;
+        optional int32 activeFlows = 2;
+        optional int32 mergedFlows = 3;
     }
 
     message NodeInstanceContent {
@@ -159,5 +166,7 @@ message ProcessTimer {
         optional int64 activated_time = 6;
         optional int64 last_triggered = 7;
     }
+    
+
 }
 

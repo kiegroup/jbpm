@@ -21,7 +21,9 @@ import java.util.Map;
 
 import org.drools.definition.process.Connection;
 import org.drools.runtime.process.NodeInstance;
+import org.jbpm.process.core.context.gateway.GatewayScope;
 import org.jbpm.process.core.context.variable.VariableScope;
+import org.jbpm.process.instance.context.gateway.GatewayScopeInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.node.Join;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
@@ -112,6 +114,22 @@ public class JoinInstance extends NodeInstanceImpl {
                 }
                 if (counter >= number) {
                     resetAllTriggers();
+                    triggerCompleted();
+                }
+                break;
+            case Join.TYPE_OR :
+                GatewayScopeInstance gatewayContextInstance = (GatewayScopeInstance) getProcessInstance().getContextInstance(GatewayScope.GATEWAY_SCOPE);
+                if (gatewayContextInstance == null) {
+                    throw new IllegalStateException("There is not GatewayScopeInstance available");
+                }
+                GatewayScope gatewayScope = gatewayContextInstance.getGatewayScope(join.getName());
+                gatewayScope.incrementMerged();
+                
+                int counterActive = gatewayScope.getActiveFlows();
+                int counterMerged = gatewayScope.getMergedFlows();
+                
+                if (counterActive == counterMerged) {
+                    getProcessInstance().removeContextInstance(GatewayScope.GATEWAY_SCOPE, gatewayContextInstance);
                     triggerCompleted();
                 }
                 break;
