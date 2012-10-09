@@ -688,12 +688,8 @@ public class TaskServiceSession {
         doCallbackUserOperation(userId);
         List<Status> status = new ArrayList<Status>();
         status.add(Status.Ready);
-        
-        HashMap<String, Object> params = addParametersToMap(
-                "userId", userId,
-                "language", language,
-                "status", status);
-        List<TaskSummary> queryTasks = (List<TaskSummary>) tpm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatus", params);
+       
+        List<TaskSummary> queryTasks = getTasksAssignedAsPotentialOwnerByStatus(userId, status, language);
         if(queryTasks.size() > 0){
             taskOperation(Operation.Claim, queryTasks.get(0).getId(), userId, null, null, null );
         } else{
@@ -705,14 +701,8 @@ public class TaskServiceSession {
         doCallbackUserOperation(userId);
         List<Status> status = new ArrayList<Status>();
         status.add(Status.Ready);
-        
-        Map<String, Object> params = addParametersToMap(
-                "userId", userId,
-                "groupIds", groupIds,
-                "language", language,
-                "status", status);
-        
-        List<TaskSummary> queryTasks = (List<TaskSummary>) tpm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatusWithGroups", params);
+      
+        List<TaskSummary> queryTasks = getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, groupIds, status, language);
         
         if(queryTasks.size() > 0){
             taskOperation(Operation.Claim, queryTasks.get(0).getId(), userId, null, null, groupIds );
@@ -1055,7 +1045,7 @@ public class TaskServiceSession {
                                          "groupIds", groupIds,
                                          "language", language,
                                          "status", status);
-        List<TaskSummary> result = (List<TaskSummary>) tpm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatusByGroup", params);
+        List<TaskSummary> result = (List<TaskSummary>) tpm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatusWithGroups", params);
         return result;
     }
 

@@ -153,8 +153,8 @@ public abstract class WSHumanTaskHandlerBaseSyncTest extends BaseTest {
         Task task = getClient().getTask(taskSummary.getId());
         assertEquals(Status.Ready, task.getTaskData().getStatus());
     }
-
-    public void testTaskSingleAndGroupActors() throws Exception {
+    
+     public void testTaskSingleAndGroupActors() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
@@ -180,6 +180,39 @@ public abstract class WSHumanTaskHandlerBaseSyncTest extends BaseTest {
         
         List<TaskSummary> tasks = getClient().getTasksAssignedAsPotentialOwner("Darth Vader", groupIds, "en-UK");
         assertEquals(2, tasks.size());
+    }
+
+    
+
+    public void testTasksAssignedAsPotentialOwnerByStatusByGroup() throws Exception {
+        TestWorkItemManager manager = new TestWorkItemManager();
+        ksession.setWorkItemManager(manager);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task One");
+        workItem.setParameter("TaskName", "TaskNameOne");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("GroupId", "Crusaders");
+        getHandler().executeWorkItem(workItem, manager);
+  
+
+        workItem = new WorkItemImpl();
+        workItem.setName("Human Task Two");
+        workItem.setParameter("TaskName", "TaskNameTwo");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("ActorId", "Darth Vader");
+        getHandler().executeWorkItem(workItem, manager);
+
+        
+        List<String> groupIds = new ArrayList<String>();
+        groupIds.add("Crusaders");
+        List<Status> status = new ArrayList<Status>();
+        status.add(Status.Ready);
+        List<TaskSummary> tasks = getClient().getTasksAssignedAsPotentialOwnerByStatusByGroup(null, groupIds, status, "en-UK");
+        assertEquals(1, tasks.size());
+        tasks = getClient().getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
+        assertEquals(1, tasks.size());
     }
 
     public void testTaskFail() throws Exception {
