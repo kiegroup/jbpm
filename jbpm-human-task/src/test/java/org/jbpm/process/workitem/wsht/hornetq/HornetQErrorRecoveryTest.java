@@ -45,13 +45,12 @@ public class HornetQErrorRecoveryTest extends BaseTest {
     protected void setUp() throws Exception {
         super.setUp();
         server = new HornetQTaskServer(taskService, 5445);
-        thread = new Thread(server);
-        thread.start();
         System.out.println("Waiting for the HornetQTask Server to come up");
-        while (!server.isRunning()) {
-            System.out.print(".");
-            Thread.sleep(50);
-        }   
+        try {
+            startTaskServerThread(server, false);
+        } catch (Exception e) {
+            startTaskServerThread(server, true);
+        } 
         handler = new WSHumanTaskHandler(new TestStatefulKnowledgeSession());
         client = new TaskClient(new HornetQTaskClientConnector("client 1",
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
@@ -129,16 +128,16 @@ public class HornetQErrorRecoveryTest extends BaseTest {
         assertNull( task1.getTaskData().getActualOwner() );    
         
         server.stop();
-        thread.interrupt();
         
         server = new HornetQTaskServer(taskService, 5445);
         thread = new Thread(server);
         thread.start();
         System.out.println("Waiting for the HornetQTask Server to come up");
-        while (!server.isRunning()) {
-            System.out.print(".");
-            Thread.sleep(50);
-        } 
+        try {
+            startTaskServerThread(server, false);
+        } catch (Exception e) {
+            startTaskServerThread(server, true);
+        }
         
         try {
 	        getTaskResponseHandler = new BlockingGetTaskResponseHandler(); 

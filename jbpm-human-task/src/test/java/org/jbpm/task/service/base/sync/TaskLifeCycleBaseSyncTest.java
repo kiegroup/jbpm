@@ -42,8 +42,12 @@ public abstract class TaskLifeCycleBaseSyncTest extends BaseTest {
     protected TaskService client;
 
     protected void tearDown() throws Exception {
-        client.disconnect();
-        server.stop();
+        if (client!= null) {
+            client.disconnect();
+        }
+        if (server != null) {
+            server.stop();
+        }
         super.tearDown();
     }
     
@@ -82,8 +86,9 @@ public abstract class TaskLifeCycleBaseSyncTest extends BaseTest {
         assertEquals(Status.InProgress, tasks.get(0).getStatus());
 
         client.complete(taskId, users.get("bobba").getId(), null);
+        // delay it slightly otherwise it fails randomly for local task service
+        Thread.sleep(500);
         Date completedBy = new Date();
-        
         tasks = client.getTasksAssignedAsPotentialOwner(users.get("bobba").getId(), "en-UK");
         assertEquals(0, tasks.size());
 

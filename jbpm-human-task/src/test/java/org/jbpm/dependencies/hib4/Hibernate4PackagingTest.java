@@ -7,7 +7,8 @@ import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.jbpm.dependencies.PackagingTestCase;
 import org.jbpm.dependencies.runner.JarTestRunner;
-
+import org.junit.Ignore;
+@Ignore
 public class Hibernate4PackagingTest extends PackagingTestCase {
 
     /**

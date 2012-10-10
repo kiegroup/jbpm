@@ -14,12 +14,11 @@ public class TaskServiceTaskAttributesHornetQSyncTest extends TaskServiceTaskAtt
     protected void setUp() throws Exception {
         super.setUp();
         server = new HornetQTaskServer(taskService, 5446);
-        Thread thread = new Thread(server);
-        thread.start();
         logger.debug("Waiting for the HornetQTask Server to come up");
-        while (!server.isRunning()) {
-
-            Thread.sleep(50);
+        try {
+            startTaskServerThread(server, false);
+        } catch (Exception e) {
+            startTaskServerThread(server, true);
         }
 
         client = new AsyncTaskServiceWrapper(new TaskClient(new HornetQTaskClientConnector("client 1",

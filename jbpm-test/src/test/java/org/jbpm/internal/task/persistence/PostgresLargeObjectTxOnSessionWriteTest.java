@@ -79,7 +79,7 @@ public class PostgresLargeObjectTxOnSessionWriteTest {
             // swallow!
         }
     }
-
+    @Ignore// FIXME commit missing BPMN2 file
     @Test
 //    @RequiresDialect( value=PostgreSQL82Dialect.class )
     public void inJvmTest() {

@@ -57,6 +57,8 @@ public abstract class BaseTest extends TestCase {
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
     private PoolingDataSource pds;
     
+    public static final long TASK_SERVER_START_WAIT_TIME = 10000;
+    
     protected EntityManagerFactory createEntityManagerFactory() { 
         return Persistence.createEntityManagerFactory("org.jbpm.task");
     }
@@ -237,6 +239,25 @@ public abstract class BaseTest extends TestCase {
                 }
             } else {
                 throw new RuntimeException("Unknown driver class: " + driverClass);
+            }
+        }
+    }
+    
+    protected void startTaskServerThread(TaskServer server, boolean failOnLimit) throws InterruptedException {
+        Thread thread = new Thread(server);
+        thread.start();
+        
+        long counter = 0;
+        while (!server.isRunning()) {
+            System.out.print(".");
+            Thread.sleep(50);
+            counter += 50;
+            if (counter > TASK_SERVER_START_WAIT_TIME) {
+                if (failOnLimit) {
+                    new RuntimeException("Unable to start task server in defined time + " + this.getName());
+                } else {
+                    break;
+                }
             }
         }
     }

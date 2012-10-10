@@ -51,11 +51,10 @@ public class TaskServiceJMSSyncTest extends TaskServiceBaseSyncTest {
         serverProperties.setProperty("JMSTaskServer.responseQueueName", "tasksResponseQueue");
 
         server = new JMSTaskServer(taskService, serverProperties, context);
-        Thread thread = new Thread(server);
-        thread.start();
-        while (!server.isRunning()) {
-
-            Thread.sleep(50);
+        try {
+            startTaskServerThread(server, false);
+        } catch (Exception e) {
+            startTaskServerThread(server, true);
         }
 
         Properties clientProperties = new Properties();
