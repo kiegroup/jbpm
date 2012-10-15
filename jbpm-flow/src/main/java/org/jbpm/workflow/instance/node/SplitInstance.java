@@ -27,11 +27,16 @@ import org.drools.definition.process.Connection;
 import org.drools.definition.process.Node;
 import org.drools.runtime.process.NodeInstance;
 import org.jbpm.process.core.context.exclusive.ExclusiveGroup;
+import org.jbpm.process.core.context.gateway.GatewayScope;
+import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.ContextInstanceContainer;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
+import org.jbpm.process.instance.context.gateway.GatewayScopeInstance;
 import org.jbpm.process.instance.impl.ConstraintEvaluator;
+import org.jbpm.process.instance.impl.ContextInstanceFactory;
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.core.node.Split;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
@@ -133,6 +138,19 @@ public class SplitInstance extends NodeInstanceImpl {
                     }
                     outgoingCopy.remove(selectedConnection);
                 }
+                // create dedicated context instance to store split information
+                GatewayScopeInstance gatewayContextInstance = (GatewayScopeInstance) getProcessInstance().getContextInstance(GatewayScope.GATEWAY_SCOPE);
+                GatewayScope gatewayScope = null;
+                if (gatewayContextInstance == null) {
+                    gatewayContextInstance = new GatewayScopeInstance();
+                    ((ProcessInstanceImpl) getProcessInstance()).setContextInstance(GatewayScope.GATEWAY_SCOPE, gatewayContextInstance);
+                    
+                } 
+                gatewayScope = new GatewayScope();
+                gatewayScope.setNodeName(split.getName());
+                gatewayScope.setActiveFlows(nodeInstances.size());
+                gatewayContextInstance.addGatewayScope(gatewayScope);
+                 
                 for (NodeInstanceTrigger nodeInstance: nodeInstances) {
     	        	// stop if this process instance has been aborted / completed
     	        	if (getProcessInstance().getState() != ProcessInstance.STATE_ACTIVE) {

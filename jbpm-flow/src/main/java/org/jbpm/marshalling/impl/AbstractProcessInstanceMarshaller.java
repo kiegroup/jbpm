@@ -41,10 +41,12 @@ import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkflowProcessInstance;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.exclusive.ExclusiveGroup;
+import org.jbpm.process.core.context.gateway.GatewayScope;
 import org.jbpm.process.core.context.swimlane.SwimlaneContext;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
+import org.jbpm.process.instance.context.gateway.GatewayScopeInstance;
 import org.jbpm.process.instance.context.swimlane.SwimlaneContextInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
@@ -122,6 +124,8 @@ public abstract class AbstractProcessInstanceMarshaller implements
         		}
         	}
         }
+        
+        
         VariableScopeInstance variableScopeInstance = (VariableScopeInstance) workFlow.getContextInstance(VariableScope.VARIABLE_SCOPE);
         Map<String, Object> variables = variableScopeInstance.getVariables();
         List<String> keys = new ArrayList<String>(variables.keySet());

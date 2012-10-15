@@ -40,10 +40,12 @@ import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceConten
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceType;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.exclusive.ExclusiveGroup;
+import org.jbpm.process.core.context.gateway.GatewayScope;
 import org.jbpm.process.core.context.swimlane.SwimlaneContext;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
+import org.jbpm.process.instance.context.gateway.GatewayScopeInstance;
 import org.jbpm.process.instance.context.swimlane.SwimlaneContextInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
@@ -119,6 +121,19 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     _exclusive.addGroupNodeInstanceId( nodeInstance.getId() );
                 }
                 _instance.addExclusiveGroup( _exclusive.build() );
+            }
+        }
+        
+        ContextInstance gatewayContextINstance = workFlow.getContextInstance(GatewayScope.GATEWAY_SCOPE);
+        if (gatewayContextINstance != null) {
+            
+            for (GatewayScope scope : ((GatewayScopeInstance)gatewayContextINstance).getGatewayScopes()) {
+            JBPMMessages.ProcessInstance.GatewayScope.Builder _gateway = JBPMMessages.ProcessInstance.GatewayScope.newBuilder();
+            
+            _gateway.setNodeName(scope.getNodeName());
+            _gateway.setActiveFlows(scope.getActiveFlows());
+            _gateway.setMergedFlows(scope.getMergedFlows());
+            _instance.addGatewayScope(_gateway.build());
             }
         }
 
@@ -402,6 +417,21 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     throw new IllegalArgumentException( "Could not find node instance when deserializing exclusive group instance: " + nodeInstanceId );
                 }
                 exclusiveGroupInstance.addNodeInstance( nodeInstance );
+            }
+        }
+        
+        if (_instance.getGatewayScopeCount() > 0) {
+        
+            GatewayScopeInstance gatewayScopeInstance = new GatewayScopeInstance();
+            processInstance.setContextInstance(GatewayScope.GATEWAY_SCOPE, gatewayScopeInstance);
+            
+            for (JBPMMessages.ProcessInstance.GatewayScope _gateway : _instance.getGatewayScopeList()) {
+                GatewayScope scope = new GatewayScope();
+                scope.setNodeName(_gateway.getNodeName());
+                scope.setActiveFlows(_gateway.getActiveFlows());
+                scope.setMergedFlows(_gateway.getMergedFlows());
+                
+                gatewayScopeInstance.addGatewayScope(scope);
             }
         }
 
