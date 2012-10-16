@@ -253,7 +253,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     }
     
     private void removeActivationListener() {
-        getProcessInstance().addEventListener(getActivationType(), this, true);
+//        getProcessInstance().addEventListener(getActivationType(), this, true);
     }
     
     protected boolean checkProcessInstance(Activation activation) {
