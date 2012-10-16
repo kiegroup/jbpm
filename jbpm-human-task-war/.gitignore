@@ -1,6 +1,5 @@
 /target
 /local
-/data
 
 # Eclipse, Netbeans and IntelliJ files
 /.*
@@ -10,3 +9,6 @@
 /*.iws
 /*.iml
 
+# test data
+/data
+/*.db
