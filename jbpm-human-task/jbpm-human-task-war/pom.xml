@@ -7,7 +7,7 @@
   <parent>
         <groupId>org.jbpm</groupId>
         <artifactId>jbpm-human-task</artifactId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-human-task-war</artifactId>
@@ -151,6 +151,18 @@
                   <Dependencies>org.jboss.netty</Dependencies>
                 </manifestEntries>
               </archive>
+            </configuration>
+          </execution>
+          <execution>
+            <id>as5</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/human-task-war-as5.xml</descriptor>
+              </descriptors>
             </configuration>
           </execution>
         </executions>

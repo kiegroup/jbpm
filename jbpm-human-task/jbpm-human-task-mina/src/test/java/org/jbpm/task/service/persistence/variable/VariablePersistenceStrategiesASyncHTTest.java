@@ -90,16 +90,12 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
 
         
         server = new MinaTaskServer(taskService);
-        Thread thread = new Thread(server);
-        thread.start();
         System.out.println("Waiting for the MinaTask Server to come up");
-        while (!server.isRunning()) {
-        	System.out.print(".");
-        	Thread.sleep( 50 );
+        try {
+            startTaskServerThread(server, false);
+        } catch (Exception e) {
+            startTaskServerThread(server, true);
         }
-
-        
-        
         
         AsyncMinaHTWorkItemHandler asyncWSHumanTaskHandler = new AsyncMinaHTWorkItemHandler("my-mina-connector", client, ksession, null);
         setClient(asyncWSHumanTaskHandler.getClient());
@@ -166,7 +162,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         Task task = getTaskResponseHandler.getTask();
         
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
         
@@ -226,7 +222,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
         
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -296,7 +292,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         getClient().getTask(taskSummary.getId(),getTaskResponseHandler);
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -371,7 +367,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         Task task = getTaskResponseHandler.getTask();
 
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -433,7 +429,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
 
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -503,7 +499,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         getClient().getTask(taskSummary.getId(),getTaskResponseHandler);
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -580,7 +576,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
         
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -645,7 +641,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         getClient().getTask(taskSummary.getId(),getTaskResponseHandler);
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 
@@ -722,7 +718,7 @@ public class VariablePersistenceStrategiesASyncHTTest extends BaseTest {
         getClient().getTask(taskSummary.getId(),getTaskResponseHandler);
         Task task = getTaskResponseHandler.getTask();
         assertEquals(AccessType.Inline, task.getTaskData().getDocumentAccessType());
-        assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId);
+        assertEquals(task.getTaskData().getProcessSessionId(), ksession.getId());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
 

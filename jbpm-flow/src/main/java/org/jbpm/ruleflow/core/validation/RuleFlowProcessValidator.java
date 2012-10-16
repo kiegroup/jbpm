@@ -30,6 +30,7 @@ import org.drools.definition.process.Process;
 import org.drools.process.core.Work;
 import org.drools.time.TimeUtils;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.process.core.validation.ProcessValidationError;
 import org.jbpm.process.core.validation.ProcessValidator;
@@ -688,36 +689,53 @@ public class RuleFlowProcessValidator implements ProcessValidator {
     }
 
     private void validateTimer(final Timer timer, final Node node,
-            final RuleFlowProcess process,
-            final List<ProcessValidationError> errors) {
-        if (timer.getDelay() == null) {
-            errors.add(new ProcessValidationErrorImpl(process, "Node '"
-                    + node.getName() + "' [" + node.getId()
-                    + "] has timer with no delay specified."));
-        } else {
-            if (!timer.getDelay().contains("#{")) {
-                try {
-//                    TimeUtils.parseTimeString(timer.getDelay());
-                } catch (RuntimeDroolsException e) {
-                    errors.add(new ProcessValidationErrorImpl(process,
-                            "Could not parse delay '" + timer.getDelay()
-                                    + "' of node '" + node.getName() + "': "
-                                    + e.getMessage()));
-                }
-            }
-        }
-        if (timer.getPeriod() != null) {
-            if (!timer.getPeriod().contains("#{")) {
-                try {
-                    TimeUtils.parseTimeString(timer.getPeriod());
-                } catch (RuntimeDroolsException e) {
-                    errors.add(new ProcessValidationErrorImpl(process,
-                            "Could not parse period '" + timer.getPeriod()
-                                    + "' of node '" + node.getName() + "': "
-                                    + e.getMessage()));
-                }
-            }
-        }
+    		final RuleFlowProcess process, final List<ProcessValidationError> errors) {
+    	if (timer.getDelay() == null && timer.getDate() == null) {
+    		errors.add(new ProcessValidationErrorImpl(process,
+                "Node '" + node.getName() + "' [" + node.getId() + "] has timer with no delay or date specified."));
+    	} else {
+    		if (timer.getDelay() != null && !timer.getDelay().contains("#{")) {
+	    		try {
+	    		    switch (timer.getTimeType()) {
+	    	        case Timer.TIME_CYCLE:
+	    	            if (timer.getPeriod() != null) {
+//	    	                TimeUtils.parseTimeString(timer.getDelay());
+	    	            } else {
+	    	                // when using ISO date/time period is not set
+	    	                DateTimeUtils.parseRepeatableDateTime(timer.getDelay());
+
+	    	            }
+	    	            break;
+	    	        case Timer.TIME_DURATION:
+
+	    	            DateTimeUtils.parseDuration(timer.getDelay());
+
+	    	            break;
+	    	        case Timer.TIME_DATE:
+	    	            DateTimeUtils.parseDateAsDuration(timer.getDate());
+
+	    	            break;
+
+	    	        default:
+	    	            break;
+	    	        }
+	    		} catch (RuntimeDroolsException e) {
+	    			errors.add(new ProcessValidationErrorImpl(process,
+	                    "Could not parse delay '" + timer.getDelay() + "' of node '" + node.getName() + "': " + e.getMessage()));
+	    		}
+    		}
+    	}
+    	if (timer.getPeriod() != null) {
+    		if (!timer.getPeriod().contains("#{")) {
+	    		try {
+//	    			TimeUtils.parseTimeString(timer.getPeriod());
+	    		} catch (RuntimeDroolsException e) {
+	    			errors.add(new ProcessValidationErrorImpl(process,
+	                    "Could not parse period '" + timer.getPeriod() + "' of node '" + node.getName() + "': " + e.getMessage()));
+	    		}
+    		}
+    	}
+>>>>>>> 5aeb1da79ceb472cb7ec2a8f61a76c8f047bd24c
     }
 
     public ProcessValidationError[] validateProcess(Process process) {

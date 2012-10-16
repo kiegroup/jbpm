@@ -4,47 +4,82 @@
 
   <property file="build.properties" />
 
-  <property name="install.home" value="./" />
-
   <property name="jboss.server.conf.dir" value="${jboss.home}/server/${jboss.server.configuration}/conf" />
   <property name="jboss.server.lib.dir" value="${jboss.home}/server/${jboss.server.configuration}/lib" />
   <property name="jboss.bind.address" value="localhost" />
 
   <property name="eclipse.workspace.dir" value="${install.home}/workspace"/>
 
-  <property name="h2.download.url" value="http://repo1.maven.org/maven2/com/h2database/h2/${H2.version}/h2-${H2.version}.jar"/>
-  <property name="mysql.download.url" value="https://repository.jboss.org/nexus/service/local/repositories/central/content/mysql/mysql-connector-java/5.1.18/mysql-connector-java-5.1.18.jar" />
-  <property name="postgresql.download.url" value="https://repository.jboss.org/nexus/service/local/repositories/deprecated/content/postgresql/postgresql/8.4-701.jdbc3/postgresql-8.4-701.jdbc3.jar" />
   <property name="slf4j.download.url" value="http://repo1.maven.org/maven2/org/slf4j/slf4j-jdk14/1.5.11/slf4j-jdk14-1.5.11.jar"/>
   <property name="birt.download.url.as7" value="http://www.eclipse.org/downloads/download.php?file=/birt/downloads/drops/R-R1-3_7_0-201106151818/birt-runtime-3_7_0.zip&amp;url=http://download.eclipse.org/birt/downloads/drops/R-R1-3_7_0-201106151818/birt-runtime-3_7_0.zip&amp;mirror_id=1"/>
   <property name="birt.download.url.as5" value="http://www.eclipse.org/downloads/download.php?file=/birt/downloads/drops/R-R1-2_3_2_2-200906011507/birt-runtime-2_3_2_2.zip&amp;url=http://download.eclipse.org/birt/downloads/drops/R-R1-2_3_2_2-200906011507/birt-runtime-2_3_2_2.zip&amp;mirror_id=1"/>
   <property name="birt.version.as7" value="3_7_0"/>
   <property name="birt.version.as5" value="2_3_2_2"/>
 	
+  <property name="jpa.version" value="JPA2"/>
+  <property name="hibernate.tools.4.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/hibernate/hibernate-tools/4.0.0-CR1/hibernate-tools-4.0.0-CR1.jar"/>
+  <property name="hibernate.tools.3.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/hibernate/hibernate-tools/3.2.4.GA/hibernate-tools-3.2.4.GA.jar"/>
+  <property name="hibernate4.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/hibernate"/>
+  <property name="freemarker.download.url" value="https://repository.jboss.org/nexus/content/repositories/central/org/freemarker/freemarker/2.3.19/freemarker-2.3.19.jar"/>
+  <property name="jboss.logging.download.url" value="https://repository.jboss.org/nexus/content/groups/public/org/jboss/logging/jboss-logging/3.1.2.GA/jboss-logging-3.1.2.GA.jar"/>
+	
+  <path id="generate.ddl.JPA1.class.path">
+    <fileset dir="${install.home}/runtime">
+      <include name="**/*.jar"/>
+      <exclude name="jbpm-test-*.jar"/>
+    </fileset>
+    <fileset dir="${install.home}/db/driver">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${install.home}/lib/ddl-dependencies">
+      <include name="hibernate-tools3.jar"/>
+      <include name="freemarker-*.jar"/>
+    </fileset>
+  </path>
+    
+  <path id="generate.ddl.JPA2.class.path">
+    <fileset dir="${install.home}/runtime">
+      <include name="*.jar"/>
+      <exclude name="jbpm-test-*.jar"/>
+    </fileset>
+    <fileset dir="${install.home}/db/driver">
+      <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${install.home}/lib/ddl-dependencies">
+      <include name="*.jar"/>
+      <exclude name="hibernate-tools3.jar"/>
+    </fileset>
+    <fileset dir="${install.home}/runtime/lib/">
+      <include name="drools*.jar"/>
+      <include name="knowledge*.jar"/>
+      <include name="protobuf*.jar"/>
+      <include name="slf4j*.jar"/>
+      <include name="log4j*.jar"/>
+      <include name="commons-logging*.jar"/>
+      <include name="commons-collections*.jar"/>
+      <include name="dom4j-1.6.1.jar"/>
+      <include name="antlr-2.7.7.jar"/>
+      <include name="hibernate-jpa-2.0-api*.jar"/>
+      <include name="jta-1.1.jar"/>
+      <include name="javassist-*.jar"/>
+    </fileset>
+  </path>
+    
+  <path id="runtime.class.path">
+    <fileset dir="${install.home}/runtime/">
+      <include name="*.jar"/>
+      <exclude name="jbpm-test-*.jar"/>
+    </fileset>
+    <fileset dir="${install.home}/runtime/lib/">
+      <include name="drools*.jar"/>
+    </fileset>
+  </path>	
+	
   <!-- ############ DOWNLOAD ############ -->
 
-  <!-- Download H2 -->
-  <target name="download.h2.check">
-    <echo message="Checking h2 download ..." />
-    <condition property="h2.not.available">
-      <not>
-        <available file="${install.home}/db/driver/h2.jar" />
-      </not>
-    </condition>
-  </target>
-
-  <target name="download.h2" depends="download.h2.check" if="h2.not.available">
-    <echo message="Getting h2 ..." />
-    <mkdir dir="${install.home}/db/driver"/>
-    <get src="${h2.download.url}" dest="${install.home}/db/driver/h2.jar"  />
-  </target>
-
-  <!-- Download JDBC driver jar (MySQL is default)-->
-  <property name="db.driver.jar.name" value="mysql-connector-java.jar" />
-  <property name="db.driver.jar" value="${install.home}db/driver/${db.driver.jar.name}" />
-
+  <!-- Download JDBC driver jar-->
   <target name="download.db.driver.check">
-    <echo message="Checking if db driver jar has been downloaded ..." />
+    <echo message="Checking if db driver jar has been downloaded ...${db.driver.jar}" />
     <condition property="db.driver.not.available">
       <not>
         <available file="${db.driver.jar}" />
@@ -52,20 +87,16 @@
     </condition>
   </target>
 
-  <target name="download.mysql.driver" depends="download.db.driver.check" if="db.driver.not.available">
-    <echo message="Getting mysql driver jar ..." />
+  <target name="download.db.driver" depends="download.db.driver.check" if="db.driver.not.available">
+    <echo message="Getting ${db.driver.jar.name} driver jar ..." />
     <mkdir dir="${install.home}/db/driver"/>
-    <get src="${mysql.download.url}" dest="${db.driver.jar}" />
+    <get src="${db.driver.download.url}" dest="${db.driver.jar}" />
   </target>
 
-  <!-- db driver module in jBoss AS 7 installation -->
-  <property name="db.driver.module.prefix" value="com/mysql"/> 
-  <property name="db.driver.module.dir" value="${jboss.home}/modules/${db.driver.module.prefix}/main/"/> 
-
-  <target name="install.db.files" depends="check.jboss.version,download.mysql.driver" if="jboss.version.is.7">
+  <target name="install.db.files" depends="check.jboss.version,download.db.driver" if="db.driver.module.prefix" unless="jboss.version.is.5">
     <mkdir dir="${db.driver.module.dir}" />
     <copy file="${db.driver.jar}" tofile="${db.driver.module.dir}/${db.driver.jar.name}" />
-    <copy file="db/driver_jar_module.xml" tofile="${db.driver.module.dir}/module.xml" />
+    <copy file="db/${db.name}_module.xml" tofile="${db.driver.module.dir}/module.xml" />
     <!--
     <copy file="${db.driver.jar}" tofile="${jboss.home}/standalone/deployments" />
     -->
@@ -94,6 +125,24 @@
     <echo message="Getting birt reporting engine for AS5 ..." />
     <mkdir dir="${install.home}/lib"/>
     <get src="${birt.download.url.as5}" dest="${install.home}/lib/birt-runtime-${birt.version.as5}.zip" />
+  	<mkdir dir="${install.home}/lib/birt"/>
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/engineapi/2.3.2/engineapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/dteapi/2.3.2/dteapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/chartengineapi/2.3.2/chartengineapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/coreapi/2.3.2/coreapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/dataadapterapi/2.3.2/dataadapterapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/modelapi/2.3.2/modelapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/scriptapi/2.3.2/scriptapi-2.3.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/emf/ecore/2.4.2/ecore-2.4.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/emf/ecore-xmi/2.4.1/ecore-xmi-2.4.1.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/emf/common/2.4.0/common-2.4.0.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/w3c/flute/1.2/flute-1.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/org/w3c/sac/1.3/sac-1.3.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repo1.maven.org/maven2/commons-cli/commons-cli/1.0/commons-cli-1.0.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repo1.maven.org/maven2/commons-discovery/commons-discovery/0.2/commons-discovery-0.2.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repo1.maven.org/maven2/com/lowagie/itext/1.3/itext-1.3.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repository.jboss.org/nexus/content/groups/public/com/ibm/icu/icu4j/3.8.1/icu4j-3.8.1.jar" dest="${install.home}/lib/birt" />
+    <get src="http://repo1.maven.org/maven2/rhino/js/1.6R2/js-1.6R2.jar" dest="${install.home}/lib/birt" />
   </target>
 
   <!-- Download BIRT engine for AS7 -->
@@ -281,17 +330,20 @@
   
   <!-- Download jBPM gwt-console -->
   <target name="download.jBPM.gwt-console.check">
-    <echo message="Checking jBPM gwt-console download ..." />
+    <echo message="Checking jBPM gwt-console download ...${deployment.version}" />
     <condition property="jBPM.gwt-console.not.available">
-      <not>
-        <available file="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" />
-      </not>
+      <and>
+    	<not>
+          <available file="${install.home}/lib/jbpm-gwt-console-server-${jBPM.version}-${deployment.version}.war" />
+        </not>
+      </and>
     </condition>
   </target>
   <target name="download.jBPM.gwt-console" depends="download.jBPM.gwt-console.check" if="jBPM.gwt-console.not.available">
     <echo message="Getting jBPM gwt-console ..." />
     <mkdir dir="${install.home}/lib"/>
-    <get src="${jBPM.url}/jbpm-${jBPM.version}-gwt-console.zip" dest="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip"  />
+    <get src="${jBPM.console.server.url}" dest="${install.home}/lib/jbpm-gwt-console-server-${jBPM.version}-${deployment.version}.war"  />
+  	<get src="${jBPM.console.url}" dest="${install.home}/lib/jbpm-gwt-console-${jBPM.version}.war"  />
   </target>
 
   <!-- Download form builder -->
@@ -314,14 +366,28 @@
     <echo message="Checking jBPM human task war download ..." />
     <condition property="jBPM.ht-war.not.available">
       <not>
-        <available file="${install.home}/lib/jbpm-${jBPM.version}-human-task-war.zip" />
+        <available file="${install.home}/lib/jbpm-human-task-war-${jBPM.version}-${deployment.version}.war" />
       </not>
     </condition>
   </target>
   <target name="download.jBPM-ht.war" depends="download.jBPM.ht-war.check" if="jBPM.ht-war.not.available">
     <echo message="Getting jBPM human task war ..." />
     <mkdir dir="${install.home}/lib"/>
-    <get src="${jBPM.url}/jbpm-${jBPM.version}-human-task-war.zip" dest="${install.home}/lib/jbpm-${jBPM.version}-human-task-war.zip"  />
+    <get src="${ht.server.url}" dest="${install.home}/lib/jbpm-human-task-war-${jBPM.version}-${deployment.version}.war"  />
+  </target>
+	
+  <target name="download.transport.lib.check" if="jboss.version.is.5">
+    <echo message="Checking Transport lib download ..." />
+    <condition property="transport.lib.not.available">
+	<and>
+	  <not>
+        <available file="${jboss.server.lib.dir}/hornetq-core-2.2.10.Final.jar" />
+      </not>
+	  <not>
+        <available file="${jboss.server.lib.dir}/netty-3.2.0.Final.jar" />
+      </not>
+	</and>
+    </condition>
   </target>
 	
   <!-- ############ INSTALL ############ -->
@@ -334,9 +400,17 @@
     <chmod perm="a+x" file="${jboss.home}/bin/standalone.sh" />
   	<chmod perm="a+x" file="${jboss.home}/bin/jboss-cli.sh" />
   </target>
+	
+  <!-- transport libs (hornetq and netty) must be placed on server/lib for AS 5 to ensure proper deployment as netty registers itself using beans.xml
+   and that cannot be done twice thus these libs are not included in wars 
+  -->	
+  <target name="install.transport.lib" depends="download.transport.lib.check" if="transport.lib.not.available">
+  	<get src="https://repository.jboss.org/nexus/content/groups/public/org/hornetq/hornetq-core/2.2.10.Final/hornetq-core-2.2.10.Final.jar" dest="${jboss.server.lib.dir}"  />
+  	<get src="https://repository.jboss.org/nexus/content/groups/public/org/jboss/netty/netty/3.2.0.Final/netty-3.2.0.Final.jar" dest="${jboss.server.lib.dir}"  />
+  </target>	
 
   <!-- Install guvnor -->
-  <target name="install.guvnor.into.jboss" depends="download.drools.guvnor,check.jboss.version">
+  <target name="install.guvnor.into.jboss" depends="download.drools.guvnor,check.jboss.version" if="jboss.version.is.7">
     <mkdir dir="${install.home}/target"/>
     <unzip src="${install.home}/lib/guvnor-distribution-wars-${drools.guvnor.version}.war" dest="${install.home}/target" />
     <copy file="${install.home}/conf/guvnor.preferences.properties"
@@ -363,7 +437,7 @@
   </target>
   			
   <!-- Install gwt-console -->
-  <target name="install.jBPM-gwt-console.into.jboss" depends="download.h2,download.jBPM.gwt-console">
+  <target name="install.jBPM-gwt-console.into.jboss" depends="download.db.driver,download.jBPM.gwt-console">
     <antcall target="install.jBPM-gwt-console.into.jboss5" />
     <antcall target="install.jBPM-gwt-console.into.jboss7" />
   </target>
@@ -372,9 +446,8 @@
     <antcall target="download.birt.as7" />
     <!-- gwt-console -->
     <mkdir dir="${install.home}/target"/>
-    <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${install.home}/target" />
     <mkdir dir="${install.home}/target/jbpm-gwt-console-server-war"/>
-    <unzip src="${install.home}/target/jbpm-gwt-console-server-${jBPM.version}-EE6.war"
+    <unzip src="${install.home}/lib/jbpm-gwt-console-server-${jBPM.version}-${deployment.version}.war"
            dest="${install.home}/target/jbpm-gwt-console-server-war"/>
     <copy todir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" overwrite="true">
       <fileset dir="${install.home}/db/driver"/>
@@ -383,6 +456,12 @@
     <copy todir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes" overwrite="true">
       <fileset dir="${install.home}/conf"/>
     </copy>
+  	<!-- copy user defined persistence configuration if exists -->
+  	<copy tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/persistence.xml" overwrite="true" 
+  		file="${install.home}/db/jbpm-persistence.xml" failonerror="false"/>
+  	<copy tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/ProcessInstanceInfoMapping.xml" overwrite="true" 
+  		file="${install.home}/db/ProcessInstanceInfoMapping.xml" failonerror="false"/>
+
     <!-- install reporting -->
     <antcall target="install.reporting.into.jboss7" />
   	<!-- install dependencies -->
@@ -392,7 +471,7 @@
     <copy file="${install.home}/target/jbpm-gwt-console-server-${jBPM.version}.war"
           tofile="${jboss.server.deploy.dir}/jbpm-gwt-console-server.war"
           overwrite="true" />
-    <copy file="${install.home}/target/jbpm-gwt-console-${jBPM.version}.war"
+    <copy file="${install.home}/lib/jbpm-gwt-console-${jBPM.version}.war"
           tofile="${jboss.server.deploy.dir}/jbpm-gwt-console.war"
           overwrite="true" />
     <delete dir="${install.home}/target"/>
@@ -407,57 +486,24 @@
           tofile="${jboss.server.conf.dir}/roles.properties"
           overwrite="true" />
   </target>
-  <target name="install.jBPM-gwt-console.into.jboss5" depends="check.jboss.version" unless="jboss.version.is.7">
+  <target name="install.jBPM-gwt-console.into.jboss5" depends="check.jboss.version,install.transport.lib" unless="jboss.version.is.7">
     <!-- download reporting -->
     <antcall target="download.birt.as5" />
     <!-- gwt-console -->
     <mkdir dir="${install.home}/target"/>
-    <unzip src="${install.home}/lib/jbpm-${jBPM.version}-gwt-console.zip" dest="${install.home}/target" />
     <mkdir dir="${install.home}/target/jbpm-gwt-console-server-war"/>
-    <unzip src="${install.home}/target/jbpm-gwt-console-server-${jBPM.version}.war"
+    <unzip src="${install.home}/lib/jbpm-gwt-console-server-${jBPM.version}-${deployment.version}.war"
            dest="${install.home}/target/jbpm-gwt-console-server-war"/>
-    <copy file="${install.home}/db/persistence-as5.xml"
-          tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/persistence.xml"
-          overwrite="true" />
-    <copy file="${install.home}/db/ProcessInstanceInfo.hbm.xml"
-          tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/ProcessInstanceInfo.hbm.xml"
-          overwrite="true" />
-    <!-- Fix for conflicting javassist jar -->
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/xml-apis-1.3.04.jar"/>
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/hibernate-annotations-3.4.0.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/hibernate-commons-annotations-3.1.0.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/hibernate-core-3.3.2.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/hibernate-entitymanager-3.4.0.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/hibernate-tools-3.2.3.GA.jar"/>
-  	<delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/ejb3-persistence-1.0.2.GA.jar"/>
-  	<delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/javassist-3.4.GA.jar"/>
-  	<delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/javassist-3.14.0-GA.jar"/>
-  	<delete>
-      <fileset dir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/" includes="hornetq*.jar,netty*.jar" />
-    </delete>
     <!-- Other configuration like work item handlers -->
     <copy todir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes" overwrite="true">
       <fileset dir="${install.home}/conf"/>
     </copy>
-    <!-- remove beans.xml from drools-compiler and human-task-core as it causes deployment failure on AS5 -->
-    <move tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/drools-compiler.jar">
-        <fileset dir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib">
-          <include name="drools-compiler-*.jar"/>
-        </fileset>
-      </move>
-    <zip destfile="${install.home}/target/drools-compiler.jar">
-        <zipfileset src="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/drools-compiler.jar" excludes="META-INF/beans.xml"/>
-    </zip>
-    <zip destfile="${install.home}/target/jbpm-human-task-core.jar">
-        <zipfileset src="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/jbpm-human-task-core-${jBPM.version}.jar" excludes="META-INF/beans.xml"/>
-    </zip>
-    <copy file="${install.home}/target/jbpm-human-task-core.jar" 
-              tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/jbpm-human-task-core-${jBPM.version}.jar" 
-              overwrite="true" />
-    <copy file="${install.home}/target/drools-compiler.jar" 
-                  tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/drools-compiler.jar" 
-                  overwrite="true" />
-    <!-- end of removing beans.xml -->
+  	<!-- copy user defined persistence configuration if exists -->
+    <copy tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/persistence.xml" overwrite="true" 
+    	file="${install.home}/db/jbpm-persistence.xml" failonerror="false"/>
+    <copy tofile="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/classes/META-INF/ProcessInstanceInfoMapping.xml" overwrite="true"
+    	file="${install.home}/db/ProcessInstanceInfo.hbm.xml" failonerror="false"/>
+
     <!-- install reporting -->
     <antcall target="install.reporting.into.jboss5" />
   	<!-- install dependencies -->
@@ -467,7 +513,7 @@
     <copy file="${install.home}/target/jbpm-gwt-console-server-${jBPM.version}.war"
           tofile="${jboss.server.deploy.dir}/jbpm-gwt-console-server.war"
           overwrite="true" />
-    <copy file="${install.home}/target/jbpm-gwt-console-${jBPM.version}.war"
+    <copy file="${install.home}/lib/jbpm-gwt-console-${jBPM.version}.war"
           tofile="${jboss.server.deploy.dir}/jbpm-gwt-console.war"
           overwrite="true" />
     <delete dir="${install.home}/target"/>
@@ -488,7 +534,7 @@
   </target>
 
   <!-- Install form builder -->
-  <target name="install.form.builder.into.jboss" depends="download.form.builder">
+  <target name="install.form.builder.into.jboss" depends="download.form.builder" if="jboss.version.is.7">
     <mkdir dir="${install.home}/target"/>
     <mkdir dir="${install.home}/target/jbpm-form-builder-war"/>
     <unzip src="${install.home}/lib/jbpm-${jBPM.version}-form-builder.war" dest="${install.home}/target/jbpm-form-builder-war" />
@@ -508,20 +554,24 @@
 	
 	
   <!-- Install jbpm human task war -->
-  <target name="install.jBPM-ht.into.jboss" depends="download.h2,download.jBPM-ht.war">
+  <target name="install.jBPM-ht.into.jboss" depends="download.db.driver,download.jBPM-ht.war,install.transport.lib">
     <antcall target="install.ht.war.into.jboss5" />
     <antcall target="install.ht.war.into.jboss7" />
   </target>	
 
   <!-- Install jbpm human task war -->
-  <target name="install.ht.war.into.jboss7" depends="download.jBPM-ht.war" if="jboss.version.is.7">
+  <target name="install.ht.war.into.jboss7" if="jboss.version.is.7">
     <mkdir dir="${install.home}/target"/>
-  	<unzip src="${install.home}/lib/jbpm-${jBPM.version}-human-task-war.zip" dest="${install.home}/target" />
     <mkdir dir="${install.home}/target/jbpm-human-task-war"/>
-    <unzip src="${install.home}/target/jbpm-human-task-war-${jBPM.version}-EE6.war" dest="${install.home}/target/jbpm-human-task-war" />
+    <unzip src="${install.home}/lib/jbpm-human-task-war-${jBPM.version}-${deployment.version}.war" dest="${install.home}/target/jbpm-human-task-war" />
   	<copy file="${install.home}/task-service/resources/war/web.xml" 
   	          tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/web.xml" 
   	          overwrite="true" />
+    <!-- copy user defined persistence configuration if exists -->
+    <copy tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/classes/META-INF/persistence.xml" overwrite="true" 
+    	file="${install.home}/db/task-persistence.xml" failonerror="false"/>
+    <copy tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/classes/META-INF/ProcessInstanceInfoMapping.xml" overwrite="true"
+    	file="${install.home}/db/Taskorm.xml" failonerror="false"/>
     <zip basedir="${install.home}/target/jbpm-human-task-war"
          destfile="${install.home}/target/jbpm-${jBPM.version}-human-task-war.war" />
     <copy file="${install.home}/target/jbpm-${jBPM.version}-human-task-war.war" 
@@ -531,50 +581,18 @@
   </target>
 	
   <!-- Install jbpm human task war -->
-  <target name="install.ht.war.into.jboss5" depends="download.jBPM-ht.war" unless="jboss.version.is.7">
+  <target name="install.ht.war.into.jboss5"  unless="jboss.version.is.7">
     <mkdir dir="${install.home}/target"/>
     <mkdir dir="${install.home}/target/jbpm-human-task-war"/>
-  	<unzip src="${install.home}/lib/jbpm-${jBPM.version}-human-task-war.zip" dest="${install.home}/target" />
-    <unzip src="${install.home}/target/jbpm-human-task-war-${jBPM.version}.war" dest="${install.home}/target/jbpm-human-task-war" />
-  	<delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/xml-apis-1.3.04.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/hibernate-annotations-3.4.0.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/hibernate-commons-annotations-3.1.0.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/hibernate-core-3.3.2.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/hibernate-entitymanager-3.4.0.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/hibernate-tools-3.2.3.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/ejb3-persistence-1.0.2.GA.jar"/>
-  	<delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/hibernate-jpa-2.0-api-1.0.1.Final.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/javassist-3.4.GA.jar"/>
-    <delete file="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/javassist-3.14.0-GA.jar"/>
-  	
-  	<move todir="${jboss.server.lib.dir}">
-  		<fileset dir="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/" includes="hornetq*.jar,netty*.jar" />
-  	</move>
+    <unzip src="${install.home}/lib/jbpm-human-task-war-${jBPM.version}-${deployment.version}.war" dest="${install.home}/target/jbpm-human-task-war" />
   	<copy file="${install.home}/task-service/resources/war/web.xml" 
   	              tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/web.xml" 
   	              overwrite="true" />
-  	<copy file="${install.home}/task-service/resources/war/persistence.xml" 
-          tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/classes/META-INF/persistence.xml" 
-          overwrite="true" />
-  	<!-- remove beans.xml from drools-compiler and human-task-core as it causes deployment failure on AS5 -->
-  	<move tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/drools-compiler.jar">
-  	    <fileset dir="${install.home}/target/jbpm-human-task-war/WEB-INF/lib">
-  	      <include name="drools-compiler-*.jar"/>
-  	    </fileset>
-  	  </move>
-  	<zip destfile="${install.home}/target/drools-compiler.jar">
-  	    <zipfileset src="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/drools-compiler.jar" excludes="META-INF/beans.xml"/>
-  	</zip>
-  	<zip destfile="${install.home}/target/jbpm-human-task-core.jar">
-        <zipfileset src="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/jbpm-human-task-core-${jBPM.version}.jar" excludes="META-INF/beans.xml"/>
-    </zip>
-  	<copy file="${install.home}/target/jbpm-human-task-core.jar" 
-  	          tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/jbpm-human-task-core-${jBPM.version}.jar" 
-  	          overwrite="true" />
-  	<copy file="${install.home}/target/drools-compiler.jar" 
-  	              tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/lib/drools-compiler.jar" 
-  	              overwrite="true" />
-  	<!-- end of removing beans.xml -->
+    <!-- copy user defined persistence configuration if exists -->
+    <copy tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/classes/META-INF/persistence.xml" overwrite="true"
+    	file="${install.home}/db/task-persistence.xml" failonerror="false"/>
+    <copy tofile="${install.home}/target/jbpm-human-task-war/WEB-INF/classes/META-INF/ProcessInstanceInfoMapping.xml" overwrite="true"
+    	file="${install.home}/db/Taskorm.xml" failonerror="false"/>
   	
     <zip basedir="${install.home}/target/jbpm-human-task-war"
          destfile="${install.home}/target/jbpm-${jBPM.version}-human-task-war.war" />
@@ -631,30 +649,17 @@
     <copy todir="${jboss.server.data.dir}/birt/ReportEngine/plugins/org.eclipse.birt.report.data.oda.jdbc_2.3.2.r232_v20090212/drivers" overwrite="true">
       <fileset dir="${install.home}/db/driver"/>
     </copy>
-    <!-- Replace the reporting jars -->
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/report-core-1.4.0-SNAPSHOT.jar"/>
-    <delete file="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/report-shared-1.4.0-SNAPSHOT.jar"/>   
+    <!-- Replace the reporting jars -->  
+  	<delete>
+      <fileset dir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib/" includes="report-core-*.jar,report-shared-*.jar" />
+    </delete>
     <get src="https://repository.jboss.org/nexus/content/repositories/releases/org/jboss/bpm/report-core/1.3.0/report-core-1.3.0.jar" 
          dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
     <get src="https://repository.jboss.org/nexus/content/repositories/releases/org/jboss/bpm/report-shared/1.3.0/report-shared-1.3.0.jar" 
          dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/engineapi/2.3.2/engineapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/dteapi/2.3.2/dteapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/chartengineapi/2.3.2/chartengineapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/coreapi/2.3.2/coreapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/dataadapterapi/2.3.2/dataadapterapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/modelapi/2.3.2/modelapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/birt/scriptapi/2.3.2/scriptapi-2.3.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/emf/ecore/2.4.2/ecore-2.4.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/emf/ecore-xmi/2.4.1/ecore-xmi-2.4.1.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/eclipse/emf/common/2.4.0/common-2.4.0.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/w3c/flute/1.2/flute-1.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/org/w3c/sac/1.3/sac-1.3.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repo1.maven.org/maven2/commons-cli/commons-cli/1.0/commons-cli-1.0.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repo1.maven.org/maven2/commons-discovery/commons-discovery/0.2/commons-discovery-0.2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repo1.maven.org/maven2/com/lowagie/itext/1.3/itext-1.3.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repository.jboss.org/nexus/content/groups/public/com/ibm/icu/icu4j/3.8.1/icu4j-3.8.1.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
-    <get src="http://repo1.maven.org/maven2/rhino/js/1.6R2/js-1.6R2.jar" dest="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib" />
+  	<copy todir="${install.home}/target/jbpm-gwt-console-server-war/WEB-INF/lib">
+  		<fileset dir="${install.home}/lib/birt"/>
+  	</copy>
   </target>
   
   <!-- Install Eclipse -->
@@ -699,21 +704,24 @@
   </target>
 
   <!-- Install Demo -->
-  <target name="install.demo" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM-ht.into.jboss,install.form.builder.into.jboss,install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
+  <target name="install.demo" depends="install.jboss,install.db.files,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM-ht.into.jboss,install.form.builder.into.jboss,install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
 
   <!-- Install Demo (Eclipse) -->
   <target name="install.demo.eclipse" depends="install.eclipse,install.jBPM.runtime,install.droolsjbpm-eclipse.into.eclipse" />
 
   <!-- Install Demo (No Eclipse) -->
-  <target name="install.demo.noeclipse" depends="install.jboss,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM-ht.into.jboss,install.form.builder.into.jboss,install.jBPM.runtime" />
-
-  <!-- Install Demo (DB == No Eclipse) -->
-  <target name="install.demo.db" depends="install.demo.noeclipse" />
+  <target name="install.demo.noeclipse" depends="install.jboss,install.db.files,install.guvnor.into.jboss,install.designer.into.jboss,install.jBPM-gwt-console.into.jboss,install.jBPM-ht.into.jboss,install.form.builder.into.jboss,install.jBPM.runtime" />
   
   <!-- ############ START/STOP ############ -->
+  <target name="start.h2.check">
+    <echo message="Checking if h2 db should be started ..." />
+    <condition property="start.h2.db">
+      <equals arg1="${db.name}" arg2="h2"/>
+    </condition>
+  </target>	
 
   <!-- Start H2 server -->
-  <target name="start.h2" depends="download.h2">
+  <target name="start.h2" depends="download.db.driver,start.h2.check" if="start.h2.db">
     <java classname="org.h2.tools.Server" fork="true" spawn="true">
       <arg value="-tcp" />
       <classpath location="${install.home}/db/driver/h2.jar" />
@@ -721,7 +729,7 @@
   </target>
 
   <!-- Stop H2 server -->
-  <target name="stop.h2" depends="download.h2">
+  <target name="stop.h2" depends="download.db.driver,start.h2.check" if="start.h2.db">
     <java classname="org.h2.tools.Server" fork="true">
       <classpath location="${install.home}/db/driver/h2.jar" />
       <arg value="-tcpShutdown" />
@@ -871,19 +879,14 @@
   <target name="start.demo" depends="start.h2,start.jboss,start.eclipse" />
   
   <!-- Start Demo (Eclipse) -->
-  <target name="start.demo.eclipse" depends="start.h2,start.eclipse,start.human.task" />
+  <target name="start.demo.eclipse" depends="start.h2,start.eclipse" />
 
   <!-- Start Demo (No Eclipse)--> 
   <target name="start.demo.noeclipse" depends="start.h2,start.jboss" />	
   
-  <!-- Start Demo (Database)--> 
-  <target name="start.demo.db" depends="install.db.files,start.jboss,start.human.task" />	
-  
   <!-- Stop Demo -->
   <target name="stop.demo" depends="stop.h2,stop.jboss" />
 
-  <!-- Stop Demo (Database) -->
-  <target name="stop.demo.db" depends="stop.jboss,remove.db.files" />
 
   <!-- ############ CLEAN ############ -->
 	
@@ -912,8 +915,94 @@
   </target>
 
   <!-- Clean Demo -->
-  <target name="clean.demo" depends="clean.jboss,clean.eclipse" />
+  <target name="clean.demo" depends="clean.jboss,clean.eclipse,clean.generated.ddl" />
   <!-- Clean Demo (No Eclipse) -->
-  <target name="clean.demo.noeclipse" depends="clean.jboss" />
+  <target name="clean.demo.noeclipse" depends="clean.jboss,clean.generated.ddl" />
 	
+  <!-- ############### generate DDL out of persitence.xml ############### -->
+	<target name="download.ddl.check">
+	    <echo message="Checking if ddl generation dependencies jars has been downloaded ..." />
+	    <condition property="ddl.dependencies.not.available">
+	      <not>
+	        <available file="${install.home}/lib/ddl-dependencies" />
+	      </not>
+	    </condition>
+	  </target>	
+	
+  <target name="download.ddl.dependencies" depends="download.ddl.check" if="ddl.dependencies.not.available">
+    <echo message="Getting hibernate4 libs ..." />
+    <mkdir dir="${install.home}/lib/ddl-dependencies"/>
+    <get src="${hibernate4.download.url}/hibernate-core/4.1.0.Final/hibernate-core-4.1.0.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
+  	<get src="${hibernate4.download.url}/hibernate-entitymanager/4.1.0.Final/hibernate-entitymanager-4.1.0.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
+    <get src="${hibernate4.download.url}/common/hibernate-commons-annotations/4.0.1.Final/hibernate-commons-annotations-4.0.1.Final.jar" dest="${install.home}/lib/ddl-dependencies" />
+  	<get src="${jboss.logging.download.url}" dest="${install.home}/lib/ddl-dependencies" />
+  	
+  	<echo message="Getting freemarker ..." />
+  	<get src="${freemarker.download.url}" dest="${install.home}/lib/ddl-dependencies" />
+  	
+  	<echo message="Getting hibernate tools 4 ..." />
+  	<get src="${hibernate.tools.4.download.url}" dest="${install.home}/lib/ddl-dependencies/hibernate-tools4.jar" />
+  	
+  	<echo message="Getting hibernate tools 3 ..." />
+  	<get src="${hibernate.tools.3.download.url}" dest="${install.home}/lib/ddl-dependencies/hibernate-tools3.jar" />
+  </target>
+	
+	<!-- Clean generated ddl -->
+	<target name="clean.generated.ddl" >
+		<delete dir="db/export-jbpm"/>
+		<delete dir="db/export-ht"/>
+	</target>
+	
+	<target name="jbpm.schemaexport" depends="install.jBPM.runtime,download.ddl.dependencies">
+	  <delete dir="db/export-jbpm"/>
+	  <!-- task definition; project.class.path contains all necessary libs -->
+	  <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
+	      classpathref="generate.ddl.${jpa.version}.class.path" />
+	  <mkdir dir="db/export-jbpm"/>
+	  <mkdir dir="db/export-jbpm/META-INF"/>
+	  <copy tofile="db/export-jbpm/META-INF/persistence.xml" file="db/jbpm-persistence-${jpa.version}.xml"/>
+	  <copy todir="db/export-jbpm/META-INF">
+    	  <fileset dir="db/">
+    	  	<include name="ProcessInstanceInfo.hbm.xml"/>
+    	  	<include name="ProcessInstanceInfoMapping.xml"/>
+    	  </fileset>
+	  </copy>	
+	  <hibernatetool destdir="db/export-jbpm">
+	    <jpaconfiguration persistenceunit="org.jbpm.persistence.jpa.ddl" />
+	    <classpath>
+    	    <pathelement path="${runtime.class.path}"/>
+	    	<dirset dir="db/export-jbpm/">
+	        </dirset>
+	    </classpath>
+	    <hbm2ddl outputfilename="jbpmschemaexport.sql" format="true"
+	        export="false" drop="true" />
+	  </hibernatetool>
+	  <delete dir="db/export-jbpm/META-INF"/>
+	</target>
+
+   <target name="ht.schemaexport" depends="install.jBPM.runtime,download.ddl.dependencies">
+      <delete dir="db/export-ht"/>
+      <!-- task definition; project.class.path contains all necessary libs -->
+      <taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
+          classpathref="generate.ddl.${jpa.version}.class.path" />
+      <mkdir dir="db/export-ht"/>
+      <mkdir dir="db/export-ht/META-INF"/>
+   	  <copy tofile="db/export-ht/META-INF/persistence.xml" file="db/task-persistence-${jpa.version}.xml"/>
+      <copy todir="db/export-ht/META-INF">
+        <fileset dir="db/">
+      	  <include name="Taskorm-${jpa.version}.xml"/>
+        </fileset>
+      </copy>   
+      <hibernatetool destdir="db/export-ht">
+        <jpaconfiguration persistenceunit="org.jbpm.task.ddl" />
+        <classpath>
+            <pathelement path="${runtime.class.path}"/>
+            <dirset dir="db/export-ht/">
+            </dirset>
+        </classpath>
+        <hbm2ddl outputfilename="htschemaexport.sql" format="true"
+            export="false" drop="true" />
+      </hibernatetool>
+      <delete dir="db/export-ht/META-INF"/>
+    </target>
 </project>

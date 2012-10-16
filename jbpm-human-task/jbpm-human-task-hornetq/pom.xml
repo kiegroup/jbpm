@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.jbpm</groupId>
         <artifactId>jbpm-human-task</artifactId>
-        <version>5.4.0-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>jbpm-human-task-hornetq</artifactId>
     <name>jBPM :: Human Task - HornetQ</name>
@@ -45,11 +45,6 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

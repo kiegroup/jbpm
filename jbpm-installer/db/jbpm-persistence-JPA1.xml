@@ -8,7 +8,7 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xmlns="http://java.sun.com/xml/ns/persistence">
 
-  <persistence-unit name="org.jbpm.persistence.jpa" transaction-type="JTA">
+  <persistence-unit name="org.jbpm.persistence.jpa.ddl" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>java:jboss/datasources/jbpmDS</jta-data-source>       
     <mapping-file>META-INF/JBPMorm.xml</mapping-file>
@@ -23,7 +23,7 @@
     <class>org.jbpm.process.audit.VariableInstanceLog</class>
 
     <properties>
-      <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
       <property name="hibernate.max_fetch_depth" value="3"/>
       <!-- hbm2ddl.auto MUST BE update! The console will otherwise overwrite the schema with each new thread -->
       <property name="hibernate.hbm2ddl.auto" value="update" />
