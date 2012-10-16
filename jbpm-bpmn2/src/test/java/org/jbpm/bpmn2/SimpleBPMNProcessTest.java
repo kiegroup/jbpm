@@ -16,14 +16,13 @@
 
 package org.jbpm.bpmn2;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,18 +40,19 @@ import org.drools.builder.ResourceType;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.process.DefaultProcessEventListener;
-import org.drools.event.process.ProcessCompletedEvent;
 import org.drools.event.process.ProcessNodeLeftEvent;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.event.rule.DebugAgendaEventListener;
 import org.drools.event.rule.DebugWorkingMemoryEventListener;
+
 import org.drools.impl.KnowledgeBaseFactoryServiceImpl;
 import org.drools.io.ResourceFactory;
 import org.drools.process.core.datatype.impl.type.ObjectDataType;
 import org.drools.process.instance.impl.WorkItemImpl;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.drools.runtime.process.NodeInstance;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkItemHandler;
@@ -75,10 +75,13 @@ import org.jbpm.process.instance.impl.RuleAwareProcessEventLister;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicUtils;
+import org.jbpm.workflow.instance.node.ForEachNodeInstance;
+import org.jbpm.workflow.instance.node.ForEachNodeInstance.ForEachJoinNodeInstance;
 import org.joda.time.DateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -586,6 +589,235 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 				"com.sample.test", params);
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+	
+   public void testInclusiveSplitAndJoin() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoin.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 15);
+        ProcessInstance processInstance = ksession.startProcess(
+                "com.sample.test", params);
+        
+        List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+        
+        assertEquals(2, activeWorkItems.size());
+        restoreSession(ksession, true);
+        
+        for (WorkItem wi : activeWorkItems) {
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+    }
+   
+   public void testInclusiveSplitAndJoinNested() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinNested.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       params.put("x", 15);
+       ProcessInstance processInstance = ksession.startProcess(
+               "com.sample.test", params);
+       
+       List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+       
+       assertEquals(2, activeWorkItems.size());
+       restoreSession(ksession, true);
+       
+       for (WorkItem wi : activeWorkItems) {
+           ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+       }
+       
+       activeWorkItems = workItemHandler.getWorkItems();
+       assertEquals(2, activeWorkItems.size());
+       restoreSession(ksession, true);
+       
+       for (WorkItem wi : activeWorkItems) {
+           ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+       }
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
+   
+   public void testInclusiveSplitAndJoinEmbedded() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinEmbedded.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       params.put("x", 15);
+       ProcessInstance processInstance = ksession.startProcess(
+               "com.sample.test", params);
+       
+       List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+       
+       assertEquals(2, activeWorkItems.size());
+       restoreSession(ksession, true);
+       
+       for (WorkItem wi : activeWorkItems) {
+           ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+       }
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
+   
+   public void testInclusiveSplitAndJoinWithParallel() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinWithParallel.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       params.put("x", 25);
+       ProcessInstance processInstance = ksession.startProcess(
+               "com.sample.test", params);
+       
+       List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+       
+       assertEquals(4, activeWorkItems.size());
+       restoreSession(ksession, true);
+       
+       for (WorkItem wi : activeWorkItems) {
+           ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+       }
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
+   
+   public void testInclusiveSplitAndJoinWithEnd() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinWithEnd.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       params.put("x", 25);
+       ProcessInstance processInstance = ksession.startProcess(
+               "com.sample.test", params);
+       
+       List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+       
+       assertEquals(3, activeWorkItems.size());
+       restoreSession(ksession, true);
+       
+       for (int i = 0; i < 2; i++) {
+           ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(i).getId(), null);
+       }
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+       
+       ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(2).getId(), null);
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
+   
+   public void testInclusiveSplitAndJoinWithTimer() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinWithTimer.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       params.put("x", 15);
+       ProcessInstance processInstance = ksession.startProcess(
+               "com.sample.test", params);
+       ksession.fireAllRules();
+       List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+       
+       assertEquals(1, activeWorkItems.size());
+       ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(0).getId(), null);
+       ksession.fireAllRules();
+       Thread.sleep(2000);
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+       
+       activeWorkItems = workItemHandler.getWorkItems();
+       assertEquals(2, activeWorkItems.size());
+       ksession.fireAllRules();
+       ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(0).getId(), null);
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+
+       ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(1).getId(), null);
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
+   
+   public void testInclusiveSplitAndJoinExtraPath() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitAndJoinExtraPath.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       params.put("x", 25);
+       ProcessInstance processInstance = ksession.startProcess(
+               "com.sample.test", params);
+       
+       ksession.signalEvent("signal", null);
+       
+       List<WorkItem> activeWorkItems = workItemHandler.getWorkItems();
+       
+       assertEquals(4, activeWorkItems.size());
+       restoreSession(ksession, true);
+       
+       for (int i = 0; i < 3; i++) {
+           ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(i).getId(), null);
+       }
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+
+       ksession.getWorkItemManager().completeWorkItem(activeWorkItems.get(3).getId(), null);
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
+   
+   public void testMultiInstanceLoopCharacteristicsProcessWithORGateway() throws Exception {
+       KnowledgeBase kbase = createKnowledgeBase("BPMN2-MultiInstanceLoopCharacteristicsProcessWithORgateway.bpmn2");
+       StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+       TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+       ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+               workItemHandler);
+       Map<String, Object> params = new HashMap<String, Object>();
+       List<Integer> myList = new ArrayList<Integer>();
+       myList.add(12);
+       myList.add(15);
+       params.put("list", myList);
+       ProcessInstance processInstance = ksession.startProcess(
+               "MultiInstanceLoopCharacteristicsProcess", params);
+       
+       List<WorkItem> workItems = workItemHandler.getWorkItems();
+       assertEquals(4, workItems.size());
+       
+       Collection<NodeInstance> nodeInstances = ((WorkflowProcessInstanceImpl) processInstance).getNodeInstances();
+       assertEquals(1, nodeInstances.size());
+       NodeInstance nodeInstance = nodeInstances.iterator().next(); 
+       assertTrue(nodeInstance instanceof ForEachNodeInstance);
+       
+       Collection<NodeInstance> nodeInstancesChild = ((ForEachNodeInstance) nodeInstance).getNodeInstances();
+       assertEquals(2, nodeInstancesChild.size());
+       
+       for (NodeInstance child : nodeInstancesChild) {
+           assertTrue(child instanceof CompositeContextNodeInstance);
+           assertEquals(2, ((CompositeContextNodeInstance) child).getNodeInstances().size());
+       }
+       
+       ksession.getWorkItemManager().completeWorkItem(workItems.get(0).getId(), null);
+       ksession.getWorkItemManager().completeWorkItem(workItems.get(1).getId(), null);
+       
+       nodeInstances = ((WorkflowProcessInstanceImpl) processInstance).getNodeInstances();
+       assertEquals(1, nodeInstances.size());
+       nodeInstance = nodeInstances.iterator().next(); 
+       assertTrue(nodeInstance instanceof ForEachNodeInstance);
+       
+       nodeInstancesChild = ((ForEachNodeInstance) nodeInstance).getNodeInstances();
+       assertEquals(2, nodeInstancesChild.size());
+       
+       Iterator<NodeInstance> childIterator = nodeInstancesChild.iterator();
+       
+       assertTrue(childIterator.next() instanceof CompositeContextNodeInstance);
+       assertTrue(childIterator.next() instanceof ForEachJoinNodeInstance);
+       
+       ksession.getWorkItemManager().completeWorkItem(workItems.get(2).getId(), null);
+       ksession.getWorkItemManager().completeWorkItem(workItems.get(3).getId(), null);
+       
+       assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
+   }
 
 	public void testInclusiveSplitDefault() throws Exception {
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-InclusiveSplitDefault.bpmn2");

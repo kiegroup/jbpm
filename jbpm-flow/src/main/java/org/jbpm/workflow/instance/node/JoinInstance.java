@@ -16,11 +16,15 @@
 
 package org.jbpm.workflow.instance.node;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.drools.definition.process.Connection;
+import org.drools.definition.process.Node;
 import org.drools.runtime.process.NodeInstance;
+import org.drools.runtime.process.NodeInstanceContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.node.Join;
@@ -115,6 +119,13 @@ public class JoinInstance extends NodeInstanceImpl {
                     triggerCompleted();
                 }
                 break;
+            case Join.TYPE_OR :
+                NodeInstanceContainer nodeInstanceContainer = (NodeInstanceContainer) getNodeInstanceContainer();
+                boolean activePathExists = existsActiveDirectFlow(nodeInstanceContainer, getJoin());
+                if (!activePathExists) {
+                    triggerCompleted();
+                }
+                break;
             default :
                 throw new IllegalArgumentException( "Illegal join type " + join.getType() );
         }
@@ -141,6 +152,52 @@ public class JoinInstance extends NodeInstanceImpl {
                                    count.intValue() - 1 );
             }
         }
+    }
+    
+    private boolean existsActiveDirectFlow(NodeInstanceContainer nodeInstanceContainer, Node lookFor) {
+        boolean activeDirectPathExists = false;
+        
+        Collection<NodeInstance> activeNodeInstances = nodeInstanceContainer.getNodeInstances();
+        
+        for (NodeInstance nodeInstance : activeNodeInstances) {
+            if (nodeInstance instanceof NodeInstanceContainer) {
+                boolean nestedCheck = existsActiveDirectFlow((NodeInstanceContainer) nodeInstance, lookFor);
+                if (nestedCheck) {
+                    return true;
+                }
+            }
+            
+            Node node = nodeInstance.getNode();
+            activeDirectPathExists = checkNodes(node, lookFor);
+            if (activeDirectPathExists) {
+                return true;
+            }
+        }
+        
+        return activeDirectPathExists;
+    }
+         
+    private boolean checkNodes(Node currentNode, Node lookFor) {
+        
+        List<Connection> connections = currentNode.getOutgoingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+        
+        for (Connection conn : connections) {
+            Node nextNode = conn.getTo();
+            if (nextNode == null) {
+                continue;
+            } else {
+                if (nextNode.getId() == lookFor.getId()) {
+                    return true;
+                } else {
+                    boolean nestedCheck = checkNodes(nextNode, lookFor);
+                    if (nestedCheck) {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
     }
 
     private void resetAllTriggers() {
