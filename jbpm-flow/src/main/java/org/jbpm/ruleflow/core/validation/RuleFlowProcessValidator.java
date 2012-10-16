@@ -735,7 +735,6 @@ public class RuleFlowProcessValidator implements ProcessValidator {
 	    		}
     		}
     	}
->>>>>>> 5aeb1da79ceb472cb7ec2a8f61a76c8f047bd24c
     }
 
     public ProcessValidationError[] validateProcess(Process process) {
