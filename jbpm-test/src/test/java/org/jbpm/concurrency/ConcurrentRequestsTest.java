@@ -1,5 +1,7 @@
 package org.jbpm.concurrency;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.naming.InitialContext;
@@ -28,43 +30,51 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
     }
 
     @Test
-    public void testXXXy() {
-        PoolingDataSource ds = mySetupPoolingDataSource("1");
+    public void testConcurrency() throws Exception {
+        mySetupPoolingDataSource("1");
 
         Properties p = new Properties();
         p.setProperty(Environment.DATASOURCE, "jdbc/1");
+        UserTransaction ut = (UserTransaction) new InitialContext()
+                .lookup("java:comp/UserTransaction");
+        ut.begin();
         emf = Persistence.createEntityManagerFactory(
                 "org.jbpm.persistence.jpa", p);
-
+        
         final StatefulKnowledgeSession ksession = createKnowledgeSession("humantask.bpmn");
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new DoNothingWorkItemHandler());
-
-        ds = mySetupPoolingDataSource("2");
-
+        ut.commit();
+        mySetupPoolingDataSource("2");
         p = new Properties();
         p.setProperty(Environment.DATASOURCE, "jdbc/2");
+        ut = (UserTransaction) new InitialContext()
+                .lookup("java:comp/UserTransaction");
+        ut.begin();
         emf = Persistence.createEntityManagerFactory(
                 "org.jbpm.persistence.jpa", p);
-
+       
         final StatefulKnowledgeSession ksession2 = createKnowledgeSession("humantask.bpmn");
         ksession2.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new DoNothingWorkItemHandler());
-
-        ds = mySetupPoolingDataSource("3");
-
+        ut.commit();
+        mySetupPoolingDataSource("3");
+        ut = (UserTransaction) new InitialContext()
+                .lookup("java:comp/UserTransaction");
+        ut.begin();
         p = new Properties();
         p.setProperty(Environment.DATASOURCE, "jdbc/3");
         emf = Persistence.createEntityManagerFactory(
                 "org.jbpm.persistence.jpa", p);
-
+       
         final StatefulKnowledgeSession ksession3 = createKnowledgeSession("humantask.bpmn");
         ksession3.getWorkItemManager().registerWorkItemHandler("Human Task",
                 new DoNothingWorkItemHandler());
-
+        ut.commit();
         RunThreadCommands commands = new RunThreadCommands();
 
-        for (int i = 0; i < 5; i++) {
+        final List<ProcessInstance> pis = new ArrayList<ProcessInstance>();
+        for (int i = 0; i < 150; i++) {
             final int ii = i;
             commands.addCommand(new RunThreadCommands.Command() {
                 public void doWork() throws Exception {
@@ -72,11 +82,13 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
                             .lookup("java:comp/UserTransaction");
                     ut.begin();
                     try {
-                        Thread.sleep(2000);
+                        logger.info("start proces " + ii + " for session 1");
                         ProcessInstance processInstance = ksession
                                 .startProcess("com.sample.bpmn.hello");
-                        Thread.sleep(2000);
+                         Thread.sleep(100);
                         ut.commit();
+                        pis.add(processInstance);
+
                     } catch (Exception e) {
                         ut.rollback();
                         throw e;
@@ -93,8 +105,10 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
                         logger.info("start proces " + ii + " for session 1-b");
                         ProcessInstance processInstance = ksession
                                 .startProcess("com.sample.bpmn.hello");
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                         ut.commit();
+                        pis.add(processInstance);
+
                     } catch (Exception e) {
                         ut.rollback();
                         throw e;
@@ -112,7 +126,7 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
                         logger.info("start proces " + ii + " for session 2");
                         ProcessInstance processInstance = ksession2
                                 .startProcess("com.sample.bpmn.hello");
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                         ut.commit();
                     } catch (Exception e) {
                         ut.rollback();
@@ -130,7 +144,7 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
                     try {
                         ProcessInstance processInstance = ksession2
                                 .startProcess("com.sample.bpmn.hello");
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                         ut.commit();
                     } catch (Exception e) {
                         ut.rollback();
@@ -148,7 +162,7 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
 
                         ProcessInstance processInstance = ksession3
                                 .startProcess("com.sample.bpmn.hello");
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                         ut.commit();
                     } catch (Exception e) {
                         ut.rollback();
@@ -165,7 +179,7 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
                         logger.info("start proces " + ii + " for session 3-b");
                         ProcessInstance processInstance = ksession3
                                 .startProcess("com.sample.bpmn.hello");
-                        Thread.sleep(2000);
+                        Thread.sleep(100);
                         ut.commit();
                     } catch (Exception e) {
                         ut.rollback();
@@ -173,25 +187,30 @@ public class ConcurrentRequestsTest extends JbpmJUnitTestCase {
                     }
                 }
             });
-
+//
         }
         commands.runCommands();
+        for (ProcessInstance pi : pis) {
+            assertNotNull(ksession.getProcessInstance(pi.getId()));
+        }
+        // this fails because the JPAProcessInstanceManager's process map is
+        // cleared after every transaction
+        // assertEquals(20, ksession.getProcessInstances().size());
     }
 
     public PoolingDataSource mySetupPoolingDataSource(String id) {
         PoolingDataSource pds = new PoolingDataSource();
         pds.setUniqueName("jdbc/" + id);
-        
-        pds.setMaxPoolSize(150);
+
+        pds.setMaxPoolSize(300);
         pds.setMinPoolSize(1);
 
         pds.setMaxIdleTime(60);
 
         pds.setClassName("org.h2.jdbcx.JdbcDataSource");
-        pds.getDriverProperties().put(
-                "URL",
-                "jdbc:h2:jbpm-db-" + id+";MVCC=TRUE;LOCK_TIMEOUT=10000");
-        pds.setAllowLocalTransactions(true);
+        pds.getDriverProperties().put("URL",
+                "jdbc:h2:mem:jbpm-db-" + id + ";MVCC=TRUE;LOCK_TIMEOUT=35000");
+        pds.setAllowLocalTransactions(false);
         pds.init();
         return pds;
     }
