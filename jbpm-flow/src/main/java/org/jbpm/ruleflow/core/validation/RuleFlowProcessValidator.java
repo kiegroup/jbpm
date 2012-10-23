@@ -708,7 +708,7 @@ public class RuleFlowProcessValidator implements ProcessValidator {
 	    	            break;
 	    	        case Timer.TIME_DURATION:
 
-	    	            DateTimeUtils.parseDuration(timer.getDelay());
+//	    	            DateTimeUtils.parseDuration(timer.getDelay());
 
 	    	            break;
 	    	        case Timer.TIME_DATE:
