@@ -16,10 +16,7 @@
 
 package org.jbpm.workflow.instance.node;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.drools.definition.process.Connection;
 import org.drools.definition.process.Node;
@@ -158,7 +155,7 @@ public class JoinInstance extends NodeInstanceImpl {
         boolean activeDirectPathExists = false;
         
         Collection<NodeInstance> activeNodeInstances = nodeInstanceContainer.getNodeInstances();
-        
+        Set<Long> vistedNodes = new HashSet<Long>();
         for (NodeInstance nodeInstance : activeNodeInstances) {
             if (nodeInstance instanceof NodeInstanceContainer) {
                 boolean nestedCheck = existsActiveDirectFlow((NodeInstanceContainer) nodeInstance, lookFor);
@@ -168,7 +165,8 @@ public class JoinInstance extends NodeInstanceImpl {
             }
             
             Node node = nodeInstance.getNode();
-            activeDirectPathExists = checkNodes(node, lookFor);
+            vistedNodes.add(node.getId());
+            activeDirectPathExists = checkNodes(vistedNodes, node, lookFor);
             if (activeDirectPathExists) {
                 return true;
             }
@@ -176,8 +174,8 @@ public class JoinInstance extends NodeInstanceImpl {
         
         return activeDirectPathExists;
     }
-         
-    private boolean checkNodes(Node currentNode, Node lookFor) {
+
+    private boolean checkNodes(Set<Long> vistedNodes, Node currentNode, Node lookFor) {
         
         List<Connection> connections = currentNode.getOutgoingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
         
@@ -186,10 +184,14 @@ public class JoinInstance extends NodeInstanceImpl {
             if (nextNode == null) {
                 continue;
             } else {
+                if (vistedNodes.contains(nextNode.getId())) {
+                    continue;
+                }
+                vistedNodes.add(nextNode.getId());
                 if (nextNode.getId() == lookFor.getId()) {
                     return true;
                 } else {
-                    boolean nestedCheck = checkNodes(nextNode, lookFor);
+                    boolean nestedCheck = checkNodes(vistedNodes, nextNode, lookFor);
                     if (nestedCheck) {
                         return true;
                     }
