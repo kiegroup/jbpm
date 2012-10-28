@@ -63,20 +63,21 @@ import org.jbpm.workflow.core.node.StateBasedNode;
 import org.jbpm.workflow.core.node.StateNode;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+import org.jbpm.workflow.core.node.StateBasedNode;
 
 public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	
-	public static final String CONNECTIONS = "BPMN.Connections";
+    public static final String CONNECTIONS = "BPMN.Connections";
     public static final String LINKS = "BPMN.ThrowLinks";
 
-	@SuppressWarnings("unchecked")
-	public ProcessHandler() {
-		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
-			this.validParents.add(Definitions.class);
+    @SuppressWarnings("unchecked")
+    public ProcessHandler() {
+        if ((this.validParents == null) && (this.validPeers == null)) {
+            this.validParents = new HashSet();
+            this.validParents.add(Definitions.class);
 
-			this.validPeers = new HashSet();
-			this.validPeers.add(null);
+            this.validPeers = new HashSet();
+            this.validPeers.add(null);
             this.validPeers.add(ItemDefinition.class);
             this.validPeers.add(Message.class);
             this.validPeers.add(Interface.class);
@@ -242,104 +243,76 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 
 	    }
 
+    public Class<?> generateNodeFor() {
+        return org.drools.definition.process.Process.class;
+    }
 
-	public Class<?> generateNodeFor() {
-		return RuleFlowProcess.class;
-	}
-	
-	public static void linkConnections(NodeContainer nodeContainer, List<SequenceFlow> connections) {
-		if (connections != null) {
-			for (SequenceFlow connection: connections) {
-				String sourceRef = connection.getSourceRef();
-				String targetRef = connection.getTargetRef();
-				Node source = null;
-				Node target = null;
-				try {
-    				// remove starting _
-    				sourceRef = sourceRef.substring(1);
-    				// remove ids of parent nodes
-    				sourceRef = sourceRef.substring(sourceRef.lastIndexOf("-") + 1);
-    				source = nodeContainer.getNode(new Integer(sourceRef));
-				} catch (NumberFormatException e) {
-				    // try looking for a node with same "UniqueId" (in metadata)
-				    for (Node node: nodeContainer.getNodes()) {
-				        if (connection.getSourceRef().equals(node.getMetaData().get("UniqueId"))) {
-				            source = node;
-				            break;
-				        }
-				    }
-                    if (source == null) {
-                        throw new IllegalArgumentException("Could not find source node for connection:" + connection.getSourceRef());
+    public static void linkConnections(NodeContainer nodeContainer,
+            List<SequenceFlow> connections) {
+        if (connections != null) {
+            for (SequenceFlow connection : connections) {
+
+                Node source = findNodeByIdOrUniqueIdInMetadata(nodeContainer,
+                        connection.getSourceRef());
+
+                Node target = findNodeByIdOrUniqueIdInMetadata(nodeContainer,
+                        connection.getTargetRef());
+
+                Connection result = new ConnectionImpl(source,
+                        NodeImpl.CONNECTION_DEFAULT_TYPE, target,
+                        NodeImpl.CONNECTION_DEFAULT_TYPE);
+
+                result.setMetaData("bendpoints", connection.getBendpoints());
+                result.setMetaData("UniqueId", connection.getId());
+                if (source instanceof Split) {
+                    Split split = (Split) source;
+                    Constraint constraint = new ConstraintImpl();
+                    String defaultConnection = (String) split
+                            .getMetaData("Default");
+                    if (defaultConnection != null
+                            && defaultConnection.equals(connection.getId())) {
+                        constraint.setDefault(true);
                     }
-				}
-				try {
-    				// remove starting _
-    				targetRef = targetRef.substring(1);
-    		        // remove ids of parent nodes
-    				targetRef = targetRef.substring(targetRef.lastIndexOf("-") + 1);
-    				target = nodeContainer.getNode(new Integer(targetRef));
-				} catch (NumberFormatException e) {
-				    // try looking for a node with same "UniqueId" (in metadata)
-                    for (Node node: nodeContainer.getNodes()) {
-                        if (connection.getTargetRef().equals(node.getMetaData().get("UniqueId"))) {
-                            target = node;
-                            break;
-                        }
+                    if (connection.getName() != null) {
+                        constraint.setName(connection.getName());
+                    } else {
+                        constraint.setName("");
                     }
-                    if (target == null) {
-                        throw new IllegalArgumentException("Could not find target node for connection:" + connection.getTargetRef());
+                    if (connection.getType() != null) {
+                        constraint.setType(connection.getType());
+                    } else {
+                        constraint.setType("code");
                     }
-				}
-				Connection result = new ConnectionImpl(
-					source, NodeImpl.CONNECTION_DEFAULT_TYPE, 
-					target, NodeImpl.CONNECTION_DEFAULT_TYPE);
-				result.setMetaData("bendpoints", connection.getBendpoints());
-				result.setMetaData("UniqueId", connection.getId());
-				
-				if (System.getProperty("jbpm.enable.multi.con") != null){
-					NodeImpl nodeImpl = (NodeImpl) source;
-					Constraint constraint = buildConstraint(connection, nodeImpl);
-					if (constraint != null) {
-						nodeImpl.addConstraint(new ConnectionRef(target.getId(), NodeImpl.CONNECTION_DEFAULT_TYPE),
-								constraint);
-					}
-					
-				} else if (source instanceof Split) {
-					Split split = (Split) source;
-					Constraint constraint = buildConstraint(connection, split);
-					split.addConstraint(
-						new ConnectionRef(target.getId(), NodeImpl.CONNECTION_DEFAULT_TYPE),
-						constraint);
-				}
-			}
-		}
-	}
-	
+                    if (connection.getLanguage() != null) {
+                        constraint.setDialect(connection.getLanguage());
+                    }
+                    if (connection.getExpression() != null) {
+                        constraint.setConstraint(connection.getExpression());
+                    }
+                    constraint.setPriority(connection.getPriority());
+                    split.addConstraint(new ConnectionRef(target.getId(),
+                            NodeImpl.CONNECTION_DEFAULT_TYPE), constraint);
+                }
+            }
+        }
+    }
+
     public static void linkBoundaryEvents(NodeContainer nodeContainer) {
-        for (Node node: nodeContainer.getNodes()) {
+        for (Node node : nodeContainer.getNodes()) {
             if (node instanceof EventNode) {
                 final String attachedTo = (String) node.getMetaData().get("AttachedTo");
                 if (attachedTo != null) {
-                	String type = ((EventTypeFilter)
-                        ((EventNode) node).getEventFilters().get(0)).getType();
+                    String type = ((EventTypeFilter) ((EventNode) node)
+                            .getEventFilters().get(0)).getType();
                     Node attachedNode = null;
                     try {
-                        // remove starting _
-                        String attachedToString = attachedTo.substring(1);
-                        // remove ids of parent nodes
-                        attachedToString = attachedToString.substring(attachedToString.lastIndexOf("-") + 1);
-                        attachedNode = nodeContainer.getNode(new Integer(attachedToString));
-                    } catch (NumberFormatException e) {
-                        // try looking for a node with same "UniqueId" (in metadata)
-                        for (Node subnode: nodeContainer.getNodes()) {
-                            if (attachedTo.equals(subnode.getMetaData().get("UniqueId"))) {
-                                attachedNode = subnode;
-                                break;
-                            }
-                        }
-                        if (attachedNode == null) {
-                            throw new IllegalArgumentException("Could not find node to attach to: " + attachedTo);
-                        }
+                        attachedNode = findNodeByIdOrUniqueIdInMetadata(
+                                nodeContainer, attachedTo);
+                    } catch (IllegalArgumentException e) {
+                        // re-throw exception with more information
+                        throw new IllegalArgumentException(
+                                "Could not find node to attach to: "
+                                        + attachedTo);
                     }
                     // 
                     if (!(attachedNode instanceof StateBasedNode) && !type.startsWith("Compensate-")) {
@@ -398,7 +371,8 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                             compositeNode.addContext(exceptionScope);
                             compositeNode.setDefaultContext(exceptionScope);
                         }
-                        String errorCode = (String) node.getMetaData().get("ErrorEvent");
+                        String errorCode = (String) node.getMetaData().get(
+                                "ErrorEvent");
                         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
 
                         DroolsConsequenceAction action = null;
@@ -461,45 +435,37 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                 "kcontext.getProcessInstance().signalEvent(\"Timer-" + attachedTo + "-" + timeDate + "\", null);"));
                         }
                     } else if (type.startsWith("Compensate-")) {
-                    	String activityRef = (String) node.getMetaData().get("ActivityRef");
-                    	if (activityRef == null) {
-                    	    activityRef = attachedTo;
-                    	}
-            	        String eventType = "Compensate-" + activityRef;
-            	        ((EventTypeFilter) ((EventNode) node).getEventFilters().get(0)).setType(eventType);
-                    } else if (node.getMetaData().get("SignalName") != null || type.startsWith("Message-")) {
-                        boolean cancelActivity = (Boolean) node.getMetaData().get("CancelActivity");
-                        final long attachedToNodeId = attachedNode.getId();
-                        if (cancelActivity) {
-                            List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
-                            if (actions == null) {
-                                actions = new ArrayList<DroolsAction>();
-                            }
-                            DroolsConsequenceAction action =  new DroolsConsequenceAction("java", null);
-                            action.setMetaData("Action", new CancelNodeInstanceAction(attachedToNodeId));
-                            actions.add(action);
-                            ((EventNode)node).setActions(EndNode.EVENT_NODE_EXIT, actions);
+                        String uniqueId = (String) node.getMetaData().get(
+                                "UniqueId");
+                        String eventType = "Compensate-" + uniqueId;
+                        ((EventTypeFilter) ((EventNode) node).getEventFilters()
+                                .get(0)).setType(eventType);
+                    } else if (type.startsWith("Message-")) {
+                        boolean cancelActivity = (Boolean) node.getMetaData()
+                                .get("CancelActivity");
+                        CompositeContextNode compositeNode = (CompositeContextNode) attachedNode;
+                        ExceptionScope exceptionScope = (ExceptionScope) compositeNode
+                                .getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+                        if (exceptionScope == null) {
+                            exceptionScope = new ExceptionScope();
+                            compositeNode.addContext(exceptionScope);
+                            compositeNode.setDefaultContext(exceptionScope);
                         }
-                        // cancel boundary event when node is completed by removing filter
-                        final long id = node.getId();
-                        StateBasedNode stateBasedNode = (StateBasedNode) attachedNode;
-                        
-                        List<DroolsAction> actionsAttachedTo = stateBasedNode.getActions(StateBasedNode.EVENT_NODE_EXIT);
-                        if (actionsAttachedTo == null) {
-                            actionsAttachedTo = new ArrayList<DroolsAction>();
-                        }
-                        DroolsConsequenceAction actionAttachedTo =  new DroolsConsequenceAction("java", "" +
-                        		"org.drools.definition.process.Node node = context.getNodeInstance().getNode().getNodeContainer().getNode(" +id+ ");" +
-                        		"if (node instanceof org.jbpm.workflow.core.node.EventNode) {" +
-                        		" ((org.jbpm.workflow.core.node.EventNode)node).getEventFilters().clear();" +
-                        		"((org.jbpm.workflow.core.node.EventNode)node).addEventFilter(new org.jbpm.process.core.event.EventFilter () " +
-                        		"{public boolean acceptsEvent(String type, Object event) { return false;}});" +
-                        		"}");
-                     
-
-                        actionsAttachedTo.add(actionAttachedTo);
-                        stateBasedNode.setActions(StateBasedNode.EVENT_NODE_EXIT, actionsAttachedTo);
-                        
+                        String messageCode = (String) node.getMetaData()
+                                .get("MessageEvent");
+                        ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
+                        exceptionHandler
+                                .setAction(new DroolsConsequenceAction(
+                                        "java",
+                                        (cancelActivity ? "((org.jbpm.workflow.instance.NodeInstance) kcontext.getNodeInstance()).cancel();"
+                                                : "")
+                                                + "kcontext.getProcessInstance().signalEvent(\"Message-"
+                                                + attachedTo
+                                                + "-"
+                                                + messageCode + "\", null);"));
+                        exceptionHandler.setFaultVariable("__variable__");
+                        exceptionScope.setExceptionHandler(messageCode,
+                                exceptionHandler);
                     } else if (type.startsWith("Condition-")) {
                         String processId = ((RuleFlowProcess) nodeContainer).getId();
                         String eventType = "RuleFlowStateEvent-" + processId + "-" + ((EventNode) node).getUniqueId() + "-" + attachedTo;
@@ -538,40 +504,42 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                         stateBasedNode.setActions(StateBasedNode.EVENT_NODE_EXIT, actionsAttachedTo);
                         stateBasedNode.addBoundaryEvents(eventType);
                     }
+
                 }
             }
         }
     }
-    
-	private void assignLanes(RuleFlowProcess process, List<Lane> lanes) {
-	    List<String> laneNames = new ArrayList<String>();
-	    Map<String, String> laneMapping = new HashMap<String, String>();
-	    if (lanes != null) {
-	        for (Lane lane: lanes) {
-	            String name = lane.getName();
-	            if (name != null) {
-	                Swimlane swimlane = new Swimlane();
-	                swimlane.setName(name);
-	                process.getSwimlaneContext().addSwimlane(swimlane);
-	                laneNames.add(name);
-	                for (String flowElementRef: lane.getFlowElements()) {
-	                    laneMapping.put(flowElementRef, name);
-	                }
-	            }
-	        }
-	    }
-	    assignLanes(process, laneMapping);
-	}
-	
+
+    private void assignLanes(RuleFlowProcess process, List<Lane> lanes) {
+        List<String> laneNames = new ArrayList<String>();
+        Map<String, String> laneMapping = new HashMap<String, String>();
+        if (lanes != null) {
+            for (Lane lane : lanes) {
+                String name = lane.getName();
+                if (name != null) {
+                    Swimlane swimlane = new Swimlane();
+                    swimlane.setName(name);
+                    process.getSwimlaneContext().addSwimlane(swimlane);
+                    laneNames.add(name);
+                    for (String flowElementRef : lane.getFlowElements()) {
+                        laneMapping.put(flowElementRef, name);
+                    }
+                }
+            }
+        }
+        assignLanes(process, laneMapping);
+    }
+
     private void postProcessNodes(NodeContainer container) {
-        for (Node node: container.getNodes()) {
+        for (Node node : container.getNodes()) {
             if (node instanceof StateNode) {
                 StateNode stateNode = (StateNode) node;
                 String condition = (String) stateNode.getMetaData("Condition");
                 Constraint constraint = new ConstraintImpl();
                 constraint.setConstraint(condition);
                 constraint.setType("rule");
-                for (org.drools.definition.process.Connection connection: stateNode.getDefaultOutgoingConnections()) {
+                for (org.drools.definition.process.Connection connection : stateNode
+                        .getDefaultOutgoingConnections()) {
                     stateNode.setConstraint(connection, constraint);
                 }
             } else if (node instanceof NodeContainer) {
@@ -631,5 +599,6 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 		
 		return constraint;
 	}
+
 
 }

@@ -16,15 +16,21 @@
 
 package org.jbpm.bpmn2.xml;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.drools.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Message;
 import org.jbpm.compiler.xml.ProcessBuildData;
+import org.jbpm.process.builder.AssignmentBuilder;
+import org.jbpm.process.builder.dialect.ProcessDialect;
+import org.jbpm.process.builder.dialect.ProcessDialectRegistry;
 import org.jbpm.process.core.event.EventTypeFilter;
+import org.jbpm.process.instance.impl.AssignmentAction;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.core.node.Assignment;
 import org.jbpm.workflow.core.node.ConstraintTrigger;
 import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
@@ -102,6 +108,12 @@ public class StartEventHandler extends AbstractNodeHandler {
                 if (mapping != null) {
                     trigger.addInMapping(mapping, "event");
                 }
+        		List<AssignmentAction> actions = (List<AssignmentAction>) startNode
+        				.getMetaData(AssignmentAction.ASSIGNMENT_ACTION);
+
+        		if (actions != null && !actions.isEmpty()) {
+        			trigger.setActions(actions);
+        		}
                 startNode.addTrigger(trigger);
             } else if ("timerEventDefinition".equals(nodeName)) {
             	org.w3c.dom.Node subNode = xmlNode.getFirstChild();
@@ -176,17 +188,50 @@ public class StartEventHandler extends AbstractNodeHandler {
             xmlNode = xmlNode.getNextSibling();
         }
     }
-    
-    protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode, StartNode startNode) {
-        // sourceRef
-        org.w3c.dom.Node subNode = xmlNode.getFirstChild();
-        if ("sourceRef".equals(subNode.getNodeName())) {
-            subNode = subNode.getNextSibling();
-        }
-        // targetRef
-        String to = subNode.getTextContent();
-        startNode.setMetaData("TriggerMapping", to);
-    }
+        
+	protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode,
+			StartNode startNode) {
+		String language = "XPath";
+		if(((Element) xmlNode).getAttribute("language") != null && !"".equals(((Element) xmlNode).getAttribute("language"))) {
+			language = ((Element) xmlNode).getAttribute("language");
+		}
+
+		// sourceRef
+		org.w3c.dom.Node subNode = xmlNode.getFirstChild();
+		if ("sourceRef".equals(subNode.getNodeName())) {
+			subNode = subNode.getNextSibling();
+		}
+		// targetRef
+		String target = subNode.getTextContent();
+		startNode.setMetaData("TriggerMapping", target);
+
+		subNode = subNode.getNextSibling();
+
+		List<AssignmentAction> assignmentActions = (ArrayList<AssignmentAction>) startNode
+				.getMetaData(AssignmentAction.ASSIGNMENT_ACTION);
+
+		if (null == assignmentActions) {
+			assignmentActions = new ArrayList<AssignmentAction>();
+			startNode.setMetaData(AssignmentAction.ASSIGNMENT_ACTION,
+					assignmentActions);
+		}
+
+		ProcessDialect dialectBuilder = ProcessDialectRegistry
+				.getDialect(language);
+
+		while (subNode != null) {
+			org.w3c.dom.Node ssubNode = subNode.getFirstChild();
+			String from = ssubNode.getTextContent();
+			String to = ssubNode.getNextSibling().getTextContent();
+			Assignment assignment = new Assignment(language, from, to);
+			dialectBuilder.getAssignmentBuilder().build(null, assignment,
+					"message", target, null, false);
+			AssignmentAction assignmentAction = (AssignmentAction) assignment
+					.getMetaData("Action");
+			assignmentActions.add(assignmentAction);
+			subNode = subNode.getNextSibling();
+		}
+	}
 
     public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
 		StartNode startNode = (StartNode) node;

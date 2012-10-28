@@ -24,8 +24,17 @@ public class Message implements Serializable {
 	
     private String id;
     private String type;
+    private String name;
     
-    public Message(String id) {
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Message(String id) {
         this.id = id;
     }
 

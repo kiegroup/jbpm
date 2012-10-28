@@ -24,11 +24,11 @@ import org.jbpm.process.core.ContextResolver;
 import org.jbpm.process.instance.impl.ReturnValueConstraintEvaluator;
 import org.jbpm.process.instance.impl.XPATHReturnValueEvaluator;
 
-public class XPATHReturnValueEvaluatorBuilder
+public class XPathReturnValueEvaluatorBuilder
     implements
     ReturnValueEvaluatorBuilder {
 
-    public XPATHReturnValueEvaluatorBuilder() {
+    public XPathReturnValueEvaluatorBuilder() {
 
     }
 

@@ -56,7 +56,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
     private static final long serialVersionUID = 510l;
     
     private long workItemId = -1;
-    private transient WorkItem workItem;
+    protected transient WorkItem workItem;
     
     protected WorkItemNode getWorkItemNode() {
         return (WorkItemNode) getNode();
@@ -96,6 +96,9 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
 //        }
         WorkItemNode workItemNode = getWorkItemNode();
         createWorkItem(workItemNode);
+        if(workItem.getId() > 0) {
+        	workItemId = workItem.getId(); 
+        }
         if (workItemNode.isWaitForCompletion()) {
             addWorkItemListener();
         }
@@ -110,12 +113,14 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             } catch (WorkItemHandlerNotFoundException wihnfe){
                 getProcessInstance().setState( ProcessInstance.STATE_ABORTED );
                 throw wihnfe;
+            } catch (RuntimeException wihnfe){
+                getProcessInstance().setState( ProcessInstance.STATE_ABORTED );
+                throw wihnfe;
             }
         }
         if (!workItemNode.isWaitForCompletion()) {
             triggerCompleted();
         }
-        this.workItemId = workItem.getId();
     }    
 
     protected WorkItem createWorkItem(WorkItemNode workItemNode) {
@@ -184,10 +189,12 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 ((WorkItem) workItem).setParameter(entry.getKey(), s);
             }
         }
+        ((org.drools.process.instance.WorkItemManager) 
+                ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getWorkItemManager()).internalAddWorkItem(workItem);
         return workItem;
     }
 
-    private void handleAssignment(Assignment assignment) {
+    protected void handleAssignment(Assignment assignment) {
     	AssignmentAction action = (AssignmentAction) assignment.getMetaData("Action");
 		try {
 		    ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
@@ -298,7 +305,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         if ( workItemId == workItem.getId()
                 || ( workItemId == -1 && getWorkItem().getId() == workItem.getId()) ) {
             removeEventListeners();
-            triggerCompleted(workItem);
+//            triggerCompleted(workItem);
+            getProcessInstance().setState( ProcessInstance.STATE_ABORTED );
         }
     }
 

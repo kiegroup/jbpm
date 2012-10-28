@@ -118,6 +118,7 @@ public final class JBPMMessages {
       COMPOSITE_CONTEXT_NODE(9, 9),
       FOR_EACH_NODE(10, 10),
       DYNAMIC_NODE(11, 11),
+      STATUS_SUB_NODE(12, 12),
       ;
       
       public static final int RULE_SET_NODE_VALUE = 0;
@@ -132,6 +133,7 @@ public final class JBPMMessages {
       public static final int COMPOSITE_CONTEXT_NODE_VALUE = 9;
       public static final int FOR_EACH_NODE_VALUE = 10;
       public static final int DYNAMIC_NODE_VALUE = 11;
+      public static final int STATUS_SUB_NODE_VALUE = 12;
       
       
       public final int getNumber() { return value; }
@@ -150,6 +152,7 @@ public final class JBPMMessages {
           case 9: return COMPOSITE_CONTEXT_NODE;
           case 10: return FOR_EACH_NODE;
           case 11: return DYNAMIC_NODE;
+          case 12: return STATUS_SUB_NODE;
           default: return null;
         }
       }
@@ -180,7 +183,7 @@ public final class JBPMMessages {
       }
       
       private static final NodeInstanceType[] VALUES = {
-        RULE_SET_NODE, HUMAN_TASK_NODE, WORK_ITEM_NODE, SUBPROCESS_NODE, MILESTONE_NODE, EVENT_NODE, TIMER_NODE, JOIN_NODE, STATE_NODE, COMPOSITE_CONTEXT_NODE, FOR_EACH_NODE, DYNAMIC_NODE, 
+        RULE_SET_NODE, HUMAN_TASK_NODE, WORK_ITEM_NODE, SUBPROCESS_NODE, MILESTONE_NODE, EVENT_NODE, TIMER_NODE, JOIN_NODE, STATE_NODE, COMPOSITE_CONTEXT_NODE, FOR_EACH_NODE, DYNAMIC_NODE,  STATUS_SUB_NODE,
       };
       
       public static NodeInstanceType valueOf(

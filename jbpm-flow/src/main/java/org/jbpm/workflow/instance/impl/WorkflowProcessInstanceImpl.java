@@ -37,6 +37,7 @@ import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.process.instance.event.DefaultSignalManager;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.EventNode;
@@ -48,6 +49,7 @@ import org.jbpm.workflow.instance.node.EventBasedNodeInstanceInterface;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstanceInterface;
 import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
+import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
 
 /**
  * Default implementation of a RuleFlow process instance.
@@ -263,6 +265,18 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
             processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
         }
+
+		if (state == ProcessInstance.STATE_SUSPENDED) {
+			removeEventListeners();
+			for (NodeInstance nodeInstance : nodeInstances) {
+				if (nodeInstance instanceof StateBasedNodeInstance) {
+					((StateBasedNodeInstance) nodeInstance).removeEventListeners();
+				}
+			}
+		}
+		if (state == ProcessInstance.STATE_ACTIVE) {
+			reconnect();
+		}
 	}
 
 	public void setState(final int state) {
@@ -283,13 +297,15 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 	public void reconnect() {
 		super.reconnect();
-		for (NodeInstance nodeInstance : nodeInstances) {
-			if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
-				((EventBasedNodeInstanceInterface) nodeInstance)
-						.addEventListeners();
+		if(getState() != ProcessInstance.STATE_SUSPENDED) {
+			for (NodeInstance nodeInstance : nodeInstances) {
+				if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
+					((EventBasedNodeInstanceInterface) nodeInstance)
+							.addEventListeners();
+				}
 			}
+			addEventListeners();
 		}
-		addEventListeners();
 	}
 
 	public String toString() {
@@ -388,8 +404,34 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			listeners = new CopyOnWriteArrayList<EventListener>();
 			eventListeners.put(type, listeners);
 			if (external) {
-				((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
-					.getSignalManager().addEventListener(type, this);
+				DefaultSignalManager signalManager = (DefaultSignalManager) ((InternalProcessRuntime) getKnowledgeRuntime().getProcessRuntime())
+				.getSignalManager();
+				List<EventListener> eventListenerList = signalManager.getEventListener(type);	
+				if (null != eventListenerList) {
+					Iterator<EventListener> eventListenerIterator = eventListenerList.iterator();
+					while(eventListenerIterator.hasNext()){
+						ProcessInstance processInstanceListener = (ProcessInstance) eventListenerIterator.next();
+						if(null != processInstanceListener) {
+							if(processInstanceListener.getId() == this.getId()){
+								signalManager.removeEventListener(type, processInstanceListener);
+							}
+						}
+					}
+				}
+				signalManager.addEventListener(type, this);
+			}
+		}
+		
+		if(listener instanceof NodeInstance) {
+			for(EventListener _listener : listeners) {
+				if(_listener instanceof WorkItemNodeInstance && listener instanceof WorkItemNodeInstance) {
+					if(((WorkItemNodeInstance)_listener).getWorkItemId() == ((WorkItemNodeInstance)listener).getWorkItemId()) {
+						listeners.remove(_listener);
+					}
+				}
+				if(_listener == listener) {
+                    listeners.remove(_listener);					
+				}
 			}
 		}
 		listeners.add(listener);

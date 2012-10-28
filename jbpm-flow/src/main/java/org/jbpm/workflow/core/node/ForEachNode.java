@@ -17,6 +17,7 @@
 package org.jbpm.workflow.core.node;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.drools.definition.process.Node;
@@ -80,6 +81,64 @@ public class ForEachNode extends CompositeNode {
         );
     }
     
+	public ForEachNode(Node node) {
+        // Split
+        ForEachSplitNode split = new ForEachSplitNode();
+        split.setName("ForEachSplit");
+        split.setMetaData("hidden", true);
+        super.addNode(split);
+        super.linkIncomingConnections(
+            org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, 
+            new CompositeNode.NodeAndType(split, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE));
+        // Composite node
+        CompositeContextNode compositeNode = new CompositeContextNode();
+        compositeNode.setName("ForEachComposite");
+        compositeNode.setMetaData("hidden", true);
+        super.addNode(compositeNode);
+        VariableScope variableScope = new VariableScope();
+        compositeNode.addContext(variableScope);
+        compositeNode.setDefaultContext(variableScope);
+
+		StartNode start = new StartNode();
+		compositeNode.addNode(start);
+
+        ((org.jbpm.workflow.core.Node) node).setId(2);
+        compositeNode.addNode(node);
+
+		EndNode end = new EndNode();
+		compositeNode.addNode(end);
+		end.setTerminate(false);
+
+		start.setMetaData("hidden", true);
+		end.setMetaData("hidden", true);
+		
+		new ConnectionImpl(
+				compositeNode.getNode(1), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+				compositeNode.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		);
+		new ConnectionImpl(
+				compositeNode.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+				compositeNode.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+		);
+
+        // Join
+        ForEachJoinNode join = new ForEachJoinNode();
+        join.setName("ForEachJoin");
+        join.setMetaData("hidden", true);
+        super.addNode(join);
+        super.linkOutgoingConnections(
+            new CompositeNode.NodeAndType(join, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE),
+            org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+        new ConnectionImpl(
+            super.getNode(1), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+            super.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+        );
+        new ConnectionImpl(
+        		super.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+            super.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+        );
+    }
+
     public String getVariableName() {
         return variableName;
     }
@@ -141,7 +200,7 @@ public class ForEachNode extends CompositeNode {
     }
     
     public Node[] getNodes() {
-		return getCompositeNode().getNodes();
+    	return getCompositeNode().getNodes();
     }
     
     public Node[] internalGetNodes() {
@@ -182,16 +241,12 @@ public class ForEachNode extends CompositeNode {
      
     public void setVariable(String variableName, DataType type) {
         this.variableName = variableName;
-        VariableScope variableScope = (VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE);
-        List<Variable> variables = variableScope.getVariables();
-        if (variables == null) {
-        	variables = new ArrayList<Variable>();
-        	variableScope.setVariables(variables);
-        }
+        List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName(variableName);
         variable.setType(type);
         variables.add(variable);
+        ((VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE)).setVariables(variables);
     }
     
     public void setOutputVariable(String variableName, DataType type) {

@@ -8,6 +8,7 @@ import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.core.node.CompositeContextNode;
 import org.jbpm.workflow.core.node.EndNode;
+import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.core.node.FaultNode;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
@@ -32,6 +33,8 @@ public class ProcessNodeBuilderRegistry {
                   new ExtendedNodeBuilder() );
         register( EndNode.class,
                   new ExtendedNodeBuilder() );
+        register( EventNode.class,
+                new ExtendedNodeBuilder() );
         register( MilestoneNode.class,
                   new EventBasedNodeBuilder() );
         register( RuleSetNode.class,

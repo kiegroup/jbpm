@@ -204,7 +204,7 @@ public class StatefulProcessSession implements StatefulKnowledgeSession, Interna
 	public int fireAllRules(AgendaFilter agendaFilter) {
 		throw new UnsupportedOperationException();
 	}
-
+	
 	public int fireAllRules(AgendaFilter agendaFilter, int i) {
 		throw new UnsupportedOperationException();
 	}

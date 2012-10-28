@@ -23,6 +23,7 @@ import org.jbpm.process.core.context.swimlane.SwimlaneContext;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.workflow.core.impl.NodeContainerImpl;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
+import org.jbpm.workflow.core.node.Split;
 import org.jbpm.workflow.core.node.StartNode;
 
 public class RuleFlowProcess extends WorkflowProcessImpl {
@@ -61,32 +62,43 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
         return new WorkflowProcessNodeContainer();
     }
     
-    public StartNode getStart() {
+    public Node getStart() {
         Node[] nodes = getNodes();
-        int startNodeIndex = -1;
+        // int startNodeIndex = -1;
         
         for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] instanceof StartNode) {
+            if (nodes[i] instanceof StartNode || (nodes[i].getIncomingConnections().isEmpty() && nodes[i] instanceof Split)) {
+                return nodes[i];
                 // return start node that is not event based node
-                if (((StartNode) nodes[i]).getTriggers() == null || ((StartNode) nodes[i]).getTriggers().isEmpty()) {
-                    return (StartNode) nodes[i];
-                }
-                startNodeIndex = i;
+                // if (((StartNode) nodes[i]).getTriggers() == null || ((StartNode) nodes[i]).getTriggers().isEmpty()) {
+                //     return (StartNode) nodes[i];
+                // }
+                // startNodeIndex = i;
             }
         }
-        if (startNodeIndex > -1) {
-            return (StartNode) nodes[startNodeIndex];
+        // if (startNodeIndex > -1) {
+        //    return (StartNode) nodes[startNodeIndex];
+        // }
+        return null;
+    }
+    
+    public StartNode getStartNodeForValidation() {
+        Node[] nodes = getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] instanceof StartNode){
+                return (StartNode) nodes[i];
+            }
         }
         return null;
     }
-
+    
     private class WorkflowProcessNodeContainer extends NodeContainerImpl {
         
         private static final long serialVersionUID = 510l;
 
         protected void validateAddNode(Node node) {
             super.validateAddNode(node);
-            StartNode startNode = getStart();
+            StartNode startNode = getStartNodeForValidation();
             if ((node instanceof StartNode) && (startNode != null && startNode.getTriggers() == null)) {
                 // ignore start nodes that are event based
                 if (((StartNode) node).getTriggers() == null || ((StartNode) node).getTriggers().isEmpty()) {

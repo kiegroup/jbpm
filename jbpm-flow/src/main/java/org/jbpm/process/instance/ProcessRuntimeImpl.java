@@ -1,7 +1,6 @@
 package org.jbpm.process.instance;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +34,7 @@ import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.instance.event.SignalManager;
 import org.jbpm.process.instance.event.SignalManagerFactory;
+import org.jbpm.process.instance.impl.AssignmentAction;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.node.EventTrigger;
@@ -235,32 +235,31 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         kruntime.getKnowledgeBase().addEventListener(knowledgeBaseListener);
     }
     
-    private void initProcessEventListener(Process process) {
+    @SuppressWarnings({ "deprecation", "unchecked" })
+	private void initProcessEventListener(Process process) {
     	if ( process instanceof RuleFlowProcess ) {
-    	    for (Node node : ((RuleFlowProcess) process).getNodes()) {
-    	        if (node instanceof StartNode) {
-                    StartNode startNode = (StartNode) node;
-                    if (startNode != null) {
-                        List<Trigger> triggers = startNode.getTriggers();
-                        if ( triggers != null ) {
-                            for ( Trigger trigger : triggers ) {
-                                if ( trigger instanceof EventTrigger ) {
-                                    final List<EventFilter> filters = ((EventTrigger) trigger).getEventFilters();
-                                    String type = null;
-                                    for ( EventFilter filter : filters ) {
-                                        if ( filter instanceof EventTypeFilter ) {
-                                            type = ((EventTypeFilter) filter).getType();
-                                        }
-                                    }
-                                    StartProcessEventListener listener = new StartProcessEventListener( process.getId(),
-                                                                                                        filters,
-                                                                                                        trigger.getInMappings() );
-                                    signalManager.addEventListener( type,
-                                                                    listener );
-                                    ((RuleFlowProcess) process).getMetaData().put("StartProcessEventType", type);
-                                    ((RuleFlowProcess) process).getMetaData().put("StartProcessEventListener", listener);
+            Node startNode = ((RuleFlowProcess) process).getStart();
+            if (startNode != null && startNode instanceof StartNode) {
+                List<Trigger> triggers = ((StartNode) startNode).getTriggers();
+                if ( triggers != null ) {
+                    for ( Trigger trigger : triggers ) {
+                        if ( trigger instanceof EventTrigger ) {
+                            final List<EventFilter> filters = ((EventTrigger) trigger).getEventFilters();
+                            String type = null;
+                            for ( EventFilter filter : filters ) {
+                                if ( filter instanceof EventTypeFilter ) {
+                                    type = ((EventTypeFilter) filter).getType();
                                 }
                             }
+                            StartProcessEventListener listener = new StartProcessEventListener( process.getId(),
+                                                                                                filters,
+                                                                                                trigger.getInMappings(),
+                                                                                                (List<AssignmentAction>) startNode.getMetaData(AssignmentAction.ASSIGNMENT_ACTION),
+                                                                                                this);
+                            signalManager.addEventListener( type,
+                                                            listener );
+                            ((RuleFlowProcess) process).getMetaData().put("StartProcessEventType", type);
+                            ((RuleFlowProcess) process).getMetaData().put("StartProcessEventListener", listener);
                         }
                     }
         	    }
@@ -283,50 +282,6 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     public List<ProcessEventListener> getProcessEventListeners() {
         return processEventSupport.getEventListeners();
     }
-
-    private class StartProcessEventListener implements EventListener {
-    	
-	    private String              processId;
-	    private List<EventFilter>   eventFilters;
-	    private Map<String, String> inMappings;
-	
-	    public StartProcessEventListener(String processId,
-	                                     List<EventFilter> eventFilters,
-	                                     Map<String, String> inMappings) {
-	        this.processId = processId;
-	        this.eventFilters = eventFilters;
-	        this.inMappings = inMappings;
-	    }
-	
-	    public String[] getEventTypes() {
-	        return null;
-	    }
-	
-	    public void signalEvent(String type,
-	                            Object event) {
-	        for ( EventFilter filter : eventFilters ) {
-	            if ( !filter.acceptsEvent( type,
-	                                       event ) ) {
-	                return;
-	            }
-	        }
-	        Map<String, Object> params = null;
-	        if ( inMappings != null && !inMappings.isEmpty() ) {
-	            params = new HashMap<String, Object>();
-	            for ( Map.Entry<String, String> entry : inMappings.entrySet() ) {
-	                if ( "event".equals( entry.getValue() ) ) {
-	                    params.put( entry.getKey(),
-	                                event );
-	                } else {
-	                    params.put( entry.getKey(),
-	                                entry.getValue() );
-	                }
-	            }
-	        }
-	        startProcess( processId,
-	                      params );
-	    }
-	}
 
     private void initProcessActivationListener() {
     	kruntime.addEventListener(new DefaultAgendaEventListener() {
@@ -369,6 +324,22 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
         }
         ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_ABORTED );
+	}
+
+	public void suspendProcessInstance(long processInstanceId) {
+		ProcessInstance processInstance = getProcessInstance(processInstanceId);
+		if ( processInstance == null ) {
+            throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
+        }
+        ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_SUSPENDED );
+	}
+
+	public void resumeProcessInstance(long processInstanceId) {
+		ProcessInstance processInstance = getProcessInstance(processInstanceId);
+		if ( processInstance == null ) {
+            throw new IllegalArgumentException( "Could not find process instance for id " + processInstanceId );
+        }
+        ((org.jbpm.process.instance.ProcessInstance) processInstance).setState( ProcessInstance.STATE_ACTIVE );
 	}
 
 	public WorkItemManager getWorkItemManager() {

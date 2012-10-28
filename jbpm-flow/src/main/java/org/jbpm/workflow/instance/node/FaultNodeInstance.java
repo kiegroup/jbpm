@@ -64,6 +64,7 @@ public class FaultNodeInstance extends NodeInstanceImpl {
         }
         if (exceptionScopeInstance != null) {
         	handleException(faultName, exceptionScopeInstance);
+        	nodeInstanceContainer.nodeInstanceCompleted(this, null);
         } else {
 
         	((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);

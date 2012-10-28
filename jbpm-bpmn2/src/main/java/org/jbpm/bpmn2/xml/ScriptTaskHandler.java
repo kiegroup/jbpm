@@ -18,9 +18,21 @@ package org.jbpm.bpmn2.xml;
 
 import org.drools.rule.builder.dialect.java.JavaDialect;
 import org.drools.xml.ExtensibleXmlParser;
+import org.jbpm.workflow.core.Connection;
 import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.core.NodeContainer;
+import org.jbpm.workflow.core.impl.ConnectionImpl;
+import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.ActionNode;
+import org.jbpm.workflow.core.node.CompositeContextNode;
+import org.jbpm.workflow.core.node.CompositeNode;
+import org.jbpm.workflow.core.node.EndNode;
+import org.jbpm.workflow.core.node.ForEachNode;
+import org.jbpm.workflow.core.node.Join;
+import org.jbpm.workflow.core.node.Split;
+import org.jbpm.workflow.core.node.StartNode;
+import org.jbpm.workflow.core.node.WorkItemNode;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -64,5 +76,95 @@ public class ScriptTaskHandler extends AbstractNodeHandler {
 	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
 	    throw new IllegalArgumentException("Writing out should be handled by action node handler");
 	}
+	
+    public Object end(final String uri, final String localName,
+            final ExtensibleXmlParser parser) throws SAXException {
+		final Element element = parser.endElementBuilder();
+		Node node = (Node) parser.getCurrent();
+		// determine type of event definition, so the correct type of node
+		// can be generated
+    	handleNode(node, element, uri, localName, parser);
+		boolean found = false;
+		org.w3c.dom.Node xmlNode = element.getFirstChild();
+		while (xmlNode != null) {
+			String nodeName = xmlNode.getNodeName();
+			if ("standardLoopCharacteristics".equals(nodeName)) {
+				CompositeNode composite = new CompositeContextNode();
+				composite.setId(node.getId());
+				composite.setName(node.getName());
+				composite.setMetaData("UniqueId", node.getMetaData("UniqueId"));
+
+				StartNode start = new StartNode();
+				composite.addNode(start);
+
+				Join join = new Join();
+				join.setType(Join.TYPE_XOR);
+				composite.addNode(join);
+
+				Split split = new Split(Split.TYPE_XOR);
+				composite.addNode(split);
+
+				node.setId(4);
+				composite.addNode(node);
+
+				EndNode end = new EndNode();
+				composite.addNode(end);
+				end.setTerminate(false);
+
+				new ConnectionImpl(
+						composite.getNode(1), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				new ConnectionImpl(
+						composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				Connection c1 = new ConnectionImpl(
+						composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(4), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				new ConnectionImpl(
+						composite.getNode(4), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(2), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+				Connection c2 = new ConnectionImpl(
+						composite.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
+						composite.getNode(5), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
+				);
+
+				start.setMetaData("hidden", true);
+				join.setMetaData("hidden", true);
+				split.setMetaData("hidden", true);
+				end.setMetaData("hidden", true);
+
+				ConstraintImpl cons1 = new ConstraintImpl();
+				cons1.setDialect("XPath");
+				cons1.setConstraint(xmlNode.getFirstChild().getTextContent());
+				cons1.setType("code");
+				cons1.setName("");
+				split.setConstraint(c1, cons1);
+
+				ConstraintImpl cons2 = new ConstraintImpl();
+				cons2.setDialect("XPath");
+				cons2.setConstraint("");
+				cons2.setType("code");
+				cons2.setDefault(true);
+				cons2.setName("");
+				split.setConstraint(c2, cons2);		        
+
+				super.handleNode(node, element, uri, localName, parser);
+				node = composite;
+				found = true;
+				break;
+			}
+
+			xmlNode = xmlNode.getNextSibling();
+		}
+		
+		NodeContainer nodeContainer = (NodeContainer) parser.getParent();
+		nodeContainer.addNode(node);
+		return node;
+	}
+
 
 }

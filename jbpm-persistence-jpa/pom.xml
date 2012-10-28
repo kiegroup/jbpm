@@ -119,19 +119,11 @@
 
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>jar</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-            <configuration>
-              <archive>
-                <manifestFile>META-INF/MANIFEST.MF</manifestFile>
-              </archive>
-            </configuration>
-          </execution>
-        </executions>
+        <configuration>
+          <archive>
+            <manifestFile>META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
@@ -151,7 +143,7 @@
           <instructions>
             <_removeheaders>Ignore-Package</_removeheaders>
             <Bundle-SymbolicName>org.jbpm.flow-persistence-jpa;singleton:=true</Bundle-SymbolicName>
-            <Require-Bundle>org.drools.core;bundle-version="${drools.osgi.version}",org.drools.compiler;bundle-version="${drools.osgi.version}"</Require-Bundle>
+            <Require-Bundle>org.drools.core,org.drools.compiler</Require-Bundle>
             <Import-Package>*</Import-Package>
             <Export-Package>org.jbpm.persistence.*</Export-Package>
             <DynamicImport-Package>*</DynamicImport-Package>

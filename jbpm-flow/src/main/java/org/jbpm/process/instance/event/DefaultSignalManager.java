@@ -33,6 +33,7 @@ import org.drools.marshalling.impl.ProtobufMessages.ActionQueue.Action;
 import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
 public class DefaultSignalManager implements SignalManager {
 	
@@ -47,6 +48,10 @@ public class DefaultSignalManager implements SignalManager {
 		return kruntime;
 	}
 
+	public List<EventListener> getEventListener(String type) {
+		return processEventListeners.get(type);
+	}
+	
 	public void addEventListener(String type, EventListener eventListener) {
 		if (processEventListeners == null) {
 			processEventListeners = new HashMap<String, List<EventListener>>();
@@ -59,6 +64,10 @@ public class DefaultSignalManager implements SignalManager {
 		eventListeners.add(eventListener);
 	}
 	
+	public void removeAll() {
+		processEventListeners = new HashMap<String, List<EventListener>>();		
+	}
+		
 	public void removeEventListener(String type, EventListener eventListener) {
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
@@ -73,12 +82,16 @@ public class DefaultSignalManager implements SignalManager {
 		kruntime.executeQueuedActions();
 	}
 	
-	public void internalSignalEvent(String type, Object event) {
+	public void internalSignalEvent(String type, Object event) {	
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {
 				for (EventListener eventListener: eventListeners) {
-					eventListener.signalEvent(type, event);
+				    if(eventListener instanceof WorkflowProcessInstanceImpl) {
+				        kruntime.getProcessInstance(((WorkflowProcessInstanceImpl) eventListener).getId()).signalEvent(type, event);
+				    } else {
+	                    eventListener.signalEvent(type, event);				        
+				    }
 				}
 			}
 		}

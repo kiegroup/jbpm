@@ -50,6 +50,9 @@ public class SplitInstance extends NodeInstanceImpl {
     }
 
     public void internalTrigger(final NodeInstance from, String type) {
+    	   if (type == null ) {
+    		   type = org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE;
+    	   }
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "A Split only accepts default incoming connections!");
@@ -61,6 +64,7 @@ public class SplitInstance extends NodeInstanceImpl {
                 triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
                 break;
             case Split.TYPE_XOR :
+                ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
                 List<Connection> outgoing = split.getDefaultOutgoingConnections();
                 int priority = Integer.MAX_VALUE;
                 Connection selected = null;
@@ -83,7 +87,6 @@ public class SplitInstance extends NodeInstanceImpl {
                         }
                     }
                 }
-                ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
                 if ( selected == null ) {
                 	for ( final Iterator<Connection> iterator = outgoing.iterator(); iterator.hasNext(); ) {
                         final Connection connection = (Connection) iterator.next();

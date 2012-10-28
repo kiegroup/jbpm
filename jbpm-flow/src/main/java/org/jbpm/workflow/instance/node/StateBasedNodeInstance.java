@@ -72,9 +72,11 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 			TimerManager timerManager = ((InternalProcessRuntime) 
 				getProcessInstance().getKnowledgeRuntime().getProcessRuntime()).getTimerManager();
 			for (Timer timer: timers.keySet()) {
-				TimerInstance timerInstance = createTimerInstance(timer); 
+				TimerInstance timerInstance = createTimerInstance(timer);
+				if(timerInstance != null) {
 				timerManager.registerTimer(timerInstance, (ProcessInstance) getProcessInstance());
 				timerInstances.add(timerInstance.getId());
+				}
 			}
 		}
        
@@ -312,7 +314,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     }
     
     private void removeActivationListener() {
-        getProcessInstance().addEventListener(getActivationType(), this, true);
+//        getProcessInstance().addEventListener(getActivationType(), this, true);
     }
     
     protected boolean checkProcessInstance(Activation activation) {

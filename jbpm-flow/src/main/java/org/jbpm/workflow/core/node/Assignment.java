@@ -24,13 +24,13 @@ public class Assignment implements Serializable {
 
 	private static final long serialVersionUID = 5L;
 	
-	private String dialect;
+	private String dialect = "XPath";
 	private String from;
 	private String to;
     private Map<String, Object> metaData = new HashMap<String, Object>();
 	
 	public Assignment(String dialect, String from, String to) {
-		this.dialect = dialect;
+		this.dialect = dialect != null && !"".equals(dialect) ? dialect : this.dialect;
 		this.from = from;
 		this.to = to;
 	}

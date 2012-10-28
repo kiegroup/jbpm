@@ -27,7 +27,7 @@ public class XPATHProcessDialect implements ProcessDialect {
 
 	public static final String ID = "XPath";
 	private static final ActionBuilder actionBuilder = new XPATHActionBuilder();
-	private static final ReturnValueEvaluatorBuilder returnValueBuilder = new XPATHReturnValueEvaluatorBuilder();
+	private static final ReturnValueEvaluatorBuilder returnValueBuilder = new XPathReturnValueEvaluatorBuilder();
 	private static final AssignmentBuilder assignmentBuilder = new XPATHAssignmentBuilder();
 	
 	public void addProcess(final ProcessBuildContext context) {

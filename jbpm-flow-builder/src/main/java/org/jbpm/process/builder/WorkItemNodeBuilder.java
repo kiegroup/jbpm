@@ -33,10 +33,14 @@ public class WorkItemNodeBuilder extends EventBasedNodeBuilder {
 			List<Assignment> assignments = dataAssociation.getAssignments();
 			if (assignments != null) {
 				for (Assignment assignment: assignments) {
-					ProcessDialect dialect = ProcessDialectRegistry.getDialect( assignment.getDialect() );            
+					ProcessDialect dialect = ProcessDialectRegistry.getDialect( assignment.getDialect() );
+					String source = null;
+					if(dataAssociation.getSources().size() > 0) {
+						source = dataAssociation.getSources().get(0);
+					}
 			    	dialect.getAssignmentBuilder().build(
 		    			context, assignment, 
-		    			dataAssociation.getSources().get(0), 
+		    			source, 
 		    			dataAssociation.getTarget(),
 		    			((WorkItemNode) node), false);
 				}

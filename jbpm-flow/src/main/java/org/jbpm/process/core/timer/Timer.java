@@ -24,6 +24,8 @@ import java.io.Serializable;
  */
 public class Timer implements Serializable {
 
+	public static final long serialVersionUID = -2216581152160144444L;
+	
     public static final int TIME_DURATION = 1;
     public static final int TIME_CYCLE = 2;
     public static final int TIME_DATE = 3;

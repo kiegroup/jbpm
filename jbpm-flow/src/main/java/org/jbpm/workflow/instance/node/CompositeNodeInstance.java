@@ -51,6 +51,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     
     private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();;
     private long nodeInstanceCounter = 0;
+    private boolean isCanceled = false;
     private int state = ProcessInstance.STATE_ACTIVE;
     
     public void setProcessInstance(WorkflowProcessInstance processInstance) {
@@ -99,6 +100,9 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         		if (node instanceof StartNode) {
         			StartNode startNode = (StartNode) node;
         			if (startNode.getTriggers() == null || startNode.getTriggers().isEmpty()) {
+//    	                NodeInstance nodeInstance = getNodeInstance(startNode.getTo().getTo());
+//    	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
+//    	                	.trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
     	                NodeInstance nodeInstance = getNodeInstance(startNode);
     	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
     	                	.trigger(null, null);
@@ -132,6 +136,11 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     public void cancel() {
+    	if(isCanceled())
+    	{
+    		return;
+    	}
+    		isCanceled = true;
         while (!nodeInstances.isEmpty()) {
             NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
             ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
@@ -303,8 +312,8 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 	}
 
 	public void nodeInstanceCompleted(NodeInstance nodeInstance, String outType) {
-	    if (nodeInstance instanceof EndNodeInstance) {
-            if (((org.jbpm.workflow.core.WorkflowProcess) getProcessInstance().getProcess()).isAutoComplete()) {
+	    if (nodeInstance instanceof EndNodeInstance || nodeInstance instanceof FaultNodeInstance) {
+            if (((org.jbpm.workflow.core.WorkflowProcess) getProcessInstance().getProcess()).isAutoComplete() && !isCanceled()) {
                 if (nodeInstances.isEmpty()) {
                     triggerCompleted(
                         org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
@@ -333,4 +342,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return this.state;
     }
 
+	public boolean isCanceled() {
+		return isCanceled;
+	}
 }

@@ -49,8 +49,12 @@ import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
 import org.jbpm.process.instance.context.swimlane.SwimlaneContextInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.workflow.core.node.HumanTaskNode;
+import org.jbpm.workflow.core.node.WorkItemNode;
+import org.jbpm.workflow.instance.impl.NodeInstanceFactoryRegistry;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.impl.factory.CreateNewNodeFactory;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
@@ -59,6 +63,7 @@ import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.JoinInstance;
 import org.jbpm.workflow.instance.node.MilestoneNodeInstance;
 import org.jbpm.workflow.instance.node.RuleSetNodeInstance;
+import org.jbpm.workflow.instance.node.StateBasedNodeInstance;
 import org.jbpm.workflow.instance.node.StateNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
@@ -356,6 +361,18 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.FOR_EACH_NODE )
                     .setForEach( _foreach.build() );
+        } else if (nodeInstance.getClass().getName().contains("StatusSubProcessNodeInstance")) {
+            JBPMMessages.ProcessInstance.NodeInstanceContent.CompositeContextNode.Builder _composite = JBPMMessages.ProcessInstance.NodeInstanceContent.CompositeContextNode.newBuilder();
+            List<Long> timerInstances =
+                    ((CompositeContextNodeInstance) nodeInstance).getTimerInstances();
+            if ( timerInstances != null ) {
+                for ( Long id : timerInstances ) {
+                    _composite.addTimerInstanceId( id );
+                }
+            }
+            _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
+                    .setType( NodeInstanceType.STATUS_SUB_NODE )
+                    .setComposite( _composite.build() );
         } else {
             throw new IllegalArgumentException( "Unknown node instance type: " + nodeInstance );
         }
@@ -391,9 +408,9 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         if ( ruleBase != null ) {
             processInstance.setProcess( process );
         }
+        processInstance.setKnowledgeRuntime( wm.getKnowledgeRuntime() );
         processInstance.setState( _instance.getState() );
         long nodeInstanceCounter = _instance.getNodeInstanceCounter();
-        processInstance.setKnowledgeRuntime( wm.getKnowledgeRuntime() );
 
         if ( _instance.getSwimlaneContextCount() > 0 ) {
             Context swimlaneContext = ((org.jbpm.process.core.Process) process).getDefaultContext( SwimlaneContext.SWIMLANE_SCOPE );
@@ -538,7 +555,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
                 break;
             case HUMAN_TASK_NODE :
-                nodeInstance = new HumanTaskNodeInstance();
+//                nodeInstance = new HumanTaskNodeInstance();
+    			try {
+    				nodeInstance = (NodeInstanceImpl) ((CreateNewNodeFactory) NodeInstanceFactoryRegistry.INSTANCE.registry.get(HumanTaskNode.class)).cls.newInstance();
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				throw new RuntimeException(e);
+    			}
                 ((HumanTaskNodeInstance) nodeInstance).internalSetWorkItemId( _content.getHumanTask().getWorkItemId() );
                 if ( _content.getHumanTask().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
@@ -549,7 +572,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
                 break;
             case WORK_ITEM_NODE :
-                nodeInstance = new WorkItemNodeInstance();
+//                nodeInstance = new WorkItemNodeInstance();
+    			try {
+    				nodeInstance = (NodeInstanceImpl) ((CreateNewNodeFactory) NodeInstanceFactoryRegistry.INSTANCE.registry.get(WorkItemNode.class)).cls.newInstance();
+    			} catch (Exception e) {
+    				// TODO Auto-generated catch block
+    				throw new RuntimeException(e);
+    			}
                 ((WorkItemNodeInstance) nodeInstance).internalSetWorkItemId( _content.getWorkItem().getWorkItemId() );
                 if ( _content.getWorkItem().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
@@ -631,6 +660,21 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
                 }
                 break;
+            case STATUS_SUB_NODE:
+			try {
+				nodeInstance = (NodeInstanceImpl) ((CreateNewNodeFactory) NodeInstanceFactoryRegistry.INSTANCE.registry.get(Class.forName("com.intalio.bpm.engine.status.subprocess.StatusSubProcessNode"))).cls.newInstance();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				throw new RuntimeException(e);
+			}
+            if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
+                List<Long> timerInstances = new ArrayList<Long>();
+                for ( Long _timerId : _content.getComposite().getTimerInstanceIdList() ) {
+                    timerInstances.add( _timerId );
+                }
+                ((StateBasedNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
+            }
+              break;
             default :
                 throw new IllegalArgumentException( "Unknown node type: " + _content.getType() );
         }

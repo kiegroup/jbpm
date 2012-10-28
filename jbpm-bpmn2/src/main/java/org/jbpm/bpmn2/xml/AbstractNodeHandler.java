@@ -146,6 +146,10 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
                 throw new SAXParseException("<" + localName + "> requires an Integer 'height' attribute", parser.getLocator());
             }
         }
+        final String audit = element.getAttribute("audit");
+        if (audit != null && audit.length() != 0 && "false".equals(audit)) {
+                node.setMetaData("hidden", "true");
+        }
     }
     
     public abstract void writeNode(final Node node, final StringBuilder xmlDump,

@@ -12,10 +12,14 @@
  
     <name>jBPM :: Human Tasks WorkItems</name>
 
+	<properties>
+		<seam.version>3.1.0.Final</seam.version>
+	</properties>
     <dependencies>
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-human-task-services</artifactId>
+        <version>6.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.jbpm</groupId>
@@ -24,6 +28,7 @@
         <dependency>
             <groupId>org.jboss.seam.persistence</groupId>
             <artifactId>seam-persistence</artifactId>
+			<version>${seam.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.weld</groupId>
