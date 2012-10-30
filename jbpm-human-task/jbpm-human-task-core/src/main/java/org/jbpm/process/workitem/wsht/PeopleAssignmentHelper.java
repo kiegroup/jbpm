@@ -15,7 +15,6 @@
  */
 package org.jbpm.process.workitem.wsht;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.process.instance.WorkItem;
@@ -40,10 +39,10 @@ public class PeopleAssignmentHelper {
 		
 		PeopleAssignments peopleAssignments = getNullSafePeopleAssignment(task);
 		
-		assignActor(workItem, peopleAssignments);
-		assignGroup(workItem, peopleAssignments);		
-		assignBusinessAdministrator(workItem, peopleAssignments);
-		assignTaskStakeholder(workItem, peopleAssignments);
+		assignActors(workItem, peopleAssignments);
+		assignGroups(workItem, peopleAssignments);		
+		assignBusinessAdministrators(workItem, peopleAssignments);
+		assignTaskStakeholders(workItem, peopleAssignments);
 		
 		task.setPeopleAssignments(peopleAssignments);
 		
@@ -55,78 +54,76 @@ public class PeopleAssignmentHelper {
         
 	}
 	
-	public void assignActor(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	public void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
-        String actorId = (String) workItem.getParameter(ACTOR_ID);        
+        String actorIds = (String) workItem.getParameter(ACTOR_ID);        
+        List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
         
-        if (actorId != null && actorId.trim().length() > 0) {
-
-            String[] actorIds = actorId.split(",");
-
-        	List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
-            
-            for (String id : actorIds) {
-                potentialOwners.add(new User(id.trim()));
-            }
-            
-        }
+        processPeopleAssignments(actorIds, potentialOwners, true);
         
 	}
 	
-	public void assignGroup(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	public void assignGroups(WorkItem workItem, PeopleAssignments peopleAssignments) {
 	
-        String groupId = (String) workItem.getParameter(GROUP_ID);
+        String groupIds = (String) workItem.getParameter(GROUP_ID);
+        List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
         
-        if (groupId != null && groupId.trim().length() > 0) {
+        processPeopleAssignments(groupIds, potentialOwners, true);
+        
+	}
+	
+	public void assignBusinessAdministrators(WorkItem workItem, PeopleAssignments peopleAssignments) {
+		
+		String businessAdministratorIds = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
+        List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
+        
+        processPeopleAssignments(businessAdministratorIds, businessAdministrators, true);
+        
+	}
+	
+	public void assignTaskStakeholders(WorkItem workItem, PeopleAssignments peopleAssignments) {
+		
+		String taskStakehodlerIds = (String) workItem.getParameter(TASKSTAKEHOLDER_ID);
+		List<OrganizationalEntity> taskStakeholders = peopleAssignments.getTaskStakeholders();
+
+		processPeopleAssignments(taskStakehodlerIds, taskStakeholders, true);
+		
+	}
+
+	protected void processPeopleAssignments(String peopleAssignmentIds, List<OrganizationalEntity> organizationalEntities, boolean user) {
+		
+        if (peopleAssignmentIds != null && peopleAssignmentIds.trim().length() > 0) {
         	
-            String[] groupIds = groupId.split(",");
+            String[] ids = peopleAssignmentIds.split(",");
             
-            List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
-            
-            for (String id : groupIds) {
-                potentialOwners.add(new Group(id.trim()));
+            for (String id : ids) {
+            	
+            	id = id.trim();
+            	
+            	if (!organizationalEntities.contains(id)) {
+            	
+            		OrganizationalEntity organizationalEntity = null;
+            		
+            		if (user) {
+            		
+            			organizationalEntity = new User(id);
+            			
+            		} else {
+            			
+            			organizationalEntity = new Group(id);
+            			
+            		}
+            		
+            		organizationalEntities.add(organizationalEntity);
+            		
+            	}
+            	
             }
             
         }
         
 	}
 	
-	public void assignBusinessAdministrator(WorkItem workItem, PeopleAssignments peopleAssignments) {
-		
-		String businessAdministratorId = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
-
-        if (businessAdministratorId != null && businessAdministratorId.trim().length() > 0) {
-        	
-            String[] businessAdministratorIds = businessAdministratorId.split(",");
-            
-            List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
-            
-            for (String id : businessAdministratorIds) {
-            	businessAdministrators.add(new User(id.trim()));
-            }
-            
-        }
-        
-	}
-	
-	public void assignTaskStakeholder(WorkItem workItem, PeopleAssignments peopleAssignments) {
-		
-		String taskStakehodlerId = (String) workItem.getParameter(TASKSTAKEHOLDER_ID);
-		
-        if (taskStakehodlerId != null && taskStakehodlerId.trim().length() > 0) {
-        	
-            String[] businessAdministratorIds = taskStakehodlerId.split(",");
-            
-            List<OrganizationalEntity> taskStakeholders = peopleAssignments.getTaskStakeholders();
-            
-            for (String id : businessAdministratorIds) {
-            	taskStakeholders.add(new User(id.trim()));
-            }
-            
-        }
-		
-	}
-
 	protected PeopleAssignments getNullSafePeopleAssignment(Task task) {
 		
 		PeopleAssignments peopleAssignments = task.getPeopleAssignments();

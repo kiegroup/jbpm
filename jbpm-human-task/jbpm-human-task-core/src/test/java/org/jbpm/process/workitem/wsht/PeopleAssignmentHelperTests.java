@@ -15,15 +15,72 @@
  */
 package org.jbpm.process.workitem.wsht;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.jbpm.task.Group;
+import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.PeopleAssignments;
+import org.jbpm.task.Task;
+import org.jbpm.task.User;
 import org.junit.Test;
 
 /**
  *
  */
-public class PeopleAssignmentHelperTests {
-
+public class PeopleAssignmentHelperTests extends TestCase {
+	
 	@Test
-	public void testSetDeadlinesNotStartedReassign() {
+	public void testProcessPeopleAssignments() {
+
+		PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
+		List<OrganizationalEntity> organizationalEntities = new ArrayList<OrganizationalEntity>();
+		
+		String ids = "espiegelberg,   drbug   ";
+		assertTrue(organizationalEntities.size() == 0);		
+		peopleAssignmentHelper.processPeopleAssignments(ids, organizationalEntities, true);
+		assertTrue(organizationalEntities.size() == 2);
+		organizationalEntities.contains("drbug");
+		organizationalEntities.contains("espiegelberg");
+		assertTrue(organizationalEntities.get(0) instanceof User);
+		assertTrue(organizationalEntities.get(1) instanceof User);
+		
+		ids = null;
+		organizationalEntities = new ArrayList<OrganizationalEntity>();
+		assertTrue(organizationalEntities.size() == 0);		
+		peopleAssignmentHelper.processPeopleAssignments(ids, organizationalEntities, true);
+		assertTrue(organizationalEntities.size() == 0);
+		
+		ids = "     ";
+		organizationalEntities = new ArrayList<OrganizationalEntity>();
+		assertTrue(organizationalEntities.size() == 0);		
+		peopleAssignmentHelper.processPeopleAssignments(ids, organizationalEntities, true);
+		assertTrue(organizationalEntities.size() == 0);
+		
+		ids = "Software Developer";
+		organizationalEntities = new ArrayList<OrganizationalEntity>();
+		assertTrue(organizationalEntities.size() == 0);		
+		peopleAssignmentHelper.processPeopleAssignments(ids, organizationalEntities, false);
+		assertTrue(organizationalEntities.size() == 1);
+		assertTrue(organizationalEntities.get(0) instanceof Group);
+		
+	}
+	
+	
+	@Test
+	public void testGetNullSafePeopleAssignment() {
+		
+		PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
+		
+		Task task = new Task();
+		
+		PeopleAssignments peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		assertNotNull(peopleAssignment);
+		
+		peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		assertNotNull(peopleAssignment);
 		
 	}
 	
