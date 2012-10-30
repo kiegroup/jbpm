@@ -20,6 +20,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.drools.process.instance.WorkItem;
+import org.drools.process.instance.impl.WorkItemImpl;
 import org.jbpm.task.Group;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
@@ -32,10 +34,17 @@ import org.junit.Test;
  */
 public class PeopleAssignmentHelperTests extends TestCase {
 	
+	private PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
+	
+	protected void setup() {
+		
+		peopleAssignmentHelper = new PeopleAssignmentHelper();
+		
+	}
+	
 	@Test
 	public void testProcessPeopleAssignments() {
 
-		PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
 		List<OrganizationalEntity> organizationalEntities = new ArrayList<OrganizationalEntity>();
 		
 		String ids = "espiegelberg,   drbug   ";
@@ -68,11 +77,47 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		
 	}
 	
+	@Test
+	public void testAssignActors() {
+		
+		String actorId = "espiegelberg";
+		
+		Task task = new Task();
+		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		
+		WorkItem workItem = new WorkItemImpl();		
+		workItem.setParameter(PeopleAssignmentHelper.ACTOR_ID, actorId);
+		
+		peopleAssignmentHelper.assignActors(workItem, peopleAssignments);
+		OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
+		assertTrue(organizationalEntity1 instanceof User);
+		assertEquals(actorId, organizationalEntity1.getId());
+		
+	}
+	
+	@Test
+	public void testAssignGroups() {
+		
+		String groupId = "Software Developers, Project Managers";
+		
+		Task task = new Task();
+		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		
+		WorkItem workItem = new WorkItemImpl();		
+		workItem.setParameter(PeopleAssignmentHelper.GROUP_ID, groupId);
+		
+		peopleAssignmentHelper.assignGroups(workItem, peopleAssignments);
+		OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
+		assertTrue(organizationalEntity1 instanceof Group);
+		assertEquals("Software Developers", organizationalEntity1.getId());
+		OrganizationalEntity organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
+		assertTrue(organizationalEntity2 instanceof Group);
+		assertEquals("Project Managers", organizationalEntity2.getId());
+		
+	}
 	
 	@Test
 	public void testGetNullSafePeopleAssignment() {
-		
-		PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
 		
 		Task task = new Task();
 		
