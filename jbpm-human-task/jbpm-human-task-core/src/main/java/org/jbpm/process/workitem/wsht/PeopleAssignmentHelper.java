@@ -57,7 +57,6 @@ public class PeopleAssignmentHelper {
         processPeopleAssignments(actorIds, potentialOwners, true);
 
         // Set the first user as creator ID??? hmmm might be wrong
-		//List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
         if (potentialOwners.size() > 0) {
             taskData.setCreatedBy((User) potentialOwners.get(0));
         }
