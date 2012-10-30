@@ -26,6 +26,7 @@ import org.jbpm.task.Group;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
 import org.jbpm.task.Task;
+import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 import org.junit.Test;
 
@@ -83,15 +84,18 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		String actorId = "espiegelberg";
 		
 		Task task = new Task();
+		TaskData taskData = new TaskData();
 		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
 		
 		WorkItem workItem = new WorkItemImpl();		
 		workItem.setParameter(PeopleAssignmentHelper.ACTOR_ID, actorId);
 		
-		peopleAssignmentHelper.assignActors(workItem, peopleAssignments);
+		peopleAssignmentHelper.assignActors(workItem, peopleAssignments, taskData);
 		OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
 		assertTrue(organizationalEntity1 instanceof User);
 		assertEquals(actorId, organizationalEntity1.getId());
+		
+		// TODO: Assert taskData has the first user
 		
 	}
 	

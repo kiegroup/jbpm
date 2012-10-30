@@ -40,27 +40,27 @@ public class PeopleAssignmentHelper {
 		
 		PeopleAssignments peopleAssignments = getNullSafePeopleAssignments(task);
         
-		assignActors(workItem, peopleAssignments);
+		assignActors(workItem, peopleAssignments, taskData);
 		assignGroups(workItem, peopleAssignments);		
 		assignBusinessAdministrators(workItem, peopleAssignments);
 		assignTaskStakeholders(workItem, peopleAssignments);
 		
 		task.setPeopleAssignments(peopleAssignments);
-		
-        // Set the first user as creator ID??? hmmm might be wrong
-		List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
-        if (potentialOwners.size() > 0) {
-            taskData.setCreatedBy((User) potentialOwners.get(0));
-        }
         
 	}
 	
-	protected void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	protected void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments, TaskData taskData) {
 		
         String actorIds = (String) workItem.getParameter(ACTOR_ID);        
         List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
         
         processPeopleAssignments(actorIds, potentialOwners, true);
+
+        // Set the first user as creator ID??? hmmm might be wrong
+		//List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
+        if (potentialOwners.size() > 0) {
+            taskData.setCreatedBy((User) potentialOwners.get(0));
+        }
         
 	}
 	
