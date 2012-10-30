@@ -38,7 +38,7 @@ public class PeopleAssignmentHelper {
 	
 	public void handlePeopleAssignments(WorkItem workItem, Task task, TaskData taskData) {
 		
-		PeopleAssignments peopleAssignments = getNullSafePeopleAssignment(task);
+		PeopleAssignments peopleAssignments = getNullSafePeopleAssignments(task);
         
 		assignActors(workItem, peopleAssignments);
 		assignGroups(workItem, peopleAssignments);		
@@ -125,7 +125,7 @@ public class PeopleAssignmentHelper {
         
 	}
 	
-	protected PeopleAssignments getNullSafePeopleAssignment(Task task) {
+	protected PeopleAssignments getNullSafePeopleAssignments(Task task) {
 		
 		PeopleAssignments peopleAssignments = task.getPeopleAssignments();
         
