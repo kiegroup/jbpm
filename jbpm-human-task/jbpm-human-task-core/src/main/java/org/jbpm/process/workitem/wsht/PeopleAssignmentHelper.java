@@ -18,7 +18,7 @@ package org.jbpm.process.workitem.wsht;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.drools.process.instance.WorkItem;
+import org.drools.runtime.process.WorkItem;
 import org.jbpm.task.Group;
 import org.jbpm.task.OrganizationalEntity;
 import org.jbpm.task.PeopleAssignments;
@@ -72,11 +72,14 @@ public class PeopleAssignmentHelper {
         processPeopleAssignments(groupIds, potentialOwners, false);
         
 	}
-	
+
 	public void assignBusinessAdministrators(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
 		String businessAdministratorIds = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
         List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
+        
+        User administrator = new User("Administrator");        
+        businessAdministrators.add(administrator);
         
         processPeopleAssignments(businessAdministratorIds, businessAdministrators, true);
         
