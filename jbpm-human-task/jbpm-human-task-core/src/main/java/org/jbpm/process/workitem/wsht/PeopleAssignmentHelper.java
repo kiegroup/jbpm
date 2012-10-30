@@ -31,20 +31,24 @@ import org.jbpm.task.User;
  */
 public class PeopleAssignmentHelper {
 
+	public static final String ACTOR_ID = "ActorId";
+	public static final String GROUP_ID = "GroupId";
+	public static final String BUSINESSADMINISTRATOR_ID = "BusinessAdministratorId";
+	public static final String TASKSTAKEHOLDER_ID = "TaskStakeholderId";
+	
 	public void handlePeopleAssignments(WorkItem workItem, Task task, TaskData taskData) {
 		
 		PeopleAssignments peopleAssignments = getNullSafePeopleAssignment(task);
 		
 		assignActor(workItem, peopleAssignments);
-		assignGroup(workItem, peopleAssignments);
-		
+		assignGroup(workItem, peopleAssignments);		
 		assignBusinessAdministrator(workItem, peopleAssignments);
 		assignTaskStakeholder(workItem, peopleAssignments);
 		
 		task.setPeopleAssignments(peopleAssignments);
 		
-		List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
         // Set the first user as creator ID??? hmmm might be wrong
+		List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
         if (potentialOwners.size() > 0) {
             taskData.setCreatedBy((User) potentialOwners.get(0));
         }
@@ -53,7 +57,7 @@ public class PeopleAssignmentHelper {
 	
 	public void assignActor(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
-        String actorId = (String) workItem.getParameter("ActorId");        
+        String actorId = (String) workItem.getParameter(ACTOR_ID);        
         
         if (actorId != null && actorId.trim().length() > 0) {
 
@@ -71,7 +75,7 @@ public class PeopleAssignmentHelper {
 	
 	public void assignGroup(WorkItem workItem, PeopleAssignments peopleAssignments) {
 	
-        String groupId = (String) workItem.getParameter("GroupId");
+        String groupId = (String) workItem.getParameter(GROUP_ID);
         
         if (groupId != null && groupId.trim().length() > 0) {
         	
@@ -89,13 +93,37 @@ public class PeopleAssignmentHelper {
 	
 	public void assignBusinessAdministrator(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
-        List<OrganizationalEntity> businessAdministrators = new ArrayList<OrganizationalEntity>();
-        businessAdministrators.add(new User("Administrator"));
-        peopleAssignments.setBusinessAdministrators(businessAdministrators);
+		String businessAdministratorId = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
+
+        if (businessAdministratorId != null && businessAdministratorId.trim().length() > 0) {
+        	
+            String[] businessAdministratorIds = businessAdministratorId.split(",");
+            
+            List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
+            
+            for (String id : businessAdministratorIds) {
+            	businessAdministrators.add(new User(id.trim()));
+            }
+            
+        }
         
 	}
 	
 	public void assignTaskStakeholder(WorkItem workItem, PeopleAssignments peopleAssignments) {
+		
+		String taskStakehodlerId = (String) workItem.getParameter(TASKSTAKEHOLDER_ID);
+		
+        if (taskStakehodlerId != null && taskStakehodlerId.trim().length() > 0) {
+        	
+            String[] businessAdministratorIds = taskStakehodlerId.split(",");
+            
+            List<OrganizationalEntity> taskStakeholders = peopleAssignments.getTaskStakeholders();
+            
+            for (String id : businessAdministratorIds) {
+            	taskStakeholders.add(new User(id.trim()));
+            }
+            
+        }
 		
 	}
 
