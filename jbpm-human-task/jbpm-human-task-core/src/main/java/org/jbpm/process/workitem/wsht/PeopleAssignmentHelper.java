@@ -55,7 +55,7 @@ public class PeopleAssignmentHelper {
         
 	}
 	
-	public void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	protected void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
         String actorIds = (String) workItem.getParameter(ACTOR_ID);        
         List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
@@ -64,7 +64,7 @@ public class PeopleAssignmentHelper {
         
 	}
 	
-	public void assignGroups(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	protected void assignGroups(WorkItem workItem, PeopleAssignments peopleAssignments) {
 	
         String groupIds = (String) workItem.getParameter(GROUP_ID);
         List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
@@ -73,7 +73,7 @@ public class PeopleAssignmentHelper {
         
 	}
 
-	public void assignBusinessAdministrators(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	protected void assignBusinessAdministrators(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
 		String businessAdministratorIds = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
         List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
@@ -85,7 +85,7 @@ public class PeopleAssignmentHelper {
         
 	}
 	
-	public void assignTaskStakeholders(WorkItem workItem, PeopleAssignments peopleAssignments) {
+	protected void assignTaskStakeholders(WorkItem workItem, PeopleAssignments peopleAssignments) {
 		
 		String taskStakehodlerIds = (String) workItem.getParameter(TASKSTAKEHOLDER_ID);
 		List<OrganizationalEntity> taskStakeholders = peopleAssignments.getTaskStakeholders();
