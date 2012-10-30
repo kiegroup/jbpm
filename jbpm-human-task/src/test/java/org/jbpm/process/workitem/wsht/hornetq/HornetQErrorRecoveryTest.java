@@ -44,7 +44,7 @@ public class HornetQErrorRecoveryTest extends BaseTest {
     @Before
     protected void setUp() throws Exception {
         super.setUp();
-        server = new HornetQTaskServer(taskService, 5445);
+        server = new HornetQTaskServer(taskService, 5153);
         System.out.println("Waiting for the HornetQTask Server to come up");
         try {
             startTaskServerThread(server, false);
@@ -54,7 +54,7 @@ public class HornetQErrorRecoveryTest extends BaseTest {
         handler = new WSHumanTaskHandler(new TestStatefulKnowledgeSession());
         client = new TaskClient(new HornetQTaskClientConnector("client 1",
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-        boolean connected = client.connect("localhost", 5445);
+        boolean connected = client.connect("localhost", 5153);
         handler.setClient(client);
         
 
@@ -129,7 +129,7 @@ public class HornetQErrorRecoveryTest extends BaseTest {
         
         server.stop();
         
-        server = new HornetQTaskServer(taskService, 5445);
+        server = new HornetQTaskServer(taskService, 5153);
         thread = new Thread(server);
         thread.start();
         System.out.println("Waiting for the HornetQTask Server to come up");

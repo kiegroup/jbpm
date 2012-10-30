@@ -38,7 +38,7 @@ public class PostgresLargeObjectTxOnSessionWriteTest {
     private static Thread serverThread;
     private static EntityManagerFactory emf;
     
-    private final static int hornetQServerPort = 5446;
+    private final static int hornetQServerPort = 5153;
     private final static String userId = "jsvitak";
     private final static int waitTime = 1000;
     

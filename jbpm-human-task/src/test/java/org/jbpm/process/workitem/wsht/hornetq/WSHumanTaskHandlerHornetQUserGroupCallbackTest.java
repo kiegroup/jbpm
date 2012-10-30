@@ -32,7 +32,7 @@ public class WSHumanTaskHandlerHornetQUserGroupCallbackTest extends WSHumanTaskH
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        server = new HornetQTaskServer(taskService, 5446);
+        server = new HornetQTaskServer(taskService, 5153);
         logger.debug("Waiting for the HornetQTask Server to come up");
         try {
             startTaskServerThread(server, false);
@@ -41,7 +41,7 @@ public class WSHumanTaskHandlerHornetQUserGroupCallbackTest extends WSHumanTaskH
         }
         setClient(new TaskClient(new HornetQTaskClientConnector("client 1",
                                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
-        getClient().connect("127.0.0.1", 5446);
+        getClient().connect("127.0.0.1", 5153);
         WSHumanTaskHandler handler = new WSHumanTaskHandler();
         handler.setClient(getClient());
         setHandler(handler);

@@ -32,7 +32,7 @@ public class WSHumanTaskHandlerHornetQAsyncTest extends WSHumanTaskHandlerBaseAs
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        server = new HornetQTaskServer(taskService, 5446);
+        server = new HornetQTaskServer(taskService, 5153);
         logger.debug("Waiting for the HornetQTask Server to come up");
         try {
             startTaskServerThread(server, false);
@@ -43,7 +43,7 @@ public class WSHumanTaskHandlerHornetQAsyncTest extends WSHumanTaskHandlerBaseAs
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener()))));
         TestStatefulKnowledgeSession ksession = new TestStatefulKnowledgeSession();
         AsyncWSHumanTaskHandler handler = new AsyncWSHumanTaskHandler(getClient(), ksession);
-        handler.setConnection("127.0.0.1", 5446);
+        handler.setConnection("127.0.0.1", 5153);
         setHandler(handler);
         setSession(ksession);
     }

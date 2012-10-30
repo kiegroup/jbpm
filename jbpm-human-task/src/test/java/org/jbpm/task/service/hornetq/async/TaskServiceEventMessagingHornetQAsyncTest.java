@@ -29,7 +29,7 @@ public class TaskServiceEventMessagingHornetQAsyncTest extends TaskServiceEventM
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        server = new HornetQTaskServer(taskService, 5446);
+        server = new HornetQTaskServer(taskService, 5153);
 		logger.debug("Waiting for the HornetQTask Server to come up");
         try {
             startTaskServerThread(server, false);
@@ -39,7 +39,7 @@ public class TaskServiceEventMessagingHornetQAsyncTest extends TaskServiceEventM
         
         client = new TaskClient(new HornetQTaskClientConnector("client 1",
                                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-        client.connect("127.0.0.1", 5446);
+        client.connect("127.0.0.1", 5153);
         
         MockUserInfo userInfo = new MockUserInfo();
         userInfo.getEmails().put(users.get("tony"), "tony@domain.com");

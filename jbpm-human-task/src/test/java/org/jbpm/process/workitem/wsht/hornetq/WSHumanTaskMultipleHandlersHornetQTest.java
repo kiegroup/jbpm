@@ -46,7 +46,7 @@ public class WSHumanTaskMultipleHandlersHornetQTest extends BaseTest {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        server = new HornetQTaskServer(taskService, 5446);
+        server = new HornetQTaskServer(taskService, 5153);
         logger.debug("Waiting for the HornetQTask Server to come up");
         try {
             startTaskServerThread(server, false);
@@ -71,7 +71,7 @@ public class WSHumanTaskMultipleHandlersHornetQTest extends BaseTest {
         SingleCallbackWorkItemManager manager = new SingleCallbackWorkItemManager();
         
         AsyncWSHumanTaskHandler handler = new AsyncWSHumanTaskHandler(client, ksession);
-        handler.setConnection("127.0.0.1", 5446);
+        handler.setConnection("127.0.0.1", 5153);
         handler.setManager(manager);
         
         ksession.setWorkItemManager(manager);
@@ -108,7 +108,7 @@ public class WSHumanTaskMultipleHandlersHornetQTest extends BaseTest {
         client = new TaskClient(new HornetQTaskClientConnector("client 2",
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
         AsyncWSHumanTaskHandler handler2 = new AsyncWSHumanTaskHandler(client, ksession);
-        handler2.setConnection("127.0.0.1", 5446);
+        handler2.setConnection("127.0.0.1", 5153);
         handler2.setManager(manager);
         handler2.connect();
         
@@ -125,12 +125,12 @@ public class WSHumanTaskMultipleHandlersHornetQTest extends BaseTest {
     public void testComandMultipleHandlers() throws Exception {
         client = new TaskClient(new HornetQTaskClientConnector("client 3",
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-        client.connect("127.0.0.1", 5446);
+        client.connect("127.0.0.1", 5153);
                 
         SingleCallbackWorkItemManager manager = new SingleCallbackWorkItemManager();
         
         CommandBasedHornetQWSHumanTaskHandler handler = new CommandBasedHornetQWSHumanTaskHandler(ksession);
-        handler.setConnection("127.0.0.1", 5446);
+        handler.setConnection("127.0.0.1", 5153);
         
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
@@ -165,10 +165,10 @@ public class WSHumanTaskMultipleHandlersHornetQTest extends BaseTest {
 
         client = new TaskClient(new HornetQTaskClientConnector("client 4",
                 new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-        client.connect("127.0.0.1", 5446);
+        client.connect("127.0.0.1", 5153);
         
         CommandBasedHornetQWSHumanTaskHandler handler2 = new CommandBasedHornetQWSHumanTaskHandler(ksession);
-        handler2.setConnection("127.0.0.1", 5446);
+        handler2.setConnection("127.0.0.1", 5153);
         handler2.connect();
         
         operationResponseHandler = new BlockingTaskOperationResponseHandler();

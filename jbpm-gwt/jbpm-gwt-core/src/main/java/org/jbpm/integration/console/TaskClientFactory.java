@@ -85,7 +85,7 @@ public class TaskClientFactory {
             if (client == null) {
                 client = new TaskClient(new HornetQTaskClientConnector(connectorId,
                                         new HornetQTaskClientHandler(SystemEventListenerFactory.getSystemEventListener())));
-                defaultPort = "5446";
+                defaultPort = "5153";
             }
         } else if ("JMS".equalsIgnoreCase(strategy)) {
             if (client == null) {
