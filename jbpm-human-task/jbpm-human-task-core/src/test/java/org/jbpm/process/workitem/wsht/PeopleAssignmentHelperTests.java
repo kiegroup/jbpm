@@ -83,7 +83,7 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		String actorId = "espiegelberg";
 		
 		Task task = new Task();
-		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
 		
 		WorkItem workItem = new WorkItemImpl();		
 		workItem.setParameter(PeopleAssignmentHelper.ACTOR_ID, actorId);
@@ -101,7 +101,7 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		String groupId = "Software Developers, Project Managers";
 		
 		Task task = new Task();
-		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
 		
 		WorkItem workItem = new WorkItemImpl();		
 		workItem.setParameter(PeopleAssignmentHelper.GROUP_ID, groupId);
@@ -117,14 +117,14 @@ public class PeopleAssignmentHelperTests extends TestCase {
 	}
 	
 	@Test
-	public void testGetNullSafePeopleAssignment() {
+	public void testgetNullSafePeopleAssignments() {
 		
 		Task task = new Task();
 		
-		PeopleAssignments peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		PeopleAssignments peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
 		assertNotNull(peopleAssignment);
 		
-		peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignment(task);
+		peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
 		assertNotNull(peopleAssignment);
 		
 	}
