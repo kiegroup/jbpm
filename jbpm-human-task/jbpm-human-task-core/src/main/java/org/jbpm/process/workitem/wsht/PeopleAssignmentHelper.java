@@ -144,40 +144,4 @@ public class PeopleAssignmentHelper {
 		
 	}
 	
-	/*
-	public void existingCode(WorkItem workItem, Task task, TaskData taskData) {
-		
-        PeopleAssignments assignments = new PeopleAssignments();
-        List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
-
-        String actorId = (String) workItem.getParameter("ActorId");
-        if (actorId != null && actorId.trim().length() > 0) {
-            String[] actorIds = actorId.split(",");
-            for (String id : actorIds) {
-                potentialOwners.add(new User(id.trim()));
-            }
-            //Set the first user as creator ID??? hmmm might be wrong
-            if (potentialOwners.size() > 0) {
-                taskData.setCreatedBy((User) potentialOwners.get(0));
-            }
-        }
-
-        String groupId = (String) workItem.getParameter("GroupId");
-        if (groupId != null && groupId.trim().length() > 0) {
-            String[] groupIds = groupId.split(",");
-            for (String id : groupIds) {
-                potentialOwners.add(new Group(id.trim()));
-            }
-        }
-
-        assignments.setPotentialOwners(potentialOwners);
-        
-        List<OrganizationalEntity> businessAdministrators = new ArrayList<OrganizationalEntity>();
-        businessAdministrators.add(new User("Administrator"));
-        assignments.setBusinessAdministrators(businessAdministrators);
-        task.setPeopleAssignments(assignments);
-        
-	}
-	*/
-	
 }
