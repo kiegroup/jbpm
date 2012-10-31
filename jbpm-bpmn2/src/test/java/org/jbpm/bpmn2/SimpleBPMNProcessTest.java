@@ -38,6 +38,8 @@ import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.command.Command;
+import org.drools.command.CommandFactory;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.process.DefaultProcessEventListener;
@@ -517,6 +519,25 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 				"com.sample.test", params);
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+        
+        /**
+         * Check console output.
+         * documentation:
+         * 5.6.2. Converging gateway
+         * ...XOR or exclusive means that it continues as soon as one of its incoming branches has been completed. 
+         * If it is triggered from more than one incoming connection, it will trigger the next node for each of those triggers.
+         */
+        public void testInclusiveSplitExclusiveJoin() throws Exception {
+                KnowledgeBase kbase = createKnowledgeBase("gateway-inclusive.bpmn");
+		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("x", 15);
+		WorkflowProcessInstance wpi;
+                wpi = (WorkflowProcessInstance)ksession.startProcess("eclipse.gateway-inclusive", params);
+                int x = (Integer)wpi.getVariable("x");            
+                assertEquals(WorkflowProcessInstance.STATE_COMPLETED, wpi.getState());
+                assertEquals(17, x); //according to documentation, final script task should be fired 2x
+        }
 
 	// public void testExclusiveSplitXPath() throws Exception {
 	// KnowledgeBase kbase =
@@ -1023,7 +1044,128 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 				workItemHandler);
 		ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
 	}
+        
+        /**
+         * Reproducer:
+         * Adhoc subprocess does not end when completion condition is not set; even after triggering non-terminate end node 
+         * inside.
+         */
+        public void testAdhocSubprocessEnd() throws Exception {
+            String processId = "designer.subprocess-adhoc";
+            KnowledgeBase kbase = createKnowledgeBase("subprocess-adhoc.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+            
+            TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+            ksession.addEventListener(eventListener);
 
+            ProcessInstance pi = (ProcessInstance) ksession.execute(CommandFactory.newStartProcess(processId));
+
+            assertTrue(eventListener.wasProcessStarted(processId));
+            assertTrue(eventListener.wasNodeTriggered("start"));
+            assertTrue(eventListener.wasNodeLeft("start"));
+            assertTrue(eventListener.wasNodeTriggered("adhoc"));
+
+            ksession.execute(CommandFactory.newSignalEvent(pi.getId(), "script1", null));
+            assertTrue(eventListener.wasNodeTriggered("script1"));
+            ksession.execute(CommandFactory.newSignalEvent(pi.getId(), "script2", null));
+            assertTrue(eventListener.wasNodeTriggered("script2"));
+            ksession.execute(CommandFactory.newSignalEvent(pi.getId(), "script3", null));
+            assertTrue(eventListener.wasNodeTriggered("script3"));
+            assertTrue(eventListener.wasNodeLeft("script3"));
+            assertTrue(eventListener.wasNodeTriggered("innerEnd"));
+            assertTrue(eventListener.wasNodeLeft("adhoc"));
+            assertTrue(eventListener.wasNodeTriggered("end"));
+            assertTrue(eventListener.wasProcessCompleted(processId));
+        }
+
+        /**
+         * Reproducer:
+         * Adhoc subprocess does not end when completion condition has following value:
+         * <![CDATA[getActivityInstanceAttribute(&quot;numberOfActiveInstances&quot;) == 0]]>
+         * which is legal output from Guvnor BPMN designer (it does XML escaping when you save or export process definition).
+         * On the other hand, process ends as expected when condition is:
+         * <![CDATA[getActivityInstanceAttribute("numberOfActiveInstances") == 0]]>
+         */
+        public void testAdHocSubProcessAutoCompleteQuot() throws Exception {
+            String processId = "designer.subprocess-adhoc-autocomplete";
+            KnowledgeBase kbase = createKnowledgeBase("subprocess-adhoc-autocomplete-quot.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+                 
+            TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+            ksession.addEventListener(eventListener);
+            
+            TestWorkItemHandler handler = new TestWorkItemHandler();    
+            
+            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);       
+            WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.startProcess(processId);
+
+            assertTrue(eventListener.wasProcessStarted(processId));
+            assertTrue(eventListener.wasNodeTriggered("start"));
+            assertTrue(eventListener.wasNodeLeft("start"));
+
+            assertTrue(eventListener.wasNodeTriggered("adhoc"));
+
+            ksession.signalEvent("task1", null, pi.getId());
+            assertTrue(eventListener.wasNodeTriggered("task1"));
+
+            ksession.signalEvent("task2", null, pi.getId());
+            assertTrue(eventListener.wasNodeTriggered("task2"));
+
+            List<WorkItem> workItems = handler.getWorkItems();
+            WorkItem wi1 = workItems.get(0);
+            WorkItem wi2 = workItems.get(1);
+            ksession.getWorkItemManager().completeWorkItem(wi1.getId(), null);
+
+            assertFalse(eventListener.wasNodeLeft("adhoc"));
+
+            ksession.getWorkItemManager().completeWorkItem(wi2.getId(), null);
+
+            assertTrue(eventListener.wasNodeLeft("adhoc"));
+            assertTrue(eventListener.wasProcessCompleted(processId));       
+        }
+        
+        /**
+         * Reproducer.
+         * the completion condition is limited only to:
+         * getActivityInstanceAttribute("numberOfActiveInstances") == 0
+         * 
+         * Even when only the number is different (getActivityInstanceAttribute("numberOfActiveInstances") == 1) and there is
+         * exactly one active task inside the subprocess, the ad-hoc subprocess does not end.
+         */
+        public void testAdHocSubProcessAutoCompleteOne() throws Exception {
+            String processId = "handwritten.subprocess-adhoc-autocomplete";
+            KnowledgeBase kbase = createKnowledgeBase("subprocess-adhoc-autocomplete-one.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+            
+            TrackingProcessEventListener eventListener = new TrackingProcessEventListener();
+            ksession.addEventListener(eventListener);
+
+            TestWorkItemHandler handler = new TestWorkItemHandler();    
+            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+            WorkflowProcessInstance pi = (WorkflowProcessInstance) ksession.startProcess(processId);
+
+            assertTrue(eventListener.wasProcessStarted(processId));
+            assertTrue(eventListener.wasNodeTriggered("start"));
+            assertTrue(eventListener.wasNodeLeft("start"));
+            assertTrue(eventListener.wasNodeTriggered("adhoc"));
+
+            List<Command<?>> commands = new ArrayList<Command<?>>();
+            commands.add((Command<?>)CommandFactory.newSignalEvent(pi.getId(), "task1", null));
+            commands.add((Command<?>)CommandFactory.newSignalEvent(pi.getId(), "task2", null));
+            ksession.execute((Command<?>)CommandFactory.newBatchExecution(commands));
+
+            assertTrue(eventListener.wasNodeTriggered("task1"));
+            assertTrue(eventListener.wasNodeTriggered("task2"));
+
+            WorkItem wi = handler.getWorkItems().get(0);
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+
+            assertTrue(eventListener.wasNodeLeft("adhoc"));
+
+            assertTrue(eventListener.wasProcessCompleted(processId));    
+        }
+        
 	public void testAdHocSubProcessAutoComplete() throws Exception {
 		KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory
 				.newKnowledgeBuilderConfiguration();
@@ -1827,6 +1969,30 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		ProcessInstance processInstance = ksession.startProcess("Composite");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
+        
+        /**
+         * Conditional sequence flow is supported in Guvnor BPMN designer (even  in minimal perspective), but jBPM engine cannot 
+         * parse this definition:
+         * "This type of node cannot have more than one outgoing connection!" 
+         */
+        public void testConditionalFlow() throws Exception {
+            String processId = "designer.conditional-flow";
+            
+            KnowledgeBase kbase = createKnowledgeBase("conditional-flow.bpmn");
+            StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+            TrackingProcessEventListener listener = new TrackingProcessEventListener();
+            ksession.addEventListener(listener);
+            WorkflowProcessInstance wpi = (WorkflowProcessInstance) ksession.execute(CommandFactory.newStartProcess(processId));
+
+            assertTrue(listener.wasProcessStarted(processId));
+            assertTrue(listener.wasNodeTriggered("start"));
+            assertTrue(listener.wasNodeLeft("start"));
+            assertTrue(listener.wasNodeTriggered("script"));
+            assertEquals(5, ((Integer)wpi.getVariable("x")).intValue());
+            assertTrue(listener.wasNodeLeft("script"));
+            assertTrue(listener.wasNodeTriggered("end1"));
+            assertTrue(listener.wasProcessCompleted(processId));
+        }
 
     public void testIntermediateCatchEventConditionFilterByProcessInstance()throws Exception {
         KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventConditionFilterByProcessInstance.bpmn2");
