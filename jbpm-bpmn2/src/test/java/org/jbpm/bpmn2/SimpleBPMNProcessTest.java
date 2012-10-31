@@ -33,18 +33,30 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
+import org.drools.WorkingMemory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderConfiguration;
 import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
+import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.command.impl.KnowledgeCommandContext;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
+import org.drools.event.ActivationCancelledEvent;
+import org.drools.event.ActivationCreatedEvent;
+import org.drools.event.AfterActivationFiredEvent;
+import org.drools.event.AgendaGroupPoppedEvent;
+import org.drools.event.AgendaGroupPushedEvent;
+import org.drools.event.BeforeActivationFiredEvent;
+import org.drools.event.RuleFlowGroupActivatedEvent;
+import org.drools.event.RuleFlowGroupDeactivatedEvent;
 import org.drools.event.process.DefaultProcessEventListener;
 import org.drools.event.process.ProcessNodeTriggeredEvent;
 import org.drools.event.process.ProcessStartedEvent;
 import org.drools.event.process.ProcessVariableChangedEvent;
 import org.drools.impl.KnowledgeBaseFactoryServiceImpl;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.ResourceFactory;
 import org.drools.process.core.datatype.impl.type.ObjectDataType;
 import org.drools.runtime.StatefulKnowledgeSession;
@@ -240,6 +252,92 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		assertProcessInstanceCompleted(processInstance.getId(), ksession);
 	}
 
+	public void testRuleTaskWithFacts() throws Exception {
+        KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory
+                .newKnowledgeBuilderConfiguration();
+        ((PackageBuilderConfiguration) conf).initSemanticModules();
+        ((PackageBuilderConfiguration) conf)
+                .addSemanticModule(new BPMNSemanticModule());
+        ((PackageBuilderConfiguration) conf)
+                .addSemanticModule(new BPMNDISemanticModule());
+        // ProcessDialectRegistry.setDialect("XPath", new XPathDialect());
+        XmlProcessReader processReader = new XmlProcessReader(
+                ((PackageBuilderConfiguration) conf).getSemanticModules(),
+                getClass().getClassLoader());
+        List<Process> processes = processReader
+                .read(SimpleBPMNProcessTest.class
+                        .getResourceAsStream("/BPMN2-RuleTaskWithFact.bpmn2"));
+        assertNotNull(processes);
+        assertEquals(1, processes.size());
+        RuleFlowProcess p = (RuleFlowProcess) processes.get(0);
+        assertNotNull(p);
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory
+                .newKnowledgeBuilder(conf);
+        // logger.debug(XmlBPMNProcessDumper.INSTANCE.dump(p));
+        kbuilder.add(ResourceFactory.newReaderResource(new StringReader(
+                XmlBPMNProcessDumper.INSTANCE.dump(p))), ResourceType.BPMN2);
+        kbuilder.add(
+                ResourceFactory.newClassPathResource("BPMN2-RuleTask3.drl"),
+                ResourceType.DRL);
+        if (!kbuilder.getErrors().isEmpty()) {
+            for (KnowledgeBuilderError error : kbuilder.getErrors()) {
+                logger.error(error.toString());
+            }
+            throw new IllegalArgumentException(
+                    "Errors while parsing knowledge base");
+        }
+        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
+        final StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        
+        final org.drools.event.AgendaEventListener agendaEventListener = new org.drools.event.AgendaEventListener() {
+            public void activationCreated(ActivationCreatedEvent event, WorkingMemory workingMemory){
+                ksession.fireAllRules();
+            }
+            public void activationCancelled(ActivationCancelledEvent event, WorkingMemory workingMemory){
+            }
+            public void beforeActivationFired(BeforeActivationFiredEvent event, WorkingMemory workingMemory) {
+            }
+            public void afterActivationFired(AfterActivationFiredEvent event, WorkingMemory workingMemory) {
+            }
+            public void agendaGroupPopped(AgendaGroupPoppedEvent event, WorkingMemory workingMemory) {
+            }
+
+            public void agendaGroupPushed(AgendaGroupPushedEvent event, WorkingMemory workingMemory) {
+            }
+            public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
+            }
+            public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
+                workingMemory.fireAllRules();
+            }
+            public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
+            }
+            public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
+            }
+        };
+        ((StatefulKnowledgeSessionImpl)  ksession).session.addEventListener(agendaEventListener);
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "SomeString");
+        ProcessInstance processInstance = ksession.startProcess("RuleTask", params);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+
+        params = new HashMap<String, Object>();
+
+        try {
+            processInstance = ksession.startProcess("RuleTask", params);
+
+            fail("Should fail");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        params = new HashMap<String, Object>();
+        params.put("x", "SomeString");
+        processInstance = ksession.startProcess("RuleTask", params);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+    }
+	
 	public void testRuleTaskAcrossSessions() throws Exception {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
 		kbuilder.add(

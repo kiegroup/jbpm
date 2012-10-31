@@ -1,6 +1,8 @@
 package org.jbpm.bpmn2.persistence;
 
+import java.io.StringReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManagerFactory;
@@ -8,22 +10,47 @@ import javax.persistence.Persistence;
 
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
+import org.drools.WorkingMemory;
 import org.drools.builder.KnowledgeBuilder;
+import org.drools.builder.KnowledgeBuilderConfiguration;
+import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.command.Context;
+import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.command.impl.GenericCommand;
 import org.drools.command.impl.KnowledgeCommandContext;
+import org.drools.compiler.PackageBuilderConfiguration;
+import org.drools.definition.process.Process;
+import org.drools.event.ActivationCancelledEvent;
+import org.drools.event.ActivationCreatedEvent;
+import org.drools.event.AfterActivationFiredEvent;
+import org.drools.event.AgendaGroupPoppedEvent;
+import org.drools.event.AgendaGroupPushedEvent;
+import org.drools.event.BeforeActivationFiredEvent;
+import org.drools.event.RuleFlowGroupActivatedEvent;
+import org.drools.event.RuleFlowGroupDeactivatedEvent;
+import org.drools.event.rule.DebugAgendaEventListener;
 import org.drools.impl.EnvironmentFactory;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.ResourceFactory;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
+import org.drools.runtime.ObjectFilter;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkflowProcessInstance;
+import org.drools.runtime.rule.FactHandle;
+import org.drools.runtime.rule.impl.InternalAgenda;
 import org.jbpm.bpmn2.JbpmBpmn2TestCase;
+import org.jbpm.bpmn2.SimpleBPMNProcessTest;
+import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
+import org.jbpm.bpmn2.xml.BPMNSemanticModule;
+import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
+import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
 
 public class SimplePersistedBPMNProcessTest extends JbpmBpmn2TestCase {
 
@@ -152,5 +179,90 @@ public class SimplePersistedBPMNProcessTest extends JbpmBpmn2TestCase {
         Thread.sleep(3000);
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
 
+    }
+    
+    public void testRuleTaskWithFacts() throws Exception {
+        KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory
+                .newKnowledgeBuilderConfiguration();
+        ((PackageBuilderConfiguration) conf).initSemanticModules();
+        ((PackageBuilderConfiguration) conf)
+                .addSemanticModule(new BPMNSemanticModule());
+        ((PackageBuilderConfiguration) conf)
+                .addSemanticModule(new BPMNDISemanticModule());
+        // ProcessDialectRegistry.setDialect("XPath", new XPathDialect());
+        XmlProcessReader processReader = new XmlProcessReader(
+                ((PackageBuilderConfiguration) conf).getSemanticModules(),
+                getClass().getClassLoader());
+        List<Process> processes = processReader
+                .read(SimpleBPMNProcessTest.class
+                        .getResourceAsStream("/BPMN2-RuleTaskWithFact.bpmn2"));
+        assertNotNull(processes);
+        assertEquals(1, processes.size());
+        RuleFlowProcess p = (RuleFlowProcess) processes.get(0);
+        assertNotNull(p);
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory
+                .newKnowledgeBuilder(conf);
+        // logger.debug(XmlBPMNProcessDumper.INSTANCE.dump(p));
+        kbuilder.add(ResourceFactory.newReaderResource(new StringReader(
+                XmlBPMNProcessDumper.INSTANCE.dump(p))), ResourceType.BPMN2);
+        kbuilder.add(
+                ResourceFactory.newClassPathResource("BPMN2-RuleTask3.drl"),
+                ResourceType.DRL);
+        if (!kbuilder.getErrors().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Errors while parsing knowledge base");
+        }
+        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+        kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
+        final StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        
+        final org.drools.event.AgendaEventListener agendaEventListener = new org.drools.event.AgendaEventListener() {
+            public void activationCreated(ActivationCreatedEvent event, WorkingMemory workingMemory){
+                ksession.fireAllRules();
+            }
+            public void activationCancelled(ActivationCancelledEvent event, WorkingMemory workingMemory){
+            }
+            public void beforeActivationFired(BeforeActivationFiredEvent event, WorkingMemory workingMemory) {
+            }
+            public void afterActivationFired(AfterActivationFiredEvent event, WorkingMemory workingMemory) {
+            }
+            public void agendaGroupPopped(AgendaGroupPoppedEvent event, WorkingMemory workingMemory) {
+            }
+
+            public void agendaGroupPushed(AgendaGroupPushedEvent event, WorkingMemory workingMemory) {
+            }
+            public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
+            }
+            public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event, WorkingMemory workingMemory) {
+                workingMemory.fireAllRules();
+            }
+            public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
+            }
+            public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
+            }
+        };
+        ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+                .getCommandService().getContext()).getStatefulKnowledgesession() )
+                .session.addEventListener(agendaEventListener);
+        ksession.addEventListener(new DebugAgendaEventListener());
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "SomeString");
+        ProcessInstance processInstance = ksession.startProcess("RuleTask", params);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+
+        params = new HashMap<String, Object>();
+
+        try {
+            processInstance = ksession.startProcess("RuleTask", params);
+
+            fail("Should fail");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        params = new HashMap<String, Object>();
+        params.put("x", "SomeString");
+        processInstance = ksession.startProcess("RuleTask", params);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
 }
