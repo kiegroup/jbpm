@@ -166,4 +166,8 @@ public interface AsyncTaskService {
     public void getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, String language, BlockingTaskSummaryResponseHandler responseHandler);
     
     public void getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> status, String language, BlockingTaskSummaryResponseHandler responseHandler);
+
+    public void getTasksByStatusByProcessId(long processInstanceId, List<Status> status, String language, TaskSummaryResponseHandler responseHandler);
+
+    public void getTasksByStatusByProcessIdByTaskName(long processInstanceId, List<Status> status, String taskName, String language, TaskSummaryResponseHandler responseHandler);
 }

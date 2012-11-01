@@ -756,5 +756,29 @@ public class AsyncTaskServiceWrapper implements TaskService {
         return responseHandler.getResults();
     }
 
-    
+    public List<TaskSummary> getTasksByStatusByProcessId(long processInstanceId, List<Status> status, String language) {
+        BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+        taskService.getTasksByStatusByProcessId(processInstanceId, status, language, responseHandler);
+        try {
+            responseHandler.waitTillDone(timeout);
+        } catch (Exception e) {
+            if (responseHandler.getError() != null) {
+                throw responseHandler.getError();
+            }
+        }
+        return responseHandler.getResults();
+    }
+
+    public List<TaskSummary> getTasksByStatusByProcessIdByTaskName(long processInstanceId, List<Status> status, String taskName, String language){
+        BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+        taskService.getTasksByStatusByProcessIdByTaskName(processInstanceId, status, taskName, language, responseHandler);
+        try {
+            responseHandler.waitTillDone(timeout);
+        } catch (Exception e) {
+            if (responseHandler.getError() != null) {
+                throw responseHandler.getError();
+            }
+        }
+        return responseHandler.getResults();
+    }  
 }
