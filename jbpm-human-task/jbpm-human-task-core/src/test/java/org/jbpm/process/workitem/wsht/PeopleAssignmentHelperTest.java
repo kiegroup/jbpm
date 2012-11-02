@@ -33,7 +33,7 @@ import org.junit.Test;
 /**
  * @author Eric Spiegelberg
  */
-public class PeopleAssignmentHelperTests extends TestCase {
+public class PeopleAssignmentHelperTest extends TestCase {
 	
 	private PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
 	
@@ -103,6 +103,64 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		assertEquals(actorId, organizationalEntity1.getId());		
 		assertEquals(actorId, taskData.getCreatedBy().getId());
 		
+		workItem = new WorkItemImpl();
+		peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);				
+		workItem.setParameter(PeopleAssignmentHelper.ACTOR_ID, actorId + ", drbug  ");
+		peopleAssignmentHelper.assignActors(workItem, peopleAssignments, taskData);
+		assertEquals(2, peopleAssignments.getPotentialOwners().size());
+		organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
+		assertEquals(actorId, organizationalEntity1.getId());		
+		assertEquals(actorId, taskData.getCreatedBy().getId());
+		OrganizationalEntity organizationalEntity2 = peopleAssignments.getPotentialOwners().get(1);
+		assertEquals("drbug", organizationalEntity2.getId());
+
+		workItem = new WorkItemImpl();
+		peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);				
+		workItem.setParameter(PeopleAssignmentHelper.ACTOR_ID, "");
+		peopleAssignmentHelper.assignActors(workItem, peopleAssignments, taskData);
+		assertEquals(0, peopleAssignments.getPotentialOwners().size());
+
+	}
+	
+	@Test
+	public void testAssignBusinessAdministrators() {
+	
+		String businessAdministratorId = "espiegelberg";
+		
+		Task task = new Task();
+		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
+		
+		WorkItem workItem = new WorkItemImpl();		
+		workItem.setParameter(PeopleAssignmentHelper.BUSINESSADMINISTRATOR_ID, businessAdministratorId);
+
+		peopleAssignmentHelper.assignBusinessAdministrators(workItem, peopleAssignments);
+		assertEquals(2, peopleAssignments.getBusinessAdministrators().size());
+		OrganizationalEntity organizationalEntity1 = peopleAssignments.getBusinessAdministrators().get(0);
+		assertTrue(organizationalEntity1 instanceof User);
+		assertEquals("Administrator", organizationalEntity1.getId());
+		OrganizationalEntity organizationalEntity2 = peopleAssignments.getBusinessAdministrators().get(1);		
+		assertTrue(organizationalEntity2 instanceof User);				
+		assertEquals(businessAdministratorId, organizationalEntity2.getId());
+		
+	}
+	
+	@Test
+	public void testAssignTaskstakeholders() {
+	
+		String taskStakeholderId = "espiegelberg";
+		
+		Task task = new Task();
+		PeopleAssignments peopleAssignments = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
+		
+		WorkItem workItem = new WorkItemImpl();		
+		workItem.setParameter(PeopleAssignmentHelper.TASKSTAKEHOLDER_ID, taskStakeholderId);
+
+		peopleAssignmentHelper.assignTaskStakeholders(workItem, peopleAssignments);
+		assertEquals(1, peopleAssignments.getTaskStakeholders().size());
+		OrganizationalEntity organizationalEntity1 = peopleAssignments.getTaskStakeholders().get(0);		
+		assertTrue(organizationalEntity1 instanceof User);				
+		assertEquals(taskStakeholderId, organizationalEntity1.getId());
+		
 	}
 	
 	@Test
@@ -145,6 +203,43 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		assertEquals(0, peopleAssignment.getExcludedOwners().size());
 		assertEquals(0, peopleAssignment.getRecipients().size());
 		assertEquals(0, peopleAssignment.getTaskStakeholders().size());
+		
+	}	
+	
+	@Test
+	public void testHandlePeopleAssignments() {
+		
+		Task task = new Task();
+		TaskData taskData = new TaskData();
+		PeopleAssignments peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
+		assertNotNull(peopleAssignment);
+		assertEquals(0, peopleAssignment.getPotentialOwners().size());
+		assertEquals(0, peopleAssignment.getBusinessAdministrators().size());
+		assertEquals(0, peopleAssignment.getTaskStakeholders().size());
+		
+		String actorId = "espiegelberg";
+		String taskStakeholderId = "drmary";
+		String businessAdministratorId = "drbug";
+		
+		WorkItem workItem = new WorkItemImpl();		
+		workItem.setParameter(PeopleAssignmentHelper.ACTOR_ID, actorId);
+		workItem.setParameter(PeopleAssignmentHelper.TASKSTAKEHOLDER_ID, taskStakeholderId);
+		workItem.setParameter(PeopleAssignmentHelper.BUSINESSADMINISTRATOR_ID, businessAdministratorId);
+		
+		peopleAssignmentHelper.handlePeopleAssignments(workItem, task, taskData);
+		
+		List<OrganizationalEntity> potentialOwners = task.getPeopleAssignments().getPotentialOwners();
+		assertEquals(1, potentialOwners.size());
+		assertEquals(actorId, potentialOwners.get(0).getId());
+		
+		List<OrganizationalEntity> businessAdministrators = task.getPeopleAssignments().getBusinessAdministrators();
+		assertEquals(2, businessAdministrators.size());
+		assertEquals("Administrator", businessAdministrators.get(0).getId());
+		assertEquals(businessAdministratorId, businessAdministrators.get(1).getId());
+		
+		List<OrganizationalEntity> taskStakehoders = task.getPeopleAssignments().getTaskStakeholders();
+		assertEquals(1, taskStakehoders.size());
+		assertEquals(taskStakeholderId, taskStakehoders.get(0).getId());
 		
 	}
 	
