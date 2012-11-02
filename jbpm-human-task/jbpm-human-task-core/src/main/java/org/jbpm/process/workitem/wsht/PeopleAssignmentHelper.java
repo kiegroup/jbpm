@@ -64,12 +64,8 @@ public class PeopleAssignmentHelper {
         if (potentialOwners.size() > 0) {
         	
         	OrganizationalEntity firstPotentialOwner = potentialOwners.get(0);
-        	
-        	if (firstPotentialOwner instanceof User) {
-            
-        		taskData.setCreatedBy((User) firstPotentialOwner);
-            
-        	}
+        	taskData.setCreatedBy((User) firstPotentialOwner);
+
         }
         
 	}
