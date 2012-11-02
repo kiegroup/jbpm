@@ -370,10 +370,15 @@ public class StatefulKnowledgeSessionUtil {
             public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event, WorkingMemory workingMemory) {
             }
         };
-        ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
+        try {
+            ((StatefulKnowledgeSessionImpl)  ((KnowledgeCommandContext) ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext()).getStatefulKnowledgesession() )
                 .session.addEventListener(agendaEventListener);
-    	ksession.fireAllRules();
+    	
+    	    ksession.fireAllRules();
+    	} catch (Exception e) {
+            logger.error("Error when invoking fireAllRules on session initialization", e);
+        }
     }
     
     private static int getPersistedSessionId(String location) {
