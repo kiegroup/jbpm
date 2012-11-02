@@ -130,8 +130,6 @@ public class HornetQErrorRecoveryTest extends BaseTest {
         server.stop();
         
         server = new HornetQTaskServer(taskService, 5153);
-        thread = new Thread(server);
-        thread.start();
         System.out.println("Waiting for the HornetQTask Server to come up");
         try {
             startTaskServerThread(server, false);
