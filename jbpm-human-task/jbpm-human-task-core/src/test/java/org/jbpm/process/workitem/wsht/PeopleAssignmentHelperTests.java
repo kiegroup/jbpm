@@ -31,7 +31,7 @@ import org.jbpm.task.User;
 import org.junit.Test;
 
 /**
- *
+ * @author Eric Spiegelberg
  */
 public class PeopleAssignmentHelperTests extends TestCase {
 	
@@ -76,6 +76,13 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		assertTrue(organizationalEntities.size() == 1);
 		assertTrue(organizationalEntities.get(0) instanceof Group);
 		
+		// Test that a duplicate is not added; only 1 of the 2 passed in should be added
+		ids = "Software Developer,Project Manager";
+		peopleAssignmentHelper.processPeopleAssignments(ids, organizationalEntities, false);
+		assertTrue(organizationalEntities.size() == 2);
+		assertTrue(organizationalEntities.get(0) instanceof Group);
+		assertTrue(organizationalEntities.get(1) instanceof Group);
+		
 	}
 	
 	@Test
@@ -93,9 +100,8 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		peopleAssignmentHelper.assignActors(workItem, peopleAssignments, taskData);
 		OrganizationalEntity organizationalEntity1 = peopleAssignments.getPotentialOwners().get(0);
 		assertTrue(organizationalEntity1 instanceof User);
-		assertEquals(actorId, organizationalEntity1.getId());
-		
-		// TODO: Assert taskData has the first user
+		assertEquals(actorId, organizationalEntity1.getId());		
+		assertEquals(actorId, taskData.getCreatedBy().getId());
 		
 	}
 	
@@ -130,6 +136,15 @@ public class PeopleAssignmentHelperTests extends TestCase {
 		
 		peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
 		assertNotNull(peopleAssignment);
+		
+		task.setPeopleAssignments(null);
+		peopleAssignment = peopleAssignmentHelper.getNullSafePeopleAssignments(task);
+		assertNotNull(peopleAssignment);
+		assertEquals(0, peopleAssignment.getPotentialOwners().size());
+		assertEquals(0, peopleAssignment.getBusinessAdministrators().size());
+		assertEquals(0, peopleAssignment.getExcludedOwners().size());
+		assertEquals(0, peopleAssignment.getRecipients().size());
+		assertEquals(0, peopleAssignment.getTaskStakeholders().size());
 		
 	}
 	

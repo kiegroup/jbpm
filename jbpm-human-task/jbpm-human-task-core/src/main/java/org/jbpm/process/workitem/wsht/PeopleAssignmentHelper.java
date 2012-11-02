@@ -27,7 +27,11 @@ import org.jbpm.task.TaskData;
 import org.jbpm.task.User;
 
 /**
- *
+ * A class responsible for assigning the various ownerships (actors, groups, business 
+ * administrators, and task stakeholders) from a <code>WorkItem</code> to a <code>Task</code>. 
+ * This class consolidates common code for reuse across multiple <code>WorkItemHandler</code>s.
+ * 
+ * @author Eric Spiegelberg
  */
 public class PeopleAssignmentHelper {
 
@@ -58,7 +62,14 @@ public class PeopleAssignmentHelper {
 
         // Set the first user as creator ID??? hmmm might be wrong
         if (potentialOwners.size() > 0) {
-            taskData.setCreatedBy((User) potentialOwners.get(0));
+        	
+        	OrganizationalEntity firstPotentialOwner = potentialOwners.get(0);
+        	
+        	if (firstPotentialOwner instanceof User) {
+            
+        		taskData.setCreatedBy((User) firstPotentialOwner);
+            
+        	}
         }
         
 	}
@@ -103,7 +114,19 @@ public class PeopleAssignmentHelper {
             	
             	id = id.trim();
             	
-            	if (!organizationalEntities.contains(id)) {
+            	boolean exists = false;
+            	
+            	for (OrganizationalEntity orgEntity : organizationalEntities) {
+            	
+            		if (orgEntity.getId().equals(id)) {
+            			
+            			exists = true;
+            			
+            		}            		
+            		
+            	}
+            	
+            	if (!exists) {
             	
             		OrganizationalEntity organizationalEntity = null;
             		
