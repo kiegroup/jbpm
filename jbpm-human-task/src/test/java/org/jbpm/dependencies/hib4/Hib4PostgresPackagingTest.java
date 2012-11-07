@@ -54,7 +54,8 @@ public class Hib4PostgresPackagingTest extends Hibernate4PackagingTest {
         targetFileMap.put("META-INF/persistence.xml", jpa2PkgLoc + "postgresql/persistence.xml");
         targetFileMap.put("datasource.properties", jpa2PkgLoc + "postgresql/datasource.properties");
         targetFileMap.put("META-INF/Taskorm-JPA2.xml", jpa2PkgLoc + TASKORM_JPA2_XML);
-        
+        targetFileMap.put("META-INF/human-task-postgres.hbm.xml", "META-INF/human-task-postgres.hbm.xml");
+
         targetFileMap.put("log4j.xml", hib4PkgLoc + "log4j.xml");
         targetFileMap.put(userGroupCallbackProperties, userGroupCallbackProperties);
         Set<String> mvelFiles = getMvelFilePaths();

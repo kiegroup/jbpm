@@ -117,8 +117,8 @@ select
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
-     t.taskData.actualOwner,
-     t.taskData.createdBy,
+     actualOwner,
+     createdBy,
      t.taskData.createdOn,
      t.taskData.activationTime,
      t.taskData.expirationTime,
@@ -126,8 +126,8 @@ select
      t.taskData.processSessionId)
 from
     Task t
-    left join t.taskData.createdBy
-    left join t.taskData.actualOwner
+    left join t.taskData.createdBy as createdBy
+    left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
     left join t.names as name,
@@ -170,17 +170,17 @@ select
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
-     t.taskData.actualOwner,
-     t.taskData.createdBy,
+     actualOwner,
+     createdBy,
      t.taskData.createdOn,
      t.taskData.activationTime,
      t.taskData.expirationTime,
      t.taskData.processId,
      t.taskData.processSessionId)
 from
-    Task t 
-    left join t.taskData.createdBy 
-    left join t.taskData.actualOwner
+    Task t
+    left join t.taskData.createdBy as createdBy
+    left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
     left join t.names as name,
@@ -223,17 +223,17 @@ select
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
-     t.taskData.actualOwner,
-     t.taskData.createdBy,
+     actualOwner,
+     createdBy,
      t.taskData.createdOn,
      t.taskData.activationTime,
      t.taskData.expirationTime,
      t.taskData.processId,
      t.taskData.processSessionId)
 from
-    Task t 
-    left join t.taskData.createdBy 
-    left join t.taskData.actualOwner
+    Task t
+    left join t.taskData.createdBy as createdBy
+    left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
     left join t.names as name,
@@ -276,17 +276,17 @@ select
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
-     t.taskData.actualOwner,
-     t.taskData.createdBy,
+     actualOwner,
+     createdBy,
      t.taskData.createdOn,
      t.taskData.activationTime,
      t.taskData.expirationTime,
      t.taskData.processId,
      t.taskData.processSessionId)
 from
-    Task t 
-    left join t.taskData.createdBy 
-    left join t.taskData.actualOwner
+    Task t
+    left join t.taskData.createdBy as createdBy
+    left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
     left join t.names as name,
@@ -329,17 +329,17 @@ select
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
-     t.taskData.actualOwner,
-     t.taskData.createdBy,
+     actualOwner,
+     createdBy,
      t.taskData.createdOn,
      t.taskData.activationTime,
      t.taskData.expirationTime,
      t.taskData.processId,
      t.taskData.processSessionId)
 from
-    Task t 
-    left join t.taskData.createdBy 
-    left join t.taskData.actualOwner
+    Task t
+    left join t.taskData.createdBy as createdBy
+    left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
     left join t.names as name,
@@ -382,17 +382,17 @@ select
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
-     t.taskData.actualOwner,
-     t.taskData.createdBy,
+     actualOwner,
+     createdBy,
      t.taskData.createdOn,
      t.taskData.activationTime,
      t.taskData.expirationTime,
      t.taskData.processId,
      t.taskData.processSessionId)
 from
-    Task t 
-    left join t.taskData.createdBy 
-    left join t.taskData.actualOwner
+    Task t
+    left join t.taskData.createdBy as createdBy
+    left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
     left join t.names as name,
