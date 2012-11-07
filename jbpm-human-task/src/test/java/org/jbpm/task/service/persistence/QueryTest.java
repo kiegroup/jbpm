@@ -87,37 +87,6 @@ public class QueryTest extends BaseTest {
         assertTrue( "Third deadline was not met." , thirdDeadlineMet ); 
     }
     
-    String queryString = 
-              "select new org.jbpm.task.query.TaskSummary("
-            + "     t.id,"
-            + "     t.taskData.processInstanceId,"
-            + "     name.text,"
-            + "     subject.text,"
-            + "     description.text,"
-            + "     t.taskData.status,"
-            + "     t.priority,"
-            + "     t.taskData.skipable,"
-            + "     t.taskData.actualOwner,"
-            + "     t.taskData.createdBy,"
-            + "     t.taskData.createdOn,"
-            + "     t.taskData.activationTime,"
-            + "     t.taskData.expirationTime,"
-            + "     t.taskData.processId,"
-            + "     t.taskData.processSessionId)"
-            + " from"
-            + "    Task t"
-            + "    left join t.taskData.createdBy"
-            + "    left join t.taskData.actualOwner"
-            + "    left join t.subjects as subject"
-            + "    left join t.descriptions as description"
-            + "    left join t.names as name,"
-            + "    OrganizationalEntity potOwn"
-            + " where"
-            + "    potOwn.id = :userId and"
-            + "    potOwn in elements ( t.peopleAssignments.potentialOwners  ) and"
-            + "    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') and"
-            + "    t.taskData.expirationTime is null";
-
     /**
      * This test works with Hibernate 3, but not with Hibernate 4
      * It has something to do with potential owners.. 
@@ -158,11 +127,7 @@ public class QueryTest extends BaseTest {
         
         tpm.beginTransaction();
         List<TaskSummary> list = null;
-//        list = tpm.queryTasksWithUserIdAndLanguage("TasksAssignedAsPotentialOwner", name, "en-UK"); 
-        Query query = tpm.createNewQuery(queryString);
-        query.setParameter("userId", name);
-        
-        list = query.getResultList();
+        list = tpm.queryTasksWithUserIdAndLanguage("TasksAssignedAsPotentialOwner", name, "en-UK"); 
         tpm.endTransaction(true);
         
         assertTrue( "Query did not succeed.", list.size() > 0 );

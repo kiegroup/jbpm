@@ -22,7 +22,17 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="org.subethamail.smtp.server.SMTPServer">
+        <level value="WARN"/>
+    </logger>
+    
     <!-- hibernate 4 verbosity -->
+	<logger name="org.hibernate.tool.hbm2ddl.TableMetadata">
+		<level value="WARN"/>
+	</logger>
+    <logger name="org.hibernate.ejb.Ejb3Configuration">
+        <level value="FATAL"/>
+    </logger>
 	<logger name="org.hibernate.tool.hbm2ddl.SchemaExport">
 		<level value="FATAL"/>
 	</logger>

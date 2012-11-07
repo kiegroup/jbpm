@@ -2,8 +2,10 @@ package org.jbpm.dependencies.runner;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -34,6 +36,7 @@ public class JarTestRunner {
         }
 
         Class [] testClasses = testClassSet.toArray(new Class[testClassSet.size()]);
+        Arrays.sort(testClasses, new ClassComparatorByName());
         
         StringBuilder separator = new StringBuilder();
         for (int i = 0; i < 8; ++i) {
@@ -43,20 +46,35 @@ public class JarTestRunner {
 
         System.out.println(">> STARTING TESTS [" + testClasses.length + "]");
         System.out.println(separator);
-        Result result = JUnitCore.runClasses(testClasses);
-        System.out.println(separator);
-        System.out.println(">> TESTS DONE");
+        JUnitCore jUnit = new JUnitCore();
+        boolean testFailed = false;
+        StringBuilder failedTestNames = new StringBuilder();
 
-        printSummary(result);
-        if (! result.wasSuccessful()) {
-            List<Failure> failures = result.getFailures();
-            if (failures.size() > 0) {
-                Failure fail = failures.get(0);
-                System.out.println( "] " + fail.getTestHeader() );
-                fail.getException().printStackTrace();
+        for( Class testClass : testClasses ) { 
+            System.out.println("Running " + testClass.getSimpleName() );
+            
+            Result result = jUnit.run(Request.classes(testClass));
+            
+            if (! result.wasSuccessful()) {
+                 
+                List<Failure> failures = result.getFailures();
+                System.out.println();
+                for( Failure fail : failures ) { 
+                    failedTestNames.append(fail.getTestHeader() + "\n");
+                    System.out.println( "] " + fail.getTestHeader() );
+                    fail.getException().printStackTrace();
+                    testFailed = true;
+                }
             }
+            printSummary(result);
+            System.out.println(separator);
         }
-
+        System.out.println(">> TESTS DONE");
+        
+        if( testFailed ) { 
+            System.out.println( "The following tests failed: \n" + failedTestNames );
+            System.exit(1);
+        }
     }
     
     private static void printSummary(Result result) { 
@@ -145,6 +163,12 @@ public class JarTestRunner {
     private static void determineIfThisIsARunnableTestClass(Class clazz, HashSet<Class> classes) {
         boolean isTest = false;
         
+        if( Modifier.isAbstract(clazz.getModifiers()) ) { 
+            isTest = false;
+            classes.remove(clazz);
+            return;
+        };
+        
         Method [] methods = clazz.getMethods();
         for( int m = 0; m < methods.length; ++m ) { 
            if( methods[m].getAnnotation(Test.class) != null ) { 
@@ -164,5 +188,22 @@ public class JarTestRunner {
             classes.remove(clazz);
         }
     }
+
+    static class ClassComparatorByName implements Comparator<Class> {
+
+        @Override
+        public int compare(Class o1, Class o2) {
+            if( o1 == o2 ) { 
+               return 0; 
+            }
+            if( o1 == null ) { 
+                return -1;
+            } else if( o2 == null) {
+                return 1;
+            }
+            return o1.getSimpleName().compareTo(o2.getSimpleName());
+        }
+        
+    } 
 
 }

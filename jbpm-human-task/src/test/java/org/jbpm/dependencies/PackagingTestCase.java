@@ -54,10 +54,12 @@ public abstract class PackagingTestCase {
     protected final static String CLASSPATH_QUALIFIER = "classpath:";
     protected final static String FILE_QUALIFIER = "file:";
     
-    protected final static String hib4PkgLoc = "hib4/";
-    protected final static String jpa2PkgLoc = "jpa2/";
+    protected final static String hib4PkgLoc = "package/hib4/";
+    protected final static String jpa2PkgLoc = "package/jpa2/";
     
     protected final static String TASKORM_JPA2_XML = "Taskorm-JPA2.xml";
+    protected final static String PERSISTENCE_XML = "persistence.xml";
+    protected final static String DATASOURCE_PROPERTIES = "datasource.properties";
     protected final static String userGroupCallbackProperties  = "jbpm.usergroup.callback.properties";
 
     static {

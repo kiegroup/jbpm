@@ -11,14 +11,12 @@ import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class Hib4H2PackagingTest extends Hibernate4PackagingTest {
 
     @Test
-    @Ignore
-    public void test() throws Exception {
+    public void runTestsUnderHibernate4Jpa2H2() throws Exception {
         File humanTaskJar = buildH2Jpa2Hiberate4Jar();
 
         // Build and start process
@@ -49,9 +47,9 @@ public class Hib4H2PackagingTest extends Hibernate4PackagingTest {
     
         // Resources
         HashMap<String, String> targetFileMap = new HashMap<String, String>();
-        targetFileMap.put("META-INF/persistence.xml", jpa2PkgLoc + "h2/persistence.xml");
-        targetFileMap.put("META-INF/persistence.xml", jpa2PkgLoc + "h2/datasource.properties");
-        targetFileMap.put("META-INF/Taskorm-JPA2.xml", jpa2PkgLoc + TASKORM_JPA2_XML);
+        targetFileMap.put("META-INF/" + PERSISTENCE_XML, jpa2PkgLoc + "h2/" + PERSISTENCE_XML);
+        targetFileMap.put(DATASOURCE_PROPERTIES, jpa2PkgLoc + "h2/" + DATASOURCE_PROPERTIES);
+        targetFileMap.put("META-INF/" + TASKORM_JPA2_XML, jpa2PkgLoc + TASKORM_JPA2_XML);
         
         targetFileMap.put("log4j.xml", hib4PkgLoc + "log4j.xml");
         targetFileMap.put(userGroupCallbackProperties, userGroupCallbackProperties);
