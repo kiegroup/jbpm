@@ -17,7 +17,7 @@ import org.junit.Test;
 public class Hib4PostgresPackagingTest extends Hibernate4PackagingTest {
 
     @Test
-    @Ignore
+//    @Ignore
     public void test() throws Exception {
         
         File humanTaskJar = buildPostgreSQLJpa2Hiberate4Jar();
@@ -54,6 +54,7 @@ public class Hib4PostgresPackagingTest extends Hibernate4PackagingTest {
         targetFileMap.put("META-INF/persistence.xml", jpa2PkgLoc + "postgresql/persistence.xml");
         targetFileMap.put("datasource.properties", jpa2PkgLoc + "postgresql/datasource.properties");
         targetFileMap.put("META-INF/Taskorm-JPA2.xml", jpa2PkgLoc + TASKORM_JPA2_XML);
+        targetFileMap.put("META-INF/I18nText.hbm.xml", jpa2PkgLoc + "postgresql/I18nText.hbm.xml");
         
         targetFileMap.put("log4j.xml", hib4PkgLoc + "log4j.xml");
         targetFileMap.put(userGroupCallbackProperties, userGroupCallbackProperties);
