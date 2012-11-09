@@ -13,6 +13,8 @@ import java.util.zip.ZipInputStream;
 
 import junit.framework.TestCase;
 
+import org.jbpm.task.service.test.TaskServiceTest;
+import org.jbpm.task.service.test.sync.TaskServiceSyncTest;
 import org.junit.Test;
 import org.junit.runner.*;
 import org.junit.runner.notification.Failure;
@@ -26,60 +28,65 @@ import org.junit.runner.notification.Failure;
 public class JarTestRunner {
 
     public static void main(String[] args) {
-        HashSet<Class> testClassSet = null;
         try {
-            testClassSet = getRunnableTestClasses("org.jbpm.task.service.test");
-            testClassSet.addAll(getRunnableTestClasses("org.jbpm.task.service.local.sync"));
-            testClassSet.addAll(getRunnableTestClasses("org.jbpm.task.service.persistence"));
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to determine runnable test classes.", e);
-        }
-
-        Class [] testClasses = testClassSet.toArray(new Class[testClassSet.size()]);
-        Arrays.sort(testClasses, new ClassComparatorByName());
-        
-        StringBuilder separator = new StringBuilder();
-        for (int i = 0; i < 8; ++i) {
-            separator.append("----------");
-        }
-        assert testClasses[0] != null;
-
-        System.out.println(">> STARTING TESTS [" + testClasses.length + "]");
-        System.out.println(separator);
-        JUnitCore jUnit = new JUnitCore();
-        boolean testFailed = false;
-        StringBuilder failedTestNames = new StringBuilder();
-
-        for( Class testClass : testClasses ) { 
-            System.out.println("Running " + testClass.getSimpleName() );
-            
-            Result result = jUnit.run(Request.classes(testClass));
-            
-            if (! result.wasSuccessful()) {
-                 
-                List<Failure> failures = result.getFailures();
-                System.out.println();
-                for( Failure fail : failures ) { 
-                    failedTestNames.append(fail.getTestHeader() + "\n");
-                    System.out.println( "] " + fail.getTestHeader() );
-                    fail.getException().printStackTrace();
-                    testFailed = true;
-                }
+            HashSet<Class> testClassSet = null;
+            try {
+                testClassSet = getRunnableTestClasses("org.jbpm.task.service.test");
+                testClassSet.addAll(getRunnableTestClasses("org.jbpm.task.service.local.sync"));
+                testClassSet.addAll(getRunnableTestClasses("org.jbpm.task.service.persistence"));
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to determine runnable test classes.", e);
             }
-            printSummary(result);
+
+            Class [] testClasses = testClassSet.toArray(new Class[testClassSet.size()]);
+            Arrays.sort(testClasses, new ClassComparatorByName());
+
+            StringBuilder separator = new StringBuilder();
+            for (int i = 0; i < 8; ++i) {
+                separator.append("----------");
+            }
+            assert testClasses[0] != null;
+
+            System.out.println(">> STARTING TESTS [" + testClasses.length + "]");
             System.out.println(separator);
-        }
-        System.out.println(">> TESTS DONE");
-        
-        if( testFailed ) { 
-            System.out.println( "The following tests failed: \n" + failedTestNames );
+            JUnitCore jUnit = new JUnitCore();
+            boolean testFailed = false;
+            StringBuilder failedTestNames = new StringBuilder();
+
+            for( Class testClass : testClasses ) {
+                System.out.println("Running " + testClass.getSimpleName() );
+
+                Result result = jUnit.run(Request.classes(testClass));
+
+                if (! result.wasSuccessful()) {
+
+                    List<Failure> failures = result.getFailures();
+                    System.out.println();
+                    for( Failure fail : failures ) {
+                        failedTestNames.append(fail.getTestHeader() + "\n");
+                        System.out.println( "] " + fail.getTestHeader() );
+                        fail.getException().printStackTrace();
+                        testFailed = true;
+                    }
+                }
+                printSummary(result);
+                System.out.println(separator);
+            }
+            System.out.println(">> TESTS DONE");
+
+            if( testFailed ) {
+                System.out.println( "The following tests failed: \n" + failedTestNames );
+                System.exit(1);
+            }
+            System.exit(0);
+        } catch (Throwable e) {
             System.exit(1);
         }
     }
-    
-    private static void printSummary(Result result) { 
+
+    private static void printSummary(Result result) {
         System.out.println("Tests run: " + result.getRunCount()
-                + ", Failures: " + result.getFailureCount() 
+                + ", Failures: " + result.getFailureCount()
                 + ", Skipped: " + result.getIgnoreCount() + "\n");
     }
 

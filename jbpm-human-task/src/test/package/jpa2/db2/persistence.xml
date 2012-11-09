@@ -31,13 +31,16 @@
     <class>org.jbpm.task.OnParentAbortAllSubTasksEndStrategy</class>
     <class>org.jbpm.task.OnAllSubTasksEndParentEndStrategy</class>
     <class>org.jbpm.task.User</class>
+
     <properties>
         
-      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
-      <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
-      <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/task" />
-      <property name="hibernate.connection.username" value="task" />
-      <property name="hibernate.connection.password" value="task" />
+      <property name="hibernate.dialect" value="org.hibernate.dialect.DB2Dialect" />
+      <property name="hibernate.connection.driver_class" value="com.ibm.db2.jcc.DB2Driver" />
+      <property name="hibernate.connection.url" value="" />
+      <property name="hibernate.connection.username" value="" />
+      <property name="hibernate.connection.password" value="" />
+
+        <property name="hibernate.connection.schema" value="" />
 
       <property name="hibernate.connection.autocommit" value="false" />
 

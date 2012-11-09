@@ -1,29 +1,36 @@
 package org.jbpm.dependencies.hib4;
 
-import static junit.framework.Assert.fail;
-
-import java.io.*;
-import java.util.*;
-
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
-import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class Hib4PostgresPackagingTest extends Hibernate4PackagingTest {
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+
+import static junit.framework.Assert.fail;
+
+/**
+ * To properly run it it requires db2 driver to be given as system property:
+ * -Ddb2.jdbc.path=<Absolute_path_to_driver>
+ */
+public class Hib4DB2PackagingTest extends Hibernate4PackagingTest {
 
     @Test
     @Ignore
     public void test() throws Exception {
         
-        File humanTaskJar = buildPostgreSQLJpa2Hiberate4Jar();
+        File humanTaskJar = buildDB2Jpa2Hiberate4Jar();
 
         // Build and start process
-        ProcessBuilder procBldr = buildProcessBuilder(humanTaskJar.getAbsolutePath(), resolvePostgreSQLJarsForClassPath());
+        ProcessBuilder procBldr = buildProcessBuilder(humanTaskJar.getAbsolutePath(), resolveDB2JarsForClassPath());
         Process testProcess = procBldr.start();
         
         // Print output
@@ -45,14 +52,14 @@ public class Hib4PostgresPackagingTest extends Hibernate4PackagingTest {
      * This method builds a jar that contains the human-task classes (including tests). 
      * @return
      */
-    private File buildPostgreSQLJpa2Hiberate4Jar() throws IOException {
+    private File buildDB2Jpa2Hiberate4Jar() throws IOException {
         String fileName = "h2Hib4.jar";
         JavaArchive archive = ShrinkWrap.create(JavaArchive.class, fileName);
     
         // Resources
         HashMap<String, String> targetFileMap = new HashMap<String, String>();
-        targetFileMap.put("META-INF/persistence.xml", jpa2PkgLoc + "postgresql/persistence.xml");
-        targetFileMap.put("datasource.properties", jpa2PkgLoc + "postgresql/datasource.properties");
+        targetFileMap.put("META-INF/persistence.xml", jpa2PkgLoc + "db2/persistence.xml");
+        targetFileMap.put("datasource.properties", jpa2PkgLoc + "db2/datasource.properties");
         targetFileMap.put("META-INF/Taskorm-JPA2.xml", jpa2PkgLoc + TASKORM_JPA2_XML);
 
         targetFileMap.put("log4j.xml", hib4PkgLoc + "log4j.xml");
@@ -76,14 +83,13 @@ public class Hib4PostgresPackagingTest extends Hibernate4PackagingTest {
         return testPackage;
     }
 
-    private ArrayList<String> resolvePostgreSQLJarsForClassPath() {
-        MavenDependencyResolver postgresResolver = DependencyResolvers.use(MavenDependencyResolver.class).loadMetadataFromPom(
-                CLASSPATH_QUALIFIER + jpa2PkgLoc + "postgresql/pom.xml");
-                
-        postgresResolver.artifact("postgresql:postgresql");
-        
+    private ArrayList<String> resolveDB2JarsForClassPath() {
+        String oracleDriverPath = System.getProperty("db2.jdbc.path");
+        if (oracleDriverPath == null) {
+            throw new IllegalArgumentException("DB2 driver is not provided, please specify it via system property: db2.jdbc.path");
+        }
         ArrayList<String> classPathList = new ArrayList<String>();
-        File [] h2Files = postgresResolver.resolveAsFiles(); 
+        File [] h2Files = new File[] {new File(oracleDriverPath)};
         for(int f = 0; f < h2Files.length; ++f ) { 
             classPathList.add(h2Files[f].getAbsolutePath());
         }
