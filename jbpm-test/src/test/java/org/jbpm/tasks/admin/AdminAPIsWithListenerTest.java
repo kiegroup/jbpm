@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.persistence.EntityManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -215,8 +216,15 @@ public class AdminAPIsWithListenerTest {
         process = ksession.getProcessInstance(process.getId());
         Assert.assertNull(process);
 
-        Assert.assertEquals(0,emfTasks.createEntityManager().createQuery("select t from Task t").getResultList().size());
-
+        final EntityManager em = emfTasks.createEntityManager();
+        Assert.assertEquals(0, em.createQuery("select t from Task t").getResultList().size());
+        Assert.assertEquals(0, em.createQuery("select i from I18NText i").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_BAs").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_ExclOwners").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_PotOwners").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_Recipients").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_Stakeholders").getResultList().size());
+        Assert.assertEquals(0, em.createQuery("select c from Content c").getResultList().size());
     }
 
     private StatefulKnowledgeSession createSession(KnowledgeBase kbase, Environment env) {
