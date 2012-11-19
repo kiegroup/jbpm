@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.persistence.EntityManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -73,6 +72,8 @@ public class AdminAPIsWithListenerTest {
     protected UserInfo userInfo;
     protected Properties conf;
     protected TasksAdmin admin;
+    private TaskTestEnvironment taskTestEnvironment;
+    
     @Before
     public void setUp() throws Exception {
         context = setupWithPoolingDataSource("org.jbpm.runtime", false);
@@ -129,7 +130,9 @@ public class AdminAPIsWithListenerTest {
         }
 
         localTaskService = new LocalTaskService(taskService);
-
+        
+        taskTestEnvironment = new TaskTestEnvironment(emfTasks);
+        taskTestEnvironment.insertFakeTaskData();
     }
 
     @After
@@ -146,6 +149,10 @@ public class AdminAPIsWithListenerTest {
         }
         
         admin.dispose();
+
+        if (taskTestEnvironment != null) {
+            taskTestEnvironment.removeFakeTaskData();
+        }
         
         if(emfTasks != null && emfTasks.isOpen()){
             emfTasks.close();
@@ -154,9 +161,6 @@ public class AdminAPIsWithListenerTest {
 
     @Test
     public void automaticCleanUpTest() throws Exception {
-        
-
-
         Environment env = createEnvironment();
         KnowledgeBase kbase = createKnowledgeBase("patient-appointment.bpmn");
         StatefulKnowledgeSession ksession = createSession(kbase, env);
@@ -216,15 +220,8 @@ public class AdminAPIsWithListenerTest {
         process = ksession.getProcessInstance(process.getId());
         Assert.assertNull(process);
 
-        final EntityManager em = emfTasks.createEntityManager();
-        Assert.assertEquals(0, em.createQuery("select t from Task t").getResultList().size());
-        Assert.assertEquals(0, em.createQuery("select i from I18NText i").getResultList().size());
-        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_BAs").getResultList().size());
-        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_ExclOwners").getResultList().size());
-        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_PotOwners").getResultList().size());
-        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_Recipients").getResultList().size());
-        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_Stakeholders").getResultList().size());
-        Assert.assertEquals(0, em.createQuery("select c from Content c").getResultList().size());
+        taskTestEnvironment.verifyFakeTaskDataNotChanged();
+        taskTestEnvironment.verifyFakeTaskDataAloneInDb();
     }
 
     private StatefulKnowledgeSession createSession(KnowledgeBase kbase, Environment env) {
