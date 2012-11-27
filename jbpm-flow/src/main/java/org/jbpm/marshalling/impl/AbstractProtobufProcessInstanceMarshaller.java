@@ -28,6 +28,8 @@ import java.util.Map;
 import org.drools.common.DefaultFactHandle;
 import org.drools.common.InternalRuleBase;
 import org.drools.common.InternalWorkingMemory;
+import org.kie.definition.process.Node;
+import org.kie.definition.process.NodeContainer;
 import org.kie.definition.process.Process;
 import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
@@ -49,11 +51,14 @@ import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
 import org.jbpm.process.instance.context.swimlane.SwimlaneContextInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
+import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
+import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
+import org.jbpm.workflow.instance.node.EventSubProcessInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.JoinInstance;
@@ -453,7 +458,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         
         NodeInstanceImpl nodeInstance = readNodeInstanceContent( _node,
                                                                  context, 
-                                                                 processInstance );
+                                                                 processInstance, nodeInstanceContainer );
 
         nodeInstance.setNodeId( _node.getNodeId() );
         nodeInstance.setNodeInstanceContainer( nodeInstanceContainer );
@@ -512,7 +517,8 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
     protected NodeInstanceImpl readNodeInstanceContent(JBPMMessages.ProcessInstance.NodeInstance _node,
                                                        MarshallerReaderContext context,
-                                                       WorkflowProcessInstance processInstance) throws IOException {
+                                                       WorkflowProcessInstance processInstance,
+                                                       NodeInstanceContainer nodeInstanceContainer) throws IOException {
         NodeInstanceImpl nodeInstance = null;
         NodeInstanceContent _content = _node.getContent();
         switch ( _content.getType() ) {
@@ -599,7 +605,17 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
                 break;
             case COMPOSITE_CONTEXT_NODE :
-                nodeInstance = new CompositeContextNodeInstance();
+                Node myNode = null;
+                if (nodeInstanceContainer instanceof org.jbpm.workflow.instance.NodeInstanceContainer) {
+                    myNode = ((org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstanceContainer).getNodeContainer().getNode(_node.getNodeId());
+                } else {
+                    myNode = ((NodeContainer)processInstance.getProcess()).getNode(_node.getNodeId());
+                }
+                if (myNode instanceof EventSubProcessNode) {
+                    nodeInstance = new EventSubProcessInstance();
+                } else {
+                    nodeInstance = new CompositeContextNodeInstance();
+                }
                 if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
                     for ( Long _timerId : _content.getComposite().getTimerInstanceIdList() ) {

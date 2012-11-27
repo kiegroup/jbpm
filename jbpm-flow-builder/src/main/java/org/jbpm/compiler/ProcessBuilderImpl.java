@@ -20,7 +20,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,13 +36,6 @@ import org.drools.compiler.PackageRegistry;
 import org.drools.compiler.ParserError;
 import org.drools.compiler.ProcessBuilder;
 import org.drools.compiler.ProcessLoadError;
-import org.drools.compiler.ReturnValueDescr;
-import org.kie.definition.process.Connection;
-import org.kie.definition.process.Node;
-import org.kie.definition.process.NodeContainer;
-import org.kie.definition.process.Process;
-import org.kie.definition.process.WorkflowProcess;
-import org.kie.io.Resource;
 import org.drools.io.internal.InternalResource;
 import org.drools.lang.descr.ActionDescr;
 import org.drools.lang.descr.ProcessDescr;
@@ -51,7 +43,6 @@ import org.drools.rule.builder.dialect.java.JavaDialect;
 import org.jbpm.compiler.xml.ProcessSemanticModule;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.compiler.xml.processes.RuleFlowMigrator;
-import org.jbpm.process.builder.MultiConditionalSequenceFlowNodeBuilder;
 import org.jbpm.process.builder.ProcessBuildContext;
 import org.jbpm.process.builder.ProcessNodeBuilder;
 import org.jbpm.process.builder.ProcessNodeBuilderRegistry;
@@ -65,23 +56,28 @@ import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.process.core.validation.ProcessValidationError;
 import org.jbpm.process.core.validation.ProcessValidator;
-import org.jbpm.process.instance.impl.ReturnValueConstraintEvaluator;
-import org.jbpm.process.instance.impl.RuleConstraintEvaluator;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.core.validation.RuleFlowProcessValidator;
 import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.impl.ConnectionRef;
-import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
+import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.ConstraintTrigger;
 import org.jbpm.workflow.core.node.EventNode;
+import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
 import org.jbpm.workflow.core.node.Split;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.StateNode;
 import org.jbpm.workflow.core.node.Trigger;
+import org.kie.definition.process.Connection;
+import org.kie.definition.process.Node;
+import org.kie.definition.process.NodeContainer;
+import org.kie.definition.process.Process;
+import org.kie.definition.process.WorkflowProcess;
+import org.kie.io.Resource;
 
 /**
  * A ProcessBuilder can be used to build processes based on XML files
@@ -368,12 +364,26 @@ public class ProcessBuilderImpl implements ProcessBuilder {
                 builder.append( createStateRules(process, state) );
             } else if ( nodes[i] instanceof StartNode ) {
                 StartNode startNode = (StartNode) nodes[i];
-                List<Trigger> triggers = startNode.getTriggers();
-                if ( triggers != null ) {
-                    for ( Trigger trigger : triggers ) {
-                        if ( trigger instanceof ConstraintTrigger ) {
-                            builder.append( createStartConstraintRule( process,
-                                                                       (ConstraintTrigger) trigger ) );
+                // avoid adding start process rules for event subprocess as they should be only active when process instance is active
+                if (startNode.getNodeContainer() instanceof EventSubProcessNode) {
+                    List<Trigger> triggers = startNode.getTriggers();
+                    if ( triggers != null ) {
+                        for ( Trigger trigger : triggers ) {
+                            if ( trigger instanceof ConstraintTrigger ) {
+                                builder.append( createEventSubprocessStateRule(process, (EventSubProcessNode) startNode.getNodeContainer(),
+                                        (ConstraintTrigger) trigger ) );
+                            }
+                        }
+                    }
+
+                } else { 
+                    List<Trigger> triggers = startNode.getTriggers();
+                    if ( triggers != null ) {
+                        for ( Trigger trigger : triggers ) {
+                            if ( trigger instanceof ConstraintTrigger ) {
+                                builder.append( createStartConstraintRule( process,
+                                                                           (ConstraintTrigger) trigger ) );
+                            }
                         }
                     }
                 }
@@ -438,6 +448,23 @@ public class ProcessBuilderImpl implements ProcessBuilder {
             return 
                 "rule \"RuleFlowStateEvent-" + process.getId() + "-" + event.getUniqueId() + "-" + 
                     attachedTo + "\" \n" + 
+                "      ruleflow-group \"DROOLS_SYSTEM\" \n" + 
+                "    when \n" + 
+                "      " + condition + "\n" + 
+                "    then \n" +
+                "end \n\n";
+        }
+    }
+    
+    private String createEventSubprocessStateRule(Process process, CompositeNode compositeNode,
+            ConstraintTrigger trigger) {
+        String condition = trigger.getConstraint();
+        if (condition == null
+                || condition.trim().length() == 0) {
+            return "";
+        } else {
+            return 
+                "rule \"RuleFlowStateEventSubProcess-" + process.getId() + "-" + compositeNode.getUniqueId() + "\" \n" + 
                 "      ruleflow-group \"DROOLS_SYSTEM\" \n" + 
                 "    when \n" + 
                 "      " + condition + "\n" + 

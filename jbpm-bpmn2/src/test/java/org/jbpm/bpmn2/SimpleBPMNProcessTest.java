@@ -3312,7 +3312,178 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
+    
+    public void testEventSubprocessSignal() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessSignal.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessSignal");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        
+        ksession.signalEvent("MySignal", null, processInstance.getId());
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        ksession.signalEvent("MySignal", null);
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        ksession.signalEvent("MySignal", null);
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        ksession.signalEvent("MySignal", null);
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+    
+    public void testEventSubprocessSignalInterrupting() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessSignalInterrupting.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessSignal");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        
+        ksession.signalEvent("MySignal", null, processInstance.getId());
+        
+        assertProcessInstanceAborted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+ 
+    public void testEventSubprocessMessage() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessMessage.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessMessage");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        
+        ksession.signalEvent("Message-HelloMessage", null, processInstance.getId());
+        ksession.signalEvent("Message-HelloMessage", null);
+        ksession.signalEvent("Message-HelloMessage", null);
+        ksession.signalEvent("Message-HelloMessage", null);
+        ksession.getProcessInstance(processInstance.getId());
+        ksession.getProcessInstance(processInstance.getId());
+        ksession.getProcessInstance(processInstance.getId());
+        ksession.getProcessInstance(processInstance.getId());
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+    
+    public void testEventSubprocessEscalation() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessEscalation.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessEscalation");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+    
+    public void testEventSubprocessError() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessError.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessError");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
 
+    public void testEventSubprocessCompensation() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessCompensation.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessCompensation");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+
+    public void testEventSubprocessTimer() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessTimer.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessTimer");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        Thread.sleep(1000);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+    
+    public void testEventSubprocessTimerCycle() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessTimerCycle.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessTimer");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        Thread.sleep(2000);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "start-sub", "Script Task 1", "end-sub");
+    }
+    
+    public void testEventSubprocessConditional() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessConditional.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessConditional");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+       
+        Person person = new Person();
+        person.setName("john");
+        ksession.insert(person);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+    
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory
 				.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
