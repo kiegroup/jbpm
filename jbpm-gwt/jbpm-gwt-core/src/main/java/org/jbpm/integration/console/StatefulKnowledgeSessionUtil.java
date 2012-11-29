@@ -165,7 +165,9 @@ public class StatefulKnowledgeSessionUtil {
 
             return localKSession;
         } catch (Throwable t) {
-            throw new RuntimeException( "Could not initialize stateful knowledge session: " + t.getMessage(), t);
+            String msg = "Could not initialize stateful knowledge session: " + t.getMessage();
+            logger.error(msg, t);
+            throw new RuntimeException( msg , t );
         }
     }
 

@@ -23,6 +23,7 @@
             </basic>
             <basic name="state" access="FIELD" />
             <basic name="processInstanceByteArray" access="FIELD" >
+                <column length="2147483647" />
                 <lob/>
             </basic>
             <version name="version" access="FIELD" >
