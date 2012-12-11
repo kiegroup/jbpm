@@ -32,7 +32,7 @@ import org.kie.io.ResourceFactory;
 import org.kie.io.ResourceType;
 import org.kie.persistence.jpa.JPAKnowledgeService;
 import org.kie.runtime.Environment;
-import org.kie.runtime.KnowledgeSessionConfiguration;
+import org.kie.runtime.KieSessionConfiguration;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.process.NodeInstance;
 import org.kie.runtime.process.NodeInstanceContainer;
@@ -176,14 +176,14 @@ public abstract class JbpmBpmn2TestCase extends TestCase {
 	protected StatefulKnowledgeSession restoreSession(StatefulKnowledgeSession ksession, boolean noCache) {
 		if (persistence) {
 			int id = ksession.getId();
-			KnowledgeBase kbase = ksession.getKnowledgeBase();
+			KnowledgeBase kbase = ksession.getKieBase();
 			Environment env = null;
 			if (noCache) {
 				env = createEnvironment(context);
 			} else {
 				env = ksession.getEnvironment();
 			}
-			KnowledgeSessionConfiguration config = ksession.getSessionConfiguration();
+			KieSessionConfiguration config = ksession.getSessionConfiguration();
 			StatefulKnowledgeSession result = JPAKnowledgeService.loadStatefulKnowledgeSession(id, kbase, config, env);
 			new JPAWorkingMemoryDbLogger(result);
 			return result;

@@ -1,21 +1,5 @@
 package org.jbpm.bpmn2.persistence;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
-import static org.jbpm.persistence.util.PersistenceUtil.JBPM_PERSISTENCE_UNIT_NAME;
-import static org.jbpm.persistence.util.PersistenceUtil.cleanUp;
-import static org.jbpm.persistence.util.PersistenceUtil.createEnvironment;
-import static org.jbpm.persistence.util.PersistenceUtil.setupWithPoolingDataSource;
-
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.jbpm.bpmn2.JbpmBpmn2TestCase.TestWorkItemHandler;
 import org.jbpm.bpmn2.SimpleBPMNProcessTest;
@@ -41,12 +25,21 @@ import org.kie.io.ResourceFactory;
 import org.kie.io.ResourceType;
 import org.kie.persistence.jpa.JPAKnowledgeService;
 import org.kie.runtime.Environment;
-import org.kie.runtime.KnowledgeSessionConfiguration;
+import org.kie.runtime.KieSessionConfiguration;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.process.ProcessInstance;
 import org.kie.runtime.process.WorkItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static junit.framework.Assert.*;
+import static org.jbpm.persistence.util.PersistenceUtil.*;
 
 public class Hibernate4ProcessPersistenceTest {
 
@@ -198,10 +191,10 @@ public class Hibernate4ProcessPersistenceTest {
 
     protected StatefulKnowledgeSession restoreSession(StatefulKnowledgeSession ksession, boolean noCache) {
         int id = ksession.getId();
-        KnowledgeBase kbase = ksession.getKnowledgeBase();
+        KnowledgeBase kbase = ksession.getKieBase();
         Environment env = null;
         env = createEnvironment(context);
-        KnowledgeSessionConfiguration config = ksession.getSessionConfiguration();
+        KieSessionConfiguration config = ksession.getSessionConfiguration();
         StatefulKnowledgeSession result = JPAKnowledgeService.loadStatefulKnowledgeSession(id, kbase, config, env);
         new JPAWorkingMemoryDbLogger(result);
         return result;

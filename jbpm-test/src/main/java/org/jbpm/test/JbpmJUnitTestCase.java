@@ -1,23 +1,8 @@
 package org.jbpm.test;
 
-import static org.jbpm.test.JBPMHelper.createEnvironment;
-import static org.jbpm.test.JBPMHelper.txStateName;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-
+import bitronix.tm.TransactionManagerServices;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 import junit.framework.Assert;
-
 import org.drools.ClockType;
 import org.drools.SessionConfiguration;
 import org.drools.audit.WorkingMemoryInMemoryLogger;
@@ -54,7 +39,7 @@ import org.kie.io.ResourceType;
 import org.kie.persistence.jpa.JPAKnowledgeService;
 import org.kie.runtime.Environment;
 import org.kie.runtime.EnvironmentName;
-import org.kie.runtime.KnowledgeSessionConfiguration;
+import org.kie.runtime.KieSessionConfiguration;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.conf.ClockTypeOption;
 import org.kie.runtime.process.NodeInstance;
@@ -67,8 +52,20 @@ import org.kie.runtime.process.WorkflowProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import static org.jbpm.test.JBPMHelper.createEnvironment;
+import static org.jbpm.test.JBPMHelper.txStateName;
 
 /**
  * Base test case for the jbpm-bpmn2 module. 
@@ -256,7 +253,7 @@ public abstract class JbpmJUnitTestCase extends Assert {
 	
 	protected StatefulKnowledgeSession createKnowledgeSession(KnowledgeBase kbase) {
 	    StatefulKnowledgeSession result;
-        KnowledgeSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        KieSessionConfiguration conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
 	    // Do NOT use the Pseudo clock yet.. 
         // conf.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );
         
@@ -291,7 +288,7 @@ public abstract class JbpmJUnitTestCase extends Assert {
 	protected StatefulKnowledgeSession restoreSession(StatefulKnowledgeSession ksession, boolean noCache) throws SystemException {
 		if (sessionPersistence) {
 			int id = ksession.getId();
-			KnowledgeBase kbase = ksession.getKnowledgeBase();
+			KnowledgeBase kbase = ksession.getKieBase();
 			Transaction tx = TransactionManagerServices.getTransactionManager().getCurrentTransaction();
 			if( tx != null ) { 
 			    int txStatus = tx.getStatus();
@@ -310,7 +307,7 @@ public abstract class JbpmJUnitTestCase extends Assert {
 				env = ksession.getEnvironment();
 				taskService = null;
 			}
-			KnowledgeSessionConfiguration config = ksession.getSessionConfiguration();
+			KieSessionConfiguration config = ksession.getSessionConfiguration();
 			ksession.dispose();
 			
 			// reload knowledge session 
@@ -326,7 +323,7 @@ public abstract class JbpmJUnitTestCase extends Assert {
 	public StatefulKnowledgeSession loadSession(int id, String... process) { 
 	    KnowledgeBase kbase = createKnowledgeBase(process);
 	       
-        final KnowledgeSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+        final KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         config.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );
         
 	    StatefulKnowledgeSession ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(id, kbase, config, createEnvironment(emf));
