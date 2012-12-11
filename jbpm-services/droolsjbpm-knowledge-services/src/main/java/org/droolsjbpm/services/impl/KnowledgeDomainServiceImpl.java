@@ -15,6 +15,7 @@
  */
 package org.droolsjbpm.services.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.droolsjbpm.services.impl.event.listeners.CDIProcessEventListener;
 import org.droolsjbpm.services.impl.example.MoveFileWorkItemHandler;
 import org.droolsjbpm.services.impl.example.NotificationWorkItemHandler;
 import org.droolsjbpm.services.impl.example.TriggerTestsWorkItemHandler;
+import org.jbpm.task.api.TaskServiceEntryPoint;
 import org.jbpm.task.wih.CDIHTWorkItemHandler;
 import org.kie.commons.io.IOService;
 import org.kie.commons.java.nio.file.Path;
@@ -66,6 +68,9 @@ public class KnowledgeDomainServiceImpl implements KnowledgeDomainService {
     private IOService ioService;
     
     @Inject
+    private TaskServiceEntryPoint taskService;
+    
+    @Inject
     private SessionManager sessionManager;
     
     @Inject
@@ -76,6 +81,7 @@ public class KnowledgeDomainServiceImpl implements KnowledgeDomainService {
     
     @Inject
     private NotificationWorkItemHandler notificationWorkItemHandler;
+    
     
     private Domain domain;
     
@@ -107,6 +113,14 @@ public class KnowledgeDomainServiceImpl implements KnowledgeDomainService {
             String processString = new String( ioService.readAllBytes( p ) );
             domain.addProcessBPMN2ContentToKsession(kSessionName, bpmn2Service.findProcessId( processString ), processString );
         }
+        for (Path p : releaseRulesFiles) {
+            String kSessionName = "releaseSession";
+            System.out.println(" >>> Adding Path to ReleaseSession- > "+p.toString());
+            // TODO automate this in another service
+            domain.addRulesDefinitionToKsession(kSessionName, p);
+        }
+        
+        
         for (Path p : exampleProcessesFiles) {
             String kSessionName = "generalSession";
             domain.addProcessDefinitionToKsession("generalSession", p);
@@ -115,8 +129,10 @@ public class KnowledgeDomainServiceImpl implements KnowledgeDomainService {
             String processString = new String( ioService.readAllBytes( p ) );
             domain.addProcessBPMN2ContentToKsession(kSessionName, bpmn2Service.findProcessId( processString ), processString );
         }
+        
+        
 
-        sessionManager.buildSessions();
+        sessionManager.buildSessions(true);
 
         sessionManager.addKsessionHandler("releaseSession", "MoveToStagingArea",moveFilesWIHandler);
         sessionManager.addKsessionHandler("releaseSession", "MoveToTest", moveFilesWIHandler);
@@ -126,8 +142,12 @@ public class KnowledgeDomainServiceImpl implements KnowledgeDomainService {
         sessionManager.addKsessionHandler("releaseSession", "Email", notificationWorkItemHandler);
 
         sessionManager.registerHandlersForSession("releaseSession");
+        
+        sessionManager.registerRuleListenerForSession("releaseSession");
          
-
+        sessionManager.getKsessionByName("releaseSession").setGlobal("rulesFired", new ArrayList<String>());
+        
+        sessionManager.getKsessionByName("releaseSession").setGlobal("taskService", taskService);
     }
 
     @Override
