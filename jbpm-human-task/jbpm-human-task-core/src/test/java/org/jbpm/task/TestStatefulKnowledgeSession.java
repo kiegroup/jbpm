@@ -257,4 +257,21 @@ public class TestStatefulKnowledgeSession implements StatefulKnowledgeSession {
 	public int getId() {
 		return testSessionId; 
 	}
+
+    @Override
+    public ProcessInstance startProcess(String processId, String businessKey,
+            Map<String, Object> parameters) {
+        return null;
+    }
+
+    @Override
+    public ProcessInstance createProcessInstance(String processId,
+            String businessKey, Map<String, Object> parameters) {
+        return null;
+    }
+
+    @Override
+    public ProcessInstance getProcessInstance(String businessKey) {
+        return null;
+    }
 }

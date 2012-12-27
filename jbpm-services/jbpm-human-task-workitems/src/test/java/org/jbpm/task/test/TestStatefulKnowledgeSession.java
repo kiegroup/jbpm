@@ -251,4 +251,24 @@ public class TestStatefulKnowledgeSession implements StatefulKnowledgeSession {
     @Override
     public void delete(FactHandle fh) {
     }
+
+    @Override
+    public ProcessInstance startProcess(String processId, String businessKey,
+            Map<String, Object> parameters) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ProcessInstance createProcessInstance(String processId,
+            String businessKey, Map<String, Object> parameters) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ProcessInstance getProcessInstance(String businessKey) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

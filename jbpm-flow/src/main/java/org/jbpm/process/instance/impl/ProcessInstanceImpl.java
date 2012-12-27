@@ -42,6 +42,7 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
 	
 	private long id;
     private String processId;
+    private String businessKey;
     private transient Process process;
     private int state = STATE_PENDING;
     private Map<String, ContextInstance> contextInstances = new HashMap<String, ContextInstance>();
@@ -236,6 +237,14 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
 
     public String getOutcome() {
         return outcome;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
     }
     
 }

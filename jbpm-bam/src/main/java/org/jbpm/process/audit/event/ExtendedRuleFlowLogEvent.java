@@ -22,10 +22,13 @@ public class ExtendedRuleFlowLogEvent extends RuleFlowLogEvent {
     private long parentProcessInstanceId;
     private String outcome;
     private int processInstanceState;
+    private String businessKey;
     
-    public ExtendedRuleFlowLogEvent(int type, String processId, String processName, long processInstanceId, long parentProcessInstanceId) {
+    public ExtendedRuleFlowLogEvent(int type, String processId, String processName, 
+            long processInstanceId, long parentProcessInstanceId, String businessKey) {
         super(type, processId, processName, processInstanceId);
         this.parentProcessInstanceId = parentProcessInstanceId;
+        this.businessKey = businessKey;
        
     }
 
@@ -57,5 +60,13 @@ public class ExtendedRuleFlowLogEvent extends RuleFlowLogEvent {
 
     protected void setProcessInstanceState(int processInstanceState) {
         this.processInstanceState = processInstanceState;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
     }
 }

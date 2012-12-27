@@ -16,4 +16,6 @@ public interface ProcessPersistenceContext
     void remove(ProcessInstanceInfo processInstanceInfo);
 
     List<Long> getProcessInstancesWaitingForEvent(String type);
+    
+    Long getProcessInstanceByBusinessKey(String businessKey);
 }

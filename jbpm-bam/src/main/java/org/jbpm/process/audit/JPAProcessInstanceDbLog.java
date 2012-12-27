@@ -126,6 +126,18 @@ public class JPAProcessInstanceDbLog {
         }
     }
     
+    public static List<ProcessInstanceLog> findProcessInstancesByBusinessKey(String businessKey) {
+        EntityManager em = getEntityManager();
+        boolean newTx = joinTransaction(em);
+        try {
+            return (List<ProcessInstanceLog>) getEntityManager()
+            .createQuery("FROM ProcessInstanceLog p WHERE p.businessKey = :businessKey order by p.id")
+                .setParameter("businessKey", businessKey).getResultList();
+        } finally {
+            closeEntityManager(em, newTx);
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     public static List<ProcessInstanceLog> findSubProcessInstances(long processInstanceId) {
         EntityManager em = getEntityManager();

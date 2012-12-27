@@ -38,5 +38,18 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
                                                type );
         return (List<Long>) processInstancesForEvent.getResultList();
     }
+
+    public Long getProcessInstanceByBusinessKey(String businessKey) {
+        Query processInstanceByBusinessKey = getEntityManager().createNamedQuery( "ProcessInstanceByBusinessKey" );
+        processInstanceByBusinessKey.setFlushMode(FlushModeType.COMMIT);
+        processInstanceByBusinessKey.setParameter( "businessKey", businessKey );
+                 
+        try {
+            return (Long) processInstanceByBusinessKey.getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+        
+    }
     
 }

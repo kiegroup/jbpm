@@ -149,4 +149,16 @@ public class JPAProcessInstanceManager
         }
     }
 
+    @Override
+    public ProcessInstance getProcessInstance(String businessKey) {
+        ProcessPersistenceContext context = ((ProcessPersistenceContextManager) kruntime.getEnvironment().get( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER )).getProcessPersistenceContext();
+        
+        Long id = context.getProcessInstanceByBusinessKey(businessKey);
+        if (id == null) {
+            return null;
+        }
+        
+        return getProcessInstance(id);
+    }
+
 }
