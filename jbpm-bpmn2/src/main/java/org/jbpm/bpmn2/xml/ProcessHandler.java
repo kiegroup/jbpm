@@ -584,6 +584,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                 // prepare event sub process
                 if (node instanceof EventSubProcessNode) {
                     EventSubProcessNode eventSubProcessNode = (EventSubProcessNode) node;
+                    
                     Node[] nodes = eventSubProcessNode.getNodes();
                     for (Node subNode : nodes) {
                         if (subNode instanceof StartNode) {
@@ -620,20 +621,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                         } else if (trigger instanceof ConstraintTrigger) {
                                             ConstraintTrigger constraintTrigger = (ConstraintTrigger) trigger;
                                             
-                                            if (constraintTrigger.getHeader() != null) {
-                                                eventSubProcessNode.addEvent("Timer-" + eventSubProcessNode.getId(), "signal");
-
-                                                // timer
-                                                Timer timer = new Timer();                                  
-                                                timer.setDelay((String) startNode.getMetaData("TimerDelay"));
-                                                timer.setPeriod((String) startNode.getMetaData("TimerPeriod"));
-                                                timer.setDate((String) startNode.getMetaData("TimerDate"));
-                                                timer.setTimeType((Integer) startNode.getMetaData("TimerType"));
-                                                eventSubProcessNode.addTimer(timer, new DroolsConsequenceAction("java", ""));
-                                                if (timer.getTimeType() == Timer.TIME_CYCLE) {
-                                                    eventSubProcessNode.setKeepActive(false);
-                                                }
-                                            } else if (constraintTrigger.getConstraint() != null) {
+                                            if (constraintTrigger.getConstraint() != null) {
                                                 String processId = ((RuleFlowProcess) container).getId();
                                                 eventSubProcessNode.addEvent("RuleFlowStateEventSubProcess-" + processId + "-" + eventSubProcessNode.getUniqueId(), "signal");
                                                 

@@ -28,18 +28,10 @@ import java.util.Map;
 import org.drools.common.DefaultFactHandle;
 import org.drools.common.InternalRuleBase;
 import org.drools.common.InternalWorkingMemory;
-import org.kie.definition.process.Node;
-import org.kie.definition.process.NodeContainer;
-import org.kie.definition.process.Process;
 import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
 import org.drools.marshalling.impl.PersisterHelper;
 import org.drools.marshalling.impl.ProtobufMessages.Header;
-import org.kie.runtime.process.NodeInstance;
-import org.kie.runtime.process.NodeInstanceContainer;
-import org.kie.runtime.process.ProcessInstance;
-import org.kie.runtime.process.WorkflowProcessInstance;
-import org.kie.runtime.rule.FactHandle;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceContent;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceContent.RuleSetNode.TextMapEntry;
 import org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance.NodeInstanceType;
@@ -51,11 +43,9 @@ import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.context.exclusive.ExclusiveGroupInstance;
 import org.jbpm.process.instance.context.swimlane.SwimlaneContextInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
-import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
-import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.jbpm.workflow.instance.node.EventSubProcessInstance;
@@ -68,6 +58,12 @@ import org.jbpm.workflow.instance.node.StateNodeInstance;
 import org.jbpm.workflow.instance.node.SubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.TimerNodeInstance;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
+import org.kie.definition.process.Process;
+import org.kie.runtime.process.NodeInstance;
+import org.kie.runtime.process.NodeInstanceContainer;
+import org.kie.runtime.process.ProcessInstance;
+import org.kie.runtime.process.WorkflowProcessInstance;
+import org.kie.runtime.rule.FactHandle;
 
 import com.google.protobuf.ExtensionRegistry;
 
@@ -285,9 +281,14 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     .setState( _state.build() );
         } else if ( nodeInstance instanceof CompositeContextNodeInstance ) {
             JBPMMessages.ProcessInstance.NodeInstanceContent.CompositeContextNode.Builder _composite = JBPMMessages.ProcessInstance.NodeInstanceContent.CompositeContextNode.newBuilder();
-            JBPMMessages.ProcessInstance.NodeInstanceType _type = ( nodeInstance instanceof DynamicNodeInstance ) ?
-                JBPMMessages.ProcessInstance.NodeInstanceType.DYNAMIC_NODE :
-                JBPMMessages.ProcessInstance.NodeInstanceType.COMPOSITE_CONTEXT_NODE;
+            JBPMMessages.ProcessInstance.NodeInstanceType _type = null;
+            if (nodeInstance instanceof DynamicNodeInstance) {
+                _type = JBPMMessages.ProcessInstance.NodeInstanceType.DYNAMIC_NODE;
+            } else if (nodeInstance instanceof EventSubProcessInstance) {
+                _type = JBPMMessages.ProcessInstance.NodeInstanceType.EVENT_SUBPROCESS_NODE;
+            } else {
+                _type = JBPMMessages.ProcessInstance.NodeInstanceType.COMPOSITE_CONTEXT_NODE;
+            }
 
             CompositeContextNodeInstance compositeNodeInstance = (CompositeContextNodeInstance) nodeInstance;
             List<Long> timerInstances =
@@ -458,7 +459,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         
         NodeInstanceImpl nodeInstance = readNodeInstanceContent( _node,
                                                                  context, 
-                                                                 processInstance, nodeInstanceContainer );
+                                                                 processInstance);
 
         nodeInstance.setNodeId( _node.getNodeId() );
         nodeInstance.setNodeInstanceContainer( nodeInstanceContainer );
@@ -508,6 +509,14 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                                       processInstance );
                 }
                 break;
+            case EVENT_SUBPROCESS_NODE :
+                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getComposite().getNodeInstanceList() ) {
+                    context.parameterObject = _instance;
+                    readNodeInstance( context,
+                                      (EventSubProcessInstance) nodeInstance,
+                                      processInstance );
+                }
+                break;
             default :
                 // do nothing
         }
@@ -517,8 +526,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
     protected NodeInstanceImpl readNodeInstanceContent(JBPMMessages.ProcessInstance.NodeInstance _node,
                                                        MarshallerReaderContext context,
-                                                       WorkflowProcessInstance processInstance,
-                                                       NodeInstanceContainer nodeInstanceContainer) throws IOException {
+                                                       WorkflowProcessInstance processInstance) throws IOException {
         NodeInstanceImpl nodeInstance = null;
         NodeInstanceContent _content = _node.getContent();
         switch ( _content.getType() ) {
@@ -605,17 +613,8 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
                 break;
             case COMPOSITE_CONTEXT_NODE :
-                Node myNode = null;
-                if (nodeInstanceContainer instanceof org.jbpm.workflow.instance.NodeInstanceContainer) {
-                    myNode = ((org.jbpm.workflow.instance.NodeInstanceContainer) nodeInstanceContainer).getNodeContainer().getNode(_node.getNodeId());
-                } else {
-                    myNode = ((NodeContainer)processInstance.getProcess()).getNode(_node.getNodeId());
-                }
-                if (myNode instanceof EventSubProcessNode) {
-                    nodeInstance = new EventSubProcessInstance();
-                } else {
-                    nodeInstance = new CompositeContextNodeInstance();
-                }
+                nodeInstance = new CompositeContextNodeInstance();
+                
                 if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
                     for ( Long _timerId : _content.getComposite().getTimerInstanceIdList() ) {
@@ -642,6 +641,17 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 if ( _content.getState().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
                     for ( Long _timerId : _content.getState().getTimerInstanceIdList() ) {
+                        timerInstances.add( _timerId );
+                    }
+                    ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
+                }
+                break;
+            case EVENT_SUBPROCESS_NODE :
+                nodeInstance = new EventSubProcessInstance();
+                
+                if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
+                    List<Long> timerInstances = new ArrayList<Long>();
+                    for ( Long _timerId : _content.getComposite().getTimerInstanceIdList() ) {
                         timerInstances.add( _timerId );
                     }
                     ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );

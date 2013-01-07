@@ -364,26 +364,13 @@ public class ProcessBuilderImpl implements ProcessBuilder {
                 builder.append( createStateRules(process, state) );
             } else if ( nodes[i] instanceof StartNode ) {
                 StartNode startNode = (StartNode) nodes[i];
-                // avoid adding start process rules for event subprocess as they should be only active when process instance is active
-                if (startNode.getNodeContainer() instanceof EventSubProcessNode) {
-                    List<Trigger> triggers = startNode.getTriggers();
-                    if ( triggers != null ) {
-                        for ( Trigger trigger : triggers ) {
-                            if ( trigger instanceof ConstraintTrigger ) {
-                                builder.append( createEventSubprocessStateRule(process, (EventSubProcessNode) startNode.getNodeContainer(),
-                                        (ConstraintTrigger) trigger ) );
-                            }
-                        }
-                    }
 
-                } else { 
-                    List<Trigger> triggers = startNode.getTriggers();
-                    if ( triggers != null ) {
-                        for ( Trigger trigger : triggers ) {
-                            if ( trigger instanceof ConstraintTrigger ) {
-                                builder.append( createStartConstraintRule( process,
-                                                                           (ConstraintTrigger) trigger ) );
-                            }
+                List<Trigger> triggers = startNode.getTriggers();
+                if ( triggers != null ) {
+                    for ( Trigger trigger : triggers ) {
+                        if ( trigger instanceof ConstraintTrigger ) {
+                            builder.append( createStartConstraintRule( process, startNode.getNodeContainer(), 
+                                                                       (ConstraintTrigger) trigger ) );
                         }
                     }
                 }
@@ -481,8 +468,12 @@ public class ProcessBuilderImpl implements ProcessBuilder {
         return result;
     }
 
-    private String createStartConstraintRule(Process process,
+    private String createStartConstraintRule(Process process, NodeContainer nodeContainer,
                                              ConstraintTrigger trigger) {
+        if (nodeContainer instanceof EventSubProcessNode) {
+            return createEventSubprocessStateRule(process, (EventSubProcessNode) nodeContainer, trigger);
+        }
+        
         String result = 
         	"rule \"RuleFlow-Start-" + process.getId() + "\" \n" + 
         	(trigger.getHeader() == null ? "" : "        " + trigger.getHeader() + " \n") + 

@@ -75,6 +75,7 @@ import org.kie.builder.KnowledgeBuilderError;
 import org.kie.builder.KnowledgeBuilderFactory;
 import org.kie.definition.process.Process;
 import org.kie.event.process.DefaultProcessEventListener;
+import org.kie.event.process.ProcessEventListener;
 import org.kie.event.process.ProcessNodeLeftEvent;
 import org.kie.event.process.ProcessNodeTriggeredEvent;
 import org.kie.event.process.ProcessStartedEvent;
@@ -3336,6 +3337,51 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
         assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+    }
+    
+    public void testEventSubprocessSignalWithStateNode() throws Exception {
+        KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventSubprocessSignalWithStateNode.bpmn2");
+        
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-EventSubprocessSignal");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        ksession = restoreSession(ksession, true);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
+                workItemHandler);        
+        
+        WorkItem workItemTopProcess = workItemHandler.getWorkItem();
+        
+        ksession.signalEvent("MySignal", null, processInstance.getId());
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        
+        ksession.signalEvent("MySignal", null);
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        
+        ksession.signalEvent("MySignal", null);
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        
+        ksession.signalEvent("MySignal", null);
+        assertProcessInstanceActive(processInstance.getId(), ksession);
+        workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        
+        assertNotNull(workItemTopProcess);
+        ksession.getWorkItemManager().completeWorkItem(workItemTopProcess.getId(), null);
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1", "end", "Sub Process 1", "start-sub", "User Task 2", "end-sub");
     }
     
     public void testEventSubprocessSignalInterrupting() throws Exception {

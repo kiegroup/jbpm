@@ -330,6 +330,9 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     
     public void setState(final int state) {
         this.state = state;
+        if (state == ProcessInstance.STATE_ABORTED) {
+            cancel();
+        }
     }
 
     public int getState() {

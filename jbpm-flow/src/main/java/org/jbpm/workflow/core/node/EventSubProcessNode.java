@@ -18,6 +18,8 @@ package org.jbpm.workflow.core.node;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jbpm.process.core.timer.Timer;
+import org.jbpm.workflow.core.DroolsAction;
 import org.kie.definition.process.Node;
 
 public class EventSubProcessNode extends CompositeContextNode {
@@ -56,4 +58,15 @@ public class EventSubProcessNode extends CompositeContextNode {
         }
         return null;
     }
+
+    @Override
+    public void addTimer(Timer timer, DroolsAction action) {
+        super.addTimer(timer, action);
+        if (timer.getTimeType() == Timer.TIME_CYCLE) {
+            setKeepActive(true);
+        }
+    }
+    
+    
 }
+

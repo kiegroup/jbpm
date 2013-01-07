@@ -280,7 +280,6 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             nodeInstance = it.next();
             if (nodeInstance instanceof EventSubProcessInstance) {                
                 it.remove();
-                nodeInstance.cancel();
                 
             } else if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
                 ((EventBasedNodeInstanceInterface) nodeInstance).removeEventListeners();

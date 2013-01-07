@@ -33,6 +33,7 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.ConstraintTrigger;
 import org.jbpm.workflow.core.node.EndNode;
+import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.EventTrigger;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.Trigger;
@@ -116,6 +117,22 @@ public class StartEventHandler extends AbstractNodeHandler {
             	org.w3c.dom.Node subNode = xmlNode.getFirstChild();
                 while (subNode instanceof Element) {
                     String subNodeName = subNode.getNodeName();
+                    Timer timer = null;   
+                    
+                    if (parser.getParent() instanceof EventSubProcessNode) {
+                        // handle timer on start events like normal (non rule) timers for even sub process
+                        timer = new Timer();
+                        ((EventSubProcessNode) parser.getParent()).addTimer(timer, new DroolsConsequenceAction("java", ""));
+                        EventTrigger trigger = new EventTrigger();
+                        EventTypeFilter eventFilter = new EventTypeFilter();
+                        eventFilter.setType("Timer-" + ((EventSubProcessNode) parser.getParent()).getId());
+                        trigger.addEventFilter(eventFilter);
+                        String mapping = (String) startNode.getMetaData("TriggerMapping");
+                        if (mapping != null) {
+                            trigger.addInMapping(mapping, "event");
+                        }
+                        startNode.addTrigger(trigger);
+                    }
                     if ("timeCycle".equals(subNodeName)) {
                         String period = "";
                         String repeatLimit = "-1";
@@ -140,22 +157,25 @@ public class StartEventHandler extends AbstractNodeHandler {
                             }
                         }
                         if (delay != null && delay.trim().length() > 0) {
-                            
-                            startNode.setMetaData("TimerDelay", delay);
-                            startNode.setMetaData("TimerPeriod", period);
-                            startNode.setMetaData("TimerType", Integer.valueOf(Timer.TIME_CYCLE));
-	                        ConstraintTrigger trigger = new ConstraintTrigger();
-	                        trigger.setConstraint("");
-	                        if ("int".equals(language)) {
-	                            if (repeatLimit.equals("-1")) {
-	                                trigger.setHeader("timer (int:" + delay + " " + period + ")");
-	                            } else {
-	                                trigger.setHeader("timer (int:" + delay + " " + period + " repeat-limit=" + repeatLimit + ")");
-	                            }
-	                        } else {
-	                        	trigger.setHeader("timer (" + language + ":" + delay + ")");
-	                        }
-	                        startNode.addTrigger(trigger);
+                            startNode.setMetaData("TimerType", Timer.TIME_CYCLE);
+                            if (timer != null) {
+                                timer.setDelay(delay);
+                                timer.setPeriod(period);
+                                timer.setTimeType(Integer.valueOf(Timer.TIME_CYCLE));
+                            } else {
+    	                        ConstraintTrigger trigger = new ConstraintTrigger();
+    	                        trigger.setConstraint("");
+    	                        if ("int".equals(language)) {
+    	                            if (repeatLimit.equals("-1")) {
+    	                                trigger.setHeader("timer (int:" + delay + " " + period + ")");
+    	                            } else {
+    	                                trigger.setHeader("timer (int:" + delay + " " + period + " repeat-limit=" + repeatLimit + ")");
+    	                            }
+    	                        } else {
+    	                        	trigger.setHeader("timer (" + language + ":" + delay + ")");
+    	                        }
+    	                        startNode.addTrigger(trigger);
+                            }
 	                        break;
                         }
                     } else if ("timeDuration".equals(subNodeName)) {
@@ -163,13 +183,17 @@ public class StartEventHandler extends AbstractNodeHandler {
                         
                         if (period != null && period.trim().length() > 0) {
                             startNode.setMetaData("TimerDef", period);
-                            startNode.setMetaData("TimerDelay", period);
-                            startNode.setMetaData("TimerType", Integer.valueOf(Timer.TIME_DURATION));
-                            ConstraintTrigger trigger = new ConstraintTrigger();
-                            trigger.setConstraint("");
-                            trigger.setHeader("timer (int:" + period + " 0)");
-                            
-                            startNode.addTrigger(trigger);
+                            startNode.setMetaData("TimerType", Timer.TIME_DURATION);
+                            if (timer != null) {
+                                timer.setDelay(period);
+                                timer.setTimeType(Integer.valueOf(Timer.TIME_DURATION));
+                            } else {
+                                ConstraintTrigger trigger = new ConstraintTrigger();
+                                trigger.setConstraint("");
+                                trigger.setHeader("timer (int:" + period + " 0)");
+                                
+                                startNode.addTrigger(trigger);
+                            }
                             break;
                         }
                     } else if ("timeDate".equals(subNodeName)) {
@@ -177,17 +201,22 @@ public class StartEventHandler extends AbstractNodeHandler {
                  
                         if (period != null && period.trim().length() > 0) {
                             startNode.setMetaData("TimerDef", period);
-                            startNode.setMetaData("TimerDelay", period);
-                            startNode.setMetaData("TimerType", Integer.valueOf(Timer.TIME_DATE));
-                            ConstraintTrigger trigger = new ConstraintTrigger();
-                            trigger.setConstraint("");
-                            trigger.setHeader("timer (int:" + period + " 0)");
-                            
-                            startNode.addTrigger(trigger);
+                            startNode.setMetaData("TimerType", Timer.TIME_DATE);
+                            if (timer != null) {
+                                timer.setDate(period);
+                                timer.setTimeType(Integer.valueOf(Timer.TIME_DATE));
+                            } else {
+                                ConstraintTrigger trigger = new ConstraintTrigger();
+                                trigger.setConstraint("");
+                                trigger.setHeader("timer (int:" + period + " 0)");
+                                
+                                startNode.addTrigger(trigger);
+                            }
                             break;
                         }
                     }
                     subNode = subNode.getNextSibling();
+                    
                }
                 // following event definitions are only for event sub process and will be validated to not be included in top process definitions
             } else if ("errorEventDefinition".equals(nodeName)) {
@@ -275,11 +304,11 @@ public class StartEventHandler extends AbstractNodeHandler {
 		    	    Integer timerType = (Integer) startNode.getMetaData("TimerType");
 		    	    if (timerType == Timer.TIME_DURATION) {
 		    	        xmlDump.append("      <timerEventDefinition>" + EOL);
-	                    xmlDump.append("        <timeDuration xsi:type=\"tFormalExpression\" >" + startNode.getMetaData("TimerDelay") + "</timeDuration>" + EOL);
+	                    xmlDump.append("        <timeDuration xsi:type=\"tFormalExpression\" >" + startNode.getMetaData("TimerDef") + "</timeDuration>" + EOL);
 	                    xmlDump.append("      </timerEventDefinition>" + EOL);
 		    	    } else if (timerType == Timer.TIME_DATE) {
 		    	        xmlDump.append("      <timerEventDefinition>" + EOL);
-	                    xmlDump.append("        <timeDate xsi:type=\"tFormalExpression\" >" + startNode.getMetaData("TimerDate") + "</timeDate>" + EOL);
+	                    xmlDump.append("        <timeDate xsi:type=\"tFormalExpression\" >" + startNode.getMetaData("TimerDef") + "</timeDate>" + EOL);
 	                    xmlDump.append("      </timerEventDefinition>" + EOL);    
                     } else {
     		    		String header = constraintTrigger.getHeader();
