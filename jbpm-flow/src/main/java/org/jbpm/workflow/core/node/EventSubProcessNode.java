@@ -15,9 +15,10 @@
  */
 package org.jbpm.workflow.core.node;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.workflow.core.DroolsAction;
 import org.kie.definition.process.Node;
@@ -26,18 +27,18 @@ public class EventSubProcessNode extends CompositeContextNode {
 
     private static final long serialVersionUID = 2200928773922042238L;
 
-    private Map<String, String> events = new HashMap<String, String>();
+    private List<String> events = new ArrayList<String>();
     private boolean keepActive = true;
     
-    public void addEvent(String event, String type) {
-        this.events.put(event, type);
+    public void addEvent(String event) {
+        this.events.add(event);
     }
     
-    public Map<String, String> getEvents() {
+    public List<String> getEvents() {
         return events;
     }
 
-    public void setEvents(Map<String, String> events) {
+    public void setEvents(List<String> events) {
         this.events = events;
     }
 
@@ -63,8 +64,13 @@ public class EventSubProcessNode extends CompositeContextNode {
     public void addTimer(Timer timer, DroolsAction action) {
         super.addTimer(timer, action);
         if (timer.getTimeType() == Timer.TIME_CYCLE) {
-            setKeepActive(true);
+            setKeepActive(false);
         }
+    }
+
+    @Override
+    public boolean acceptsEvent(String type, Object event) { 
+        return events.contains(type);
     }
     
     

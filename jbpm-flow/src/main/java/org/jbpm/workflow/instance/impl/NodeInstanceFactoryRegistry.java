@@ -50,7 +50,7 @@ import org.jbpm.workflow.instance.node.CompositeNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.EndNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
-import org.jbpm.workflow.instance.node.EventSubProcessInstance;
+import org.jbpm.workflow.instance.node.EventSubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.FaultNodeInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
@@ -98,7 +98,7 @@ public class NodeInstanceFactoryRegistry {
         register( FaultNode.class,
                   new CreateNewNodeFactory( FaultNodeInstance.class ) );
         register(EventSubProcessNode.class, 
-                  new CreateNewNodeFactory(EventSubProcessInstance.class));
+                  new CreateNewNodeFactory(EventSubProcessNodeInstance.class));
         register( CompositeNode.class,
                   new CreateNewNodeFactory( CompositeNodeInstance.class ) );
         register( CompositeContextNode.class,

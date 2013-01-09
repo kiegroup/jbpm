@@ -120,9 +120,9 @@ public class StartEventHandler extends AbstractNodeHandler {
                     Timer timer = null;   
                     
                     if (parser.getParent() instanceof EventSubProcessNode) {
-                        // handle timer on start events like normal (non rule) timers for even sub process
+                        // handle timer on start events like normal (non rule) timers for event sub process
                         timer = new Timer();
-                        ((EventSubProcessNode) parser.getParent()).addTimer(timer, new DroolsConsequenceAction("java", ""));
+                        
                         EventTrigger trigger = new EventTrigger();
                         EventTypeFilter eventFilter = new EventTypeFilter();
                         eventFilter.setType("Timer-" + ((EventSubProcessNode) parser.getParent()).getId());
@@ -162,6 +162,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                                 timer.setDelay(delay);
                                 timer.setPeriod(period);
                                 timer.setTimeType(Integer.valueOf(Timer.TIME_CYCLE));
+                                ((EventSubProcessNode) parser.getParent()).addTimer(timer, new DroolsConsequenceAction("java", ""));
                             } else {
     	                        ConstraintTrigger trigger = new ConstraintTrigger();
     	                        trigger.setConstraint("");
@@ -187,6 +188,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                             if (timer != null) {
                                 timer.setDelay(period);
                                 timer.setTimeType(Integer.valueOf(Timer.TIME_DURATION));
+                                ((EventSubProcessNode) parser.getParent()).addTimer(timer, new DroolsConsequenceAction("java", ""));
                             } else {
                                 ConstraintTrigger trigger = new ConstraintTrigger();
                                 trigger.setConstraint("");
@@ -205,6 +207,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                             if (timer != null) {
                                 timer.setDate(period);
                                 timer.setTimeType(Integer.valueOf(Timer.TIME_DATE));
+                                ((EventSubProcessNode) parser.getParent()).addTimer(timer, new DroolsConsequenceAction("java", ""));
                             } else {
                                 ConstraintTrigger trigger = new ConstraintTrigger();
                                 trigger.setConstraint("");

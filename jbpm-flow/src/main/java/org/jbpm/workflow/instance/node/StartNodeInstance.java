@@ -38,7 +38,6 @@ public class StartNodeInstance extends NodeInstanceImpl {
             throw new IllegalArgumentException(
                 "A StartNode can only be triggered by the process itself!");
         }
-        
         triggerCompleted();
     }
     

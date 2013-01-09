@@ -599,7 +599,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                             for ( EventFilter filter : filters ) {
                                                 if ( filter instanceof EventTypeFilter ) {
                                                     String type = ((EventTypeFilter) filter).getType();
-                                                    eventSubProcessNode.addEvent(type, "signal");
+                                                    eventSubProcessNode.addEvent(type);
                                                     
                                                     if (type.startsWith("Error-") || type.startsWith("Escalation-")) {
                                                         String replaceRegExp = "Error-|Escalation-";
@@ -623,7 +623,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                             
                                             if (constraintTrigger.getConstraint() != null) {
                                                 String processId = ((RuleFlowProcess) container).getId();
-                                                eventSubProcessNode.addEvent("RuleFlowStateEventSubProcess-" + processId + "-" + eventSubProcessNode.getUniqueId(), "signal");
+                                                eventSubProcessNode.addEvent("RuleFlowStateEventSubProcess-" + processId + "-" + eventSubProcessNode.getUniqueId());
                                                 
                                             }
                                         }

@@ -48,7 +48,7 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.EventNodeInstance;
-import org.jbpm.workflow.instance.node.EventSubProcessInstance;
+import org.jbpm.workflow.instance.node.EventSubProcessNodeInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance;
 import org.jbpm.workflow.instance.node.HumanTaskNodeInstance;
 import org.jbpm.workflow.instance.node.JoinInstance;
@@ -284,7 +284,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             JBPMMessages.ProcessInstance.NodeInstanceType _type = null;
             if (nodeInstance instanceof DynamicNodeInstance) {
                 _type = JBPMMessages.ProcessInstance.NodeInstanceType.DYNAMIC_NODE;
-            } else if (nodeInstance instanceof EventSubProcessInstance) {
+            } else if (nodeInstance instanceof EventSubProcessNodeInstance) {
                 _type = JBPMMessages.ProcessInstance.NodeInstanceType.EVENT_SUBPROCESS_NODE;
             } else {
                 _type = JBPMMessages.ProcessInstance.NodeInstanceType.COMPOSITE_CONTEXT_NODE;
@@ -513,7 +513,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getComposite().getNodeInstanceList() ) {
                     context.parameterObject = _instance;
                     readNodeInstance( context,
-                                      (EventSubProcessInstance) nodeInstance,
+                                      (EventSubProcessNodeInstance) nodeInstance,
                                       processInstance );
                 }
                 break;
@@ -647,7 +647,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
                 break;
             case EVENT_SUBPROCESS_NODE :
-                nodeInstance = new EventSubProcessInstance();
+                nodeInstance = new EventSubProcessNodeInstance();
                 
                 if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();

@@ -22,7 +22,7 @@ import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.kie.definition.process.NodeContainer;
 import org.kie.runtime.process.NodeInstance;
 
-public class EventSubProcessInstance extends CompositeContextNodeInstance {
+public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
 
 
     private static final long serialVersionUID = 7095736653568661510L;
@@ -56,7 +56,7 @@ public class EventSubProcessInstance extends CompositeContextNodeInstance {
 
     @Override
     public void nodeInstanceCompleted(org.jbpm.workflow.instance.NodeInstance nodeInstance, String outType) {
-        if (nodeInstance instanceof EndNodeInstance) {            
+        if (nodeInstance instanceof EndNodeInstance) { 
             if (getCompositeNode().isKeepActive()) {
                 StartNode startNode = getCompositeNode().findStartNode();
                 triggerCompleted(true);
