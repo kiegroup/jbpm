@@ -3313,6 +3313,36 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
 
+	public void testDependentSubprocess() throws Exception {
+		KnowledgeBase kbase = createKnowledgeBase("BPMN2-EventBasedSplit.bpmn2", "BPMN2-DependentSubprocess.bpmn2");
+		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+		ksession.getWorkItemManager().registerWorkItemHandler("Email1",
+				new SystemOutWorkItemHandler());
+		ksession.getWorkItemManager().registerWorkItemHandler("Email2",
+				new SystemOutWorkItemHandler());
+		ProcessInstance processInstance = ksession.startProcess("org.drools.bpmn2.dependent");
+		ProcessInstance subprocess = null;
+		{
+			Iterator<ProcessInstance> it = ksession.getProcessInstances().iterator();
+			while (it.hasNext()) {
+				subprocess = it.next();
+				if (subprocess.getProcessId().equals("com.sample.test")) {
+					break;
+				}
+			}
+			assertNotNull("No processes were started!", subprocess);
+			assertEquals("Subprocess can't be found!", subprocess.getProcessId(), "com.sample.test");
+		}
+
+		assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+		assertTrue(subprocess.getState() == ProcessInstance.STATE_ACTIVE);
+
+		ksession.abortProcessInstance(processInstance.getId());
+
+		assertTrue(processInstance.getState() == ProcessInstance.STATE_ABORTED);
+		assertTrue("Subprocess is not aborted!", subprocess.getState() == ProcessInstance.STATE_ABORTED);
+	}
+
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory
 				.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
