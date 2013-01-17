@@ -130,10 +130,15 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
     public ProcessInstance startProcess(final String processId) {
         return startProcess(processId, null);
     }
-
+    
     public ProcessInstance startProcess(String processId,
+            Map<String, Object> parameters) {
+        return startProcess(processId, null, parameters);
+    }
+
+    public ProcessInstance startProcess(String processId, String businessKey,
                                         Map<String, Object> parameters) {
-    	ProcessInstance processInstance = createProcessInstance(processId, parameters);
+    	ProcessInstance processInstance = createProcessInstance(processId, businessKey, parameters);
         if ( processInstance != null ) {
             // start process instance
         	return startProcessInstance(processInstance.getId());
@@ -141,7 +146,11 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         return null;
     }
     
-    public ProcessInstance createProcessInstance(String processId,
+    public ProcessInstance createProcessInstance(String processId,  Map<String, Object> parameters) {
+        return createProcessInstance(processId, null, parameters);
+    }
+    
+    public ProcessInstance createProcessInstance(String processId, String businessKey,
                                                  Map<String, Object> parameters) {
         try {
             kruntime.startOperation();
@@ -152,7 +161,7 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
             if ( process == null ) {
                 throw new IllegalArgumentException( "Unknown process ID: " + processId );
             }
-            return startProcess( process, parameters );
+            return startProcess( process, businessKey, parameters );
         } finally {
         	kruntime.endOperation();
         }
@@ -174,15 +183,16 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
         }
     }
 
-    private org.jbpm.process.instance.ProcessInstance startProcess(final Process process,
+    private org.jbpm.process.instance.ProcessInstance startProcess(final Process process, String businessKey,
                                          Map<String, Object> parameters) {
         ProcessInstanceFactory conf = ProcessInstanceFactoryRegistry.INSTANCE.getProcessInstanceFactory( process );
         if ( conf == null ) {
             throw new IllegalArgumentException( "Illegal process type: " + process.getClass() );
         }
-        return conf.createProcessInstance( process,
+        org.jbpm.process.instance.ProcessInstance pi = conf.createProcessInstance( process, businessKey, 
         								   kruntime,
                                            parameters );
+        return pi;
     }
 
     public ProcessInstanceManager getProcessInstanceManager() {
@@ -203,6 +213,10 @@ public class ProcessRuntimeImpl implements InternalProcessRuntime {
 
     public ProcessInstance getProcessInstance(long id) {
         return processInstanceManager.getProcessInstance( id );
+    }
+    
+    public ProcessInstance getProcessInstance(String businessKey) {
+        return processInstanceManager.getProcessInstance( businessKey );
     }
 
     public void removeProcessInstance(ProcessInstance processInstance) {

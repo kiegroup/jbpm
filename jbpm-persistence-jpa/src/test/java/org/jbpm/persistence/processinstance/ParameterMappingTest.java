@@ -145,6 +145,19 @@ public class ParameterMappingTest extends JbpmTestCase {
         assertTrue(listener.isProcessCompleted(SUBPROCESS_ID));
         assertTrue(listener.isProcessCompleted(PROCESS_ID));
     }
+    
+    @Test
+    public void testProcessWithBusinessKey() throws Exception {
+        Map<String, Object> mapping = new HashMap<String, Object>();
+        mapping.put("type", "default");
+
+        ksession.startProcess(PROCESS_ID, "myBusinessKey", mapping);
+
+        assertTrue(listener.isProcessStarted(PROCESS_ID));
+        assertTrue(listener.isProcessStarted(SUBPROCESS_ID));
+        assertTrue(listener.isProcessCompleted(SUBPROCESS_ID));
+        assertTrue(listener.isProcessCompleted(PROCESS_ID));
+    }
 
     
     public static class ProcessListener extends DefaultProcessEventListener {

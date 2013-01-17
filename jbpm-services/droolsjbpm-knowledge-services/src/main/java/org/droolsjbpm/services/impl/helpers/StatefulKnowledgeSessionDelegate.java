@@ -359,5 +359,22 @@ public class StatefulKnowledgeSessionDelegate implements StatefulKnowledgeSessio
         ksession.fireUntilHalt(af);
     }
 
+    @Override
+    public ProcessInstance startProcess(String processId, String businessKey,
+            Map<String, Object> parameters) {
+        return ksession.startProcess(processId, businessKey, parameters);
+    }
+
+    @Override
+    public ProcessInstance createProcessInstance(String processId,
+            String businessKey, Map<String, Object> parameters) {
+        return createProcessInstance(processId, businessKey, parameters);
+    }
+
+    @Override
+    public ProcessInstance getProcessInstance(String businessKey) {
+        return getProcessInstance(businessKey);
+    }
+
   
 }

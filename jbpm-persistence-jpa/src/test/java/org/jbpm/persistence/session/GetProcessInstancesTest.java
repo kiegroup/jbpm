@@ -12,6 +12,7 @@ import javax.transaction.UserTransaction;
 
 import org.jbpm.persistence.JbpmTestCase;
 import org.jbpm.persistence.processinstance.JPAProcessInstanceManager;
+import org.jbpm.process.instance.ProcessInstance;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +71,27 @@ public class GetProcessInstancesTest extends JbpmTestCase {
         ksession.dispose();
 
         assertProcessInstancesExist(processId);
+    }
+    
+    @Test
+    public void create2ProcessInstancesByBusinessKey() throws Exception {
+        long[] processId = new long[2];
+
+        StatefulKnowledgeSession ksession = reloadKnowledgeSession();
+        processId[0] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", "businessKey1", null).getId();
+        processId[1] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", "businessKey2", null).getId();
+        ksession.dispose();
+
+        assertProcessInstancesExist(processId);
+        ksession = reloadKnowledgeSession();
+        ProcessInstance pi = (ProcessInstance)ksession.getProcessInstance("businessKey1");
+        assertNotNull(pi);
+        assertEquals("businessKey1", pi.getBusinessKey());
+        pi = (ProcessInstance)ksession.getProcessInstance("businessKey2");
+        ksession.startProcessInstance(processId[0]);
+        assertNotNull(pi);
+        assertEquals("businessKey2", pi.getBusinessKey());
+        ksession.startProcessInstance(processId[1]);
     }
 
     @Test

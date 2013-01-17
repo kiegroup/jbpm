@@ -24,6 +24,8 @@ public interface ProcessInstanceManager {
 
     ProcessInstance getProcessInstance(long id);
     
+    ProcessInstance getProcessInstance(String businessKey);
+    
     Collection<ProcessInstance> getProcessInstances();
 
     void addProcessInstance(ProcessInstance processInstance);

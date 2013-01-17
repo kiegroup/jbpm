@@ -352,4 +352,23 @@ public class StatefulProcessSession implements StatefulKnowledgeSession, Interna
 		throw new UnsupportedOperationException();
 	}
 
+    @Override
+    public ProcessInstance startProcess(String processId, String businessKey,
+            Map<String, Object> parameters) {
+        
+        return processRuntime.startProcess(processId, businessKey, parameters);
+    }
+
+    @Override
+    public ProcessInstance createProcessInstance(String processId,
+            String businessKey, Map<String, Object> parameters) {
+        return processRuntime.createProcessInstance(processId, businessKey, parameters);
+    }
+
+    @Override
+    public ProcessInstance getProcessInstance(String businessKey) {
+        
+        return processRuntime.getProcessInstance(businessKey);
+    }
+
 }

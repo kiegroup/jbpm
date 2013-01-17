@@ -45,4 +45,8 @@ public interface ProcessInstance extends org.kie.runtime.process.ProcessInstance
     void start();
     
     String getOutcome();
+    
+    void setBusinessKey(String businessKey);
+    
+    String getBusinessKey();
 }

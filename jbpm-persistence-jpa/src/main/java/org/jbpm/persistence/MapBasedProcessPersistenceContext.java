@@ -16,11 +16,13 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
     
     private ProcessStorage storage;
     private Map<Long, ProcessInstanceInfo> processes;
+    private Map<String, Long> processesIdByBusinessKey;
 
     public MapBasedProcessPersistenceContext(ProcessStorage storage) {
         super( storage );
         this.storage = storage;
         this.processes = new HashMap<Long, ProcessInstanceInfo>();
+        this.processesIdByBusinessKey = new HashMap<String, Long>();
     }
 
     public void persist(ProcessInstanceInfo processInstanceInfo) {
@@ -28,6 +30,7 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
             processInstanceInfo.setId( storage.getNextProcessInstanceId() );
         }
         processes.put( processInstanceInfo.getId(), processInstanceInfo );
+        processesIdByBusinessKey.put(processInstanceInfo.getBusinessKey(), processInstanceInfo.getId());
     }
 
     public ProcessInstanceInfo findProcessInstanceInfo(Long processId) {
@@ -58,5 +61,9 @@ public class MapBasedProcessPersistenceContext extends MapBasedPersistenceContex
 
     public void clearStoredProcessInstances() {
         processes.clear();
+    }
+
+    public Long getProcessInstanceByBusinessKey(String businessKey) {        
+        return processesIdByBusinessKey.get(businessKey);        
     }
 }

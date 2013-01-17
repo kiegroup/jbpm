@@ -374,6 +374,53 @@ public class JPAWorkingMemoryDbLoggerTest extends JbpmTestCase {
         assertTrue(processInstances.isEmpty());
     }
     
+    @Test
+    public void testLogger6() {
+        // load the process
+        KnowledgeBase kbase = createKnowledgeBase();
+        // create a new session
+        Environment env = createEnvironment(context);
+        Properties properties = new Properties();
+        properties.put("drools.processInstanceManagerFactory", "org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory");
+        properties.put("drools.processSignalManagerFactory", "org.jbpm.persistence.processinstance.JPASignalManagerFactory");
+        KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
+        StatefulKnowledgeSession session = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, config, env);
+        new JPAWorkingMemoryDbLogger(session);
+        JPAProcessInstanceDbLog.setEnvironment(env);
+        session.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
+
+        // record the initial count to compare to later
+        List<ProcessInstanceLog> processInstances =
+            JPAProcessInstanceDbLog.findProcessInstances("com.sample.ruleflow");
+        int initialProcessInstanceSize = processInstances.size();
+        
+        // start process instance
+        session.startProcess("com.sample.ruleflow", "process1", null);
+        session.startProcess("com.sample.ruleflow", "process2", null);
+        
+        logger.debug("Checking process instances for process 'com.sample.ruleflow'");
+        processInstances = JPAProcessInstanceDbLog.findProcessInstances("com.sample.ruleflow");
+        assertEquals(initialProcessInstanceSize + 2, processInstances.size());
+        for (ProcessInstanceLog processInstance: processInstances) {
+            logger.debug(processInstance.toString()
+            + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+            List<NodeInstanceLog> nodeInstances = JPAProcessInstanceDbLog.findNodeInstances(processInstance.getProcessInstanceId());
+            for (NodeInstanceLog nodeInstance: nodeInstances) {
+                logger.debug(nodeInstance.toString()
+              + " -> " + nodeInstance.getDate());
+            }
+            assertEquals(6, nodeInstances.size());
+        }
+        
+        processInstances = JPAProcessInstanceDbLog.findProcessInstancesByBusinessKey("process1");
+        assertEquals(1, processInstances.size());
+        
+        processInstances = JPAProcessInstanceDbLog.findProcessInstancesByBusinessKey("process2");
+        assertEquals(1, processInstances.size());
+        JPAProcessInstanceDbLog.clear();
+    }
+    
+    
     private KnowledgeBase createKnowledgeBase() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(new ClassPathResource("ruleflow.rf"), ResourceType.DRF);

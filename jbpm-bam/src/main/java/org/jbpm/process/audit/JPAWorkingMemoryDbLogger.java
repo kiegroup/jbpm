@@ -43,6 +43,7 @@ import org.kie.runtime.Environment;
 import org.kie.runtime.EnvironmentName;
 import org.kie.runtime.KnowledgeRuntime;
 import org.jbpm.process.audit.event.ExtendedRuleFlowLogEvent;
+import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,6 +116,7 @@ public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
         ProcessInstanceLog log = new ProcessInstanceLog(processEvent.getProcessInstanceId(), processEvent.getProcessId());
         if (processEvent instanceof ExtendedRuleFlowLogEvent) {
             log.setParentProcessInstanceId(((ExtendedRuleFlowLogEvent) processEvent).getParentProcessInstanceId());
+            log.setBusinessKey(((ExtendedRuleFlowLogEvent) processEvent).getBusinessKey());
         }
         persist(log);
     }
@@ -274,7 +276,8 @@ public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
         LogEvent logEvent =  new ExtendedRuleFlowLogEvent( LogEvent.BEFORE_RULEFLOW_CREATED,
                 event.getProcessInstance().getProcessId(),
                 event.getProcessInstance().getProcessName(),
-                event.getProcessInstance().getId(), parentProcessInstanceId) ;
+                event.getProcessInstance().getId(), parentProcessInstanceId,
+                ((ProcessInstance)event.getProcessInstance()).getBusinessKey()) ;
         
         // filters are not available from super class, TODO make fireLogEvent protected instead of private in WorkinMemoryLogger
         logEventCreated( logEvent );

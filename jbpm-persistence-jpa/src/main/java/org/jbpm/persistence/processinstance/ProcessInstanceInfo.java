@@ -45,6 +45,7 @@ import org.kie.runtime.process.ProcessInstance;
 
 @Entity
 @SequenceGenerator(name="processInstanceInfoIdSeq", sequenceName="PROCESS_INSTANCE_INFO_ID_SEQ")
+@Table(uniqueConstraints={@UniqueConstraint(columnNames="BUSINESS_KEY")})
 public class ProcessInstanceInfo{
 
     @Id
@@ -56,11 +57,13 @@ public class ProcessInstanceInfo{
     @Column(name = "OPTLOCK")
     private int                               version;
 
-    private String                            processId;
+    private String                            processId;    
     private Date                              startDate;
     private Date                              lastReadDate;
     private Date                              lastModificationDate;
     private int                               state;
+    @Column(name="BUSINESS_KEY")
+    private String                            businessKey;
     
     @Lob
     @Column(length=2147483647)
@@ -158,6 +161,7 @@ public class ProcessInstanceInfo{
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
                 context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
                 processInstance = marshaller.readProcessInstance(context);
+                ((org.jbpm.process.instance.ProcessInstance)processInstance).setBusinessKey(getBusinessKey());
                 context.close();
             } catch ( IOException e ) {
                 e.printStackTrace();
@@ -181,6 +185,7 @@ public class ProcessInstanceInfo{
         // saves the processInstance type first
         stream.writeUTF( processInstanceType );
     }
+   
 
     /**
      * Adding @PrePersist breaks things, because: <ul>
@@ -234,6 +239,7 @@ public class ProcessInstanceInfo{
             for ( String type : processInstance.getEventTypes() ) {
                 eventTypes.add( type );
             }
+            this.businessKey = ((org.jbpm.process.instance.ProcessInstance)processInstance).getBusinessKey();
         }
     }
 
@@ -254,6 +260,9 @@ public class ProcessInstanceInfo{
             return false;
         }
         if ( (this.processId == null) ? (other.processId != null) : !this.processId.equals( other.processId ) ) {
+            return false;
+        }
+        if ( (this.businessKey == null) ? (other.businessKey != null) : !this.businessKey.equals( other.businessKey ) ) {
             return false;
         }
         if ( this.startDate != other.startDate && (this.startDate == null || !this.startDate.equals( other.startDate )) ) {
@@ -291,6 +300,7 @@ public class ProcessInstanceInfo{
         hash = 61 * hash + (this.processInstanceId != null ? this.processInstanceId.hashCode() : 0);
         hash = 61 * hash + this.version;
         hash = 61 * hash + (this.processId != null ? this.processId.hashCode() : 0);
+        hash = 61 * hash + (this.businessKey != null ? this.businessKey.hashCode() : 0);
         hash = 61 * hash + (this.startDate != null ? this.startDate.hashCode() : 0);
         hash = 61 * hash + (this.lastReadDate != null ? this.lastReadDate.hashCode() : 0);
         hash = 61 * hash + (this.lastModificationDate != null ? this.lastModificationDate.hashCode() : 0);
@@ -324,5 +334,13 @@ public class ProcessInstanceInfo{
     
     public void setEnv(Environment env) { 
         this.env = env;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
     }
 }

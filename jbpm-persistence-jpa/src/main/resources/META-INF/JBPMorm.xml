@@ -16,4 +16,15 @@ where
           </query>
       </named-query>
       
+            <named-query name="ProcessInstanceByBusinessKey">
+          <query>
+select 
+    processInstanceInfo.processInstanceId
+from 
+    ProcessInstanceInfo processInstanceInfo 
+where
+    processInstanceInfo.businessKey = :businessKey
+          </query>
+      </named-query>
+      
 </entity-mappings>

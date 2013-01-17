@@ -53,6 +53,8 @@ public class ProcessInstanceLog implements Serializable {
     private long parentProcessInstanceId;
     @Column(nullable=true)
     private String outcome;
+    @Column(nullable=true)
+    private String businessKey;
     
     ProcessInstanceLog() {
     }
@@ -187,5 +189,13 @@ public class ProcessInstanceLog implements Serializable {
 
 	public void setOutcome(String errorCode) {
         this.outcome = errorCode;
+    }
+
+    public String getBusinessKey() {
+        return businessKey;
+    }
+
+    public void setBusinessKey(String businessKey) {
+        this.businessKey = businessKey;
     }
 }

@@ -28,6 +28,7 @@ import org.jbpm.process.instance.ProcessInstanceManager;
 public class DefaultProcessInstanceManager implements ProcessInstanceManager {
 
     private Map<Long, ProcessInstance> processInstances = new ConcurrentHashMap<Long, ProcessInstance>();
+    private Map<String, ProcessInstance> processInstancesByBusinessKey = new ConcurrentHashMap<String, ProcessInstance>();
     private AtomicLong processCounter = new AtomicLong(0);
 
     public void addProcessInstance(ProcessInstance processInstance) {
@@ -37,6 +38,10 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
     
     public void internalAddProcessInstance(ProcessInstance processInstance) {
     	processInstances.put(((ProcessInstance)processInstance).getId(), processInstance);
+    	String businessKey = ((org.jbpm.process.instance.ProcessInstance)processInstance).getBusinessKey();
+    	if (businessKey != null) {
+    	    processInstancesByBusinessKey.put(businessKey, processInstance);
+    	}    	
     }
 
     public Collection<ProcessInstance> getProcessInstances() {
@@ -53,6 +58,10 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
 
     public void internalRemoveProcessInstance(ProcessInstance processInstance) {
         processInstances.remove(((ProcessInstance)processInstance).getId());
+        String businessKey = ((org.jbpm.process.instance.ProcessInstance)processInstance).getBusinessKey();
+        if (businessKey != null) {
+            processInstancesByBusinessKey.remove(businessKey);
+        }
     }
     
     public void clearProcessInstances() {
@@ -61,5 +70,10 @@ public class DefaultProcessInstanceManager implements ProcessInstanceManager {
 
     public void clearProcessInstancesState() {
         
+    }
+
+    public ProcessInstance getProcessInstance(String businessKey) {
+        
+        return processInstancesByBusinessKey.get(businessKey);
     }
 }

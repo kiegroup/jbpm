@@ -27,6 +27,6 @@ import org.kie.definition.process.Process;
  */
 public interface ProcessInstanceFactory {
     
-    ProcessInstance createProcessInstance(Process process, InternalKnowledgeRuntime kruntime, Map<String, Object> parameters);
+    ProcessInstance createProcessInstance(Process process, String businesKey, InternalKnowledgeRuntime kruntime, Map<String, Object> parameters);
 
 }

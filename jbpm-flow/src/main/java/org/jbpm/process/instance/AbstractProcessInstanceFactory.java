@@ -26,12 +26,13 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 
 public abstract class AbstractProcessInstanceFactory implements ProcessInstanceFactory {
 	
-	public ProcessInstance createProcessInstance(Process process,
+	public ProcessInstance createProcessInstance(Process process, String businessKey,
 			                                     InternalKnowledgeRuntime kruntime,
 			                                     Map<String, Object> parameters) {
 		ProcessInstance processInstance = (ProcessInstance) createProcessInstance();
 		processInstance.setKnowledgeRuntime( kruntime );
         processInstance.setProcess( process );
+        processInstance.setBusinessKey(businessKey);
         
         ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager()
     		.addProcessInstance( processInstance );
