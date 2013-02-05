@@ -146,6 +146,10 @@ public class LocalTaskService implements TaskService {
         return session.getTaskByWorkItemId(workItemId);
     }
 
+    public List<Long> getTasksByProcessInstanceId(long processInstanceId) {
+        return session.getTasksByProcessInstanceId(processInstanceId);
+    }
+
     public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, String language) {
         return session.getTasksAssignedAsBusinessAdministrator(userId, language);
     }

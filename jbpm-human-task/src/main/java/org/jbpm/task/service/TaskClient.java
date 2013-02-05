@@ -35,6 +35,7 @@ import org.jbpm.task.service.TaskClientHandler.AddTaskResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.DeleteAttachmentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.DeleteCommentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
+import org.jbpm.task.service.TaskClientHandler.GetIdsResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.QueryGenericResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.SetDocumentResponseHandler;
@@ -42,7 +43,7 @@ import org.jbpm.task.service.TaskClientHandler.TaskOperationResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.TaskSummaryResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
-public class TaskClient implements AsyncTaskService{
+public class TaskClient implements AsyncTaskService {
 
     private final BaseHandler handler;
 	private final AtomicInteger counter;
@@ -427,6 +428,18 @@ public class TaskClient implements AsyncTaskService{
 				                    responseHandler);
 		connector.write(cmd);
 	}
+    
+    public void getTasksByProcessInstanceId(long processInstanceId,
+                            			    GetIdsResponseHandler responseHandler) {
+    	List<Object> args = new ArrayList<Object>(1);
+    	args.add(processInstanceId);
+    	Command cmd = new Command( counter.getAndIncrement(),
+    							   CommandName.QueryTasksByProcessInstanceId,
+                                   args);
+    	handler.addResponseHandler( cmd.getId(),
+                                    responseHandler);
+    	connector.write(cmd);
+    }
 
     public void getTasksAssignedAsBusinessAdministrator(String userId,
                                                         String language,

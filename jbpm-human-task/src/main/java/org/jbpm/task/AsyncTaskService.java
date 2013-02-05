@@ -16,13 +16,9 @@
 package org.jbpm.task;
 
 import java.util.List;
+
 import org.jbpm.eventmessaging.EventKey;
 import org.jbpm.eventmessaging.EventResponseHandler;
-import org.jbpm.task.Attachment;
-import org.jbpm.task.Comment;
-import org.jbpm.task.Content;
-import org.jbpm.task.OrganizationalEntity;
-import org.jbpm.task.Task;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.FaultData;
 import org.jbpm.task.service.TaskClientHandler.AddAttachmentResponseHandler;
@@ -31,6 +27,7 @@ import org.jbpm.task.service.TaskClientHandler.AddTaskResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.DeleteAttachmentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.DeleteCommentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
+import org.jbpm.task.service.TaskClientHandler.GetIdsResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.QueryGenericResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.SetDocumentResponseHandler;
@@ -89,6 +86,8 @@ public interface AsyncTaskService {
     void getTask(long taskId, GetTaskResponseHandler responseHandler);
 
     void getTaskByWorkItemId(long workItemId, GetTaskResponseHandler responseHandler);
+    
+    void getTasksByProcessInstanceId(long processInstanceId, GetIdsResponseHandler responseHandler);
 
     void getTasksAssignedAsBusinessAdministrator(String userId, String language, TaskSummaryResponseHandler responseHandler);
 
