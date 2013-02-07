@@ -208,6 +208,11 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
             }
             task.setSubTaskStrategies(strategies);
         }
+        
+        String createdBy = (String) workItem.getParameter("CreatedBy");
+        if (createdBy != null && createdBy.trim().length() > 0) {
+            taskData.setCreatedBy(new User(createdBy));
+        }
 
         PeopleAssignments assignments = new PeopleAssignments();
         List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
@@ -219,7 +224,7 @@ public class AsyncWSHumanTaskHandler implements WorkItemHandler {
                 potentialOwners.add(new User(id.trim()));
             }
             //Set the first user as creator ID??? hmmm might be wrong
-            if (potentialOwners.size() > 0) {
+            if (potentialOwners.size() > 0 && taskData.getCreatedBy() == null) {
                 taskData.setCreatedBy((User) potentialOwners.get(0));
             }
         }
