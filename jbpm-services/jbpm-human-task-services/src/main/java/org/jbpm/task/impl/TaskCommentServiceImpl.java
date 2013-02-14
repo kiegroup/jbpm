@@ -16,17 +16,16 @@
 package org.jbpm.task.impl;
 
 import java.util.List;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+
 import org.jboss.seam.transaction.Transactional;
 import org.jbpm.task.Comment;
 import org.jbpm.task.Task;
 import org.jbpm.task.api.TaskCommentService;
 
-/**
- *
- */
 @Transactional
 @ApplicationScoped
 public class TaskCommentServiceImpl implements TaskCommentService{
@@ -36,16 +35,15 @@ public class TaskCommentServiceImpl implements TaskCommentService{
     public TaskCommentServiceImpl() {
     }
     
-    
-    
+    @Override
     public long addComment(long taskId, Comment comment) {
         Task task = em.find(Task.class, taskId);
         em.persist(comment);
         task.getTaskData().addComment(comment);
         return comment.getId();
-       
     }
 
+    @Override
     public void deleteComment(long taskId, long commentId) {
         Task task = em.find(Task.class, taskId);
         Comment comment = em.find(Comment.class, commentId);
@@ -53,12 +51,14 @@ public class TaskCommentServiceImpl implements TaskCommentService{
         em.remove(comment);
     }
 
+    @Override
     public List<Comment> getAllCommentsByTaskId(long taskId) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Task task = em.find(Task.class, taskId);
+        return task.getTaskData().getComments();
     }
 
+    @Override
     public Comment getCommentById(long commentId) {
         return em.find(Comment.class, commentId);
     }
-    
 }
