@@ -109,6 +109,10 @@ public class TestStatefulKnowledgeSession implements StatefulKnowledgeSession {
 		return null;
 	}
 
+	public ProcessInstance getProcessInstance(long arg0, boolean arg1) {
+		return null;
+	}
+
 	public Collection<ProcessInstance> getProcessInstances() {
 		return null;
 	}
