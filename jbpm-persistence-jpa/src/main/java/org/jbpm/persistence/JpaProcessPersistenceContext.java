@@ -17,6 +17,10 @@ public class JpaProcessPersistenceContext extends JpaPersistenceContext
     public JpaProcessPersistenceContext(EntityManager em) {
         super( em );
     }
+    
+    public JpaProcessPersistenceContext(EntityManager em, boolean isJTA) {
+        super( em, isJTA );
+    }
 
     public void persist(ProcessInstanceInfo processInstanceInfo) {
         getEntityManager().persist( processInstanceInfo );
