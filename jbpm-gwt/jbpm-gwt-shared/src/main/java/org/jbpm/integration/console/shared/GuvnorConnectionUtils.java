@@ -37,6 +37,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ public class GuvnorConnectionUtils {
     public static final String GUVNOR_SNAPSHOT_NAME = "guvnor.snapshot.name";
     public static final String EXT_BPMN = "bpmn";
     public static final String EXT_BPMN2 = "bpmn2";
+    private static final String guvnorName = "droolsGuvnor";
     
     private static final Logger logger = LoggerFactory.getLogger(GuvnorConnectionUtils.class);
     private static Properties properties = new Properties();
@@ -365,7 +367,11 @@ public class GuvnorConnectionUtils {
     }
     
     public String getGuvnorPwd() {
-        return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+        String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+        StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+        encryptor.setPassword(guvnorName);
+        encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+        return encryptor.decrypt(_pwd);
     }
     
     public String getGuvnorPackages() {
