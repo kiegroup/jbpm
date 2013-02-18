@@ -43,6 +43,10 @@
       <groupId>javax.xml</groupId>
       <artifactId>jsr173</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.jasypt</groupId>
+        <artifactId>jasypt</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

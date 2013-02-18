@@ -32,6 +32,7 @@
     <jbpm.version>5.3.0-SNAPSHOT</jbpm.version>
     <jbpm.osgi.version>5.3.0.SNAPSHOT</jbpm.osgi.version>
     <console.version>2.3.5.Final</console.version>
+    <jasypt.version>1.9.0</jasypt.version>
     
     <!--
      These are properties used in the database profiles. Some of them must be initialized

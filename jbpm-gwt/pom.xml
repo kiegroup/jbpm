@@ -26,6 +26,7 @@
     <module>jbpm-gwt-graph</module>
     <module>jbpm-gwt-console</module>
     <module>jbpm-gwt-console-server</module>
+    <module>jbpm-gwt-pbe</module>
     <!--module>jbpm-gwt-form-builder</module-->
   </modules>
 
@@ -57,6 +58,12 @@
             <artifactId>hibernate-tools</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+      <!-- jasypt -->
+      <dependency>
+        <groupId>org.jasypt</groupId>
+        <artifactId>jasypt</artifactId>
+        <version>${jasypt.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
