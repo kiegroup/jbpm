@@ -2,251 +2,244 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.drools</groupId>
-    <artifactId>droolsjbpm-parent</artifactId>
-    <version>5.3.6-SNAPSHOT</version>
-    <!-- relativePath causes out-of-date problems on hudson slaves -->
-    <!--<relativePath>../droolsjbpm-build-bootstrap/pom.xml</relativePath>-->
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.drools</groupId>
+        <artifactId>droolsjbpm-parent</artifactId>
+        <version>5.3.6-SNAPSHOT</version>
+        <!-- relativePath causes out-of-date problems on hudson slaves -->
+        <!--<relativePath>../droolsjbpm-build-bootstrap/pom.xml</relativePath>-->
+    </parent>
 
-  <groupId>org.jbpm</groupId>
-  <artifactId>jbpm</artifactId>
-  <packaging>pom</packaging>
-  <!-- jBPM has it's own lifecycle and it's own version -->
-  <!-- Important a released version should always follow any of these patterns: -->
-  <!-- major.minor.micro.Alpha[n] -->
-  <!-- major.minor.micro.Beta[n] -->
-  <!-- major.minor.micro.CR[n] -->
-  <!-- major.minor.micro.Final -->
-  <!-- For example: 1.2.3 without the suffix ".Final" corrupts the OSGi eclipse updatesite -->
-  <!-- For example: 1.2.3.M2 corrupts the OSGi eclipse updatesite update order -->
-  <version>5.2.6-SNAPSHOT</version>
+    <groupId>org.jbpm</groupId>
+    <artifactId>jbpm</artifactId>
+    <packaging>pom</packaging>
+    <!-- jBPM has it's own lifecycle and it's own version -->
+    <!-- Important a released version should always follow any of these patterns: -->
+    <!-- major.minor.micro.Alpha[n] -->
+    <!-- major.minor.micro.Beta[n] -->
+    <!-- major.minor.micro.CR[n] -->
+    <!-- major.minor.micro.Final -->
+    <!-- For example: 1.2.3 without the suffix ".Final" corrupts the OSGi eclipse updatesite -->
+    <!-- For example: 1.2.3.M2 corrupts the OSGi eclipse updatesite update order -->
+    <version>5.2.6-SNAPSHOT</version>
 
-  <name>jBPM multiproject</name>
-  <description>jBPM: a Business Process Management (BPM) Suite</description>
-  <url>http://www.jboss.org/jbpm/</url>
+    <name>jBPM multiproject</name>
+    <description>jBPM: a Business Process Management (BPM) Suite</description>
+    <url>http://www.jboss.org/jbpm/</url>
 
-  <properties>
-<<<<<<< HEAD
-=======
-    <jbpm.version>5.3.0-SNAPSHOT</jbpm.version>
-    <jbpm.osgi.version>5.3.0.SNAPSHOT</jbpm.osgi.version>
-    <console.version>2.3.5.Final</console.version>
-    <jasypt.version>1.9.0</jasypt.version>
->>>>>>> d9a6e42... BZ909202 - [One-Off Patch] Enable password encryption for user credentials on jBPM configuration files
-    
-    <!--
-     These are properties used in the database profiles. Some of them must be initialized
-     empty so that Maven applies them via filtering to the resources. 
-     -->
-    <maven.btm.maxPoolSize>16</maven.btm.maxPoolSize>
-    <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
-    <maven.datasource.classname>bitronix.tm.resource.jdbc.lrc.LrcXADataSource</maven.datasource.classname>
-    <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
-    <maven.jdbc.db.name/>
-    <maven.jdbc.db.port/>
-    <maven.jdbc.db.server/>     
-    <maven.jdbc.driver.jar/>
-    <maven.jdbc.username></maven.jdbc.username>
-    <maven.jdbc.password></maven.jdbc.password>
-    <maven.jdbc.url>jdbc:h2:</maven.jdbc.url>
-    <maven.jdbc.schema>public</maven.jdbc.schema>
-  </properties>
+    <properties>
+        <jasypt.version>1.9.0</jasypt.version>
+        <!--
+        These are properties used in the database profiles. Some of them must be initialized
+        empty so that Maven applies them via filtering to the resources.
+        -->
+        <maven.btm.maxPoolSize>16</maven.btm.maxPoolSize>
+        <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
+        <maven.datasource.classname>bitronix.tm.resource.jdbc.lrc.LrcXADataSource</maven.datasource.classname>
+        <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
+        <maven.jdbc.db.name/>
+        <maven.jdbc.db.port/>
+        <maven.jdbc.db.server/>
+        <maven.jdbc.driver.jar/>
+        <maven.jdbc.username></maven.jdbc.username>
+        <maven.jdbc.password></maven.jdbc.password>
+        <maven.jdbc.url>jdbc:h2:</maven.jdbc.url>
+        <maven.jdbc.schema>public</maven.jdbc.schema>
+    </properties>
 
-  <repositories>
-    <!-- Bootstrap repository to locate the parent pom when the parent pom has not been build locally. -->
-    <repository>
-      <id>jboss-public-repository-group</id>
-      <name>JBoss Public Repository Group</name>
-      <url>http://repository.jboss.org/nexus/content/groups/public/</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>never</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>daily</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
+    <repositories>
+        <!-- Bootstrap repository to locate the parent pom when the parent pom has not been build locally. -->
+        <repository>
+            <id>jboss-public-repository-group</id>
+            <name>JBoss Public Repository Group</name>
+            <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
 
-  <scm>
-    <connection>scm:git:git@github.com:droolsjbpm/jbpm.git</connection>
-    <developerConnection>scm:git:git@github.com:droolsjbpm/jbpm.git</developerConnection>
-    <url>https://github.com/droolsjbpm/jbpm</url>
-  </scm>
-  <issueManagement>
-    <system>jira</system>
-    <url>https://issues.jboss.org/browse/JBPM</url>
-  </issueManagement>
+    <scm>
+        <connection>scm:git:git@github.com:droolsjbpm/jbpm.git</connection>
+        <developerConnection>scm:git:git@github.com:droolsjbpm/jbpm.git</developerConnection>
+        <url>https://github.com/droolsjbpm/jbpm</url>
+    </scm>
+    <issueManagement>
+        <system>jira</system>
+        <url>https://issues.jboss.org/browse/JBPM</url>
+    </issueManagement>
 
-  <modules>
-    <module>jbpm-flow</module>
-    <module>jbpm-flow-builder</module>
-    <module>jbpm-persistence-jpa</module>
-    <module>jbpm-bam</module>
-    <module>jbpm-bpmn2</module>
-    <module>jbpm-bpmn2-emfextmodel</module>
-    <module>jbpm-workitems</module>
-    <module>jbpm-human-task</module>
-    <module>jbpm-human-task-war</module>
-    <module>jbpm-gwt</module>
-    <module>jbpm-test</module>
-    <module>jbpm-examples</module>
-  </modules>
+    <modules>
+        <module>jbpm-flow</module>
+        <module>jbpm-flow-builder</module>
+        <module>jbpm-persistence-jpa</module>
+        <module>jbpm-bam</module>
+        <module>jbpm-bpmn2</module>
+        <module>jbpm-bpmn2-emfextmodel</module>
+        <module>jbpm-workitems</module>
+        <module>jbpm-human-task</module>
+        <module>jbpm-human-task-war</module>
+        <module>jbpm-gwt</module>
+        <module>jbpm-test</module>
+        <module>jbpm-examples</module>
+    </modules>
 
-  <build>
-    <testResources>
-      <testResource>
-        <!-- TODO this overwrite is not normal -->
-        <directory>src/test/java</directory>
-      </testResource>
-      <testResource>
-        <directory>src/test/resources</directory>
-      </testResource>
-    </testResources>
-     <pluginManagement>
-      <plugins>
-     	<plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.6</version>
-          <configuration>
-            <includes>
-              <include>**/*Test.java</include>
-            </includes>
-            <excludes>
-              <exclude>**/*AbstractTest.java</exclude>
-              <exclude>**/*JMS*Test.java</exclude>
-            </excludes>
-            <argLine>-Xmx1024m -XX:MaxPermSize=128m</argLine>
-          </configuration>
-        </plugin> 
-      </plugins>
-     </pluginManagement>
-  </build>
+    <build>
+        <testResources>
+            <testResource>
+                <!-- TODO this overwrite is not normal -->
+                <directory>src/test/java</directory>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/*AbstractTest.java</exclude>
+                            <exclude>**/*JMS*Test.java</exclude>
+                        </excludes>
+                        <argLine>-Xmx1024m -XX:MaxPermSize=128m</argLine>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
-  <profiles>
-    <profile>
-      <id>fullProfile</id>
-      <activation>
-        <property>
-          <name>full</name>
-        </property>
-      </activation>
-      <modules>
-        <module>jbpm-docs</module>
-        <module>jbpm-distribution</module>
-      </modules>
-    </profile>
+    <profiles>
+        <profile>
+            <id>fullProfile</id>
+            <activation>
+                <property>
+                    <name>full</name>
+                </property>
+            </activation>
+            <modules>
+                <module>jbpm-docs</module>
+                <module>jbpm-distribution</module>
+            </modules>
+        </profile>
 
-    <profile>
-      <id>database</id>
-      <dependencies>
-        <dependency>
-           <groupId>${maven.jdbc.driver.group}</groupId>
-           <artifactId>${maven.jdbc.driver.artifact}</artifactId>
-           <version>${maven.jdbc.driver.version}</version>
-           <scope>test</scope>
-        </dependency>  
-      </dependencies>
-    </profile>
-    
-    <profile>
-      <id>hibernate-4</id>
-      <dependencyManagement>
-        <dependencies>
-          <dependency> 
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${hibernate.4.ORM.version}</version>
-            <scope>test</scope>
-            <exclusions>
-              <exclusion>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-              </exclusion>
-            </exclusions>
-          </dependency>
-          <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>${hibernate.4.ORM.version}</version>
-            <scope>test</scope>
-            <exclusions>
-              <exclusion>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-              </exclusion>
-           </exclusions>
-          </dependency>
-       </dependencies>
-     </dependencyManagement>
-      
-     <build>
-        <plugins>
-          <plugin>
-            <groupId>com.google.code.maven-replacer-plugin</groupId>
-            <artifactId>maven-replacer-plugin</artifactId>
-            <version>1.4.1</version>
-            <executions>
-              <execution>
-                <id>jpa2-xml-config</id>
-                <phase>process-test-resources</phase>
-                <goals>
-                  <goal>replace</goal>
-                </goals>
-                <configuration>
-                  <includes>
-                    <include>target/*classes/META-INF/JBPMorm.xml</include>
-                    <include>target/*classes/META-INF/persistence.xml</include>
-                  </includes>
-                  <replacements>
-                    <!-- persistence.xml: version -->
-                    <replacement>
-                      <token>(persistence version)="1.0"</token>
-                      <value>$1="2.0"</value>
-                    </replacement>
-                    <!-- persistence.xml: schemaLocation's -->
-                    <replacement>
-                      <token>(http://java.sun.com/xml/ns/persistence/persistence)_1(_0.xsd)</token>
-                      <value>$1_2$2</value>
-                    </replacement>
-                    <replacement>
-                      <token>(http://java.sun.com/xml/ns/persistence/orm)_1(_0.xsd)</token>
-                      <value>$1_2$2</value>
-                    </replacement>
-                    <!-- persistence.xml: BTM tx lookup --> 
-                    <replacement>
-                      <token>(&lt;property name=)"hibernate.transaction.manager_lookup_class"( value=)"org.hibernate.transaction.BTMTransactionManagerLookup"( */&gt;)</token>
-                      <value>$1"hibernate.transaction.jta.platform"$2"org.hibernate.service.jta.platform.internal.BitronixJtaPlatform"$3</value>
-                    </replacement>
-                    <!-- JBPMorm.xml: for the ProcessInstanceInfo.hbm.xml -->
-                    <replacement>
-                      <token>(mapping-file&gt;META-INF/ProcessInstanceInfo.hbm.xml&lt;/mapping-file)</token>
-                      <value>!-- $1 --</value>
-                    </replacement>
-                    <!-- JBPMorm.xml: schema's, version -->
-                    <replacement>
-                      <token>(xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm) orm_1_0.(xsd"\n *version=)"1.0"</token>
-                      <value>$1 orm_2_0.$2"2.0"</value>
-                    </replacement>
-                    <!-- JBPMorm.xml: mapping -->
-                    <replacement>
-                      <token>(&lt;!--|):JPA2 REMOVE ME:(--&gt;|)</token>
-                      <value></value>
-                    </replacement>
-                  </replacements>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-    
+        <profile>
+            <id>database</id>
+            <dependencies>
+                <dependency>
+                    <groupId>${maven.jdbc.driver.group}</groupId>
+                    <artifactId>${maven.jdbc.driver.artifact}</artifactId>
+                    <version>${maven.jdbc.driver.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+
+        <profile>
+            <id>hibernate-4</id>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-core</artifactId>
+                        <version>${hibernate.4.ORM.version}</version>
+                        <scope>test</scope>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.javassist</groupId>
+                                <artifactId>javassist</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-entitymanager</artifactId>
+                        <version>${hibernate.4.ORM.version}</version>
+                        <scope>test</scope>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.javassist</groupId>
+                                <artifactId>javassist</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>maven-replacer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>jpa2-xml-config</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>target/*classes/META-INF/JBPMorm.xml</include>
+                                        <include>target/*classes/META-INF/persistence.xml</include>
+                                    </includes>
+                                    <replacements>
+                                        <!-- persistence.xml: version -->
+                                        <replacement>
+                                            <token>(persistence version)="1.0"</token>
+                                            <value>$1="2.0"</value>
+                                        </replacement>
+                                        <!-- persistence.xml: schemaLocation's -->
+                                        <replacement>
+                                            <token>(http://java.sun.com/xml/ns/persistence/persistence)_1(_0.xsd)</token>
+                                            <value>$1_2$2</value>
+                                        </replacement>
+                                        <replacement>
+                                            <token>(http://java.sun.com/xml/ns/persistence/orm)_1(_0.xsd)</token>
+                                            <value>$1_2$2</value>
+                                        </replacement>
+                                        <!-- persistence.xml: BTM tx lookup -->
+                                        <replacement>
+                                            <token>(&lt;property name=)"hibernate.transaction.manager_lookup_class"( value=)"org.hibernate.transaction.BTMTransactionManagerLookup"( */&gt;)</token>
+                                            <value>$1"hibernate.transaction.jta.platform"$2"org.hibernate.service.jta.platform.internal.BitronixJtaPlatform"$3</value>
+                                        </replacement>
+                                        <!-- JBPMorm.xml: for the ProcessInstanceInfo.hbm.xml -->
+                                        <replacement>
+                                            <token>(mapping-file&gt;META-INF/ProcessInstanceInfo.hbm.xml&lt;/mapping-file)</token>
+                                            <value>!-- $1 --</value>
+                                        </replacement>
+                                        <!-- JBPMorm.xml: schema's, version -->
+                                        <replacement>
+                                            <token>(xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm) orm_1_0.(xsd"\n *version=)"1.0"</token>
+                                            <value>$1 orm_2_0.$2"2.0"</value>
+                                        </replacement>
+                                        <!-- JBPMorm.xml: mapping -->
+                                        <replacement>
+                                            <token>(&lt;!--|):JPA2 REMOVE ME:(--&gt;|)</token>
+                                            <value></value>
+                                        </replacement>
+                                    </replacements>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

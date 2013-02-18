@@ -3,72 +3,38 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.jbpm</groupId>
-    <artifactId>jbpm</artifactId>
-    <version>5.2.6-SNAPSHOT</version>
-  </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.jbpm</groupId>
+        <artifactId>jbpm</artifactId>
+        <version>5.2.6-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>jbpm-gwt</artifactId>
-  <packaging>pom</packaging>
+    <artifactId>jbpm-gwt</artifactId>
+    <packaging>pom</packaging>
 
-  <name>jBPM GWT multiproject</name>
-  <description>jBPM GWT multiproject</description>
+    <name>jBPM GWT multiproject</name>
+    <description>jBPM GWT multiproject</description>
 
-  <modules>
-    <module>jbpm-gwt-core</module>
-    <module>jbpm-gwt-form</module>
-    <module>jbpm-gwt-graph</module>
-    <module>jbpm-gwt-console</module>
-    <module>jbpm-gwt-console-server</module>
-<<<<<<< HEAD
-    <module>jbpm-gwt-shared</module>
-    <module>jbpm-gwt-console-tomcat-integration</module>
-  </modules>
+    <modules>
+        <module>jbpm-gwt-core</module>
+        <module>jbpm-gwt-form</module>
+        <module>jbpm-gwt-graph</module>
+        <module>jbpm-gwt-console</module>
+        <module>jbpm-gwt-console-server</module>
+        <module>jbpm-gwt-shared</module>
+        <module>jbpm-gwt-console-tomcat-integration</module>
+        <module>jbpm-gwt-pbe</module>
+    </modules>
 
-=======
-    <module>jbpm-gwt-pbe</module>
-    <!--module>jbpm-gwt-form-builder</module-->
-  </modules>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.jboss.bpm</groupId>
-        <artifactId>activity-monitor-model</artifactId>
-        <version>1.0.0-Beta2</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-annotations</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-common-annotations</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-tools</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <!-- jasypt -->
-      <dependency>
-        <groupId>org.jasypt</groupId>
-        <artifactId>jasypt</artifactId>
-        <version>${jasypt.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-  
->>>>>>> d9a6e42... BZ909202 - [One-Off Patch] Enable password encryption for user credentials on jBPM configuration files
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${jasypt.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
