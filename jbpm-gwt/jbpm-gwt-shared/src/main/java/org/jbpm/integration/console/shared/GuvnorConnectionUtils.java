@@ -48,6 +48,7 @@ public class GuvnorConnectionUtils {
     public static final String GUVNOR_HOST_KEY = "guvnor.host";
     public static final String GUVNOR_USR_KEY = "guvnor.usr";
     public static final String GUVNOR_PWD_KEY = "guvnor.pwd";
+    public static final String GUVNOR_PWD_ENC_KEY = "gunvor.pwd.enc";
     public static final String GUVNOR_PACKAGES_KEY = "guvnor.packages";
     public static final String GUVNOR_SUBDOMAIN_KEY = "guvnor.subdomain";
     public static final String GUVNOR_CONNECTTIMEOUT_KEY = "guvnor.connect.timeout";
@@ -367,11 +368,20 @@ public class GuvnorConnectionUtils {
     }
     
     public String getGuvnorPwd() {
-        String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
-        StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
-        encryptor.setPassword(guvnorName);
-        encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
-        return encryptor.decrypt(_pwd);
+        if(getGuvnorPwdEnc().equalsIgnoreCase("true")) {
+            String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+            StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+            encryptor.setPassword(guvnorName);
+            encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+            return encryptor.decrypt(_pwd);
+        } else {
+            return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+        }
+
+    }
+
+    public String getGuvnorPwdEnc() {
+        return isEmpty(properties.getProperty(GUVNOR_PWD_ENC_KEY)) ? "false" : properties.getProperty(GUVNOR_PWD_ENC_KEY).trim();
     }
     
     public String getGuvnorPackages() {
