@@ -48,7 +48,7 @@ public class GuvnorConnectionUtils {
     public static final String GUVNOR_HOST_KEY = "guvnor.host";
     public static final String GUVNOR_USR_KEY = "guvnor.usr";
     public static final String GUVNOR_PWD_KEY = "guvnor.pwd";
-    public static final String GUVNOR_PWD_ENC_KEY = "gunvor.pwd.enc";
+    public static final String GUVNOR_PWD_ENC_KEY = "guvnor.pwd.enc";
     public static final String GUVNOR_PACKAGES_KEY = "guvnor.packages";
     public static final String GUVNOR_SUBDOMAIN_KEY = "guvnor.subdomain";
     public static final String GUVNOR_CONNECTTIMEOUT_KEY = "guvnor.connect.timeout";
