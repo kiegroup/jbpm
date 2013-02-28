@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions id="Definition" 
+             targetNamespace="http://www.example.org/MinimalExample" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" 
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI" 
+             xmlns:g="http://www.jboss.org/drools/flow/gpd" 
+             xmlns:tns="http://www.jboss.org/drools" 
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd" 
+             typeLanguage="http://www.java.com/javaTypes">
+
+  <error id="exception" errorCode="code"/>
+  <itemDefinition id="_listItem" structureRef="java.util.List"/>
+    
+  <process id="ExceptionHandling" name="Exception Handling after Script Exception" isExecutable="true" processType="Private">
+
+    <property id="list" itemSubjectRef="_listItem"/>
+        
+    <startEvent id="_1" name="StartProcess" />
+    <userTask id="_2" name="User Task" tns:taskName="Human Task">
+      <extensionElements>
+        <tns:onExit-script tns:scriptFormat="http://www.java.com/java">
+          <tns:script>list.get(0);</tns:script>
+        </tns:onExit-script>
+      </extensionElements>
+    </userTask>
+    <scriptTask id="_3" name="Script task" scriptFormat="http://www.java.com/java">
+      <script>System.out.println(&quot;Script task completed.&quot;);</script>
+    </scriptTask>
+    <endEvent id="_4" name="End Event" />
+
+    <sequenceFlow id="_6" sourceRef="_1" targetRef="_2"/>
+    <sequenceFlow id="_7" sourceRef="_2" targetRef="_3"/>
+    <sequenceFlow id="_8" sourceRef="_3" targetRef="_4"/>
+    
+    <subProcess id="_X" name="SubProcess" triggeredByEvent="true">
+      <startEvent id="_X-1" name="subStart" isInterrupting="false">
+        <errorEventDefinition errorRef="exception"/>
+      </startEvent>
+      <scriptTask id="_X-2" name="Handle Error">
+        <script>System.out.println(&quot;Error handled&quot;);</script>
+      </scriptTask>
+      <endEvent id="_X-3" name="subEnd"/>
+      <sequenceFlow id="_X-1-_X_2" sourceRef="_X-1" targetRef="_X-2"/>
+      <sequenceFlow id="_X-2-_X_3" sourceRef="_X-2" targetRef="_X-3"/>
+    </subProcess>
+
+  </process>
+
+</definitions>

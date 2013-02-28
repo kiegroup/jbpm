@@ -49,6 +49,7 @@ public class EventSubProcessNodeInstance extends CompositeContextNodeInstance {
     public void signalEvent(String type, Object event) {
         if (getProcessInstance().getNodeInstances().contains(this) || type.startsWith("Error-")) {
             StartNode startNode = getCompositeNode().findStartNode();
+            // TODO: not every error sub process should be started! 
             NodeInstance nodeInstance = getNodeInstance(startNode);
             ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, null);
         }
