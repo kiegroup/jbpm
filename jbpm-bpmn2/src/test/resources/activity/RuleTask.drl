@@ -1,0 +1,10 @@
+package com.sample;
+
+global java.util.List list;
+
+rule MyRuleTask
+  ruleflow-group "myRuleTask"
+  when
+  then
+    list.add("Executed");
+end

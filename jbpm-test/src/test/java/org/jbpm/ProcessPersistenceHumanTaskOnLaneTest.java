@@ -6,7 +6,8 @@ import java.util.List;
 import org.jbpm.task.Status;
 import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.test.JbpmJUnitTestCase;
+import org.jbpm.test.JbpmTestCase;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.process.ProcessInstance;
@@ -16,13 +17,18 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to test a process.
  */
-public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmJUnitTestCase {
+public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmTestCase {
 
-    private Logger testLogger = LoggerFactory.getLogger(ProcessPersistenceHumanTaskOnLaneTest.class);
+    private Logger testLogger = LoggerFactory
+            .getLogger(ProcessPersistenceHumanTaskOnLaneTest.class);
 
     public ProcessPersistenceHumanTaskOnLaneTest() {
         super(true);
-        setPersistence(true);
+    }
+
+    @BeforeClass
+    public static void setup() throws Exception {
+        setUpDataSource();
     }
 
     @Test
@@ -32,8 +38,7 @@ public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmJUnitTestCase {
 
         ProcessInstance processInstance = ksession.startProcess("UserTask");
 
-        assertProcessInstanceActive(processInstance.getId(), ksession);
-        
+        assertProcessInstanceActive(processInstance);
 
         // simulating a system restart
         ksession = restoreSession(ksession, true);
@@ -42,15 +47,14 @@ public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmJUnitTestCase {
         // let john execute Task 1
         String taskUser = "john";
         String locale = "en-UK";
-        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner(taskUser, locale);
+        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner(
+                taskUser, locale);
         assertEquals(1, list.size());
-        
+
         TaskSummary task = list.get(0);
         taskService.claim(task.getId(), taskUser);
         taskService.start(task.getId(), taskUser);
         taskService.complete(task.getId(), taskUser, null);
-
-
 
         // simulating a system restart
         ksession = restoreSession(ksession, true);
@@ -58,17 +62,15 @@ public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmJUnitTestCase {
         List<Status> reservedOnly = new ArrayList<Status>();
         reservedOnly.add(Status.Reserved);
 
-        
-        list = taskService.getTasksAssignedAsPotentialOwnerByStatus(taskUser, reservedOnly, locale);
+        list = taskService.getTasksAssignedAsPotentialOwnerByStatus(taskUser,
+                reservedOnly, locale);
         assertEquals(1, list.size());
-        
+
         task = list.get(0);
         taskService.start(task.getId(), taskUser);
         taskService.complete(task.getId(), taskUser, null);
 
-
-        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertProcessInstanceFinished(processInstance, ksession);
     }
-
 
 }

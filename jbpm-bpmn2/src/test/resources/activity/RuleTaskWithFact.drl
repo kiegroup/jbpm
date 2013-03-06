@@ -1,0 +1,11 @@
+package com.sample;
+
+import org.kie.runtime.process.WorkflowProcessInstance
+
+rule MyRuleTaskWithFact
+  ruleflow-group "myRuleTaskWithFact"
+  when
+    processInstance : WorkflowProcessInstance()
+  then
+    System.out.println("Rule fired");
+end

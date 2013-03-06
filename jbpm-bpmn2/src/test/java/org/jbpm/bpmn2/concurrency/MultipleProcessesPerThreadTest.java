@@ -1,26 +1,21 @@
 package org.jbpm.bpmn2.concurrency;
 
-import static junit.framework.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.jbpm.bpmn2.JbpmTestCase;
 import org.jbpm.bpmn2.objects.Status;
+import org.jbpm.persistence.util.LoggingPrintStream;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.kie.KnowledgeBase;
-import org.kie.KnowledgeBaseFactory;
-import org.kie.builder.KnowledgeBuilder;
-import org.kie.builder.KnowledgeBuilderFactory;
+import org.kie.KieBase;
 import org.kie.event.process.ProcessCompletedEvent;
 import org.kie.event.process.ProcessEventListener;
 import org.kie.event.process.ProcessNodeLeftEvent;
 import org.kie.event.process.ProcessNodeTriggeredEvent;
 import org.kie.event.process.ProcessStartedEvent;
 import org.kie.event.process.ProcessVariableChangedEvent;
-import org.kie.io.ResourceFactory;
-import org.kie.io.ResourceType;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.process.WorkItem;
 import org.kie.runtime.process.WorkItemHandler;
@@ -32,15 +27,11 @@ import org.slf4j.LoggerFactory;
  * This test costs time and resources, please only run locally for the time being.
  */
 @Ignore
-public class MultipleProcessesPerThreadTest {
+public class MultipleProcessesPerThreadTest extends JbpmTestCase {
     
     private static final int LOOPS = 1000;
     
     private static Logger logger = LoggerFactory.getLogger(MultipleProcessesPerThreadTest.class);
-    
-    protected static StatefulKnowledgeSession createStatefulKnowledgeSession(KnowledgeBase kbase) { 
-        return kbase.newStatefulKnowledgeSession();
-    }
     
     @Test
     public void doMultipleProcessesInMultipleThreads() {
@@ -62,7 +53,7 @@ public class MultipleProcessesPerThreadTest {
         assertTrue( "User Task process thread did not complete successfully", user.status == Status.SUCCESS );
     }
 
-    private static class HelloWorldProcessThread implements Runnable {
+    private class HelloWorldProcessThread implements Runnable {
 
         private Thread thread;
         volatile Status status;
@@ -78,12 +69,8 @@ public class MultipleProcessesPerThreadTest {
             StatefulKnowledgeSession ksession = null;
             
             try { 
-                KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-                kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultiThreadServiceProcess-Timer.bpmn", getClass()), ResourceType.BPMN2);
-                KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-                kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-
-                ksession = createStatefulKnowledgeSession(kbase);
+                KieBase kbase = createKnowledgeBase("manual/MultiThreadServiceProcessTimer.bpmn2");
+                ksession = createKnowledgeSession(kbase);
             } catch(Exception e) { 
                 e.printStackTrace();
                 logger.error("Unable to set up knowlede base or session.", e);
@@ -117,7 +104,7 @@ public class MultipleProcessesPerThreadTest {
         }
     }
 
-    private static class UserTaskProcessThread implements Runnable {
+    private class UserTaskProcessThread implements Runnable {
 
         private Thread thread;
         volatile Status status;
@@ -132,13 +119,9 @@ public class MultipleProcessesPerThreadTest {
             this.status = Status.SUCCESS;
             StatefulKnowledgeSession ksession = null;
             
-            try { 
-                KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-                kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultiThreadServiceProcess-Task.bpmn", getClass()), ResourceType.BPMN2);
-                KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-                kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-
-                ksession = createStatefulKnowledgeSession(kbase);
+            try {
+                KieBase kbase = createKnowledgeBase("manual/MultiThreadServiceProcessTask.bpmn2");
+                ksession = createKnowledgeSession(kbase);
             } catch(Exception e) { 
                 e.printStackTrace();
                 logger.error("Unable to set up knowlede base or session.", e);

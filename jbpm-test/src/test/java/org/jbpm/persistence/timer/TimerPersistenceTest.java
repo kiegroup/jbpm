@@ -12,12 +12,13 @@ import javax.persistence.EntityManagerFactory;
 
 import org.drools.process.instance.WorkItemHandler;
 import org.jbpm.test.JBPMHelper;
-import org.jbpm.test.JbpmJUnitTestCase;
+import org.jbpm.test.JbpmTestCase;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.kie.KnowledgeBase;
+import org.kie.KieBase;
 import org.kie.runtime.EnvironmentName;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.process.ProcessInstance;
@@ -27,186 +28,210 @@ import org.slf4j.LoggerFactory;
 /**
  * See JBPM-3170/JBPM-3391
  */
-public class TimerPersistenceTest extends JbpmJUnitTestCase {
+public class TimerPersistenceTest extends JbpmTestCase {
 
     // General setup
-    private static Logger testLogger = LoggerFactory.getLogger(TimerPersistenceTest.class);
+    private static Logger testLogger = LoggerFactory
+            .getLogger(TimerPersistenceTest.class);
 
     // Test processses
     private final static String DELAY_TIMER_FILE = "delayTimerEventProcess.bpmn";
     private final static String DELAY_TIMER_PROCESS = "DelayTimerEventProcess";
-    
+
     private final static String PROCESS_FILE_NAME = "boundaryTimerProcess.bpmn";
     private final static String PROCESS_NAME = "BoundaryTimerEventProcess";
     private final static String WORK_ITEM_HANLDER_TASK = "Human Task";
-    
+
     private final static String TIMER_FIRED_PROP = "timerFired";
     private final static String TIMER_FIRED_TIME_PROP = "afterTimerTime";
 
-    public TimerPersistenceTest() { 
+    public TimerPersistenceTest() {
         super(true);
-        this.setPersistence(true);
     }
-    
+
+    @BeforeClass
+    public static void setup() throws Exception {
+        setUpDataSource();
+    }
+
     @Before
-    public void setup() { 
+    public void setupTest() {
         System.clearProperty(TIMER_FIRED_PROP);
         System.clearProperty(TIMER_FIRED_TIME_PROP);
     }
-    
+
     @Test
-    public void boundaryEventTimerAndCompleteHumanTaskWithoutPersistence() throws InterruptedException {
+    public void boundaryEventTimerAndCompleteHumanTaskWithoutPersistence()
+            throws Exception {
         this.setPersistence(false);
-        
+
         // Setup session
-        KnowledgeBase kbase = createKnowledgeBase(PROCESS_FILE_NAME);
+        KieBase kbase = createKnowledgeBase(PROCESS_FILE_NAME);
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
-       
+
         // Do stuff
         HumanTaskMockHandler humanTaskMockHandler = new HumanTaskMockHandler();
-        ProcessInstance process = registerHTHandlerAndStartProcess(ksession, humanTaskMockHandler);
-        
+        ProcessInstance process = registerHTHandlerAndStartProcess(ksession,
+                humanTaskMockHandler);
+
         sleepAndVerifyTimerRuns(process.getState());
         completeWork(ksession, humanTaskMockHandler);
-   
+
         // The process reaches the end node
         int processState = process.getState();
-        assertEquals("Expected process state to be " + processStateName[ProcessInstance.STATE_COMPLETED],
+        assertEquals("Expected process state to be "
+                + processStateName[ProcessInstance.STATE_COMPLETED],
                 ProcessInstance.STATE_COMPLETED, processState);
     }
-    
+
     @Test
-    public void boundaryEventTimerAndCompleteHumanTask() throws InterruptedException {
+    public void boundaryEventTimerAndCompleteHumanTask()
+            throws Exception {
         /**
          * First we set up everything and start the process
          */
-        KnowledgeBase kbase = createKnowledgeBase(PROCESS_FILE_NAME);
+        KieBase kbase = createKnowledgeBase(PROCESS_FILE_NAME);
         StatefulKnowledgeSession ksession = newStatefulKnowledgeSession(kbase);
         int ksessionId = ksession.getId();
         assertTrue("session id not saved.", ksessionId > 0);
-        
+
         HumanTaskMockHandler humanTaskMockHandler = new HumanTaskMockHandler();
-        ProcessInstance process = registerHTHandlerAndStartProcess(ksession, humanTaskMockHandler);
-        
+        ProcessInstance process = registerHTHandlerAndStartProcess(ksession,
+                humanTaskMockHandler);
+
         sleepAndVerifyTimerRuns(process.getState());
         completeWork(ksession, humanTaskMockHandler);
-    
+
         // The process completes
         process = ksession.getProcessInstance(process.getId());
-        assertNull("Expected process to have been completed and removed", process);
+        assertNull("Expected process to have been completed and removed",
+                process);
     }
 
     @Test
     @Ignore
-    public void timerEventOutsideOfKnowledgeSessionTest() throws InterruptedException {
+    public void timerEventOutsideOfKnowledgeSessionTest()
+            throws Exception {
         /**
          * First we set up everything and start the process
          */
-        KnowledgeBase kbase = createKnowledgeBase(DELAY_TIMER_FILE);
-        StatefulKnowledgeSession ksession = JBPMHelper.newStatefulKnowledgeSession(kbase);
+        KieBase kbase = createKnowledgeBase(DELAY_TIMER_FILE);
+        StatefulKnowledgeSession ksession = JBPMHelper
+                .newStatefulKnowledgeSession(kbase);
         int ksessionId = ksession.getId();
-    
+
         // Start the process
         ProcessInstance process = ksession.startProcess(DELAY_TIMER_PROCESS);
         long processId = process.getId();
         Assert.assertEquals(ProcessInstance.STATE_ACTIVE, process.getState());
-    
+
         /**
-         * Then we close down the session (imagine that the timer is for a week,
-         * for example.)
+         * Then we close down the session (imagine that the timer is for a week, for example.)
          */
-        EntityManagerFactory emf = (EntityManagerFactory) ksession.getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY);
+        EntityManagerFactory emf = (EntityManagerFactory) ksession
+                .getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY);
         ksession.dispose();
         ksession = null;
         emf.close();
         emf = null;
-    
+
         assertTrue("sesssion id has not been saved", ksessionId > 0);
         assertTrue("process id has not been saved", processId > 0);
         kbase = null;
         process = null;
-    
+
         // The timer fires..
         int sleep = 2000;
         testLogger.debug("Sleeping " + sleep / 1000 + " seconds.");
         Thread.sleep(sleep);
         testLogger.debug("Awake!");
-    
+
         assertTrue("The timer has not fired!", timerHasFired());
-        assertTrue("The did not fire at the right time!", System.currentTimeMillis() > timerFiredTime());
-        
+        assertTrue("The did not fire at the right time!",
+                System.currentTimeMillis() > timerFiredTime());
+
         /**
-         * Now we recreate a knowledge base and sesion and retrieve the process
-         * to see what has happened
+         * Now we recreate a knowledge base and sesion and retrieve the process to see what has happened
          */
         kbase = createKnowledgeBase(DELAY_TIMER_FILE);
         ksession = JBPMHelper.loadStatefulKnowledgeSession(kbase, ksessionId);
         assertNotNull("Could not retrieve session " + ksessionId, ksession);
-    
+
         process = ksession.getProcessInstance(processId);
-        assertNotNull("Process " + processId + "should have completed and been deleted", process);
+        assertNotNull("Process " + processId
+                + "should have completed and been deleted", process);
     }
 
     @Test
     @Ignore
-    public void boundaryEventTimerFiresAndCompleteHumanTaskWithoutKSession() throws InterruptedException {
+    public void boundaryEventTimerFiresAndCompleteHumanTaskWithoutKSession()
+            throws Exception {
         /**
          * First we set up everything and start the process
          */
-        KnowledgeBase kbase = createKnowledgeBase(PROCESS_FILE_NAME);
+        KieBase kbase = createKnowledgeBase(PROCESS_FILE_NAME);
         StatefulKnowledgeSession ksession = newStatefulKnowledgeSession(kbase);
         int ksessionId = ksession.getId();
         assertTrue("session id not saved.", ksessionId > 0);
-        
+
         HumanTaskMockHandler humanTaskMockHandler = new HumanTaskMockHandler();
-        ProcessInstance process = registerHTHandlerAndStartProcess(ksession, humanTaskMockHandler);
-        
+        ProcessInstance process = registerHTHandlerAndStartProcess(ksession,
+                humanTaskMockHandler);
+
         int processState = process.getState();
         /**
-         * DISPOSE OF THE KSESSION AND THE EMF
-         * (imagine that the timer is for 1 week.. we can't keep the ksession and emf open that long.. 
+         * DISPOSE OF THE KSESSION AND THE EMF (imagine that the timer is for 1 week.. we can't keep the ksession and emf open that long..
          */
-        EntityManagerFactory emf = (EntityManagerFactory) ksession.getEnvironment().get(ENTITY_MANAGER_FACTORY);
+        EntityManagerFactory emf = (EntityManagerFactory) ksession
+                .getEnvironment().get(ENTITY_MANAGER_FACTORY);
         ksession.dispose();
         ksession = null;
         emf.close();
         emf = null;
-        
+
         sleepAndVerifyTimerRuns(processState);
-    
+
         kbase = createKnowledgeBase(PROCESS_FILE_NAME);
         ksession = loadStatefulKnowledgeSession(kbase, ksessionId);
-        
+
         completeWork(ksession, humanTaskMockHandler);
-        
+
         // The process completes
         process = ksession.getProcessInstance(process.getId());
-        assertNull("Expected process to have been completed and removed", process);
+        assertNull("Expected process to have been completed and removed",
+                process);
     }
 
-    private ProcessInstance registerHTHandlerAndStartProcess(StatefulKnowledgeSession ksession, HumanTaskMockHandler humanTaskMockHandler) { 
+    private ProcessInstance registerHTHandlerAndStartProcess(
+            StatefulKnowledgeSession ksession,
+            HumanTaskMockHandler humanTaskMockHandler) {
         // Register Human Task Handler
-        ksession.getWorkItemManager().registerWorkItemHandler(WORK_ITEM_HANLDER_TASK, humanTaskMockHandler);
-    
-        // Start the process 
+        ksession.getWorkItemManager().registerWorkItemHandler(
+                WORK_ITEM_HANLDER_TASK, humanTaskMockHandler);
+
+        // Start the process
         ProcessInstance process = ksession.startProcess(PROCESS_NAME);
         long processId = process.getId();
         assertTrue("process id not saved", processId > 0);
-        
+
         // The process is in the Human Task waiting for its completion
         int processState = process.getState();
-        assertEquals("Expected process state to be " + processStateName[ProcessInstance.STATE_ACTIVE] + " not "
-                + processStateName[processState], ProcessInstance.STATE_ACTIVE, processState);
-        
+        assertEquals("Expected process state to be "
+                + processStateName[ProcessInstance.STATE_ACTIVE] + " not "
+                + processStateName[processState], ProcessInstance.STATE_ACTIVE,
+                processState);
+
         return process;
-    
+
     }
 
-    private void completeWork(StatefulKnowledgeSession ksession, HumanTaskMockHandler humanTaskMockHandler) {
-        assertTrue("The work item task handler does not have a work item!", humanTaskMockHandler.workItem != null);
+    private void completeWork(StatefulKnowledgeSession ksession,
+            HumanTaskMockHandler humanTaskMockHandler) {
+        assertTrue("The work item task handler does not have a work item!",
+                humanTaskMockHandler.workItem != null);
         long workItemId = humanTaskMockHandler.workItem.getId();
         assertTrue("work item id not saved", workItemId > 0);
-        
+
         // The Human Task is completed
         Map<String, Object> results = new HashMap<String, Object>();
         try {
@@ -214,11 +239,13 @@ public class TimerPersistenceTest extends JbpmJUnitTestCase {
         } catch (Exception e) {
             testLogger.warn("Work item could not be completed!");
             e.printStackTrace();
-            fail(e.getClass().getSimpleName() + " thrown when completing work item: " + e.getMessage());
+            fail(e.getClass().getSimpleName()
+                    + " thrown when completing work item: " + e.getMessage());
         }
     }
 
-    private void sleepAndVerifyTimerRuns(int processState) throws InterruptedException { 
+    private void sleepAndVerifyTimerRuns(int processState)
+            throws InterruptedException {
         // wait 3 seconds to see if the boss is notified
         if (processState == ProcessInstance.STATE_ACTIVE) {
             int sleep = 2000;
@@ -226,54 +253,54 @@ public class TimerPersistenceTest extends JbpmJUnitTestCase {
             Thread.sleep(sleep);
             testLogger.debug("Awake!");
         }
-        
+
         long afterSleepTime = System.currentTimeMillis();
         assertTrue("The timer has not fired!", timerHasFired());
-        assertTrue("The timer did not fire on time!", afterSleepTime > timerFiredTime() );
+        assertTrue("The timer did not fire on time!",
+                afterSleepTime > timerFiredTime());
         int timerFiredCount = timerFiredCount();
-        assertTrue("The timer only fired " + timerFiredCount + " times.", timerFiredCount >= 1 );
+        assertTrue("The timer only fired " + timerFiredCount + " times.",
+                timerFiredCount >= 1);
     }
 
-    
-    private boolean timerHasFired() { 
+    private boolean timerHasFired() {
         String hasFired = System.getProperty(TIMER_FIRED_PROP);
-        if( hasFired != null ) { 
+        if (hasFired != null) {
             return true;
         }
         return false;
     }
 
-
-    private int timerFiredCount() { 
+    private int timerFiredCount() {
         String timerFiredCount = System.getProperty(TIMER_FIRED_PROP);
-        if( timerFiredCount == null ) { 
-           return 0; 
+        if (timerFiredCount == null) {
+            return 0;
         }
         return Integer.parseInt(timerFiredCount);
     }
 
-
-    private long timerFiredTime() { 
+    private long timerFiredTime() {
         String timerFiredCount = System.getProperty(TIMER_FIRED_TIME_PROP);
-        if( timerFiredCount == null ) { 
-           return 0; 
+        if (timerFiredCount == null) {
+            return 0;
         }
         return Long.parseLong(timerFiredCount);
     }
-
 
     private static class HumanTaskMockHandler implements WorkItemHandler {
 
         private org.kie.runtime.process.WorkItemManager workItemManager;
         private org.kie.runtime.process.WorkItem workItem;
 
-        public void executeWorkItem(org.kie.runtime.process.WorkItem workItem, org.kie.runtime.process.WorkItemManager manager) {
+        public void executeWorkItem(org.kie.runtime.process.WorkItem workItem,
+                org.kie.runtime.process.WorkItemManager manager) {
             this.workItem = workItem;
             this.workItemManager = manager;
             System.out.println("Work completed!");
         }
 
-        public void abortWorkItem(org.kie.runtime.process.WorkItem workItem, org.kie.runtime.process.WorkItemManager manager) {
+        public void abortWorkItem(org.kie.runtime.process.WorkItem workItem,
+                org.kie.runtime.process.WorkItemManager manager) {
             this.workItemManager.abortWorkItem(workItem.getId());
             System.out.println("Work aborted.");
         }

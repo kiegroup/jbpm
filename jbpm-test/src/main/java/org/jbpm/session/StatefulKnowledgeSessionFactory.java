@@ -7,7 +7,7 @@ import org.jbpm.process.audit.AuditLoggerFactory.Type;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.workitem.wsht.LocalHTWorkItemHandler;
 import org.jbpm.task.service.local.LocalTaskService;
-import org.kie.KnowledgeBase;
+import org.kie.KieBase;
 import org.kie.KnowledgeBaseFactory;
 import org.kie.SystemEventListenerFactory;
 import org.kie.persistence.jpa.JPAKnowledgeService;
@@ -18,7 +18,7 @@ import org.kie.runtime.StatefulKnowledgeSession;
 public class StatefulKnowledgeSessionFactory {
 
 	private EntityManagerFactory emf;
-	private KnowledgeBase kbase;
+	private KieBase kbase;
 	private boolean useHistoryLogger = true;
 	
 	public StatefulKnowledgeSessionFactory() {
@@ -30,7 +30,7 @@ public class StatefulKnowledgeSessionFactory {
 		this.emf = emf;
 	}
 	
-	public void setKnowledgeBase(KnowledgeBase kbase) {
+	public void setKnowledgeBase(KieBase kbase) {
 		this.kbase = kbase;
 	}
 	
