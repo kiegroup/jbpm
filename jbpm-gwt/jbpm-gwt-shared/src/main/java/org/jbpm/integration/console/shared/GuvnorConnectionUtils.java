@@ -15,13 +15,7 @@
  */
 package org.jbpm.integration.console.shared;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -56,8 +50,8 @@ public class GuvnorConnectionUtils {
     public static final String GUVNOR_SNAPSHOT_NAME = "guvnor.snapshot.name";
     public static final String EXT_BPMN = "bpmn";
     public static final String EXT_BPMN2 = "bpmn2";
-    private static final String guvnorName = "droolsGuvnor";
-    
+    private static final String externalPwdKey = "externalpwdkey";
+
     private static final Logger logger = LoggerFactory.getLogger(GuvnorConnectionUtils.class);
     private static Properties properties = new Properties();
     
@@ -369,11 +363,23 @@ public class GuvnorConnectionUtils {
     
     public String getGuvnorPwd() {
         if(getGuvnorPwdEnc().equalsIgnoreCase("true")) {
-            String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
-            StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
-            encryptor.setPassword(guvnorName);
-            encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
-            return encryptor.decrypt(_pwd);
+            if(System.getProperty(externalPwdKey) == null) {
+                throw new IllegalStateException("Unable to find system property: " + externalPwdKey);
+            } else {
+                try {
+                    FileInputStream inputStream = new FileInputStream(System.getProperty(externalPwdKey));
+                    String encKey = IOUtils.toString(inputStream);
+                    encKey = encKey.replace("\n", "").replace("\r", "");
+
+                    String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+                    StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+                    encryptor.setPassword(encKey);
+                    encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+                    return encryptor.decrypt(_pwd);
+                } catch (Exception e) {
+                    throw new IllegalStateException("Unable to decrypt pwd: " + e.getMessage());
+                }
+            }
         } else {
             return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
         }
