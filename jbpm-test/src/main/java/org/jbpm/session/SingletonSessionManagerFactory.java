@@ -3,14 +3,14 @@ package org.jbpm.session;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.kie.KnowledgeBase;
+import org.kie.KieBase;
 
 public class SingletonSessionManagerFactory implements SessionManagerFactory {
 
 	private EntityManagerFactory emf;
 	private SessionEnvironment sessionEnvironment;
 	
-	public SingletonSessionManagerFactory(KnowledgeBase kbase) {
+	public SingletonSessionManagerFactory(KieBase kbase) {
 		// TODO: make persistenceUnitName configurable
 		// TODO inject emf or em
 		// Make sure this is easy to use in spring

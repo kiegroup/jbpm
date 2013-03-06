@@ -4,33 +4,36 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.kie.runtime.StatefulKnowledgeSession;
 
-public class KnowledgeSessionCleanup implements MethodRule {
+public class KnowledgeSessionCleanup implements TestRule {
 
     protected static ThreadLocal<Set<StatefulKnowledgeSession>> knowledgeSessionSetLocal = new ThreadLocal<Set<StatefulKnowledgeSession>>();
     static {
         knowledgeSessionSetLocal.set(new HashSet<StatefulKnowledgeSession>());
     }
 
-    public static void addKnowledgeSessionForCleanup(StatefulKnowledgeSession ksession) { 
+    public static void addKnowledgeSessionForCleanup(
+            StatefulKnowledgeSession ksession) {
         knowledgeSessionSetLocal.get().add(ksession);
     }
-    
-    public Statement apply(final Statement base, FrameworkMethod method, Object target) {
+
+    public Statement apply(final Statement base, Description description) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
                 try {
                     base.evaluate();
                 } finally {
-                    Set<StatefulKnowledgeSession> ksessionSet = knowledgeSessionSetLocal.get();
+                    Set<StatefulKnowledgeSession> ksessionSet = knowledgeSessionSetLocal
+                            .get();
                     if (!ksessionSet.isEmpty()) {
                         // return'ing here will keep throwables (above) from being thrown!
-                        Iterator<StatefulKnowledgeSession> iter = ksessionSet.iterator();
+                        Iterator<StatefulKnowledgeSession> iter = ksessionSet
+                                .iterator();
                         while (iter.hasNext()) {
                             StatefulKnowledgeSession ksession = iter.next();
                             if (ksession != null) {

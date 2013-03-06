@@ -25,19 +25,22 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class RecordRow implements Serializable{
-    @Id @GeneratedValue(strategy=GenerationType.AUTO)
+public class RecordRow implements Serializable {
+
+    private static final long serialVersionUID = 6879616176344060299L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String code;
     private String description;
     @ManyToOne()
-    @JoinColumn(name="MEDREC_ID", nullable=false, updatable=false)
+    @JoinColumn(name = "MEDREC_ID", nullable = false, updatable = false)
     private MedicalRecord medicalRecord;
 
     public RecordRow() {
     }
 
-    
     public RecordRow(String code, String desc) {
         this.code = code;
         this.description = desc;
@@ -51,7 +54,6 @@ public class RecordRow implements Serializable{
         this.medicalRecord = medicalRecord;
     }
 
-    
     public String getCode() {
         return code;
     }
@@ -78,7 +80,9 @@ public class RecordRow implements Serializable{
 
     @Override
     public String toString() {
-        return "RecordRow{" + "id=" + id + ", code=" + code + ", desc=" + description + ", medicalRecord=" + medicalRecord.getId() + '}';
+        return "RecordRow{" + "id=" + id + ", code=" + code + ", desc="
+                + description + ", medicalRecord=" + medicalRecord.getId()
+                + '}';
     }
 
     @Override
@@ -90,16 +94,21 @@ public class RecordRow implements Serializable{
             return false;
         }
         final RecordRow other = (RecordRow) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
+        if (this.id != other.id
+                && (this.id == null || !this.id.equals(other.id))) {
             return false;
         }
-        if ((this.code == null) ? (other.code != null) : !this.code.equals(other.code)) {
+        if ((this.code == null) ? (other.code != null) : !this.code
+                .equals(other.code)) {
             return false;
         }
-        if ((this.description == null) ? (other.description != null) : !this.description.equals(other.description)) {
+        if ((this.description == null) ? (other.description != null)
+                : !this.description.equals(other.description)) {
             return false;
         }
-        if (this.medicalRecord != other.medicalRecord && (this.medicalRecord == null || !this.medicalRecord.equals(other.medicalRecord))) {
+        if (this.medicalRecord != other.medicalRecord
+                && (this.medicalRecord == null || !this.medicalRecord
+                        .equals(other.medicalRecord))) {
             return false;
         }
         return true;
@@ -110,10 +119,13 @@ public class RecordRow implements Serializable{
         int hash = 5;
         hash = 13 * hash + (this.id != null ? this.id.hashCode() : 0);
         hash = 13 * hash + (this.code != null ? this.code.hashCode() : 0);
-        hash = 13 * hash + (this.description != null ? this.description.hashCode() : 0);
-        hash = 13 * hash + (this.medicalRecord != null ? this.medicalRecord.hashCode() : 0);
+        hash = 13 * hash
+                + (this.description != null ? this.description.hashCode() : 0);
+        hash = 13
+                * hash
+                + (this.medicalRecord != null ? this.medicalRecord.hashCode()
+                        : 0);
         return hash;
     }
-    
-    
+
 }

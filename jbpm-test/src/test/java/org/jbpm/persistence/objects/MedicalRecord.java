@@ -28,23 +28,25 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity
-public class MedicalRecord implements Serializable{
-    @Id @GeneratedValue(strategy=GenerationType.AUTO)
+public class MedicalRecord implements Serializable {
+
+    private static final long serialVersionUID = -5722020299405524668L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String description;
-    @OneToOne(optional=false,cascade= CascadeType.ALL)
-    @JoinColumn(
-    	name="PATIENT_ID", unique=true)
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "PATIENT_ID", unique = true)
     private Patient patient;
-    
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="medicalRecord")
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "medicalRecord")
     private List<RecordRow> rows;
     private int priority;
 
     public MedicalRecord() {
     }
 
-    
     public MedicalRecord(String desc, Patient patient) {
         this.description = desc;
         this.patient = patient;
@@ -92,7 +94,9 @@ public class MedicalRecord implements Serializable{
 
     @Override
     public String toString() {
-        return "MedicalRecord{" + "id=" + id + ", desc=" + description + ", patient=" + patient.getId() + ", rows=" + rows + ", priority=" + priority + '}';
+        return "MedicalRecord{" + "id=" + id + ", desc=" + description
+                + ", patient=" + patient.getId() + ", rows=" + rows
+                + ", priority=" + priority + '}';
     }
 
     @Override
@@ -104,16 +108,20 @@ public class MedicalRecord implements Serializable{
             return false;
         }
         final MedicalRecord other = (MedicalRecord) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
+        if (this.id != other.id
+                && (this.id == null || !this.id.equals(other.id))) {
             return false;
         }
-        if ((this.description == null) ? (other.description != null) : !this.description.equals(other.description)) {
+        if ((this.description == null) ? (other.description != null)
+                : !this.description.equals(other.description)) {
             return false;
         }
-        if (this.patient != other.patient && (this.patient == null || !this.patient.equals(other.patient))) {
+        if (this.patient != other.patient
+                && (this.patient == null || !this.patient.equals(other.patient))) {
             return false;
         }
-        if (this.rows != other.rows && (this.rows == null || !this.rows.equals(other.rows))) {
+        if (this.rows != other.rows
+                && (this.rows == null || !this.rows.equals(other.rows))) {
             return false;
         }
         if (this.priority != other.priority) {
@@ -126,13 +134,12 @@ public class MedicalRecord implements Serializable{
     public int hashCode() {
         int hash = 7;
         hash = 67 * hash + (this.id != null ? this.id.hashCode() : 0);
-        hash = 67 * hash + (this.description != null ? this.description.hashCode() : 0);
+        hash = 67 * hash
+                + (this.description != null ? this.description.hashCode() : 0);
         hash = 67 * hash + (this.patient != null ? this.patient.hashCode() : 0);
         hash = 67 * hash + (this.rows != null ? this.rows.hashCode() : 0);
         hash = 67 * hash + this.priority;
         return hash;
     }
-    
-    
-    
+
 }

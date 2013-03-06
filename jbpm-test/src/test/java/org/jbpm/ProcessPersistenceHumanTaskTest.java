@@ -7,7 +7,8 @@ import javax.transaction.UserTransaction;
 
 import org.jbpm.task.TaskService;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.test.JbpmJUnitTestCase;
+import org.jbpm.test.JbpmTestCase;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kie.runtime.StatefulKnowledgeSession;
 import org.kie.runtime.process.ProcessInstance;
@@ -17,13 +18,18 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to test a process.
  */
-public class ProcessPersistenceHumanTaskTest extends JbpmJUnitTestCase {
+public class ProcessPersistenceHumanTaskTest extends JbpmTestCase {
 
-    private Logger testLogger = LoggerFactory.getLogger(ProcessPersistenceHumanTaskTest.class);
+    private Logger testLogger = LoggerFactory
+            .getLogger(ProcessPersistenceHumanTaskTest.class);
 
     public ProcessPersistenceHumanTaskTest() {
         super(true);
-        setPersistence(true);
+    }
+
+    @BeforeClass
+    public static void setup() throws Exception {
+        setUpDataSource();
     }
 
     @Test
@@ -31,9 +37,10 @@ public class ProcessPersistenceHumanTaskTest extends JbpmJUnitTestCase {
         StatefulKnowledgeSession ksession = createKnowledgeSession("humantask.bpmn");
         TaskService taskService = getTaskService(ksession);
 
-        ProcessInstance processInstance = ksession.startProcess("com.sample.bpmn.hello");
+        ProcessInstance processInstance = ksession
+                .startProcess("com.sample.bpmn.hello");
 
-        assertProcessInstanceActive(processInstance.getId(), ksession);
+        assertProcessInstanceActive(processInstance);
         assertNodeTriggered(processInstance.getId(), "Start", "Task 1");
 
         // simulating a system restart
@@ -42,7 +49,8 @@ public class ProcessPersistenceHumanTaskTest extends JbpmJUnitTestCase {
 
         // let john execute Task 1
         String taskGroup = "en-UK";
-        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", taskGroup);
+        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner(
+                "john", taskGroup);
         TaskSummary task = list.get(0);
         testLogger.debug("John is executing task " + task.getName());
         taskService.start(task.getId(), "john");
@@ -56,15 +64,17 @@ public class ProcessPersistenceHumanTaskTest extends JbpmJUnitTestCase {
 
         // let mary execute Task 2
         String taskUser = "mary";
-        list = taskService.getTasksAssignedAsPotentialOwner(taskUser, taskGroup);
-        assertTrue("No tasks found for potential owner " + taskUser + "/" + taskGroup, list.size() > 0);
+        list = taskService
+                .getTasksAssignedAsPotentialOwner(taskUser, taskGroup);
+        assertTrue("No tasks found for potential owner " + taskUser + "/"
+                + taskGroup, list.size() > 0);
         task = list.get(0);
         testLogger.debug("Mary is executing task " + task.getName());
         taskService.start(task.getId(), "mary");
         taskService.complete(task.getId(), "mary", null);
 
         assertNodeTriggered(processInstance.getId(), "End");
-        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertProcessInstanceFinished(processInstance, ksession);
     }
 
     @Test
@@ -72,13 +82,16 @@ public class ProcessPersistenceHumanTaskTest extends JbpmJUnitTestCase {
         StatefulKnowledgeSession ksession = createKnowledgeSession("humantask.bpmn");
         TaskService taskService = getTaskService(ksession);
 
-        UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+        UserTransaction ut = (UserTransaction) new InitialContext()
+                .lookup("java:comp/UserTransaction");
         ut.begin();
-        ProcessInstance processInstance = ksession.startProcess("com.sample.bpmn.hello");
+        ProcessInstance processInstance = ksession
+                .startProcess("com.sample.bpmn.hello");
         ut.rollback();
 
         assertNull(ksession.getProcessInstance(processInstance.getId()));
-        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+        List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner(
+                "john", "en-UK");
         assertEquals(0, list.size());
     }
 

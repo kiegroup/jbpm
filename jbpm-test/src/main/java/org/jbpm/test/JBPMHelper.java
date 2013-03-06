@@ -14,7 +14,7 @@ import org.jbpm.process.workitem.wsht.MinaHTWorkItemHandler;
 import org.jbpm.task.service.TaskService;
 import org.jbpm.task.service.hornetq.HornetQTaskServer;
 import org.jbpm.task.service.mina.MinaTaskServer;
-import org.kie.KnowledgeBase;
+import org.kie.KieBase;
 import org.kie.SystemEventListenerFactory;
 import org.kie.persistence.jpa.JPAKnowledgeService;
 import org.kie.runtime.Environment;
@@ -132,11 +132,11 @@ public final class JBPMHelper {
         return env;
     }
     
-	public static StatefulKnowledgeSession newStatefulKnowledgeSession(KnowledgeBase kbase) {
+	public static StatefulKnowledgeSession newStatefulKnowledgeSession(KieBase kbase) {
 		return loadStatefulKnowledgeSession(kbase, -1);
 	}
 	
-	public static StatefulKnowledgeSession loadStatefulKnowledgeSession(KnowledgeBase kbase, int sessionId) {
+	public static StatefulKnowledgeSession loadStatefulKnowledgeSession(KieBase kbase, int sessionId) {
 		Properties properties = getProperties();
 		String persistenceEnabled = properties.getProperty("persistence.enabled", "false");
 		StatefulKnowledgeSession ksession;
@@ -174,7 +174,7 @@ public final class JBPMHelper {
 		        }
 			}
 		} else {
-			ksession = kbase.newStatefulKnowledgeSession();
+			ksession = (StatefulKnowledgeSession) kbase.newKieSession();
 			String humanTaskEnabled = properties.getProperty("taskservice.enabled", "false");
 			if ("true".equals(humanTaskEnabled)) {
 				String transport = properties.getProperty("taskservice.transport", "hornetq");

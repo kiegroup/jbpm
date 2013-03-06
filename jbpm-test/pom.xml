@@ -18,10 +18,6 @@
   <dependencies>
     <dependency>
       <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-bpmn2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
     </dependency>
     <dependency>

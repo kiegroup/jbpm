@@ -25,12 +25,17 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
 @Entity
-public class Patient implements Serializable{
-    @Id @GeneratedValue(strategy=GenerationType.AUTO)
+public class Patient implements Serializable {
+
+    private static final long serialVersionUID = 746511155084156988L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    @OneToOne(optional=true, mappedBy="patient")
+    @OneToOne(optional = true, mappedBy = "patient")
     private MedicalRecord record;
     @Temporal(TemporalType.TIMESTAMP)
     private Date nextAppointment;
@@ -38,12 +43,10 @@ public class Patient implements Serializable{
     public Patient() {
     }
 
-    
     public Patient(String name) {
         this.name = name;
     }
 
-    
     public Long getId() {
         return id;
     }
@@ -59,7 +62,7 @@ public class Patient implements Serializable{
     public void setNextAppointment(Date nextAppointment) {
         this.nextAppointment = nextAppointment;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -78,7 +81,8 @@ public class Patient implements Serializable{
 
     @Override
     public String toString() {
-        return "Patient{" + "id=" + id + ", name=" + name + ", record=" + record + ", nextAppointment=" + nextAppointment + '}';
+        return "Patient{" + "id=" + id + ", name=" + name + ", record="
+                + record + ", nextAppointment=" + nextAppointment + '}';
     }
 
     @Override
@@ -90,16 +94,21 @@ public class Patient implements Serializable{
             return false;
         }
         final Patient other = (Patient) obj;
-        if (this.id != other.id && (this.id == null || !this.id.equals(other.id))) {
+        if (this.id != other.id
+                && (this.id == null || !this.id.equals(other.id))) {
             return false;
         }
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if ((this.name == null) ? (other.name != null) : !this.name
+                .equals(other.name)) {
             return false;
         }
-        if (this.record != other.record && (this.record == null || !this.record.equals(other.record))) {
+        if (this.record != other.record
+                && (this.record == null || !this.record.equals(other.record))) {
             return false;
         }
-        if (this.nextAppointment != other.nextAppointment && (this.nextAppointment == null || !this.nextAppointment.equals(other.nextAppointment))) {
+        if (this.nextAppointment != other.nextAppointment
+                && (this.nextAppointment == null || !this.nextAppointment
+                        .equals(other.nextAppointment))) {
             return false;
         }
         return true;
@@ -111,10 +120,11 @@ public class Patient implements Serializable{
         hash = 47 * hash + (this.id != null ? this.id.hashCode() : 0);
         hash = 47 * hash + (this.name != null ? this.name.hashCode() : 0);
         hash = 47 * hash + (this.record != null ? this.record.hashCode() : 0);
-        hash = 47 * hash + (this.nextAppointment != null ? this.nextAppointment.hashCode() : 0);
+        hash = 47
+                * hash
+                + (this.nextAppointment != null ? this.nextAppointment
+                        .hashCode() : 0);
         return hash;
     }
-    
-    
-    
+
 }
