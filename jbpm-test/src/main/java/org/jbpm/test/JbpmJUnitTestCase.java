@@ -81,7 +81,7 @@ public abstract class JbpmJUnitTestCase extends Assert {
     
     private boolean setupDataSource = false;
 	private boolean sessionPersistence = false;
-	private EntityManagerFactory emf;
+	protected EntityManagerFactory emf;
 	private PoolingDataSource ds;
 	private H2Server server = new H2Server();
 	private org.jbpm.task.service.TaskService taskService;

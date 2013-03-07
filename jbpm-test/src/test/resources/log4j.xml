@@ -9,7 +9,7 @@
 	</appender>
 
 	<logger name="org.jbpm">
-		<level value="WARN"/>
+		<level value="INFO"/>
 	</logger>
 	
 	<logger name="org.hibernate">
@@ -34,7 +34,7 @@
 	</logger>
 
 	<root>
-		<priority value="ERROR"/>
+		<priority value="WARN"/>
 		<appender-ref ref="CONSOLE"/>
 	</root>
 </log4j:configuration>
