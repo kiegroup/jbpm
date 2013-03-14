@@ -31,6 +31,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.antlr.stringtemplate.StringTemplate;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -616,8 +617,8 @@ public class GuvnorConnectionUtils {
                 sb.append(" type=\"PKG\"");
                 if(!isEmpty(usr) && !isEmpty(pwd)) {
                     sb.append(" basicAuthentication=\"enabled\"");
-                    sb.append(" username=\"").append(usr).append("\"");
-                    sb.append(" password=\"").append(pwd).append("\"");
+                    sb.append(" username=\"").append(StringEscapeUtils.escapeXml(usr)).append("\"");
+                    sb.append(" password=\"").append(StringEscapeUtils.escapeXml(pwd)).append("\"");
                 }
                 sb.append(" />");
                 data.add(sb.toString());
