@@ -492,9 +492,14 @@ public class GuvnorConnectionUtils {
     }
     
     protected void applyAuth(HttpURLConnection connection) {
-        String auth = getGuvnorUsr() + ":" + getGuvnorPwd();
-        connection.setRequestProperty("Authorization", "Basic "
-                + Base64.encodeBase64String(auth.getBytes()));
+        try {
+            String auth = getGuvnorUsr() + ":" + getGuvnorPwd();
+
+            connection.setRequestProperty("Authorization", "Basic "
+                    + new String(Base64.encodeBase64(auth.getBytes("UTF-8"))));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 
     private InputStream getInputStreamForImageURL(String urlLocation, String requestMethod) throws Exception {
