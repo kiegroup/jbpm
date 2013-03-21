@@ -154,7 +154,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         for (Map.Entry<String, Object> entry: workItem.getParameters().entrySet()) {
             if (entry.getValue() instanceof String) {
                 String s = (String) entry.getValue();
-                Map<String, String> replacements = new HashMap<String, String>();
+                Map<String, Object> replacements = new HashMap<String, Object>();
                 Matcher matcher = PARAMETER_MATCHER.matcher(s);
                 while (matcher.find()) {
                     String paramName = matcher.group(1);
@@ -163,13 +163,11 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                             resolveContextInstance(VariableScope.VARIABLE_SCOPE, paramName);
                         if (variableScopeInstance != null) {
                             Object variableValue = variableScopeInstance.getVariable(paramName);
-                            String variableValueString = variableValue == null ? "" : variableValue.toString(); 
-                            replacements.put(paramName, variableValueString);
+                            replacements.put(paramName, variableValue);
                         } else {
                             try {
                                 Object variableValue = MVEL.eval(paramName, new NodeInstanceResolverFactory(this));
-                                String variableValueString = variableValue == null ? "" : variableValue.toString();
-                                replacements.put(paramName, variableValueString);
+                                replacements.put(paramName, variableValue);
                             } catch (Throwable t) {
                                 System.err.println("Could not find variable scope for variable " + paramName);
                                 System.err.println("when trying to replace variable in string for Work Item " + work.getName());
@@ -178,10 +176,15 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                         }
                     }
                 }
-                for (Map.Entry<String, String> replacement: replacements.entrySet()) {
-                    s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
+                if (replacements.size() > 1) {
+                    for (Map.Entry<String, Object> replacement: replacements.entrySet()) {
+                        s = s.replace("#{" + replacement.getKey() + "}",
+                                replacement.getValue() == null ? "" : replacement.getValue().toString());
+                    }
+                    workItem.setParameter(entry.getKey(), s);
+                } else if (replacements.size() == 1) {
+                    workItem.setParameter(entry.getKey(), replacements.values().iterator().next());                    
                 }
-                ((WorkItem) workItem).setParameter(entry.getKey(), s);
             }
         }
         return workItem;
