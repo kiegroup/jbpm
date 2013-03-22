@@ -21,7 +21,6 @@ import java.util.List;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.TransactionRequiredException;
@@ -33,15 +32,16 @@ import javax.transaction.UserTransaction;
 import org.drools.WorkingMemory;
 import org.drools.audit.WorkingMemoryLogger;
 import org.drools.audit.event.LogEvent;
-import org.drools.audit.event.RuleFlowLogEvent;
 import org.drools.audit.event.RuleFlowNodeLogEvent;
 import org.drools.audit.event.RuleFlowVariableLogEvent;
 import org.drools.event.KnowledgeRuntimeEventManager;
+import org.drools.event.process.ProcessCompletedEvent;
+import org.drools.event.process.ProcessStartedEvent;
 import org.drools.impl.StatelessKnowledgeSessionImpl;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.KnowledgeRuntime;
-
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,12 +84,9 @@ public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
     public void logEventCreated(LogEvent logEvent) {
         switch (logEvent.getType()) {
             case LogEvent.BEFORE_RULEFLOW_CREATED:
-                RuleFlowLogEvent processEvent = (RuleFlowLogEvent) logEvent;
-                addProcessLog(processEvent.getProcessInstanceId(), processEvent.getProcessId());
-                break;
             case LogEvent.AFTER_RULEFLOW_COMPLETED:
-            	processEvent = (RuleFlowLogEvent) logEvent;
-                updateProcessLog(processEvent.getProcessInstanceId());
+            	// Moved to beforeProcessStarted and afterProcessCompleted below,
+            	// to have access to ProcessInstance
                 break;
             case LogEvent.BEFORE_RULEFLOW_NODE_TRIGGERED:
             	RuleFlowNodeLogEvent nodeEvent = (RuleFlowNodeLogEvent) logEvent;
@@ -107,22 +104,38 @@ public class JPAWorkingMemoryDbLogger extends WorkingMemoryLogger {
                 // ignore all other events
         }
     }
+    
+    public void beforeProcessStarted(ProcessStartedEvent event) {
+    	super.beforeProcessStarted(event);
+        addProcessLog(event);
+    }
 
-    private void addProcessLog(long processInstanceId, String processId) {
-        ProcessInstanceLog log = new ProcessInstanceLog(processInstanceId, processId);
+    public void afterProcessCompleted(ProcessCompletedEvent event) {
+    	super.afterProcessCompleted(event);
+    	updateProcessLog(event);
+    }
+
+    private void addProcessLog(ProcessStartedEvent event) {
+        ProcessInstanceLog log = new ProcessInstanceLog(event.getProcessInstance().getId(), event.getProcessInstance().getProcessId());
     	persist(log);
+    	((ProcessInstanceImpl) event.getProcessInstance()).getMetaData().put("ProcessInstanceLog", log);
     }
 
     @SuppressWarnings("unchecked")
-    private void updateProcessLog(long processInstanceId) {
+    private void updateProcessLog(ProcessCompletedEvent event) {
         EntityManager em = getEntityManager();
         UserTransaction ut = joinTransaction(em);
-        List<ProcessInstanceLog> result = em.createQuery(
-            "from ProcessInstanceLog as log where log.processInstanceId = ? and log.end is null")
-                .setParameter(1, processInstanceId).getResultList();
-        if (result != null && result.size() != 0) {
-            ProcessInstanceLog log = result.get(result.size() - 1);
-            log.setEnd(new Date());
+        ProcessInstanceLog log = (ProcessInstanceLog) ((ProcessInstanceImpl) event.getProcessInstance()).getMetaData().get("ProcessInstanceLog");
+        if (log == null) { 
+	        List<ProcessInstanceLog> result = em.createQuery(
+	            "from ProcessInstanceLog as log where log.processInstanceId = ? and log.end is null")
+	                .setParameter(1, event.getProcessInstance().getId()).getResultList();
+	        if (result != null && result.size() != 0) {
+	            log = result.get(result.size() - 1);
+	        }
+        }
+        if (log != null) {
+        	log.setEnd(new Date());
             em.merge(log);
         }
         if (!sharedEM) {
