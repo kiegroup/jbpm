@@ -224,6 +224,67 @@ public class AdminAPIsWithListenerTest {
         taskTestEnvironment.verifyFakeTaskDataAloneInDb();
     }
 
+    @Test
+    public void automaticCleanUpWhenAbortedTest() throws Exception {
+        Environment env = createEnvironment();
+        KnowledgeBase kbase = createKnowledgeBase("patient-appointment.bpmn");
+        StatefulKnowledgeSession ksession = createSession(kbase, env);
+        KnowledgeRuntimeLoggerFactory.newConsoleLogger(ksession);
+        SyncWSHumanTaskHandler htHandler = new SyncWSHumanTaskHandler(localTaskService, ksession);
+        htHandler.setLocal(true);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", htHandler);
+        ksession.addEventListener(new TaskCleanUpProcessEventListener(admin));
+        
+        logger.info("### Starting process ###");
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        
+        ProcessInstance process = ksession.startProcess("org.jbpm.PatientAppointment", parameters);
+        long processInstanceId = process.getId();
+
+        //The process is in the first Human Task waiting for its completion
+        Assert.assertEquals(ProcessInstance.STATE_ACTIVE, process.getState());
+
+        //gets frontDesk's tasks
+        List<TaskSummary> frontDeskTasks = this.localTaskService.getTasksAssignedAsPotentialOwner("frontDesk", "en-UK");
+        Assert.assertEquals(1, frontDeskTasks.size());
+
+        //doctor doesn't have any task
+        List<TaskSummary> doctorTasks = this.localTaskService.getTasksAssignedAsPotentialOwner("doctor", "en-UK");
+        Assert.assertTrue(doctorTasks.isEmpty());
+
+        //manager doesn't have any task
+        List<TaskSummary> managerTasks = this.localTaskService.getTasksAssignedAsPotentialOwner("manager", "en-UK");
+        Assert.assertTrue(managerTasks.isEmpty());
+
+
+        this.localTaskService.start(frontDeskTasks.get(0).getId(), "frontDesk");
+       
+        this.localTaskService.complete(frontDeskTasks.get(0).getId(), "frontDesk", null);
+
+        //Now doctor has 1 task
+        doctorTasks = this.localTaskService.getTasksAssignedAsPotentialOwner("doctor", "en-UK");
+        Assert.assertEquals(1, doctorTasks.size());
+
+        //No tasks for manager yet
+        managerTasks = this.localTaskService.getTasksAssignedAsPotentialOwner("manager", "en-UK");
+        Assert.assertTrue(managerTasks.isEmpty());
+
+
+        this.localTaskService.start(doctorTasks.get(0).getId(), "doctor");
+
+        this.localTaskService.complete(doctorTasks.get(0).getId(), "doctor", null);
+
+        // instead of completing tasks for manager, abort the process
+        ksession.abortProcessInstance(process.getId());
+
+        // since persisted process instance is completed it should be null
+        process = ksession.getProcessInstance(process.getId());
+        Assert.assertNull(process);
+
+        taskTestEnvironment.verifyFakeTaskDataNotChanged();
+        taskTestEnvironment.verifyFakeTaskDataAloneInDb();
+    }
+    
     private StatefulKnowledgeSession createSession(KnowledgeBase kbase, Environment env) {
         return JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
     }
