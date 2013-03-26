@@ -19,7 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Embeddable;
@@ -41,23 +41,23 @@ public class PeopleAssignmentsImpl
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "PeopleAssignments_PotOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<OrganizationalEntity> potentialOwners        = Collections.emptyList();
+    private List<OrganizationalEntity> potentialOwners        = new ArrayList<OrganizationalEntity>();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "PeopleAssignments_ExclOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<OrganizationalEntity> excludedOwners         = Collections.emptyList();
+    private List<OrganizationalEntity> excludedOwners         = new ArrayList<OrganizationalEntity>();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "PeopleAssignments_Stakeholders", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<OrganizationalEntity> taskStakeholders       = Collections.emptyList();
+    private List<OrganizationalEntity> taskStakeholders       = new ArrayList<OrganizationalEntity>();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "PeopleAssignments_BAs", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<OrganizationalEntity> businessAdministrators = Collections.emptyList();
+    private List<OrganizationalEntity> businessAdministrators = new ArrayList<OrganizationalEntity>();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "PeopleAssignments_Recipients", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<OrganizationalEntity> recipients             = Collections.emptyList();
+    private List<OrganizationalEntity> recipients             = new ArrayList<OrganizationalEntity>();
 
     public PeopleAssignmentsImpl() {
 

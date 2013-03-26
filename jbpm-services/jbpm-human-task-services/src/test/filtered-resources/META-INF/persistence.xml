@@ -7,7 +7,9 @@
                       http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd">
 
   <persistence-unit name="org.jbpm.services.task" transaction-type="${maven.tx.type}">
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <!-- <provider>org.hibernate.ejb.HibernatePersistence</provider> -->
+    <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+    
     ${maven.data.source}
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
     <!--mapping-file>META-INF/TaskEventsorm.xml</mapping-file-->
@@ -40,6 +42,17 @@
     <class>org.jbpm.services.task.impl.model.TaskEventImpl</class>
    
     <properties>
+      <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+      <property name="openjpa.Log" value="DefaultLevel=TRACE, Tool=TRACE, SQL=TRACE"/>
+      <property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72"/>
+    
+      <property name="openjpa.ConnectionURL" value="${maven.jdbc.url}"/>
+      <property name="openjpa.ConnectionDriverName" value="${maven.jdbc.driver.class}"/>
+      <property name="openjpa.ConnectionUserName" value="${maven.jdbc.username}"/>
+      <property name="openjpa.ConnectionPassword" value="${maven.jdbc.password}"/>
+      <property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO"/>
+    
+    
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}" />
       <property name="hibernate.connection.autocommit" value="false" />
 
