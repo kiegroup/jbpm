@@ -18,7 +18,7 @@
     <class>org.jbpm.services.task.impl.model.CommentImpl</class>
     <class>org.jbpm.services.task.impl.model.DeadlineImpl</class>
     <class>org.jbpm.services.task.impl.model.CommentImpl</class>
-    <class>org.jbpm.services.task.impl.model.DeadlineImpl</class>
+    <class>org.jbpm.services.task.impl.model.DeadlinesImpl</class>
     <class>org.jbpm.services.task.impl.model.DelegationImpl</class>
     <class>org.jbpm.services.task.impl.model.EscalationImpl</class>
     <class>org.jbpm.services.task.impl.model.GroupImpl</class>
