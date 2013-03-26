@@ -32,7 +32,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -42,11 +41,10 @@ import org.kie.internal.task.api.model.NotificationType;
 
 @Entity
 @Table(name="Notification")
-@SequenceGenerator(name="notificationIdSeq", sequenceName="NOTIFICATION_ID_SEQ", allocationSize=1)
 public class NotificationImpl implements org.kie.internal.task.api.model.Notification  {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="notificationIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long                             id;
 

@@ -26,16 +26,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="BooleanExpression")
-@SequenceGenerator(name="booleanExprIdSeq", sequenceName="BOOLEANEXPR_ID_SEQ", allocationSize=1)
 public class BooleanExpressionImpl implements org.kie.internal.task.api.model.BooleanExpression {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="booleanExprIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long   id;
     private String type;
     

@@ -29,16 +29,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "email_header")
-@SequenceGenerator(name="emailNotificationHeadIdSeq", sequenceName="EMAILNOTIFHEAD_ID_SEQ", allocationSize=1)
 public class EmailNotificationHeaderImpl implements org.kie.internal.task.api.model.EmailNotificationHeader {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="emailNotificationHeadIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long   id;
     
     private String language;    

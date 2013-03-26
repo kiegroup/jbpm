@@ -28,7 +28,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.kie.api.task.model.User;
@@ -36,11 +35,10 @@ import org.kie.internal.task.api.model.InternalComment;
 
 @Entity
 @Table(name = "task_comment")
-@SequenceGenerator(name="commentIdSeq", sequenceName="COMMENT_ID_SEQ", allocationSize=1)
 public class CommentImpl implements InternalComment  {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="commentIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id = 0L;
 
     @Lob @Column(length=65535)

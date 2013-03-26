@@ -34,7 +34,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -49,14 +48,13 @@ import org.kie.internal.task.api.model.SubTasksStrategy;
 
 @Entity
 @Table(name="Task")
-@SequenceGenerator(name="taskIdSeq", sequenceName="TASK_ID_SEQ", allocationSize=1)
 public class TaskImpl implements InternalTask {
     /**
      * WSHT uses a name for the unique identifier, for now we use a generated ID which is also the key, which can be
      * mapped to the name or a unique name field added later.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="taskIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long                 id = 0L;
     
@@ -101,8 +99,6 @@ public class TaskImpl implements InternalTask {
     
     private String               taskType;
     
-    private String               formName;
-    
     @Basic
     private Short archived = 0;
     
@@ -115,7 +111,6 @@ public class TaskImpl implements InternalTask {
         out.writeInt( priority );
         out.writeShort( archived );
         out.writeUTF(taskType);
-        out.writeUTF(formName);
         CollectionUtils.writeI18NTextList( names, out );
         CollectionUtils.writeI18NTextList( subjects, out );
         CollectionUtils.writeI18NTextList( descriptions, out );
@@ -163,7 +158,6 @@ public class TaskImpl implements InternalTask {
         priority = in.readInt();
         archived = in.readShort();
         taskType = in.readUTF();
-        formName = in.readUTF();
         names = CollectionUtils.readI18NTextList( in );
         subjects = CollectionUtils.readI18NTextList( in );
         descriptions = CollectionUtils.readI18NTextList( in );
@@ -292,15 +286,6 @@ public class TaskImpl implements InternalTask {
     public void setTaskType(String taskType) {
         this.taskType = taskType;
     }
-
-    public String getFormName() {
-        return formName;
-    }
-
-    public void setFormName(String formName) {
-        this.formName = formName;
-    }
-    
 
     public Short getArchived() {
         return archived;
