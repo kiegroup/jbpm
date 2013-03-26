@@ -18,7 +18,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,12 +46,12 @@ public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
     private long id;
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Deadline_Documentation_Id", nullable = true)
-    private List<I18NText> documentation = Collections.emptyList();
+    private List<I18NText> documentation = new ArrayList<I18NText>();
     @Column(name = "deadline_date")
     private Date date;
     @OneToMany(cascade = CascadeType.ALL, targetEntity=EscalationImpl.class)
     @JoinColumn(name = "Deadline_Escalation_Id", nullable = true)
-    private List<Escalation> escalations = Collections.emptyList();
+    private List<Escalation> escalations = new ArrayList<Escalation>();
     
     @Basic
     private Short escalated = 0;

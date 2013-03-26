@@ -19,6 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,15 +49,15 @@ public class EscalationImpl implements org.kie.internal.task.api.model.Escalatio
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=BooleanExpressionImpl.class)
     @JoinColumn(name = "Escalation_Constraints_Id", nullable = true)
-    private List<BooleanExpression> constraints   = Collections.emptyList();
+    private List<BooleanExpression> constraints   = new ArrayList<BooleanExpression>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=NotificationImpl.class)
     @JoinColumn(name = "Escalation_Notifications_Id", nullable = true)
-    private List<Notification>      notifications = Collections.emptyList();
+    private List<Notification>      notifications = new ArrayList<Notification>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=ReassignmentImpl.class)
     @JoinColumn(name = "Escalation_Reassignments_Id", nullable = true)
-    private List<Reassignment>      reassignments = Collections.emptyList();
+    private List<Reassignment>      reassignments = new ArrayList<Reassignment>();
     
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(  id );

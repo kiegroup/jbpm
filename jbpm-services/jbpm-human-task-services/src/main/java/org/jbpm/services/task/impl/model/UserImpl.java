@@ -21,8 +21,11 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 @Entity
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 public class UserImpl extends OrganizationalEntityImpl implements org.kie.internal.task.api.model.User {
     
     public UserImpl() {

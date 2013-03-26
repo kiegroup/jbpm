@@ -29,7 +29,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -100,10 +99,10 @@ public class TaskDataImpl implements org.kie.internal.task.api.model.TaskData {
     private int processSessionId;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=CommentImpl.class)
-    private List<Comment> comments = Collections.emptyList();
+    private List<Comment> comments = new ArrayList<Comment>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=AttachmentImpl.class)
-    private List<Attachment> attachments = Collections.emptyList();
+    private List<Attachment> attachments = new ArrayList<Attachment>();
 
     public void writeExternal(ObjectOutput out) throws IOException {
         if (status != null) {
