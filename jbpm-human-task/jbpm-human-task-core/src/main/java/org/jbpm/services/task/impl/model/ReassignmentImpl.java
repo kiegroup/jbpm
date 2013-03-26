@@ -19,7 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -47,11 +47,11 @@ public class ReassignmentImpl implements org.kie.internal.task.api.model.Reassig
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Reassignment_Documentation_Id", nullable = true)     
-    private List<I18NText>             documentation = Collections.emptyList();
+    private List<I18NText>             documentation = new ArrayList<I18NText>();
     
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
     @JoinTable(name = "Reassignment_potentialOwners", joinColumns = @JoinColumn(name = "task_id"))    
-    private List<OrganizationalEntity> potentialOwners = Collections.emptyList();
+    private List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
 
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );

@@ -19,6 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,15 +71,15 @@ public class TaskImpl implements InternalTask {
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Names_Id", nullable = true)
-    private List<I18NText> names        = Collections.emptyList();
+    private List<I18NText> names        = new ArrayList<I18NText>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Subjects_Id", nullable = true)
-    private List<I18NText> subjects     = Collections.emptyList();
+    private List<I18NText> subjects     = new ArrayList<I18NText>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Descriptions_Id", nullable = true)
-    private List<I18NText> descriptions = Collections.emptyList();
+    private List<I18NText> descriptions = new ArrayList<I18NText>();
 
 
     @Embedded

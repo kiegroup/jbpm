@@ -22,10 +22,13 @@ import java.io.ObjectOutput;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 import org.kie.api.task.model.User;
 
 @Entity
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 @DiscriminatorValue("User")
 public class UserImpl extends OrganizationalEntityImpl implements User {
     
