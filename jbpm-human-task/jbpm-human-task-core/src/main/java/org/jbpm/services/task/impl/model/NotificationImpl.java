@@ -55,11 +55,11 @@ public class NotificationImpl implements org.kie.internal.task.api.model.Notific
     private int                              priority;
     
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Notification_Recipients", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
+    @JoinTable(name = "Notification_Recipients", joinColumns = @JoinColumn(name = "task_id"))    
     private List<OrganizationalEntity>       recipients = Collections.emptyList();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Notification_BAs", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
+    @JoinTable(name = "Notification_BAs", joinColumns = @JoinColumn(name = "task_id"))
     private List<OrganizationalEntity>       businessAdministrators = Collections.emptyList();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)

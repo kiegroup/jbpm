@@ -39,6 +39,16 @@
     <class>org.jbpm.services.task.audit.TaskEventImpl</class>
    
     <properties>
+      <property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)"/>
+      <property name="openjpa.Log" value="DefaultLevel=TRACE, Tool=TRACE, SQL=TRACE"/>
+      <property name="openjpa.ConnectionFactoryProperties" value="PrettyPrint=true, PrettyPrintLineLength=72"/>
+    
+      <property name="openjpa.ConnectionURL" value="${maven.jdbc.url}"/>
+      <property name="openjpa.ConnectionDriverName" value="${maven.jdbc.driver.class}"/>
+      <property name="openjpa.ConnectionUserName" value="${maven.jdbc.username}"/>
+      <property name="openjpa.ConnectionPassword" value="${maven.jdbc.password}"/>
+      <property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO"/>
+
       <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
       <property name="hibernate.connection.autocommit" value="false" />
 

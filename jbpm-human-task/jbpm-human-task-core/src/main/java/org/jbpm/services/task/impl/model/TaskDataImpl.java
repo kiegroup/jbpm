@@ -103,11 +103,9 @@ public class TaskDataImpl implements InternalTaskData {
     private int processSessionId;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=CommentImpl.class)
-    @JoinColumn(name = "TaskData_Comments_Id", nullable = true)
     private List<Comment> comments = Collections.emptyList();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=AttachmentImpl.class)
-    @JoinColumn(name = "TaskData_Attachments_Id", nullable = true)
     private List<Attachment> attachments = Collections.emptyList();
 
     public void writeExternal(ObjectOutput out) throws IOException {
