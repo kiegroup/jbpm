@@ -31,11 +31,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 
 @Entity
-@SequenceGenerator(name="attachmentIdSeq", sequenceName="ATTACHMENT_ID_SEQ", allocationSize=1)
 public class Attachment implements Externalizable {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="attachmentIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long   id;
 
     /**
