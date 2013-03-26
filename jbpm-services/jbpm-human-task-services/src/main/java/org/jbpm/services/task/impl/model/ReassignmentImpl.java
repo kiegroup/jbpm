@@ -31,7 +31,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -40,11 +39,10 @@ import org.kie.internal.task.api.model.OrganizationalEntity;
 
 @Entity
 @Table(name="Reassignment")
-@SequenceGenerator(name="reassignmentIdSeq", sequenceName="REASSIGNMENT_ID_SEQ", allocationSize=1)
 public class ReassignmentImpl implements org.kie.internal.task.api.model.Reassignment {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="reassignmentIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long                       id;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)

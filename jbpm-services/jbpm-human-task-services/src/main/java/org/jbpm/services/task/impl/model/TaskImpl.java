@@ -34,7 +34,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -48,14 +47,13 @@ import org.kie.internal.task.api.model.TaskData;
 
 @Entity
 @Table(name="Task")
-@SequenceGenerator(name="taskIdSeq", sequenceName="TASK_ID_SEQ", allocationSize=1)
 public class TaskImpl implements org.kie.internal.task.api.model.Task {
     /**
      * WSHT uses a name for the unique identifier, for now we use a generated ID which is also the key, which can be
      * mapped to the name or a unique name field added later.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="taskIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long                 id;
     
     @Version

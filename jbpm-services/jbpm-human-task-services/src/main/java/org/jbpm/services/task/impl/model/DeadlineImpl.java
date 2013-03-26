@@ -31,7 +31,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -40,11 +39,10 @@ import org.kie.internal.task.api.model.I18NText;
 
 @Entity
 @Table(name="Deadline")
-@SequenceGenerator(name="deadlineIdSeq", sequenceName="DEADLINE_ID_SEQ", allocationSize=1)
 public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="deadlineIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Deadline_Documentation_Id", nullable = true)

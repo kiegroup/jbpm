@@ -29,7 +29,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -39,11 +38,10 @@ import org.kie.internal.task.api.model.Reassignment;
 
 @Entity
 @Table(name="Escalation")
-@SequenceGenerator(name="escalationIdSeq", sequenceName="ESCALATION_ID_SEQ", allocationSize=1)
 public class EscalationImpl implements org.kie.internal.task.api.model.Escalation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="escalationIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long                    id;
 
     private String                  name;

@@ -32,11 +32,10 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="Content")
-@SequenceGenerator(name="contentIdSeq", sequenceName="CONTENT_ID_SEQ", allocationSize=1)
 public class ContentImpl implements org.kie.internal.task.api.model.Content {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="contentIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long   id;
     
     @Lob
