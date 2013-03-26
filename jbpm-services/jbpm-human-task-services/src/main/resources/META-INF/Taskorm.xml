@@ -1235,7 +1235,7 @@ from
     DeadlineImpl d
 where
     t.archived = 0 and
-    d in elements( t.deadlines.endDeadlines ) and
+    d member of t.deadlines.endDeadlines and
     d.escalated = 0
 order by
     d.date
@@ -1255,7 +1255,7 @@ from
     DeadlineImpl d
 where
     t.archived = 0 and
-    d in elements( t.deadlines.startDeadlines ) and
+    d member of t.deadlines.startDeadlines and
     d.escalated = 0
 order by
     d.date
