@@ -41,6 +41,7 @@ import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
+import org.jbpm.task.service.responsehandlers.BlockingGetIdsResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
@@ -96,6 +97,12 @@ public abstract class WSHumanTaskHandlerBaseAsyncTest extends BaseTest {
         assertEquals("Darth Vader", task.getActualOwner().getId());
         assertEquals(10, task.getProcessInstanceId());
 
+        BlockingGetIdsResponseHandler idResponseHandler = new BlockingGetIdsResponseHandler(); 
+        client.getTasksByProcessInstanceId(10, idResponseHandler);
+        List<Long> ids = idResponseHandler.getIds();
+        assertEquals(1, ids.size());
+        assertEquals(task.getId(), (long) ids.get(0));
+        
         logger.debug("Starting task " + task.getId());
         BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
         client.start(task.getId(), "Darth Vader", operationResponseHandler);
