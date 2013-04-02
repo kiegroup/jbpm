@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -688,6 +689,67 @@ public abstract class WSHumanTaskHandlerBaseAsyncTest extends BaseTest {
         operationResponseHandler.waitTillDone(15000);
         logger.debug("Completed task " + task.getId());
 
+        assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
+    }
+    
+    public void testTimeTracking() throws InterruptedException {
+        TestWorkItemManager manager = new TestWorkItemManager();
+        ksession.setWorkItemManager(manager);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("TaskName", "TaskName");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("ActorId", "Darth Vader, Dalai Lama");
+        workItem.setProcessInstanceId(10);
+        
+        Date beforeCreatedOn = new Date();
+        handler.executeWorkItem(workItem, manager);
+        Thread.sleep(500);
+        BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+        client.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK", responseHandler);
+        List<TaskSummary> tasks = responseHandler.getResults();
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        assertEquals("TaskName", task.getName());
+        assertEquals(10, task.getPriority());
+        assertEquals("Comment", task.getDescription());
+        assertEquals(Status.Ready, task.getStatus());
+        BlockingGetTaskResponseHandler getTaskResponseHandler = new BlockingGetTaskResponseHandler();
+        getClient().getTask(task.getId(), getTaskResponseHandler);
+        getTaskResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        Task createdOnTask = getTaskResponseHandler.getTask();
+        assertNotNull(createdOnTask.getTaskData().getCreatedOn());
+        assertTrue(createdOnTask.getTaskData().getCreatedOn().after(beforeCreatedOn));
+        
+        Date beforeClaimTime = new Date();
+        BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
+        client.claim(task.getId(), "Darth Vader", operationResponseHandler);
+        operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        getTaskResponseHandler = new BlockingGetTaskResponseHandler();
+        getClient().getTask(task.getId(), getTaskResponseHandler);
+        getTaskResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        Task claimTimeTask = getTaskResponseHandler.getTask(); 
+        assertNotNull(claimTimeTask.getTaskData().getClaimTime());
+        assertTrue(claimTimeTask.getTaskData().getClaimTime().after(beforeClaimTime));
+        assertEquals(Status.Reserved, claimTimeTask.getTaskData().getStatus());
+        
+        operationResponseHandler = new BlockingTaskOperationResponseHandler();
+        client.start(task.getId(), "Darth Vader", operationResponseHandler);
+        operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        
+        Date beforeCompletedOn = new Date();
+        operationResponseHandler = new BlockingTaskOperationResponseHandler();
+        client.complete(task.getId(), "Darth Vader", null, operationResponseHandler);
+        operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        getTaskResponseHandler = new BlockingGetTaskResponseHandler();
+        getClient().getTask(task.getId(), getTaskResponseHandler);
+        getTaskResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        Task completedOnTask = getTaskResponseHandler.getTask();
+        assertNotNull(completedOnTask.getTaskData().getCompletedOn());
+        assertTrue(completedOnTask.getTaskData().getCompletedOn().after(beforeCompletedOn));
+        assertEquals(Status.Completed, completedOnTask.getTaskData().getStatus());
+        
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
 

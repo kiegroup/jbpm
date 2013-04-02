@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,7 +112,7 @@ public abstract class WSHumanTaskHandlerBaseSyncTest extends BaseTest {
         assertEquals(Status.Ready, task.getStatus());
 
         getClient().claim(task.getId(), "Darth Vader");
-
+        
         getClient().start(task.getId(), "Darth Vader");
 
         getClient().complete(task.getId(), "Darth Vader", null);
@@ -650,6 +651,51 @@ public abstract class WSHumanTaskHandlerBaseSyncTest extends BaseTest {
         client.start(task.getId(), "Darth Vader");
         client.complete(task.getId(), "Darth Vader", null);
 
+        assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
+    }
+    
+    public void testTimeTracking() {
+        TestWorkItemManager manager = new TestWorkItemManager();
+        ksession.setWorkItemManager(manager);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("TaskName", "TaskName");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("ActorId", "Darth Vader, Dalai Lama");
+        workItem.setProcessInstanceId(10);
+        
+        Date beforeCreatedOn = new Date();
+        handler.executeWorkItem(workItem, manager);
+        List<TaskSummary> tasks = getClient().getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        assertEquals("TaskName", task.getName());
+        assertEquals(10, task.getPriority());
+        assertEquals("Comment", task.getDescription());
+        assertEquals(Status.Ready, task.getStatus());
+        Task createdOnTask = getClient().getTask(task.getId());
+        assertNotNull(createdOnTask.getTaskData().getCreatedOn());
+        assertTrue(createdOnTask.getTaskData().getCreatedOn().after(beforeCreatedOn));
+        
+        Date beforeClaimTime = new Date();
+        getClient().claim(task.getId(), "Darth Vader");
+        Task claimTimeTask = getClient().getTask(task.getId());
+        assertNotNull(claimTimeTask.getTaskData().getClaimTime());
+        assertTrue(claimTimeTask.getTaskData().getClaimTime().after(beforeClaimTime));
+        assertEquals(Status.Reserved, claimTimeTask.getTaskData().getStatus());
+
+        getClient().start(task.getId(), "Darth Vader");
+        Task startTask = getClient().getTask(task.getId());
+        assertEquals(Status.InProgress, startTask.getTaskData().getStatus());
+
+        Date beforeCompletedOn = new Date();
+        getClient().complete(task.getId(), "Darth Vader", null);
+        Task completedOnTask = getClient().getTask(task.getId());
+        assertNotNull(completedOnTask.getTaskData().getCompletedOn());
+        assertTrue(completedOnTask.getTaskData().getCompletedOn().after(beforeCompletedOn));
+        assertEquals(Status.Completed, completedOnTask.getTaskData().getStatus());
+        
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
     
