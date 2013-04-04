@@ -388,8 +388,6 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(1, allTasks.size());
         List<TaskSummary> personalTasks = taskService.getTasksOwnedByStatus("salaboy", statuses, "en-UK");
         assertEquals(2, personalTasks.size());
-        allTasks.addAll(personalTasks);
-        assertEquals(3, allTasks.size());
 
         Task task1 = taskService.getTaskById(taskId);
         assertEquals(Status.Reserved, task1.getTaskData().getStatus());
@@ -403,8 +401,6 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(2, allTasks.size());
         personalTasks = taskService.getTasksOwnedByStatus("salaboy", statuses, "en-UK");
         assertEquals(1, personalTasks.size());
-        allTasks.addAll(personalTasks);
-        assertEquals(3, allTasks.size());
         
         Task task2 = taskService.getTaskById(taskId);
         assertEquals(Status.Ready, task2.getTaskData().getStatus());
@@ -432,8 +428,6 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(1, allTasks.size());
         personalTasks = taskService.getTasksOwnedByStatus("salaboy", statuses, "en-UK");
         assertEquals(2, personalTasks.size());
-        allTasks.addAll(personalTasks);
-        assertEquals(3, allTasks.size());
         
         
     }
