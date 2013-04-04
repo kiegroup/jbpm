@@ -97,9 +97,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         ContentDataImpl data = ContentMarshallerHelper.marshal("content", null);
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, data);
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, data);
 
         // Task should be assigned to the single potential owner and state set to Reserved
 
@@ -131,9 +129,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         ContentDataImpl data = ContentMarshallerHelper.marshal(variablesMap, null);
         
         Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
-        taskService.addTask( task, data );
-        
-        long taskId = task.getId();
+        long taskId = taskService.addTask( task, data );
         
         // Task should be assigned to the single potential owner and state set to Reserved
         
@@ -184,9 +180,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         ContentDataImpl data = ContentMarshallerHelper.marshal(variablesMap, null);
         
         Task task = ( Task )  TaskFactory.evalTask( new StringReader( str ));
-        taskService.addTask( task, data );
-        
-        long taskId = task.getId();
+        long taskId = taskService.addTask( task, data );
         
         // Task should be assigned to the single potential owner and state set to Reserved
         
@@ -268,9 +262,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         ContentDataImpl data = ContentMarshallerHelper.marshal(largeContent, null);
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, data);
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, data);
 
         // Task should be assigned to the single potential owner and state set to Reserved
 
