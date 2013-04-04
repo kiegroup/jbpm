@@ -97,8 +97,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         Task task = (TaskImpl) TaskFactory.evalTask(reader, vars);
         
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         Content content = new ContentImpl();
         
@@ -156,8 +155,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotificationContentSingleObject));
         Task task = (TaskImpl) TaskFactory.evalTask(reader, vars);
      
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         Content content = new ContentImpl();
         ContentDataImpl marshalledObject = ContentMarshallerHelper.marshal("'singleobject'", null);
@@ -221,8 +219,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         
         task.setPeopleAssignments(assignments);
         
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         Content content = new ContentImpl();
         
@@ -283,8 +280,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         task.setPeopleAssignments(assignments);
         
         
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         Content content = new ContentImpl();
         
@@ -340,8 +336,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assignments.setPotentialOwners(po);
         
         task.setPeopleAssignments(assignments);
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         Content content = new ContentImpl();
         
@@ -396,8 +391,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assignments.setPotentialOwners(po);
         
         task.setPeopleAssignments(assignments);
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         Content content = new ContentImpl();
         
@@ -443,8 +437,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithReassignment));
         Task task = (TaskImpl) TaskFactory.evalTask(reader, vars);
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Shouldn't have re-assigned yet
         Thread.sleep(1000);
@@ -500,8 +493,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
           
           task.setPeopleAssignments(assignments);
           
-          taskService.addTask(task, new HashMap<String, Object>());
-          long taskId = task.getId();
+          long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
           Content content = new ContentImpl();
           

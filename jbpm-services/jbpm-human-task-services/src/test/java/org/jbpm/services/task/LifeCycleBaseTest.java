@@ -55,9 +55,8 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
-        long taskId = task.getId();
 
         // Task should remain in Created state with no actual owner
 
@@ -79,8 +78,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
         Task task = TaskFactory.evalTask(new StringReader(str));
 
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Task should be assigned to the single potential owner and state set to Reserved
 
@@ -299,9 +297,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // A Task with multiple potential owners moves to "Ready" state until someone claims it.
 
@@ -328,9 +324,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // A Task with multiple potential owners moves to "Ready" state until someone claims it.
 
@@ -381,9 +375,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         
         
         Task task3 = (Task) TaskFactory.evalTask(new StringReader(str2));
@@ -461,9 +453,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // A Task with multiple potential owners moves to "Ready" state until someone claims it.
 
@@ -489,9 +479,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         // A Task with multiple potential owners moves to "Ready" state until someone claims it.
         List<TaskSummary> tasksAssignedAsPotentialOwner = taskService.getTasksAssignedAsPotentialOwner("Bobba Fet", "en-UK");
         assertEquals(1, tasksAssignedAsPotentialOwner.size());
@@ -526,9 +514,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Task should be assigned to the single potential owner and state set to Reserved
 
@@ -559,9 +545,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Task should be assigned to the single potential owner and state set to Reserved
 
@@ -597,9 +581,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
         taskService.start(taskId, "Darth Vader");
@@ -629,9 +611,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -673,9 +653,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -710,9 +688,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -745,9 +721,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -789,9 +763,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Ready
 
@@ -824,9 +796,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Reserved
 
@@ -857,9 +827,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Reserved
         taskService.claim(taskId, "Darth Vader");
@@ -898,9 +866,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Ready
 
@@ -939,9 +905,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Reserved
 
@@ -985,9 +949,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Reserved
 
@@ -1023,9 +985,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Complete
 
@@ -1046,9 +1006,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready 
 
@@ -1076,8 +1034,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Delegated
         taskService.delegate(taskId, "Darth Vader", "Tony Stark");
@@ -1104,9 +1061,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Claim and Reserved
 
@@ -1142,8 +1097,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Claim and Reserved
 
@@ -1181,9 +1135,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Check is Forwarded
 
@@ -1208,9 +1160,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Claim and Reserved
 
@@ -1246,9 +1196,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Claim and Reserved
 
@@ -1292,9 +1240,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -1328,9 +1274,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -1370,9 +1314,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -1413,9 +1355,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -1456,9 +1396,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -1491,9 +1429,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
 
@@ -1535,9 +1471,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Go straight from Ready to Inprogress
         taskService.start(taskId, "Darth Vader");
@@ -1638,9 +1572,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
             businessAdmins.addAll(task.getPeopleAssignments().getBusinessAdministrators());
             task.getPeopleAssignments().setBusinessAdministrators(businessAdmins);
         }
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         // Do nominate and fail due to Ready status
 
@@ -1694,9 +1626,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
             businessAdmins.addAll(task.getPeopleAssignments().getBusinessAdministrators());
             task.getPeopleAssignments().setBusinessAdministrators(businessAdmins);
         }
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
         taskService.start(taskId, "Bobba Fet");
 
@@ -1729,9 +1659,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
 
         try {
@@ -1763,9 +1691,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
 
         List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>(1);
@@ -1791,9 +1717,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
 
         List<OrganizationalEntity> potentialGroups = new ArrayList<OrganizationalEntity>();
@@ -1820,9 +1744,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
 
         taskService.activate(taskId, "Darth Vader");
@@ -1846,9 +1768,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
 
         try {
@@ -1882,10 +1802,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
             task.getPeopleAssignments().setBusinessAdministrators(businessAdmins);
         }
         
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
 
 
         try {
@@ -1909,9 +1826,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Ready, task.getTaskData().getStatus());
 
@@ -1932,9 +1847,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Reserved, task.getTaskData().getStatus());
 
@@ -1955,9 +1868,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Reserved, task.getTaskData().getStatus());
 
@@ -1981,9 +1892,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Reserved, task.getTaskData().getStatus());
 
@@ -2007,9 +1916,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Ready, task.getTaskData().getStatus());
 
@@ -2032,9 +1939,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
-        taskService.addTask(task, new HashMap<String, Object>());
-
-        long taskId = task.getId();
+        long taskId = taskService.addTask(task, new HashMap<String, Object>());
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Reserved, task.getTaskData().getStatus());
 
