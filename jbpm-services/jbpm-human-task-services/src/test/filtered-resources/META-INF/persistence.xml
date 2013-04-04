@@ -7,8 +7,7 @@
                       http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd">
 
   <persistence-unit name="org.jbpm.services.task" transaction-type="${maven.tx.type}">
-    <!-- <provider>org.hibernate.ejb.HibernatePersistence</provider> -->
-    <provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
+    <provider>${maven.persistence.provider}</provider>
     
     ${maven.data.source}
     <mapping-file>META-INF/Taskorm.xml</mapping-file>
@@ -28,12 +27,14 @@
     <class>org.jbpm.services.task.impl.model.NotificationImpl</class>
     <class>org.jbpm.services.task.impl.model.EmailNotificationImpl</class>
     <class>org.jbpm.services.task.impl.model.EmailNotificationHeaderImpl</class>
+    <class>org.jbpm.services.task.impl.model.LanguageImpl</class>
     <class>org.jbpm.services.task.impl.model.PeopleAssignmentsImpl</class>
     <class>org.jbpm.services.task.impl.model.ReassignmentImpl</class>
     
     <class>org.jbpm.services.task.impl.model.TaskImpl</class>
     <class>org.jbpm.services.task.impl.model.TaskDataImpl</class>
     <class>org.jbpm.services.task.impl.model.UserImpl</class>
+    <class>org.jbpm.services.task.impl.model.OrganizationalEntityImpl</class>
     
     <!--BAM for task service -->
     <class>org.jbpm.services.task.impl.model.BAMTaskSummaryImpl</class>
@@ -49,9 +50,7 @@
       <property name="openjpa.ConnectionURL" value="${maven.jdbc.url}"/>
       <property name="openjpa.ConnectionDriverName" value="${maven.jdbc.driver.class}"/>
       <property name="openjpa.ConnectionUserName" value="${maven.jdbc.username}"/>
-      <property name="openjpa.ConnectionPassword" value="${maven.jdbc.password}"/>
-      <property name="openjpa.Log" value="DefaultLevel=WARN, Tool=INFO"/>
-    
+      <property name="openjpa.ConnectionPassword" value="${maven.jdbc.password}"/>   
     
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}" />
       <property name="hibernate.connection.autocommit" value="false" />
