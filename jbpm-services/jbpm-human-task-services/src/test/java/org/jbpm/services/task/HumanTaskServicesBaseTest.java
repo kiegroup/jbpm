@@ -31,6 +31,7 @@ import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.kie.internal.task.api.TaskService;
+import org.kie.internal.task.api.model.User;
 
 public abstract class HumanTaskServicesBaseTest {
 
@@ -45,7 +46,10 @@ public abstract class HumanTaskServicesBaseTest {
         if (!usersLoaded) {
 
             try {
-                taskService.addUser(new UserImpl("Administrator"));
+            	User user = taskService.getUserById("Administrator");
+            	if (user == null) {
+            		taskService.addUser(new UserImpl("Administrator"));
+                }
                 usersLoaded = true;
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(LifeCycleBaseTest.class.getName()).log(Level.SEVERE, null, ex);
