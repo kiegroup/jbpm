@@ -39,17 +39,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -91,17 +91,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -143,17 +143,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     (
@@ -203,17 +203,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     t.taskData.status in (:status) 
@@ -257,17 +257,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     t.taskData.status in (:status) 
@@ -312,17 +312,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     (
@@ -371,17 +371,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     t.taskData.status in (:status) 
@@ -426,17 +426,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     (
@@ -592,17 +592,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     (
@@ -651,17 +651,17 @@ where
     
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     (
@@ -713,17 +713,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -765,17 +765,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -817,17 +817,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -867,17 +867,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -920,17 +920,17 @@ where
     t.taskData.expirationTime = :expirationDate and
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
             ) 
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -974,17 +974,17 @@ where
      and
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
 
     
@@ -1025,17 +1025,17 @@ where
 
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             )  group by t.id
         </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1074,17 +1074,17 @@ where
             
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) and
 
             t.taskData.activationTime &lt; :since
@@ -1125,17 +1125,17 @@ where
 
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) group by t.id
         </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -1177,17 +1177,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
               group by t.id
           </query>
@@ -1227,17 +1227,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
 
     
@@ -1360,17 +1360,17 @@ where
             t.taskData.processInstanceId = :processInstanceId and
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) and
 
             t.taskData.status in (:status) 
@@ -1412,17 +1412,17 @@ where
             name.shortText = :taskName and
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) and
 
             t.taskData.status in (:status) 
