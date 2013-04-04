@@ -64,7 +64,10 @@ public abstract class HumanTaskServicesBaseTest {
         if (!usersLoaded) {
 
             try {
-                taskService.addUser(new UserImpl("Administrator"));
+            	User user = taskService.getUserById("Administrator");
+            	if (user == null) {
+            		taskService.addUser(new UserImpl("Administrator"));
+                }
                 usersLoaded = true;
             } catch (Exception ex) {
                 logger.error("Error during initialization of test", ex);
