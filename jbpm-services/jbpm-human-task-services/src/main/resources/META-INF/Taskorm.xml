@@ -409,7 +409,7 @@ from
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
-    t.taskData.actualOwner = null and
+    t.taskData.actualOwner is null and
     potentialOwners.id = :groupId and
     potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
@@ -451,7 +451,7 @@ where
     potentialOwners.id in (:groupIds) and
     potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.actualOwner = null and          
+    t.taskData.actualOwner is null and          
     
 
 
@@ -481,7 +481,7 @@ where
     potentialOwners.id in (:groupIds) and
     potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.actualOwner = null and          
+    t.taskData.actualOwner is null and          
     t.taskData.expirationTime = :expirationDate and
     t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
     
@@ -509,7 +509,7 @@ where
     potentialOwners.id in (:groupIds) and
     potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.actualOwner = null and          
+    t.taskData.actualOwner is null and          
     (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
     t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
     
