@@ -35,7 +35,7 @@ from
 where
     t.archived = 0 and
     businessAdministrator.id = :userId and
-    businessAdministrator in elements ( t.peopleAssignments.businessAdministrators  )  and
+    businessAdministrator member of t.peopleAssignments.businessAdministrators  and
 
     (
     name.language = :language
@@ -87,7 +87,7 @@ from
 where
     t.archived = 0 and
     excludedOwners.id = :userId and
-    excludedOwners in elements ( t.peopleAssignments.excludedOwners  )  and
+    excludedOwners member of  t.peopleAssignments.excludedOwners    and
 
     (
     name.language = :language
@@ -139,7 +139,7 @@ from
 where
     t.archived = 0 and
     potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
@@ -193,7 +193,7 @@ from
 where
     t.archived = 0 and
     potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
@@ -247,7 +247,7 @@ from
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
@@ -302,7 +302,7 @@ from
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners   and
 
     (
     name.language = :language
@@ -356,7 +356,7 @@ from
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners   and
 
     (
     name.language = :language
@@ -411,7 +411,7 @@ where
     t.archived = 0 and
     t.taskData.actualOwner = null and
     potentialOwners.id = :groupId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
@@ -449,7 +449,7 @@ from
 where
     
     potentialOwners.id in (:groupIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
     t.taskData.actualOwner = null and          
     
@@ -479,7 +479,7 @@ from
 where
     
     potentialOwners.id in (:groupIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
     t.taskData.actualOwner = null and          
     t.taskData.expirationTime = :expirationDate and
@@ -507,7 +507,7 @@ from
 where
     
     potentialOwners.id in (:groupIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
     t.taskData.actualOwner = null and          
     (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
@@ -553,7 +553,7 @@ where
     t.archived = 0 and
     t.taskData.parentId = :parentId and
     (potentialOwners.id = :userId or potentialOwners.id in (:groupIds)) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
@@ -662,7 +662,7 @@ from
 where
     t.archived = 0 and
     recipients.id = :userId and
-    recipients in elements ( t.peopleAssignments.recipients  )  and
+    recipients member of  t.peopleAssignments.recipients    and
 
     (
     name.language = :language
@@ -766,7 +766,7 @@ from
 where
     t.archived = 0 and
     taskStakeholder.id = :userId and
-    taskStakeholder in elements ( t.peopleAssignments.taskStakeholders  )  and
+    taskStakeholder member of  t.peopleAssignments.taskStakeholders    and
 
     (
     name.language = :language
@@ -1212,7 +1212,7 @@ from
 where
     
     t.id in (:taskIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
     t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
     
