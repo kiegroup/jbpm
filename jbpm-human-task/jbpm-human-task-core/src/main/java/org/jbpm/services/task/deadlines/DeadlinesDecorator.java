@@ -78,13 +78,13 @@ public class DeadlinesDecorator implements TaskInstanceService {
     
     public long addTask(Task task, Map<String, Object> params) {
         long taskId = instanceService.addTask(task, params);
-        scheduleDeadlinesForTask((InternalTask) task);
+        scheduleDeadlinesForTask(taskId);
         return taskId;
     }
 
     public long addTask(Task task, ContentData data) {
         long taskId = instanceService.addTask(task, data);
-        scheduleDeadlinesForTask((InternalTask) task);
+        scheduleDeadlinesForTask(taskId);
         return taskId;
     }
 
@@ -187,9 +187,10 @@ public class DeadlinesDecorator implements TaskInstanceService {
         instanceService.nominate(taskId, userId, potentialOwners);
     }
 
-    private void scheduleDeadlinesForTask(final InternalTask task) {
+    private void scheduleDeadlinesForTask(final long taskId) {
         final long now = System.currentTimeMillis();
-
+        
+        Task task = queryService.getTaskInstanceById(taskId);
         Deadlines deadlines = task.getDeadlines();
         
         if (deadlines != null) {
