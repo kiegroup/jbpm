@@ -98,7 +98,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
             ((InternalTaskData) task.getTaskData()).setDocument(content.getId(), contentData);
         }
          
-        pm.persist(task);
+        task = pm.merge(task);
         if(taskEvents != null){
             taskEvents.select(new AnnotationLiteral<AfterTaskAddedEvent>() {}).fire(task);
         }
@@ -106,7 +106,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public long addTask(Task task, ContentData contentData) {
-        pm.persist(task);
+        task = pm.merge(task);
 
         if (contentData != null) {
             ContentImpl content = new ContentImpl(contentData.getContent());
