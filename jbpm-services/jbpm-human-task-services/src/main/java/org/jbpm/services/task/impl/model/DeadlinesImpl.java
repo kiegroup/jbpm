@@ -19,26 +19,28 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 
 import org.jbpm.services.task.utils.CollectionUtils;
 import org.kie.internal.task.api.model.Deadline;
 
 @Embeddable
-public class DeadlinesImpl implements org.kie.internal.task.api.model.Deadlines {    
+public class DeadlinesImpl implements org.kie.internal.task.api.model.Deadlines {	
     @OneToMany(cascade = CascadeType.ALL, targetEntity=DeadlineImpl.class)
-    @JoinColumn(name = "Deadlines_StartDeadLine_Id", nullable = true)    
-    private List<Deadline> startDeadlines = Collections.emptyList();
+    @JoinTable(name="Task_StartDeadlines", joinColumns=@JoinColumn(name = "task_id", nullable = true))
+    private List<Deadline> startDeadlines = new ArrayList<Deadline>();
     
     @OneToMany(cascade = CascadeType.ALL, targetEntity=DeadlineImpl.class)
-    @JoinColumn(name = "Deadlines_EndDeadLine_Id", nullable = true)    
-    private List<Deadline> endDeadlines  = Collections.emptyList();
+    @JoinTable(name="Task_EndDeadlines", joinColumns=@JoinColumn(name = "task_id", nullable = true))
+    private List<Deadline> endDeadlines  = new ArrayList<Deadline>();
     
     public void writeExternal(ObjectOutput out) throws IOException {
         CollectionUtils.writeDeadlineList( startDeadlines, out );

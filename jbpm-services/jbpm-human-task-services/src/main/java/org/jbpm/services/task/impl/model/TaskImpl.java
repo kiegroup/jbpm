@@ -19,6 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +35,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -45,17 +45,17 @@ import org.kie.internal.task.api.model.I18NText;
 import org.kie.internal.task.api.model.PeopleAssignments;
 import org.kie.internal.task.api.model.SubTasksStrategy;
 import org.kie.internal.task.api.model.TaskData;
+import org.mvel2.optimizers.impl.refl.nodes.ArrayLength;
 
 @Entity
 @Table(name="Task")
-@SequenceGenerator(name="taskIdSeq", sequenceName="TASK_ID_SEQ", allocationSize=1)
 public class TaskImpl implements org.kie.internal.task.api.model.Task {
     /**
      * WSHT uses a name for the unique identifier, for now we use a generated ID which is also the key, which can be
      * mapped to the name or a unique name field added later.
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="taskIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long                 id;
     
     @Version
@@ -70,15 +70,15 @@ public class TaskImpl implements org.kie.internal.task.api.model.Task {
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Names_Id", nullable = true)
-    private List<I18NText> names        = Collections.emptyList();
+    private List<I18NText> names        = new ArrayList<I18NText>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Subjects_Id", nullable = true)
-    private List<I18NText> subjects     = Collections.emptyList();
+    private List<I18NText> subjects     = new ArrayList<I18NText>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Descriptions_Id", nullable = true)
-    private List<I18NText> descriptions = Collections.emptyList();
+    private List<I18NText> descriptions = new ArrayList<I18NText>();
 
 
     @Embedded

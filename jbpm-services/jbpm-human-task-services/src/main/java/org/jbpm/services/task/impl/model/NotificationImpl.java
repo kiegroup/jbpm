@@ -19,7 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -31,7 +31,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -41,38 +40,37 @@ import org.kie.internal.task.api.model.OrganizationalEntity;
 
 @Entity
 @Table(name="Notification")
-@SequenceGenerator(name="notificationIdSeq", sequenceName="NOTIFICATION_ID_SEQ", allocationSize=1)
 public class NotificationImpl implements org.kie.internal.task.api.model.Notification  {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="notificationIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long                             id;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Notification_Documentation_Id", nullable = true)
-    private List<I18NText>                   documentation = Collections.emptyList();
+    private List<I18NText>                   documentation = new ArrayList<I18NText>();
 
     private int                              priority;
     
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Notification_Recipients", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
-    private List<OrganizationalEntity>       recipients = Collections.emptyList();
+    @JoinTable(name = "Notification_Recipients", joinColumns = @JoinColumn(name = "task_id"))    
+    private List<OrganizationalEntity>       recipients = new ArrayList<OrganizationalEntity>();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Notification_BAs", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
-    private List<OrganizationalEntity>       businessAdministrators = Collections.emptyList();
+    @JoinTable(name = "Notification_BAs", joinColumns = @JoinColumn(name = "task_id"))
+    private List<OrganizationalEntity>       businessAdministrators = new ArrayList<OrganizationalEntity>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Notification_Names_Id", nullable = true)    
-    private List<I18NText> names        = Collections.emptyList();
+    private List<I18NText> names        = new ArrayList<I18NText>();
     
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Notification_Subjects_Id", nullable = true)    
-    private List<I18NText> subjects     = Collections.emptyList();
+    private List<I18NText> subjects     = new ArrayList<I18NText>();
     
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Notification_Descriptions_Id", nullable = true)
-    private List<I18NText> descriptions = Collections.emptyList();  
+    private List<I18NText> descriptions = new ArrayList<I18NText>();  
     
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );

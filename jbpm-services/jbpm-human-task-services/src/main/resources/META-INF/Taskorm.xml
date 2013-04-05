@@ -5,7 +5,7 @@
                version="2.0">
       <named-query name="TasksAssignedAsBusinessAdministrator">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -35,29 +35,28 @@ from
 where
     t.archived = 0 and
     businessAdministrator.id = :userId and
-    businessAdministrator in elements ( t.peopleAssignments.businessAdministrators  )  and
+    businessAdministrator member of t.peopleAssignments.businessAdministrators  and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       <named-query name="TasksAssignedAsExcludedOwner">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -87,29 +86,28 @@ from
 where
     t.archived = 0 and
     excludedOwners.id = :userId and
-    excludedOwners in elements ( t.peopleAssignments.excludedOwners  )  and
+    excludedOwners member of  t.peopleAssignments.excludedOwners    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       <named-query name="TasksAssignedAsPotentialOwner">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -139,31 +137,36 @@ from
 where
     t.archived = 0 and
     potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
-              group by t.id
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       <named-query name="TasksAssignedAsPotentialOwnerByStatus">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -193,31 +196,30 @@ from
 where
     t.archived = 0 and
     potentialOwners.id = :userId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     t.taskData.status in (:status) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
             <named-query name="TasksAssignedAsPotentialOwnerByStatusByGroup">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -247,32 +249,31 @@ from
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     t.taskData.status in (:status) 
-     group by t.id
     
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
             <named-query name="TasksAssignedAsPotentialOwnerWithGroups">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -302,31 +303,36 @@ from
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners   and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
-              group by t.id
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    )         
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
  <named-query name="TasksAssignedAsPotentialOwnerByStatusWithGroups">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -356,31 +362,30 @@ from
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners   and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
     t.taskData.status in (:status) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
        <named-query name="TasksAssignedAsPotentialOwnerByGroup">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -409,27 +414,32 @@ from
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
-    t.taskData.actualOwner = null and
+    t.taskData.actualOwner is null and
     potentialOwners.id = :groupId and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
-              group by t.id
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
@@ -449,13 +459,19 @@ from
 where
     
     potentialOwners.id in (:groupIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.actualOwner = null and          
+    t.taskData.actualOwner is null and          
     
 
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
     
     
               
@@ -479,11 +495,17 @@ from
 where
     
     potentialOwners.id in (:groupIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.actualOwner = null and          
+    t.taskData.actualOwner is null and          
     t.taskData.expirationTime = :expirationDate and
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
     
     
               
@@ -507,11 +529,17 @@ from
 where
     
     potentialOwners.id in (:groupIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.actualOwner = null and          
+    t.taskData.actualOwner is null and          
     (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
     
     
               
@@ -522,7 +550,7 @@ where
  
       <named-query name="SubTasksAssignedAsPotentialOwner">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -553,32 +581,37 @@ where
     t.archived = 0 and
     t.taskData.parentId = :parentId and
     (potentialOwners.id = :userId or potentialOwners.id in (:groupIds)) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
-              group by t.id
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
 
 <named-query name="GetSubTasksByParentTaskId">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -610,21 +643,26 @@ where
     
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) and
 
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
-              group by t.id
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
@@ -632,7 +670,7 @@ where
 
       <named-query name="TasksAssignedAsRecipient">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -662,29 +700,28 @@ from
 where
     t.archived = 0 and
     recipients.id = :userId and
-    recipients in elements ( t.peopleAssignments.recipients  )  and
+    recipients member of  t.peopleAssignments.recipients    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       <named-query name="TasksAssignedAsTaskInitiator">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -718,25 +755,24 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       <named-query name="TasksAssignedAsTaskStakeholder">
           <query>
-select
+select distinct
      new org.jbpm.services.task.query.TaskSummaryImpl(
      t.id,
      t.taskData.processInstanceId,
@@ -766,29 +802,28 @@ from
 where
     t.archived = 0 and
     taskStakeholder.id = :userId and
-    taskStakeholder in elements ( t.peopleAssignments.taskStakeholders  )  and
+    taskStakeholder member of  t.peopleAssignments.taskStakeholders    and
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       <named-query name="TasksOwned">
           <query>
-select
+select distinct
     new org.jbpm.services.task.query.TaskSummaryImpl(
     t.id,
     t.taskData.processInstanceId,
@@ -820,19 +855,18 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
@@ -873,17 +907,17 @@ where
     t.taskData.expirationTime = :expirationDate and
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
             ) 
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -927,17 +961,17 @@ where
      and
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
 
     
@@ -946,7 +980,7 @@ where
       </named-query>
     <named-query name="TasksByStatus">
         <query>
-            select
+            select distinct
             new org.jbpm.services.task.query.TaskSummaryImpl(
             t.id,
             t.taskData.processInstanceId,
@@ -978,18 +1012,18 @@ where
 
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
-            )  group by t.id
+            or t.descriptions is empty
+            )  
         </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -1027,17 +1061,17 @@ where
             
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) and
 
             t.taskData.activationTime &lt; :since
@@ -1047,7 +1081,7 @@ where
       
     <named-query name="ArchivedTasks">
         <query>
-            select
+            select distinct
             new org.jbpm.services.task.query.TaskSummaryImpl(
             t.id,
             t.taskData.processInstanceId,
@@ -1078,18 +1112,18 @@ where
 
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
-            ) group by t.id
+            or t.descriptions is empty
+            ) 
         </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
@@ -1097,7 +1131,7 @@ where
       
       <named-query name="TasksOwnedWithParticularStatus">
           <query>
-select
+select distinct
     new org.jbpm.services.task.query.TaskSummaryImpl(
     t.id,
     t.taskData.processInstanceId,
@@ -1130,19 +1164,18 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
-              group by t.id
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
@@ -1180,17 +1213,17 @@ where
 
     (
     name.language = :language
-    or t.names.size = 0
+    or t.names is empty
     ) and
 
     (
     subject.language = :language
-    or t.subjects.size = 0
+    or t.subjects is empty
     ) and
 
     (
     description.language = :language
-    or t.descriptions.size = 0
+    or t.descriptions is empty
     ) 
 
     
@@ -1212,9 +1245,15 @@ from
 where
     
     t.id in (:taskIds) and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and      
+    potentialOwners member of  t.peopleAssignments.potentialOwners    and      
     t.archived = 0 and
-    t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
+    (
+    t.taskData.status = org.kie.internal.task.api.model.Status.Created 
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Ready
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Reserved
+    or t.taskData.status = org.kie.internal.task.api.model.Status.InProgress
+    or t.taskData.status = org.kie.internal.task.api.model.Status.Suspended
+    ) 
     
     
               
@@ -1235,7 +1274,7 @@ from
     DeadlineImpl d
 where
     t.archived = 0 and
-    d in elements( t.deadlines.endDeadlines ) and
+    d member of t.deadlines.endDeadlines and
     d.escalated = 0
 order by
     d.date
@@ -1255,7 +1294,7 @@ from
     DeadlineImpl d
 where
     t.archived = 0 and
-    d in elements( t.deadlines.startDeadlines ) and
+    d member of t.deadlines.startDeadlines and
     d.escalated = 0
 order by
     d.date
@@ -1276,7 +1315,7 @@ where
       </named-query>
       <named-query name="TasksByStatusByProcessId">
         <query>
-            select
+            select distinct
             new org.jbpm.services.task.query.TaskSummaryImpl(
             t.id,
             t.taskData.processInstanceId,
@@ -1307,27 +1346,26 @@ where
             t.taskData.processInstanceId = :processInstanceId and
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) and
 
             t.taskData.status in (:status) 
-            group by t.id
         </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>
     <named-query name="TasksByStatusByProcessIdByTaskName">
         <query>
-            select
+            select distinct
             new org.jbpm.services.task.query.TaskSummaryImpl(
             t.id,
             t.taskData.processInstanceId,
@@ -1359,21 +1397,20 @@ where
             name.shortText = :taskName and
             (
             name.language = :language
-            or t.names.size = 0
+            or t.names is empty
             ) and
 
             (
             subject.language = :language
-            or t.subjects.size = 0
+            or t.subjects is empty
             ) and
 
             (
             description.language = :language
-            or t.descriptions.size = 0
+            or t.descriptions is empty
             ) and
 
             t.taskData.status in (:status) 
-            group by t.id
         </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
     </named-query>

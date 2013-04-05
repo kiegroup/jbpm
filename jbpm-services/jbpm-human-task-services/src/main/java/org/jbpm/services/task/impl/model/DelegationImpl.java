@@ -19,7 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Embeddable;
@@ -39,8 +39,8 @@ public class DelegationImpl  implements org.kie.internal.task.api.model.Delegati
     private AllowedToDelegate                    allowedToDelegate;
     
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Delegation_delegates", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
-    private List<OrganizationalEntity> delegates = Collections.emptyList();
+    @JoinTable(name = "Delegation_delegates", joinColumns = @JoinColumn(name = "task_id"))    
+    private List<OrganizationalEntity> delegates = new ArrayList<OrganizationalEntity>();
     
     public void writeExternal(ObjectOutput out) throws IOException {
         if ( allowedToDelegate != null ) {

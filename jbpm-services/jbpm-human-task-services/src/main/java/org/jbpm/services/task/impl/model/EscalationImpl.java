@@ -19,6 +19,7 @@ package org.jbpm.services.task.impl.model;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +30,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.jbpm.services.task.utils.CollectionUtils;
@@ -39,26 +39,25 @@ import org.kie.internal.task.api.model.Reassignment;
 
 @Entity
 @Table(name="Escalation")
-@SequenceGenerator(name="escalationIdSeq", sequenceName="ESCALATION_ID_SEQ", allocationSize=1)
 public class EscalationImpl implements org.kie.internal.task.api.model.Escalation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator="escalationIdSeq")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long                    id;
 
     private String                  name;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=BooleanExpressionImpl.class)
     @JoinColumn(name = "Escalation_Constraints_Id", nullable = true)
-    private List<BooleanExpression> constraints   = Collections.emptyList();
+    private List<BooleanExpression> constraints   = new ArrayList<BooleanExpression>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=NotificationImpl.class)
     @JoinColumn(name = "Escalation_Notifications_Id", nullable = true)
-    private List<Notification>      notifications = Collections.emptyList();
+    private List<Notification>      notifications = new ArrayList<Notification>();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=ReassignmentImpl.class)
     @JoinColumn(name = "Escalation_Reassignments_Id", nullable = true)
-    private List<Reassignment>      reassignments = Collections.emptyList();
+    private List<Reassignment>      reassignments = new ArrayList<Reassignment>();
     
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(  id );

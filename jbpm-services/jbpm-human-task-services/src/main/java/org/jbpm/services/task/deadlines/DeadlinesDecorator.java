@@ -24,7 +24,6 @@ import javax.decorator.Decorator;
 import javax.decorator.Delegate;
 import javax.inject.Inject;
 
-import org.jbpm.services.task.impl.model.FaultDataImpl;
 import org.jbpm.shared.services.api.JbpmServicesPersistenceManager;
 import org.kie.internal.task.api.TaskDeadlinesService;
 import org.kie.internal.task.api.TaskDeadlinesService.DeadlineType;
@@ -77,13 +76,13 @@ public class DeadlinesDecorator implements TaskInstanceService {
     
     public long addTask(Task task, Map<String, Object> params) {
         long taskId = instanceService.addTask(task, params);
-        scheduleDeadlinesForTask(task);
+        scheduleDeadlinesForTask(taskId);
         return taskId;
     }
 
     public long addTask(Task task, ContentData data) {
         long taskId = instanceService.addTask(task, data);
-        scheduleDeadlinesForTask(task);
+        scheduleDeadlinesForTask(taskId);
         return taskId;
     }
 
@@ -186,9 +185,10 @@ public class DeadlinesDecorator implements TaskInstanceService {
         instanceService.nominate(taskId, userId, potentialOwners);
     }
 
-    private void scheduleDeadlinesForTask(final Task task) {
+    private void scheduleDeadlinesForTask(final long taskId) {
         final long now = System.currentTimeMillis();
-
+        
+        Task task = queryService.getTaskInstanceById(taskId);
         Deadlines deadlines = task.getDeadlines();
         
         if (deadlines != null) {

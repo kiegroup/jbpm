@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.jbpm</groupId>
@@ -10,15 +10,35 @@
   <artifactId>jbpm-human-task-services</artifactId>
   <name>jBPM :: Human Task Services</name>
 
+  <properties>
+    <maven.persistence.provider>org.hibernate.ejb.HibernatePersistence</maven.persistence.provider>
+    <openjpa.version>2.2.1</openjpa.version>
+  </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-shared-services</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>hibernate-jpa-2.0-api</artifactId>
+          <groupId>org.hibernate.javax.persistence</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>hibernate-jpa-2.0-api</artifactId>
+          <groupId>org.hibernate.javax.persistence</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-flow</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.seam.persistence</groupId>
@@ -45,6 +65,7 @@
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
@@ -53,22 +74,6 @@
     <dependency>
       <groupId>javax.transaction</groupId>
       <artifactId>jta</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-entitymanager</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
@@ -130,6 +135,78 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
-
   </build>
+  <profiles>
+    <profile>
+      <id>hibernate</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-entitymanager</artifactId>
+          <optional>true</optional>
+        </dependency>
+        <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-core</artifactId>
+          <optional>true</optional>
+        </dependency>
+        <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-validator</artifactId>
+          <optional>true</optional>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>openjpa</id>
+      <properties>
+        <maven.persistence.provider>org.apache.openjpa.persistence.PersistenceProviderImpl</maven.persistence.provider>
+        <maven.jdbc.url>jdbc:h2:file:test.db;MVCC=true</maven.jdbc.url>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa-all</artifactId>
+          <version>${openjpa.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-maven-plugin</artifactId>
+            <version>2.2.1</version>
+            <configuration>
+              <includes>**/org/jbpm/task/impl/model/*.class</includes>
+              <excludes>**/entities/XML*.class</excludes>
+              <addDefaultConstructor>true</addDefaultConstructor>
+              <enforcePropertyRestrictions>true</enforcePropertyRestrictions>
+              <persistenceXmlFile>${project.build.directory}/test-classes/META-INF/persistence.xml</persistenceXmlFile>
+            </configuration>
+            <executions>
+              <execution>
+                <id>enhancer</id>
+                <phase>process-test-classes</phase>
+                <goals>
+                  <goal>enhance</goal>
+                  <goal>sql</goal>
+                </goals>
+              </execution>
+            </executions>
+            <dependencies>
+              <dependency>
+                <groupId>org.apache.openjpa</groupId>
+                <artifactId>openjpa</artifactId>
+                <version>${openjpa.version}</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
