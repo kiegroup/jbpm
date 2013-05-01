@@ -120,12 +120,27 @@ public class UserGroupTaskQueryServiceDecorator extends
     }
 
     @Override
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateByTaskName(
+            List<String> groupIds, String language, Date expirationDate, String taskName) {
+
+        return delegate.getTasksAssignedByGroupsByExpirationDateByTaskName(groupIds, language, expirationDate, taskName);
+    }
+
+    @Override
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptional(
             List<String> groupIds, String language, Date expirationDate) {
 
         return delegate.getTasksAssignedByGroupsByExpirationDateOptional(groupIds, language, expirationDate);
     }
 
+    
+    @Override
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(
+    		 List<String> groupIds, String language, Date expirationDate, String taskName){
+    	
+    	return delegate.getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(groupIds, language, expirationDate, taskName);
+    }
+    
     @Override
     public List<TaskSummary> getTasksOwned(String userId, String language) {
 
@@ -138,12 +153,25 @@ public class UserGroupTaskQueryServiceDecorator extends
 
         return delegate.getTasksOwnedByStatus(userId, status, language);
     }
+    @Override
+    public List<TaskSummary> getTasksOwnedByStatusByTaskName(String userId, List<Status> status,
+            String language, String taskName) {
 
+        return delegate.getTasksOwnedByStatusByTaskName(userId, status, language, taskName);
+    }
+    
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDate(String userId,
             List<Status> status, Date expirationDate) {
 
         return delegate.getTasksOwnedByExpirationDate(userId, status, expirationDate);
+    }
+
+    @Override
+    public List<TaskSummary> getTasksOwnedByExpirationDateByTaskName(String userId,
+            List<Status> status, String language, Date expirationDate, String taskName) {
+
+        return delegate.getTasksOwnedByExpirationDateByTaskName(userId, status, language, expirationDate, taskName); 
     }
 
     @Override
@@ -153,6 +181,15 @@ public class UserGroupTaskQueryServiceDecorator extends
         return delegate.getTasksOwnedByExpirationDateOptional(userId, status, expirationDate);
     }
 
+    
+    @Override
+    public List<TaskSummary> getTasksOwnedByExpirationDateOptionalByTaskName(
+            String userId, List<Status> status, String language, Date expirationDate, String taskName) {
+
+        return delegate.getTasksOwnedByExpirationDateOptionalByTaskName(userId, status, language, expirationDate, taskName);
+    }
+
+    
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDateBeforeSpecifiedDate(
             String userId, java.util.List<Status> status, Date date) {
@@ -208,5 +245,7 @@ public class UserGroupTaskQueryServiceDecorator extends
 
         return delegate.getTasksByProcessInstanceId(processInstanceId);
     }
+
+	
 
 }

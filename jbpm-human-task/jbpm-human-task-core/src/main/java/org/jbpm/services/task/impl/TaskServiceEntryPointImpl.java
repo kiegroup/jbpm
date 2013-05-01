@@ -347,7 +347,13 @@ public class TaskServiceEntryPointImpl implements InternalTaskService, EventServ
     public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, String language) {
         return taskQueryService.getTasksOwnedByStatus(userId, status, language);
     }
+    public List<TaskSummary> getTasksOwnedByStatusByTaskName(String userId, List<Status> status, String language, String taskName) {
+        return taskQueryService.getTasksOwnedByStatusByTaskName(userId, status, language, taskName);
+    }
 
+   
+
+    
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String salaboy, List<Status> status, String language) {
         return taskQueryService.getTasksAssignedAsPotentialOwnerByStatus(salaboy, status, language);
     }
@@ -356,12 +362,28 @@ public class TaskServiceEntryPointImpl implements InternalTaskService, EventServ
         return taskQueryService.getTasksOwnedByExpirationDate(userId, status, expirationDate);
     }
     
+    
+    
+    
+    public List<TaskSummary> getTasksOwnedByExpirationDateByTaskName(String userId, List<Status> statuses, String language,
+    		Date expirationDate, String taskName){
+        return taskQueryService.getTasksOwnedByExpirationDateByTaskName(userId, statuses, language, expirationDate, taskName);
+    }
+    
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDate(List<String> groupIds, String language, Date expirationDate){
         return taskQueryService.getTasksAssignedByGroupsByExpirationDate(groupIds, language, expirationDate);
+    }
+
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateByTaskName(List<String> groupIds, String language, Date expirationDate, String taskName){
+        return taskQueryService.getTasksAssignedByGroupsByExpirationDateByTaskName(groupIds, language, expirationDate, taskName);
     }
     
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptional(List<String> groupIds, String language, Date expirationDate){
         return taskQueryService.getTasksAssignedByGroupsByExpirationDateOptional(groupIds, language, expirationDate);
+    }
+
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(List<String> groupIds, String language, Date expirationDate, String taskName){
+        return taskQueryService.getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(groupIds, language, expirationDate, taskName);
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> status, String language) {
@@ -631,6 +653,12 @@ public class TaskServiceEntryPointImpl implements InternalTaskService, EventServ
     }
 
     @Override
+    public List<TaskSummary> getTasksOwnedByExpirationDateOptionalByTaskName(String userId, List<Status> statuses, String language,
+			Date expirationDate, String taskName) {
+        return taskQueryService.getTasksOwnedByExpirationDateOptionalByTaskName(userId, statuses, language, expirationDate, taskName); 
+    }
+
+    @Override
     public List<TaskSummary> getTasksOwnedByExpirationDateBeforeSpecifiedDate(String userId, List<Status> status, Date date) {
         return taskQueryService.getTasksOwnedByExpirationDateBeforeSpecifiedDate(userId, status, date);
     }
@@ -669,6 +697,7 @@ public class TaskServiceEntryPointImpl implements InternalTaskService, EventServ
     public void clearTasknotificationEventListeners() {
         ((JbpmServicesEventImpl)taskNotificationEvents).clearListeners();
     }
-    
+
+
     
 }

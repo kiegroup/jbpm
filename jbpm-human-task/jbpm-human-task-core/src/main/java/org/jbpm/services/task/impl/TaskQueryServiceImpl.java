@@ -88,6 +88,15 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         return collectTasksByPotentialOwners(tasksByGroups, language);
     }  
     
+    
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(List<String> groupIds, String language, Date expirationDate, String taskName){
+    	 List tasksByGroups = (List<TaskSummary>)pm.queryWithParametersInTransaction("TasksAssignedByGroupsByExpirationDateOptionalByTaskName", 
+                 pm.addParametersToMap("groupIds", groupIds, "language", language, "expirationDate", expirationDate, "taskName", "%"+taskName+"%") );
+                 
+         return collectTasksByPotentialOwners(tasksByGroups, language);
+    }
+
+    
     protected List<TaskSummary> collectTasksByPotentialOwners(List tasksByGroups, String language) {
         Set<Long> tasksIds = Collections.synchronizedSet(new HashSet<Long>());
         Map<Long, List<String>> potentialOwners = Collections.synchronizedMap(new HashMap<Long, List<String>>());
@@ -119,6 +128,14 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         return collectTasksByPotentialOwners(tasksByGroups, language);
     }        
             
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateByTaskName(List<String> groupIds, String language, Date expirationDate, String taskName) {
+
+        List tasksByGroups = (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksAssignedByGroupsByExpirationDateByTaskName", 
+                pm.addParametersToMap("groupIds", groupIds, "expirationDate", expirationDate, "language", language, "taskName", "%"+taskName+"%"));
+        return collectTasksByPotentialOwners(tasksByGroups, language);
+    }        
+            
+    
     public List<TaskSummary> getTasksAssignedByGroups(List<String> groupIds, String language) {
 
         List tasksByGroups = (List) pm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroups", 
@@ -180,39 +197,36 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     }
     
+    public List<TaskSummary> getTasksOwnedByExpirationDateByTaskName(String userId,  List<Status> status, String language, Date expirationDate, String taskName) {
+
+        return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedByExpirationDateByTaskName",
+                          pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", language, "taskName", "%"+taskName+"%" ));
+
+    }
+    
 
     public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, String language) {
 
         List<TaskSummary> taskOwned = (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedWithParticularStatus", 
                 pm.addParametersToMap("userId", userId, "status", status, "language", language));
 
-        if (!taskOwned.isEmpty()) {
-            Set<Long> tasksIds = new HashSet<Long>();
-            for (TaskSummary ts : taskOwned) {
-                tasksIds.add(ts.getId());
-            }
-
-            List tasksPotentialOwners = (List)pm.queryWithParametersInTransaction("TasksOwnedPotentialOwnersByTaskIds",
-                        pm.addParametersToMap("taskIds", tasksIds));
-
-            Map<Long, List<String>> potentialOwners = new HashMap<Long, List<String>>();
-            for (Object o : tasksPotentialOwners) {
-                Object[] get = (Object[]) o;
-                tasksIds.add((Long) get[0]);
-                if (potentialOwners.get((Long) get[0]) == null) {
-                    potentialOwners.put((Long) get[0], new ArrayList<String>());
-                }
-                potentialOwners.get((Long) get[0]).add((String) get[1]);
-            }
-            for (TaskSummary ts : taskOwned) {
-                ((InternalTaskSummary) ts).setPotentialOwners(potentialOwners.get(ts.getId()));
-            }
-        } else {
-            return new ArrayList<TaskSummary>(0);
-        }
+        completeTaskOwned(taskOwned);
 
         return taskOwned;
     }
+    
+    
+    public List<TaskSummary> getTasksOwnedByStatusByTaskName(String userId, List<Status> status, String language, String taskName) {
+
+        List<TaskSummary> taskOwned = (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedWithParticularStatusByTaskName", 
+                pm.addParametersToMap("userId", userId, "status", status, "language", language, "taskName", "%"+taskName+"%"));
+
+        completeTaskOwned(taskOwned);
+
+        return taskOwned;
+    }
+
+    
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, String language) {
         return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatus", 
@@ -264,6 +278,16 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                     pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", "en-UK")); //@TODO: FIX LANGUANGE
         
     }
+    
+    
+    @Override
+    public List<TaskSummary> getTasksOwnedByExpirationDateOptionalByTaskName(String userId, List<Status> status, String language, Date expirationDate, String taskName) {
+        return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedByExpirationDateOptionalByTaskName",
+                    pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", language, "taskName", "%"+taskName+"%" ));
+        
+    }
+
+    
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDateBeforeSpecifiedDate(String userId, List<Status> status, Date date) {
         return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedWithParticularStatusByExpirationDateBeforeSpecifiedDate",
@@ -298,4 +322,40 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 pm.addParametersToMap("processInstanceId", processInstanceId));
         return tasks;
     }
+    
+    
+    private void completeTaskOwned( List<TaskSummary> taskOwned){
+    	
+    	if (!taskOwned.isEmpty()) {
+            Set<Long> tasksIds = new HashSet<Long>();
+            for (TaskSummary ts : taskOwned) {
+                tasksIds.add(ts.getId());
+            }
+
+            List tasksPotentialOwners = (List)pm.queryWithParametersInTransaction("TasksOwnedPotentialOwnersByTaskIds",
+                        pm.addParametersToMap("taskIds", tasksIds));
+
+            Map<Long, List<String>> potentialOwners = new HashMap<Long, List<String>>();
+            for (Object o : tasksPotentialOwners) {
+                Object[] get = (Object[]) o;
+                tasksIds.add((Long) get[0]);
+                if (potentialOwners.get((Long) get[0]) == null) {
+                    potentialOwners.put((Long) get[0], new ArrayList<String>());
+                }
+                potentialOwners.get((Long) get[0]).add((String) get[1]);
+            }
+            for (TaskSummary ts : taskOwned) {
+                ((InternalTaskSummary) ts).setPotentialOwners(potentialOwners.get(ts.getId()));
+            }
+        } else {
+        	taskOwned =  new ArrayList<TaskSummary>(0);
+        }
+
+    	
+    	
+    
+    }
+
+	
+    
 }
