@@ -90,13 +90,13 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     
     
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalBySearchText(List<String> groupIds, String language, Date expirationDate, String searchText){
-    	 List tasksByGroups = (List<TaskSummary>)pm.queryWithParametersInTransaction("TasksAssignedByGroupsByExpirationDateOptionalBySearchText", 
-                 pm.addParametersToMap("groupIds", groupIds, "language", language, "expirationDate", expirationDate, "taskName", "%"+searchText+"%") );
-                 
-         return collectTasksByPotentialOwners(tasksByGroups, language);
-    }
+   	 List tasksByGroups = (List<TaskSummary>)pm.queryWithParametersInTransaction("TasksAssignedByGroupsByExpirationDateOptionalBySearchText", 
+                pm.addParametersToMap("groupIds", groupIds, "language", language, "expirationDate", expirationDate, "searchText", "%"+searchText+"%") );
+                
+        return collectTasksByPotentialOwners(tasksByGroups, language);
+   }
 
-    
+   
     protected List<TaskSummary> collectTasksByPotentialOwners(List tasksByGroups, String language) {
         Set<Long> tasksIds = Collections.synchronizedSet(new HashSet<Long>());
         Map<Long, List<String>> potentialOwners = Collections.synchronizedMap(new HashMap<Long, List<String>>());
@@ -135,7 +135,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateBySearchText(List<String> groupIds, String language, Date expirationDate, String searchText) {
 
         List tasksByGroups = (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksAssignedByGroupsByExpirationDateBySearchText", 
-                pm.addParametersToMap("groupIds", groupIds, "expirationDate", expirationDate, "language", language, "taskName", "%"+searchText+"%"));
+                pm.addParametersToMap("groupIds", groupIds, "expirationDate", expirationDate, "language", language, "searchText", "%"+searchText+"%"));
         return collectTasksByPotentialOwners(tasksByGroups, language);
     }        
             
@@ -154,7 +154,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     public List<TaskSummary> getTasksAssignedByGroupsBySearchText(List<String> groupIds, String language, String searchText) {
 
         List tasksByGroups = (List) pm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroupsBySearchText", 
-                pm.addParametersToMap("groupIds", groupIds, "language", language, "taskName", "%"+searchText+"%"));
+                pm.addParametersToMap("groupIds", groupIds, "language", language, "searchText", "%"+searchText+"%"));
                 
         return collectTasksByPotentialOwners(tasksByGroups, language);
         
@@ -203,7 +203,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     public List<TaskSummary> getTasksOwnedByExpirationDateBySearchText(String userId,  List<Status> status, String language, Date expirationDate, String searchText) {
 
         return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedByExpirationDateBySearchText",
-                          pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", language, "taskName", "%"+searchText+"%" ));
+                          pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", language, "searchText", "%"+searchText+"%" ));
 
     }
     
@@ -222,7 +222,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     public List<TaskSummary> getTasksOwnedByStatusBySearchText(String userId, List<Status> status, String language, String searchText) {
 
         List<TaskSummary> taskOwned = (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedWithParticularStatusBySearchText", 
-                pm.addParametersToMap("userId", userId, "status", status, "language", language, "taskName", "%"+searchText+"%"));
+                pm.addParametersToMap("userId", userId, "status", status, "language", language, "searchText", "%"+searchText+"%"));
 
         completeTaskOwned(taskOwned);
 
@@ -286,7 +286,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDateOptionalBySearchText(String userId, List<Status> status, String language, Date expirationDate, String searchText) {
         return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedByExpirationDateOptionalBySearchText",
-                    pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", language, "taskName", "%"+searchText+"%" ));
+                    pm.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", language, "searchText", "%"+searchText+"%" ));
         
     }
 

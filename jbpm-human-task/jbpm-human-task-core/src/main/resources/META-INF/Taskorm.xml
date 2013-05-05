@@ -512,7 +512,7 @@ where
     t.archived = 0 and
     t.taskData.actualOwner = null and          
     t.taskData.expirationTime = :expirationDate and
-    name.language = :language and name.text like :taskName and 
+    name.language = :language and name.text like :searchText and 
     t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
     
     
@@ -570,7 +570,7 @@ where
     t.archived = 0 and
     t.taskData.actualOwner = null and          
     (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
-    name.language = :language and name.text like :taskName and 
+    name.language = :language and name.text like :searchText and 
     t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
     
     
@@ -987,7 +987,7 @@ where
     t.taskData.expirationTime = :expirationDate and
     (
     name.language = :language
-    and name.text like :taskName
+    and name.text like :searchText
     ) and
 
     (
@@ -1149,7 +1149,7 @@ where
      and
     (
     name.language = :language
-    and name.text like :taskName
+    and name.text like :searchText
     ) and
 
     (
@@ -1408,7 +1408,7 @@ where
 
     (
     name.language = :language
-	and name.text like :taskName
+	and name.text like :searchText
     ) and
 
     (
