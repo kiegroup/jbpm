@@ -493,7 +493,7 @@ where
       </named-query>
       
 
-       <named-query name="TasksAssignedByGroupsByExpirationDateByTaskName">
+       <named-query name="TasksAssignedByGroupsByExpirationDateBySearchText">
           <query>
 select
      
@@ -552,7 +552,7 @@ where
  
         
  
-       <named-query name="TasksAssignedByGroupsByExpirationDateOptionalByTaskName">
+       <named-query name="TasksAssignedByGroupsByExpirationDateOptionalBySearchText">
           <query>
 select
      
@@ -951,7 +951,7 @@ where
       </named-query>
       
 
-       <named-query name="TasksOwnedByExpirationDateByTaskName">
+       <named-query name="TasksOwnedByExpirationDateBySearchText">
           <query>
 select
     new org.jbpm.services.task.query.TaskSummaryImpl(
@@ -1111,7 +1111,7 @@ where
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       
-        <named-query name="TasksOwnedByExpirationDateOptionalByTaskName">
+        <named-query name="TasksOwnedByExpirationDateOptionalBySearchText">
           <query>
 select
     new org.jbpm.services.task.query.TaskSummaryImpl(
@@ -1373,7 +1373,7 @@ where
       
       
       
-      <named-query name="TasksOwnedWithParticularStatusByTaskName">
+      <named-query name="TasksOwnedWithParticularStatusBySearchText">
           <query>
 select
     new org.jbpm.services.task.query.TaskSummaryImpl(

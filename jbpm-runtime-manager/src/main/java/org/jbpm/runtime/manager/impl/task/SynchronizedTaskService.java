@@ -366,14 +366,7 @@ public class SynchronizedTaskService
          }
     }
 
-    @Override
-	public List<TaskSummary> getTasksOwnedByStatusByTaskName(String userId,
-			List<Status> status, String language, String taskName) {
-        synchronized (ksession) {
-            return  taskService.getTasksOwnedByStatusByTaskName(userId, status, language, taskName);
-         }
-	}
-
+  
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDate(String userId,
             List<Status> statuses, Date expirationDate) {
@@ -385,11 +378,11 @@ public class SynchronizedTaskService
     
     
     @Override
-	public List<TaskSummary> getTasksOwnedByExpirationDateByTaskName(
+	public List<TaskSummary> getTasksOwnedByExpirationDateBySearchText(
 			String userId, List<Status> statuses, String language,
 			Date expirationDate, String taskName) {
     	synchronized (ksession) {
-            return  taskService.getTasksOwnedByExpirationDateByTaskName(userId, statuses, language, expirationDate, taskName);
+            return  taskService.getTasksOwnedByExpirationDateBySearchText(userId, statuses, language, expirationDate, taskName);
          }
 	}
 
@@ -403,11 +396,11 @@ public class SynchronizedTaskService
     
     
     @Override
-	public List<TaskSummary> getTasksOwnedByExpirationDateOptionalByTaskName(
+	public List<TaskSummary> getTasksOwnedByExpirationDateOptionalBySearchText(
 			String userId, List<Status> statuses, String language,
 			Date expirationDate, String taskName) {
     	 synchronized (ksession) {
-             return  taskService.getTasksOwnedByExpirationDateOptionalByTaskName(userId, statuses, language, expirationDate, taskName);
+             return  taskService.getTasksOwnedByExpirationDateOptionalBySearchText(userId, statuses, language, expirationDate, taskName);
           }
 	}
 
@@ -429,11 +422,11 @@ public class SynchronizedTaskService
     
     
 	@Override
-	public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateByTaskName(
+	public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateBySearchText(
 			List<String> groupIds, String language, Date expirationDate,
 			String taskName) {
 		 synchronized (ksession) {
-	            return  taskService.getTasksAssignedByGroupsByExpirationDateByTaskName(groupIds, language, expirationDate, taskName);
+	            return  taskService.getTasksAssignedByGroupsByExpirationDateBySearchText(groupIds, language, expirationDate, taskName);
 	         }
 	}
 
@@ -447,11 +440,11 @@ public class SynchronizedTaskService
     
     
     @Override
-	public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(
+	public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalBySearchText(
 			List<String> groupIds, String language, Date expirationDate,
 			String taskName) {
     	synchronized (ksession) {
-            return  taskService.getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(groupIds, language, expirationDate, taskName);
+            return  taskService.getTasksAssignedByGroupsByExpirationDateOptionalBySearchText(groupIds, language, expirationDate, taskName);
          }
 	}
 
@@ -833,6 +826,8 @@ public class SynchronizedTaskService
             return  taskService.getTasksAssignedByGroups(groupIds, language);
          }
     }
+
+  
 
     @Override
     public long addComment(long taskId, Comment comment) {

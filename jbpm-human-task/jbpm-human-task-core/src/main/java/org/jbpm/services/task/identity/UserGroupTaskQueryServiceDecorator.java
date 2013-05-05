@@ -120,10 +120,10 @@ public class UserGroupTaskQueryServiceDecorator extends
     }
 
     @Override
-    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateByTaskName(
-            List<String> groupIds, String language, Date expirationDate, String taskName) {
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateBySearchText(
+            List<String> groupIds, String language, Date expirationDate, String searchText) {
 
-        return delegate.getTasksAssignedByGroupsByExpirationDateByTaskName(groupIds, language, expirationDate, taskName);
+        return delegate.getTasksAssignedByGroupsByExpirationDateBySearchText(groupIds, language, expirationDate, searchText);
     }
 
     @Override
@@ -135,10 +135,10 @@ public class UserGroupTaskQueryServiceDecorator extends
 
     
     @Override
-    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(
-    		 List<String> groupIds, String language, Date expirationDate, String taskName){
+    public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptionalBySearchText(
+    		 List<String> groupIds, String language, Date expirationDate, String searchText){
     	
-    	return delegate.getTasksAssignedByGroupsByExpirationDateOptionalByTaskName(groupIds, language, expirationDate, taskName);
+    	return delegate.getTasksAssignedByGroupsByExpirationDateOptionalBySearchText(groupIds, language, expirationDate, searchText);
     }
     
     @Override
@@ -154,10 +154,10 @@ public class UserGroupTaskQueryServiceDecorator extends
         return delegate.getTasksOwnedByStatus(userId, status, language);
     }
     @Override
-    public List<TaskSummary> getTasksOwnedByStatusByTaskName(String userId, List<Status> status,
-            String language, String taskName) {
+    public List<TaskSummary> getTasksOwnedByStatusBySearchText(String userId, List<Status> status,
+            String language, String searchText) {
 
-        return delegate.getTasksOwnedByStatusByTaskName(userId, status, language, taskName);
+        return delegate.getTasksOwnedByStatusBySearchText(userId, status, language, searchText);
     }
     
     @Override
@@ -168,10 +168,10 @@ public class UserGroupTaskQueryServiceDecorator extends
     }
 
     @Override
-    public List<TaskSummary> getTasksOwnedByExpirationDateByTaskName(String userId,
-            List<Status> status, String language, Date expirationDate, String taskName) {
+    public List<TaskSummary> getTasksOwnedByExpirationDateBySearchText(String userId,
+            List<Status> status, String language, Date expirationDate, String searchText) {
 
-        return delegate.getTasksOwnedByExpirationDateByTaskName(userId, status, language, expirationDate, taskName); 
+        return delegate.getTasksOwnedByExpirationDateBySearchText(userId, status, language, expirationDate, searchText); 
     }
 
     @Override
@@ -183,10 +183,10 @@ public class UserGroupTaskQueryServiceDecorator extends
 
     
     @Override
-    public List<TaskSummary> getTasksOwnedByExpirationDateOptionalByTaskName(
-            String userId, List<Status> status, String language, Date expirationDate, String taskName) {
+    public List<TaskSummary> getTasksOwnedByExpirationDateOptionalBySearchText(
+            String userId, List<Status> status, String language, Date expirationDate, String searchText) {
 
-        return delegate.getTasksOwnedByExpirationDateOptionalByTaskName(userId, status, language, expirationDate, taskName);
+        return delegate.getTasksOwnedByExpirationDateOptionalBySearchText(userId, status, language, expirationDate, searchText);
     }
 
     
