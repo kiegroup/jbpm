@@ -151,20 +151,6 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     
     
-    public List<TaskSummary> getTasksAssignedByGroupsBySearchText(List<String> groupIds, String language, String searchText) {
-
-        List tasksByGroups = (List) pm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroupsBySearchText", 
-                pm.addParametersToMap("groupIds", groupIds, "language", language, "searchText", "%"+searchText+"%"));
-                
-        return collectTasksByPotentialOwners(tasksByGroups, language);
-        
-    }
-
-    
-    
-    
-    
-    
     
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, int firstResult, int maxResults) {
         return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerWithGroups", 
