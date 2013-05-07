@@ -153,12 +153,7 @@ public class UserGroupTaskQueryServiceDecorator extends
 
         return delegate.getTasksOwnedByStatus(userId, status, language);
     }
-    @Override
-    public List<TaskSummary> getTasksOwnedByStatusBySearchText(String userId, List<Status> status,
-            String language, String searchText) {
-
-        return delegate.getTasksOwnedByStatusBySearchText(userId, status, language, searchText);
-    }
+   
     
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDate(String userId,

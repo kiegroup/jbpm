@@ -217,20 +217,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
         return taskOwned;
     }
-    
-    
-    public List<TaskSummary> getTasksOwnedByStatusBySearchText(String userId, List<Status> status, String language, String searchText) {
-
-        List<TaskSummary> taskOwned = (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksOwnedWithParticularStatusBySearchText", 
-                pm.addParametersToMap("userId", userId, "status", status, "language", language, "searchText", "%"+searchText+"%"));
-
-        completeTaskOwned(taskOwned);
-
-        return taskOwned;
-    }
-
-    
-
+ 
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, String language) {
         return (List<TaskSummary>) pm.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatus", 
                                         pm.addParametersToMap("userId", userId ,"language", language,"status", status));

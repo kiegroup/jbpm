@@ -347,11 +347,7 @@ public class TaskServiceEntryPointImpl implements InternalTaskService, EventServ
     public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, String language) {
         return taskQueryService.getTasksOwnedByStatus(userId, status, language);
     }
-    public List<TaskSummary> getTasksOwnedByStatusBySearchText(String userId, List<Status> status, String language, String searchText) {
-        return taskQueryService.getTasksOwnedByStatusBySearchText(userId, status, language, searchText);
-    }
-
-   
+    
 
     
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String salaboy, List<Status> status, String language) {

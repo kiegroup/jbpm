@@ -452,8 +452,10 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
         //assertEquals("Bobba Fet", tasks.get(0).getActualOwner().getId());
     }
     
+    
+    //getTasksAssignedByGroupsByExpirationDateBySearchText
     @Test
-    public void testGetTasksAssignedByGroupsByExpirationDateByTaskNameWithUserStatusDateOneTaskReserved() {
+    public void testGetTasksAssignedByGroupsByExpirationDateBySearchTextWithUserStatusDateOneTaskReserved() {
        
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { expirationTime = new Date( 10000000 ), } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new Group('Crusaders')  ], }),";
@@ -593,9 +595,9 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
     
     
     
-
+    //getTasksOwnedByExpirationDateBySearchText
     @Test
-    public void testGetTasksOwnedByExpirationDateByTaskNameWithUserStatusDateOneTaskReserved() {
+    public void testGetTasksOwnedByExpirationDateBySearchTextWithUserStatusDateOneTaskReserved() {
         // One potential owner, should go straight to state Reserved    
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { expirationTime = new Date( 10000000 ), } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet')  ], }),";
@@ -699,8 +701,11 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
         assertEquals(1, tasks.size());
     }
     
-    @Test
-    public void testGetTasksAssignedByExpirationDateOptionalByTaskName() {
+    
+  
+    //getTasksOwnedByExpirationDateOptionalBySearchText
+    @Test       
+    public void testGetTasksAssignedByExpirationDateOptionalBySearchText() {
         // One potential owner, should go straight to state Reserved
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet')], }),";
@@ -737,9 +742,9 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
         assertEquals(1, tasks.size());
     }
     
-    
+    //getTasksAssignedByGroupsByExpirationDateOptionalBySearchText
     @Test
-    public void testGetTasksAssignedByGroupsByExpirationDateOptionalByTaskName() {
+    public void testGetTasksAssignedByGroupsByExpirationDateOptionalBySearchText() {
        
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new Group('Crusaders')  ], }),";
