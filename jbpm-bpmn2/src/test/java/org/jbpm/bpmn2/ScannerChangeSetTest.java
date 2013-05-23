@@ -16,6 +16,7 @@ import org.drools.agent.KnowledgeAgent;
 import org.drools.agent.KnowledgeAgentFactory;
 import org.drools.agent.impl.PrintStreamSystemEventListener;
 import org.drools.core.util.FileManager;
+import org.drools.definition.KnowledgePackage;
 import org.drools.io.ResourceChangeScannerConfiguration;
 import org.drools.io.ResourceFactory;
 import org.junit.After;
@@ -81,29 +82,41 @@ public class ScannerChangeSetTest {
         KnowledgeAgent kagent = KnowledgeAgentFactory.newKnowledgeAgent("bpmn agent");
         kagent.applyChangeSet(ResourceFactory.newFileResource(bpmnChangeset));
         KnowledgeBase kbase = kagent.getKnowledgeBase();
-        
+
         // start scanning service
         ResourceFactory.getResourceChangeNotifierService().start();
         ResourceFactory.getResourceChangeScannerService().start();
 
-        assertEquals(kbase.getKnowledgePackages().size(), 1);
-        assertEquals(kbase.getKnowledgePackages().iterator().next().getRules().size(), 6);
-        
+        assertEquals(kbase.getKnowledgePackages().size(), 2);
+        for ( KnowledgePackage kp : kbase.getKnowledgePackages() ) {
+            if ( kp.getName().equals( "com.sample" ) ) {
+                assertEquals( kp.getRules().size(), 6);
+            }
+        }
+
         // sleeping and modifying content
         Thread.sleep(1500);
         ruleFile.delete();
         ruleFile = new File(TMP_DIR + "temporary.bpmn");
-        copy(getClass().getResourceAsStream("/BPMN2-ScannerChangeSet2.bpmn"), new FileOutputStream(ruleFile));        
+        copy(getClass().getResourceAsStream("/BPMN2-ScannerChangeSet2.bpmn"), new FileOutputStream(ruleFile));
 
         // now the knowledge agent should have updated knowledge base
         Thread.sleep(1000);
-        assertEquals(kbase.getKnowledgePackages().size(), 1);
-        assertEquals(kbase.getKnowledgePackages().iterator().next().getRules().size(), 6);
+        assertEquals(kbase.getKnowledgePackages().size(), 2);
+        for ( KnowledgePackage kp : kbase.getKnowledgePackages() ) {
+            if ( kp.getName().equals( "com.sample" ) ) {
+                assertEquals( kp.getRules().size(), 6);
+            }
+        }
         // but we have to ask for the new one, it should be 3 rules
         kbase = kagent.getKnowledgeBase();
-        assertEquals(kbase.getKnowledgePackages().size(), 1);
-        assertEquals(kbase.getKnowledgePackages().iterator().next().getRules().size(), 3);
-        
+        assertEquals(kbase.getKnowledgePackages().size(), 2);
+        for ( KnowledgePackage kp : kbase.getKnowledgePackages() ) {
+            if ( kp.getName().equals( "com.sample" ) ) {
+                 assertEquals( kp.getRules().size(), 3);
+            }
+        }
+
         // stop scanning service
         ResourceFactory.getResourceChangeNotifierService().stop();
         ResourceFactory.getResourceChangeScannerService().stop();
