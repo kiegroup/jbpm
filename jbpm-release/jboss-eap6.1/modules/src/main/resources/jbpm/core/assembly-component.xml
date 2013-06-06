@@ -1,0 +1,163 @@
+<!--
+       ~ JBoss, Home of Professional Open Source
+  ~ Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
+  ~ as indicated by the @author tags. All rights reserved.
+  ~ See the copyright.txt in the distribution for a
+  ~ full listing of individual contributors.
+  ~
+  ~ This copyrighted material is made available to anyone wishing to use,
+  ~ modify, copy, or redistribute it subject to the terms and conditions
+  ~ of the GNU Lesser General Public License, v. 2.1.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT A
+  ~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~ PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+  ~ You should have received a copy of the GNU Lesser General Public License,
+  ~ v.2.1 along with this distribution; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+  ~ MA  02110-1301, USA.
+  -->
+
+<component xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/component/1.1.2 http://maven.apache.org/xsd/component-1.1.2.xsd">
+
+    <files>
+        <file>
+            <source>src/main/resources/jbpm/core/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-audit/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-audit/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-bpmn2/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-bpmn2/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-flow/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-flow/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-flow-builder/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-flow-builder/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-human-task-core/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-human-task-core/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-human-task-workitems/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-human-task-workitems/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-persistence-jpa/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-persistence-jpa/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-runtime-manager/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-runtime-manager/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-shared-services/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-shared-services/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/jbpm/core/jbpm-workitems/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-workitems/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+    </files>
+
+    <dependencySets>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-audit</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-audit/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-bpmn2</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-bpmn2/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-flow</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-flow/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-flow-builder</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-flow-builder/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-human-task-core</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-human-task-core/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-human-task-workitems</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-human-task-workitems/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-persistence-jpa</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-persistence-jpa/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-runtime-manager</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-runtime-manager/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-shared-services</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-shared-services/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.jbpm:jbpm-workitems</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/jbpm/jbpm-workitems/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+    </dependencySets>
+</component>
