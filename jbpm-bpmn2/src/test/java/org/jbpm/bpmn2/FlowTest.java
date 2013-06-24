@@ -32,27 +32,28 @@ import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance.ForEachJoinNodeInstance;
 import org.junit.After;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
 import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.Context;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -499,6 +500,425 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 "com.sample.test", params);
         assertProcessInstanceCompleted(processInstance);
 
+    }
+    
+    @Test
+    public void testInclusiveParallelExclusiveSplitNoLoop() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", new SystemOutWorkItemHandler());
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", new SystemOutWorkItemHandler() {
+
+            @Override
+            public void executeWorkItem(WorkItem workItem,  WorkItemManager manager) {
+                Integer x = (Integer) workItem.getParameter("input1");
+                x++;
+                Map<String, Object> results = new HashMap<String, Object>();
+                results.put("output1", x);
+                manager.completeWorkItem(workItem.getId(), results);
+            }
+            
+        });
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        ksession.addEventListener(new DefaultProcessEventListener(){
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {   
+                System.out.println(event.getNodeInstance().getNodeName());
+                Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
+                if (value == null) {
+                    value = new Integer(0);
+                }
+                
+                value++;
+                nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
+            }
+
+            
+        });
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 0);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        assertProcessInstanceCompleted(processInstance);
+        
+        assertEquals(12, nodeInstanceExecutionCounter.size());
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("ANDGateway-diverging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("ORGateway-diverging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI3"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI2"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ORGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Script"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("XORGateway-diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ANDGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
+    }    
+    
+    @Test
+    public void testInclusiveParallelExclusiveSplitLoop() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", new SystemOutWorkItemHandler());
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", new SystemOutWorkItemHandler() {
+
+            @Override
+            public void executeWorkItem(WorkItem workItem,  WorkItemManager manager) {
+                Integer x = (Integer) workItem.getParameter("input1");
+                x++;
+                Map<String, Object> results = new HashMap<String, Object>();
+                results.put("output1", x);
+                manager.completeWorkItem(workItem.getId(), results);
+            }
+            
+        });
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        ksession.addEventListener(new DefaultProcessEventListener(){
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                
+                Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
+                if (value == null) {
+                    value = new Integer(0);
+                }
+                
+                value++;
+                nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
+            }
+            
+        });
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", -1);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        assertProcessInstanceCompleted(processInstance);
+        
+        assertEquals(12, nodeInstanceExecutionCounter.size());
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ANDGateway-diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ORGateway-diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("testWI3"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("testWI2"));
+        assertEquals(4, (int)nodeInstanceExecutionCounter.get("ORGateway-converging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("Script"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XORGateway-diverging"));
+        assertEquals(4, (int)nodeInstanceExecutionCounter.get("ANDGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
+    }
+    
+    @Test
+    public void testInclusiveParallelExclusiveSplitNoLoopAsync() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", handler);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", new SystemOutWorkItemHandler() {
+
+            @Override
+            public void executeWorkItem(WorkItem workItem,  WorkItemManager manager) {
+                Integer x = (Integer) workItem.getParameter("input1");
+                x++;
+                Map<String, Object> results = new HashMap<String, Object>();
+                results.put("output1", x);
+                manager.completeWorkItem(workItem.getId(), results);
+            }
+            
+        });
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        ksession.addEventListener(new DefaultProcessEventListener(){
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                  
+                Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
+                if (value == null) {
+                    value = new Integer(0);
+                }
+                
+                value++;
+                nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
+            }
+
+            
+        });
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 0);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        assertProcessInstanceActive(processInstance);
+        
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+        // complete work items within OR gateway
+        for (WorkItem workItem : workItems) {
+            ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        }
+        assertProcessInstanceActive(processInstance);
+        
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(1, workItems.size());
+        // complete last workitem after AND gateway
+        for (WorkItem workItem : workItems) {
+            ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        }
+        assertProcessInstanceCompleted(processInstance);
+        
+        assertEquals(12, nodeInstanceExecutionCounter.size());
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("ANDGateway-diverging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("ORGateway-diverging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI3"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI2"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ORGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Script"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("XORGateway-diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ANDGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
+    } 
+    
+    @Test
+    public void testInclusiveParallelExclusiveSplitLoopAsync() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", handler);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", new SystemOutWorkItemHandler() {
+
+            @Override
+            public void executeWorkItem(WorkItem workItem,  WorkItemManager manager) {
+                Integer x = (Integer) workItem.getParameter("input1");
+                x++;
+                Map<String, Object> results = new HashMap<String, Object>();
+                results.put("output1", x);
+                manager.completeWorkItem(workItem.getId(), results);
+            }
+            
+        });
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        ksession.addEventListener(new DefaultProcessEventListener(){
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) { 
+                Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
+                if (value == null) {
+                    value = new Integer(0);
+                }
+                
+                value++;
+                nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
+            }
+
+            
+        });
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", -1);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        assertProcessInstanceActive(processInstance);
+        
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+        // complete work items within OR gateway
+        for (WorkItem workItem : workItems) {
+            ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        }
+        assertProcessInstanceActive(processInstance);
+        
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+        // complete work items within OR gateway
+        for (WorkItem workItem : workItems) {
+            ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        }
+        assertProcessInstanceActive(processInstance);
+        
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(1, workItems.size());
+        // complete last workitem after AND gateway
+        for (WorkItem workItem : workItems) {
+            ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        }
+        assertProcessInstanceCompleted(processInstance);
+        
+        assertEquals(12, nodeInstanceExecutionCounter.size());
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ANDGateway-diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("ORGateway-diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("testWI3"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("testWI2"));
+        assertEquals(4, (int)nodeInstanceExecutionCounter.get("ORGateway-converging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("Script"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XORGateway-diverging"));
+        assertEquals(4, (int)nodeInstanceExecutionCounter.get("ANDGateway-converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
+    }
+    
+    @Test
+    public void testInclusiveSplitNested() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayNested.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+        TestWorkItemHandler handler2 = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", handler);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", handler2);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", -5);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
+        ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
+        
+        assertProcessInstanceActive(processInstance);
+        
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+        
+        for (WorkItem wi : workItems) {
+            assertProcessInstanceActive(processInstance);
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
+        
+        assertProcessInstanceCompleted(processInstance);
+    }
+    
+    @Test
+    public void testInclusiveSplitWithLoopInside() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayWithLoopInside.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        ksession.addEventListener(new DefaultProcessEventListener(){
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                 
+                System.out.println(event.getNodeInstance().getNodeName() + " " + ((NodeInstanceImpl) event.getNodeInstance()).getLevel());
+                Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
+                if (value == null) {
+                    value = new Integer(0);
+                }
+                
+                value++;
+                nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
+            }
+
+            
+        });
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+        TestWorkItemHandler handler2 = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", handler);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", handler2);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", -1);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        
+        assertProcessInstanceActive(processInstance);
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+        
+        for (WorkItem wi : workItems) {
+            assertProcessInstanceActive(processInstance);
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
+        
+        assertProcessInstanceCompleted(processInstance);
+        assertEquals(10, nodeInstanceExecutionCounter.size());
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("OR diverging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("tareaWorkflow3"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("tareaWorkflow2"));
+        assertEquals(3, (int)nodeInstanceExecutionCounter.get("OR converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("tareaWorkflow6"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("Script"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XOR diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XOR converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
+    }
+    
+    @Test
+    public void testInclusiveSplitWithLoopInsideSubprocess() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayWithLoopInsideSubprocess.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        ksession.addEventListener(new DefaultProcessEventListener(){
+
+            @Override
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                 
+                System.out.println(event.getNodeInstance().getNodeName() + " " + ((NodeInstanceImpl) event.getNodeInstance()).getLevel());
+                Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
+                if (value == null) {
+                    value = new Integer(0);
+                }
+                
+                value++;
+                nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
+            }
+
+            
+        });
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+        TestWorkItemHandler handler2 = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI", handler);
+        ksession.getWorkItemManager().registerWorkItemHandler("testWI2", handler2);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", -1);
+        ProcessInstance processInstance = ksession.startProcess("Process_1", params);
+        
+        assertProcessInstanceActive(processInstance);
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+        
+        for (WorkItem wi : workItems) {
+            assertProcessInstanceActive(processInstance);
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+        }
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
+        
+        assertProcessInstanceCompleted(processInstance);
+        assertEquals(13, nodeInstanceExecutionCounter.size());
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("Sub Process 1"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("sb-start"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("sb-end"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("OR diverging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("tareaWorkflow3"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("tareaWorkflow2"));
+        assertEquals(3, (int)nodeInstanceExecutionCounter.get("OR converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("tareaWorkflow6"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("Script"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XOR diverging"));
+        assertEquals(2, (int)nodeInstanceExecutionCounter.get("XOR converging"));
+        assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
     }
 
     @Test

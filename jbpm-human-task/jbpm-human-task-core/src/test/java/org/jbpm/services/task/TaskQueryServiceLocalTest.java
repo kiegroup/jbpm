@@ -16,8 +16,6 @@ public class TaskQueryServiceLocalTest extends TaskQueryServiceBaseTest {
     public static Archive<?> createDeployment() {
         return ShrinkWrap
                 .create(JavaArchive.class, "jbpm-human-task-cdi.jar")
-                .addPackage("org.jboss.seam.persistence")
-                // seam-persistence
                 .addPackage("org.jboss.seam.transaction")
                 // seam-persistence
                 .addPackage("org.jbpm.shared.services.api")
@@ -40,6 +38,8 @@ public class TaskQueryServiceLocalTest extends TaskQueryServiceBaseTest {
                 // deadlines
                 .addPackage("org.jbpm.services.task.deadlines.notifications.impl")
                 .addPackage("org.jbpm.services.task.subtask")
+                .addPackage("org.jbpm.services.task.rule")
+                .addPackage("org.jbpm.services.task.rule.impl")
                 // .addPackage("org.jbpm.services.task.commands") // This should not be
                 // required here
                 .addAsManifestResource("META-INF/persistence.xml",

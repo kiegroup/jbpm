@@ -59,7 +59,6 @@ public class KModuleDeploymentServiceTest {
     @Deployment()
     public static Archive<?> createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "domain-services.jar")
-                .addPackage("org.jboss.seam.persistence") //seam-persistence
                 .addPackage("org.jboss.seam.transaction") //seam-persistence
                 .addPackage("org.jbpm.services.task")
                 .addPackage("org.jbpm.services.task.wih") // work items org.jbpm.services.task.wih
@@ -79,6 +78,8 @@ public class KModuleDeploymentServiceTest {
                 .addPackage("org.jbpm.services.task.deadlines") // deadlines
                 .addPackage("org.jbpm.services.task.deadlines.notifications.impl")
                 .addPackage("org.jbpm.services.task.subtask")
+                .addPackage("org.jbpm.services.task.rule")
+                .addPackage("org.jbpm.services.task.rule.impl")
 
                 .addPackage("org.kie.api.runtime.manager")
                 .addPackage("org.kie.internal.runtime.manager")
@@ -176,6 +177,8 @@ public class KModuleDeploymentServiceTest {
         assertNotNull(deployed.getDeploymentUnit());
         assertNotNull(deployed.getRuntimeManager());
         assertNull(deployed.getDeployedAssetLocation("customtask"));
+        assertEquals(GROUP_ID+":"+ARTIFACT_ID+":"+VERSION+":"+"KBase-test"+":"+"ksession-test", 
+                deployed.getDeploymentUnit().getIdentifier());
 
         assertNotNull(runtimeDataService);
         Collection<ProcessDesc> processes = runtimeDataService.getProcesses();
@@ -221,6 +224,8 @@ public class KModuleDeploymentServiceTest {
         assertNotNull(deployed.getDeploymentUnit());
         assertNotNull(deployed.getRuntimeManager());
         assertNull(deployed.getDeployedAssetLocation("customtask"));
+        assertEquals(GROUP_ID+":"+ARTIFACT_ID+":"+VERSION, 
+                deployed.getDeploymentUnit().getIdentifier());
 
         assertNotNull(runtimeDataService);
         Collection<ProcessDesc> processes = runtimeDataService.getProcesses();

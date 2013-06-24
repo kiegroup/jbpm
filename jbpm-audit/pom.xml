@@ -11,6 +11,7 @@
   </parent>
 
   <artifactId>jbpm-audit</artifactId>
+  <packaging>bundle</packaging>
 
   <name>jBPM :: Audit</name>
 
@@ -41,6 +42,24 @@
               </includes>
             </fileset>
          </filesets>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>org.jbpm.process.audit</Bundle-SymbolicName>
+            <Import-Package>
+              !org.jbpm.process.audit,
+              *
+            </Import-Package>
+            <Private-Package></Private-Package>
+            <Export-Package>
+              org.jbpm.process.audit*
+            </Export-Package>
+          </instructions>
         </configuration>
       </plugin>
     </plugins>
@@ -108,19 +127,18 @@
     </dependency>
     <dependency>
       <groupId>org.hornetq</groupId>
-      <artifactId>hornetq-core</artifactId>
+      <artifactId>hornetq-server</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hornetq</groupId>
       <artifactId>hornetq-jms-client</artifactId>
-      <version>2.2.11.Final</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hornetq</groupId>
-      <artifactId>hornetq-jms</artifactId>
-      <version>2.2.10.Final</version>
+      <artifactId>hornetq-jms-server</artifactId>
+      <version>${hornetq.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -132,7 +150,6 @@
  
   <properties>
     <maven.jdbc.url>jdbc:h2:mem:bamTest;MVCC=TRUE</maven.jdbc.url>
-
   </properties>
-  
+
 </project>

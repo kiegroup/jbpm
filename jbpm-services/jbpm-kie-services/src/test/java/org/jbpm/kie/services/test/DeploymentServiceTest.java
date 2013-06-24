@@ -42,7 +42,6 @@ public class DeploymentServiceTest {
     @Deployment()
     public static Archive<?> createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "domain-services.jar")
-                .addPackage("org.jboss.seam.persistence") //seam-persistence
                 .addPackage("org.jboss.seam.transaction") //seam-persistence
                 .addPackage("org.jbpm.services.task")
                 .addPackage("org.jbpm.services.task.wih") // work items org.jbpm.services.task.wih
@@ -62,6 +61,8 @@ public class DeploymentServiceTest {
                 .addPackage("org.jbpm.services.task.deadlines") // deadlines
                 .addPackage("org.jbpm.services.task.deadlines.notifications.impl")
                 .addPackage("org.jbpm.services.task.subtask")
+                .addPackage("org.jbpm.services.task.rule")
+                .addPackage("org.jbpm.services.task.rule.impl")
 
                 .addPackage("org.kie.api.runtime.manager")
                 .addPackage("org.kie.internal.runtime.manager")
