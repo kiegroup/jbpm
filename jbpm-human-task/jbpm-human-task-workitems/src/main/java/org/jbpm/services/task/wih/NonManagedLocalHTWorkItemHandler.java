@@ -192,6 +192,5 @@ public class NonManagedLocalHTWorkItemHandler extends AbstractHTWorkItemHandler 
         public void close() {
             
         }
-        
     }
 }

@@ -98,6 +98,8 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         taskData.setProcessInstanceId(workItem.getProcessInstanceId());
         if (session != null && session.getProcessInstance(workItem.getProcessInstanceId()) != null) {
             taskData.setProcessId(session.getProcessInstance(workItem.getProcessInstanceId()).getProcess().getId());
+            String deploymentId = (String) session.getEnvironment().get("deploymentId");
+            taskData.setDeploymentId(deploymentId);            
         }
         if (session != null && (session instanceof KieSession)) {
             taskData.setProcessSessionId(((KieSession) session).getId());
