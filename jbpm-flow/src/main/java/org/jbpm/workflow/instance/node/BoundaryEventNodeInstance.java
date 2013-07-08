@@ -31,7 +31,7 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
         BoundaryEventNode boundaryNode = (BoundaryEventNode) getEventNode();
         String attachedTo = boundaryNode.getAttachedToNodeId();
         Collection<NodeInstance> nodeInstances = ((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstances();
-        if( type != null && type.startsWith("Compensate-") ) { 
+        if( type != null && type.startsWith("Compensate") ) { 
             // if not active && completed, signal
             if( ! isAttachedToNodeActive(nodeInstances, attachedTo) && isAttachedToNodeCompleted(attachedTo)) {
                 super.signalEvent(type, event);

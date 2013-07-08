@@ -28,7 +28,7 @@ package org.jbpm.process.core.event;
  * names. 
  * 
  * For example, it will react to: 
- * - "Compensate-" as the base string
+ * - "Compensate" as the base string
  * - and something like "Compensate-SubProcess_1" as the type string. 
  */
 public class BroadcastEventTypeFilter extends EventTypeFilter {

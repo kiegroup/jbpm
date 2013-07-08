@@ -258,8 +258,8 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
         List<EventFilter> eventFilters = new ArrayList<EventFilter>();
         
         // Specfic (broadcast-capable) compensate event
-        EventTypeFilter eventFilter = new BroadcastEventTypeFilter();
-        eventFilter.setType("Compensate-" + attachedTo);
+        BroadcastEventTypeFilter eventFilter = new BroadcastEventTypeFilter();
+        eventFilter.setType("Compensate",  "-" + attachedTo);
         eventFilters.add(eventFilter);
         
         ((EventNode) node).setEventFilters(eventFilters);

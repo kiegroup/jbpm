@@ -91,7 +91,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
                 List<String> events = ((EventSubProcessNode) node).getEvents();
                 for (String type : events) {
                     //exclude compensation as they are only valid within process instance scope
-                    if (type.startsWith("Compensate-")) {
+                    if (type.startsWith("Compensate")) {
                         continue;
                     }
                     getProcessInstance().addEventListener(type, new DoNothingEventListener(), true);

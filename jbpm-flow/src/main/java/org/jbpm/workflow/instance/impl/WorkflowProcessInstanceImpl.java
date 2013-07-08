@@ -399,38 +399,79 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 					listener.signalEvent(type, event);
 				}
 			}
+			boolean orderedCompensation = "Compensate".equals(type);
+			Set<NodeInstance> toSignalNodes = new HashSet<NodeInstance>(); 
 			for (Node node : getWorkflowProcess().getNodes()) {
-				if (node instanceof EventNodeInterface) {
-					if (((EventNodeInterface) node).acceptsEvent(type, event)) {
-					    boolean eventFired = false;
-						if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
-							EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
-							eventNodeInstance.signalEvent(type, event);
-							eventFired = true;
-						} else if (node instanceof EventSubProcessNode ) {
-						    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
-                            eventNodeInstance.signalEvent(type, event);
-							eventFired = true;
-						} else if(node instanceof CompositeNode ) { 
-						   EventSubProcessNode espNode = findEventSubProcessNode(((CompositeNode) node).getNodes());
-						   if( espNode != null ) { 
-						       EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(espNode);
-						       eventNodeInstance.signalEvent(type, event);
-						       eventFired = true;
-						   }
-                        } 
-						
-						if( ! eventFired ) { 
-							List<NodeInstance> nodeInstances = getNodeInstances(node.getId());
-							if (nodeInstances != null && !nodeInstances.isEmpty()) {
-								for (NodeInstance nodeInstance : nodeInstances) {
-									((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
-								}
-							}
-						}
-					}
-				}
+		        if (node instanceof EventNodeInterface) {
+		            if (((EventNodeInterface) node).acceptsEvent(type, event)) {
+		                boolean eventFired = false;
+		                if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
+		                    EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
+		                    if( orderedCompensation ) { 
+		                        toSignalNodes.add(eventNodeInstance);
+		                    } else { 
+		                        eventNodeInstance.signalEvent(type, event);
+		                    }
+		                    eventFired = true;
+		                } else if (node instanceof EventSubProcessNode ) {
+		                    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
+		                    if( orderedCompensation ) { 
+		                        toSignalNodes.add(eventNodeInstance);
+		                    } else { 
+		                        eventNodeInstance.signalEvent(type, event);
+		                    }
+		                    eventFired = true;
+		                } else if(node instanceof CompositeNode ) { 
+		                    EventSubProcessNode espNode = findEventSubProcessNode(((CompositeNode) node).getNodes());
+		                    if( espNode != null ) { 
+		                        EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(espNode);
+		                        if( orderedCompensation ) { 
+		                            toSignalNodes.add(eventNodeInstance);
+		                        } else { 
+		                            eventNodeInstance.signalEvent(type, event);
+		                        }
+		                        eventFired = true;
+		                    }
+		                }
+		                
+		                if( ! eventFired ) { 
+		                    List<NodeInstance> nodeInstances = getNodeInstances(node.getId());
+		                    if (nodeInstances != null && !nodeInstances.isEmpty()) {
+		                        for (NodeInstance nodeInstance : nodeInstances) {
+		                            ((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
+		                        }
+		                    }
+		                }
+		            }
+		        }
 			}
+			
+			if( orderedCompensation ) { 
+			    HashMap<String, EventNodeInstanceInterface> activityIdtoEventNodeInstMap = new HashMap<String, EventNodeInstanceInterface>();
+			    List<EventNodeInstanceInterface> orderedSignalNodes = new ArrayList<EventNodeInstanceInterface>();
+			    // make map: (UniqueId of activity to be compensated) => (EventNodeInstanceInterface instance)
+			    for( NodeInstance nodeInst : toSignalNodes ) { 
+			        String activityToCompensateId = (String) nodeInst.getNode().getMetaData().get("AttachedTo");
+			        activityIdtoEventNodeInstMap.put(activityToCompensateId, (EventNodeInstanceInterface) nodeInst);
+			    }
+			    // make *REVERSE* ordered list, based on completed node ids
+			    for( int i = this.completedNodeIds.size()-1; i >= 0; --i ) { 
+			        String completedActivityId = this.completedNodeIds.get(i);
+			        EventNodeInstanceInterface eventNodeInst = activityIdtoEventNodeInstMap.get(completedActivityId);
+			        if( eventNodeInst != null ) { 
+			            orderedSignalNodes.add(eventNodeInst);
+			            toSignalNodes.remove(eventNodeInst);
+			        }
+			    } 
+			    // signal node instances according to order
+			    for( EventNodeInstanceInterface orderedNodeInst : orderedSignalNodes ) {
+			        orderedNodeInst.signalEvent(type, event);
+			    }
+			    for( NodeInstance notSignaledNode : toSignalNodes ) { 
+			        notSignaledNode.cancel();
+			    }
+			}
+
 			if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
 				for (Node node : getWorkflowProcess().getNodes()) {
 					if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {

@@ -260,7 +260,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                 if (source instanceof EventNode) {
                     for (EventFilter eventFilter : ((EventNode) source).getEventFilters()) {
                         if (eventFilter instanceof EventTypeFilter) {
-                            if ("Compensate-".equals(((EventTypeFilter) eventFilter).getType())) {
+                            if ("Compensate".equals(((EventTypeFilter) eventFilter).getType())) {
                                 // While this isn't explicitly stated in the spec,
                                 // BPMN Method & Style, 2nd Ed. (Silver), states this on P. 131
                                 throw new IllegalArgumentException(
@@ -321,7 +321,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                         linkBoundaryErrorEvent(nodeContainer, node, attachedTo, attachedNode);
                     } else if (type.startsWith("Timer-")) {
                        linkBoundaryTimerEvent(nodeContainer, node, attachedTo, attachedNode);
-                    } else if (type.startsWith("Compensate-")) {
+                    } else if (type.startsWith("Compensate")) {
                         linkBoundaryCompensationEvent(nodeContainer, node, attachedTo, attachedNode);
                     } else if (node.getMetaData().get("SignalName") != null || type.startsWith("Message-")) {
                         linkBoundarySignalEvent(nodeContainer, node, attachedTo, attachedNode);
@@ -531,7 +531,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                    
                    /** 
                     * BPMN2 spec, p.442: 
-                    *   "A Compensation Event Sub-process becomes enabled when its parent Activity transitions into state u
+                    *   "A Compensation Event Sub-process becomes enabled when its parent Activity transitions into state 
                     *  Completed. At that time, a snapshot of the data associated with the parent Acitivity is taken and kept for
                     *  later usage by the Compensation Event Sub-Process."
                     *  
@@ -566,7 +566,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             for( EventFilter filter : eventFilters ) { 
                 if( filter instanceof EventTypeFilter ) { 
                     String type = ((EventTypeFilter) filter).getType();
-                    if( type != null && type.startsWith("Compensate-") ) { 
+                    if( type != null && type.startsWith("Compensate") ) { 
                         compensationCheckPassed = true;
                     }
                 }

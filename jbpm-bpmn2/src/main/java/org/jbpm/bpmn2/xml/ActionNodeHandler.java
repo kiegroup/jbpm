@@ -88,7 +88,11 @@ public class ActionNodeHandler extends AbstractNodeHandler {
                 xmlDump.append(">" + EOL);
                 s = s.substring(43);
                 String type = s.substring(0, s.indexOf("\""));
-                xmlDump.append("      <compensateEventDefinition activityRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type.substring(11)) + "\"/>" + EOL);
+                String activityRef = "";
+                if( ! "Compensate".equals(type) ) { 
+                    activityRef = "activityRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type.substring(11)) + "\" ";
+                }
+                xmlDump.append("      <compensateEventDefinition " + activityRef + "/>" + EOL);
                 endNode("intermediateThrowEvent", xmlDump);
             } else if (s.startsWith("org.drools.core.process.instance.context.exception.ExceptionScopeInstance scopeInstance = (org.drools.core.process.instance.context.exception.ExceptionScopeInstance) ((org.drools.workflow.instance.NodeInstance) kcontext.getNodeInstance()).resolveContextInstance(org.drools.core.process.core.context.exception.ExceptionScope.EXCEPTION_SCOPE, \"")) {
                 writeNode("intermediateThrowEvent", actionNode, xmlDump, metaDataType);

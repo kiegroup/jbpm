@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.jboss.org/drools" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.omg.org/spec/BPMN/20100524/DI http://www.omg.org/spec/BPMN/20100524/DI-XMI http://www.omg.org/spec/DD/20100524/DC http://www.omg.org/spec/DD/20100524/DC-XMI http://www.omg.org/spec/DD/20100524/DI http://www.omg.org/spec/DD/20100524/DI-XMI" id="Definitions_1" expressionLanguage="http://www.mvel.org/2.0" targetNamespace="http://www.jboss.org/drools" typeLanguage="http://www.java.com/javaTypes">
 
-  <bpmn2:itemDefinition id="_xItem" structureRef="org.jbpm.bpmn2.objects.StringHolder" />
+  <bpmn2:itemDefinition id="_xItem" structureRef="String" />
   
   <bpmn2:process id="CompensateEventSubprocess" name="Default Process">
   
@@ -30,7 +30,7 @@
         <bpmn2:sequenceFlow id="SequenceFlow_3" tns:priority="1" sourceRef="CompStartEvent_2" targetRef="ScriptTask_1"/>
         
         <bpmn2:scriptTask id="ScriptTask_1" name="Script Task 1">
-          <bpmn2:script>System.out.println("Compensated"); x.setVal("true");kcontext.setVariable("x", "x");</bpmn2:script>
+          <script>kcontext.setVariable("x", Integer.toString(Integer.parseInt(kcontext.getVariable("x").toString()) + 1));</script>
         </bpmn2:scriptTask>
         <bpmn2:sequenceFlow id="SequenceFlow_4" tns:priority="1" sourceRef="ScriptTask_1" targetRef="CompEndEvent_2"/>
         
