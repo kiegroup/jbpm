@@ -216,12 +216,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	 }
 
 	 private static Object findNodeOrDataStoreByUniqueId(Definitions definitions, NodeContainer nodeContainer, final String nodeRef, String errorMsg) { 
-	     List<DataStore> dataStores = definitions.getDataStores();
-	     if( dataStores != null ) { 
-	         for( DataStore dataStore : dataStores ) { 
-	            if( nodeRef.equals(dataStore.getId()) ) { 
-	                return dataStore;
-	            }
+	     if( definitions !=  null ) { 
+	         List<DataStore> dataStores = definitions.getDataStores();
+	         if( dataStores != null ) { 
+	             for( DataStore dataStore : dataStores ) { 
+	                 if( nodeRef.equals(dataStore.getId()) ) { 
+	                     return dataStore;
+	                 }
+	             }
 	         }
 	     }
 	     return findNodeByIdOrUniqueIdInMetadata(nodeContainer, nodeRef, errorMsg);
@@ -486,7 +488,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         }
     }
     
-    private static void linkAssociations(Definitions definitions, NodeContainer nodeContainer, List<Association> associations) {
+    public static void linkAssociations(Definitions definitions, NodeContainer nodeContainer, List<Association> associations) {
         if( associations != null ) { 
             for( Association association : associations ) { 
                String sourceRef = association.getSourceRef();

@@ -93,6 +93,7 @@ public class AssociationHandler extends BaseAbstractHandler implements Handler {
 		// ...
 		//  When an Artifact is defined it is contained within a Collaboration
 		//  or a FlowElementsContainer (a Process or Choreography)."
+		// (In other words: associations must be defined intraprocess, not outside of a process) 
 		List<Association> associations = null;
 		NodeContainer nodeContainer = (NodeContainer) parser.getParent();
 		if( nodeContainer instanceof Process ) { 
@@ -107,7 +108,7 @@ public class AssociationHandler extends BaseAbstractHandler implements Handler {
            associations = (List<Association>) compositeNode.getMetaData(ASSOCIATIONS);
            if (associations == null) {
                associations = new ArrayList<Association>();
-               compositeNode.setMetaData(ProcessHandler.CONNECTIONS, associations);
+               compositeNode.setMetaData(ProcessHandler.ASSOCIATIONS, associations);
            }
 		}
 		associations.add(association);

@@ -28,7 +28,7 @@ import org.kie.api.definition.process.Connection;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.xml.sax.Attributes;
 
-public class CompositeContextNodeHandler extends AbstractNodeHandler {
+public class CompositeContextNodeHandler extends AbstractCompositeNodeHandler {
     
     protected Node createNode(Attributes attrs) {
     	throw new IllegalArgumentException("Reading in should be handled by end event handler");
@@ -74,11 +74,8 @@ public class CompositeContextNodeHandler extends AbstractNodeHandler {
     		XmlBPMNProcessDumper.INSTANCE.visitNode(subNode, xmlDump, metaDataType);
         }
         // connections
-        List<Connection> connections = getSubConnections(compositeNode);
-    	xmlDump.append("    <!-- connections -->" + EOL);
-        for (Connection connection: connections) {
-        	XmlBPMNProcessDumper.INSTANCE.visitConnection(connection, xmlDump, metaDataType);
-        }
+        visitConnectionsAndAssociations(compositeNode, xmlDump, metaDataType);
+        
 		endNode(nodeType, xmlDump);
 	}
 	
@@ -95,19 +92,4 @@ public class CompositeContextNodeHandler extends AbstractNodeHandler {
         return subNodes;
     }
     
-    protected List<Connection> getSubConnections(CompositeNode compositeNode) {
-    	List<Connection> connections = new ArrayList<Connection>();
-        for (org.kie.api.definition.process.Node subNode: compositeNode.getNodes()) {
-        	// filter out composite start and end nodes as they can be regenerated
-            if (!(subNode instanceof CompositeNode.CompositeNodeEnd)) {
-                for (Connection connection: subNode.getIncomingConnections(Node.CONNECTION_DEFAULT_TYPE)) {
-                    if (!(connection.getFrom() instanceof CompositeNode.CompositeNodeStart)) {
-                        connections.add(connection);
-                    }
-                }
-            }
-        }
-        return connections;
-    }
-
 }

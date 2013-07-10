@@ -146,25 +146,6 @@ public class CompensationTest extends JbpmBpmn2TestCase {
     }
     
     @Test
-    @Ignore
-    public void compensationViaCancellation() throws Exception {
-        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
-        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
-        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
-        
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("x", "0");
-        ProcessInstance processInstance = ksession.startProcess("CompensateIntermediateThrowEvent", params);
-
-        ksession.signalEvent("Cancel", null, processInstance.getId());
-        ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
-
-        // compensation activity (assoc. with script task) signaled *after* script task
-        assertProcessInstanceCompleted(processInstance.getId(), ksession);
-        assertProcessVarValue(processInstance, "x", "1");
-    }
-    
-    @Test
     public void orderedCompensation() throws Exception { 
         KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-ParallelOrderedCompensation-IntermediateThrowEvent.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
@@ -199,6 +180,43 @@ public class CompensationTest extends JbpmBpmn2TestCase {
         // Compensation happens in the *REVERSE* order of completion
         // Ex: if the order is 3, 17, 282, then compensation should happen in the order of 282, 17, 3
         assertEquals("Compensation did not fire in the same order as the associated activities completed.", "_171:_131:_141:_151:", xVal );
+    }
+    
+    @Test
+    public void compensationInSubSubProcesses() throws Exception {
+        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-InSubSubProcess.bpmn2");
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "0");
+        ProcessInstance processInstance = ksession.startProcess("CompensateEventSubProcess", params);
+
+        ksession.signalEvent("Compensate", null, processInstance.getId());
+        ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
+
+        // compensation activity (assoc. with script task) signaled *after* script task
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertProcessVarValue(processInstance, "x", "1");
+    }
+    
+    @Test
+    @Ignore
+    public void compensationViaCancellation() throws Exception {
+        KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-IntermediateThrowEvent.bpmn2");
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", "0");
+        ProcessInstance processInstance = ksession.startProcess("CompensateIntermediateThrowEvent", params);
+
+        ksession.signalEvent("Cancel", null, processInstance.getId());
+        ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
+
+        // compensation activity (assoc. with script task) signaled *after* script task
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertProcessVarValue(processInstance, "x", "1");
     }
     
 }

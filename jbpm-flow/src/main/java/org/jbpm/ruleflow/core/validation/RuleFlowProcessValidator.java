@@ -22,12 +22,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 import org.drools.core.RuntimeDroolsException;
 import org.drools.core.process.core.Work;
 import org.drools.core.process.core.datatype.DataType;
 import org.drools.core.process.core.datatype.impl.type.ObjectDataType;
 import org.drools.core.time.TimeUtils;
 import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.timer.DateTimeUtils;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.process.core.validation.ProcessValidationError;
@@ -74,6 +76,8 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class RuleFlowProcessValidator implements ProcessValidator {
+    
+    public static final String ASSOCIATIONS = "BPMN.Associations";
     
     // TODO: make this pluggable
     // TODO: extract generic process stuff and generic workflow stuff
@@ -284,6 +288,7 @@ public class RuleFlowProcessValidator implements ProcessValidator {
             } else if (node instanceof ActionNode) {
                 final ActionNode actionNode = (ActionNode) node;
                 if (actionNode.getFrom() == null && !acceptsNoIncomingConnections(node)) {
+                    // OCRAM
                     errors.add(new ProcessValidationErrorImpl(process,
                         "Action node '" + node.getName() + "' [" + node.getId() + "] has no incoming connection."));
                 }
@@ -417,6 +422,32 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                             "Composite node '" + node.getName() + "' [" + node.getId() + "] has invalid linked outgoing node for type " + outType.getKey()));
                 	}
                 }
+                if( node instanceof EventSubProcessNode ) { 
+                   if( node.getIncomingConnections().size() > 0 ) {
+                       errors.add(new ProcessValidationErrorImpl(process, 
+                               "Event subprocess '" + node.getName() + "' [" + node.getId() + "] is not allowed to have any incoming connections." ));
+                   }
+                   if( node.getOutgoingConnections().size() > 0 ) { 
+                       errors.add(new ProcessValidationErrorImpl(process, 
+                               "Event subprocess '" + node.getName() + "' [" + node.getId() + "] is not allowed to have any outgoing connections." ));
+                   }
+                   Node [] eventSubProcessNodes = compositeNode.getNodes();
+                   int startEventCount = 0;
+                   for( int j = 0; j < eventSubProcessNodes.length; ++j ) { 
+                       if( eventSubProcessNodes[j] instanceof StartNode ) { 
+                           StartNode startNode = (StartNode) eventSubProcessNodes[j];
+                           if( ++startEventCount == 2 ) { 
+                               errors.add(new ProcessValidationErrorImpl(process, 
+                                       "Event subprocess '" + node.getName() + "' [" + node.getId() + "] is not allowed to have more than one start node." ));
+                           }
+                           if( startNode.getTriggers() == null || startNode.getTriggers().isEmpty() ) { 
+                               errors.add(new ProcessValidationErrorImpl(process, 
+                                       "Start node '" + startNode.getName() + "' [" + startNode.getId() + "] in Event SubProcess '" + node.getName() + "' [" + node.getId() + "] must contain a trigger (event definition)." ));
+                           }
+                       }
+                   }
+                   
+                }
                 validateNodes(compositeNode.getNodes(), errors, process);
             } else if (node instanceof EventNode) {
                 final EventNode eventNode = (EventNode) node;
@@ -425,8 +456,22 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                         "Event node '" + node.getName() + "' [" + node.getId() + "] should specify an event type"));
                 }
                 if (eventNode.getDefaultOutgoingConnections().size() == 0) {
-                    errors.add(new ProcessValidationErrorImpl(process,
-                        "Event node '" + node.getName() + "' [" + node.getId() + "] has no outgoing connection"));
+                    List<EventFilter> eventFilters = eventNode.getEventFilters();
+                    boolean compensationHandler = false;
+                    for( EventFilter eventFilter : eventFilters ) { 
+                        if( eventFilter.acceptsEvent("Compensate", null) ) {
+                            compensationHandler = true;
+                            break;
+                        }
+                    }
+                    if( ! compensationHandler ) { 
+                        errors.add(new ProcessValidationErrorImpl(process,
+                                "Event node '" + node.getName() + "' [" + node.getId() + "] has no outgoing connection"));
+                    } else { 
+                        boolean associationForEventFound = false;
+                        NodeContainer nodeContainer = eventNode.getNodeContainer();
+                        Object obj = process.getMetaData(ASSOCIATIONS);
+                    }
                 }
             } else if (node instanceof FaultNode) {
             	endNodeFound = true;
@@ -459,12 +504,11 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                     // catchlink validation here, there also are validations in
                     // ProcessHandler regarding connection issues
             }
-
             else if (node instanceof ThrowLinkNode) {
                     // throw validation here, there also are validations in
                     // ProcessHandler regarding connection issues
             }
-             else {
+            else {
             	errors.add(new ProcessValidationErrorImpl(process,
                     "Unknown node type '" + node.getClass().getName() + "'"));
             }
