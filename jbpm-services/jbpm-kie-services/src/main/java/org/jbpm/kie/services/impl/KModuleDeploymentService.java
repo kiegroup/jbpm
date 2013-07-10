@@ -1,19 +1,5 @@
 package org.jbpm.kie.services.impl;
 
-import static org.kie.scanner.MavenRepository.getMavenRepository;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.BeanManager;
-import javax.inject.Inject;
-import javax.persistence.EntityManagerFactory;
-
 import org.apache.commons.codec.binary.Base64;
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
 import org.drools.compiler.kie.builder.impl.KieContainerImpl;
@@ -31,17 +17,32 @@ import org.jbpm.runtime.manager.impl.cdi.InjectableRegisterableItemsFactory;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
+import org.kie.api.builder.model.KieBaseModel;
 import org.kie.api.runtime.KieContainer;
 import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.artifact.Artifact;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.spi.BeanManager;
+import javax.inject.Inject;
+import javax.persistence.EntityManagerFactory;
+import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.kie.scanner.MavenRepository.getMavenRepository;
 
 @ApplicationScoped
 @Kjar
 public class KModuleDeploymentService extends AbstractDeploymentService {
 
     private static Logger logger = LoggerFactory.getLogger(KModuleDeploymentService.class);
+    
+    private static final String DEFAULT_KBASE_NAME = "defaultKieBase";
 
     @Inject
     private BeanManager beanManager;
@@ -62,16 +63,24 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
         DeployedUnitImpl deployedUnit = new DeployedUnitImpl(unit);
         KieServices ks = KieServices.Factory.get();
         MavenRepository repository = getMavenRepository();
-        Artifact artifact = repository.resolveArtifact(kmoduleUnit.getIdentifier());
+        repository.resolveArtifact(kmoduleUnit.getIdentifier());
 
         ReleaseId releaseId = ks.newReleaseId(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion());
         KieContainer kieContainer = ks.newKieContainer(releaseId);
 
         String kbaseName = kmoduleUnit.getKbaseName();
         if (StringUtils.isEmpty(kbaseName)) {
-            kbaseName = ((KieContainerImpl)kieContainer).getKieProject().getDefaultKieBaseModel().getName();
+            KieBaseModel defaultKBaseModel = ((KieContainerImpl)kieContainer).getKieProject().getDefaultKieBaseModel();
+            if (defaultKBaseModel != null) {
+                kbaseName = defaultKBaseModel.getName();
+            } else {
+                kbaseName = DEFAULT_KBASE_NAME;
+            }
         }
         InternalKieModule module = (InternalKieModule) ((KieContainerImpl)kieContainer).getKieModuleForKBase(kbaseName);
+        if (module == null) {
+            throw new IllegalStateException("Cannot find kbase with name " + kbaseName);
+        }
 
         Map<String, String> formsData = new HashMap<String, String>();
         Collection<String> files = module.getFileNames();
@@ -104,19 +113,20 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
             } else if (fileName.matches(".+form$")) {
                 try {
                     String formContent = new String(module.getBytes(fileName), "UTF-8");
-                    formsData.put(fileName, formContent);
+                    Pattern regex = Pattern.compile("(.{0}|.*/)([^/]*?)\\.form");
+                    Matcher m = regex.matcher(fileName);
+                    String key = fileName;
+                    while (m.find()) {
+                        key = m.group(2);
+                    }
+                    formsData.put(key+".form", formContent);
                 } catch (UnsupportedEncodingException e) {
                     logger.warn("Unable to load content for form '" + fileName + "': ", e);
                 }
             }
         }
 
-        KieBase kbase = null;
-        if (StringUtils.isEmpty(kmoduleUnit.getKbaseName())) {
-            kbase = kieContainer.getKieBase();
-        } else {
-            kbase = kieContainer.getKieBase(kmoduleUnit.getKbaseName());
-        }
+        KieBase kbase = kieContainer.getKieBase(kbaseName);        
 
         AbstractAuditLogger auditLogger = AuditLoggerFactory.newJPAInstance(emf);
         ServicesAwareAuditEventBuilder auditEventBuilder = new ServicesAwareAuditEventBuilder();
