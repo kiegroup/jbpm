@@ -41,7 +41,7 @@
       
           <endEvent id="_C-3" name="End 3" />
       
-          <!-- attached to node _2 (Task) -->    
+          <!-- attached to node (Task) -->    
           <boundaryEvent id="_X-1" name="Boundary Compensate 3" attachedToRef="_C-2" >
             <compensateEventDefinition/>
           </boundaryEvent>
@@ -64,7 +64,7 @@
           
         <endEvent id="_B-5" name="End 2" />
         
-        <!-- attached to node _2 (Task) -->    
+        <!-- attached to node (Task) -->    
         <boundaryEvent id="_Y-1" name="Boundary Compensate 2" attachedToRef="_B-4" >
           <compensateEventDefinition/>
         </boundaryEvent>
@@ -78,10 +78,10 @@
           
       <endEvent id="_A-3" name="End 2" />
     </subProcess>
-    <sequenceFlow id="_2" name="" sourceRef="_2" targetRef="_3"/>
+    <sequenceFlow id="_2-_3" name="" sourceRef="_2" targetRef="_3"/>
     
     <userTask id="_3" name="User Task 0" />
-    <sequenceFlow id="_3" tns:priority="1" sourceRef="_3" targetRef="_4"/>
+    <sequenceFlow id="_3-_4" tns:priority="1" sourceRef="_3" targetRef="_4"/>
           
     <intermediateThrowEvent id="_4" name="Throw General Compensate" >
       <compensateEventDefinition />

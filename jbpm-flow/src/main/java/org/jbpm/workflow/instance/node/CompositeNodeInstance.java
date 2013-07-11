@@ -261,9 +261,11 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 						List<NodeInstance> nodeInstances = getNodeInstances(node.getId());
 						if (nodeInstances != null && !nodeInstances.isEmpty()) {
 							for (NodeInstance nodeInstance : nodeInstances) {
-								((EventNodeInstanceInterface) nodeInstance)
-										.signalEvent(type, event);
+								((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 							}
+						} else { 
+                            CompositeNodeInstance nodeInstance = (CompositeNodeInstance) getNodeInstance(node);
+						    ((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 						}
 					}
 				}

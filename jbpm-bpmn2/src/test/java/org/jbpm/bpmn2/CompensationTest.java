@@ -193,6 +193,9 @@ public class CompensationTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("CompensateEventSubProcess", params);
 
         ksession.signalEvent("Compensate", null, processInstance.getId());
+        
+        ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
+        ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
 
         // compensation activity (assoc. with script task) signaled *after* script task

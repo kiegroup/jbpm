@@ -39,26 +39,8 @@ import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.WorkflowProcess;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.NodeImpl;
-import org.jbpm.workflow.core.node.ActionNode;
-import org.jbpm.workflow.core.node.CatchLinkNode;
-import org.jbpm.workflow.core.node.CompositeNode;
+import org.jbpm.workflow.core.node.*;
 import org.jbpm.workflow.core.node.CompositeNode.NodeAndType;
-import org.jbpm.workflow.core.node.DynamicNode;
-import org.jbpm.workflow.core.node.EndNode;
-import org.jbpm.workflow.core.node.EventNode;
-import org.jbpm.workflow.core.node.EventSubProcessNode;
-import org.jbpm.workflow.core.node.FaultNode;
-import org.jbpm.workflow.core.node.ForEachNode;
-import org.jbpm.workflow.core.node.Join;
-import org.jbpm.workflow.core.node.MilestoneNode;
-import org.jbpm.workflow.core.node.RuleSetNode;
-import org.jbpm.workflow.core.node.Split;
-import org.jbpm.workflow.core.node.StartNode;
-import org.jbpm.workflow.core.node.StateNode;
-import org.jbpm.workflow.core.node.SubProcessNode;
-import org.jbpm.workflow.core.node.ThrowLinkNode;
-import org.jbpm.workflow.core.node.TimerNode;
-import org.jbpm.workflow.core.node.WorkItemNode;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
@@ -288,7 +270,6 @@ public class RuleFlowProcessValidator implements ProcessValidator {
             } else if (node instanceof ActionNode) {
                 final ActionNode actionNode = (ActionNode) node;
                 if (actionNode.getFrom() == null && !acceptsNoIncomingConnections(node)) {
-                    // OCRAM
                     errors.add(new ProcessValidationErrorImpl(process,
                         "Action node '" + node.getName() + "' [" + node.getId() + "] has no incoming connection."));
                 }
@@ -456,6 +437,9 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                         "Event node '" + node.getName() + "' [" + node.getId() + "] should specify an event type"));
                 }
                 if (eventNode.getDefaultOutgoingConnections().size() == 0) {
+                    errors.add(new ProcessValidationErrorImpl(process,
+                            "Event node '" + node.getName() + "' [" + node.getId() + "] has no outgoing connection"));
+                } else { 
                     List<EventFilter> eventFilters = eventNode.getEventFilters();
                     boolean compensationHandler = false;
                     for( EventFilter eventFilter : eventFilters ) { 
@@ -464,13 +448,16 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                             break;
                         }
                     }
-                    if( ! compensationHandler ) { 
-                        errors.add(new ProcessValidationErrorImpl(process,
-                                "Event node '" + node.getName() + "' [" + node.getId() + "] has no outgoing connection"));
-                    } else { 
-                        boolean associationForEventFound = false;
-                        NodeContainer nodeContainer = eventNode.getNodeContainer();
-                        Object obj = process.getMetaData(ASSOCIATIONS);
+                    if( compensationHandler && eventNode instanceof BoundaryEventNode) { 
+                        Connection connection = eventNode.getDefaultOutgoingConnections().get(0);
+                        Boolean isAssociation = (Boolean) connection.getMetaData().get("association");
+                        if( isAssociation == null ) { 
+                            isAssociation = false;
+                        }
+                        if( ! (eventNode.getDefaultOutgoingConnections().size() == 1 && connection != null && isAssociation) ) {
+                            errors.add(new ProcessValidationErrorImpl(process,
+                                    "Compensation Boundary Event node '" + node.getName() + "' [" + node.getId() + "] is only allowed to have 1 association to 1 compensation activity."));
+                        } 
                     }
                 }
             } else if (node instanceof FaultNode) {

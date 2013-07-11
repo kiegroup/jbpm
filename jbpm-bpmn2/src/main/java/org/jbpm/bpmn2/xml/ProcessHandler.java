@@ -526,6 +526,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                    ConnectionImpl connection = new ConnectionImpl(sourceNode, NodeImpl.CONNECTION_DEFAULT_TYPE, targetNode, NodeImpl.CONNECTION_DEFAULT_TYPE);
                    connection.setMetaData("UniqueId", null);
                    connection.setMetaData("hidden", true );
+                   connection.setMetaData("association", true );
                    
                    // Compensation use cases: 
                    // - boundary event --associated-> activity
@@ -536,13 +537,6 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                     *   "A Compensation Event Sub-process becomes enabled when its parent Activity transitions into state 
                     *  Completed. At that time, a snapshot of the data associated with the parent Acitivity is taken and kept for
                     *  later usage by the Compensation Event Sub-Process."
-                    *  
-                    *  mriet says: 
-                    *    1. Basically, Compensation Event Sub-Processes may only occur in other SubProcesses. 
-                    *    and 
-                    *    2. The fact that we a. need a snapshot, b. need to track completion (and order of completion) 
-                    *    makes me think that we need a "CompensationHandler" class/construct instead of simply using the existing
-                    *    event/flow mechanisms to deal with compensation. 
                     */
                }
             }
