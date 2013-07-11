@@ -178,19 +178,21 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	}
 
 	public NodeInstance getNodeInstance(final Node node) {
-		NodeInstanceFactory conf = NodeInstanceFactoryRegistry.getInstance(getKnowledgeRuntime().getEnvironment()).getProcessNodeInstanceFactory(node);
+	    return getNodeInstance(node, this, this);
+	}
+	
+	public static NodeInstance getNodeInstance(final Node node, 
+	        WorkflowProcessInstance processInstance, NodeInstanceContainer nodeInstanceContainer) { 
+		NodeInstanceFactory conf = NodeInstanceFactoryRegistry.getInstance(processInstance.getKnowledgeRuntime().getEnvironment()).getProcessNodeInstanceFactory(node);
 		if (conf == null) {
-			throw new IllegalArgumentException("Illegal node type: "
-					+ node.getClass());
+			throw new IllegalArgumentException("Illegal node type: " + node.getClass());
 		}
-		NodeInstanceImpl nodeInstance = (NodeInstanceImpl) conf
-				.getNodeInstance(node, this, this);
+		NodeInstanceImpl nodeInstance = (NodeInstanceImpl) conf.getNodeInstance(node, processInstance, nodeInstanceContainer);
 		if (nodeInstance == null) {
-			throw new IllegalArgumentException("Illegal node type: "
-					+ node.getClass());
+			throw new IllegalArgumentException("Illegal node type: " + node.getClass());
 		}
 		if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
-			getKnowledgeRuntime().insert(nodeInstance);
+			processInstance.getKnowledgeRuntime().insert(nodeInstance);
 		}
 		return nodeInstance;
 	}
@@ -399,38 +401,97 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 					listener.signalEvent(type, event);
 				}
 			}
+			
+			boolean orderedCompensation = "Compensate".equals(type);
+			final Set<EventNodeInstanceInterface> doNotSignalNodes = new HashSet<EventNodeInstanceInterface>();
+			Set<EventNodeInstanceInterface> toSignalNodes = new TreeSet<EventNodeInstanceInterface>(new Comparator<EventNodeInstanceInterface>() {
+			    public int compare(EventNodeInstanceInterface a, EventNodeInstanceInterface b) {
+			        String aId = (String) ((NodeInstance) a).getNode().getMetaData().get("AttachedTo");
+			        String bId = (String) ((NodeInstance) b).getNode().getMetaData().get("AttachedTo");
+			        // .indexOf() will return -1 if it's not present
+			        Integer aOrder = completedNodeIds.indexOf(aId.intern());
+			        Integer bOrder = completedNodeIds.indexOf(bId.intern());
+			       
+			        // -1 (not completed) should be placed last
+		            if( aOrder == bOrder ) { 
+		                if( aOrder == -1 ) { 
+		                    doNotSignalNodes.add(a);
+		                    doNotSignalNodes.add(b);
+		                }
+		                return 0;
+		            } else if( aOrder == -1 ) { 
+		                doNotSignalNodes.add(a);
+		                return 1;
+		            } else if( bOrder == -1 ) { 
+		                doNotSignalNodes.add(b);
+		                return -1;
+		            }
+		            
+		            // reverse
+		            return bOrder.compareTo(aOrder);
+			    }
+			});
+
+			Set<EventNodeInstanceInterface> innerEventNodeInstances = new HashSet<EventNodeInstanceInterface>();
 			for (Node node : getWorkflowProcess().getNodes()) {
-				if (node instanceof EventNodeInterface) {
-					if (((EventNodeInterface) node).acceptsEvent(type, event)) {
-					    boolean eventFired = false;
-						if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
-							EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
-							eventNodeInstance.signalEvent(type, event);
-							eventFired = true;
-						} else if (node instanceof EventSubProcessNode ) {
-						    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
-                            eventNodeInstance.signalEvent(type, event);
-							eventFired = true;
-						} else if(node instanceof CompositeNode ) { 
-						   EventSubProcessNode espNode = findEventSubProcessNode(((CompositeNode) node).getNodes());
-						   if( espNode != null ) { 
-						       EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(espNode);
-						       eventNodeInstance.signalEvent(type, event);
-						       eventFired = true;
-						   }
-                        } 
-						
-						if( ! eventFired ) { 
-							List<NodeInstance> nodeInstances = getNodeInstances(node.getId());
-							if (nodeInstances != null && !nodeInstances.isEmpty()) {
-								for (NodeInstance nodeInstance : nodeInstances) {
-									((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
-								}
-							}
-						}
-					}
-				}
+		        if (node instanceof EventNodeInterface) {
+		            if (((EventNodeInterface) node).acceptsEvent(type, event)) {
+		                if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
+		                    EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
+		                    if( orderedCompensation ) { 
+		                        toSignalNodes.add((EventNodeInstanceInterface) eventNodeInstance);
+		                    } else { 
+		                        eventNodeInstance.signalEvent(type, event);
+		                    }
+		                } else if (node instanceof EventSubProcessNode ) {
+		                    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
+		                    if( orderedCompensation ) { 
+		                        toSignalNodes.add(eventNodeInstance);
+		                    } else { 
+		                        eventNodeInstance.signalEvent(type, event);
+		                    }
+		                } else if(node instanceof CompositeNode ) { 
+		                    EventSubProcessNode espNode = findEventSubProcessNode(((CompositeNode) node).getNodes());
+		                    if( espNode != null ) { 
+		                        EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(espNode);
+		                        if( orderedCompensation ) { 
+		                            toSignalNodes.add(eventNodeInstance);
+		                        } else { 
+		                            eventNodeInstance.signalEvent(type, event);
+		                        }
+		                    } 
+		                    else { 
+		                        List<EventNodeInstanceInterface> eventNodeInstances
+		                            = findEventNodeInstancesInCompositeNode(this, this.nodeInstances, (CompositeNode) node, 
+		                                    type, event);
+		                        if( orderedCompensation ) { 
+		                            toSignalNodes.addAll(eventNodeInstances);
+		                        } else { 
+		                            innerEventNodeInstances.addAll(eventNodeInstances);
+		                        }
+		                    }
+		                }
+		            }
+		        }
 			}
+			for( EventNodeInstanceInterface eventNodeInstance : innerEventNodeInstances ) { 
+			    eventNodeInstance.signalEvent(type, event);
+			}
+			
+			if( orderedCompensation ) { 
+			    toSignalNodes.removeAll(doNotSignalNodes);
+			    // signal node instances according to order
+			    for( EventNodeInstanceInterface orderedNodeInst : toSignalNodes ) {
+			        orderedNodeInst.signalEvent(type, event);
+			        if( orderedNodeInst instanceof CompositeNodeInstance ) { 
+			            
+			        }
+			    }
+			    for( EventNodeInstanceInterface unsignaledNode : doNotSignalNodes ) { 
+			        ((NodeInstance) unsignaledNode).cancel();
+			    }
+			}
+
 			if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
 				for (Node node : getWorkflowProcess().getNodes()) {
 					if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
@@ -443,6 +504,83 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		}
 	}
 
+	public static List<EventNodeInstanceInterface> findEventNodeInstancesInCompositeNode(WorkflowProcessInstance processInstance,
+	        List<NodeInstance> nodeInstances, CompositeNode compositeNode, 
+	        String type, Object event) { 
+	    List<EventNodeInstanceInterface> nodeInstancesToSignal = new ArrayList<EventNodeInstanceInterface>();
+	   
+	    // list of all possible nodes in composite node
+	    List<Node> possibleEventNodes = new ArrayList<Node>();
+	    possibleEventNodes.addAll(Arrays.asList(compositeNode.getNodes()));
+	    // list of nodes that accept the event
+	    List<Node> acceptsEventNodes = new ArrayList<Node>();
+	    
+	    for( int i = 0; i < possibleEventNodes.size(); ++i ) { 
+	        Node node = possibleEventNodes.get(i); 
+	        // if it accepts the event, add it to acceptsEventNodes
+	        if( node instanceof EventNode || node instanceof EventSubProcessNode ) { 
+	            if( ((EventNodeInterface) node).acceptsEvent(type, event) ) { 
+	                acceptsEventNodes.add(node);
+	            }
+	        } 
+	        // add sub nodes of any composite nodes we run into
+	        if( node instanceof CompositeNode ) { 
+	            CompositeNode innerCompNode = (CompositeNode) possibleEventNodes.get(i);
+	            possibleEventNodes.addAll(Arrays.asList(innerCompNode.getNodes()));
+	        } 
+	        // else ignore the node
+	    }
+	    
+	    // Get the (existing) NodeInstance if it exists for a Node
+	    for( NodeInstance nodeInstance : nodeInstances ) { 
+	        String nodeInstUniqueId = (String) nodeInstance.getNode().getMetaData().get("UniqueId");
+	        Iterator<Node> iter = acceptsEventNodes.iterator();
+	        while( iter.hasNext() ) { 
+	            if( nodeInstUniqueId.equals(iter.next().getMetaData().get("UniqueId")) ) {
+	                nodeInstancesToSignal.add((EventNodeInstanceInterface) nodeInstance);
+	                iter.remove();
+	            }
+	        }
+	    }
+
+	    for( Node node : acceptsEventNodes ) { 
+	        NodeInstanceContainer nodeInstanceContainer = getNodeInstanceContainer(node.getNodeContainer(), processInstance);
+	        EventNodeInstanceInterface eventNodeInstance 
+	            = (EventNodeInstanceInterface) getNodeInstance(node, processInstance, nodeInstanceContainer);
+	        nodeInstancesToSignal.add(eventNodeInstance);
+	    }
+
+	    return nodeInstancesToSignal;
+	} 
+	
+	private static NodeInstanceContainer getNodeInstanceContainer(NodeContainer nodeContainer, WorkflowProcessInstance processInstance) {
+	    if( nodeContainer == processInstance ) { 
+	        return processInstance;
+	    }
+	    String nodeInstUniqueId = (String) ((CompositeNode) nodeContainer).getMetaData("UniqueId");
+	    Queue<NodeInstanceContainer> nodeInstanceContainerQueue = new LinkedList<NodeInstanceContainer>();
+	    for( org.kie.api.runtime.process.NodeInstance nodeInstance : processInstance.getNodeInstances() ) { 
+	        if( nodeInstance instanceof NodeInstanceContainer ) { 
+	            nodeInstanceContainerQueue.add((NodeInstanceContainer) nodeInstance);
+	        }
+	    }
+	    while( ! nodeInstanceContainerQueue.isEmpty() ) { 
+	        NodeInstanceContainer nodeInstContainer = nodeInstanceContainerQueue.poll();
+	        String uniqueId = (String) ((NodeInstanceImpl) nodeInstContainer).getMetaData("UniqueId");
+	        if( nodeInstUniqueId.equals(uniqueId) ) { 
+	            return nodeInstContainer;
+	        }
+	        for( org.kie.api.runtime.process.NodeInstance nodeInstance : nodeInstContainer.getNodeInstances() ) { 
+	            if( nodeInstance instanceof NodeInstanceContainer ) { 
+	                nodeInstanceContainerQueue.add((NodeInstanceContainer) nodeInstance);
+	            }
+	        }
+	    }
+	    
+	    // TODO: create parent node instance recursively. 
+	    return null;
+	}
+	
 	private EventSubProcessNode findEventSubProcessNode(Node [] nodes) { 
         for( Node node : nodes ) { 
             if( node instanceof EventSubProcessNode ) {
@@ -554,7 +692,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	}
 	
 	public void addCompletedNodeId(String uniqueId) { 
-	    this.completedNodeIds.add(uniqueId);
+	    this.completedNodeIds.add(uniqueId.intern());
 	}
 	
 	public List<String> getCompletedNodeIds() { 

@@ -212,7 +212,7 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
     	xmlDump.append("/>" + EOL);
 	}
     
-    private void visitAssociation(Association association, StringBuilder xmlDump) {
+    public void visitAssociation(Association association, StringBuilder xmlDump) {
     	xmlDump.append("    <association id=\"" + association.getId() + "\" ");
     	xmlDump.append(" sourceRef=\"" + association.getSourceRef() + "\" ");
     	xmlDump.append(" targetRef=\"" + association.getTargetRef() + "\" ");

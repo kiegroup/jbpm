@@ -19,6 +19,8 @@ package org.jbpm.bpmn2.xml;
 import java.util.List;
 
 import org.drools.core.xml.ExtensibleXmlParser;
+import org.jbpm.bpmn2.core.Association;
+import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.IntermediateLink;
 import org.jbpm.bpmn2.core.SequenceFlow;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -103,13 +105,17 @@ public class SubProcessHandler extends AbstractNodeHandler {
     	CompositeContextNode compositeNode = (CompositeContextNode) node;
     	List<SequenceFlow> connections = (List<SequenceFlow>)
 			compositeNode.getMetaData(ProcessHandler.CONNECTIONS);
-    	ProcessHandler.linkConnections(compositeNode, connections);
     	
-    	List<IntermediateLink> throwLinks = (List<IntermediateLink>) compositeNode
-		.getMetaData(ProcessHandler.LINKS);
+    	List<IntermediateLink> throwLinks = (List<IntermediateLink>) compositeNode.getMetaData(ProcessHandler.LINKS);
     	ProcessHandler.linkIntermediateLinks(compositeNode, throwLinks);	
     	
+    	ProcessHandler.linkConnections(compositeNode, connections);
     	ProcessHandler.linkBoundaryEvents(compositeNode);
+    	
+        // This must be done *after* linkConnections(process, connections)
+        //  because it adds hidden connections for compensations
+        List<Association> associations = (List<Association>) compositeNode.getMetaData(ProcessHandler.ASSOCIATIONS);
+        ProcessHandler.linkAssociations((Definitions) compositeNode.getMetaData("Definitions"), compositeNode, associations);
     }
     
     @SuppressWarnings("unchecked")
@@ -135,6 +141,11 @@ public class SubProcessHandler extends AbstractNodeHandler {
 			forEachNode.getMetaData(ProcessHandler.CONNECTIONS);
     	ProcessHandler.linkConnections(forEachNode, connections);
     	ProcessHandler.linkBoundaryEvents(forEachNode);
+    	
+        // This must be done *after* linkConnections(process, connections)
+        //  because it adds hidden connections for compensations
+        List<Association> associations = (List<Association>) forEachNode.getMetaData(ProcessHandler.ASSOCIATIONS);
+        ProcessHandler.linkAssociations((Definitions) forEachNode.getMetaData("Definitions"), forEachNode, associations);
     }    
 
 

@@ -216,12 +216,14 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 	 }
 
 	 private static Object findNodeOrDataStoreByUniqueId(Definitions definitions, NodeContainer nodeContainer, final String nodeRef, String errorMsg) { 
-	     List<DataStore> dataStores = definitions.getDataStores();
-	     if( dataStores != null ) { 
-	         for( DataStore dataStore : dataStores ) { 
-	            if( nodeRef.equals(dataStore.getId()) ) { 
-	                return dataStore;
-	            }
+	     if( definitions !=  null ) { 
+	         List<DataStore> dataStores = definitions.getDataStores();
+	         if( dataStores != null ) { 
+	             for( DataStore dataStore : dataStores ) { 
+	                 if( nodeRef.equals(dataStore.getId()) ) { 
+	                     return dataStore;
+	                 }
+	             }
 	         }
 	     }
 	     return findNodeByIdOrUniqueIdInMetadata(nodeContainer, nodeRef, errorMsg);
@@ -260,7 +262,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                 if (source instanceof EventNode) {
                     for (EventFilter eventFilter : ((EventNode) source).getEventFilters()) {
                         if (eventFilter instanceof EventTypeFilter) {
-                            if ("Compensate-".equals(((EventTypeFilter) eventFilter).getType())) {
+                            if ("Compensate".equals(((EventTypeFilter) eventFilter).getType())) {
                                 // While this isn't explicitly stated in the spec,
                                 // BPMN Method & Style, 2nd Ed. (Silver), states this on P. 131
                                 throw new IllegalArgumentException(
@@ -321,7 +323,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                         linkBoundaryErrorEvent(nodeContainer, node, attachedTo, attachedNode);
                     } else if (type.startsWith("Timer-")) {
                        linkBoundaryTimerEvent(nodeContainer, node, attachedTo, attachedNode);
-                    } else if (type.startsWith("Compensate-")) {
+                    } else if (type.startsWith("Compensate")) {
                         linkBoundaryCompensationEvent(nodeContainer, node, attachedTo, attachedNode);
                     } else if (node.getMetaData().get("SignalName") != null || type.startsWith("Message-")) {
                         linkBoundarySignalEvent(nodeContainer, node, attachedTo, attachedNode);
@@ -486,7 +488,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         }
     }
     
-    private static void linkAssociations(Definitions definitions, NodeContainer nodeContainer, List<Association> associations) {
+    public static void linkAssociations(Definitions definitions, NodeContainer nodeContainer, List<Association> associations) {
         if( associations != null ) { 
             for( Association association : associations ) { 
                String sourceRef = association.getSourceRef();
@@ -524,6 +526,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                    ConnectionImpl connection = new ConnectionImpl(sourceNode, NodeImpl.CONNECTION_DEFAULT_TYPE, targetNode, NodeImpl.CONNECTION_DEFAULT_TYPE);
                    connection.setMetaData("UniqueId", null);
                    connection.setMetaData("hidden", true );
+                   connection.setMetaData("association", true );
                    
                    // Compensation use cases: 
                    // - boundary event --associated-> activity
@@ -531,16 +534,9 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                    
                    /** 
                     * BPMN2 spec, p.442: 
-                    *   "A Compensation Event Sub-process becomes enabled when its parent Activity transitions into state u
+                    *   "A Compensation Event Sub-process becomes enabled when its parent Activity transitions into state 
                     *  Completed. At that time, a snapshot of the data associated with the parent Acitivity is taken and kept for
                     *  later usage by the Compensation Event Sub-Process."
-                    *  
-                    *  mriet says: 
-                    *    1. Basically, Compensation Event Sub-Processes may only occur in other SubProcesses. 
-                    *    and 
-                    *    2. The fact that we a. need a snapshot, b. need to track completion (and order of completion) 
-                    *    makes me think that we need a "CompensationHandler" class/construct instead of simply using the existing
-                    *    event/flow mechanisms to deal with compensation. 
                     */
                }
             }
@@ -566,7 +562,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             for( EventFilter filter : eventFilters ) { 
                 if( filter instanceof EventTypeFilter ) { 
                     String type = ((EventTypeFilter) filter).getType();
-                    if( type != null && type.startsWith("Compensate-") ) { 
+                    if( type != null && type.startsWith("Compensate") ) { 
                         compensationCheckPassed = true;
                     }
                 }

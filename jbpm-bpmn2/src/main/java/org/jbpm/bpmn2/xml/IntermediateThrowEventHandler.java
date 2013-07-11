@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.core.rule.builder.dialect.asm.GeneratorHelper.GetMethodBytecodeMethod;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.IntermediateLink;
@@ -302,20 +303,32 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 		while (xmlNode != null) {
 			String nodeName = xmlNode.getNodeName();
 			if ("compensateEventDefinition".equals(nodeName)) {
-				String activityRef = ((Element) xmlNode)
-						.getAttribute("activityRef");
+				String activityRef = ((Element) xmlNode).getAttribute("activityRef");
 				if (activityRef != null && activityRef.trim().length() > 0) {
 					actionNode.setMetaData("Compensate", activityRef);
 					actionNode.setAction(new DroolsConsequenceAction("java",
-							"kcontext.getProcessInstance().signalEvent(\"Compensate-"
-									+ activityRef + "\", null);"));
+							"kcontext.getProcessInstance().signalEvent(\"Compensate-" + activityRef + "\", null);"));
+				} else { 
+				    // general compensation event
+					actionNode.setAction(new DroolsConsequenceAction("java",
+							"kcontext.getProcessInstance().signalEvent(\"Compensate\", null);"));
 				}
-				// boolean waitForCompletion = true;
-				// String waitForCompletionString = ((Element)
-				// xmlNode).getAttribute("waitForCompletion");
-				// if ("false".equals(waitForCompletionString)) {
-				// waitForCompletion = false;
-				// }
+				/**
+				 * BPMN 2.0 Spec, p. 304: 
+				 * "By default, compensation is triggered synchronously, that is the compensation throw event 
+				 *  waits for the completion of the triggered compensation handler. 
+				 *  Alternatively, compensation can be triggered without waiting for its completion, 
+				 *  by setting the throw compensation event's waitForCompletion attribute to false."
+				 */
+				boolean waitForCompletion = true;
+				String waitForCompletionString = ((Element) xmlNode).getAttribute("waitForCompletion");
+				if ("false".equalsIgnoreCase(waitForCompletionString)) {
+				    waitForCompletion = false;
+				}
+				if( ! waitForCompletion ) { 
+				    throw new IllegalArgumentException("Asynchronous compensation [" + actionNode.getMetaData().get("UniqueId") 
+				            + ", " + actionNode.getName() + "] is not yet supported!");
+				}
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}

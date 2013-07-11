@@ -176,7 +176,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                 EventTrigger trigger = new EventTrigger();
                 EventTypeFilter eventFilter = new BroadcastEventTypeFilter(); // For compensation broadcasting
                 // Full "Compensate-" event name filled in when StartEventHandler.end() is called
-                eventFilter.setType("Compensate-");
+                eventFilter.setType("Compensate");
                 trigger.addEventFilter(eventFilter);
                 
                 String mapping = (String) startNode.getMetaData("TriggerMapping");
@@ -223,7 +223,7 @@ public class StartEventHandler extends AbstractNodeHandler {
                   List<EventFilter> eventFilters = ((EventTrigger) trigger).getEventFilters();
                   for( EventFilter filter : eventFilters ) { 
                      if( filter instanceof EventTypeFilter 
-                         && ((EventTypeFilter) filter).getType().equals("Compensate-") ) { 
+                         && ((EventTypeFilter) filter).getType().equals("Compensate") ) { 
                          compensationEventFilter = (EventTypeFilter) filter;
                          compensationStartEvent = true;
                          break CHECK_COMPENSATION;
@@ -239,8 +239,8 @@ public class StartEventHandler extends AbstractNodeHandler {
                EventSubProcessNode eventSubProcessNode = (EventSubProcessNode) nodeContainer;
                String id = (String) eventSubProcessNode.getMetaData("UniqueId");
                String typeSpecificSuffix = compensationEventFilter.getType() + id;
-               typeSpecificSuffix = typeSpecificSuffix.replaceFirst("Compensate-", "");
-               ((BroadcastEventTypeFilter) compensationEventFilter).setType("Compensate-", typeSpecificSuffix);
+               typeSpecificSuffix = typeSpecificSuffix.replaceFirst("Compensate", "");
+               ((BroadcastEventTypeFilter) compensationEventFilter).setType("Compensate", "-" + typeSpecificSuffix);
            } else { 
                throw new IllegalArgumentException("Only Event Sub-Processes may contain a Start Compensation Event.");
            }

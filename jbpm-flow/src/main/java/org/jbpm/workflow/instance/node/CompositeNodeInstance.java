@@ -91,7 +91,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
                 List<String> events = ((EventSubProcessNode) node).getEvents();
                 for (String type : events) {
                     //exclude compensation as they are only valid within process instance scope
-                    if (type.startsWith("Compensate-")) {
+                    if (type.startsWith("Compensate")) {
                         continue;
                     }
                     getProcessInstance().addEventListener(type, new DoNothingEventListener(), true);
@@ -261,9 +261,11 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 						List<NodeInstance> nodeInstances = getNodeInstances(node.getId());
 						if (nodeInstances != null && !nodeInstances.isEmpty()) {
 							for (NodeInstance nodeInstance : nodeInstances) {
-								((EventNodeInstanceInterface) nodeInstance)
-										.signalEvent(type, event);
+								((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 							}
+						} else { 
+                            CompositeNodeInstance nodeInstance = (CompositeNodeInstance) getNodeInstance(node);
+						    ((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 						}
 					}
 				}
