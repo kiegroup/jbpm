@@ -63,6 +63,7 @@
                 <!-- installer and examples -->
                 <descriptor>src/main/assembly/installer.xml</descriptor>
                 <descriptor>src/main/assembly/examples.xml</descriptor>
+                <descriptor>src/main/assembly/assembly-ruleflow.xml</descriptor>
               </descriptors>
             </configuration>
           </execution>
