@@ -1,24 +1,28 @@
 package org.jbpm.bpmn2.concurrency;
 
-import static junit.framework.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.jbpm.bpmn2.objects.Status;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
+import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.event.process.ProcessCompletedEvent;
+import org.kie.api.event.process.ProcessEventListener;
+import org.kie.api.event.process.ProcessNodeLeftEvent;
+import org.kie.api.event.process.ProcessNodeTriggeredEvent;
+import org.kie.api.event.process.ProcessStartedEvent;
+import org.kie.api.event.process.ProcessVariableChangedEvent;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.process.WorkItem;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.api.event.process.*;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.api.io.ResourceType;
-import org.kie.api.runtime.process.WorkItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +30,11 @@ import org.slf4j.LoggerFactory;
  * This test costs time and resources, please only run locally for the time being.
  */
 @Ignore
-public class MultipleProcessesPerThreadTest {
+public class MultipleProcessesPerThreadTest extends AbstractBaseTest {
     
     private static final int LOOPS = 1000;
     
-    private static Logger logger = LoggerFactory.getLogger(MultipleProcessesPerThreadTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(MultipleProcessesPerThreadTest.class);
     
     protected static StatefulKnowledgeSession createStatefulKnowledgeSession(KnowledgeBase kbase) {
         return kbase.newStatefulKnowledgeSession();
@@ -85,7 +89,7 @@ public class MultipleProcessesPerThreadTest {
             }
 
             for (int i = 1; i <= LOOPS; i++) {
-                logger.debug("Starting hello world process, loop " + i + "/" + LOOPS);
+                logger.debug("Starting hello world process, loop {}/{}", i, LOOPS);
 
                 latch = new CountDownLatch(1);
                 CompleteProcessListener listener = new CompleteProcessListener(latch);
@@ -143,7 +147,7 @@ public class MultipleProcessesPerThreadTest {
             ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
 
             for (int i = 1; i <= LOOPS; i++) {
-                logger.debug("Starting user task process, loop " + i + "/" + LOOPS);
+                logger.debug("Starting user task process, loop {}/{}", i, LOOPS);
 
                 latch = new CountDownLatch(1);
                 CompleteProcessListener listener = new CompleteProcessListener(latch);

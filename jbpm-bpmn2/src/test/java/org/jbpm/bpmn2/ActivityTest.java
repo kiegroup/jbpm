@@ -39,6 +39,8 @@ import org.jbpm.bpmn2.handler.SendTaskHandler;
 import org.jbpm.bpmn2.handler.ServiceTaskHandler;
 import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
+import org.jbpm.process.audit.AuditLogService;
+import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.JPAProcessInstanceDbLog;
 import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
@@ -84,7 +86,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         return Arrays.asList(data);
     };
 
-    private Logger logger = LoggerFactory.getLogger(ActivityTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivityTest.class);
 
     private KieSession ksession;
     private KieSession ksession2;
@@ -165,9 +167,10 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertProcessInstanceCompleted(processInstance);
+        
+        AuditLogService logService = new JPAAuditLogService(ksession.getEnvironment());
 
-        List<NodeInstanceLog> logs = JPAProcessInstanceDbLog
-                .findNodeInstances(processInstance.getId());
+        List<NodeInstanceLog> logs = logService.findNodeInstances(processInstance.getId());
         assertNotNull(logs);
         assertEquals(6, logs.size());
 
@@ -175,16 +178,14 @@ public class ActivityTest extends JbpmBpmn2TestCase {
             assertNotNull(log.getDate());
         }
 
-        ProcessInstanceLog pilog = JPAProcessInstanceDbLog
-                .findProcessInstance(processInstance.getId());
+        ProcessInstanceLog pilog = logService.findProcessInstance(processInstance.getId());
         assertNotNull(pilog);
         assertNotNull(pilog.getEnd());
 
-        List<ProcessInstanceLog> pilogs = JPAProcessInstanceDbLog
-                .findActiveProcessInstances(processInstance.getProcessId());
+        List<ProcessInstanceLog> pilogs = logService.findActiveProcessInstances(processInstance.getProcessId());
         assertNotNull(pilogs);
         assertEquals(0, pilogs.size());
-
+        logService.dispose();
     }
 
     @Test
@@ -515,10 +516,12 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals("new value",
                 ((WorkflowProcessInstance) processInstance).getVariable("y"));
 
-        List<ProcessInstanceLog> subprocesses = JPAProcessInstanceDbLog
-                .findSubProcessInstances(processInstance.getId());
+        AuditLogService logService = new JPAAuditLogService(ksession.getEnvironment());
+        List<ProcessInstanceLog> subprocesses = logService.findSubProcessInstances(processInstance.getId());
         assertNotNull(subprocesses);
         assertEquals(1, subprocesses.size());
+        
+        logService.dispose();
     }
 
     @Test
@@ -546,7 +549,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         int sessionId = ksession.getId();
         Environment env = ksession.getEnvironment();
 
-        System.out.println("dispose");
+        logger.info("dispose");
         ksession.dispose();
         Thread.sleep(3000);
 
@@ -992,7 +995,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance);
 
         long sleep = 1000;
-        logger.debug("Sleeping " + sleep / 1000 + " seconds.");
+        logger.debug("Sleeping {} seconds", sleep / 1000);
         Thread.sleep(sleep);
 
         assertProcessInstanceFinished(processInstance, ksession);

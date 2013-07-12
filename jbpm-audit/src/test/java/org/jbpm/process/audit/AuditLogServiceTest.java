@@ -35,16 +35,11 @@ import javax.persistence.EntityManagerFactory;
 import org.drools.core.io.impl.ClassPathResource;
 import org.jbpm.process.audit.AuditLoggerFactory.Type;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.api.io.ResourceType;
-import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSessionConfiguration;
@@ -52,6 +47,12 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactory;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderFactory;
+import org.kie.internal.persistence.jpa.JPAKnowledgeService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,10 +63,10 @@ import org.slf4j.LoggerFactory;
  * <li>JPAProcessInstanceDbLog</li>
  * </ul>
  */
-public class AuditLogServiceTest {
+public class AuditLogServiceTest extends AbstractBaseTest {
 
     private HashMap<String, Object> context;
-    private Logger logger = LoggerFactory.getLogger(AuditLogServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuditLogServiceTest.class);
 
     @Before
     public void setUp() throws Exception {
@@ -102,11 +103,13 @@ public class AuditLogServiceTest {
         long processInstanceId = session.startProcess("com.sample.ruleflow").getId();
         
         logger.debug("Checking process instances for process 'com.sample.ruleflow'");
+        
         processInstances = auditLogService.findProcessInstances("com.sample.ruleflow");
         assertEquals(initialProcessInstanceSize + 1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        logger.debug(processInstance.toString() 
-        + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+        
+        logger.debug( "{} -> {} - {}",processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
+        
         assertNotNull(processInstance.getStart());
         assertNotNull("ProcessInstanceLog does not contain end date.", processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId());
@@ -154,12 +157,10 @@ public class AuditLogServiceTest {
         processInstances = auditLogServiceBean.findProcessInstances("com.sample.ruleflow");
         assertEquals(initialProcessInstanceSize + 2, processInstances.size());
         for (ProcessInstanceLog processInstance: processInstances) {
-            logger.debug(processInstance.toString()
-            + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+            logger.debug("{} -> {} - {}", processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
             List<NodeInstanceLog> nodeInstances = auditLogServiceBean.findNodeInstances(processInstance.getProcessInstanceId());
             for (NodeInstanceLog nodeInstance: nodeInstances) {
-                logger.debug(nodeInstance.toString()
-              + " -> " + nodeInstance.getDate());
+                logger.debug("{} -> {}",nodeInstance.toString(), nodeInstance.getDate());
             }
             assertEquals(6, nodeInstances.size());
         }
@@ -194,16 +195,14 @@ public class AuditLogServiceTest {
         processInstances = auditLogService.findProcessInstances("com.sample.ruleflow2");
         assertEquals(initialProcessInstanceSize + 1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        logger.debug(processInstance.toString() 
-        + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+        logger.debug("{} -> {} - {}", processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
         assertNotNull(processInstance.getStart());
         assertNotNull("ProcessInstanceLog does not contain end date.", processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId());
         assertEquals("com.sample.ruleflow2", processInstance.getProcessId());
         List<NodeInstanceLog> nodeInstances = auditLogService.findNodeInstances(processInstanceId);
         for (NodeInstanceLog nodeInstance: nodeInstances) {
-            logger.debug(nodeInstance.toString()
-            + " -> " + nodeInstance.getDate());
+            logger.debug("{} -> {}", nodeInstance.toString(), nodeInstance.getDate());
             assertEquals(processInstanceId, processInstance.getProcessInstanceId());
             assertEquals("com.sample.ruleflow2", processInstance.getProcessId());
             assertNotNull(nodeInstance.getDate());
@@ -254,7 +253,7 @@ public class AuditLogServiceTest {
         processInstances = auditLogService.findProcessInstances("com.sample.ruleflow3");
         assertEquals(initialProcessInstanceSize + 1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        logger.debug(processInstance.toString() + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+        logger.debug("{} -> {} - {}", processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
         assertNotNull(processInstance.getStart());
         assertNotNull("ProcessInstanceLog does not contain end date.", processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId());
@@ -320,8 +319,7 @@ public class AuditLogServiceTest {
         assertEquals("[Expected " + expected + " ProcessInstanceLog instances, not " + processInstances.size() + "]",  
                 expected, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        logger.debug(processInstance.toString()
-        + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+        logger.debug("{} -> {} - {}",processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
         assertNotNull(processInstance.getStart());
         assertNotNull("ProcessInstanceLog does not contain end date.", processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId());
@@ -369,8 +367,7 @@ public class AuditLogServiceTest {
         processInstances = auditLogService.findProcessInstances("com.sample.ruleflow");
         assertEquals(initialProcessInstanceSize + 1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        logger.debug(processInstance.toString() 
-        + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+        logger.debug("{} -> {} - {}", processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
         assertNotNull(processInstance.getStart());
         assertNotNull(processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId());
@@ -419,8 +416,7 @@ public class AuditLogServiceTest {
         processInstances = auditLogService.findProcessInstances("com.sample.ruleflow");
         assertEquals(initialProcessInstanceSize + 1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        logger.debug(processInstance.toString() 
-        + " -> " + processInstance.getStart() + " - " + processInstance.getEnd());
+        logger.debug("{} -> {} - {}", processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
         assertNotNull(processInstance.getStart());
         assertNotNull("ProcessInstanceLog does not contain end date.", processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId());

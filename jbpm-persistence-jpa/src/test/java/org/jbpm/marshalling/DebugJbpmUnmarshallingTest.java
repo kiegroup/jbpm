@@ -15,14 +15,15 @@ import org.drools.persistence.info.SessionInfo;
 import org.drools.persistence.info.WorkItemInfo;
 import org.jbpm.marshalling.util.*;
 import org.jbpm.persistence.processinstance.ProcessInstanceInfo;
+import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DebugJbpmUnmarshallingTest {
+public class DebugJbpmUnmarshallingTest extends AbstractBaseTest {
 
-    private static Logger logger = LoggerFactory.getLogger(DebugJbpmUnmarshallingTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(DebugJbpmUnmarshallingTest.class);
     
     @Test
     @Ignore
@@ -48,7 +49,7 @@ public class DebugJbpmUnmarshallingTest {
            fail( e.getClass().getSimpleName() + " thrown: " + e.getMessage());
        }
        
-       System.out.println(": \"" + result + "\"");
+       logger.info(": \"{}\"", result);
     }
 
     @Test
@@ -81,11 +82,11 @@ public class DebugJbpmUnmarshallingTest {
                     + ": " + marshalledData.getTestMethodAndSnapshotNum();
                 unmarshalledObject = MarshallingTestUtil.unmarshallObject(marshalledData);
                 assertNotNull(unmarshalledObject);
-                logger.info( ".: " + logMsg);
+                logger.info( ".: {}", logMsg);
             } 
         }
         catch( Exception e ) { 
-            logger.info( "X: " + logMsg);
+            logger.info( "X: {}", logMsg);
             e.printStackTrace();
             fail( "[" + e.getClass().getSimpleName() + "]: " + e.getMessage() );
         }
@@ -191,17 +192,17 @@ public class DebugJbpmUnmarshallingTest {
                 + ": " + marshalledData.getTestMethodAndSnapshotNum();
             try { 
                 MarshallingTestUtil.unmarshallObject(marshalledData);
-                logger.info( ".: " + logMsg );
+                logger.info( ".: {}", logMsg );
             } 
             catch( Exception e ) { 
-                logger.info( "X: " + logMsg );
+                logger.info( "X: {}", logMsg );
                 StackTraceElement [] ste = e.getStackTrace();
                 for( int i = 0; i < 1; ++i ) { 
                     StringBuilder elemMsg = new StringBuilder();
                     elemMsg.append("  " + ste[i].getClassName() + ":");
                     elemMsg.append(ste[i].getMethodName() + " [");
                     elemMsg.append(ste[i].getLineNumber() + "]");
-                    System.out.println(elemMsg);
+                    logger.info(elemMsg.toString());
                 }
             }
         }

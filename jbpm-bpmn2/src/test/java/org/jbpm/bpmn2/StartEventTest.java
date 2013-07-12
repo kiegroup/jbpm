@@ -49,7 +49,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         return Arrays.asList(data);
     };
 
-    private Logger logger = LoggerFactory.getLogger(StartEventTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(StartEventTest.class);
 
     private KieSession ksession;
     
@@ -211,7 +211,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         final List<Long> list = new ArrayList<Long>();
         ksession.addEventListener(new DefaultProcessEventListener() {
             public void afterProcessStarted(ProcessStartedEvent event) {
-                System.out.println(event.getProcessInstance().getId());
+                logger.info("{}", event.getProcessInstance().getId());
                 list.add(event.getProcessInstance().getId());
             }
         });

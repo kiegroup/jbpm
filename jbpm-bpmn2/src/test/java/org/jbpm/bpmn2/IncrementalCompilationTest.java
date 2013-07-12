@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.KieServices;
@@ -14,12 +15,9 @@ import org.kie.api.builder.Results;
 import org.kie.internal.builder.IncrementalResults;
 import org.kie.internal.builder.InternalKieBuilder;
 
-import static junit.framework.Assert.*;
-
-public class IncrementalCompilationTest {
+public class IncrementalCompilationTest extends AbstractBaseTest {
 
     @Test
-    @Ignore("See https://issues.jboss.org/browse/DROOLS-179")
     public void testIncrementalProcessCompilation() throws Exception {
 
         String invalidProcessDefinition = getResource( "/BPMN2-Incremental-Build-Invalid.bpmn2" );

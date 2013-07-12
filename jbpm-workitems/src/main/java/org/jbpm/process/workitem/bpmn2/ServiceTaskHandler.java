@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 
 public class ServiceTaskHandler implements WorkItemHandler {
     
-public static final String WSDL_IMPORT_TYPE = "http://schemas.xmlsoap.org/wsdl/";
+    public static final String WSDL_IMPORT_TYPE = "http://schemas.xmlsoap.org/wsdl/";
     
-    private static Logger logger = LoggerFactory.getLogger(ServiceTaskHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceTaskHandler.class);
     
     private ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
     private JaxWsDynamicClientFactory dcf;
@@ -208,15 +208,15 @@ public static final String WSDL_IMPORT_TYPE = "http://schemas.xmlsoap.org/wsdl/"
             results.put("Result", result);
             manager.completeWorkItem(workItem.getId(), results);
         } catch (ClassNotFoundException e) {
-            System.err.println(e);
+            logger.error("{}", e);
         } catch (InstantiationException e) {
-            System.err.println(e);
+            logger.error("{}", e);
         } catch (IllegalAccessException e) {
-            System.err.println(e);
+            logger.error("{}", e);
         } catch (NoSuchMethodException e) {
-            System.err.println(e);
+            logger.error("{}", e);
         } catch (InvocationTargetException e) {
-            System.err.println(e);
+            logger.error("{}", e);
         }
     }
 

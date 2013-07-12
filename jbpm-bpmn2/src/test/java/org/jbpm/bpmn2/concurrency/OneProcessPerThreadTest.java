@@ -9,17 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jbpm.bpmn2.objects.Status;
+import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.api.io.ResourceType;
-import org.kie.api.runtime.process.WorkItem;
-import org.kie.api.runtime.process.WorkItemHandler;
-import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +28,13 @@ import org.slf4j.LoggerFactory;
  * This test takes time and resources, please only run it locally
  */
 @Ignore
-public class OneProcessPerThreadTest {
+public class OneProcessPerThreadTest extends AbstractBaseTest {
     
     private static final int THREAD_COUNT = 1000;
     private static volatile AtomicInteger started = new AtomicInteger(0);
     private static volatile AtomicInteger done = new AtomicInteger(0);
     
-    private static Logger logger = LoggerFactory.getLogger(OneProcessPerThreadTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(OneProcessPerThreadTest.class);
     
     protected StatefulKnowledgeSession createStatefulKnowledgeSession(KnowledgeBase kbase) { 
         return kbase.newStatefulKnowledgeSession();
@@ -69,7 +70,7 @@ public class OneProcessPerThreadTest {
         
         int i = 0;
         while(started.get() > done.get() ) { 
-            logger.info( started + " > " + done );
+            logger.info("{} > {}", started, done );
             Thread.sleep(10*1000);
             if( ++i > 10 ) { 
                 fail("Not all threads completed.");
@@ -123,7 +124,7 @@ public class OneProcessPerThreadTest {
 	        	ksession.startProcess(processId, params);
 	        } catch ( Throwable t ) {
 	            this.status = Status.FAIL;
-	            logger.error( Thread.currentThread().getName() + " failed: " + t.getMessage() );
+	            logger.error("{} failed: {}",  Thread.currentThread().getName(), t.getMessage() );
 	            t.printStackTrace();
 	        }
 	        done.incrementAndGet();
