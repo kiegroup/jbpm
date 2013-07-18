@@ -56,7 +56,7 @@
                 <include>org.jboss.seam.transaction:seam-transaction-api</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/jboss/seam/seam-transaction-api/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+            <outputFileNameMapping>${artifact.artifactId}-${seam.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -64,7 +64,7 @@
                 <include>org.jboss.seam.transaction:seam-transaction</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/jboss/seam/seam-transaction/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+            <outputFileNameMapping>${artifact.artifactId}-${seam.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -72,7 +72,7 @@
                 <include>org.jboss.seam.persistence:seam-persistence-api</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/jboss/seam/seam-persistence-api/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+            <outputFileNameMapping>${artifact.artifactId}-${seam.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
@@ -80,7 +80,7 @@
                 <include>org.jboss.seam.persistence:seam-persistence</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/jboss/seam/seam-persistence/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+            <outputFileNameMapping>${artifact.artifactId}-${seam.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
 
     </dependencySets>
