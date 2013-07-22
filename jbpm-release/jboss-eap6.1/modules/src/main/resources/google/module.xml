@@ -26,5 +26,7 @@
     </resources>
 
     <dependencies>
+        <!-- java.lang.ClassNotFoundException: org.jbpm.marshalling.impl.JBPMMessages$Variable from [Module "com.google:main" -->
+        <module name="org.jbpm.jbpm-flow" />
     </dependencies>
 </module>

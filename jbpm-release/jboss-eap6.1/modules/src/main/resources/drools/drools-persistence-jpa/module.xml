@@ -29,6 +29,6 @@
         <module name="org.drools.drools-core" />
 
         <!-- line 310 of org.drools.persistence.SingleSessionCommandService -->
-        <module name="org.jbpm.jbpm-persistence-jpa" />
+        <module name="org.jbpm.jbpm-persistence-jpa" export="true" />
     </dependencies>
 </module>
