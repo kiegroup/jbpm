@@ -1203,10 +1203,6 @@ public class FlowTest extends JbpmBpmn2TestCase {
 
     }
 
-    /**
-     * FIXME testMultipleInOutgoingSequenceFlowsDisable 
-     * -- process build is probably caught and there is another exception instead (ArrayIndexOutOfBoundsException)
-     */
     @Test
     public void testMultipleInOutgoingSequenceFlowsDisable() throws Exception {
         try {

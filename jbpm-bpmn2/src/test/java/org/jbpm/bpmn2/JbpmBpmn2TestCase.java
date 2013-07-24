@@ -151,7 +151,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         };
 
         protected void finished(Description description) {
-            log.info("Finsihed {}", description);
+            log.info("Finished {}", description);
         };
     };
 
@@ -176,7 +176,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         pds.getDriverProperties().put("user", "sa");
         pds.getDriverProperties().put("password", "");
         pds.getDriverProperties().put("url",
-                "jdbc:h2:tcp://localhost/~/jbpm-db");
+                "jdbc:h2:tcp://localhost/target/jbpm-bpmn-db");
         pds.getDriverProperties().put("driverClassName", "org.h2.Driver");
         pds.init();
         return pds;
