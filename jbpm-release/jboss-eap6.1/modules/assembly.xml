@@ -41,6 +41,7 @@
         <componentDescriptor>src/main/resources/eclipse/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/google/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/jbpm/core/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/jbpm/services/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/kie/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/mvel/mvel2/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/seam/assembly-component.xml</componentDescriptor>

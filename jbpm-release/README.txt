@@ -17,7 +17,7 @@ notes:
         ....
         <dependencies>
 
-            <module name="org.jbpm" export="true" />
+            <module name="org.jbpm" export="true" meta-inf="true" />
 
         </dependencies>
 

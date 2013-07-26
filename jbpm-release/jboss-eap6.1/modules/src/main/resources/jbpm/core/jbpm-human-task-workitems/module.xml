@@ -19,7 +19,7 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.jbpm.jbpm-human-task-workitems">
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm.jbpm-human-task-workitems">
 
     <resources>
         <resource-root path="jbpm-human-task-workitems-${project.version}.jar"/>

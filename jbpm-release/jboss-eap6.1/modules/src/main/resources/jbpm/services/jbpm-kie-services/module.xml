@@ -19,17 +19,17 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="org.jbpm.jbpm-human-task-core">
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm.jbpm-kie-services" >
 
     <resources>
-        <resource-root path="jbpm-human-task-core-${project.version}.jar"/>
+        <resource-root path="jbpm-kie-services-${project.version}.jar"/>
     </resources>
 
     <dependencies>
-        <module name="org.drools" />
-        <module name="org.jbpm.jbpm-persistence-jpa"/>
+        <module name="org.jbpm" export="true" />
 
-        <!-- java.lang.ClassNotFoundException: org.jbpm.shared.services.api.JbpmServicesTransactionManager from [Module "org.jbpm.jbpm-human-task-core:main" ... -->
-        <module name="org.jbpm.jbpm-shared-services" />
+        <!-- java.lang.ClassNotFoundException: org.apache.commons.collections.Predicate from [Module "deployment.bpms-pfp.ear.kie-services-remote.war:main" -->
+        <module name="org.apache.commons.collections" export="true" />
+
     </dependencies>
 </module>

@@ -19,7 +19,7 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.antlr" slot="3" >
+<module xmlns="urn:jboss:module:1.1" name="org.antlr" slot="3" >
 
     <resources>
         <resource-root path="antlr-runtime-${antlr.version}.jar"/>

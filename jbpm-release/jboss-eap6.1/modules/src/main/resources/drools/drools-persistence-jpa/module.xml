@@ -19,7 +19,7 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.drools.drools-persistence-jpa">
+<module xmlns="urn:jboss:module:1.1" name="org.drools.drools-persistence-jpa">
 
     <resources>
         <resource-root path="drools-persistence-jpa-${project.version}.jar"/>

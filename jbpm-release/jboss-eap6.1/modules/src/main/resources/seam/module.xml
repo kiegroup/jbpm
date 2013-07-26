@@ -19,15 +19,15 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.jboss.seam">
+<module xmlns="urn:jboss:module:1.1" name="org.jboss.seam">
 
     <resources>
     </resources>
 
     <dependencies>
-        <module name="org.jboss.seam.transaction.api"/>
-        <module name="org.jboss.seam.transaction"/>
-        <module name="org.jboss.seam.persistence.api"/>
-        <module name="org.jboss.seam.persistence"/>
+        <module name="org.jboss.seam.transaction.api" export="true" />
+        <module name="org.jboss.seam.transaction" export="true" />
+        <module name="org.jboss.seam.persistence.api" export="true" />
+        <module name="org.jboss.seam.persistence" export="true" />
     </dependencies>
 </module>

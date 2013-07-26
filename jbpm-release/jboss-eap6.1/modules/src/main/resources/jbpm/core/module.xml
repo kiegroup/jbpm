@@ -19,7 +19,7 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.jbpm">
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm">
 
     <resources>
     </resources>
@@ -30,11 +30,14 @@
         <module name="org.jbpm.jbpm-bpmn2" export="true"/>
         <module name="org.jbpm.jbpm-flow" export="true"/>
         <module name="org.jbpm.jbpm-flow-builder" export="true"/>
+        <module name="org.jbpm.jbpm-persistence-jpa" export="true" />
+        <module name="org.jbpm.jbpm-workitems" export="true"/>
+
+        <!-- need to set meta-inf="import" on the following but throws parse exception -->
+        <module name="org.jbpm.jbpm-runtime-manager" export="true" />
         <module name="org.jbpm.jbpm-human-task-core" export="true" />
         <module name="org.jbpm.jbpm-human-task-workitems" export="true"/>
-        <module name="org.jbpm.jbpm-persistence-jpa" export="true" />
-        <module name="org.jbpm.jbpm-runtime-manager" export="true"/>
         <module name="org.jbpm.jbpm-shared-services" export="true"/>
-        <module name="org.jbpm.jbpm-workitems" export="true"/>
+
     </dependencies>
 </module>

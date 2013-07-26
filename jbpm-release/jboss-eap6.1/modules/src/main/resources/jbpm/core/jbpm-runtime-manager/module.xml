@@ -19,7 +19,13 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.jbpm.jbpm-runtime-manager">
+<!--
+    JA Bride : 23 July 2013
+    deployment of this library as a JBoss Module is a problem
+    in particular, included in this library are CDI beans (ie:  org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl )
+    at least in EAP6.1, the CDI container is not able to inject beans that have been deployed as JBoss Modules
+-->
+<module xmlns="urn:jboss:module:1.1" name="org.jbpm.jbpm-runtime-manager">
 
     <resources>
         <resource-root path="jbpm-runtime-manager-${project.version}.jar"/>

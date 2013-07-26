@@ -19,7 +19,7 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.0" name="org.kie.kie-commons-data">
+<module xmlns="urn:jboss:module:1.1" name="org.kie.kie-commons-data">
 
     <resources>
         <resource-root path="kie-commons-data-${project.version}.jar"/>

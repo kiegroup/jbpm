@@ -152,6 +152,12 @@
             <artifactId>jbpm-workitems</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-kie-services</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
 
         <!-- drools -->
         <dependency>
