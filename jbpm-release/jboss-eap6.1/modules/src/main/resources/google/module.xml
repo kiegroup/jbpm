@@ -23,6 +23,7 @@
 
     <resources>
         <resource-root path="protobuf-java-${protobuf.version}.jar"/>
+        <resource-root path="JavaEWAH-${javaewah.version}.jar"/>
     </resources>
 
     <dependencies>

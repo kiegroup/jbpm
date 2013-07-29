@@ -45,6 +45,10 @@
         <componentDescriptor>src/main/resources/kie/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/mvel/mvel2/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/seam/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/apache/commons/httpclient/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/apache/commons/codec/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/jcraft/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/thoughtworks/assembly-component.xml</componentDescriptor>
     </componentDescriptors>
 </assembly>
 

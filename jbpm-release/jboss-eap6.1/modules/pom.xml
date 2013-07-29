@@ -37,6 +37,12 @@
         <eclipse.jdt.core.version>3.5.1</eclipse.jdt.core.version>
         <antlr.version>3.3</antlr.version>
         <stringtemplate.version>3.2.1</stringtemplate.version>
+        <eclipse.jgit.version>2.1.0.201209190230-r</eclipse.jgit.version>
+        <httpclient.version>3.1</httpclient.version>
+        <jsch.version>0.1.50</jsch.version>
+        <javaewah.version>0.7.2</javaewah.version>
+        <xstream.version>1.4.3</xstream.version>
+        <commons.codec.version>1.5</commons.codec.version>
     </properties>
 
     <repositories>
@@ -232,6 +238,52 @@
             <artifactId>kie-nio2-model</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.kie.commons</groupId>
+            <artifactId>kie-nio2-jgit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.commons</groupId>
+            <artifactId>kie-nio2-fs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- jgit -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${eclipse.jgit.version}</version>
+        </dependency>
+
+        <!-- dependency on older version of httpclient  -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>${httpclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>${jsch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.javaewah</groupId>
+            <artifactId>JavaEWAH</artifactId>
+            <version>${javaewah.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.javaewah</groupId>
+            <artifactId>JavaEWAH</artifactId>
+            <version>${javaewah.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.thoughtworks.xstream</groupId>
+            <artifactId>xstream</artifactId>
+            <version>${xstream.version}</version>
+        </dependency>
 
         <!-- seam -->
         <dependency>
@@ -280,6 +332,12 @@
             <artifactId>stringtemplate</artifactId>
             <version>${stringtemplate.version}</version>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.5</version>
+        </dependency>
+
 
 
 

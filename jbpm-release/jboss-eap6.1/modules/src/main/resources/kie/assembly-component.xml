@@ -71,6 +71,16 @@
             <outputDirectory>/modules/system/layers/bpms/org/kie/kie-nio2-model/main</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>src/main/resources/kie/kie-nio2-jgit/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/kie/kie-nio2-jgit/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>src/main/resources/kie/kie-nio2-fs/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/kie/kie-nio2-fs/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
     </files>
 
     <dependencySets>
@@ -144,6 +154,22 @@
                 <include>org.kie.commons:kie-nio2-model</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/kie/kie-nio2-model/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.kie.commons:kie-nio2-jgit</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/kie/kie-nio2-jgit/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.kie.commons:kie-nio2-fs</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/kie/kie-nio2-fs/main</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
 

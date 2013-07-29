@@ -27,5 +27,8 @@
 
     <dependencies>
         <module name="org.kie.kie-api" />
+        <module name="org.kie.kie-commons-validation" />
+        <module name="com.thoughtworks" />
+        <module name="org.kie.kie-commons-data" />
     </dependencies>
 </module>

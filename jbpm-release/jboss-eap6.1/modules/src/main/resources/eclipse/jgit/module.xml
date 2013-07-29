@@ -19,22 +19,14 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="org.kie.kie-nio2-api">
+<module xmlns="urn:jboss:module:1.1" name="org.eclipse.jgit">
 
     <resources>
-        <resource-root path="kie-nio2-api-${project.version}.jar"/>
+        <resource-root path="org.eclipse.jgit-${eclipse.jgit.version}.jar"/>
     </resources>
 
     <dependencies>
-        <module name="org.kie.kie-api" />
-        <module name="org.kie.kie-nio2-jgit" />
-        <module name="org.kie.kie-nio2-fs" />
-
-        <!-- java.lang.ClassNotFoundException: org.kie.commons.validation.Preconditions from [Module "org.kie.kie-nio2-api:main" -->
-        <module name="org.kie.kie-commons-validation" />
-
-        <!-- java.lang.ClassNotFoundException: org.kie.commons.java.nio.file.FileSystemNotFoundException from [Module "org.kie.kie-nio2-api:main" -->
-        <module name="org.kie.kie-nio2-model" />
-
+        <module name="com.jcraft" />
+        <module name="com.google" />
     </dependencies>
 </module>
