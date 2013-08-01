@@ -40,6 +40,7 @@ import org.jbpm.process.core.event.EventFilter;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.process.core.impl.XmlProcessDumper;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.core.impl.ConnectionImpl;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
@@ -173,7 +174,12 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
         // TODO: package, version
         xmlDump.append(">" + EOL + EOL);
         visitHeader(process, xmlDump, metaDataType);
-        visitNodes(process, xmlDump, metaDataType);
+        
+        List<org.jbpm.workflow.core.Node> processNodes = new ArrayList<org.jbpm.workflow.core.Node>();
+        for( Node procNode : process.getNodes()) { 
+            processNodes.add((org.jbpm.workflow.core.Node) procNode);
+        }
+        visitNodes(processNodes, xmlDump, metaDataType);
         visitConnections(process.getNodes(), xmlDump, metaDataType);
         // add associations
         List<Association> associations = (List<Association>) process.getMetaData().get(ProcessHandler.ASSOCIATIONS);
@@ -212,7 +218,7 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
     	xmlDump.append("/>" + EOL);
 	}
     
-    private void visitAssociation(Association association, StringBuilder xmlDump) {
+    public void visitAssociation(Association association, StringBuilder xmlDump) {
     	xmlDump.append("    <association id=\"" + association.getId() + "\" ");
     	xmlDump.append(" sourceRef=\"" + association.getSourceRef() + "\" ");
     	xmlDump.append(" targetRef=\"" + association.getTargetRef() + "\" ");
@@ -547,15 +553,15 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
         }
     }
     
-    private void visitNodes(WorkflowProcess process, StringBuilder xmlDump, int metaDataType) {
+    public void visitNodes(List<org.jbpm.workflow.core.Node> nodes, StringBuilder xmlDump, int metaDataType) {
     	xmlDump.append("    <!-- nodes -->" + EOL);
-        for (Node node: process.getNodes()) {
+        for (Node node: nodes) {
             visitNode(node, xmlDump, metaDataType);
         }
         xmlDump.append(EOL);
     }
     
-    public void visitNode(Node node, StringBuilder xmlDump, int metaDataType) {
+    private void visitNode(Node node, StringBuilder xmlDump, int metaDataType) {
      	Handler handler = semanticModule.getHandlerByClass(node.getClass());
         if (handler != null) {
         	((AbstractNodeHandler) handler).writeNode((org.jbpm.workflow.core.Node) node, xmlDump, metaDataType);
@@ -824,7 +830,7 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
 
 	@Override
 	public String dumpProcess(Process process) {
-		return dump((WorkflowProcess) process, false);
+		return dump((RuleFlowProcess) process, false);
 	}
 
 	@Override
