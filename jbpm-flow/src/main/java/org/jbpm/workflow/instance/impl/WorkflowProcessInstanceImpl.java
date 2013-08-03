@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.process.core.context.variable.VariableScope;
@@ -69,7 +70,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	private static final long serialVersionUID = 510l;
 
 	private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();;
-	private long nodeInstanceCounter = 0;
+	private AtomicLong nodeInstanceCounter = new AtomicLong(0);
 	private Map<String, List<EventListener>> eventListeners = new HashMap<String, List<EventListener>>();
 	private Map<String, List<EventListener>> externalEventListeners = new HashMap<String, List<EventListener>>();
 	private List<String> completedNodeIds = new ArrayList<String>();
@@ -81,7 +82,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	}
 
 	public void addNodeInstance(final NodeInstance nodeInstance) {
-		((NodeInstanceImpl) nodeInstance).setId(nodeInstanceCounter++);
+		((NodeInstanceImpl) nodeInstance).setId(nodeInstanceCounter.getAndIncrement());
 		this.nodeInstances.add(nodeInstance);
 	}
 	
@@ -200,12 +201,17 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 
 	public long getNodeInstanceCounter() {
-		return nodeInstanceCounter;
+		return nodeInstanceCounter.get();
 	}
 
 	public void internalSetNodeInstanceCounter(long nodeInstanceCounter) {
-		this.nodeInstanceCounter = nodeInstanceCounter;
+		this.nodeInstanceCounter = new AtomicLong(nodeInstanceCounter);
 	}
+	
+	public AtomicLong internalGetNodeInstanceCounter() {
+		return this.nodeInstanceCounter;
+	}
+
 
 	public WorkflowProcess getWorkflowProcess() {
 		return (WorkflowProcess) getProcess();

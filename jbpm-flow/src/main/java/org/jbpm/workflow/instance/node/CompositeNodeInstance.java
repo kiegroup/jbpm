@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jbpm.process.instance.ProcessInstance;
-import org.jbpm.workflow.core.WorkflowProcess;
 import org.jbpm.workflow.core.node.CompositeNode;
 import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.core.node.EventNodeInterface;
@@ -38,6 +38,7 @@ import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceFactory;
 import org.jbpm.workflow.instance.impl.NodeInstanceFactoryRegistry;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
@@ -53,7 +54,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     private static final long serialVersionUID = 510l;
     
     private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();;
-    private long nodeInstanceCounter = 0;
+    private AtomicLong nodeInstanceCounter = null; // set during NodeInstance creation (*NodeFactory)
     private int state = ProcessInstance.STATE_ACTIVE;
     private Map<String, Integer> iterationLevels = new HashMap<String, Integer>();
     private int currentLevel;
@@ -78,6 +79,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
    
     public void setProcessInstance(WorkflowProcessInstance processInstance) {
     	super.setProcessInstance(processInstance);
+    	this.nodeInstanceCounter = ((WorkflowProcessInstanceImpl) processInstance).internalGetNodeInstanceCounter();
     	registerExternalEventNodeListeners();
     }
     
@@ -173,7 +175,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
     
     public void addNodeInstance(final NodeInstance nodeInstance) {
-        ((NodeInstanceImpl) nodeInstance).setId(nodeInstanceCounter++);
+        ((NodeInstanceImpl) nodeInstance).setId(nodeInstanceCounter.incrementAndGet());
         this.nodeInstances.add(nodeInstance);
     }
 
