@@ -148,7 +148,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         };
 
         protected void finished(Description description) {
-            log.info("Finsihed {}", description);
+            log.info("Finished {}", description);
         };
     };
 
@@ -173,7 +173,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         pds.getDriverProperties().put("user", "sa");
         pds.getDriverProperties().put("password", "");
         pds.getDriverProperties().put("url",
-                "jdbc:h2:tcp://localhost/~/jbpm-db");
+                "jdbc:h2:tcp://localhost/target/jbpm-bpmn-db");
         pds.getDriverProperties().put("driverClassName", "org.h2.Driver");
         pds.init();
         return pds;
@@ -641,6 +641,27 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
         return names;
     }
+    
+    protected List<String> getCompletedNodes(long processInstanceId) { 
+        List<String> names = new ArrayList<String>();
+        if (sessionPersistence) {
+            List<NodeInstanceLog> logs = JPAProcessInstanceDbLog.findNodeInstances(processInstanceId);
+            if (logs != null) {
+                for (NodeInstanceLog l : logs) {
+                    names.add(l.getNodeId());
+                }
+            }
+        } else {
+            for (LogEvent event : logger.getLogEvents()) {
+                if (event instanceof RuleFlowNodeLogEvent) {
+                    if( event.getType() == 27 ) { 
+                        names.add(((RuleFlowNodeLogEvent) event).getNodeId());
+                    }
+                }
+            }
+        }
+        return names;
+    }
 
     protected void clearHistory() {
         if (sessionPersistence) {
@@ -680,25 +701,25 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
     }
     
-    public void assertProcessVarValue(ProcessInstance processInstance, String varName, String varValue) {
-        boolean result = false;
+    public String getProcessVarValue(ProcessInstance processInstance, String varName) {
         String actualValue = null;
         if (sessionPersistence) {
             List<VariableInstanceLog> log = logService.findVariableInstances(processInstance.getId(), varName);
             if (log != null && !log.isEmpty()) {
                 actualValue = log.get(log.size()-1).getValue();
-                
             }
         } else {
             Object value = ((WorkflowProcessInstanceImpl) processInstance).getVariable(varName);
             if (value != null) {
                 actualValue = value.toString();
             }
-        } 
-        result = varName.equals(actualValue);
-        if(!result) {
-            fail("Variable " + varName + " value missmatch - expected " + varValue + " actual " + actualValue);
         }
+        return actualValue;
+    }
+    
+    public void assertProcessVarValue(ProcessInstance processInstance, String varName, Object varValue) {
+        String actualValue = getProcessVarValue(processInstance, varName);
+        assertEquals("Variable " + varName + " value misatch!",  varValue, actualValue );
     }
 
     public void assertNodeExists(ProcessInstance process, String... nodeNames) {
@@ -812,7 +833,8 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     }
     
     protected void assertProcessInstanceCompleted(long processInstanceId, KieSession ksession) {
-        assertNull("Process instance has not completed.", ksession.getProcessInstance(processInstanceId));
+        ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
+        assertNull("Process instance has not completed.", processInstance);
     }
 
     protected void assertProcessInstanceAborted(long processInstanceId, KieSession ksession) {

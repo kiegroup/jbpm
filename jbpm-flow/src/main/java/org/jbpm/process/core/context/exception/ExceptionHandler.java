@@ -17,9 +17,5 @@
 package org.jbpm.process.core.context.exception;
 
 public interface ExceptionHandler {
-	
-	String getFaultVariable();
-	
-	void setFaultVariable(String faultVariable);
-    
+
 }
