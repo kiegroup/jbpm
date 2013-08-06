@@ -85,6 +85,7 @@ public abstract class TaskLifeCycleBaseSyncTest extends BaseTest {
 
         client.complete(taskId, users.get("bobba").getId(), null);
         Date completedBy = new Date();
+        System.out.println(completedBy.getTime());
         
         tasks = client.getTasksAssignedAsPotentialOwner(users.get("bobba").getId(), "en-UK");
         assertEquals(0, tasks.size());
@@ -96,8 +97,9 @@ public abstract class TaskLifeCycleBaseSyncTest extends BaseTest {
         Task task1 = client.getTask(taskId);
         assertEquals(Status.Completed, task1.getTaskData().getStatus());
         Date completedOn = task1.getTaskData().getCompletedOn();
+        System.out.println(completedOn.getTime());
         assertTrue( "Completed on date was empty!", completedOn != null );
-        assertTrue( "Completed on date is incorrect.", completedBy.after(completedOn) );
+        assertTrue( "Completed on date is incorrect.", !completedBy.before(completedOn) );
     }
 
     @SuppressWarnings("unchecked")
