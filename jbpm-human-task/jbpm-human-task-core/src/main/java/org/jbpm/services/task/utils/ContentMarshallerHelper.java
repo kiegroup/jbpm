@@ -53,7 +53,7 @@ public class ContentMarshallerHelper {
         }
         MarshallerWriteContext context = null;
         ContentDataImpl content = null;
-        byte[] toByteArray = marshallContent(env, o);
+        byte[] toByteArray = marshallContent(o, env);
         content = new ContentDataImpl();
         content.setContent(toByteArray);
         content.setType(o.getClass().getCanonicalName());
@@ -65,7 +65,7 @@ public class ContentMarshallerHelper {
      public static FaultDataImpl marshalFault(Map<String, Object> fault, Environment env) {
         
         FaultDataImpl content = null;
-        byte[] toByteArray = marshallContent(env, fault);
+        byte[] toByteArray = marshallContent(fault, env);
         content = new FaultDataImpl();
         content.setContent(toByteArray);
         content.setType(fault.getClass().getCanonicalName());
@@ -118,7 +118,7 @@ public class ContentMarshallerHelper {
         return null;
     }
 
-    private static byte[] marshallContent(Environment env, Object o) {
+    public static byte[] marshallContent(Object o, Environment env) {
         MarshallerWriteContext context;
         try {
             MarshallingConfigurationImpl marshallingConfigurationImpl = null;

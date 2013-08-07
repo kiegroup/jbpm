@@ -16,10 +16,12 @@
 
 package org.jbpm.bpmn2.xml;
 
+import static org.jbpm.bpmn2.xml.ProcessHandler.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.drools.core.rule.builder.dialect.asm.GeneratorHelper.GetMethodBytecodeMethod;
 import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.IntermediateLink;
@@ -75,7 +77,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 				break;
 			} else if ("compensateEventDefinition".equals(nodeName)) {
 				// reuse already created ActionNode
-				handleCompensationNode(node, element, uri, localName, parser);
+				handleThrowCompensationEventNode(node, element, uri, localName, parser);
 				break;
 			} else if ("linkEventDefinition".equals(nodeName)) {
 				ThrowLinkNode linkNode = new ThrowLinkNode();
@@ -187,7 +189,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 				actionNode
 						.setAction(new DroolsConsequenceAction(
 								"mvel",
-								"kcontext.getKnowledgeRuntime().signalEvent(\""
+								RUNTIME_SIGNAL_EVENT 
 										+ signalName
 										+ "\", "
 										+ (variable == null ? "null" : variable)
@@ -260,7 +262,7 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 						.getAttribute("escalationRef");
 				if (escalationRef != null && escalationRef.trim().length() > 0) {
 					Map<String, Escalation> escalations = (Map<String, Escalation>) ((ProcessBuildData) parser
-							.getData()).getMetaData("Escalations");
+							.getData()).getMetaData(ProcessHandler.ESCALATIONS);
 					if (escalations == null) {
 						throw new IllegalArgumentException(
 								"No escalations found");
@@ -288,34 +290,9 @@ public class IntermediateThrowEventHandler extends AbstractNodeHandler {
 											+ EOL
 											+ "    ((org.jbpm.process.instance.ProcessInstance) kcontext.getProcessInstance()).setState(org.jbpm.process.instance.ProcessInstance.STATE_ABORTED);"
 											+ EOL + "}"));
+				} else { 
+				    throw new IllegalArgumentException("General escalation is not yet supported");
 				}
-			}
-			xmlNode = xmlNode.getNextSibling();
-		}
-	}
-
-	public void handleCompensationNode(final Node node, final Element element,
-			final String uri, final String localName,
-			final ExtensibleXmlParser parser) throws SAXException {
-		ActionNode actionNode = (ActionNode) node;
-		org.w3c.dom.Node xmlNode = element.getFirstChild();
-		while (xmlNode != null) {
-			String nodeName = xmlNode.getNodeName();
-			if ("compensateEventDefinition".equals(nodeName)) {
-				String activityRef = ((Element) xmlNode)
-						.getAttribute("activityRef");
-				if (activityRef != null && activityRef.trim().length() > 0) {
-					actionNode.setMetaData("Compensate", activityRef);
-					actionNode.setAction(new DroolsConsequenceAction("java",
-							"kcontext.getProcessInstance().signalEvent(\"Compensate-"
-									+ activityRef + "\", null);"));
-				}
-				// boolean waitForCompletion = true;
-				// String waitForCompletionString = ((Element)
-				// xmlNode).getAttribute("waitForCompletion");
-				// if ("false".equals(waitForCompletionString)) {
-				// waitForCompletion = false;
-				// }
 			}
 			xmlNode = xmlNode.getNextSibling();
 		}
