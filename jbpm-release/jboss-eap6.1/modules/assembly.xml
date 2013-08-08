@@ -37,17 +37,17 @@
 
     <componentDescriptors>
         <componentDescriptor>src/main/resources/antlr/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/apache/commons/httpclient/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/apache/commons/codec/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/drools/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/eclipse/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/google/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/jbpm/core/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/jbpm/services/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/jcraft/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/kie/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/mvel/mvel2/assembly-component.xml</componentDescriptor>
-        <componentDescriptor>src/main/resources/seam/assembly-component.xml</componentDescriptor>
-        <componentDescriptor>src/main/resources/apache/commons/httpclient/assembly-component.xml</componentDescriptor>
-        <componentDescriptor>src/main/resources/apache/commons/codec/assembly-component.xml</componentDescriptor>
-        <componentDescriptor>src/main/resources/jcraft/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/quartz/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/thoughtworks/assembly-component.xml</componentDescriptor>
     </componentDescriptors>
 </assembly>

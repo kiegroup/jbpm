@@ -22,7 +22,7 @@
 <module xmlns="urn:jboss:module:1.1" name="org.mvel.mvel2">
 
     <resources>
-        <resource-root path="mvel2-${mvel.dep.version}.jar"/>
+        <resource-root path="mvel2-${version.org.mvel}.jar"/>
     </resources>
 
     <dependencies>

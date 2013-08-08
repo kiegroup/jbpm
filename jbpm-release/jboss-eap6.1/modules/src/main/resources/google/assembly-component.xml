@@ -35,7 +35,7 @@
                 <include>com.google.protobuf:protobuf-java</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/com/google/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${protobuf.version}.${artifact.extension}</outputFileNameMapping>
+            <outputFileNameMapping>${artifact.artifactId}-${version.com.google.protobuf}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>

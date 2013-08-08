@@ -19,10 +19,10 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="org.eclipse">
+<module xmlns="urn:jboss:module:1.1" name="com.jcraft">
 
     <resources>
-        <resource-root path="ecj-${version.org.eclipse.jdt.core.compiler}.jar"/>
+        <resource-root path="jsch-${jsch.version}.jar"/>
     </resources>
 
     <dependencies>

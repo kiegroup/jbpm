@@ -22,13 +22,8 @@
 
     <files>
         <file>
-            <source>src/main/resources/eclipse/module.xml</source>
-            <outputDirectory>/modules/system/layers/bpms/org/eclipse/main</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>src/main/resources/eclipse/jgit/module.xml</source>
-            <outputDirectory>/modules/system/layers/bpms/org/eclipse/jgit/main</outputDirectory>
+            <source>src/main/resources/quartz/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/opensymphony/quartz/main</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -37,18 +32,10 @@
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>org.eclipse.jdt.core.compiler:ecj</include>
+                <include>org.opensymphony.quartz:quartz</include>
             </includes>
-            <outputDirectory>/modules/system/layers/bpms/org/eclipse/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${version.org.eclipse.jdt.core.compiler}.${artifact.extension}</outputFileNameMapping>
-        </dependencySet>
-        <dependencySet>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <includes>
-                <include>org.eclipse.jgit:org.eclipse.jgit</include>
-            </includes>
-            <outputDirectory>/modules/system/layers/bpms/org/eclipse/jgit/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${eclipse.jgit.version}.${artifact.extension}</outputFileNameMapping>
+            <outputDirectory>/modules/system/layers/bpms/org/opensymphony/quartz/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${quartz.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
     </dependencySets>
 </component>

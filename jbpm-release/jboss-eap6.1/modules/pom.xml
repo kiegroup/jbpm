@@ -25,24 +25,22 @@
     <parent>
         <groupId>org.jbpm</groupId>
         <artifactId>jbpm-as7-parent</artifactId>
-        <version>6.0.0-SNAPSHOT</version>
+        <version>6.1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-as7-modules</artifactId>
 
     <properties>
-        <solder.version>3.2.0.Final</solder.version>
-        <seam.version>3.1.0.Final</seam.version>
-        <eclipse.jdt.core.version>3.5.1</eclipse.jdt.core.version>
         <antlr.version>3.3</antlr.version>
         <stringtemplate.version>3.2.1</stringtemplate.version>
         <eclipse.jgit.version>2.1.0.201209190230-r</eclipse.jgit.version>
         <httpclient.version>3.1</httpclient.version>
         <jsch.version>0.1.50</jsch.version>
         <javaewah.version>0.7.2</javaewah.version>
-        <xstream.version>1.4.3</xstream.version>
         <commons.codec.version>1.5</commons.codec.version>
+        <quartz.version>1.6.1</quartz.version>
+        <version.org.eclipse.jdt.core.compiler>3.7.2</version.org.eclipse.jdt.core.compiler>
     </properties>
 
     <repositories>
@@ -282,45 +280,23 @@
         <dependency>
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
-        </dependency>
-
-        <!-- seam -->
-        <dependency>
-            <groupId>org.jboss.seam.persistence</groupId>
-            <artifactId>seam-persistence-api</artifactId>
-            <version>${seam.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.seam.persistence</groupId>
-            <artifactId>seam-persistence</artifactId>
-            <version>${seam.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.seam.transaction</groupId>
-            <artifactId>seam-transaction-api</artifactId>
-            <version>${seam.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.seam.transaction</groupId>
-            <artifactId>seam-transaction</artifactId>
-            <version>${seam.version}</version>
+            <version>${version.com.thoughtworks.xstream}</version>
         </dependency>
 
         <dependency>
             <groupId>org.mvel</groupId>
             <artifactId>mvel2</artifactId>
-            <version>${mvel.dep.version}</version>
+            <version>${version.org.mvel}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jdt.core.compiler</groupId>
             <artifactId>ecj</artifactId>
-            <version>${eclipse.jdt.core.version}</version>
+            <version>${version.org.eclipse.jdt.core.compiler}</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>${protobuf.version}</version>
+            <version>${version.com.google.protobuf}</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -337,11 +313,12 @@
             <artifactId>commons-codec</artifactId>
             <version>1.5</version>
         </dependency>
-
-
-
-
-
+        <dependency>
+            <groupId>org.opensymphony.quartz</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${quartz.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 </project>

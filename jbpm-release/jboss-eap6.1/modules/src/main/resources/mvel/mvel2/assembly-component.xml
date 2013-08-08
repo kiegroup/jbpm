@@ -35,7 +35,7 @@
                 <include>org.mvel:mvel2</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/mvel/mvel2/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${mvel.dep.version}.${artifact.extension}</outputFileNameMapping>
+            <outputFileNameMapping>${artifact.artifactId}-${version.org.mvel}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
     </dependencySets>
 </component>
