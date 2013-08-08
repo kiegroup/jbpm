@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
@@ -41,7 +42,7 @@ import org.jbpm.task.service.ContentData;
 
 public class TaskManagement extends SessionInitializer implements org.jboss.bpm.console.server.integration.TaskManagement {
 	
-	private static int clientCounter = 0;
+    private static AtomicInteger clientCounter = new AtomicInteger(0);
     private String locale;
 	private TaskService service;
 
@@ -49,18 +50,15 @@ public class TaskManagement extends SessionInitializer implements org.jboss.bpm.
 	    super();
 	}
 
-	public void connect() {
-
+	public synchronized void connect() {
 	    if (service == null) {
 	        
     	    Properties jbpmConsoleProperties = StatefulKnowledgeSessionUtil.getJbpmConsoleProperties();   
     	    locale = jbpmConsoleProperties.getProperty("jbpm.console.task.service.locale", "en-UK");
 
-            service = TaskClientFactory.newInstance(jbpmConsoleProperties, "org.jbpm.integration.console.TaskManagement"+clientCounter);
-            clientCounter++;
-       
+            service = TaskClientFactory.newInstance(jbpmConsoleProperties, 
+                    "org.jbpm.integration.console.TaskManagement:" + clientCounter.incrementAndGet());
 	    }
-		
 	}
 	
 	public TaskRef getTaskById(long taskId) {

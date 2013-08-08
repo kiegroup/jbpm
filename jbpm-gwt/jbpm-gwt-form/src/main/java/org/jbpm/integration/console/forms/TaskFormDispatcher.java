@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.activation.DataHandler;
 
@@ -39,11 +40,11 @@ import org.jbpm.task.TaskService;
  */
 public class TaskFormDispatcher extends AbstractFormDispatcher {
 
-    private static int clientCounter = 0;
+    private static AtomicInteger clientCounter = new AtomicInteger(0);
 
 	private TaskService service;
 
-    public void connect() {
+    public synchronized void connect() {
         if (service == null) {
 
             Properties properties = new Properties();
@@ -52,8 +53,8 @@ public class TaskFormDispatcher extends AbstractFormDispatcher {
             } catch (IOException e) {
                 throw new RuntimeException("Could not load jbpm.console.properties", e);
             }
-            service =TaskClientFactory.newInstance(properties, "org.jbpm.integration.console.forms.TaskFormDispatcher"+clientCounter);
-	    clientCounter++;
+            service = TaskClientFactory.newInstance(properties, 
+                    "org.jbpm.integration.console.forms.TaskFormDispatcher:" + clientCounter.incrementAndGet() );
         }
     }
 
