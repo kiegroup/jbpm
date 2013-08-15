@@ -284,6 +284,10 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
         task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
         try {
         	client.addTask(task, content);
+            if (isAutoClaim(workItem, task)) {
+                autoClaim(workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));
+            }
+
         	
         } catch (Exception e) {
         	
@@ -327,6 +331,27 @@ public class SyncWSHumanTaskHandler implements WorkItemHandler {
             }
         }
     }
+    
+    protected boolean isAutoClaim(WorkItem workItem, Task task) {
+        String swimlaneUser = (String) workItem.getParameter("SwimlaneActorId");
+        if (swimlaneUser != null  && !"".equals(swimlaneUser)  && task.getTaskData().getStatus() == Status.Ready) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    public void autoClaim(long workItemId, String claimUser) {
+        Task task = client.getTaskByWorkItemId(workItemId);
+        if (task != null) {
+            try {
+                client.claim(task.getId(), claimUser);
+            } catch (PermissionDeniedException e) {
+                logger.info(e.getMessage());
+            }
+        }
+    }
+
 
     private class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
         

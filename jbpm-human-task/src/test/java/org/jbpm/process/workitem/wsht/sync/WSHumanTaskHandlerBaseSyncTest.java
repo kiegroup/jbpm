@@ -39,6 +39,8 @@ import org.jbpm.task.TestStatefulKnowledgeSession;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
+import org.jbpm.task.service.UserGroupCallbackManager;
+import org.jbpm.task.service.UserGroupCallbackOneImpl;
 import org.jbpm.task.utils.OnErrorAction;
 
 public abstract class WSHumanTaskHandlerBaseSyncTest extends BaseTest {
@@ -916,6 +918,42 @@ public abstract class WSHumanTaskHandlerBaseSyncTest extends BaseTest {
         subTask2 = getClient().getTask(subTaskSummary2.getId());
         assertEquals(Status.Completed, subTask2.getTaskData().getStatus());
         assertEquals(users.get("darth"), subTask2.getTaskData().getActualOwner());
+
+        assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
+    }
+    
+    public void testTaskWithAutoClaim() throws Exception {
+    	UserGroupCallbackManager.getInstance().setCallback(new UserGroupCallbackOneImpl());
+        TestWorkItemManager manager = new TestWorkItemManager();
+        ksession.setWorkItemManager(manager);
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("TaskName", "TaskName");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("GroupId", "Crusaders");
+        workItem.setParameter("SwimlaneActorId", "Darth Vader");
+        workItem.setProcessInstanceId(10);
+        handler.executeWorkItem(workItem, manager);
+
+        List<String> groupIds = new ArrayList<String>();
+        groupIds.add("Crusaders");
+        List<TaskSummary> tasks = client.getTasksAssignedAsPotentialOwner("Darth Vader", groupIds, "en-UK");        
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        assertEquals("TaskName", task.getName());
+        assertEquals(10, task.getPriority());
+        assertEquals("Comment", task.getDescription());
+        assertEquals(Status.Reserved, task.getStatus());
+        assertEquals("Darth Vader", task.getActualOwner().getId());
+        assertEquals(10, task.getProcessInstanceId());
+        
+        List<Long> taskIds = client.getTasksByProcessInstanceId(10);
+        assertEquals(1, taskIds.size());
+        assertEquals(task.getId(), (long) taskIds.get(0));
+
+        client.start(task.getId(), "Darth Vader");
+        client.complete(task.getId(), "Darth Vader", null);
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }

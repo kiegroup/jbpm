@@ -36,6 +36,7 @@ import org.drools.runtime.process.WorkItemManager;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.eventmessaging.Payload;
 import org.jbpm.task.AccessType;
+import org.jbpm.task.AsyncTaskService;
 import org.jbpm.task.Content;
 import org.jbpm.task.Group;
 import org.jbpm.task.I18NText;
@@ -53,12 +54,11 @@ import org.jbpm.task.event.TaskEventKey;
 import org.jbpm.task.event.TaskFailedEvent;
 import org.jbpm.task.event.TaskSkippedEvent;
 import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.PermissionDeniedException;
 import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.TaskClientHandler.AddTaskResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetContentResponseHandler;
 import org.jbpm.task.service.TaskClientHandler.GetTaskResponseHandler;
-import org.jbpm.task.service.hornetq.HornetQTaskClientConnector;
-import org.jbpm.task.service.hornetq.HornetQTaskClientHandler;
-import org.jbpm.task.service.mina.MinaTaskClientConnector;
 import org.jbpm.task.service.responsehandlers.AbstractBaseResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,7 +239,11 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
                 logger.error(e.getMessage(), e);
 		    }
 		}
-		client.addTask(task, content, null);
+		TaskAddedHandler handler = new TaskAddedHandler(workItem.getId());
+        if (isAutoClaim(workItem, task)) {
+        	handler = new AutoClaimTaskAddedHandler(workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));
+        }
+        client.addTask(task, content, handler);
 	}
 	
 	public void dispose() throws Exception {
@@ -257,6 +261,56 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 		GetTaskResponseHandler abortTaskResponseHandler = new AbortTaskResponseHandler();
     	client.getTaskByWorkItemId(workItem.getId(), abortTaskResponseHandler);
 	}
+	
+	 
+    protected boolean isAutoClaim(WorkItem workItem, Task task) {
+        String swimlaneUser = (String) workItem.getParameter("SwimlaneActorId");
+        if (swimlaneUser != null  && !"".equals(swimlaneUser)) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    public void autoClaim(long workItemId, String claimUser) {
+    	
+    	GetTaskResponseHandler handler = new ClaimTaskResponseHandler(client, claimUser);
+        client.getTaskByWorkItemId(workItemId, handler);
+    }
+
+    
+    private class TaskAddedHandler extends AbstractBaseResponseHandler implements AddTaskResponseHandler {
+
+		private long workItemId;
+		
+		public TaskAddedHandler(long workItemId) {
+			this.workItemId = workItemId;
+		}
+		public void execute(long taskId) {
+			
+		}
+
+		@Override
+		public synchronized void setError(RuntimeException error) {		
+			super.setError(error);
+		}
+	
+    }
+    
+    private class AutoClaimTaskAddedHandler extends TaskAddedHandler {
+
+		private long workItemId;
+		private String claimUser;
+		
+		public AutoClaimTaskAddedHandler(long workItemId, String claimUser) {
+			super(workItemId);
+			this.claimUser = claimUser;
+		}
+		public void execute(long taskId) {
+            autoClaim(workItemId, claimUser);
+		}
+	
+    }
     
     private class TaskCompletedHandler extends AbstractBaseResponseHandler implements EventResponseHandler {
         
@@ -342,4 +396,24 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
 		}
     }
     
+    private static class ClaimTaskResponseHandler extends AbstractBaseResponseHandler implements GetTaskResponseHandler {
+
+        private AsyncTaskService client;
+        private String claimUser;
+
+        public ClaimTaskResponseHandler(AsyncTaskService client, String claimUser) {
+            this.client = client;
+            this.claimUser = claimUser;
+        }
+
+        public void execute(Task task) {
+            if (task != null && task.getTaskData().getStatus() == Status.Ready) {
+                try {
+                    client.claim(task.getId(), claimUser, null);
+                } catch (PermissionDeniedException e) {
+                    logger.info(e.getMessage());
+                }
+            }
+        }
+    }
 }

@@ -41,6 +41,8 @@ import org.jbpm.task.TestStatefulKnowledgeSession;
 import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.ContentData;
 import org.jbpm.task.service.PermissionDeniedException;
+import org.jbpm.task.service.UserGroupCallbackManager;
+import org.jbpm.task.service.UserGroupCallbackOneImpl;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetIdsResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
@@ -1023,6 +1025,56 @@ public abstract class WSHumanTaskHandlerBaseAsyncTest extends BaseTest {
         subTask2 = getTaskResponseHandler.getTask();
         assertEquals(Status.Completed, subTask2.getTaskData().getStatus());
         assertEquals(users.get("darth"), subTask2.getTaskData().getActualOwner());
+
+        assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
+    }
+    
+    public void testTaskWithAutoClaim() throws Exception {
+    	UserGroupCallbackManager.getInstance().setCallback(new UserGroupCallbackOneImpl());
+        TestWorkItemManager manager = new TestWorkItemManager();
+        WorkItemImpl workItem = new WorkItemImpl();
+        workItem.setName("Human Task");
+        workItem.setParameter("TaskName", "TaskName");
+        workItem.setParameter("Comment", "Comment");
+        workItem.setParameter("Priority", "10");
+        workItem.setParameter("GroupId", "Crusaders");
+        workItem.setParameter("SwimlaneActorId", "Darth Vader");
+        workItem.setProcessInstanceId(10);
+        handler.executeWorkItem(workItem, manager);
+
+        Thread.sleep(500);
+
+        BlockingTaskSummaryResponseHandler responseHandler = new BlockingTaskSummaryResponseHandler();
+        List<String> groupIds = new ArrayList<String>();
+        groupIds.add("Crusaders");
+        client.getTasksAssignedAsPotentialOwner("Darth Vader", groupIds, "en-UK", responseHandler);
+        List<TaskSummary> tasks = responseHandler.getResults();
+        assertEquals(1, tasks.size());
+        TaskSummary task = tasks.get(0);
+        assertEquals("TaskName", task.getName());
+        assertEquals(10, task.getPriority());
+        assertEquals("Comment", task.getDescription());
+        assertEquals(Status.Reserved, task.getStatus());
+        assertEquals("Darth Vader", task.getActualOwner().getId());
+        assertEquals(10, task.getProcessInstanceId());
+
+        BlockingGetIdsResponseHandler idResponseHandler = new BlockingGetIdsResponseHandler(); 
+        client.getTasksByProcessInstanceId(10, idResponseHandler);
+        List<Long> ids = idResponseHandler.getIds();
+        assertEquals(1, ids.size());
+        assertEquals(task.getId(), (long) ids.get(0));
+        
+        logger.debug("Starting task " + task.getId());
+        BlockingTaskOperationResponseHandler operationResponseHandler = new BlockingTaskOperationResponseHandler();
+        client.start(task.getId(), "Darth Vader", operationResponseHandler);
+        operationResponseHandler.waitTillDone(DEFAULT_WAIT_TIME);
+        logger.debug("Started task " + task.getId());
+
+        logger.debug("Completing task " + task.getId());
+        operationResponseHandler = new BlockingTaskOperationResponseHandler();
+        client.complete(task.getId(), "Darth Vader", null, operationResponseHandler);
+        operationResponseHandler.waitTillDone(15000);
+        logger.debug("Completed task " + task.getId());
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
