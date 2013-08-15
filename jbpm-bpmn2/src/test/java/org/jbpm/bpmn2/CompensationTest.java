@@ -100,7 +100,7 @@ public class CompensationTest extends JbpmBpmn2TestCase {
 
         assertProcessInstanceActive(processInstance.getId(), ksession);
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItem().getId(), null);
-        assertProcessVarValue(processInstance, "x", "true");
+        assertProcessVarValue(processInstance, "x", "x");
 
     }
 

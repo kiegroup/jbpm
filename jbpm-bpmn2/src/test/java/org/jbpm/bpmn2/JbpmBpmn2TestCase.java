@@ -706,7 +706,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
                 actualValue = value.toString();
             }
         } 
-        result = varName.equals(actualValue);
+        result = varValue.equals(actualValue);
         if(!result) {
             fail("Variable " + varName + " value missmatch - expected " + varValue + " actual " + actualValue);
         }
