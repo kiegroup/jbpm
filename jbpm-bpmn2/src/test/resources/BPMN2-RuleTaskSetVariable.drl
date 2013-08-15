@@ -2,11 +2,14 @@ package com.sample;
 
 import org.kie.api.runtime.process.WorkflowProcessInstance
 
+global java.util.List list;
+
 rule MyRule
   ruleflow-group "myRules"
   when
     processInstance : WorkflowProcessInstance()
+    eval( processInstance.getVariable("x") == "SomeString")
   then
-    System.out.println("Rule fired");
-    retract(processInstance);
+    processInstance.setVariable("x", "AnotherString");
+    list.add("Executed");
 end
