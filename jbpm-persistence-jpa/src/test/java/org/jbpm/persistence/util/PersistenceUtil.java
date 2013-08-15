@@ -60,7 +60,7 @@ public class PersistenceUtil {
         
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
     
-    private static TestH2Server h2Server = new TestH2Server();
+//    private static TestH2Server h2Server = new TestH2Server();
     
     private static Properties defaultProperties = null;
    
@@ -183,9 +183,10 @@ public class PersistenceUtil {
         }
 
         String driverClass = dsProps.getProperty("driverClassName");
-        if (driverClass.startsWith("org.h2")) {
+        if (driverClass.startsWith("org.h2") || driverClass.startsWith("org.hsqldb")) {
             if( startServer ) { 
-                h2Server.start();
+                throw new UnsupportedOperationException("Can not start H2 server at the moment!");
+//                h2Server.start();
             }
             for (String propertyName : new String[] { "url", "driverClassName" }) {
                 pds.getDriverProperties().put(propertyName, dsProps.getProperty(propertyName));

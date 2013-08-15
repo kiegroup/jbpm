@@ -1,6 +1,5 @@
 package org.jbpm.test.util;
 
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -14,11 +13,11 @@ public abstract class AbstractBaseTest {
     
     @BeforeClass
     public static void configure() { 
-        LoggingPrintStream.interceptSysOutSysErr();
+        BpmnDebugPrintStream.interceptSysOutSysErr();
     }
     
     @AfterClass
     public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+        BpmnDebugPrintStream.resetInterceptSysOutSysErr();
     }
 }
