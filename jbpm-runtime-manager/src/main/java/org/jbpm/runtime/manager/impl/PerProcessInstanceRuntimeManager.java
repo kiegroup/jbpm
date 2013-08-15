@@ -255,8 +255,9 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     @Override
     public void init() {
         // need to init one session to bootstrap all case - such as start timers
-        KieSession ksession = factory.newKieSession();
-        ksession.destroy();
+        RuntimeEngine engine = getRuntimeEngine(EmptyContext.get());
+        if(canDestroy())
+            disposeRuntimeEngine(engine);
         
     }
 
