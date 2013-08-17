@@ -45,6 +45,7 @@
         <componentDescriptor>src/main/resources/jbpm/core/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/jbpm/services/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/jcraft/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/joda/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/kie/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/mvel/mvel2/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/quartz/assembly-component.xml</componentDescriptor>

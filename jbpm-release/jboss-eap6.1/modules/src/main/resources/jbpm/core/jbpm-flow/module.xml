@@ -30,5 +30,8 @@
 
         <!-- line 61 of:  org/jbpm/process/core/timer/impl/GlobalTimerService.java -->
         <module name="org.jbpm.jbpm-persistence-jpa" />
+
+        <!-- java.lang.ClassNotFoundException: org.joda.time.DateTime from [Module "org.jbpm.jbpm-flow:main -->
+        <module name="org.joda" />
     </dependencies>
 </module>

@@ -19,10 +19,10 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="org.opensymphony.quartz">
+<module xmlns="urn:jboss:module:1.1" name="org.joda">
 
     <resources>
-        <resource-root path="quartz-${quartz.version}.jar"/>
+        <resource-root path="joda-time-${version.joda-time}.jar"/>
     </resources>
 
     <dependencies>

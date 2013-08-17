@@ -317,7 +317,11 @@
             <groupId>org.opensymphony.quartz</groupId>
             <artifactId>quartz</artifactId>
             <version>${quartz.version}</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${version.joda-time}</version>
         </dependency>
 
     </dependencies>
