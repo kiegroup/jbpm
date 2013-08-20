@@ -36,6 +36,7 @@
         <module name="org.mvel.mvel2" export="true" />
         <module name="org.hibernate" export="true" />
         <module name="org.hibernate" export="true" />
+        <module name="com.thoughtworks" export="true"/>
 
         <!-- java.lang.ClassNotFoundException: org.jbpm.persistence.processinstance.JPAProcessInstanceManagerFactory ... -->
         <!-- java.lang.ClassNotFoundException: org.drools.persistence.jpa.JpaTimeJobFactoryManager from [Module "org.drools.drools-core:main" ... -->

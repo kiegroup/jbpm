@@ -34,5 +34,6 @@
         <module name="org.kie.kie-internal" export="true"/>
         <module name="org.kie.kie-nio2-api" export="true"/>
         <module name="org.kie.kie-nio2-model" export="true"/>
+        <module name="org.kie.kie-ci" export="true"/>
     </dependencies>
 </module>

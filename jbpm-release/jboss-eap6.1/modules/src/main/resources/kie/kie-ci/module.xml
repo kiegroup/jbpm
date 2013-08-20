@@ -19,16 +19,18 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="com.google">
+<module xmlns="urn:jboss:module:1.1" name="org.kie.kie-ci">
 
     <resources>
-        <resource-root path="protobuf-java-${version.com.google.protobuf}.jar"/>
-        <resource-root path="JavaEWAH-${javaewah.version}.jar"/>
-        <resource-root path="guava-${guava.version}.jar"/>
+        <resource-root path="kie-ci-${project.version}.jar"/>
     </resources>
 
     <dependencies>
-        <!-- java.lang.ClassNotFoundException: org.jbpm.marshalling.impl.JBPMMessages$Variable from [Module "com.google:main" -->
-        <module name="org.jbpm.jbpm-flow" />
+        <module name="org.drools.drools-core"/>
+        <module name="org.drools.drools-compiler"/>
+        <module name="org.sonatype"/>
+        <module name="org.apache.maven"/>
+        <module name="org.codehaus"/>
+        <module name="org.apache.ant"/>
     </dependencies>
 </module>

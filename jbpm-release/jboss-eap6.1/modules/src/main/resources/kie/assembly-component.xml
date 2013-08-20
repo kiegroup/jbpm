@@ -32,6 +32,11 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>src/main/resources/kie/kie-ci/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/kie/kie-ci/main</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>src/main/resources/kie/kie-commons-cdi/module.xml</source>
             <outputDirectory>/modules/system/layers/bpms/org/kie/kie-commons-cdi/main</outputDirectory>
             <filtered>true</filtered>
@@ -90,6 +95,14 @@
                 <include>org.kie:kie-api</include>
             </includes>
             <outputDirectory>/modules/system/layers/bpms/org/kie/kie-api/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.kie:kie-ci</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/kie/kie-ci/main</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}-${project.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>

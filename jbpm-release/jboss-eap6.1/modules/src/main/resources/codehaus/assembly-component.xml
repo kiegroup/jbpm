@@ -22,8 +22,8 @@
 
     <files>
         <file>
-            <source>src/main/resources/google/module.xml</source>
-            <outputDirectory>/modules/system/layers/bpms/com/google/main</outputDirectory>
+            <source>src/main/resources/codehaus/module.xml</source>
+            <outputDirectory>/modules/system/layers/bpms/org/codehaus/main</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -32,26 +32,34 @@
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>com.google.protobuf:protobuf-java</include>
+                <include>org.codehaus.plexus:plexus-classworlds</include>
             </includes>
-            <outputDirectory>/modules/system/layers/bpms/com/google/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${version.com.google.protobuf}.${artifact.extension}</outputFileNameMapping>
+            <outputDirectory>/modules/system/layers/bpms/org/codehaus/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${plexus.classworlds.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>com.googlecode.javaewah:JavaEWAH</include>
+                <include>org.codehaus.plexus:plexus-component-annotations</include>
             </includes>
-            <outputDirectory>/modules/system/layers/bpms/com/google/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${javaewah.version}.${artifact.extension}</outputFileNameMapping>
+            <outputDirectory>/modules/system/layers/bpms/org/codehaus/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${plexus.component.annotations.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                <include>com.google.guava:guava</include>
+                <include>org.codehaus.plexus:plexus-interpolation</include>
             </includes>
-            <outputDirectory>/modules/system/layers/bpms/com/google/main</outputDirectory>
-            <outputFileNameMapping>${artifact.artifactId}-${guava.version}.${artifact.extension}</outputFileNameMapping>
+            <outputDirectory>/modules/system/layers/bpms/org/codehaus/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${plexus.interpolation.version}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.codehaus.plexus:plexus-utils</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/codehaus/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${plexus.utils.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
     </dependencySets>
 </component>

@@ -27,5 +27,8 @@
 
     <dependencies>
         <module name="org.slf4j" export="true" />
+
+        <!-- java.lang.ClassNotFoundException: org.drools.compiler.kie.builder.impl.KieServicesImpl from [Module "org.kie.kie-api:main" -->
+        <module name="org.drools.drools-compiler"/>
     </dependencies>
 </module>

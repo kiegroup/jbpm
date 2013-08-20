@@ -37,8 +37,11 @@
 
     <componentDescriptors>
         <componentDescriptor>src/main/resources/antlr/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/apache/ant/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/apache/commons/httpclient/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/apache/commons/codec/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/apache/maven/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/codehaus/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/drools/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/eclipse/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/google/assembly-component.xml</componentDescriptor>
@@ -49,6 +52,7 @@
         <componentDescriptor>src/main/resources/kie/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/mvel/mvel2/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/quartz/assembly-component.xml</componentDescriptor>
+        <componentDescriptor>src/main/resources/sonatype/assembly-component.xml</componentDescriptor>
         <componentDescriptor>src/main/resources/thoughtworks/assembly-component.xml</componentDescriptor>
     </componentDescriptors>
 </assembly>

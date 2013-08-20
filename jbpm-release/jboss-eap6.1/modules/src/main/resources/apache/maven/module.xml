@@ -19,16 +19,25 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="com.google">
+<module xmlns="urn:jboss:module:1.1" name="org.apache.maven">
 
     <resources>
-        <resource-root path="protobuf-java-${version.com.google.protobuf}.jar"/>
-        <resource-root path="JavaEWAH-${javaewah.version}.jar"/>
-        <resource-root path="guava-${guava.version}.jar"/>
+        <resource-root path="maven-aether-provider-${maven.version}.jar"/>
+        <resource-root path="maven-artifact-${maven.version}.jar"/>
+        <resource-root path="maven-compat-${maven.version}.jar"/>
+        <resource-root path="maven-core-${maven.version}.jar"/>
+        <resource-root path="maven-model-${maven.version}.jar"/>
+        <resource-root path="maven-model-builder-${maven.version}.jar"/>
+        <resource-root path="maven-plugin-api-${maven.version}.jar"/>
+        <resource-root path="maven-repository-metadata-${maven.version}.jar"/>
+        <resource-root path="maven-settings-${maven.version}.jar"/>
+        <resource-root path="maven-settings-builder-${maven.version}.jar"/>
+
+        <resource-root path="wagon-provider-api-${version.maven.wagon}.jar"/>
     </resources>
 
     <dependencies>
-        <!-- java.lang.ClassNotFoundException: org.jbpm.marshalling.impl.JBPMMessages$Variable from [Module "com.google:main" -->
-        <module name="org.jbpm.jbpm-flow" />
+        <module name="org.sonatype" />
+        <module name="org.codehaus" />
     </dependencies>
 </module>

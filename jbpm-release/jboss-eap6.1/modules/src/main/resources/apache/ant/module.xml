@@ -19,16 +19,12 @@
   ~ MA  02110-1301, USA.
   -->
 
-<module xmlns="urn:jboss:module:1.1" name="com.google">
+<module xmlns="urn:jboss:module:1.1" name="org.apache.ant">
 
     <resources>
-        <resource-root path="protobuf-java-${version.com.google.protobuf}.jar"/>
-        <resource-root path="JavaEWAH-${javaewah.version}.jar"/>
-        <resource-root path="guava-${guava.version}.jar"/>
+        <resource-root path="ant-${ant.version}.jar"/>
     </resources>
 
     <dependencies>
-        <!-- java.lang.ClassNotFoundException: org.jbpm.marshalling.impl.JBPMMessages$Variable from [Module "com.google:main" -->
-        <module name="org.jbpm.jbpm-flow" />
     </dependencies>
 </module>
