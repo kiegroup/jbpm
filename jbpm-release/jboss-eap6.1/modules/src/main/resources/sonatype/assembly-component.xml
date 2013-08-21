@@ -134,6 +134,14 @@
             <outputDirectory>/modules/system/layers/bpms/org/sonatype/main</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}-${version.ning}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>aopalliance:aopalliance</include>
+            </includes>
+            <outputDirectory>/modules/system/layers/bpms/org/sonatype/main</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}-${version.aopalliance}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
 
     </dependencySets>
 </component>

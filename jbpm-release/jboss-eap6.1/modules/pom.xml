@@ -58,6 +58,7 @@
         <plexus.utils.version>2.0.6</plexus.utils.version>
         <ant.version>1.8.2</ant.version>
         <guava.version>13.0.1</guava.version>
+        <version.aopalliance>1.0</version.aopalliance>
     </properties>
 
     <repositories>
@@ -479,6 +480,11 @@
       <groupId>com.ning</groupId>
       <artifactId>async-http-client</artifactId>
       <version>${version.ning}</version>
+    </dependency>
+    <dependency>
+      <groupId>aopalliance</groupId>
+      <artifactId>aopalliance</artifactId>
+      <version>${version.aopalliance}</version>
     </dependency>
 
 

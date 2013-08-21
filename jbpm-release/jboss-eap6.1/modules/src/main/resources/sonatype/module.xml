@@ -39,6 +39,7 @@
         <resource-root path="sisu-inject-plexus-${version.sonatype.sisu}.jar"/>
         <resource-root path="sisu-inject-bean-${version.sonatype.sisu.inject.bean}.jar"/>
         <resource-root path="sisu-guice-${version.sonatype.sisu.guice}.jar"/>
+        <resource-root path="aopalliance-${version.aopalliance}.jar"/>
     </resources>
 
     <dependencies>
