@@ -33,6 +33,7 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.core.NodeContainer;
 import org.jbpm.workflow.core.node.BoundaryEventNode;
 import org.jbpm.workflow.core.node.EventNode;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
@@ -54,13 +55,10 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
         final Element element = parser.endElementBuilder();
         Node node = (Node) parser.getCurrent();
         String attachedTo = element.getAttribute("attachedToRef");
-        String cancelActivityString = element.getAttribute("cancelActivity");
-        boolean cancelActivity = true;
-        if ("false".equals(cancelActivityString)) {
-            cancelActivity = false;
-        }
-        // determine type of event definition, so the correct type of node
-        // can be generated
+        Attr cancelActivityAttr = element.getAttributeNode("cancelActivity");
+        boolean cancelActivity = Boolean.parseBoolean(cancelActivityAttr.getValue());
+        
+        // determine type of event definition, so the correct type of node can be generated
         org.w3c.dom.Node xmlNode = element.getFirstChild();
         while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
@@ -105,6 +103,14 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
         super.handleNode(node, element, uri, localName, parser);
         BoundaryEventNode eventNode = (BoundaryEventNode) node;
         eventNode.setMetaData("AttachedTo", attachedTo);
+        /**
+         * TODO: because of how we process bpmn2/xml files, we can't tell 
+         *       if the cancelActivity attribute is set to false or not 
+         *       (because we override with the xsd settings)
+         * BPMN2 spec, p. 255, Escalation row: 
+         * "In contrast to an Error, an Escalation by default is assumed to not abort 
+         * the Activity to which the boundary Event is attached."
+         */
         eventNode.setMetaData("CancelActivity", cancelActivity);
         eventNode.setAttachedToNodeId(attachedTo);
         org.w3c.dom.Node xmlNode = element.getFirstChild();
@@ -114,7 +120,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 String escalationRef = ((Element) xmlNode).getAttribute("escalationRef");
                 if (escalationRef != null && escalationRef.trim().length() > 0) {
                     Map<String, Escalation> escalations = (Map<String, Escalation>)
-		                ((ProcessBuildData) parser.getData()).getMetaData("Escalations");
+		                ((ProcessBuildData) parser.getData()).getMetaData(ProcessHandler.ESCALATIONS);
 		            if (escalations == null) {
 		                throw new IllegalArgumentException("No escalations found");
 		            }
@@ -128,7 +134,9 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                     eventFilter.setType("Escalation-" + attachedTo + "-" + type);
                     eventFilters.add(eventFilter);
                     eventNode.setEventFilters(eventFilters);
-                    eventNode.setMetaData("EscalationEvent", type);
+                    eventNode.setMetaData("EscalationEvent", type); // OCRAM:  eventNode.eventNode.setMetaData("EscalationEvent", type);
+                } else { 
+                    // general escalation
                 }
             }
             xmlNode = xmlNode.getNextSibling();
