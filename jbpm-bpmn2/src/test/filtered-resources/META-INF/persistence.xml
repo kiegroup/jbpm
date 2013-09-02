@@ -22,8 +22,6 @@
         <class>org.jbpm.persistence.correlation.CorrelationKeyInfo</class>
         <class>org.jbpm.persistence.correlation.CorrelationPropertyInfo</class>
         
-        <class>org.jbpm.marshalling.util.MarshalledData</class>
-        
 	    <properties>
 	        <property name="hibernate.max_fetch_depth" value="3"/>
 		    <property name="hibernate.hbm2ddl.auto" value="create" />
