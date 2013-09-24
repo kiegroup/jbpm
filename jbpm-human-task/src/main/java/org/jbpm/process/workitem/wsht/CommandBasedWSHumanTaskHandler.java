@@ -354,6 +354,7 @@ public class CommandBasedWSHumanTaskHandler implements WorkItemHandler {
 		
 		public AutoClaimTaskAddedHandler(long workItemId, String claimUser) {
 			super(workItemId);
+			this.workItemId = workItemId;
 			this.claimUser = claimUser;
 		}
 		public void execute(long taskId) {

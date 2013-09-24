@@ -346,6 +346,7 @@ public class WSHumanTaskHandler implements WorkItemHandler {
 		
 		public AutoClaimTaskAddedHandler(WorkItemManager manager, long workItemId, String claimUser) {
 			super(manager, workItemId);
+			this.workItemId = workItemId;
 			this.claimUser = claimUser;
 		}
 		public void execute(long taskId) {
