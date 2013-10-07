@@ -14,10 +14,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 
-import org.jbpm.kie.services.api.IdentityProvider;
-import org.jbpm.kie.services.api.RequestScopedBackupIdentityProvider;
 import org.jbpm.kie.services.api.RuntimeDataService;
-import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
 import org.jbpm.kie.services.impl.event.Deploy;
 import org.jbpm.kie.services.impl.event.DeploymentEvent;
 import org.jbpm.kie.services.impl.event.Undeploy;
@@ -32,6 +29,9 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.deployment.DeployedUnit;
 import org.kie.internal.deployment.DeploymentService;
 import org.kie.internal.deployment.DeploymentUnit;
+import static org.kie.internal.deployment.DeploymentUnit.RuntimeStrategy.PER_PROCESS_INSTANCE;
+import static org.kie.internal.deployment.DeploymentUnit.RuntimeStrategy.PER_REQUEST;
+import static org.kie.internal.deployment.DeploymentUnit.RuntimeStrategy.SINGLETON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,7 +190,7 @@ public abstract class AbstractDeploymentService implements DeploymentService {
      * @return instance of the audit logger
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private AbstractAuditLogger getAuditLogger() {
+    protected AbstractAuditLogger getAuditLogger() {
         
         if ("true".equals(System.getProperty("jbpm.audit.jms.enabled"))) {
             try {
@@ -204,16 +204,5 @@ public abstract class AbstractDeploymentService implements DeploymentService {
         } 
         
         return AuditLoggerFactory.newJPAInstance(getEmf());
-    }
-    
-    protected AbstractAuditLogger setupAuditLogger(IdentityProvider identityProvider, String deploymentUnitId) { 
-        AbstractAuditLogger auditLogger = getAuditLogger();
-        ServicesAwareAuditEventBuilder auditEventBuilder = new ServicesAwareAuditEventBuilder();
-        auditEventBuilder.setIdentityProvider(identityProvider);
-        auditEventBuilder.setDeploymentUnitId(deploymentUnitId);
-        auditEventBuilder.setBeanManager(beanManager);
-        auditLogger.setBuilder(auditEventBuilder);
-        
-        return auditLogger;
     }
 }

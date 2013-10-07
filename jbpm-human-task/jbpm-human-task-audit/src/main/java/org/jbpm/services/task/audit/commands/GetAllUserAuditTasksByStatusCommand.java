@@ -17,21 +17,21 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetAllUserAuditTasksByStatusCommand extends TaskCommand<List<UserAuditTask>> {
 
-        private String status;
+        private List<String> statuses;
 	public GetAllUserAuditTasksByStatusCommand() {
 		
 	}
 	
-	public GetAllUserAuditTasksByStatusCommand(String userId, String status) {
+	public GetAllUserAuditTasksByStatusCommand(String userId, List<String> statuses) {
 		this.userId = userId;
-                this.status = status;
+                this.statuses = statuses;
 	}
 	
 	@Override
 	public List<UserAuditTask> execute(Context context) {
 		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
 		return persistenceContext.queryWithParametersInTransaction("getAllUserAuditTasksByStatus", 
-				persistenceContext.addParametersToMap("userId", userId, "status", status),
+				persistenceContext.addParametersToMap("userId", userId, "statuses", statuses),
 				ClassUtil.<List<UserAuditTask>>castClass(List.class));
 	}
 

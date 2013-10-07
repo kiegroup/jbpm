@@ -18,15 +18,15 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetAllGroupAuditTasksByStatusByDueDateCommand extends TaskCommand<List<GroupAuditTask>> {
         private String groupIds;
-        private String status;
+        private List<String> statuses;
         private Date dueDate;
 	public GetAllGroupAuditTasksByStatusByDueDateCommand() {
 		
 	}
 	
-	public GetAllGroupAuditTasksByStatusByDueDateCommand(String groupIds, String status, Date dueDate) {
+	public GetAllGroupAuditTasksByStatusByDueDateCommand(String groupIds, List<String> statuses, Date dueDate) {
 		this.groupIds = groupIds;
-                this.status = status;
+                this.statuses = statuses;
                 this.dueDate = dueDate;
 	}
 	
@@ -34,7 +34,7 @@ public class GetAllGroupAuditTasksByStatusByDueDateCommand extends TaskCommand<L
 	public List<GroupAuditTask> execute(Context context) {
 		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
 		return persistenceContext.queryWithParametersInTransaction("getAllGroupAuditTasksByStatusByDueDate", 
-				persistenceContext.addParametersToMap("groupIds", groupIds, "status", status, "dueDate", dueDate),
+				persistenceContext.addParametersToMap("groupIds", groupIds, "statuses", statuses, "dueDate", dueDate),
 				ClassUtil.<List<GroupAuditTask>>castClass(List.class));
 	}
 

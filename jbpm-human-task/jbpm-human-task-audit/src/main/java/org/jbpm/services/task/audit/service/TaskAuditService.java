@@ -31,15 +31,15 @@ public interface TaskAuditService {
     void setTaskService(TaskService taskService);
     List<TaskEvent> getAllTaskEvents(long taskId);
     List<UserAuditTask> getAllUserAuditTasks(String userId);
-    List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, String status);
+    List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses);
     List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate);
-    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, String status, Date dueDate);
-    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, String status, Date dueDate);
+    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate);
+    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate);
     
     List<GroupAuditTask> getAllGroupAuditTasks(String groupIds);
-    List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, String status);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses);
     List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate);
-    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, String status, Date dueDate);
-    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, String status, Date dueDate);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate);
     
 }

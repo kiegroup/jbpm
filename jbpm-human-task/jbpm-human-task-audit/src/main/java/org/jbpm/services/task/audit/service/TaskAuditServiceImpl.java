@@ -52,8 +52,14 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, String status) {
-        return taskService.execute(new GetAllUserAuditTasksByStatusCommand(userId, status));
+    public List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses) {
+        List<UserAuditTask> execute = null;
+        try{
+             execute = taskService.execute(new GetAllUserAuditTasksByStatusCommand(userId, statuses));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return execute;
     }
     
     @Override
@@ -62,13 +68,13 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, String status, Date dueDate) {
-        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, status, dueDate));
+    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate));
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, String status, Date dueDate) {
-        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, status, dueDate));
+    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate));
     }
     
     @Override
@@ -77,8 +83,8 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, String status) {
-        return taskService.execute(new GetAllGroupAuditTasksByStatusCommand(groupIds, status));
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusCommand(groupIds, statuses));
     }
 
     @Override
@@ -87,13 +93,13 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, String status, Date dueDate) {
-        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, status, dueDate));
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate));
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, String status, Date dueDate) {
-        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, status, dueDate));
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate));
     }
      
     @Override

@@ -2,7 +2,6 @@ package org.jbpm.kie.services.impl;
 
 import static org.kie.scanner.MavenRepository.getMavenRepository;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,13 +23,13 @@ import org.jbpm.kie.services.api.bpmn2.BPMN2DataService;
 import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.audit.AbstractAuditLogger;
+import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.runtime.manager.impl.cdi.InjectableRegisterableItemsFactory;
 import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.builder.model.KieBaseModel;
 import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.internal.deployment.DeploymentUnit;
 import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
@@ -136,9 +135,13 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 
         KieBase kbase = kieContainer.getKieBase(kbaseName);        
 
-        AbstractAuditLogger auditLogger = setupAuditLogger(identityProvider, unit.getIdentifier());
+        AbstractAuditLogger auditLogger = getAuditLogger();
+        ServicesAwareAuditEventBuilder auditEventBuilder = new ServicesAwareAuditEventBuilder();
+        auditEventBuilder.setIdentityProvider(identityProvider);
+        auditEventBuilder.setDeploymentUnitId(unit.getIdentifier());
+        auditLogger.setBuilder(auditEventBuilder);
 
-        RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
+        RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.getDefault()
                 .entityManagerFactory(getEmf())
                 .knowledgeBase(kbase)
                 .classLoader(kieContainer.getClassLoader());
