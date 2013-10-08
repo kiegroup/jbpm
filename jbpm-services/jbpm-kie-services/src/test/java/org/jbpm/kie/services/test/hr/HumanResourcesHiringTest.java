@@ -18,6 +18,7 @@ package org.jbpm.kie.services.test.hr;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,12 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePaths;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.jbpm.kie.services.api.RuntimeDataService;
+import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
+import org.jbpm.kie.services.impl.model.NodeInstanceDesc;
+import org.jbpm.kie.services.test.TestIdentityProvider;
+import org.jbpm.process.audit.AbstractAuditLogger;
+import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.runtime.manager.impl.cdi.InjectableRegisterableItemsFactory;
 import org.jbpm.runtime.manager.util.TestUtil;
@@ -153,18 +160,26 @@ public class HumanResourcesHiringTest extends AbstractBaseTest {
     private EntityManagerFactory emf;
     @Inject
     private BeanManager beanManager;
+    @Inject
+    private RuntimeDataService runtimeDataService;
 
     @Test
     public void simpleExecutionTest() {
         assertNotNull(managerFactory);
+        String id = "custom-manager";
+        AbstractAuditLogger auditLogger =AuditLoggerFactory.newJPAInstance(emf);
+        ServicesAwareAuditEventBuilder auditEventBuilder = new ServicesAwareAuditEventBuilder();
+        auditEventBuilder.setIdentityProvider(new TestIdentityProvider());
+        auditEventBuilder.setDeploymentUnitId(id);
+        auditLogger.setBuilder(auditEventBuilder);
         RuntimeEnvironmentBuilder builder = RuntimeEnvironmentBuilder.getDefault()
                 .entityManagerFactory(emf)
-                .registerableItemsFactory(InjectableRegisterableItemsFactory.getFactory(beanManager, null));
+                .registerableItemsFactory(InjectableRegisterableItemsFactory.getFactory(beanManager, auditLogger));
 
         builder.addAsset(ResourceFactory.newClassPathResource("repo/processes/hr/hiring.bpmn2"), ResourceType.BPMN2);
 
 
-        RuntimeManager manager = managerFactory.newSingletonRuntimeManager(builder.get());
+        RuntimeManager manager = managerFactory.newSingletonRuntimeManager(builder.get(), id);
         testHiringProcess(manager, EmptyContext.get());
 
         manager.close();
@@ -185,6 +200,16 @@ public class HumanResourcesHiringTest extends AbstractBaseTest {
 
         ProcessInstance processInstance = ksession.startProcess("hiring");
 
+        Collection<NodeInstanceDesc> activeNodes = runtimeDataService.getProcessInstanceActiveNodes(
+        															manager.getIdentifier(), processInstance.getId());
+        assertNotNull(activeNodes);
+        assertEquals(1, activeNodes.size());
+        
+        Collection<NodeInstanceDesc> completedNodes = runtimeDataService.getProcessInstanceCompletedNodes(
+        															manager.getIdentifier(), processInstance.getId());
+        assertNotNull(completedNodes);
+        assertEquals(1, completedNodes.size());
+        
         List<TaskSummary> tasks = ((InternalTaskService) taskService).getTasksAssignedByGroup("HR", "en-UK");
 
         TaskSummary HRInterview = tasks.get(0);
@@ -200,6 +225,16 @@ public class HumanResourcesHiringTest extends AbstractBaseTest {
         hrOutput.put("out.score", 8);
 
         taskService.complete(HRInterview.getId(), "katy", hrOutput);
+        
+        activeNodes = runtimeDataService.getProcessInstanceActiveNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(activeNodes);
+		assertEquals(1, activeNodes.size());
+		
+		completedNodes = runtimeDataService.getProcessInstanceCompletedNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(completedNodes);
+		assertEquals(2, completedNodes.size());
 
 
         assertNotNull(processInstance);
@@ -233,6 +268,16 @@ public class HumanResourcesHiringTest extends AbstractBaseTest {
         techOutput.put("out.score", 8);
 
         taskService.complete(techInterview.getId(), "salaboy", techOutput);
+        
+        activeNodes = runtimeDataService.getProcessInstanceActiveNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(activeNodes);
+		assertEquals(1, activeNodes.size());
+		
+		completedNodes = runtimeDataService.getProcessInstanceCompletedNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(completedNodes);
+		assertEquals(3, completedNodes.size());
 
 
         tasks = ((InternalTaskService) taskService).getTasksAssignedByGroup("HR", "en-UK");
@@ -260,6 +305,16 @@ public class HumanResourcesHiringTest extends AbstractBaseTest {
 
 
         taskService.complete(createProposal.getId(), "katy", proposalOutput);
+        
+        activeNodes = runtimeDataService.getProcessInstanceActiveNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(activeNodes);
+		assertEquals(1, activeNodes.size());
+		
+		completedNodes = runtimeDataService.getProcessInstanceCompletedNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(completedNodes);
+		assertEquals(5, completedNodes.size());
 
         tasks = ((InternalTaskService) taskService).getTasksAssignedByGroup("HR", "en-UK");
         assertNotNull(tasks);
@@ -283,6 +338,16 @@ public class HumanResourcesHiringTest extends AbstractBaseTest {
         Map<String, Object> signOutput = new HashMap<String, Object>();
         signOutput.put("out.signed", true);
         taskService.complete(signContract.getId(), "katy", signOutput);
+        
+        activeNodes = runtimeDataService.getProcessInstanceActiveNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(activeNodes);
+		assertEquals(0, activeNodes.size());
+		
+		completedNodes = runtimeDataService.getProcessInstanceCompletedNodes(
+						manager.getIdentifier(), processInstance.getId());
+		assertNotNull(completedNodes);
+		assertEquals(8, completedNodes.size());
 
         
         int removeAllTasks = ((InternalTaskService) taskService).removeAllTasks();
