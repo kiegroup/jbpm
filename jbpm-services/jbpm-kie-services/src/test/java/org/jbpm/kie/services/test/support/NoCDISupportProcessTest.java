@@ -26,7 +26,6 @@ import org.jbpm.kie.services.impl.RuntimeDataServiceImpl;
 import org.jbpm.kie.services.impl.VFSDeploymentService;
 import org.jbpm.kie.services.impl.VfsMVELWorkItemHandlerProducer;
 import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
-import org.jbpm.kie.services.impl.bpmn2.AbstractTaskGetInformationHandler;
 import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
 import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceSemanticModule;
 import org.jbpm.kie.services.impl.bpmn2.DataServiceItemDefinitionHandler;
