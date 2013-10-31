@@ -17,6 +17,7 @@ import org.drools.core.time.TimerService;
 import org.drools.core.time.TimerServiceFactory;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessRuntimeImpl;
+import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.internal.KnowledgeBase;
 import org.kie.api.command.Command;
 import org.kie.api.event.process.ProcessEventListener;
@@ -335,6 +336,10 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 		// Do nothing
 	}
 
+	public void addEventListener(RuleRuntimeEventListener listener) {
+		// Do nothing
+	}
+
 	public void addEventListener(AgendaEventListener listener) {
 		// Do nothing
 	}
@@ -347,7 +352,15 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 		return new ArrayList<WorkingMemoryEventListener>();
 	}
 
+	public Collection<RuleRuntimeEventListener> getRuleRuntimeEventListeners() {
+		return new ArrayList<RuleRuntimeEventListener>();
+	}
+
 	public void removeEventListener(WorkingMemoryEventListener listener) {
+		// Do nothing
+	}
+
+	public void removeEventListener(RuleRuntimeEventListener listener) {
 		// Do nothing
 	}
 

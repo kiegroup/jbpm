@@ -9,6 +9,7 @@ import org.drools.core.impl.AbstractRuntime;
 import org.jbpm.process.core.impl.ProcessImpl;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 
+import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.internal.KnowledgeBase;
 import org.kie.api.command.Command;
 import org.kie.api.event.process.ProcessEventListener;
@@ -88,6 +89,9 @@ public class TestStatefulKnowledgeSession extends AbstractRuntime implements Sta
     public void addEventListener(WorkingMemoryEventListener arg0) {
     }
 
+    public void addEventListener(RuleRuntimeEventListener arg0) {
+    }
+
     public Collection<AgendaEventListener> getAgendaEventListeners() {
         return null;
     }
@@ -96,10 +100,17 @@ public class TestStatefulKnowledgeSession extends AbstractRuntime implements Sta
         return null;
     }
 
+    public Collection<RuleRuntimeEventListener> getRuleRuntimeEventListeners() {
+        return null;
+    }
+
     public void removeEventListener(AgendaEventListener arg0) {
     }
 
     public void removeEventListener(WorkingMemoryEventListener arg0) {
+    }
+
+    public void removeEventListener(RuleRuntimeEventListener arg0) {
     }
 
     public void abortProcessInstance(long arg0) {
