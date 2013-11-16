@@ -46,6 +46,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.kie.api.task.model.Content;
+import org.kie.api.task.model.User;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTaskSummary;
 import org.slf4j.Logger;

@@ -190,7 +190,7 @@ public class DeadlinesDecorator implements TaskInstanceService {
     private void scheduleDeadlinesForTask(final long taskId) {
         final long now = System.currentTimeMillis();
         
-        Task task = queryService.getTaskInstanceById(taskId);
+        InternalTask task = (InternalTask) queryService.getTaskInstanceById(taskId);
         Deadlines deadlines = task.getDeadlines();
         
         if (deadlines != null) {
