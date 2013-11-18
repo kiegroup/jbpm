@@ -5,13 +5,13 @@
                  version="2.0">
       <named-query name="TasksAssignedAsBusinessAdministrator">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -56,13 +56,13 @@ where
       </named-query>
       <named-query name="TasksAssignedAsExcludedOwner">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -107,13 +107,13 @@ where
       </named-query>
       <named-query name="TasksAssignedAsPotentialOwner">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -160,13 +160,13 @@ where
       </named-query>
       <named-query name="TasksAssignedAsPotentialOwnerByStatus">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -213,13 +213,13 @@ where
       </named-query>
             <named-query name="TasksAssignedAsPotentialOwnerWithGroups">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -266,13 +266,13 @@ where
       </named-query>
  <named-query name="TasksAssignedAsPotentialOwnerByStatusWithGroups">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -319,13 +319,13 @@ where
       </named-query>
        <named-query name="TasksAssignedAsPotentialOwnerByGroup">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -372,13 +372,13 @@ where
       </named-query>
       <named-query name="SubTasksAssignedAsPotentialOwner">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -427,13 +427,13 @@ where
 
 <named-query name="GetSubTasksByParentTaskId">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -480,13 +480,13 @@ where
 
       <named-query name="TasksAssignedAsRecipient">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -531,13 +531,13 @@ where
       </named-query>
       <named-query name="TasksAssignedAsTaskInitiator">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -582,13 +582,13 @@ where
       </named-query>
       <named-query name="TasksAssignedAsTaskStakeholder">
           <query>
-select
+select distinct 
      new org.jbpm.task.query.TaskSummary(
      t.id,
      t.taskData.processInstanceId,
-     name.text,
-     subject.text,
-     description.text,
+     name.shortText,
+     subject.shortText,
+     description.shortText,
      t.taskData.status,
      t.priority,
      t.taskData.skipable,
@@ -633,13 +633,13 @@ where
       </named-query>
       <named-query name="TasksOwned">
           <query>
-select
+select distinct 
     new org.jbpm.task.query.TaskSummary(
     t.id,
     t.taskData.processInstanceId,
-    name.text,
-    subject.text,
-    description.text,
+    name.shortText,
+    subject.shortText,
+    description.shortText,
     t.taskData.status,
     t.priority,
     t.taskData.skipable,
@@ -683,13 +683,13 @@ where
 
     <named-query name="TasksByStatus">
         <query>
-            select
+            select distinct 
             new org.jbpm.task.query.TaskSummary(
             t.id,
             t.taskData.processInstanceId,
-            name.text,
-            subject.text,
-            description.text,
+            name.shortText,
+            subject.shortText,
+            description.shortText,
             t.taskData.status,
             t.priority,
             t.taskData.skipable,
@@ -732,13 +732,13 @@ where
     </named-query>
     <named-query name="TasksByStatusByProcessId">
         <query>
-            select
+            select distinct 
             new org.jbpm.task.query.TaskSummary(
             t.id,
             t.taskData.processInstanceId,
-            name.text,
-            subject.text,
-            description.text,
+            name.shortText,
+            subject.shortText,
+            description.shortText,
             t.taskData.status,
             t.priority,
             t.taskData.skipable,
@@ -782,13 +782,13 @@ where
     </named-query>
     <named-query name="TasksByStatusByProcessIdByTaskName">
         <query>
-            select
+            select distinct 
             new org.jbpm.task.query.TaskSummary(
             t.id,
             t.taskData.processInstanceId,
-            name.text,
-            subject.text,
-            description.text,
+            name.shortText,
+            subject.shortText,
+            description.shortText,
             t.taskData.status,
             t.priority,
             t.taskData.skipable,
@@ -833,13 +833,13 @@ where
     </named-query>
     <named-query name="TasksByStatusSince">
         <query>
-            select
+            select distinct 
             new org.jbpm.task.query.TaskSummary(
             t.id,
             t.taskData.processInstanceId,
-            name.text,
-            subject.text,
-            description.text,
+            name.shortText,
+            subject.shortText,
+            description.shortText,
             t.taskData.status,
             t.priority,
             t.taskData.skipable,
@@ -887,13 +887,13 @@ where
       
     <named-query name="ArchivedTasks">
         <query>
-            select
+            select distinct 
             new org.jbpm.task.query.TaskSummary(
             t.id,
             t.taskData.processInstanceId,
-            name.text,
-            subject.text,
-            description.text,
+            name.shortText,
+            subject.shortText,
+            description.shortText,
             t.taskData.status,
             t.priority,
             t.taskData.skipable,
