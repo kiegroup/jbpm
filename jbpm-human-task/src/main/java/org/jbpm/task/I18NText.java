@@ -105,6 +105,11 @@ public class I18NText implements Externalizable {
 
     public void setText(String text) {
         this.text = text;
+        if (text != null && text.length() > 256) {
+            this.shortText = text.substring(0, 256);
+        } else {
+            this.shortText = text;
+        }
     }
 
     @Override

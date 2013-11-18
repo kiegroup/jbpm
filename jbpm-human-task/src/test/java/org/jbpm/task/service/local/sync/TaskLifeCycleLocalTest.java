@@ -15,6 +15,12 @@
  */
 package org.jbpm.task.service.local.sync;
 
+import java.io.StringReader;
+import java.util.List;
+import java.util.Map;
+
+import org.jbpm.task.Task;
+import org.jbpm.task.query.TaskSummary;
 import org.jbpm.task.service.base.sync.TaskLifeCycleBaseSyncTest;
 import org.jbpm.task.service.local.LocalTaskService;
 
@@ -25,6 +31,29 @@ public class TaskLifeCycleLocalTest extends TaskLifeCycleBaseSyncTest {
         super.setUp();
        
         client = new LocalTaskService(taskService);
+    }
+    
+    public void testModifyTaskName() {
+        // JBPM-4148
+    	Map<String, Object> vars = fillVariables(users, groups);
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet')  ],businessAdministrators = [ new User('Administrator') ], }),";
+        str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
+        
+        Task task = (Task) eval(new StringReader(str), vars);
+        client.addTask(task, null);
+        
+        
+        List<TaskSummary> tasks = client.getTasksAssignedAsPotentialOwner("Bobba Fet", "en-UK");        
+        assertEquals(1, tasks.size());
+        assertEquals("This is my task name", tasks.get(0).getName());
+        
+        Task newTask = client.getTask(tasks.get(0).getId());
+        newTask.getNames().get(0).setText("New task name");
+        
+        List<TaskSummary> newTasks = client.getTasksAssignedAsPotentialOwner("Bobba Fet", "en-UK");        
+        assertEquals(1, newTasks.size());
+        assertEquals("New task name", newTasks.get(0).getName());
     }
 
 }
