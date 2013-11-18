@@ -35,6 +35,7 @@ import org.drools.runtime.process.WorkItemHandler;
 import org.drools.runtime.process.WorkItemManager;
 import org.jbpm.eventmessaging.EventResponseHandler;
 import org.jbpm.eventmessaging.Payload;
+import org.jbpm.process.workitem.wsht.HumanTaskHandlerHelper;
 import org.jbpm.task.AccessType;
 import org.jbpm.task.AsyncTaskService;
 import org.jbpm.task.Content;
@@ -243,6 +244,7 @@ public class CommandBasedHornetQWSHumanTaskHandler implements WorkItemHandler {
         if (isAutoClaim(workItem, task)) {
         	handler = new AutoClaimTaskAddedHandler(workItem.getId(), (String) workItem.getParameter("SwimlaneActorId"));
         }
+        task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators));
         client.addTask(task, content, handler);
 	}
 	
