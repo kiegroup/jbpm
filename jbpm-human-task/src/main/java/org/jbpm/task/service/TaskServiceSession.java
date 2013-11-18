@@ -443,6 +443,29 @@ public class TaskServiceSession {
                 }
             }
             
+            switch (operation) {
+		        case Claim: {
+		            postTaskClaimOperation(task);
+		            break;
+		        }
+		        case Complete: {
+		            postTaskCompleteOperation(task);
+		            break;
+		        }
+		        case Fail: {
+		            postTaskFailOperation(task);
+		            break;
+		        }
+		        case Skip: {
+		            postTaskSkipOperation(task, userId);
+		            break;
+		        }
+	            case Exit: {
+	                postTaskExitOperation(task, userId);
+	                break;
+	            }
+	        }
+
             tpm.endTransaction(transactionOwner);
             
         } catch (RuntimeException re) {
@@ -460,29 +483,6 @@ public class TaskServiceSession {
 
             throw re;
         } 
-
-        switch (operation) {
-	        case Claim: {
-	            postTaskClaimOperation(task);
-	            break;
-	        }
-	        case Complete: {
-	            postTaskCompleteOperation(task);
-	            break;
-	        }
-	        case Fail: {
-	            postTaskFailOperation(task);
-	            break;
-	        }
-	        case Skip: {
-	            postTaskSkipOperation(task, userId);
-	            break;
-	        }
-            case Exit: {
-                postTaskExitOperation(task, userId);
-                break;
-            }
-        }
     }
 
     private void taskClaimOperation(final Task task) {
