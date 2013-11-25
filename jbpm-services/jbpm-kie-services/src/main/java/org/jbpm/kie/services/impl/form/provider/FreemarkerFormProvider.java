@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Map;
 
-public abstract class FreemakerFormProvider implements FormProvider {
+public abstract class FreemarkerFormProvider implements FormProvider {
 
     protected String render(String name, InputStream src, Map<String, Object> renderContext) {
 
