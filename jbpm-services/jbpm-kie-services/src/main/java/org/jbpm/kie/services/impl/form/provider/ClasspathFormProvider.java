@@ -9,7 +9,7 @@ import org.jbpm.kie.services.impl.model.ProcessDesc;
 import org.kie.api.task.model.Task;
 
 @ApplicationScoped
-public class ClasspathFormProvider extends FreemakerFormProvider {
+public class ClasspathFormProvider extends FreemarkerFormProvider {
     @Override
     public String render(String name, ProcessDesc process, Map<String, Object> renderContext) {
         return render(name, this.getClass().getResourceAsStream("/forms/DefaultProcess.ftl"), renderContext);
