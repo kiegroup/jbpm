@@ -11,7 +11,7 @@ import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.model.InternalTask;
 
 @ApplicationScoped
-public class InMemoryFormProvider extends FreemakerFormProvider {
+public class InMemoryFormProvider extends FreemarkerFormProvider {
 
     private static final String DEFAULT_PROCESS = "DefaultProcess";
     private static final String DEFAULT_TASK = "DefaultTask";
