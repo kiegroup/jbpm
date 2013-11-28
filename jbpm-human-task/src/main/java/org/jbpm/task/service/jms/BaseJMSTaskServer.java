@@ -60,7 +60,7 @@ public abstract class BaseJMSTaskServer extends TaskServer {
 				logger.error(e.getMessage());
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Error leyendo mensaje", e);
+			throw new RuntimeException("Error reading message", e);
 		}
 	}
 
