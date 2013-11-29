@@ -19,7 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.kie.services.impl.model.ProcessDesc;
+import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.services.task.impl.model.TaskDefImpl;
 
 /**
@@ -32,9 +32,9 @@ public interface BPMN2DataService {
     Map<String, String> getProcessData(String processId);
     List<String> getAssociatedForms(String processId);
     Collection<TaskDefImpl> getAllTasksDef(String processId);
-    ProcessDesc getProcessDesc(String processId);
+    ProcessAssetDesc getProcessDesc(String processId);
     Map<String, String> getTaskInputMappings(String processId, String taskName);
     Map<String, String> getTaskOutputMappings(String processId, String taskName);
     Collection<String> getReusableSubProcesses(String processId);
-    ProcessDesc findProcessId(String bpmn2Content, ClassLoader classLoader);
+    ProcessAssetDesc findProcessId(String bpmn2Content, ClassLoader classLoader);
 }
