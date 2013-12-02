@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.jbpm.process.audit.AbstractAuditLogger;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.event.AuditEventBuilder;
@@ -76,8 +74,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
         List<ProcessEventListener> defaultListeners = new ArrayList<ProcessEventListener>();
         // register JPAWorkingMemoryDBLogger
-        AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance((EntityManagerFactory) 
-                runtime.getKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
+        AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance(null, runtime.getKieSession().getEnvironment());
         logger.setBuilder(getAuditBuilder());
         defaultListeners.add(logger);
         // add any custom listeners
@@ -108,12 +105,11 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
     protected WorkItemHandler getHTWorkItemHandler(RuntimeEngine runtime) {
         
         ExternalTaskEventListener listener = new ExternalTaskEventListener();
-        listener.setRuntimeManager(((RuntimeEngineImpl)runtime).getManager());
-        
+
         LocalHTWorkItemHandler humanTaskHandler = new LocalHTWorkItemHandler();
         humanTaskHandler.setRuntimeManager(((RuntimeEngineImpl)runtime).getManager());
         if (runtime.getTaskService() instanceof EventService) {
-            ((EventService)runtime.getTaskService()).registerTaskLifecycleEventListener(listener);
+            ((EventService)runtime.getTaskService()).registerTaskEventListener(listener);
         }
         
         if (runtime instanceof Disposable) {
@@ -122,8 +118,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
                 @Override
                 public void onDispose(RuntimeEngine runtime) {
                     if (runtime.getTaskService() instanceof EventService) {
-                        ((EventService)runtime.getTaskService()).clearTaskLifecycleEventListeners();
-                        ((EventService)runtime.getTaskService()).clearTasknotificationEventListeners();
+                        ((EventService)runtime.getTaskService()).clearTaskEventListeners();;
                     }
                 }
             });
