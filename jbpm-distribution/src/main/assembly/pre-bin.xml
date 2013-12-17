@@ -19,7 +19,10 @@
         <include>org.jbpm:jbpm-human-task-core</include>
         <include>org.jbpm:jbpm-human-task-workitems</include>
         <include>org.jbpm:jbpm-human-task-audit</include>
+        <!-- disabling human task module to avoid new modules in 6.0.x -->
+        <!-- 
         <include>org.jbpm:jbpm-human-task-jpa</include>
+        -->
         <include>org.jbpm:jbpm-shared-services</include>
         <include>org.jbpm:jbpm-test</include>
         <include>org.jbpm:jbpm-runtime-manager</include>
@@ -42,7 +45,10 @@
         <exclude>org.jbpm:jbpm-human-task-core</exclude>
         <exclude>org.jbpm:jbpm-human-task-workitems</exclude>
         <exclude>org.jbpm:jbpm-human-task-audit</exclude>
+        <!-- disabling human task module to avoid new modules in 6.0.x -->
+        <!-- 
         <exclude>org.jbpm:jbpm-human-task-jpa</exclude>
+        -->
         <exclude>org.jbpm:jbpm-shared-services</exclude>
         <exclude>org.jbpm:jbpm-test</exclude>
         <exclude>org.jbpm:jbpm-runtime-manager</exclude>

@@ -16,7 +16,10 @@
     <module>jbpm-human-task-core</module>
     <module>jbpm-human-task-workitems</module>
     <module>jbpm-human-task-audit</module>
+    <!-- disabling human task module to avoid new modules in 6.0.x -->
+    <!-- 
     <module>jbpm-human-task-jpa</module>
+    -->
   </modules>
 
   <dependencies>

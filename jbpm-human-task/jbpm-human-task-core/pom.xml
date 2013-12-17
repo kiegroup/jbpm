@@ -37,6 +37,10 @@
     </dependency>
 
     <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-persistence-jpa</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
       <artifactId>hibernate-jpa-2.0-api</artifactId>
     </dependency>
@@ -124,11 +128,14 @@
       <version>0.9.9-RC1</version>
       <scope>test</scope>
     </dependency>
+    <!-- disabling human task module to avoid new modules in 6.0.x -->
+    <!-- 
     <dependency>
 	  <groupId>org.jbpm</groupId>
 	  <artifactId>jbpm-human-task-jpa</artifactId>
 	  <scope>test</scope>
 	</dependency>
+	 -->
   </dependencies>
 
   <build>

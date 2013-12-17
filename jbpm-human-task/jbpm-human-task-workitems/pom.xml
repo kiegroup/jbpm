@@ -76,11 +76,14 @@
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- disabling human task module to avoid new modules in 6.0.x -->
+    <!-- 
     <dependency>
 	  <groupId>org.jbpm</groupId>
 	  <artifactId>jbpm-human-task-jpa</artifactId>
 	  <scope>test</scope>
 	</dependency>
+	-->
   </dependencies>
 
   <build>
