@@ -1,3 +1,4 @@
+bin/
 /target
 /local
 
@@ -13,14 +14,14 @@
 .DS_Store
 
 # Original jbpm ignores
-bin/
 *~
-*.tlog
 
 # Test info
 /settings*.xml
 /lib-jdbc/
 bitronix-default-config.properties
+*.db
+*.tlog
 
 # modules that don't exist on this branch
 jbpm-audit/
