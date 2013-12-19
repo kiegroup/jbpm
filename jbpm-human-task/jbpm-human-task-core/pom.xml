@@ -61,14 +61,26 @@
       <scope>provided</scope>
     </dependency>
 
-    <!-- test -->
-
+    <!-- TEST -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- persistence -->
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-jpa</artifactId>
+      <classifier>tests</classifier>
+      <version>${version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
@@ -84,12 +96,12 @@
       <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
-
     <dependency>
       <groupId>org.codehaus.btm</groupId>
       <artifactId>btm</artifactId>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
       <groupId>org.subethamail</groupId>
       <artifactId>subethasmtp-wiser</artifactId>
@@ -104,11 +116,6 @@
           <groupId>logkit</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
     </dependency>
     
     <!-- serialization tests -->
@@ -131,11 +138,11 @@
     <!-- disabling human task module to avoid new modules in 6.0.x -->
     <!-- 
     <dependency>
-	  <groupId>org.jbpm</groupId>
-	  <artifactId>jbpm-human-task-jpa</artifactId>
-	  <scope>test</scope>
-	</dependency>
-	 -->
+	    <groupId>org.jbpm</groupId>
+	    <artifactId>jbpm-human-task-jpa</artifactId>
+	    <scope>test</scope>
+	  </dependency>
+	  -->
   </dependencies>
 
   <build>
@@ -166,6 +173,22 @@
               org.jbpm.services.task*
             </Export-Package>
           </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!--  ensure that db files are deleted before _any_ run 
+              otherwise we get tests failing because of leftover db's -->
+        <artifactId>maven-clean-plugin</artifactId>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${basedir}</directory>
+              <includes>
+                <include>btm*</include>
+                <include>*.db</include>
+              </includes>
+            </fileset>
+          </filesets>
         </configuration>
       </plugin>
     </plugins>
