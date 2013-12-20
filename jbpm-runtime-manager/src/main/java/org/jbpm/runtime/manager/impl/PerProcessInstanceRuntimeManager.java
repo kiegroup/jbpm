@@ -28,6 +28,7 @@ import org.drools.persistence.TransactionManagerHelper;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.runtime.manager.impl.factory.CDITaskServiceFactory;
 import org.jbpm.runtime.manager.impl.mapper.InMemoryMapper;
+import org.jbpm.runtime.manager.impl.mapper.EnvironmentAwareProcessInstanceContext;
 import org.jbpm.runtime.manager.impl.tx.DestroySessionTransactionSynchronization;
 import org.jbpm.runtime.manager.impl.tx.DisposeSessionTransactionSynchronization;
 import org.kie.api.event.process.DefaultProcessEventListener;
@@ -193,7 +194,9 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         }
         @Override
         public void afterProcessCompleted(ProcessCompletedEvent event) {
-            mapper.removeMapping(ProcessInstanceIdContext.get(event.getProcessInstance().getId()));
+            mapper.removeMapping(new EnvironmentAwareProcessInstanceContext(
+            		event.getKieRuntime().getEnvironment(),
+            		event.getProcessInstance().getId()));
             removeLocalRuntime(runtime);
             
             registerDisposeCallback(runtime, 
@@ -202,7 +205,9 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 
         @Override
         public void beforeProcessStarted(ProcessStartedEvent event) {
-            mapper.saveMapping(ProcessInstanceIdContext.get(event.getProcessInstance().getId()), ksessionId); 
+            mapper.saveMapping(new EnvironmentAwareProcessInstanceContext(
+            		event.getKieRuntime().getEnvironment(),
+            		event.getProcessInstance().getId()), ksessionId);  
             saveLocalRuntime(event.getProcessInstance().getId(), runtime);
         }
         
@@ -318,6 +323,6 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         });
         
         
-    }
+    }   
 
 }
