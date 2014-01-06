@@ -1,6 +1,7 @@
 package org.jbpm.services.task.persistence;
 
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 
 import org.drools.core.command.CommandService;
 import org.drools.core.command.Interceptor;
@@ -209,6 +210,8 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
     			((InternalTask)task).getDeadlines().getStartDeadlines().size();
     			((InternalTask)task).getDeadlines().getEndDeadlines().size();
     		}
+    	} else if (result instanceof Collection<?>) {
+            ((Collection<?>) result).size();
     	}
     }
     
