@@ -1,4 +1,4 @@
-package org.jbpm.services.task.audit;
+package org.jbpm.services.task.audit.commands;
 
 import java.util.List;
 

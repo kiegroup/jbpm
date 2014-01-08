@@ -21,7 +21,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 
-import org.jbpm.services.task.audit.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.junit.Test;
 import org.kie.api.task.model.Status;

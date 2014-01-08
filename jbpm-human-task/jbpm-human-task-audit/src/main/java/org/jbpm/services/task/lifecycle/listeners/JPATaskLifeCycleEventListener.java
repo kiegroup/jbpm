@@ -2,9 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jbpm.services.task.audit;
+package org.jbpm.services.task.lifecycle.listeners;
 
+import org.jbpm.services.task.impl.model.TaskEventImpl;
 import java.util.Date;
+import org.jbpm.services.task.impl.model.AuditTaskUserImpl;
 
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskEvent;
@@ -105,8 +107,13 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
         if(ti.getTaskData().getActualOwner() != null){
             userId = ti.getTaskData().getActualOwner().getId();
+            persistenceContext.persist(new AuditTaskUserImpl(userId, ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.ADDED.toString(), 
+                                                        ti.getTaskData().getActivationTime(), ti.getNames().get(0).getText(), 
+                                                        ti.getDescriptions().get(0).getText(), ti.getPriority(), ti.getTaskData().getCreatedBy().getId(),
+                                                        ti.getTaskData().getCreatedOn(), ti.getTaskData().getExpirationTime(),
+                                                        ti.getTaskData().getProcessInstanceId(), ti.getTaskData().getProcessId(), ti.getTaskData().getProcessSessionId(),
+                                                        ti.getTaskData().getParentId()));
         }
-        
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.ADDED, userId , new Date()));
     }
 
