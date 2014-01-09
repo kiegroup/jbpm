@@ -16,8 +16,15 @@
 
 package org.jbpm.services.task.audit.service;
 
+import java.util.Date;
 import java.util.List;
+import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByDueDateCommand;
+import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusByDueDateCommand;
+import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusCommand;
+import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.impl.model.UserAuditTask;
+import org.kie.api.task.TaskService;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.TaskEvent;
 
@@ -34,7 +41,34 @@ public class TaskAuditServiceImpl implements TaskAuditService {
         return taskService.execute(new GetAuditEventsCommand(taskId));
     }
     
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasks(String userId) {
+        return taskService.execute(new GetAllUserAuditTasksCommand(userId));
+    }
     
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, String status) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusCommand(userId, status));
+    }
     
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate) {
+        return taskService.execute(new GetAllUserAuditTasksByDueDateCommand(userId, dueDate));
+    }
+    
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, String status, Date dueDate) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, status, dueDate));
+    }
+    
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, String status, Date dueDate) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, status, dueDate));
+    }
+
+    @Override
+    public void setTaskService(TaskService taskService) {
+        this.taskService = (InternalTaskService) taskService;
+    }
     
 }

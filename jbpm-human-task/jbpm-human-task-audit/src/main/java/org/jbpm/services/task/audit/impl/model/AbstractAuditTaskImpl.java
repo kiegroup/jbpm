@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.impl.model;
+package org.jbpm.services.task.audit.impl.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,9 +30,8 @@ import javax.persistence.Temporal;
  * @author salaboy
  */
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-
-public abstract class AbstractAuditTaskImpl {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public abstract class AbstractAuditTaskImpl implements Serializable, AuditTask {
     @Id
     @Column(name = "TASK_ID")
     private long taskId;
@@ -70,106 +70,132 @@ public abstract class AbstractAuditTaskImpl {
         this.parentId = parentId;
     }
 
+    @Override
     public long getTaskId() {
         return taskId;
     }
 
+    @Override
     public void setTaskId(long taskId) {
         this.taskId = taskId;
     }
 
+    @Override
     public String getStatus() {
         return status;
     }
 
+    @Override
     public void setStatus(String status) {
         this.status = status;
     }
 
+    @Override
     public Date getActivationTime() {
         return activationTime;
     }
 
+    @Override
     public void setActivationTime(Date activationTime) {
         this.activationTime = activationTime;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
+    @Override
     public void setDescription(String description) {
         this.description = description;
     }
 
+    @Override
     public int getPriority() {
         return priority;
     }
 
+    @Override
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
+    @Override
     public String getCreatedBy() {
         return createdBy;
     }
 
+    @Override
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
+    @Override
     public Date getCreatedOn() {
         return createdOn;
     }
 
+    @Override
     public void setCreatedOn(Date createdOn) {
         this.createdOn = createdOn;
     }
 
+    @Override
     public Date getDueDate() {
         return dueDate;
     }
 
+    @Override
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
     }
 
+    @Override
     public long getProcessInstanceId() {
         return processInstanceId;
     }
 
+    @Override
     public void setProcessInstanceId(long processInstanceId) {
         this.processInstanceId = processInstanceId;
     }
 
+    @Override
     public String getProcessId() {
         return processId;
     }
 
+    @Override
     public void setProcessId(String processId) {
         this.processId = processId;
     }
 
+    @Override
     public int getProcessSessionId() {
         return processSessionId;
     }
 
+    @Override
     public void setProcessSessionId(int processSessionId) {
         this.processSessionId = processSessionId;
     }
 
+    @Override
     public long getParentId() {
         return parentId;
     }
 
+    @Override
     public void setParentId(long parentId) {
         this.parentId = parentId;
     }

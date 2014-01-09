@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
+import org.jbpm.services.task.audit.service.TaskAuditService;
 
 public abstract class HumanTaskServicesBaseTest {
 
@@ -51,6 +52,8 @@ public abstract class HumanTaskServicesBaseTest {
     protected static boolean usersLoaded = false;
 
     protected InternalTaskService taskService;
+    
+    protected TaskAuditService taskAuditService;
 
     public void tearDown() {
         int removeAllTasks = taskService.removeAllTasks();

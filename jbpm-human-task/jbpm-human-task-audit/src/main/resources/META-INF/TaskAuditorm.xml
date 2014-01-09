@@ -10,33 +10,33 @@ select t from TaskEventImpl t where t.taskId = :taskId
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
       
-       <named-query name="getAllUserTasks">
+       <named-query name="getAllUserAuditTasks">
           <query>
-select u from AuditTaskUserImpl u where u.actualOwner = :userId order by u.taskId DESC  
+select u from UserAuditTaskImpl u where u.actualOwner = :userId order by u.taskId DESC  
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
-       <named-query name="getAllUserTasksByStatus">
+       <named-query name="getAllUserAuditTasksByStatus">
           <query>
-select u from AuditTaskUserImpl u where u.actualOwner = :userId and u.status = :status order by u.taskId DESC  
+select u from UserAuditTaskImpl u where u.actualOwner = :userId and u.status = :status order by u.taskId DESC  
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
-      <named-query name="getAllUserTasksByDueDate">
+      <named-query name="getAllUserAuditTasksByDueDate">
           <query>
-select u from AuditTaskUserImpl u where u.actualOwner = :userId and u.dueDate = :dueDate order by u.taskId DESC  
+select u from UserAuditTaskImpl u where u.actualOwner = :userId and u.dueDate = :dueDate order by u.taskId DESC  
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
-      <named-query name="getAllUserTasksByStatusByDueDate">
+      <named-query name="getAllUserAuditTasksByStatusByDueDate">
           <query>
-select u from AuditTaskUserImpl u where u.actualOwner = :userId and u.status = :status and u.dueDate = :dueDate order by u.taskId DESC  
+select u from UserAuditTaskImpl u where u.actualOwner = :userId and u.status = :status and u.dueDate = :dueDate order by u.taskId DESC  
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
-      <named-query name="getAllUserTasksByStatusByDueDateOptional">
+      <named-query name="getAllUserAuditTasksByStatusByDueDateOptional">
           <query>
-select u from AuditTaskUserImpl u where u.actualOwner = :userId and u.status = :status and (u.dueDate = :dueDate or u.dueDate = null) order by u.taskId DESC  
+select u from UserAuditTaskImpl u where u.actualOwner = :userId and u.status = :status and (u.dueDate = :dueDate or u.dueDate = null) order by u.taskId DESC  
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>

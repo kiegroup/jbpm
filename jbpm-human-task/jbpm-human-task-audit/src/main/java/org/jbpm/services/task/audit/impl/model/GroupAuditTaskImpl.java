@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.impl.model;
+package org.jbpm.services.task.audit.impl.model;
 
 import java.util.Date;
 import javax.persistence.Entity;
@@ -24,10 +24,14 @@ import javax.persistence.Entity;
  * @author salaboy
  */
 @Entity
-public class AuditTaskGroupImpl extends AbstractAuditTaskImpl{
+public class GroupAuditTaskImpl extends AbstractAuditTaskImpl{
     private String potentialOwners;
 
-    public AuditTaskGroupImpl(String potentialOwners, long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date expirationTime, long processInstanceId, String processId, int processSessionId, long parentId) {
+    public GroupAuditTaskImpl() {
+    }
+
+    
+    public GroupAuditTaskImpl(String potentialOwners, long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date expirationTime, long processInstanceId, String processId, int processSessionId, long parentId) {
         super(taskId, status, activationTime, name, description, priority, createdBy, createdOn, expirationTime, processInstanceId, processId, processSessionId, parentId);
         this.potentialOwners = potentialOwners;
     }

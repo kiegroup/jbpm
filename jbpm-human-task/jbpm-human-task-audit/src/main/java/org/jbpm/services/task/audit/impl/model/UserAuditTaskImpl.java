@@ -13,20 +13,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.jbpm.services.task.impl.model;
+package org.jbpm.services.task.audit.impl.model;
 
 import java.util.Date;
 import javax.persistence.Entity;
 
 @Entity
-public class AuditTaskUserImpl extends AbstractAuditTaskImpl {
+public class UserAuditTaskImpl extends AbstractAuditTaskImpl implements UserAuditTask {
     
     private String actualOwner;
 
-    public AuditTaskUserImpl() {
+    public UserAuditTaskImpl() {
     }
 
-    public AuditTaskUserImpl(String actualOwner, long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date expirationTime, long processInstanceId, String processId, int processSessionId, long parentId) {
+    public UserAuditTaskImpl(String actualOwner, long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date expirationTime, long processInstanceId, String processId, int processSessionId, long parentId) {
         super(taskId, status, activationTime, name, description, priority, createdBy, createdOn, expirationTime, processInstanceId, processId, processSessionId, parentId);
         this.actualOwner = actualOwner;
     }

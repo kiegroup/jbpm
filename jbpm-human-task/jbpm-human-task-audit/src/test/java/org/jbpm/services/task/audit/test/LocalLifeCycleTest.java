@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.kie.internal.task.api.InternalTaskService;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
+import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 
 /**
  *
@@ -47,6 +48,8 @@ public class LocalLifeCycleTest extends LifeCycleBaseTest {
 												.listener(new JPATaskLifeCycleEventListener())
 												.listener(new BAMTaskEventListener())
 												.getTaskService();
+                
+                this.taskAuditService = TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService();
 	}
 	
 	@After
