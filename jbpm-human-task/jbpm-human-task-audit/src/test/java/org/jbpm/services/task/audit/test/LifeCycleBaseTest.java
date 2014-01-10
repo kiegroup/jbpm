@@ -21,7 +21,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 
-import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.UserAuditTask;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.junit.Test;
@@ -35,22 +35,38 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
     public void testComplete() {
         
 
-        // One potential owner, should go straight to state Reserved
+        // A group as potential owners, should go straight to state Ready to be claimed
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new Group('Knights Templer' )],businessAdministrators = [ new User('Administrator') ], }),";
         str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
-
 
         Task task = (Task) TaskFactory.evalTask(new StringReader(str));
         taskService.addTask(task, new HashMap<String, Object>());
 
         long taskId = task.getId();
+        
+         
+        List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        
+        assertEquals(1, allGroupAuditTasks.size());
 
-        taskService.claim(taskId, "Darth Vader");    
+        taskService.claim(taskId, "Darth Vader");  
+        
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        
+        assertEquals(0, allGroupAuditTasks.size());
         
         taskService.release(taskId, "Darth Vader");
         
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        
+        assertEquals(1, allGroupAuditTasks.size());
+        
         taskService.claim(taskId, "Darth Vader");    
+        
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        
+        assertEquals(0, allGroupAuditTasks.size());
         
         // Go straight from Ready to Inprogress
 
@@ -74,7 +90,15 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
                
         assertEquals(6, allTaskEvents.size());
        
+         List<UserAuditTask> allUserAuditTasks = taskAuditService.getAllUserAuditTasks("Darth Vader");
         
+        assertEquals(1, allUserAuditTasks.size());
+        
+        assertEquals("Completed", allUserAuditTasks.get(0).getStatus());
+       
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        
+        assertEquals(0, allGroupAuditTasks.size());
     }
     
     

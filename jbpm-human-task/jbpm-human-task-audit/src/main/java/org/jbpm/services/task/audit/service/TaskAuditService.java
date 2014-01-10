@@ -18,6 +18,7 @@ package org.jbpm.services.task.audit.service;
 
 import java.util.Date;
 import java.util.List;
+import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.UserAuditTask;
 import org.kie.api.task.TaskService;
 import org.kie.internal.task.api.model.TaskEvent;
@@ -34,5 +35,11 @@ public interface TaskAuditService {
     List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate);
     List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, String status, Date dueDate);
     List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, String status, Date dueDate);
+    
+    List<GroupAuditTask> getAllGroupAuditTasks(String groupIds);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, String status);
+    List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, String status, Date dueDate);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, String status, Date dueDate);
     
 }

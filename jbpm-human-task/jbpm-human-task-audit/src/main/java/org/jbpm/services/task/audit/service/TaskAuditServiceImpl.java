@@ -18,11 +18,16 @@ package org.jbpm.services.task.audit.service;
 
 import java.util.Date;
 import java.util.List;
+import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByDueDateCommand;
+import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByStatusByDueDateCommand;
+import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByStatusCommand;
+import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.UserAuditTask;
 import org.kie.api.task.TaskService;
 import org.kie.internal.task.api.InternalTaskService;
@@ -65,10 +70,36 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, String status, Date dueDate) {
         return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, status, dueDate));
     }
+    
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasks(String groupIds) {
+        return taskService.execute(new GetAllGroupAuditTasksCommand(groupIds));
+    }
 
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, String status) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusCommand(groupIds, status));
+    }
+
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate) {
+        return taskService.execute(new GetAllGroupAuditTasksByDueDateCommand(groupIds, dueDate));
+    }
+
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, String status, Date dueDate) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, status, dueDate));
+    }
+
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, String status, Date dueDate) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, status, dueDate));
+    }
+     
     @Override
     public void setTaskService(TaskService taskService) {
         this.taskService = (InternalTaskService) taskService;
     }
+    
     
 }

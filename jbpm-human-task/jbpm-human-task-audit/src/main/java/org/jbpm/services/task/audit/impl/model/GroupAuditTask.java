@@ -20,6 +20,7 @@ package org.jbpm.services.task.audit.impl.model;
  *
  * @author salaboy
  */
-public interface GroupAuditTask {
-    
+public interface GroupAuditTask extends AuditTask {
+    String getPotentialOwners();
+    void setPotentialOwners(String potentialOwners);
 }

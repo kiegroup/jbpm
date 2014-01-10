@@ -40,6 +40,12 @@ select u from UserAuditTaskImpl u where u.actualOwner = :userId and u.status = :
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
+      <named-query name="getAllGroupAuditTasks">
+          <query>
+select g from GroupAuditTaskImpl g where LOCATE(g.potentialOwners, :groupIds) > 0 order by g.taskId DESC  
+          </query>
+          <!-- hint name="org.hibernate.timeout" value="200"/ -->
+      </named-query>
       
      
 </entity-mappings>

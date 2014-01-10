@@ -24,7 +24,7 @@ import javax.persistence.Entity;
  * @author salaboy
  */
 @Entity
-public class GroupAuditTaskImpl extends AbstractAuditTaskImpl{
+public class GroupAuditTaskImpl extends AbstractAuditTaskImpl implements GroupAuditTask{
     private String potentialOwners;
 
     public GroupAuditTaskImpl() {
