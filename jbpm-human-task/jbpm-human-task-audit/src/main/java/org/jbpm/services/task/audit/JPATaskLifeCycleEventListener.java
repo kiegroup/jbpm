@@ -2,15 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jbpm.services.task.lifecycle.listeners;
+package org.jbpm.services.task.audit;
 
-import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import java.util.Date;
 import org.jbpm.services.task.audit.impl.model.GroupAuditTaskImpl;
+import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
 import org.jbpm.services.task.audit.impl.model.UserAuditTask;
 import org.jbpm.services.task.audit.impl.model.UserAuditTaskImpl;
+import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
+import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.OrganizationalEntity;
-
 import org.kie.api.task.model.Task;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskPersistenceContext;
@@ -28,7 +29,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.STARTED, userId, new Date()));
@@ -45,7 +46,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.ACTIVATED, userId, new Date()));
@@ -58,6 +59,8 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
     public void afterTaskClaimedEvent(TaskEvent event) {
         String userId = "";
         Task ti = event.getTask();
+        TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.CLAIMED, userId, new Date()));
@@ -79,7 +82,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.SKIPPED, userId, new Date()));
@@ -92,6 +95,8 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
     public void afterTaskStoppedEvent(TaskEvent event) {
         String userId = "";
         Task ti = event.getTask();
+        TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.STOPPED, userId, new Date()));
@@ -105,7 +110,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.COMPLETED, userId, new Date()));
@@ -121,7 +126,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.FAILED, userId, new Date()));
@@ -135,7 +140,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
             persistenceContext.persist(new UserAuditTaskImpl(userId, ti.getId(), ti.getTaskData().getStatus().name(),
                     ti.getTaskData().getActivationTime(), ti.getNames().get(0).getText(),
@@ -165,7 +170,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.EXITED, userId, new Date()));
@@ -179,7 +184,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.RELEASED, userId, new Date()));
@@ -206,7 +211,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.RESUMED, userId, new Date()));
@@ -220,7 +225,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.SUSPENDED, userId, new Date()));
@@ -234,7 +239,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.FORWARDED, userId, new Date()));
@@ -248,7 +253,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         String userId = "";
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){
+        if (ti.getTaskData().getActualOwner() != null) {
             userId = ti.getTaskData().getActualOwner().getId();
         }
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED, userId, new Date()));
@@ -340,5 +345,3 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
     }
 
 }
-        TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
-        if(ti.getTaskData().getActualOwner() != null){

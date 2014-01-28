@@ -19,7 +19,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jbpm.services.task.HumanTaskServiceFactory;
-import org.jbpm.services.task.lifecycle.listeners.JPATaskLifeCycleEventListener;
+import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.lifecycle.listeners.BAMTaskEventListener;
 import org.junit.After;
 import org.junit.Before;
