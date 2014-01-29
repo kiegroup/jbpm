@@ -131,7 +131,7 @@ public class TaskContext implements org.kie.internal.task.api.TaskContext {
 
 	@Override
 	public UserGroupCallback getUserGroupCallback() {
-		return (UserGroupCallback) get(EnvironmentName.TASK_USER_GROUP_CALLBASK);
+		return (UserGroupCallback) get(EnvironmentName.TASK_USER_GROUP_CALLBACK);
 	}
 	
 	/*
