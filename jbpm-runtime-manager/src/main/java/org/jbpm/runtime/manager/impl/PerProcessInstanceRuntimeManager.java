@@ -279,8 +279,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     @Override
     public void init() {
         // need to init one session to bootstrap all case - such as start timers
-        KieSession ksession = factory.newKieSession();
-        ksession.execute(new GenericCommand<Void>() {            
+        final KieSession initialKsession = factory.newKieSession();
+        initialKsession.execute(new GenericCommand<Void>() {            
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -298,8 +298,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
 						
                         @Override
                         public void beforeCompletion() {
-                            if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
-                                CommandService commandService = ((CommandBasedStatefulKnowledgeSession) ksession).getCommandService();
+                            if (initialKsession instanceof CommandBasedStatefulKnowledgeSession) {
+                                CommandService commandService = ((CommandBasedStatefulKnowledgeSession) initialKsession).getCommandService();
                                 ((SingleSessionCommandService) commandService).destroy();
                              }                            
                         }
@@ -311,7 +311,7 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                         }
 					});
                 } else {
-                    ksession.destroy();
+                	initialKsession.destroy();
                 }
                 return null;
             }
