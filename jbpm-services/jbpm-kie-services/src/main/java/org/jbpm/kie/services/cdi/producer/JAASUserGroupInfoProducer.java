@@ -20,12 +20,14 @@ public class JAASUserGroupInfoProducer implements UserGroupInfoProducer {
 	
 	@Override
 	@Produces
+	@Selectable
 	public UserGroupCallback produceCallback() {
 		return callback;
 	}
 
 	@Override
 	@Produces
+	@Selectable
 	public UserInfo produceUserInfo() {
 		return userInfo;
 	}
