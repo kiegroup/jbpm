@@ -7,14 +7,6 @@
     <query>select t from TaskEventImpl t where t.taskId = :taskId</query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-  <named-query name="deleteTaskEventsForTask">
-    <query>delete from TaskEventImpl t where t.taskId = :taskId</query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
-  <named-query name="deleteAllTaskEvents">
-    <query>delete from TaskEventImpl</query>
-    <!-- hint name="org.hibernate.timeout" value="200"/ -->
-  </named-query>
   <named-query name="getAllBAMTaskSummaries">
     <query>select b from BAMTaskSummaryImpl b where b.taskId = :taskId</query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
@@ -27,14 +19,8 @@
     <query>delete from BAMTaskSummaryImpl b</query>
     <!-- hint name="org.hibernate.timeout" value="200"/ -->
   </named-query>
-      <named-query name="getAllTasksEvents">
-          <query>
-select t from TaskEventImpl t where t.taskId = :taskId 
-          </query>
-          <!-- hint name="org.hibernate.timeout" value="200"/ -->
-      </named-query>
       
-       <named-query name="getAllUserAuditTasks">
+      <named-query name="getAllUserAuditTasks">
           <query>
 select u from UserAuditTaskImpl u where u.actualOwner = :userId order by u.taskId DESC  
           </query>

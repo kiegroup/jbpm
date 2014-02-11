@@ -21,12 +21,15 @@ import static org.junit.Assert.assertTrue;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
+import javax.inject.Inject;
 
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.audit.DeleteAuditEventsCommand;
-import org.jbpm.services.task.audit.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
+import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
+import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.services.task.impl.factories.TaskFactory;
-import org.jbpm.services.task.impl.model.BAMTaskSummaryImpl;
 import org.jbpm.services.task.impl.model.command.DeleteBAMTaskSummariesCommand;
 import org.jbpm.services.task.impl.model.command.GetBAMTaskSummariesCommand;
 import org.junit.Test;
@@ -36,6 +39,9 @@ import org.kie.internal.task.api.model.TaskEvent;
 
 public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
 
+    @Inject
+    protected TaskAuditService taskAuditService;
+    
     @Test
     public void testComplete() {
         // One potential owner, should go straight to state Reserved
