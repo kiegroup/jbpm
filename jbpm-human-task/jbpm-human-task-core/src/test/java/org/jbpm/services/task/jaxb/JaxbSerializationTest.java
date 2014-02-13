@@ -25,7 +25,7 @@ public class JaxbSerializationTest extends AbstractSerializationTest {
     private Class<?>[] jaxbClasses = { JaxbTask.class };
     
     public TestType getType() {
-        return TestType.YAML;
+        return TestType.JAXB;
     }
     
     @Override

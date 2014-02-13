@@ -36,6 +36,7 @@ import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.model.InternalAttachment;
 import org.kie.internal.task.api.model.InternalComment;
 import org.kie.internal.task.api.model.InternalOrganizationalEntity;
+import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
 import org.reflections.Reflections;
 import org.reflections.scanners.FieldAnnotationsScanner;
@@ -77,6 +78,7 @@ public abstract class AbstractSerializationTest {
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.FullTask));
         Task task = (Task) TaskFactory.evalTask(reader, vars);
+        ((InternalTask)task).setFormName("Bruno's Form");
         InternalTaskData taskData = (InternalTaskData) task.getTaskData();
 
         String payload = "brainwashArmitageRecruitCaseGetPasswordFromLady3JaneAscentToStraylightIcebreakerUniteWithNeuromancer";
@@ -111,6 +113,7 @@ public abstract class AbstractSerializationTest {
         while (!compares.isEmpty()) {
             compares.addAll(compares.poll().compare());
         }
+        assertEquals( ((InternalTask) xmlTask).getFormName(), ((InternalTask) bornAgainTask).getFormName() );
     }
 
     private static class ComparePair {
