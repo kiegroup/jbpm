@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.impl.GenericCommand;
 import org.drools.core.command.impl.KnowledgeCommandContext;
@@ -1096,7 +1100,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventSignal.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
-                new DoNothingWorkItemHandler());
+                new SystemOutWorkItemHandler());
         ProcessInstance processInstance = ksession
                 .startProcess("IntermediateCatchEvent");
         assertProcessInstanceActive(processInstance);
@@ -1113,7 +1117,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventMessage.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
-                new DoNothingWorkItemHandler());
+                new SystemOutWorkItemHandler());
         ProcessInstance processInstance = ksession
                 .startProcess("IntermediateCatchEvent");
         assertProcessInstanceActive(processInstance);
@@ -1542,12 +1546,12 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     public void testIntermediateCatchEventSameSignalOnTwoKsessions() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventSignal.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
         
         KieBase kbase2 = createKnowledgeBase("BPMN2-IntermediateCatchEventSignal2.bpmn2");
         KieSession ksession2 = createKnowledgeSession(kbase2);
-        ksession2.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
+        ksession2.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         ProcessInstance processInstance2 = ksession2.startProcess("IntermediateCatchEvent2");        
         
         assertProcessInstanceActive(processInstance);
@@ -1570,7 +1574,9 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     public void testEventTypesLifeCycle() throws Exception {
         // JBPM-4246
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchSignalBetweenUserTasks.bpmn2");
-        ksession = createKnowledgeSession(kbase);
+        EntityManagerFactory separateEmf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+        Environment env = createEnvironment(separateEmf);
+        ksession = createKnowledgeSession(kbase, null, env);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
         ksession.startProcess("BPMN2-IntermediateCatchSignalBetweenUserTasks");
 
@@ -1632,7 +1638,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(2, null);
 
         ksession.dispose();
-
+        separateEmf.close();
     }
 
     /*
