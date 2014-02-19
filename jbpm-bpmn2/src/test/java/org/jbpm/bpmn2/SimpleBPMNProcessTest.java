@@ -1212,7 +1212,7 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventSignal.bpmn2");
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
-				new DoNothingWorkItemHandler());
+				new SystemOutWorkItemHandler());
 		ProcessInstance processInstance = ksession
 				.startProcess("IntermediateCatchEvent");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
@@ -1226,7 +1226,7 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventMessage.bpmn2");
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
 		ksession.getWorkItemManager().registerWorkItemHandler("Human Task",
-				new DoNothingWorkItemHandler());
+				new SystemOutWorkItemHandler());
 		ProcessInstance processInstance = ksession
 				.startProcess("IntermediateCatchEvent");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);

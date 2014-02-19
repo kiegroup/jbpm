@@ -579,7 +579,7 @@ public class StandaloneBPMNProcessTest extends TestCase {
     public void testIntermediateCatchEventSignal() throws Exception {
 		KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventSignal.bpmn2");
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
-		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
+		ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
 		ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
 		ksession = restoreSession(ksession, true);
@@ -591,7 +591,7 @@ public class StandaloneBPMNProcessTest extends TestCase {
     public void testIntermediateCatchEventMessage() throws Exception {
         KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventMessage.bpmn2");
 		StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
-        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
         ksession = restoreSession(ksession, true);
@@ -810,6 +810,8 @@ public class StandaloneBPMNProcessTest extends TestCase {
         ProcessInstance processInstance = ksession.startProcess("NoneIntermediateEvent", null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
+    
+    
     
 	private KnowledgeBase createKnowledgeBase(String process) throws Exception {
 		KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new ProcessBaseFactoryService());

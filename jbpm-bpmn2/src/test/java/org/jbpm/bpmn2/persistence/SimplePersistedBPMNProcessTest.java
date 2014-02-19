@@ -13,13 +13,13 @@ import org.drools.KnowledgeBaseFactory;
 import org.drools.WorkingMemory;
 import org.drools.builder.KnowledgeBuilder;
 import org.drools.builder.KnowledgeBuilderConfiguration;
-import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
 import org.drools.command.Context;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.command.impl.GenericCommand;
 import org.drools.command.impl.KnowledgeCommandContext;
+import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.compiler.PackageBuilderConfiguration;
 import org.drools.definition.process.Process;
 import org.drools.event.ActivationCancelledEvent;
@@ -34,21 +34,22 @@ import org.drools.event.rule.DebugAgendaEventListener;
 import org.drools.impl.EnvironmentFactory;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.io.ResourceFactory;
+import org.drools.persistence.SingleSessionCommandService;
 import org.drools.persistence.jpa.JPAKnowledgeService;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
-import org.drools.runtime.ObjectFilter;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessInstance;
+import org.drools.runtime.process.WorkItem;
 import org.drools.runtime.process.WorkflowProcessInstance;
-import org.drools.runtime.rule.FactHandle;
-import org.drools.runtime.rule.impl.InternalAgenda;
 import org.jbpm.bpmn2.JbpmBpmn2TestCase;
 import org.jbpm.bpmn2.SimpleBPMNProcessTest;
 import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
 import org.jbpm.bpmn2.xml.BPMNSemanticModule;
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.compiler.xml.XmlProcessReader;
+import org.jbpm.persistence.ProcessPersistenceContext;
+import org.jbpm.persistence.ProcessPersistenceContextManager;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 
@@ -265,4 +266,76 @@ public class SimplePersistedBPMNProcessTest extends JbpmBpmn2TestCase {
         processInstance = ksession.startProcess("RuleTask", params);
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
+    
+    public void testEventTypesLifeCycle() throws Exception {
+   	 // JBPM-4246
+   	 KnowledgeBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchSignalBetweenUserTasks.bpmn2");
+   	 final StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+   	 TestWorkItemHandler handler = new TestWorkItemHandler();
+   	 ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+   	 ProcessInstance processInstance = ksession.startProcess("BPMN2-IntermediateCatchSignalBetweenUserTasks");
+   	 
+   	 int signalListSize = ksession.execute(new GenericCommand<Integer>() {
+   	     public Integer execute(Context context) {
+   	         SingleSessionCommandService commandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession)
+   	                 .getCommandService();
+   	         InternalKnowledgeRuntime kruntime = (InternalKnowledgeRuntime) commandService.getStatefulKnowledgeSession();
+   	         ProcessPersistenceContextManager contextManager = (ProcessPersistenceContextManager) kruntime
+   	                 .getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
+   	         ProcessPersistenceContext pcontext = contextManager.getProcessPersistenceContext();
+   	 
+   	         List<Long> processInstancesToSignalList = pcontext.getProcessInstancesWaitingForEvent("MySignal");
+   	         return processInstancesToSignalList.size();
+   	     }
+   	 });
+   	 
+   	 // Process instance is not waiting for signal
+   	 assertEquals(0, signalListSize);
+   	 WorkItem active = handler.getWorkItem();
+   	 assertNotNull(active);
+   	 ksession.getWorkItemManager().completeWorkItem(active.getId(), null);
+   	 
+   	 signalListSize = ksession.execute(new GenericCommand<Integer>() {
+   	     public Integer execute(Context context) {
+   	         SingleSessionCommandService commandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession)
+   	                 .getCommandService();
+   	         InternalKnowledgeRuntime kruntime = (InternalKnowledgeRuntime) commandService.getStatefulKnowledgeSession();
+   	         ProcessPersistenceContextManager contextManager = (ProcessPersistenceContextManager) kruntime
+   	                 .getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
+   	         ProcessPersistenceContext pcontext = contextManager.getProcessPersistenceContext();
+   	 
+   	         List<Long> processInstancesToSignalList = pcontext.getProcessInstancesWaitingForEvent("MySignal");
+   	         return processInstancesToSignalList.size();
+   	     }
+   	 });
+   	 
+   	 // Process instance is waiting for signal now
+   	 assertEquals(1, signalListSize);
+   	 
+   	 ksession.signalEvent("MySignal", null);
+   	 
+   	 signalListSize = ksession.execute(new GenericCommand<Integer>() {
+   	     public Integer execute(Context context) {
+   	         SingleSessionCommandService commandService = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession)
+   	                 .getCommandService();
+   	         InternalKnowledgeRuntime kruntime = (InternalKnowledgeRuntime) commandService.getStatefulKnowledgeSession();
+   	         ProcessPersistenceContextManager contextManager = (ProcessPersistenceContextManager) kruntime
+   	                 .getEnvironment().get(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER);
+   	         ProcessPersistenceContext pcontext = contextManager.getProcessPersistenceContext();
+   	 
+   	         List<Long> processInstancesToSignalList = pcontext.getProcessInstancesWaitingForEvent("MySignal");
+   	         return processInstancesToSignalList.size();
+   	     }
+   	 });
+   	 
+   	 // Process instance is not waiting for signal
+   	 assertEquals(0, signalListSize);
+   	 active = handler.getWorkItem();
+  	 assertNotNull(active);
+   	 ksession.getWorkItemManager().completeWorkItem(active.getId(), null);
+   	 
+   	 
+   	 ksession.dispose();
+   	 
+   }
 }

@@ -16,21 +16,26 @@
 
 package org.jbpm.workflow.instance.node;
 
+import java.io.Serializable;
+
+import org.drools.runtime.process.EventListener;
 import org.drools.runtime.process.NodeInstance;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.event.EventTransformer;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.node.EventNode;
-import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 
 /**
  * Runtime counterpart of an event node.
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
-public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInstanceInterface {
+public class EventNodeInstance extends ExtendedNodeInstanceImpl implements EventNodeInstanceInterface, EventBasedNodeInstanceInterface {
+
 
     private static final long serialVersionUID = 510l;
+    private EventListener listener = new ExternalEventListener();
 
     public void signalEvent(String type, Object event) {
     	String variableName = getEventNode().getVariableName();
@@ -54,7 +59,8 @@ public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInst
     	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "An EventNode only accepts default incoming connections!");
-        }
+        }    	
+    	addEventListeners();
         // Do nothing, event activated
     }
     
@@ -62,8 +68,36 @@ public class EventNodeInstance extends NodeInstanceImpl implements EventNodeInst
         return (EventNode) getNode();
     }
 
+
     public void triggerCompleted() {
+    	getProcessInstance().removeEventListener(getEventNode().getType(), listener, true);
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }
     
+    @Override
+	public void cancel() {
+    	getProcessInstance().removeEventListener(getEventNode().getType(), listener, true);
+		super.cancel();
+	}
+
+	private class ExternalEventListener implements EventListener, Serializable {
+		private static final long serialVersionUID = 5L;
+		public String[] getEventTypes() {
+			return null;
+		}
+		public void signalEvent(String type,
+				Object event) {
+		}		
+	}
+    
+	@Override
+	public void addEventListeners() {
+		getProcessInstance().addEventListener(getEventNode().getType(), listener, true);
+	}
+
+	@Override
+	public void removeEventListeners() {
+		
+		
+	}
 }

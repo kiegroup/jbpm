@@ -404,6 +404,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 						.getSignalManager().removeEventListener(type, this);
 				}
 			}
+		} else {
+			eventListeners.remove(type);
 		}
 	}
 
