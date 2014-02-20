@@ -70,26 +70,11 @@ public class NominateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 	public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
-        List<OrganizationalEntity> realPotOwners = new ArrayList<OrganizationalEntity>();
-        if( potentialOwners != null ) { 
-            for(JaxbOrganizationalEntity jaxbPotEntity : potentialOwners ) { 
-                switch(jaxbPotEntity.getType()) { 
-                case USER:
-                   realPotOwners.add(new UserImpl(jaxbPotEntity.getId()));
-                   break;
-                case GROUP: 
-                   realPotOwners.add(new GroupImpl(jaxbPotEntity.getId()));
-                   break;
-                default: 
-                    throw new IllegalArgumentException("Unknown organizational entity type: " + jaxbPotEntity.getType() );
-               }
-            }
-        }
+        List<OrganizationalEntity> realPotOwners = convertListFromJaxbImplToInterface(potentialOwners);
         doCallbackOperationForPotentialOwners(realPotOwners, context);
         doUserGroupCallbackOperation(userId, null, context);
-    	context.getTaskInstanceService().nominate(taskId, userId, realPotOwners);
-    	return null;
-       
+        context.getTaskInstanceService().nominate(taskId, userId, realPotOwners);
+        return null;
     }
 
     public List<JaxbOrganizationalEntity> getPotentialOwners() {
