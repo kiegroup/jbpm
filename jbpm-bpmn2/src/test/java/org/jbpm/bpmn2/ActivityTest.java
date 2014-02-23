@@ -85,7 +85,12 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
+        Object[][] data = new Object[][] {
+            { false, false},
+            { false, true },
+            { true, false },
+            { true, true },
+            };
         return Arrays.asList(data);
     };
 
@@ -94,8 +99,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     private KieSession ksession;
     private KieSession ksession2;
 
-    public ActivityTest(boolean persistence) throws Exception {
-        super(persistence);
+    public ActivityTest(boolean persistence, boolean stackless) throws Exception {
+        super(persistence, false, stackless);
     }
 
     @BeforeClass
@@ -254,7 +259,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertProcessInstanceCompleted(processInstance);
-        
+
         AuditLogService logService = new JPAAuditLogService(ksession.getEnvironment());
 
         List<NodeInstanceLog> logs = logService.findNodeInstances(processInstance.getId());
@@ -315,7 +320,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-RuleTask2.bpmn2",
                 "BPMN2-RuleTaskSetVariable.drl");
         ksession = createKnowledgeSession(kbase);
-        
+
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         Map<String, Object> params = new HashMap<String, Object>();
@@ -325,7 +330,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("RuleTask",
                 params);
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
-        
+
         ksession.fireAllRules();
         ut.commit();
         assertTrue(list.size() == 1);
@@ -333,13 +338,13 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessVarValue(processInstance, "x", "AnotherString");
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testRuleTaskSetVariableWithReconnect() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-RuleTask2.bpmn2",
                 "BPMN2-RuleTaskSetVariableReconnect.drl");
         ksession = createKnowledgeSession(kbase);
-        
+
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         Map<String, Object> params = new HashMap<String, Object>();
@@ -355,7 +360,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessVarValue(processInstance, "x", "AnotherString");
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     @RequirePersistence(false)
     public void testRuleTaskWithFacts() throws Exception {
@@ -433,7 +438,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 "BPMN2-RuleTask3.drl");
         ksession = createKnowledgeSession(kbase);
 
-        ((KnowledgeCommandContext) 
+        ((KnowledgeCommandContext)
                 ((CommandBasedStatefulKnowledgeSession) ksession)
                 .getCommandService().getContext())
         .getKieSession().addEventListener(new TriggerRulesEventListener(ksession));
@@ -506,7 +511,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceFinished(processInstance, ksession);
         ksession.dispose();
     }
-    
+
     @Test
     public void testUserTaskVerifyParameters() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-UserTask.bpmn2");
@@ -521,7 +526,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertNotNull(workItem);
         assertEquals("john", workItem.getParameter("ActorId"));
         final long pId = processInstance.getId();
-        
+
         ksession.execute(new GenericCommand<Void>() {
 
             @Override
@@ -546,9 +551,9 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 return null;
             }
         });
-        
 
-        
+
+
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertProcessInstanceFinished(processInstance, ksession);
         ksession.dispose();
@@ -576,7 +581,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         Environment env = ksession.getEnvironment();
 
         ksession.dispose();
-       
+
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId,
                 kbase, null, env);
         ksession.addEventListener(countDownListener);
@@ -594,38 +599,38 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().registerWorkItemHandler("CustomTask", handler);
         Map<String, Object> params = new HashMap<String, Object>();
         ProcessInstance processInstance = ksession.startProcess("defaultPackage.InputMappingUsingValue", params);
-        
+
         WorkItem workItem = handler.getWorkItem();
         assertNotNull(workItem);
-        
+
         Object value = workItem.getParameter("TaskName");
         assertNotNull(value);
         assertEquals("test string", value);
-        
+
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
     }
-    
+
     @Test
     public void testSubProcessWithEntryExitScripts() throws Exception {
         KieBase kbase = createKnowledgeBase("subprocess/BPMN2-SubProcessWithEntryExitScripts.bpmn2");
         ksession = createKnowledgeSession(kbase);
         TestWorkItemHandler handler = new TestWorkItemHandler();
-        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);        
-        
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
         ProcessInstance processInstance = ksession.startProcess("com.sample.bpmn.hello");
 
         assertNodeTriggered(processInstance.getId(), "Task1");
         Object var1 = getProcessVarValue(processInstance, "var1");
         assertNotNull(var1);
         assertEquals("10", var1.toString());
-        
+
         assertNodeTriggered(processInstance.getId(), "Task2");
         Object var2 = getProcessVarValue(processInstance, "var2");
         assertNotNull(var2);
         assertEquals("20", var2.toString());
-        
+
         assertNodeTriggered(processInstance.getId(), "Task3");
         Object var3 = getProcessVarValue(processInstance, "var3");
         assertNotNull(var3);
@@ -640,15 +645,15 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertNotNull(var5);
         assertEquals("50", var5.toString());
 
-        
+
         WorkItem workItem = handler.getWorkItem();
         assertNotNull(workItem);
-        
+
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
     }
-    
+
     @Test
     public void testCallActivity() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-CallActivity.bpmn2",
@@ -662,7 +667,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals("new value",
                 ((WorkflowProcessInstance) processInstance).getVariable("y"));
     }
-    
+
     @Test
     public void testCallActivityMI() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-CallActivityMI.bpmn2",
@@ -677,27 +682,27 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                     subprocessStarted.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         });
-        
+
         List<String> list = new ArrayList<String>();
         list.add("first");
         list.add("second");
         List<String> listOut = new ArrayList<String>();
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "oldValue");
         params.put("list", list);
         params.put("listOut", listOut);
-        
+
         ProcessInstance processInstance = ksession.startProcess("ParentProcess", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         assertEquals(2, subprocessStarted.size());
         listOut = (List)((WorkflowProcessInstance) processInstance).getVariable("listOut");
         assertNotNull(listOut);
         assertEquals(2, listOut.size());
-        
+
         assertEquals("new value", listOut.get(0));
         assertEquals("new value", listOut.get(1));
     }
@@ -760,7 +765,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         List<ProcessInstanceLog> subprocesses = logService.findSubProcessInstances(processInstance.getId());
         assertNotNull(subprocesses);
         assertEquals(1, subprocesses.size());
-        
+
         logService.dispose();
     }
 
@@ -924,7 +929,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals("Exit", getProcessVarValue(processInstance, "y"));
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testAdHocSubProcessAutoCompleteExpression() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper(
@@ -932,7 +937,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("counter", new Integer(2));
         ProcessInstance processInstance = ksession.startProcess("AdHocSubProcess", params);
@@ -942,21 +947,21 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.signalEvent("Hello1", null, processInstance.getId());
         ksession = restoreSession(ksession, true);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
-        
+
         workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("testHT", new Integer(1));
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), results);
         assertProcessInstanceActive(processInstance.getId(), ksession);
-        
+
         ksession.signalEvent("Hello1", null, processInstance.getId());
         workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
         results = new HashMap<String, Object>();
         results.put("testHT", new Integer(0));
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), results);
-        
+
         assertProcessInstanceFinished(processInstance, ksession);
     }
 
@@ -1136,7 +1141,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.signalEvent("Task3", null, processInstance.getId());
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testServiceTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ServiceProcess.bpmn2");
@@ -1150,7 +1155,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceFinished(processInstance, ksession);
         assertEquals("Hello john!", processInstance.getVariable("s"));
     }
-    
+
     @Test
     public void testServiceTaskWithTransformation() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ServiceProcessWithTransformation.bpmn2");
@@ -1164,7 +1169,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceFinished(processInstance, ksession);
         assertEquals("hello john!", processInstance.getVariable("s"));
     }
-    
+
     @Test
     public void testServiceTaskWithMvelTransformation() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ServiceProcessWithMvelTransformation.bpmn2");
@@ -1178,11 +1183,11 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceFinished(processInstance, ksession);
         assertEquals("hello john!", processInstance.getVariable("s"));
     }
-    
+
     @Test
     public void testServiceTaskWithCustomTransformation() throws Exception {
     	DataTransformerRegistry.get().register("http://custom/transformer", new DataTransformer() {
-			
+
 			@Override
 			public Object transform(Object expression, Map<String, Object> parameters) {
 				// support only single object
@@ -1191,19 +1196,19 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 				if ("caplitalizeFirst".equals(expression)) {
 					String first = value.substring(0, 1);
 					String main = value.substring(1, value.length());
-					
+
 					result = first.toUpperCase() + main;
 				} else if ("caplitalizeLast".equals(expression)) {
 					String last = value.substring(value.length()-1);
 					String main = value.substring(0, value.length()-1);
-					
+
 					result = main + last.toUpperCase();
 				} else {
 					throw new IllegalArgumentException("Unknown expression " + expression);
 				}
 				return result;
 			}
-			
+
 			@Override
 			public Object compile(String expression, Map<String, Object> parameters) {
 				// compilation not supported
@@ -1216,13 +1221,13 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 new ServiceTaskHandler());
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john doe");
-       
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession
                 .startProcess("ServiceProcess", params);
         assertProcessInstanceFinished(processInstance, ksession);
         assertEquals("John doE", processInstance.getVariable("s"));
     }
-    
+
     @Test
     public void testServiceTaskNoInterfaceName() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ServiceTask-web-service.bpmn2");
@@ -1346,7 +1351,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testBusinessRuleTaskWithDataInputs2WithPersistence()
             throws Exception {
@@ -1364,7 +1369,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testBusinessRuleTaskWithContionalEvent() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ConditionalEventRuleTask.bpmn2",
@@ -1378,7 +1383,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         person.setName("john");
         ksession.insert(person);
         ksession.fireAllRules();
-        
+
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
         assertTrue(list.size() == 1);
     }
@@ -1416,6 +1421,9 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     @Test
     public void testCallActivityWithBoundaryEvent() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Boundary event", 1);
+        if( stacklessExecution ) {
+            countDownListener.useAfterProcessCompleted();
+        }
         KieBase kbase = createKnowledgeBase(
                 "BPMN2-CallActivityWithBoundaryEvent.bpmn2",
                 "BPMN2-CallActivitySubProcessWithBoundaryEvent.bpmn2");
@@ -1441,7 +1449,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertNodeTriggered(processInstance.getId() + 1, "StartProcess2",
                 "User Task");
     }
-    
+
     @Test
     public void testCallActivityWithSubProcessWaitState() throws Exception {
         KieBase kbase = createKnowledgeBase(
@@ -1457,9 +1465,9 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
         WorkItem wi = workItemHandler.getWorkItem();
         assertNotNull(wi);
-        
+
         ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
-        
+
         assertProcessInstanceFinished(processInstance, ksession);
         // first check the parent process executed nodes
         assertNodeTriggered(processInstance.getId(), "StartProcess", "CallActivity", "EndProcess");
@@ -1521,7 +1529,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         // then check child process executed nodes - is there better way to get child process id than simply increment?
         assertNodeTriggered(processInstance.getId() + 1, "StartProcess", "Task 1", "End");
     }
-    
+
     @Test
     public void testCallActivityWithBoundaryErrorEventWithWaitState() throws Exception {
         KieBase kbase = createKnowledgeBase(
@@ -1531,11 +1539,11 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("task1", workItemHandler);
         ProcessInstance processInstance = ksession.startProcess("ParentProcess");
-        
+
         WorkItem workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
-        
+
         workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
@@ -1546,25 +1554,25 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         // then check child process executed nodes - is there better way to get child process id than simply increment?
         assertNodeTriggered(processInstance.getId() + 1, "StartProcess", "Task 1", "End");
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void testInvalidServiceTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InvalidServiceProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
     }
-    
+
     @Test // JBPM-3951
     public void testServiceTaskInterface() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ServiceTask.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new SystemOutWorkItemHandler());
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("EAID_DP000000_23D3_4e7e_80FE_6D8C0AF83CAA", params);
         assertProcessInstanceFinished(processInstance, ksession);
 
     }
-    
+
     @SuppressWarnings("unchecked")
 	@Test
     public void testBusinessRuleTaskWithTransformation() throws Exception {
@@ -1572,9 +1580,9 @@ public class ActivityTest extends JbpmBpmn2TestCase {
                 "BPMN2-RuleTaskWithTransformation.drl");
         ksession = createKnowledgeSession(kbase);
         List<String> data = new ArrayList<String>();
-        
+
         ksession.setGlobal("data", data);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", "JoHn");
         ProcessInstance processInstance = ksession.startProcess("BPMN2-RuleTaskWithTransformation", params);
@@ -1582,18 +1590,18 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         int fired = ksession.fireAllRules();
         assertEquals(1, fired);
         assertProcessInstanceFinished(processInstance, ksession);
-        
+
         data = (List<String>) ksession.getGlobal("data");
         assertNotNull(data);
         assertEquals(1, data.size());
         assertEquals("JOHN", data.get(0));
-        
+
         String nameVar = getProcessVarValue(processInstance, "name");
         assertNotNull(nameVar);
         assertEquals("john", nameVar);
-        
+
     }
-    
+
     @Test
     public void testCallActivityWithTransformation() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-CallActivityWithTransformation.bpmn2", "BPMN2-CallActivitySubProcess.bpmn2");
@@ -1607,8 +1615,8 @@ public class ActivityTest extends JbpmBpmn2TestCase {
             }
 
         });
-        
-        
+
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "oldValue");
         ProcessInstance processInstance = ksession.startProcess("ParentProcess", params);
@@ -1622,7 +1630,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertEquals("OLDVALUE", ((WorkflowProcessInstance) instances.get(1)).getVariable("subX"));
         assertEquals("new value",((WorkflowProcessInstance) instances.get(1)).getVariable("subY"));
     }
-    
+
     @Test
     public void testServiceTaskWithMvelCollectionTransformation() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ServiceProcessWithMvelCollectionTransformation.bpmn2");
@@ -1638,7 +1646,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 		List<String> result = (List<String>)processInstance.getVariable("list");
         assertEquals(3, result.size());
     }
-    
+
     @Test
     public void testServiceTaskWithMvelJaxbTransformation() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ServiceProcessWithMvelJaxbTransformation.bpmn2");
@@ -1650,63 +1658,63 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         person.setId(123);
         person.setName("john");
         params.put("s", person);
-        
+
         HelloService.VALIDATE_STRING = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><person><id>123</id><name>john</name></person>";
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession
                 .startProcess("ServiceProcess", params);
         assertProcessInstanceFinished(processInstance, ksession);
-        
+
     }
-    
+
     @Test
-    public void testErrorBetweenProcessesProcess() throws Exception {        
+    public void testErrorBetweenProcessesProcess() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("subprocess/ErrorsBetweenProcess-Process.bpmn2",
         		"subprocess/ErrorsBetweenProcess-SubProcess.bpmn2");
-        ksession = createKnowledgeSession(kbase);       
-        
+        ksession = createKnowledgeSession(kbase);
+
         Map<String, Object> variables = new HashMap<String, Object>();
-        
+
         variables.put("tipoEvento", "error");
         variables.put("pasoVariable", 3);
         ProcessInstance processInstance = ksession.startProcess("Principal", variables);
 
-        assertProcessInstanceCompleted(processInstance.getId(), ksession);       
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
         assertProcessInstanceAborted(processInstance.getId()+1, ksession);
 
         assertProcessVarValue(processInstance, "event", "error desde Subproceso");
     }
-    
+
     @Test
     public void testProcessCustomDescriptionMetaData() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ProcessCustomDescriptionMetaData.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = ksession.startProcess("Minimal", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         String description = ((org.jbpm.process.instance.impl.ProcessInstanceImpl)processInstance).getDescription();
         assertNotNull(description);
         assertEquals("my process with description", description);
     }
-    
+
     @Test
     public void testProcessVariableCustomDescriptionMetaData() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ProcessVariableCustomDescriptionMetaData.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "variable name for process");
         ProcessInstance processInstance = ksession.startProcess("Minimal", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         String description = ((org.jbpm.process.instance.impl.ProcessInstanceImpl)processInstance).getDescription();
         assertNotNull(description);
         assertEquals("variable name for process", description);
     }
-    
+
     @Test
     public void testInvalidSubProcessNoOutgoingSF() throws Exception {
     	try {
@@ -1717,17 +1725,17 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     		// there should be build errors
     	}
     }
-    
+
     @Test
     public void testAdHocSubProcessEmptyCompleteExpression() throws Exception {
-        try { 
+        try {
         	createKnowledgeBaseWithoutDumper("BPMN2-AdHocSubProcessEmptyCompleteExpression.bpmn2");
         	fail("Process should be invalid, there should be build errors");
     	} catch (RuntimeException e) {
     		// there should be build errors
     	}
     }
-    
+
     @Test
     public void testSubProcessWithTypeVariable() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("subprocess/BPMN2-SubProcessWithTypeVariable.bpmn2");
@@ -1745,7 +1753,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertProcessInstanceCompleted(processInstance);
         assertEquals(2, list.size());
     }
-    
+
     @Test
     public void testUserTaskParametrizedInput() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-UserTaskWithParametrizedInput.bpmn2");
@@ -1757,7 +1765,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession = restoreSession(ksession, true);
         WorkItem workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
-        assertEquals("Executing task of process instance " + processInstance.getId() + " as work item with Hello", 
+        assertEquals("Executing task of process instance " + processInstance.getId() + " as work item with Hello",
                 workItem.getParameter("Description").toString().trim());
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertProcessInstanceFinished(processInstance, ksession);

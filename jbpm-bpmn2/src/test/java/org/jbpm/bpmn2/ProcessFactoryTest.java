@@ -29,7 +29,7 @@ import org.kie.api.io.Resource;
 import org.kie.api.runtime.process.ProcessInstance;
 
 public class ProcessFactoryTest extends JbpmBpmn2TestCase {
-    
+
     public ProcessFactoryTest() {
         super(false);
     }
@@ -94,7 +94,6 @@ public class ProcessFactoryTest extends JbpmBpmn2TestCase {
 
     @Test(timeout=10000)
     public void testBoundaryTimerTimeCycle() throws Exception {
-        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("BoundaryTimerEvent", 1);
         RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
         factory
             // header
@@ -117,12 +116,15 @@ public class ProcessFactoryTest extends JbpmBpmn2TestCase {
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         TestWorkItemHandler testHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", testHandler);
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("BoundaryTimerEvent", 1);
         ksession.addEventListener(countDownListener);
 
         ProcessInstance pi = ksession.startProcess("org.jbpm.process");
         assertProcessInstanceActive(pi);
 
         countDownListener.waitTillCompleted(); // wait for boundary timer firing
+
+        Thread.currentThread().sleep(100);
 
         assertNodeTriggered(pi.getId(), "End2");
         assertProcessInstanceActive(pi); // still active because CancelActivity = false
