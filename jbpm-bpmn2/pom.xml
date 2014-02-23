@@ -143,6 +143,11 @@
       <artifactId>kie-test-util</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
     
@@ -209,7 +214,7 @@
         <configuration>
           <systemProperties>
             <!-- enforce strict variable checking for the sake of tests -->
-            <org.jbpm.variable.strict>true </org.jbpm.variable.strict>
+            <org.jbpm.variable.strict>true</org.jbpm.variable.strict>
           </systemProperties>
         </configuration>
       </plugin>

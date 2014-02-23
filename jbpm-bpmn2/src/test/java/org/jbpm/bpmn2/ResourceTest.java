@@ -16,21 +16,37 @@
 
 package org.jbpm.bpmn2;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.api.KieBase;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ResourceTest extends JbpmBpmn2TestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourceTest.class);
 
+    @Parameters
+    public static Collection<Object[]> persistence() {
+        Object[][] data = new Object[][] {
+            { false },
+            { true }
+            };
+        return Arrays.asList(data);
+    };
+
     private StatefulKnowledgeSession ksession;
 
-    public ResourceTest() {
-        super(false);
+    public ResourceTest(boolean stackless) {
+        super(false, false, stackless);
     }
 
     @Test

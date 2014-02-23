@@ -57,7 +57,11 @@ public class StartEventTest extends JbpmBpmn2TestCase {
 
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
+        Object[][] data = new Object[][] {
+            { false, false },
+            { false, true },
+            { true, false },
+            { true, true } };
         return Arrays.asList(data);
     };
 
@@ -65,8 +69,8 @@ public class StartEventTest extends JbpmBpmn2TestCase {
 
     private KieSession ksession;
 
-    public StartEventTest(boolean persistence) {
-        super(persistence);
+    public StartEventTest(boolean persistence, boolean stackless) {
+        super(persistence, false, stackless);
     }
 
     @BeforeClass
@@ -264,7 +268,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         ksession.signalEvent("MySignal", "NewValue");
-        
+
         assertEquals(1, getNumberOfProcessInstances("Minimal"));
 
     }
@@ -289,12 +293,12 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         ksession.signalEvent("MySignal", "NewValue");
-        
+
         assertEquals(1, getNumberOfProcessInstances("Minimal"));
         // now remove the process from kbase to make sure runtime based listeners are removed from signal manager
         kbase.removeProcess("Minimal");
         ksession.signalEvent("MySignal", "NewValue");
-        
+
         // must be still one as the process was removed
         assertEquals(1, getNumberOfProcessInstances("Minimal"));
 
@@ -522,7 +526,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
 
         countDownListener.waitTillCompleted();
         assertEquals(5, listener.getCount("start.cycle"));
-        
+
     }
 
 
@@ -577,13 +581,13 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         });
         NotAvailableGoodsReport report = new NotAvailableGoodsReport("test");
         ksession.signalEvent("SignalNotAvailableGoods", report);
-        
+
         assertEquals(1, getNumberOfProcessInstances("org.jbpm.example.SignalObjectProcess"));
         assertEquals(1, list.size());
         assertProcessVarValue(list.get(0), "report", "NotAvailableGoodsReport{type:test}");
 
     }
-    
+
     @Test
     public void testInvalidDateTimerStart() throws Exception {
         try {
@@ -593,7 +597,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             assertTrue(e.getMessage().contains("Could not parse date 'abcdef'"));
         }
     }
-    
+
     @Test
     public void testInvalidDurationTimerStart() throws Exception {
         try {
@@ -603,7 +607,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             assertTrue(e.getMessage().contains("Could not parse delay 'abcdef'"));
         }
     }
-    
+
     @Test
     public void testInvalidCycleTimerStart() throws Exception {
         try {

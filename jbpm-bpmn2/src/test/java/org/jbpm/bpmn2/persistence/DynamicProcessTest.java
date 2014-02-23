@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,6 +14,9 @@
 */
 
 package org.jbpm.bpmn2.persistence;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.impl.GenericCommand;
@@ -29,6 +32,9 @@ import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.event.process.ProcessCompletedEvent;
@@ -47,10 +53,26 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to launch a process.
  */
+@RunWith(Parameterized.class)
 public class DynamicProcessTest extends JbpmBpmn2TestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamicProcessTest.class);
-    
+
+    @Parameters
+    public static Collection<Object[]> persistence() {
+        Object[][] data = new Object[][] {
+            { false, false},
+            { false, true },
+            { true, false },
+            { true, true },
+            };
+        return Arrays.asList(data);
+    }
+
+    public DynamicProcessTest(boolean persistence, boolean stackless) {
+        super(persistence, false, stackless);
+    }
+
     @BeforeClass
     public static void setup() throws Exception {
         if (PERSISTENCE) {
@@ -59,7 +81,7 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-	public void testDynamicProcess() throws Exception {		
+	public void testDynamicProcess() throws Exception {
 		RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.HelloWorld");
 		factory
 			// Header
@@ -111,12 +133,12 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 
 		final ProcessInstanceImpl processInstance = (ProcessInstanceImpl)
 			ksession.startProcess("org.jbpm.HelloWorld");
-		
+
 		HumanTaskNode node = new HumanTaskNode();
 		node.setName("Task2");
 		node.setId(4);
 		insertNodeInBetween(process, 2, 3, node);
-		
+
 		((CommandBasedStatefulKnowledgeSession) ksession).getCommandService().execute(new GenericCommand<Void>() {
 			public Void execute(Context context) {
 				StatefulKnowledgeSession ksession = (StatefulKnowledgeSession) ((KnowledgeCommandContext) context).getKieSession();
@@ -130,7 +152,7 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 		assertProcessInstanceActive(processInstance);
 		ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
 		assertProcessInstanceFinished(processInstance, ksession);
-		
+
 		ksession.dispose();
 	}
 
@@ -154,5 +176,5 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 		}
 		throw new IllegalArgumentException("Connection to node " + endNodeId + " not found in process " + process.getId());
 	}
-	
+
 }

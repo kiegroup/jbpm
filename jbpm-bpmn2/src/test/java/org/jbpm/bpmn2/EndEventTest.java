@@ -43,7 +43,12 @@ public class EndEventTest extends JbpmBpmn2TestCase {
 
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
+        Object[][] data = new Object[][] {
+            { false, false },
+            { false, true },
+            { true, false },
+            { true, true }
+            };
         return Arrays.asList(data);
     };
 
@@ -51,9 +56,9 @@ public class EndEventTest extends JbpmBpmn2TestCase {
             .getLogger(EndEventTest.class);
 
     private StatefulKnowledgeSession ksession;
-    
-    public EndEventTest(boolean persistence) {
-        super(persistence);
+
+    public EndEventTest(boolean persistence, boolean stackless) {
+        super(persistence, false, stackless);
     }
 
     @BeforeClass
@@ -75,7 +80,7 @@ public class EndEventTest extends JbpmBpmn2TestCase {
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("com.sample.test");
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
     @Test
@@ -86,7 +91,7 @@ public class EndEventTest extends JbpmBpmn2TestCase {
                 .startProcess("ErrorEndEvent");
         assertProcessInstanceAborted(processInstance);
         assertEquals("error", ((org.jbpm.process.instance.ProcessInstance)processInstance).getOutcome());
-        
+
     }
 
     @Test
@@ -96,7 +101,7 @@ public class EndEventTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession
                 .startProcess("EscalationEndEvent");
         assertProcessInstanceAborted(processInstance);
-        
+
     }
 
     @Test
@@ -106,7 +111,7 @@ public class EndEventTest extends JbpmBpmn2TestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "MyValue");
         ksession.startProcess("SignalEndEvent", params);
-        
+
     }
 
     @Test
@@ -120,50 +125,50 @@ public class EndEventTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess(
                 "MessageEndEvent", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
-    
+
     @Test
     public void testMessageEndVerifyDeploymentId() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-MessageEndEvent.bpmn2");
-        
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
-        
+
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Send Task", handler);
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "MyValue");
         ProcessInstance processInstance = ksession.startProcess("MessageEndEvent", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         WorkItem workItem = handler.getWorkItem();
         assertNotNull(workItem);
         assertTrue(workItem instanceof org.drools.core.process.instance.WorkItem);
-        
+
         long nodeInstanceId = ((org.drools.core.process.instance.WorkItem) workItem).getNodeInstanceId();
         long nodeId = ((org.drools.core.process.instance.WorkItem) workItem).getNodeId();
         String deploymentId = ((org.drools.core.process.instance.WorkItem) workItem).getDeploymentId();
-        
+
         assertNotNull(nodeId);
         assertTrue(nodeId > 0);
         assertNotNull(nodeInstanceId);
         assertTrue(nodeInstanceId > 0);
         assertNull(deploymentId);
-        
+
         // now set deployment id as part of ksession's env
         ksession.getEnvironment().set("deploymentId", "testDeploymentId");
-        
+
         processInstance = ksession.startProcess("MessageEndEvent", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         workItem = handler.getWorkItem();
         assertNotNull(workItem);
         assertTrue(workItem instanceof org.drools.core.process.instance.WorkItem);
-        
+
         nodeInstanceId = ((org.drools.core.process.instance.WorkItem) workItem).getNodeInstanceId();
         nodeId = ((org.drools.core.process.instance.WorkItem) workItem).getNodeId();
         deploymentId = ((org.drools.core.process.instance.WorkItem) workItem).getDeploymentId();
-        
+
         assertNotNull(nodeId);
         assertTrue(nodeId > 0);
         assertNotNull(nodeInstanceId);
@@ -184,7 +189,7 @@ public class EndEventTest extends JbpmBpmn2TestCase {
                 .startProcess("OnEntryExitScriptProcess");
         assertProcessInstanceCompleted(processInstance);
         assertEquals(4, myList.size());
-        
+
     }
 
     @Test
@@ -199,7 +204,7 @@ public class EndEventTest extends JbpmBpmn2TestCase {
                 .startProcess("OnEntryExitScriptProcess");
         assertProcessInstanceCompleted(processInstance);
         assertEquals(4, myList.size());
-        
+
     }
 
     @Test
@@ -214,9 +219,9 @@ public class EndEventTest extends JbpmBpmn2TestCase {
                 .startProcess("OnEntryExitScriptProcess");
         assertProcessInstanceCompleted(processInstance);
         assertEquals(4, myList.size());
-        
+
     }
-    
+
     @Test
     public void testOnEntryExitScriptDesigner() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-OnEntryExitDesignerScriptProcess.bpmn2");
@@ -229,31 +234,31 @@ public class EndEventTest extends JbpmBpmn2TestCase {
                 .startProcess("OnEntryExitScriptProcess");
         assertProcessInstanceCompleted(processInstance);
         assertEquals(4, myList.size());
-        
+
     }
-    
+
     @Test
     public void testTerminateWithinSubprocessEnd() throws Exception {
         KieBase kbase = createKnowledgeBase("subprocess/BPMN2-SubprocessWithParallelSpitTerminate.bpmn2");
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("BPMN2-SubprocessWithParallelSpitTerminate");
-        
+
         ksession.signalEvent("signal1", null, processInstance.getId());
-        
+
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
-    
+
     @Test
     public void testTerminateEnd() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ParallelSpitTerminate.bpmn2");
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         ProcessInstance processInstance = ksession.startProcess("BPMN2-ParallelSpitTerminate");
-        
+
         ksession.signalEvent("Signal 1", null, processInstance.getId());
-        
+
         assertProcessInstanceCompleted(processInstance);
-        
+
     }
 
 }

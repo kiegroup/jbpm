@@ -27,8 +27,11 @@ import org.jbpm.bpmn2.handler.SignallingTaskHandlerDecorator;
 import org.jbpm.bpmn2.objects.ExceptionOnPurposeHandler;
 import org.jbpm.bpmn2.objects.MyError;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
+import org.jbpm.bpmn2.test.Broken;
+import org.jbpm.bpmn2.test.Fixed;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.jbpm.test.util.TestBpmn2ProcessEventListener;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
@@ -55,17 +58,15 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
 
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
-        return Arrays.asList(data);
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
-    private Logger logger = LoggerFactory
-            .getLogger(ErrorEventTest.class);
+    private Logger logger = LoggerFactory.getLogger(ErrorEventTest.class);
 
     private KieSession ksession;
-    
-    public ErrorEventTest(boolean persistence) {
-        super(persistence);
+
+    public ErrorEventTest(boolean persistence, boolean locking, boolean stackless) {
+        super(persistence, locking, stackless);
     }
 
     @BeforeClass
@@ -104,7 +105,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         }
 
     };
-    
+
     @Test
     public void testEventSubprocessError() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-EventSubprocessError.bpmn2");
@@ -140,7 +141,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertEquals(1, executednodes.size());
 
     }
-    
+
     @Test
     public void testEventSubprocessErrorThrowOnTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-EventSubprocessError.bpmn2");
@@ -163,19 +164,19 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
             @Override
             public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
                 throw new MyError();
-                
+
             }
 
             @Override
             public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
                 manager.abortWorkItem(workItem.getId());
             }
-  
-            
+
+
         });
         ProcessInstance processInstance = ksession
                 .startProcess("BPMN2-EventSubprocessError");
- 
+
         assertProcessInstanceFinished(processInstance, ksession);
         assertProcessInstanceAborted(processInstance);
         assertNodeTriggered(processInstance.getId(), "start", "User Task 1",
@@ -183,7 +184,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertEquals(1, executednodes.size());
 
     }
-    
+
     @Test
     public void testEventSubprocessErrorWithErrorCode() throws Exception {
         KieBase kbase = createKnowledgeBase("subprocess/EventSubprocessErrorHandlingWithErrorCode.bpmn2");
@@ -211,7 +212,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertEquals(1, executednodes.size());
 
     }
-    
+
     @Test
     public void testEventSubprocessErrorWithOutErrorCode() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("subprocess/EventSubprocessErrorHandlingWithOutErrorCode.bpmn2");
@@ -241,6 +242,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
     }
 
     @Test
+    @Fixed(times=1)
     public void testErrorBoundaryEvent() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ErrorBoundaryEventInterrupting.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -275,7 +277,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertNodeTriggered(processInstance.getId(), "start", "split", "User Task", "User task error attached", "error end event");
         assertNotNodeTriggered(processInstance.getId(), "Script Task", "error1", "error2");
     }
-    
+
     @Test
     public void testErrorBoundaryEventOnServiceTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ErrorBoundaryEventOnServiceTask.bpmn2");
@@ -283,7 +285,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",handler);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler());
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "test");
         ProcessInstance processInstance = ksession.startProcess("BPMN2-ErrorBoundaryEventOnServiceTask", params);
@@ -296,8 +298,9 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertNodeTriggered(processInstance.getId(), "start", "split", "User Task", "Service task error attached", "end0",
                 "Script Task", "error2");
     }
-    
+
     @Test
+    @Broken
     public void testCatchErrorBoundaryEventOnTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ErrorBoundaryEventOnTask.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -314,8 +317,8 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
             public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
                 manager.abortWorkItem(workItem.getId());
             }
-  
-            
+
+
         });
         ProcessInstance processInstance = ksession
                 .startProcess("BPMN2-ErrorBoundaryEventOnTask");
@@ -323,7 +326,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance);
         assertNodeTriggered(processInstance.getId(), "start", "split", "User Task", "User task error attached",
                 "Script Task", "error1", "error2");
- 
+
     }
 
     @Test
@@ -341,49 +344,49 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
 
         StandaloneBPMNProcessTest.runTestSignallingExceptionServiceTask(ksession);
     }
-    
+
     @Test
     public void testEventSubProcessErrorWithScript() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-EventSubProcessErrorWithScript.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Request Handler", new SignallingTaskHandlerDecorator(ExceptionOnPurposeHandler.class, "Error-90277"));
         ksession.getWorkItemManager().registerWorkItemHandler("Error Handler", new SystemOutWorkItemHandler());
-        
+
         ProcessInstance processInstance = ksession.startProcess("com.sample.process");
 
-        assertProcessInstanceAborted(processInstance);        
+        assertProcessInstanceAborted(processInstance);
         assertEquals("90277", ((WorkflowProcessInstance) processInstance).getOutcome());
 
     }
-    
+
     @Test
     public void testErrorBoundaryEventOnEntry() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventCatchingOnEntryException.bpmn2");
         ksession = createKnowledgeSession(kbase);
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",handler);
-        
+
         ProcessInstance processInstance = ksession
             .startProcess("BoundaryErrorEventOnEntry");
         assertProcessInstanceActive(processInstance.getId(), ksession);
         assertEquals(1, handler.getWorkItems().size());
-    } 
-    
+    }
+
     @Test
     public void testErrorBoundaryEventOnExit() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventCatchingOnExitException.bpmn2");
         ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(new TestBpmn2ProcessEventListener());
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task",handler);
-        
-        ProcessInstance processInstance = ksession
-            .startProcess("BoundaryErrorEventOnExit");
+
+        ProcessInstance processInstance = ksession.startProcess("BoundaryErrorEventOnExit");
         assertProcessInstanceActive(processInstance.getId(), ksession);
-        WorkItem workItem = handler.getWorkItem(); 
+        WorkItem workItem = handler.getWorkItem();
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
-        
+
         assertEquals(1, handler.getWorkItems().size());
-    } 
+    }
 
     @Test
     public void testBoundaryErrorEventDefaultHandlerWithErrorCodeWithStructureRef() throws Exception {
@@ -455,7 +458,7 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
 
         assertEquals("java.lang.RuntimeException", getProcessVarValue(processInstance, "var1"));
     }
-    
+
 	@Test
     public void testBoundaryErrorEventStructureRef() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventStructureRef.bpmn2");
