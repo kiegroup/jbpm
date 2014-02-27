@@ -2,8 +2,12 @@ package org.jbpm.process.workitem;
 
 import java.util.Collection;
 
+
+import org.drools.core.process.instance.*;
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.workflow.instance.node.WorkItemNodeInstance;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.api.runtime.process.*;
 
@@ -43,7 +47,8 @@ public abstract class AbstractWorkItemHandler implements WorkItemHandler {
 		for (NodeInstance nodeInstance: nodeInstances) {
 			if (nodeInstance instanceof WorkItemNodeInstance) {
 				WorkItemNodeInstance workItemNodeInstance = (WorkItemNodeInstance) nodeInstance;
-				if (workItemId == workItemNodeInstance.getWorkItem().getId()) {
+                WorkItem workItem = workItemNodeInstance.getWorkItem();
+                if (workItem != null && workItemId == workItem.getId()) {
 					return workItemNodeInstance;
 				}
 			}
