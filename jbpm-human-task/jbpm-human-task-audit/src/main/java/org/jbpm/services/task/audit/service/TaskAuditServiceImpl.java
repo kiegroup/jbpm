@@ -18,17 +18,21 @@ package org.jbpm.services.task.audit.service;
 
 import java.util.Date;
 import java.util.List;
+import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksAdminCommand;
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByStatusByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByStatusCommand;
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksCommand;
+import org.jbpm.services.task.audit.commands.GetAllHistoryAuditTasksCommand;
+import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksAdminCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
-import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
-import org.jbpm.services.task.audit.impl.model.UserAuditTask;
+import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
+import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
+import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import org.kie.api.task.TaskService;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.TaskEvent;
@@ -105,6 +109,21 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public void setTaskService(TaskService taskService) {
         this.taskService = (InternalTaskService) taskService;
+    }
+
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasksAdmin() {
+        return taskService.execute(new GetAllUserAuditTasksAdminCommand());
+    }
+
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasksAdmin() {
+        return taskService.execute(new GetAllGroupAuditTasksAdminCommand());
+    }
+
+    @Override
+    public List<HistoryAuditTask> getAllHistoryAuditTasks() {
+        return taskService.execute(new GetAllHistoryAuditTasksCommand());
     }
     
     

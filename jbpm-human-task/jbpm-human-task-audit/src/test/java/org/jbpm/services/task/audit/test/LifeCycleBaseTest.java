@@ -27,7 +27,8 @@ import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.audit.DeleteAuditEventsCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
-import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
+import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
+import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.services.task.impl.model.command.DeleteBAMTaskSummariesCommand;
@@ -55,6 +56,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         
          
         List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        
         
         assertEquals(1, allGroupAuditTasks.size());
 
@@ -128,6 +130,9 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         taskService.execute(new DeleteBAMTaskSummariesCommand());
         bamTaskList = taskService.execute(new GetBAMTaskSummariesCommand());
         assertEquals( "BAM Task Summary list size after delete (task id: " + taskId + ") : ", 0, bamTaskList.size());
+        
+        List<HistoryAuditTask> allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasks();
+        assertEquals(2, allHistoryAuditTasks.size());
     }
     
     

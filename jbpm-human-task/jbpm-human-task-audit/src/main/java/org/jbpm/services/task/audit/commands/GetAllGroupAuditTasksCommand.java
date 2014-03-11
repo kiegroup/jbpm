@@ -5,7 +5,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.jbpm.services.task.audit.impl.model.GroupAuditTask;
+import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 
 import org.jbpm.services.task.commands.TaskCommand;
 import org.jbpm.services.task.utils.ClassUtil;

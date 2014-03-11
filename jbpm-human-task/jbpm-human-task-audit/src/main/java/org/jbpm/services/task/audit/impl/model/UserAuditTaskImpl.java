@@ -15,6 +15,7 @@
  */
 package org.jbpm.services.task.audit.impl.model;
 
+import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import java.util.Date;
 import javax.persistence.Entity;
 

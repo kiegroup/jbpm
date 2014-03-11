@@ -6,9 +6,10 @@ package org.jbpm.services.task.audit;
 
 import java.util.Date;
 import org.jbpm.services.task.audit.impl.model.GroupAuditTaskImpl;
+import org.jbpm.services.task.audit.impl.model.HistoryAuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.TaskEventImpl;
-import org.jbpm.services.task.audit.impl.model.UserAuditTask;
 import org.jbpm.services.task.audit.impl.model.UserAuditTaskImpl;
+import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -116,8 +117,15 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         persistenceContext.persist(new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.COMPLETED, userId, new Date()));
         UserAuditTask task = persistenceContext.find(UserAuditTaskImpl.class, ti.getId());
         if (task != null) {
-            task.setStatus(ti.getTaskData().getStatus().name());
-            persistenceContext.persist(task);
+            persistenceContext.remove(task);
+            HistoryAuditTaskImpl historyAuditTaskImpl = new HistoryAuditTaskImpl(task.getTaskId(), ti.getTaskData().getStatus().name(),
+                                                                                task.getActivationTime(), task.getName(),
+                                                                                task.getDescription(), task.getPriority(),
+                                                                                task.getCreatedBy(), task.getCreatedOn(), 
+                                                                                task.getDueDate(), task.getProcessInstanceId(), 
+                                                                                task.getProcessId(), task.getProcessSessionId(),
+                                                                                task.getParentId());
+            persistenceContext.persist(historyAuditTaskImpl);
         }
     }
 
@@ -152,7 +160,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         } else if (!ti.getPeopleAssignments().getPotentialOwners().isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (OrganizationalEntity o : ti.getPeopleAssignments().getPotentialOwners()) {
-                sb.append(o.getId());
+                sb.append(o.getId()).append("|");
             }
             persistenceContext.persist(new GroupAuditTaskImpl(sb.toString(), ti.getId(), ti.getTaskData().getStatus().name(),
                     ti.getTaskData().getActivationTime(), ti.getNames().get(0).getText(),
@@ -194,7 +202,8 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         }
         StringBuilder sb = new StringBuilder();
         for (OrganizationalEntity o : ti.getPeopleAssignments().getPotentialOwners()) {
-            sb.append(o.getId());
+            sb.append(o.getId()).append("|");
+            
         }
         persistenceContext.persist(new GroupAuditTaskImpl(sb.toString(), ti.getId(), ti.getTaskData().getStatus().name(),
                 ti.getTaskData().getActivationTime(), ti.getNames().get(0).getText(),

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model;
+package org.jbpm.services.task.audit.impl.model.api;
 
 /**
  *

@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model;
+package org.jbpm.services.task.audit.impl.model.api;
 
 /**
  *
  * @author salaboy
  */
-public interface UserAuditTask extends AuditTask {
-    String getActualOwner();
-    void setActualOwner(String actualOwner);
+public interface HistoryAuditTask extends AuditTask{
+    
 }

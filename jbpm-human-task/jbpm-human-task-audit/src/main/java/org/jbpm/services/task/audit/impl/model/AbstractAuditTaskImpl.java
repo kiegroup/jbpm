@@ -16,6 +16,7 @@
 
 package org.jbpm.services.task.audit.impl.model;
 
+import org.jbpm.services.task.audit.impl.model.api.AuditTask;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
