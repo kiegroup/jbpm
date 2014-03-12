@@ -30,7 +30,6 @@ import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
@@ -137,6 +136,12 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         System.out.println("After query history  tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, allHistoryAuditTasks.size());
         
+        beforeQueryTime = System.currentTimeMillis();
+        System.out.println("Before query history by user tasks...." +  beforeQueryTime);
+        allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasksByUser("salaboy");
+        System.out.println("After query history by user  tasks...." + (System.currentTimeMillis() - beforeQueryTime));
+        Assert.assertEquals(1000, allHistoryAuditTasks.size());
+        
         
     }
 
@@ -233,6 +238,8 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
 
     }
 
+    
+    
     
     
 }

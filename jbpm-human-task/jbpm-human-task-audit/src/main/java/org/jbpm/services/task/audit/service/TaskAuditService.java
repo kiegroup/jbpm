@@ -48,5 +48,7 @@ public interface TaskAuditService {
     List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate);
     
     List<HistoryAuditTask> getAllHistoryAuditTasks();
+    List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId);
+    
     
 }

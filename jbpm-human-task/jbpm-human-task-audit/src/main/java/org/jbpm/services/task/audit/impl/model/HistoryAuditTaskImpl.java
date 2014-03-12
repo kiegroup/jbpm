@@ -25,10 +25,10 @@ import org.jbpm.services.task.audit.impl.model.api.AuditTask;
  * @author salaboy
  */
 @Entity
-public class HistoryAuditTaskImpl extends AbstractAuditTaskImpl implements AuditTask{
+public class HistoryAuditTaskImpl extends UserAuditTaskImpl implements AuditTask{
 
-    public HistoryAuditTaskImpl(long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date dueDate, long processInstanceId, String processId, int processSessionId, long parentId) {
-        super(taskId, status, activationTime, name, description, priority, createdBy, createdOn, dueDate, processInstanceId, processId, processSessionId, parentId);
+    public HistoryAuditTaskImpl(String owner, long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date dueDate, long processInstanceId, String processId, int processSessionId, long parentId) {
+        super(owner, taskId, status, activationTime, name, description, priority, createdBy, createdOn, dueDate, processInstanceId, processId, processSessionId, parentId);
     }
 
     public HistoryAuditTaskImpl() {

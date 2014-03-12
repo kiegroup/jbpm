@@ -11,17 +11,23 @@ import org.kie.internal.command.Context;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskPersistenceContext;
 
-@XmlRootElement(name="get-all-history-audit-tasks-command")
+@XmlRootElement(name="get-all-history-by-user-audit-tasks-command")
 @XmlAccessorType(XmlAccessType.NONE)
-public class GetAllHistoryAuditTasksCommand extends TaskCommand<List<HistoryAuditTask>> {
+public class GetAllHistoryAuditTasksByUserCommand extends TaskCommand<List<HistoryAuditTask>> {
 
-	public GetAllHistoryAuditTasksCommand() {
+        private String owner;
+	public GetAllHistoryAuditTasksByUserCommand() {
+	}
+        
+        public GetAllHistoryAuditTasksByUserCommand(String owner) {
+            this.owner = owner;
 	}
 
 	@Override
 	public List<HistoryAuditTask> execute(Context context) {
 		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
-		return persistenceContext.queryInTransaction("getAllHistoryAuditTasks", 
+		return persistenceContext.queryWithParametersInTransaction("getAllHistoryAuditTasksByUser", 
+                                persistenceContext.addParametersToMap("owner", owner),
 				ClassUtil.<List<HistoryAuditTask>>castClass(List.class));
 	}
 

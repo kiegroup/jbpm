@@ -23,6 +23,7 @@ import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByDueDateComma
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByStatusByDueDateCommand;
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksByStatusCommand;
 import org.jbpm.services.task.audit.commands.GetAllGroupAuditTasksCommand;
+import org.jbpm.services.task.audit.commands.GetAllHistoryAuditTasksByUserCommand;
 import org.jbpm.services.task.audit.commands.GetAllHistoryAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksAdminCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByDueDateCommand;
@@ -124,6 +125,11 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<HistoryAuditTask> getAllHistoryAuditTasks() {
         return taskService.execute(new GetAllHistoryAuditTasksCommand());
+    }
+
+    @Override
+    public List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId) {
+        return taskService.execute(new GetAllHistoryAuditTasksByUserCommand(userId));
     }
     
     

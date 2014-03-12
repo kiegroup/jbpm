@@ -118,7 +118,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         UserAuditTask task = persistenceContext.find(UserAuditTaskImpl.class, ti.getId());
         if (task != null) {
             persistenceContext.remove(task);
-            HistoryAuditTaskImpl historyAuditTaskImpl = new HistoryAuditTaskImpl(task.getTaskId(), ti.getTaskData().getStatus().name(),
+            HistoryAuditTaskImpl historyAuditTaskImpl = new HistoryAuditTaskImpl(task.getActualOwner(), task.getTaskId(), ti.getTaskData().getStatus().name(),
                                                                                 task.getActivationTime(), task.getName(),
                                                                                 task.getDescription(), task.getPriority(),
                                                                                 task.getCreatedBy(), task.getCreatedOn(), 
