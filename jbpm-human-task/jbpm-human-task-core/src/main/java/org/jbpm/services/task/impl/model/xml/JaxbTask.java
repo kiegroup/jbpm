@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -332,6 +333,7 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
+    @JsonIgnore
     public Short getArchived() {
         return (Short) unsupported(Task.class);
     }
