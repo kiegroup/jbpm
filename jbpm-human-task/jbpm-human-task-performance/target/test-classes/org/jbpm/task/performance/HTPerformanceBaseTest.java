@@ -68,7 +68,7 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
 
         long beforeAuditTime = System.currentTimeMillis();
         System.out.println("Querying Audit tasks...." + beforeAuditTime);
-        List<UserAuditTask> allUserAuditTasks = taskAuditService.getAllUserAuditTasks("salaboy");
+        List<UserAuditTask> allUserAuditTasks = taskAuditService.getAllUserAuditTasks("salaboy",0,0);
         System.out.println("After query audit tasks...." + (System.currentTimeMillis() - beforeAuditTime));
 
         Assert.assertEquals(1000, allUserAuditTasks.size());
@@ -99,7 +99,7 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
 
         long beforeAuditTime = System.currentTimeMillis();
         System.out.println("Querying Group Audit tasks...." + beforeAuditTime);
-        List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer",0,0);
         System.out.println("After query Group audit tasks...." + (System.currentTimeMillis() - beforeAuditTime));
 
         Assert.assertEquals(1000, allGroupAuditTasks.size());
@@ -110,7 +110,7 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
 
         beforeAuditTime = System.currentTimeMillis();
         System.out.println("Querying Audit user tasks...." + beforeAuditTime);
-        List<UserAuditTask> allUserAuditTasks = taskAuditService.getAllUserAuditTasks("salaboy");
+        List<UserAuditTask> allUserAuditTasks = taskAuditService.getAllUserAuditTasks("salaboy",0,0);
         System.out.println("After query user audit tasks...." + (System.currentTimeMillis() - beforeAuditTime));
 
         Assert.assertEquals(1000, allUserAuditTasks.size());
@@ -132,13 +132,13 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
        
         beforeQueryTime = System.currentTimeMillis();
         System.out.println("Before query history  tasks...." +  beforeQueryTime);
-        List<HistoryAuditTask> allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasks();
+        List<HistoryAuditTask> allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasks(0,0);
         System.out.println("After query history  tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, allHistoryAuditTasks.size());
         
         beforeQueryTime = System.currentTimeMillis();
         System.out.println("Before query history by user tasks...." +  beforeQueryTime);
-        allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasksByUser("salaboy");
+        allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasksByUser("salaboy",0,0);
         System.out.println("After query history by user  tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, allHistoryAuditTasks.size());
         
@@ -174,14 +174,14 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         beforeAuditTime = System.currentTimeMillis();
         System.out.println("Querying group Audit tasks ...." + beforeAuditTime);
 
-        List<GroupAuditTask> allAuditTasks = taskAuditService.getAllGroupAuditTasks("Crusaders");
+        List<GroupAuditTask> allAuditTasks = taskAuditService.getAllGroupAuditTasks("Crusaders",0,0);
         System.out.println("After query group audit tasks ..." + (System.currentTimeMillis() - beforeAuditTime));
 
         Assert.assertEquals(amount * users.length, allAuditTasks.size());
 
         beforeAuditTime = System.currentTimeMillis();
 
-        List<GroupAuditTask> allCrusadersAuditTasks = taskAuditService.getAllGroupAuditTasks("Crusaders");
+        List<GroupAuditTask> allCrusadersAuditTasks = taskAuditService.getAllGroupAuditTasks("Crusaders",0,0);
         Assert.assertEquals(amount * users.length, allCrusadersAuditTasks.size());
         System.out.println(" claiming tasks" + beforeAuditTime);
         for (int j = 0; j < users.length; j++) {
@@ -197,7 +197,7 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         for (String user : users) {
             beforeAuditTime = System.currentTimeMillis();
             System.out.println("Querying Audit user tasks for " + user + "...." + beforeAuditTime);
-            List<UserAuditTask> allClaimedAuditTasks = taskAuditService.getAllUserAuditTasks(user);
+            List<UserAuditTask> allClaimedAuditTasks = taskAuditService.getAllUserAuditTasks(user,0,0);
             System.out.println("After query user audit tasks for " + user + "...." + " amount = " +allClaimedAuditTasks.size() +  " ..." + (System.currentTimeMillis() - beforeAuditTime));
             Assert.assertEquals(amount, allClaimedAuditTasks.size());
 

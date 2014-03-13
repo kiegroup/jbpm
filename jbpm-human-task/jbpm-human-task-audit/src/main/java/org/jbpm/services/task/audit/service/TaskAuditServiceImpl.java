@@ -47,20 +47,20 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     private InternalTaskService taskService;
     
     @Override
-    public List<TaskEvent> getAllTaskEvents(long taskId) {
-        return taskService.execute(new GetAuditEventsCommand(taskId));
+    public List<TaskEvent> getAllTaskEvents(long taskId, int offset, int count) {
+        return taskService.execute(new GetAuditEventsCommand(taskId, offset, count));
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasks(String userId) {
-        return taskService.execute(new GetAllUserAuditTasksCommand(userId));
+    public List<UserAuditTask> getAllUserAuditTasks(String userId, int offset, int count) {
+        return taskService.execute(new GetAllUserAuditTasksCommand(userId , offset, count));
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses) {
+    public List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses, int offset, int count) {
         List<UserAuditTask> execute = null;
         try{
-             execute = taskService.execute(new GetAllUserAuditTasksByStatusCommand(userId, statuses));
+             execute = taskService.execute(new GetAllUserAuditTasksByStatusCommand(userId, statuses, offset, count));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -68,69 +68,68 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate) {
-        return taskService.execute(new GetAllUserAuditTasksByDueDateCommand(userId, dueDate));
+    public List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate, int offset, int count) {
+        return taskService.execute(new GetAllUserAuditTasksByDueDateCommand(userId, dueDate, offset, count));
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate) {
-        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate));
+    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate, int offset, int count) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate, offset, count));
     }
     
     @Override
-    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate) {
-        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate));
+    public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate, int offset, int count) {
+        return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate, offset, count));
     }
     
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasks(String groupIds) {
-        return taskService.execute(new GetAllGroupAuditTasksCommand(groupIds));
+    public List<GroupAuditTask> getAllGroupAuditTasks(String groupIds, int offset, int count) {
+        return taskService.execute(new GetAllGroupAuditTasksCommand(groupIds, offset, count));
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses) {
-        return taskService.execute(new GetAllGroupAuditTasksByStatusCommand(groupIds, statuses));
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses, int offset, int count) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusCommand(groupIds, statuses, offset, count));
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate) {
-        return taskService.execute(new GetAllGroupAuditTasksByDueDateCommand(groupIds, dueDate));
+    public List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate, int offset, int count) {
+        return taskService.execute(new GetAllGroupAuditTasksByDueDateCommand(groupIds, dueDate, offset, count));
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate) {
-        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate));
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate, int offset, int count) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate, offset, count));
     }
 
     @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate) {
-        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate));
+    public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate, int offset, int count) {
+        return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate, offset, count));
     }
-     
+  
+    @Override
+    public List<UserAuditTask> getAllUserAuditTasksAdmin(int offset, int count) {
+        return taskService.execute(new GetAllUserAuditTasksAdminCommand( offset, count));
+    }
+
+    @Override
+    public List<GroupAuditTask> getAllGroupAuditTasksAdmin( int offset, int count) {
+        return taskService.execute(new GetAllGroupAuditTasksAdminCommand( offset, count));
+    }
+
+    @Override
+    public List<HistoryAuditTask> getAllHistoryAuditTasks( int offset, int count) {
+        return taskService.execute(new GetAllHistoryAuditTasksCommand( offset, count));
+    }
+
+    @Override
+    public List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId, int offset, int count) {
+        return taskService.execute(new GetAllHistoryAuditTasksByUserCommand(userId, offset, count));
+    }
+    
     @Override
     public void setTaskService(TaskService taskService) {
         this.taskService = (InternalTaskService) taskService;
     }
-
-    @Override
-    public List<UserAuditTask> getAllUserAuditTasksAdmin() {
-        return taskService.execute(new GetAllUserAuditTasksAdminCommand());
-    }
-
-    @Override
-    public List<GroupAuditTask> getAllGroupAuditTasksAdmin() {
-        return taskService.execute(new GetAllGroupAuditTasksAdminCommand());
-    }
-
-    @Override
-    public List<HistoryAuditTask> getAllHistoryAuditTasks() {
-        return taskService.execute(new GetAllHistoryAuditTasksCommand());
-    }
-
-    @Override
-    public List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId) {
-        return taskService.execute(new GetAllHistoryAuditTasksByUserCommand(userId));
-    }
-    
     
 }

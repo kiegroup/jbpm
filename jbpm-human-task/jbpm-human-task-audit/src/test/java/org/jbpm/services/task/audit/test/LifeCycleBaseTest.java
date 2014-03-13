@@ -24,7 +24,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
-import org.jbpm.services.task.audit.DeleteAuditEventsCommand;
+import org.jbpm.services.task.audit.commands.DeleteAuditEventsCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
@@ -55,26 +55,26 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         long taskId = task.getId();
         
          
-        List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        List<GroupAuditTask> allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer",0,0);
         
         
         assertEquals(1, allGroupAuditTasks.size());
 
         taskService.claim(taskId, "Darth Vader");  
         
-        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer",0,0);
         
         assertEquals(0, allGroupAuditTasks.size());
         
         taskService.release(taskId, "Darth Vader");
         
-        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer",0,0);
         
         assertEquals(1, allGroupAuditTasks.size());
         
         taskService.claim(taskId, "Darth Vader");    
         
-        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer");
+        allGroupAuditTasks = taskAuditService.getAllGroupAuditTasks("Knights Templer",0,0);
         
         assertEquals(0, allGroupAuditTasks.size());
         
@@ -92,7 +92,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(Status.Completed, task2.getTaskData().getStatus());
         assertEquals("Darth Vader", task2.getTaskData().getActualOwner().getId());
 
-        List<TaskEvent> allTaskEvents = taskService.execute(new GetAuditEventsCommand(taskId));
+        List<TaskEvent> allTaskEvents = taskService.execute(new GetAuditEventsCommand(taskId,0,0));
         assertEquals(6, allTaskEvents.size());
      
         // test DeleteAuditEventsCommand        
@@ -131,7 +131,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         bamTaskList = taskService.execute(new GetBAMTaskSummariesCommand());
         assertEquals( "BAM Task Summary list size after delete (task id: " + taskId + ") : ", 0, bamTaskList.size());
         
-        List<HistoryAuditTask> allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasks();
+        List<HistoryAuditTask> allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasks(0,0);
         assertEquals(2, allHistoryAuditTasks.size());
     }
     

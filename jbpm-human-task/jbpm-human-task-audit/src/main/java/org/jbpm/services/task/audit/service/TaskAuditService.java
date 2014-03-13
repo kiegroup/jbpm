@@ -30,25 +30,26 @@ import org.kie.internal.task.api.model.TaskEvent;
  */
 public interface TaskAuditService {
     void setTaskService(TaskService taskService);
-    List<TaskEvent> getAllTaskEvents(long taskId);
     
-    List<UserAuditTask> getAllUserAuditTasksAdmin();
-    List<UserAuditTask> getAllUserAuditTasks(String userId);
-    List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses);
-    List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate);
-    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate);
-    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate);
+    List<TaskEvent> getAllTaskEvents(long taskId, int offset, int count);
+    
+    List<UserAuditTask> getAllUserAuditTasksAdmin(int offset, int count);
+    List<UserAuditTask> getAllUserAuditTasks(String userId, int offset, int count);
+    List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses, int offset, int count);
+    List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate, int offset, int count);
+    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate, int offset, int count);
+    List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate, int offset, int count);
     
     
-    List<GroupAuditTask> getAllGroupAuditTasksAdmin();
-    List<GroupAuditTask> getAllGroupAuditTasks(String groupIds);
-    List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses);
-    List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate);
-    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate);
-    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate);
+    List<GroupAuditTask> getAllGroupAuditTasksAdmin(int offset, int count);
+    List<GroupAuditTask> getAllGroupAuditTasks(String groupIds, int offset, int count);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses, int offset, int count);
+    List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate, int offset, int count);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate, int offset, int count);
+    List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate, int offset, int count);
     
-    List<HistoryAuditTask> getAllHistoryAuditTasks();
-    List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId);
+    List<HistoryAuditTask> getAllHistoryAuditTasks( int offset, int count);
+    List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId, int offset, int count);
     
     
 }
