@@ -124,7 +124,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                     process.setForms(formsData);
                     deployedUnit.addAssetLocation(process.getId(), process);
                 } catch (UnsupportedEncodingException e) {
-                    logger.warn("Unable to load content for file '{}' : {}", fileName, e);
+                	throw new IllegalArgumentException("Unsupported encoding while processing process " + fileName);
                 }
             } else if (fileName.matches(".+ftl$")) {
                 try {
@@ -137,7 +137,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                     }
                     formsData.put(key, formContent);
                 } catch (UnsupportedEncodingException e) {
-                    logger.warn("Unable to load content for form '{}' : {}", fileName, e);
+                	throw new IllegalArgumentException("Unsupported encoding while processing form " + fileName);
                 }
             } else if (fileName.matches(".+form$")) {
                 try {
@@ -150,7 +150,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                     }
                     formsData.put(key+".form", formContent);
                 } catch (UnsupportedEncodingException e) {
-                    logger.warn("Unable to load content for form '{}' : {}", fileName, e);
+                	throw new IllegalArgumentException("Unsupported encoding while processing form " + fileName);
                 }
             } else if( fileName.matches(".+class$")) { 
                 String className = fileName.replaceAll("/", ".");
@@ -159,7 +159,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                     deployedUnit.addClass(kieContainer.getClassLoader().loadClass(className));
                     logger.debug( "Loaded {} into the classpath from deployment {}", className, releaseId.toExternalForm());
                 } catch (ClassNotFoundException cnfe) {
-                    logger.error("Unable to load {} when deploying {}", className, releaseId.toExternalForm(), cnfe);
+                    throw new IllegalArgumentException("Class " + className + " not found in the project");
                 }
             }
         }
