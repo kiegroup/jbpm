@@ -26,9 +26,9 @@ public interface ModelIndex<T> {
 
     Document prepare(T object);
 
-    byte[] write(T object);
+    byte[] toBytes(T object);
 
-    T read(byte[] bytes);
+    T fromBytes(byte[] bytes);
 
     Filter getTypeFilter();
 

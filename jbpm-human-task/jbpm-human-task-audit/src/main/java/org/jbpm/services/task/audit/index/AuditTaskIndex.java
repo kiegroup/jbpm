@@ -19,6 +19,7 @@ package org.jbpm.services.task.audit.index;
 import java.util.UUID;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StoredField;
 import org.jbpm.services.task.audit.impl.model.api.AuditTask;
 
 /**
@@ -30,6 +31,7 @@ public abstract class AuditTaskIndex<T extends AuditTask> extends ModelIndexImpl
     public Document prepare(T object) {
         Document doc = new Document();
         addKeyWordField("ALL", "ALL", doc, false);
+        addBinary(object,doc);
         addLongField("taskId", object.getTaskId(), doc, false);
         addKeyWordField("status", object.getStatus(), doc, false);
         addDateField("activationTime", object.getActivationTime(), doc, false);
