@@ -34,6 +34,9 @@ import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
+import org.jbpm.services.task.audit.query.Filter;
+import org.jbpm.services.task.audit.query.QueryComparator;
+import org.jbpm.services.task.audit.query.QueryResult;
 import org.kie.api.task.TaskService;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.TaskEvent;
@@ -50,7 +53,12 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<TaskEvent> getAllTaskEvents(long taskId, int offset, int count) {
         return taskService.execute(new GetAuditEventsCommand(taskId, offset, count));
     }
-    
+
+    @Override
+    public QueryResult<TaskEvent> getTaskEvents(long offset, int count, QueryComparator<TaskEvent> comparator, Filter<TaskEvent, ?>... filters) {
+        return null;
+    }
+
     @Override
     public List<UserAuditTask> getAllUserAuditTasks(String userId, int offset, int count) {
         return taskService.execute(new GetAllUserAuditTasksCommand(userId , offset, count));
@@ -81,7 +89,12 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate, int offset, int count) {
         return taskService.execute(new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses, dueDate, offset, count));
     }
-    
+
+    @Override
+    public QueryResult<UserAuditTask> getUserAuditTasks(long offset, int count, QueryComparator<UserAuditTask> comparator, Filter<UserAuditTask, ?>... filters) {
+        return null;
+    }
+
     @Override
     public List<GroupAuditTask> getAllGroupAuditTasks(String groupIds, int offset, int count) {
         return taskService.execute(new GetAllGroupAuditTasksCommand(groupIds, offset, count));
@@ -106,7 +119,12 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate, int offset, int count) {
         return taskService.execute(new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds, statuses, dueDate, offset, count));
     }
-  
+
+    @Override
+    public QueryResult<GroupAuditTask> getGroupAuditTasks(long offset, int count, QueryComparator<GroupAuditTask> comparator, Filter<GroupAuditTask, ?>... filters) {
+        return null;
+    }
+
     @Override
     public List<UserAuditTask> getAllUserAuditTasksAdmin(int offset, int count) {
         return taskService.execute(new GetAllUserAuditTasksAdminCommand( offset, count));
@@ -126,7 +144,12 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId, int offset, int count) {
         return taskService.execute(new GetAllHistoryAuditTasksByUserCommand(userId, offset, count));
     }
-    
+
+    @Override
+    public QueryResult<HistoryAuditTask> getHistoryAuditTasks(long offset, int count, QueryComparator<HistoryAuditTask> comparator, Filter<HistoryAuditTask, ?>... filters) {
+        return null;
+    }
+
     @Override
     public void setTaskService(TaskService taskService) {
         this.taskService = (InternalTaskService) taskService;
