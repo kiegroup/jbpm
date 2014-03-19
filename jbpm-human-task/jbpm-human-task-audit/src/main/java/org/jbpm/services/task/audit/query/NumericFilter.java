@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.query;
 
 /**
- *
- * @author salaboy
+ * @author Hans Lund
  */
-public interface HistoryAuditTask extends AuditTask {
-    
+public class NumericFilter<K> extends Filter<K, Long> {
+
+    public NumericFilter(Occurs occurs, String field, Long... values) {
+        super(occurs, field, values);
+    }
+
+
+    @Override
+    public Long[] getMatches() {
+        return matches.toArray(new Long[matches.size()]);
+    }
 }

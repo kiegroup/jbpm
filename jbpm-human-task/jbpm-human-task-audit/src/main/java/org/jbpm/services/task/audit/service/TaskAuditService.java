@@ -18,9 +18,15 @@ package org.jbpm.services.task.audit.service;
 
 import java.util.Date;
 import java.util.List;
+
+import javax.management.Query;
+
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
+import org.jbpm.services.task.audit.query.Filter;
+import org.jbpm.services.task.audit.query.QueryComparator;
+import org.jbpm.services.task.audit.query.QueryResult;
 import org.kie.api.task.TaskService;
 import org.kie.internal.task.api.model.TaskEvent;
 
@@ -32,24 +38,32 @@ public interface TaskAuditService {
     void setTaskService(TaskService taskService);
     
     List<TaskEvent> getAllTaskEvents(long taskId, int offset, int count);
-    
+    QueryResult<TaskEvent> getTaskEvents(long offset, int count, QueryComparator<TaskEvent> comparator, Filter<TaskEvent, ?>... filters);
+
+
     List<UserAuditTask> getAllUserAuditTasksAdmin(int offset, int count);
     List<UserAuditTask> getAllUserAuditTasks(String userId, int offset, int count);
     List<UserAuditTask> getAllUserAuditTasksByStatus(String userId, List<String> statuses, int offset, int count);
     List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId, Date dueDate, int offset, int count);
     List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(String userId, List<String> statuses, Date dueDate, int offset, int count);
     List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(String userId, List<String> statuses, Date dueDate, int offset, int count);
-    
-    
+    QueryResult<UserAuditTask> getUserAuditTasks(long offset, int count, QueryComparator<UserAuditTask> comparator, Filter<UserAuditTask, ?>... filters);
+
     List<GroupAuditTask> getAllGroupAuditTasksAdmin(int offset, int count);
     List<GroupAuditTask> getAllGroupAuditTasks(String groupIds, int offset, int count);
     List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds, List<String> statuses, int offset, int count);
     List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds, Date dueDate, int offset, int count);
     List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDate(String groupIds, List<String> statuses, Date dueDate, int offset, int count);
     List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate, int offset, int count);
-    
+    QueryResult<GroupAuditTask> getGroupAuditTasks(long offset, int count, QueryComparator<GroupAuditTask> comparator, Filter<GroupAuditTask, ?>... filters);
+
+
+
     List<HistoryAuditTask> getAllHistoryAuditTasks( int offset, int count);
     List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId, int offset, int count);
-    
-    
+    QueryResult<HistoryAuditTask> getHistoryAuditTasks(long offset, int count, QueryComparator<HistoryAuditTask> comparator, Filter<HistoryAuditTask, ?>... filters);
+
+
+
+
 }

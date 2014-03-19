@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.query;
 
-/**
- *
- * @author salaboy
- */
-public interface HistoryAuditTask extends AuditTask {
-    
+public class TypeFilter<K> extends TermFilter<K> {
+
+
+    public TypeFilter(String type) {
+        super(Occurs.MUST, "type", type);
+    }
+
+    public boolean add(String match) {
+        return false;
+    }
 }
