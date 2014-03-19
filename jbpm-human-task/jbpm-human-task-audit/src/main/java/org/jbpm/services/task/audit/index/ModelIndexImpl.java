@@ -25,6 +25,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 
@@ -37,7 +38,7 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
 
 
     @Override
-    public byte[] write(T object) {
+    public byte[] toBytes(T object) {
         try {
             return xs.toXML(object).getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -47,7 +48,7 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
     }
 
     @Override
-    public T read(byte[] bytes) {
+    public T fromBytes(byte[] bytes) {
         try {
             return (T) xs.fromXML(new String(bytes,"UTF-8"));
         } catch (UnsupportedEncodingException e) {
@@ -56,7 +57,11 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
         return null;
     }
 
-    private void addDefaultField(String name, String value, Document d,
+    protected void addBinary(T object, Document d) {
+        d.add(new StoredField(LuceneIndexService.BINARY, toBytes(object)));
+    }
+
+    protected void addDefaultField(String name, String value, Document d,
         boolean includeInFreeText) {
         if (value == null || "".equals(value)) {
             return;

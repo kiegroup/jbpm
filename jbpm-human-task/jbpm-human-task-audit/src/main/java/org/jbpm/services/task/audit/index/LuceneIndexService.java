@@ -51,7 +51,7 @@ import org.jbpm.services.task.audit.query.QueryResult;
 
 public class LuceneIndexService implements IndexService {
 
-    static final String BINARY = "binary";
+    public static final String BINARY = "binary";
 
     private Map<Class, ModelIndex> models = new HashMap<Class, ModelIndex>();
 
@@ -172,7 +172,8 @@ public class LuceneIndexService implements IndexService {
         try {
             while (c < count && offset + c < td.totalHits) {
                 Document doc = search.doc(td.scoreDocs[offset + c++].doc);
-                l.add(index.read(CompressionTools.decompress(doc.getBinaryValue(BINARY))));
+                l.add(index.fromBytes(
+                    CompressionTools.decompress(doc.getBinaryValue(BINARY))));
             }
         } catch (DataFormatException e) {
             e.printStackTrace();
