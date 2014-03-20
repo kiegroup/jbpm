@@ -23,11 +23,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
-import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -89,13 +87,16 @@ public class LuceneIndexService implements IndexService {
         };
 
 
-
-    public LuceneIndexService() throws IOException {
+    public LuceneIndexService() {
         Directory directory = new RAMDirectory();
         queryBuilder = new LuceneQueryBuilder();
-        iw = new IndexWriter(directory,
-            new IndexWriterConfig(Version.LUCENE_47, keywordAnalyzer));
-        sm = new SearcherManager(iw, true, new WarmSearchFactory());
+        try {
+            iw = new IndexWriter(directory,
+                new IndexWriterConfig(Version.LUCENE_47, keywordAnalyzer));
+            sm = new SearcherManager(iw, true, new WarmSearchFactory());
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
         tiw = new TrackingIndexWriter(iw);
         reopener = new ControlledRealTimeReopenThread(tiw, sm, 3, 0);
         reopener.setDaemon(true);
@@ -107,7 +108,8 @@ public class LuceneIndexService implements IndexService {
     }
 
     @Override
-    public void prepare(Collection updates, Collection inserts, Collection deletes) throws IOException {
+    public void prepare(Collection updates, Collection inserts,
+        Collection deletes) throws IOException {
         this.adds.get().clear();
         this.updates.get().clear();
         this.deletes.get().clear();
@@ -115,12 +117,13 @@ public class LuceneIndexService implements IndexService {
             tiw.addDocument(prepareDocument(t));
         }
         for (Object t : updates) {
-            tiw.updateDocument(new Term("id", String.valueOf(getModel(t).getId(t))),
+            tiw.updateDocument(
+                new Term("id", String.valueOf(getModel(t).getId(t))),
                 prepareDocument(t));
         }
         for (Object t : deletes) {
-            tiw.deleteDocuments(new Term("id", String.valueOf(getModel(t).getId(
-                t))));
+            tiw.deleteDocuments(
+                new Term("id", String.valueOf(getModel(t).getId(t))));
         }
         tiw.getIndexWriter().prepareCommit();
     }
@@ -151,16 +154,19 @@ public class LuceneIndexService implements IndexService {
         QueryComparator<T> comparator, Class<T> clazz, Filter<?, ?>... filters)
         throws IOException {
         ModelIndex<T> index = getModel(clazz);
-        if (index == null) throw new IllegalArgumentException(clazz.getName() +  " no index defined");
+        if (index == null) {
+            throw new IllegalArgumentException(
+                clazz.getName() + " no index defined");
+        }
         if (filters != null) {
             Filter[] tmp = new Filter[filters.length + 1];
             tmp[0] = index.getTypeFilter();
-            System.arraycopy(filters,0,tmp,1,filters.length);
+            System.arraycopy(filters, 0, tmp, 1, filters.length);
             filters = tmp;
         } else {
-            filters = new Filter[] {index.getTypeFilter()};
+            filters = new Filter[]{index.getTypeFilter()};
         }
-        //always wait for newest changes!
+        //TODO - here we always wait for newest changes - how to determine if that is needed
         IndexSearcher search = getSearcher(tiw.getGeneration());
         Query query = queryBuilder.buildQuery(search, filters);
         Sort s = queryBuilder.getSort(comparator);
@@ -172,11 +178,8 @@ public class LuceneIndexService implements IndexService {
         try {
             while (c < count && offset + c < td.totalHits) {
                 Document doc = search.doc(td.scoreDocs[offset + c++].doc);
-                l.add(index.fromBytes(
-                    CompressionTools.decompress(doc.getBinaryValue(BINARY))));
+                l.add(index.fromBytes(doc.getBinaryValue(BINARY).bytes));
             }
-        } catch (DataFormatException e) {
-            e.printStackTrace();
         } finally {
             sm.release(search);
         }
@@ -184,12 +187,30 @@ public class LuceneIndexService implements IndexService {
     }
 
     private ModelIndex getModel(Object obj) {
-         return models.get(obj.getClass());
+        ModelIndex mi = models.get(obj.getClass());
+        synchronized (this) {
+            if (mi == null) {
+                for (Map.Entry<Class, ModelIndex> en : models.entrySet()) {
+                    Class c = en.getKey();
+                    if (c.isInstance(obj)) {
+                        mi = en.getValue();
+                        break;
+                    }
+                }
+                if (mi != null) {
+                    models.put(obj.getClass(), mi);
+                }
+            }
+            return mi;
+        }
     }
 
     private Document prepareDocument(Object t) {
         ModelIndex index = getModel(t.getClass());
-        if (index == null) throw new IllegalArgumentException(t.getClass().getName() +  " no index defined");
+        if (index == null) {
+            throw new IllegalArgumentException(
+                t.getClass().getName() + " no index defined");
+        }
         return index.prepare(t);
     }
 
@@ -205,9 +226,9 @@ public class LuceneIndexService implements IndexService {
     }
 
 
-
     private static class WarmSearchFactory extends SearcherFactory {
-        public IndexSearcher newSearcher(IndexReader reader) throws IOException {
+        public IndexSearcher newSearcher(IndexReader reader)
+            throws IOException {
             IndexSearcher searcher = new IndexSearcher(reader);
             searcher.setSimilarity(new IsolationSimilarity());
             return new IndexSearcher(reader);

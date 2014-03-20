@@ -18,8 +18,10 @@ package org.jbpm.services.task.audit.index;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.zip.DataFormatException;
 
 import com.thoughtworks.xstream.XStream;
+import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -40,7 +42,7 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
     @Override
     public byte[] toBytes(T object) {
         try {
-            return xs.toXML(object).getBytes("UTF-8");
+            return CompressionTools.compress(xs.toXML(object).getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             //supported by all java impl
         }
@@ -50,9 +52,11 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
     @Override
     public T fromBytes(byte[] bytes) {
         try {
-            return (T) xs.fromXML(new String(bytes,"UTF-8"));
+            return (T) xs.fromXML(new String(CompressionTools.decompress(bytes),"UTF-8"));
         } catch (UnsupportedEncodingException e) {
             //supported by all java impl
+        } catch (DataFormatException e) {
+            throw new IllegalStateException("data in index corrupted", e);
         }
         return null;
     }
