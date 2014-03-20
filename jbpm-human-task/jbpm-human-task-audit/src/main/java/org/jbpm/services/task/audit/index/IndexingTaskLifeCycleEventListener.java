@@ -39,15 +39,15 @@ public class IndexingTaskLifeCycleEventListener extends JPATaskLifeCycleEventLis
 
     @Override
     protected <T> T persist(TaskPersistenceContext context, T object) {
-        T obj = super.persist(context,object);
-        //how to determine if insert or update
         try {
+            //TODO: diff between create update and delete
             service.prepare(Arrays.asList(object),null,null);
+            T  obj = super.persist(context,object);
             service.commit();
+            return obj;
         } catch (IOException e) {
             service.rollback();
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return obj;
     }
 }
