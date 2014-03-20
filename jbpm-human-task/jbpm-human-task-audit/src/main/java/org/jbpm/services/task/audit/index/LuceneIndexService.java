@@ -113,17 +113,23 @@ public class LuceneIndexService implements IndexService {
         this.adds.get().clear();
         this.updates.get().clear();
         this.deletes.get().clear();
-        for (Object t : inserts) {
-            tiw.addDocument(prepareDocument(t));
+        if (inserts != null) {
+            for (Object t : inserts) {
+                tiw.addDocument(prepareDocument(t));
+            }
         }
+        if (updates != null) {
         for (Object t : updates) {
             tiw.updateDocument(
-                new Term("id", String.valueOf(getModel(t).getId(t))),
+                new Term("id", String.valueOf(getModel(t.getClass()).getId(t))),
                 prepareDocument(t));
         }
-        for (Object t : deletes) {
-            tiw.deleteDocuments(
-                new Term("id", String.valueOf(getModel(t).getId(t))));
+        }
+        if (deletes != null) {
+            for (Object t : deletes) {
+                tiw.deleteDocuments(
+                    new Term("id", String.valueOf(getModel(t.getClass()).getId(t))));
+        }
         }
         tiw.getIndexWriter().prepareCommit();
     }
@@ -186,19 +192,19 @@ public class LuceneIndexService implements IndexService {
         return new QueryResult<T>(offset, td.totalHits, l);
     }
 
-    private ModelIndex getModel(Object obj) {
-        ModelIndex mi = models.get(obj.getClass());
+    private ModelIndex getModel(Class obj) {
+        ModelIndex mi = models.get(obj);
         synchronized (this) {
             if (mi == null) {
                 for (Map.Entry<Class, ModelIndex> en : models.entrySet()) {
                     Class c = en.getKey();
-                    if (c.isInstance(obj)) {
+                    if (c.isAssignableFrom(obj)) {
                         mi = en.getValue();
                         break;
                     }
                 }
                 if (mi != null) {
-                    models.put(obj.getClass(), mi);
+                    models.put(obj, mi);
                 }
             }
             return mi;

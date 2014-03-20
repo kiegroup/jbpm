@@ -111,7 +111,7 @@ public class FormProviderServiceImpl implements FormProviderService {
         Map<String, Object> renderContext = new HashMap<String, Object>();
 
         ContentMarshallerContext marshallerContext = getMarshallerContext(task);
-        // read task variables
+        // fromBytes task variables
         Object input = null;
         long inputContentId = task.getTaskData().getDocumentContentId();
         if (inputContentId != -1) {
