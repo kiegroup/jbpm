@@ -17,6 +17,7 @@
     <module>jbpm-human-task-workitems</module>
     <module>jbpm-human-task-audit</module>
     <module>jbpm-human-task-jpa</module>
+      <module>jbpm-human-task-performance</module>
   </modules>
 
   <dependencies>
@@ -91,4 +92,3 @@
     </plugins>
   </build> 
 </project>
->>>>>>> e4b741b... BZ-1058604 - Implement REST operation for cleaning all data displayed by Jbpm Dashboard
