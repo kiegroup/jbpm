@@ -148,7 +148,7 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
     @Test
     public void testDifferentUserTasksQueries() throws Exception {
         long beforeAddTime = System.currentTimeMillis();
-        int amount = 5000;
+        int amount = 50;
         String[] users = {"salaboy", "krisv", "mary"};
        
         for (String user : users) {
