@@ -140,13 +140,12 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<GroupAuditTask> getAllGroupAuditTasks(String groupIds,
         int offset, int count) {
         //QueryImpl(select g from GroupAuditTaskImpl g where LOCATE(:groupIds, g.potentialOwners) > 0 order by g.taskId DESC)
-        List<GroupAuditTask> bySearch;
         if (indexService != null) {
             if (count == 0)
                 count = Integer.MAX_VALUE;
-            return getGroupAuditTasks(0, count, null, new TermFilter<GroupAuditTask>(Filter.Occurs.MUST,
-                    "potentialOwners", groupIds)
-            );
+            return getGroupAuditTasks(0, count, new QueryComparator<GroupAuditTask>(
+                    QueryComparator.Direction.DESCENDING, "taskId"),
+                new PotentialOwnerFilter<GroupAuditTask>(groupIds));
         }
         return taskService
             .execute(new GetAllGroupAuditTasksCommand(groupIds, offset, count));
