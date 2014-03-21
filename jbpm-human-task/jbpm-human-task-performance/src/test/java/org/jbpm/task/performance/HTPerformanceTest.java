@@ -58,7 +58,8 @@ public class HTPerformanceTest extends HTPerformanceBaseTest {
 												.listener(new BAMTaskEventListener())
 												.getTaskService();
                 
-                this.taskAuditService = TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService();
+                this.taskAuditService = TaskAuditServiceFactory.
+                    newTaskAuditServiceConfigurator().setTaskService(taskService).setIndexService(indexService).getTaskAuditService();
 	}
 	
 	@After

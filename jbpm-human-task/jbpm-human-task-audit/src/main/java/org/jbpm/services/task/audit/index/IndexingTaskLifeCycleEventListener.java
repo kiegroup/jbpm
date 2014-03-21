@@ -41,8 +41,9 @@ public class IndexingTaskLifeCycleEventListener extends JPATaskLifeCycleEventLis
     protected <T> T persist(TaskPersistenceContext context, T object) {
         try {
             //TODO: diff between create update and delete
-            service.prepare(Arrays.asList(object),null,null);
             T  obj = super.persist(context,object);
+            //Needed as obj id is set by database
+            service.prepare(Arrays.asList(obj),null,null);
             service.commit();
             return obj;
         } catch (IOException e) {

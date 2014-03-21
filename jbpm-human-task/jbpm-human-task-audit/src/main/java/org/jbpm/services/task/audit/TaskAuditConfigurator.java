@@ -15,6 +15,7 @@
  */
 package org.jbpm.services.task.audit;
 
+import org.jbpm.services.task.audit.index.IndexService;
 import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.services.task.audit.service.TaskAuditServiceImpl;
 import org.kie.api.task.TaskService;
@@ -28,6 +29,11 @@ public class TaskAuditConfigurator {
     
     public TaskAuditConfigurator setTaskService(TaskService service) {
         taskAuditService.setTaskService(service);
+        return this;
+    }
+
+    public TaskAuditConfigurator setIndexService(IndexService service) {
+        taskAuditService.setIndexService(service);
         return this;
     }
     

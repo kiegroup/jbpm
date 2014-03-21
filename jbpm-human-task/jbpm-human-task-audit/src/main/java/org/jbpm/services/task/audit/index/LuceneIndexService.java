@@ -175,10 +175,12 @@ public class LuceneIndexService implements IndexService {
         //TODO - here we always wait for newest changes - how to determine if that is needed
         IndexSearcher search = getSearcher(tiw.getGeneration());
         Query query = queryBuilder.buildQuery(search, filters);
-        Sort s = queryBuilder.getSort(comparator);
-
-
-        TopDocs td = search.search(query, offset + count, s);
+        TopDocs td;
+        if (comparator != null) {
+            td = search.search(query, offset + count, queryBuilder.getSort(comparator));
+        }  else {
+            td = search.search(query, offset + count);
+        }
         int c = 0;
         List<T> l = new ArrayList<T>();
         try {

@@ -16,6 +16,9 @@
 
 package org.jbpm.services.task.audit.index;
 
+import java.util.StringTokenizer;
+
+import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.document.Document;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.query.Filter;
@@ -33,7 +36,13 @@ public class GroupAuditTaskIndex extends AuditTaskIndex<GroupAuditTask> {
     public Document prepare(GroupAuditTask object) {
         Document doc = super.prepare(object);
         addKeyWordField("type", type, doc, false);
-        addKeyWordField("potentialOwners", object.getPotentialOwners(), doc, false);
+        if (object.getPotentialOwners() != null) {
+            StringTokenizer tok = new StringTokenizer(object.getPotentialOwners(), "|" , false);
+            while (tok.hasMoreElements()) {
+                addKeyWordField("potentialOwners", tok.nextToken(), doc, false);
+            }
+        }
+
         return doc;
     }
 
