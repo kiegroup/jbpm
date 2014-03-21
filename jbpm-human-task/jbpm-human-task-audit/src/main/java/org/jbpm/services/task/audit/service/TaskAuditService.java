@@ -24,6 +24,7 @@ import javax.management.Query;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
+import org.jbpm.services.task.audit.index.IndexService;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.QueryComparator;
 import org.jbpm.services.task.audit.query.QueryResult;
@@ -36,6 +37,7 @@ import org.kie.internal.task.api.model.TaskEvent;
  */
 public interface TaskAuditService {
     void setTaskService(TaskService taskService);
+    void setIndexService(IndexService indexService);
     
     List<TaskEvent> getAllTaskEvents(int taskId, int offset, int count);
     QueryResult<TaskEvent> getTaskEvents(int offset, int count, QueryComparator<TaskEvent> comparator, Filter<TaskEvent, ?>... filters);
