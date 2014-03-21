@@ -70,7 +70,7 @@ public class QueryComparator<T> implements Comparator<T> {
     protected Class type;
 
 
-    protected QueryComparator(Direction direction, String name) {
+    public QueryComparator(Direction direction, String name) {
         this.direction = direction;
         this.name = name;
         this.type = String.class;

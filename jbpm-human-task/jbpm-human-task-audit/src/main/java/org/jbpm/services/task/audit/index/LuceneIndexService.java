@@ -159,6 +159,7 @@ public class LuceneIndexService implements IndexService {
     public <T> QueryResult<T> find(int offset, int count,
         QueryComparator<T> comparator, Class<T> clazz, Filter<?, ?>... filters)
         throws IOException {
+        long start = System.currentTimeMillis();
         ModelIndex<T> index = getModel(clazz);
         if (index == null) {
             throw new IllegalArgumentException(
@@ -176,11 +177,13 @@ public class LuceneIndexService implements IndexService {
         IndexSearcher search = getSearcher(tiw.getGeneration());
         Query query = queryBuilder.buildQuery(search, filters);
         TopDocs td;
+
         if (comparator != null) {
             td = search.search(query, offset + count, queryBuilder.getSort(comparator));
         }  else {
             td = search.search(query, offset + count);
         }
+        long searchTime = System.currentTimeMillis() - start;
         int c = 0;
         List<T> l = new ArrayList<T>();
         try {
@@ -191,6 +194,8 @@ public class LuceneIndexService implements IndexService {
         } finally {
             sm.release(search);
         }
+        long readTime = System.currentTimeMillis() - (searchTime + start);
+        System.out.println("Search in: " + searchTime + " read in:" + readTime);
         return new QueryResult<T>(offset, td.totalHits, l);
     }
 
