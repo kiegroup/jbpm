@@ -224,7 +224,7 @@ public class LuceneIndexService implements IndexService {
             throw new IllegalArgumentException(
                 t.getClass().getName() + " no index defined");
         }
-        return index.prepare(t);
+        return  index.prepare(t);
     }
 
     private IndexSearcher getSearcher(long neededCommitPoint)

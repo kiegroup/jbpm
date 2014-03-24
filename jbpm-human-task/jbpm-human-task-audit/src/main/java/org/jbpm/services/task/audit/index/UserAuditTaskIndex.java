@@ -10,7 +10,7 @@ import org.jbpm.services.task.audit.query.TypeFilter;
  */
 public class UserAuditTaskIndex extends AuditTaskIndex<UserAuditTask> {
 
-    private final String type = "UserAuditTask";
+    private  static final String type = "UserAuditTask";
     private final TypeFilter<UserAuditTask> typeFilter = new TypeFilter<UserAuditTask>(type);
 
     @Override
@@ -27,7 +27,17 @@ public class UserAuditTaskIndex extends AuditTaskIndex<UserAuditTask> {
     }
 
     @Override
+    public String getId(UserAuditTask object) {
+        return type + "_" + object.getTaskId();
+    }
+
+    @Override
     public Class<UserAuditTask> getClazz() {
         return UserAuditTask.class;
+    }
+
+    @Override
+    protected String getType() {
+        return type;
     }
 }
