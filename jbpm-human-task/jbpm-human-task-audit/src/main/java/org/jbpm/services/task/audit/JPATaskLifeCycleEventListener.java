@@ -26,11 +26,11 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
     }
 
 
-    protected <T> T persist(TaskPersistenceContext context, T object) {
+    public <T> T persist(TaskPersistenceContext context, T object) {
         return context.persist(object);
     }
 
-    protected<T>  T remove(TaskPersistenceContext context, T object) {
+    public <T>  T remove(TaskPersistenceContext context, T object) {
         return context.remove(object);
     }
 

@@ -37,7 +37,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.store.Directory;
@@ -104,7 +103,7 @@ public class LuceneIndexService implements IndexService {
     }
 
     public ModelIndex addModel(ModelIndex index) {
-        return models.put(index.getClazz(), index);
+        return models.put(index.getModelInterface(), index);
     }
 
     @Override
@@ -178,16 +177,18 @@ public class LuceneIndexService implements IndexService {
         Query query = queryBuilder.buildQuery(search, filters);
         TopDocs td;
 
+        int number = count == 0 ? Integer.MAX_VALUE : 1l*offset + count <= Integer.MAX_VALUE ? offset + count : Integer.MAX_VALUE;
+
         if (comparator != null) {
-            td = search.search(query, offset + count, queryBuilder.getSort(comparator));
+            td = search.search(query, number, queryBuilder.getSort(comparator));
         }  else {
-            td = search.search(query, offset + count);
+            td = search.search(query, number);
         }
         long searchTime = System.currentTimeMillis() - start;
         int c = 0;
         List<T> l = new ArrayList<T>();
         try {
-            while (c < count && offset + c < td.totalHits) {
+            while (c < number && offset + c < td.totalHits) {
                 Document doc = search.doc(td.scoreDocs[offset + c++].doc);
                 l.add(index.fromBytes(doc.getBinaryValue(BINARY).bytes));
             }
@@ -203,10 +204,9 @@ public class LuceneIndexService implements IndexService {
         ModelIndex mi = models.get(obj);
         synchronized (this) {
             if (mi == null) {
-                for (Map.Entry<Class, ModelIndex> en : models.entrySet()) {
-                    Class c = en.getKey();
-                    if (c.isAssignableFrom(obj)) {
-                        mi = en.getValue();
+                for (ModelIndex index : models.values()) {
+                    if (index.isModelFor(obj)) {
+                        mi = index;
                         break;
                     }
                 }

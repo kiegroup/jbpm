@@ -22,14 +22,6 @@ package org.jbpm.services.task.audit.query;
 public class TermFilter<K> extends Filter<K, String> {
 
 
-    /**
-     * creates a new filter on the field, matching if one of the terms given
-     * matches the filter. (using OR operator between terms).
-     *
-     * @param occurs the filters effect
-     * @param field  the field
-     * @param terms  the initial terms.
-     */
     public TermFilter(Occurs occurs, String field, String... terms) {
         super(occurs, field, terms);
     }

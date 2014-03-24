@@ -47,8 +47,13 @@ public class HistoryAuditTaskIndex extends AuditTaskIndex<HistoryAuditTask> {
     }
 
     @Override
-    public Class getClazz() {
+    public Class getModelInterface() {
         return HistoryAuditTask.class;
+    }
+
+    @Override
+    public boolean isModelFor(Class clazz) {
+        return HistoryAuditTask.class.isAssignableFrom(clazz);
     }
 
     @Override

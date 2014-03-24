@@ -34,5 +34,7 @@ public interface ModelIndex<T> {
 
     String getId(T object);
 
-    Class<T> getClazz();
+    Class<T> getModelInterface();
+
+    boolean isModelFor(Class clazz);
 }

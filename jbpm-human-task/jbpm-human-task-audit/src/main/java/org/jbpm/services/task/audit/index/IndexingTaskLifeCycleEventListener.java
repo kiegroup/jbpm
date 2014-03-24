@@ -19,17 +19,25 @@ package org.jbpm.services.task.audit.index;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.kie.internal.task.api.TaskPersistenceContext;
 
 /**
- *@author Hans Lund
+ * @author Hans Lund
  */
 public class IndexingTaskLifeCycleEventListener extends JPATaskLifeCycleEventListener {
 
-
     private IndexService service;
+    private AtomicInteger threadC = new AtomicInteger(0);
+    private ExecutorService esc = Executors.newCachedThreadPool();
+
 
     public IndexingTaskLifeCycleEventListener(IndexService service) {
         super();
@@ -38,31 +46,72 @@ public class IndexingTaskLifeCycleEventListener extends JPATaskLifeCycleEventLis
 
 
     @Override
-    protected <T> T persist(TaskPersistenceContext context, T object) {
+    public <T> T persist(final TaskPersistenceContext context, final T object) {
         try {
-            //TODO: diff between create update and delete
-            T  obj = super.persist(context,object);
-            //Needed as obj id is set by database
-            service.prepare(Arrays.asList(obj),null,null);
+            Future index = esc.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        service.prepare(Arrays.asList(object),null,null);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            Future<T> futureObj = esc.submit(new Callable<T>() {
+                @Override
+                public T call() throws Exception {
+                    return doPersist(context, object);
+                }
+            });
+
+            index.get();
+            T obj = futureObj.get();
             service.commit();
             return obj;
-        } catch (IOException e) {
+        } catch (Exception e) {
             service.rollback();
             throw new RuntimeException(e);
         }
     }
 
-    protected <T> T remove(TaskPersistenceContext context, T object) {
+    public <T> T remove(final TaskPersistenceContext context, final T object) {
         try {
-            //TODO: diff between create update and delete
-            T  obj = super.remove(context,object);
-            //Needed as obj id is set by database
-            service.prepare(null,null,Arrays.asList(obj));
+            Future index = esc.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        service.prepare(null,null,Arrays.asList(object));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            Future<T> futureObj = esc.submit(new Callable<T>() {
+                @Override
+                public T call() throws Exception {
+                    return doRemove(context, object);
+                }
+            });
+
+            index.get();
+            T obj = futureObj.get();
             service.commit();
             return obj;
-        } catch (IOException e) {
+        } catch (Exception e) {
             service.rollback();
             throw new RuntimeException(e);
         }
     }
+
+
+    private <T> T doPersist(TaskPersistenceContext context, T object) {
+        return super.persist(context,object);
+    }
+
+    private <T> T doRemove(TaskPersistenceContext context, T object) {
+       return super.remove(context,object);
+    }
+
+
 }

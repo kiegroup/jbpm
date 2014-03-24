@@ -18,7 +18,6 @@ package org.jbpm.services.task.audit.index;
 
 import java.util.StringTokenizer;
 
-import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.document.Document;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.query.Filter;
@@ -57,12 +56,19 @@ public class GroupAuditTaskIndex extends AuditTaskIndex<GroupAuditTask> {
     }
 
     @Override
-    public Class<GroupAuditTask> getClazz() {
+    public Class<GroupAuditTask> getModelInterface() {
         return GroupAuditTask.class;
+    }
+
+    @Override
+    public boolean isModelFor(Class clazz) {
+        return GroupAuditTask.class.isAssignableFrom(clazz);
     }
 
     @Override
     protected String getType() {
         return type;
     }
+
+
 }
