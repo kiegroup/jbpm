@@ -53,15 +53,6 @@ public class LuceneQueryBuilder {
 
     }
 
-
-    private static final ThreadLocal<Calendar> TL_CAL =
-        new ThreadLocal<Calendar>() {
-            @Override
-            protected Calendar initialValue() {
-                return Calendar.getInstance();
-            }
-        };
-
     private Analyzer analyzer = new KeywordAnalyzer();
 
 
@@ -291,32 +282,6 @@ public class LuceneQueryBuilder {
             throw new RuntimeException(
                 "StringReader should never throw io exception", e);
         }
-    }
-
-    //helpers to date range query for dates selected from calendar.
-    private long getStartOfDay(Date time) {
-        final Calendar cal = TL_CAL.get();
-        cal.setTime(time);
-
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        return cal.getTimeInMillis();
-    }
-
-    private long getEndOfDay(Date time) {
-        final Calendar cal = TL_CAL.get();
-        cal.setTime(time);
-
-        cal.set(Calendar.DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH) + 1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        return cal.getTimeInMillis();
     }
 }
 

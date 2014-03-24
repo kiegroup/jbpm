@@ -26,17 +26,13 @@ import org.kie.internal.task.api.model.TaskEvent;
  */
 public class TaskEventIndex extends ModelIndexImpl<TaskEvent> {
 
-    private static String type = "TaskEvent";
-    private static TypeFilter<TaskEvent> typeFilter = new TypeFilter<TaskEvent>(type);
+    private static final String type = "TaskEvent";
+    private static final TypeFilter<TaskEvent> typeFilter = new TypeFilter<TaskEvent>(type);
 
 
     @Override
     public Document prepare(TaskEvent object) {
-        Document doc = new Document();
-        addKeyWordField("ALL", "ALL", doc, false);
-        addKeyWordField("type", type , doc ,false);
-        addBinary(object,doc);
-        addKeyWordField("id", getId(object), doc,false);
+        Document doc = createDocument(object);
         addLongField("taskId", object.getTaskId(), doc, false);
         addKeyWordField("taskEventType", object.getType().name(), doc, false);
         addKeyWordField("userId", object.getUserId(), doc, false);
@@ -57,5 +53,10 @@ public class TaskEventIndex extends ModelIndexImpl<TaskEvent> {
     @Override
     public Class<TaskEvent> getClazz() {
         return TaskEvent.class;
+    }
+
+    @Override
+    protected String getType() {
+        return type;
     }
 }

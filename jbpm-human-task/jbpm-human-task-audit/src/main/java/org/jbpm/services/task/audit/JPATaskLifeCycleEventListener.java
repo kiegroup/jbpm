@@ -30,6 +30,10 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         return context.persist(object);
     }
 
+    protected<T>  T remove(TaskPersistenceContext context, T object) {
+        return context.remove(object);
+    }
+
     @Override
     public void afterTaskStartedEvent(TaskEvent event) {
         String userId = "";
@@ -74,7 +78,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         persist(persistenceContext,new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.CLAIMED, userId, new Date()));
         GroupAuditTaskImpl task = persistenceContext.find(GroupAuditTaskImpl.class, ti.getId());
         if (task != null) {
-            persistenceContext.remove(task);
+            remove(persistenceContext, task);
         }
         persist(persistenceContext,new UserAuditTaskImpl(userId, ti.getId(), ti.getTaskData().getStatus().name(),
                 ti.getTaskData().getActivationTime(), ti.getNames().get(0).getText(),
@@ -275,7 +279,7 @@ public class JPATaskLifeCycleEventListener implements TaskLifeCycleEventListener
         persist(persistenceContext,new TaskEventImpl(ti.getId(), org.kie.internal.task.api.model.TaskEvent.TaskEventType.DELEGATED, userId, new Date()));
         UserAuditTask task = persistenceContext.find(UserAuditTaskImpl.class, ti.getId());
         if (task != null) {
-            persistenceContext.remove(task);
+            remove(persistenceContext, task);
         }
         StringBuilder sb = new StringBuilder();
         for (OrganizationalEntity o : ti.getPeopleAssignments().getPotentialOwners()) {

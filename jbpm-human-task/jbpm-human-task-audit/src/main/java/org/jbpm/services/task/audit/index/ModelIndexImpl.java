@@ -39,6 +39,19 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
     private XStream xs = new XStream();
 
 
+
+    protected Document createDocument(T object) {
+        Document doc = new Document();
+        addKeyWordField("ALL", "ALL", doc, false);
+        addKeyWordField("id", getId(object),doc, false);
+        addKeyWordField("type", getType(), doc, false);
+        addBinary(object,doc);
+        return doc;
+    }
+
+
+    abstract protected String getType();
+
     @Override
     public byte[] toBytes(T object) {
         try {

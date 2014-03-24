@@ -51,4 +51,18 @@ public class IndexingTaskLifeCycleEventListener extends JPATaskLifeCycleEventLis
             throw new RuntimeException(e);
         }
     }
+
+    protected <T> T remove(TaskPersistenceContext context, T object) {
+        try {
+            //TODO: diff between create update and delete
+            T  obj = super.remove(context,object);
+            //Needed as obj id is set by database
+            service.prepare(null,null,Arrays.asList(obj));
+            service.commit();
+            return obj;
+        } catch (IOException e) {
+            service.rollback();
+            throw new RuntimeException(e);
+        }
+    }
 }

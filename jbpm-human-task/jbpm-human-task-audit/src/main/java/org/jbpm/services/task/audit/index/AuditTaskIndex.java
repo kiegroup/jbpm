@@ -29,9 +29,7 @@ public abstract class AuditTaskIndex<T extends AuditTask> extends ModelIndexImpl
 
     @Override
     public Document prepare(T object) {
-        Document doc = new Document();
-        addKeyWordField("ALL", "ALL", doc, false);
-        addBinary(object,doc);
+        Document doc = createDocument(object);
         addLongField("taskId", object.getTaskId(), doc, false);
         addKeyWordField("status", object.getStatus(), doc, false);
         addDateField("activationTime", object.getActivationTime(), doc, false);
@@ -47,10 +45,4 @@ public abstract class AuditTaskIndex<T extends AuditTask> extends ModelIndexImpl
         addLongField("parentId", object.getParentId(), doc, false);
         return doc;
     }
-
-    @Override
-    public String getId(T object) {
-        return UUID.randomUUID().toString();
-    }
-
 }

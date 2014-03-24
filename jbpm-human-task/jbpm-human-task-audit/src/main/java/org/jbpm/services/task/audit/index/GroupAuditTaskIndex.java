@@ -29,8 +29,8 @@ import org.jbpm.services.task.audit.query.TypeFilter;
  */
 public class GroupAuditTaskIndex extends AuditTaskIndex<GroupAuditTask> {
 
-    private final String type = "GroupAuditTask";
-    private final TypeFilter<GroupAuditTask> typeFilter = new TypeFilter<GroupAuditTask>(type);
+    private static final String type = "GroupAuditTask";
+    private static final TypeFilter<GroupAuditTask> typeFilter = new TypeFilter<GroupAuditTask>(type);
 
     @Override
     public Document prepare(GroupAuditTask object) {
@@ -52,7 +52,17 @@ public class GroupAuditTaskIndex extends AuditTaskIndex<GroupAuditTask> {
     }
 
     @Override
+    public String getId(GroupAuditTask object) {
+        return type + "_" + object.getTaskId();
+    }
+
+    @Override
     public Class<GroupAuditTask> getClazz() {
         return GroupAuditTask.class;
+    }
+
+    @Override
+    protected String getType() {
+        return type;
     }
 }

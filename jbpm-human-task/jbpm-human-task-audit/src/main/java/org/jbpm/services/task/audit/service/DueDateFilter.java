@@ -18,12 +18,12 @@ package org.jbpm.services.task.audit.service;
 
 import java.util.Date;
 
-import org.jbpm.services.task.audit.query.RangeFilter;
+import org.jbpm.services.task.audit.query.DateRangeFilter;
 
 /**
  * @author Hans Lund
  */
-public class DueDateFilter<T> extends RangeFilter<T, Date> {
+public class DueDateFilter<T> extends DateRangeFilter<T> {
 
     public DueDateFilter(Date dueDate) {
         this(dueDate,dueDate);
