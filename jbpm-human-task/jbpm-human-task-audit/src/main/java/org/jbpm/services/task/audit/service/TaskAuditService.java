@@ -19,8 +19,6 @@ package org.jbpm.services.task.audit.service;
 import java.util.Date;
 import java.util.List;
 
-import javax.management.Query;
-
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
@@ -36,12 +34,12 @@ import org.kie.internal.task.api.model.TaskEvent;
  * @author salaboy
  */
 public interface TaskAuditService {
+
     void setTaskService(TaskService taskService);
     void setIndexService(IndexService indexService);
     
     List<TaskEvent> getAllTaskEvents(int taskId, int offset, int count);
     QueryResult<TaskEvent> getTaskEvents(int offset, int count, QueryComparator<TaskEvent> comparator, Filter<TaskEvent, ?>... filters);
-
 
     List<UserAuditTask> getAllUserAuditTasksAdmin(int offset, int count);
     List<UserAuditTask> getAllUserAuditTasks(String userId, int offset, int count);
@@ -59,13 +57,8 @@ public interface TaskAuditService {
     List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(String groupIds, List<String> statuses, Date dueDate, int offset, int count);
     QueryResult<GroupAuditTask> getGroupAuditTasks(int offset, int count, QueryComparator<GroupAuditTask> comparator, Filter<GroupAuditTask, ?>... filters);
 
-
-
     List<HistoryAuditTask> getAllHistoryAuditTasks( int offset, int count);
     List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId, int offset, int count);
     QueryResult<HistoryAuditTask> getHistoryAuditTasks(int offset, int count, QueryComparator<HistoryAuditTask> comparator, Filter<HistoryAuditTask, ?>... filters);
-
-
-
 
 }

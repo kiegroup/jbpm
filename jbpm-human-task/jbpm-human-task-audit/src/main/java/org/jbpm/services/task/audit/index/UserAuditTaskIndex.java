@@ -1,6 +1,7 @@
 package org.jbpm.services.task.audit.index;
 
 import org.apache.lucene.document.Document;
+import org.jbpm.services.task.audit.impl.model.HistoryAuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
@@ -32,7 +33,12 @@ public class UserAuditTaskIndex extends AuditTaskIndex<UserAuditTask> {
     }
 
     @Override
-    public Class<UserAuditTask> getClazz() {
+    public boolean isModelFor(Class clazz) {
+        return UserAuditTask.class.isAssignableFrom(clazz) && HistoryAuditTaskImpl.class != clazz;
+    }
+
+    @Override
+    public Class<UserAuditTask> getModelInterface() {
         return UserAuditTask.class;
     }
 

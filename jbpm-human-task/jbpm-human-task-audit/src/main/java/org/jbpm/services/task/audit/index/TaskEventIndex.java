@@ -16,6 +16,8 @@
 
 package org.jbpm.services.task.audit.index;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.lucene.document.Document;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
@@ -28,6 +30,8 @@ public class TaskEventIndex extends ModelIndexImpl<TaskEvent> {
 
     private static final String type = "TaskEvent";
     private static final TypeFilter<TaskEvent> typeFilter = new TypeFilter<TaskEvent>(type);
+
+    private static final AtomicLong sequence = new AtomicLong();
 
 
     @Override
@@ -47,16 +51,25 @@ public class TaskEventIndex extends ModelIndexImpl<TaskEvent> {
 
     @Override
     public String getId(TaskEvent object) {
-        return String.valueOf(object.getId());
+        return type + "_" +String.valueOf(sequence.incrementAndGet());
     }
 
     @Override
-    public Class<TaskEvent> getClazz() {
+    public boolean isModelFor(Class clazz) {
+        return TaskEvent.class.isAssignableFrom(clazz);
+    }
+
+    @Override
+    public Class<TaskEvent> getModelInterface() {
         return TaskEvent.class;
     }
 
     @Override
     protected String getType() {
         return type;
+    }
+
+    public void setInitSequence(long sequence) {
+        this.sequence.set(sequence);
     }
 }

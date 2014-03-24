@@ -56,8 +56,8 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<TaskEvent> getAllTaskEvents(int taskId, int offset, int count) {
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
-            return getTaskEvents(offset, count, new TaskIdComparator<TaskEvent>());
+            return getTaskEvents(offset, count, new TaskEventComparator(
+                QueryComparator.Direction.DESCENDING));
         }
         return taskService
             .execute(new GetAuditEventsCommand(taskId, offset, count));
@@ -79,9 +79,7 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<UserAuditTask> getAllUserAuditTasks(String userId, int offset,
         int count) {
-        //QueryImpl(select u from UserAuditTaskImpl u where u.actualOwner = :userId order by u.taskId DESC)
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
             return getUserAuditTasks(offset, count, new TaskIdComparator<UserAuditTask>(), new ActualOwnerFilter<UserAuditTask>(userId));
         }
         return taskService
@@ -92,7 +90,6 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<UserAuditTask> getAllUserAuditTasksByStatus(String userId,
         List<String> statuses, int offset, int count) {
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
             return getUserAuditTasks(offset, count, new TaskIdComparator<UserAuditTask>(),
                 new ActualOwnerFilter<UserAuditTask>(userId),
                     new StatusFilter<UserAuditTask>(statuses));
@@ -113,7 +110,6 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<UserAuditTask> getAllUserAuditTasksByDueDate(String userId,
         Date dueDate, int offset, int count) {
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
                 return getUserAuditTasks(offset, count, new TaskIdComparator<UserAuditTask>(),
                     new ActualOwnerFilter<UserAuditTask>(userId),
                     new DueDateFilter<UserAuditTask>(dueDate));
@@ -128,10 +124,8 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDate(
         String userId, List<String> statuses, Date dueDate, int offset,
         int count) {
-        //TODO: userId + sort
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
-            return getUserAuditTasks(offset, count, null,
+            return getUserAuditTasks(offset, count, new TaskIdComparator<UserAuditTask>(),new ActualOwnerFilter<UserAuditTask>(userId),
                 new DueDateFilter<UserAuditTask>(dueDate), new StatusFilter<UserAuditTask>(statuses));
 
         }
@@ -142,9 +136,14 @@ public class TaskAuditServiceImpl implements TaskAuditService {
 
     @Override
     public List<UserAuditTask> getAllUserAuditTasksByStatusByDueDateOptional(
-        String userId, List<String> statuses, Date dueDate, int offset,
-        //TODO: find sql and map
-        int count) {
+        //TODO: what is the difference to the method above?
+        String userId, List<String> statuses, Date dueDate, int offset, int count) {
+        if (indexService != null) {
+            return getUserAuditTasks(offset, count, new TaskIdComparator<UserAuditTask>(),
+                new ActualOwnerFilter<UserAuditTask>(userId),
+                new DueDateFilter<UserAuditTask>(dueDate),
+                new StatusFilter<UserAuditTask>(statuses));
+        }
         return taskService.execute(
             new GetAllUserAuditTasksByStatusByDueDateCommand(userId, statuses,
                 dueDate, offset, count));
@@ -165,11 +164,8 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<GroupAuditTask> getAllGroupAuditTasks(String groupIds,
         int offset, int count) {
-        //QueryImpl(select g from GroupAuditTaskImpl g where LOCATE(:groupIds, g.potentialOwners) > 0 order by g.taskId DESC)
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
-            return getGroupAuditTasks(offset, count, new QueryComparator<GroupAuditTask>(
-                    QueryComparator.Direction.DESCENDING, "taskId"),
+            return getGroupAuditTasks(offset, count, new TaskIdComparator<GroupAuditTask>(),
                 new PotentialOwnerFilter<GroupAuditTask>(groupIds));
         }
         return taskService
@@ -180,8 +176,7 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<GroupAuditTask> getAllGroupAuditTasksByStatus(String groupIds,
         List<String> statuses, int offset, int count) {
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
-            return getGroupAuditTasks(offset, count, null,
+            return getGroupAuditTasks(offset, count, new TaskIdComparator<GroupAuditTask>(),
                 new PotentialOwnerFilter<GroupAuditTask>(groupIds),
                 new StatusFilter<GroupAuditTask>(statuses));
         }
@@ -194,8 +189,7 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     public List<GroupAuditTask> getAllGroupAuditTasksByDueDate(String groupIds,
         Date dueDate, int offset, int count) {
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
-            return getGroupAuditTasks(offset, count, null,
+            return getGroupAuditTasks(offset, count, new TaskIdComparator<GroupAuditTask>(),
                 new PotentialOwnerFilter<GroupAuditTask>(groupIds),
                 new DueDateFilter<GroupAuditTask>(dueDate));
         }
@@ -209,8 +203,7 @@ public class TaskAuditServiceImpl implements TaskAuditService {
         String groupIds, List<String> statuses, Date dueDate, int offset,
         int count) {
         if (indexService != null) {
-            if (count == 0) count = Integer.MAX_VALUE;
-            return getGroupAuditTasks(offset, count, null,
+            return getGroupAuditTasks(offset, count, new TaskIdComparator<GroupAuditTask>(),
                 new PotentialOwnerFilter<GroupAuditTask>(groupIds),
                 new DueDateFilter<GroupAuditTask>(dueDate),
                 new StatusFilter<GroupAuditTask>(statuses));
@@ -222,8 +215,14 @@ public class TaskAuditServiceImpl implements TaskAuditService {
 
     @Override
     public List<GroupAuditTask> getAllGroupAuditTasksByStatusByDueDateOptional(
-        String groupIds, List<String> statuses, Date dueDate, int offset,
-        int count) {
+        String groupIds, List<String> statuses, Date dueDate, int offset,int count) {
+        //TODO: - same impl as above.
+        if (indexService != null) {
+            return getGroupAuditTasks(offset, count, new TaskIdComparator<GroupAuditTask>(),
+                new PotentialOwnerFilter<GroupAuditTask>(groupIds),
+                new DueDateFilter<GroupAuditTask>(dueDate),
+                new StatusFilter<GroupAuditTask>(statuses));
+        }
         return taskService.execute(
             new GetAllGroupAuditTasksByStatusByDueDateCommand(groupIds,
                 statuses, dueDate, offset, count));
@@ -244,6 +243,10 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<UserAuditTask> getAllUserAuditTasksAdmin(int offset,
         int count) {
+        if (indexService != null) {
+            return getUserAuditTasks(offset, count,
+                new TaskIdComparator<UserAuditTask>());
+        }
         return taskService
             .execute(new GetAllUserAuditTasksAdminCommand(offset, count));
     }
@@ -251,13 +254,20 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<GroupAuditTask> getAllGroupAuditTasksAdmin(int offset,
         int count) {
+        if (indexService != null) {
+            return getGroupAuditTasks(offset, count,
+                new TaskIdComparator<GroupAuditTask>());
+        }
         return taskService
             .execute(new GetAllGroupAuditTasksAdminCommand(offset, count));
     }
 
     @Override
-    public List<HistoryAuditTask> getAllHistoryAuditTasks(int offset,
-        int count) {
+    public List<HistoryAuditTask> getAllHistoryAuditTasks(int offset, int count) {
+        if (indexService != null) {
+            return getHistoryAuditTasks(offset, count,
+                new TaskIdComparator<HistoryAuditTask>());
+        }
         return taskService
             .execute(new GetAllHistoryAuditTasksCommand(offset, count));
     }
@@ -265,6 +275,9 @@ public class TaskAuditServiceImpl implements TaskAuditService {
     @Override
     public List<HistoryAuditTask> getAllHistoryAuditTasksByUser(String userId,
         int offset, int count) {
+        if (indexService != null) {
+            return getHistoryAuditTasks(offset, count, new TaskIdComparator<HistoryAuditTask>(), new ActualOwnerFilter<HistoryAuditTask>(userId));
+        }
         return taskService.execute(
             new GetAllHistoryAuditTasksByUserCommand(userId, offset, count));
     }

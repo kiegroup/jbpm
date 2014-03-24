@@ -22,6 +22,7 @@ import bitronix.tm.TransactionManagerServices;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.index.GroupAuditTaskIndex;
+import org.jbpm.services.task.audit.index.HistoryAuditTaskIndex;
 import org.jbpm.services.task.audit.index.IndexingTaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.index.LuceneIndexService;
 import org.jbpm.services.task.audit.index.TaskEventIndex;
@@ -46,10 +47,6 @@ public class LocalLifeCycleTest extends LifeCycleBaseTest {
 	
 	@Before
 	public void setup() {
-        bitronix.tm.Configuration conf =
-            TransactionManagerServices.getConfiguration();
-        conf.setDefaultTransactionTimeout(3600);
-
         pds = setupPoolingDataSource();
 		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
 
@@ -57,6 +54,7 @@ public class LocalLifeCycleTest extends LifeCycleBaseTest {
         indexService.addModel(new UserAuditTaskIndex());
         indexService.addModel(new GroupAuditTaskIndex());
         indexService.addModel(new TaskEventIndex());
+        indexService.addModel(new HistoryAuditTaskIndex());
         IndexingTaskLifeCycleEventListener listener = new IndexingTaskLifeCycleEventListener(indexService);
 
 
