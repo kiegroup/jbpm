@@ -75,9 +75,6 @@ public class JaxbTask implements InternalTask {
     @XmlSchemaType(name="String")
     private String formName;
  
-    // For json
-    private transient Short archived;
-    
     public JaxbTask() { 
         // Default constructor
     }
