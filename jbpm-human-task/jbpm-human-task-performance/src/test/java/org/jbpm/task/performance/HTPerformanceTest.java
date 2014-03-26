@@ -17,10 +17,12 @@ package org.jbpm.task.performance;
 
 import javax.persistence.Persistence;
 
+import bitronix.tm.TransactionManagerServices;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import org.jbpm.services.task.audit.index.GroupAuditTaskIndex;
+import org.jbpm.services.task.audit.index.HistoryAuditTaskIndex;
 import org.jbpm.services.task.audit.index.IndexingTaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.index.LuceneIndexService;
 import org.jbpm.services.task.audit.index.TaskEventIndex;
@@ -39,16 +41,20 @@ import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 
 public class HTPerformanceTest extends HTPerformanceBaseTest {
 
-	
+
+
+
 	@Before
 	public void setup() {
-		pds = setupPoolingDataSource();
+
+        pds = setupPoolingDataSource();
 		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
 
         LuceneIndexService indexService = new LuceneIndexService();
         indexService.addModel(new UserAuditTaskIndex());
         indexService.addModel(new GroupAuditTaskIndex());
         indexService.addModel(new TaskEventIndex());
+        indexService.addModel(new HistoryAuditTaskIndex());
         IndexingTaskLifeCycleEventListener listener = new IndexingTaskLifeCycleEventListener(indexService);
 
 
