@@ -1,0 +1,68 @@
+package org.jbpm.services.task.audit.marshalling;
+
+message AuditTask {
+
+    extensions 1000 to 2000;
+
+    optional uint64 taskId=1;
+    optional string status=2;
+    optional int64 activationTime=3;
+    optional string name=4;
+    optional string description=5;
+    optional int32 priority=6;
+    optional string createdBy=7;
+    optional int64 createdOn=8;
+    optional int64 dueDate=9;
+    optional uint64 processInstanceId=10;
+    optional string processId=11;
+    optional uint32 processSessionId=12;
+    optional int64 parentId=13;
+}
+
+message UserAuditTask {
+
+    extensions 2000 to 3000;
+
+    extend AuditTask {
+          optional string actualOwner=1000;
+    }
+}
+
+message GroupAuditTask {
+    extend AuditTask {
+        optional string potentialOwners=1100;
+    }
+}
+
+message HistoryAuditTask {
+    extend UserAuditTask {
+        optional string history = 2000;
+    }
+}
+
+message TaskEvent {
+
+    enum TaskEventType {
+        STARTED = 0;
+        ACTIVATED = 1;
+        COMPLETED = 2;
+        STOPPED = 3;
+        EXITED = 4;
+        FAILED = 5;
+        ADDED = 6;
+        CLAIMED = 7;
+        SKIPPED = 8;
+        SUSPENDED = 9;
+        CREATED = 10;
+        FORWARDED = 11;
+        RELEASED = 12;
+        RESUMED = 13;
+        DELEGATED = 14;
+    }
+
+    optional uint64 id=1;
+    optional int32 version=2;
+    optional TaskEventType type = 3;
+    optional string userId = 4;
+    optional int64 logTime = 5;
+}

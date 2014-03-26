@@ -1,8 +1,11 @@
 package org.jbpm.services.task.audit.index;
 
+import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.jbpm.services.task.audit.impl.model.HistoryAuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
+import org.jbpm.services.task.audit.marshalling.AuditMarshaller;
+import org.jbpm.services.task.audit.marshalling.AuditMessages;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
 
@@ -20,6 +23,11 @@ public class UserAuditTaskIndex extends AuditTaskIndex<UserAuditTask> {
         addKeyWordField("type", type, doc, false);
         addKeyWordField("actualOwner", object.getActualOwner(), doc, false);
         return doc;
+    }
+
+    @Override
+    public UserAuditTask fromBytes(byte[] bytes) {
+        return AuditMarshaller.unMarshall(bytes, UserAuditTask.class);
     }
 
     @Override

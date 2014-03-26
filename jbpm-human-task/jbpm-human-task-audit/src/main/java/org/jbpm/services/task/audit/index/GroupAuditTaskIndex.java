@@ -20,6 +20,7 @@ import java.util.StringTokenizer;
 
 import org.apache.lucene.document.Document;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
+import org.jbpm.services.task.audit.marshalling.AuditMarshaller;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
 
@@ -43,6 +44,11 @@ public class GroupAuditTaskIndex extends AuditTaskIndex<GroupAuditTask> {
         }
 
         return doc;
+    }
+
+    @Override
+    public GroupAuditTask fromBytes(byte[] bytes) {
+        return AuditMarshaller.unMarshall(bytes, GroupAuditTask.class);
     }
 
     @Override

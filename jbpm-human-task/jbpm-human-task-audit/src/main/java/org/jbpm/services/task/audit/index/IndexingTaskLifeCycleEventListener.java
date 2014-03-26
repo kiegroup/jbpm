@@ -35,7 +35,6 @@ import org.kie.internal.task.api.TaskPersistenceContext;
 public class IndexingTaskLifeCycleEventListener extends JPATaskLifeCycleEventListener {
 
     private IndexService service;
-    private AtomicInteger threadC = new AtomicInteger(0);
     private ExecutorService esc = Executors.newCachedThreadPool();
 
 

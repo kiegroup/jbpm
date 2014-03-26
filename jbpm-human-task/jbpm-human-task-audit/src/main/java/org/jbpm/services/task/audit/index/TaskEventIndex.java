@@ -19,6 +19,7 @@ package org.jbpm.services.task.audit.index;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.lucene.document.Document;
+import org.jbpm.services.task.audit.marshalling.AuditMarshaller;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
 import org.kie.internal.task.api.model.TaskEvent;
@@ -42,6 +43,11 @@ public class TaskEventIndex extends ModelIndexImpl<TaskEvent> {
         addKeyWordField("userId", object.getUserId(), doc, false);
         addDateField("logTime", object.getLogTime(), doc, false);
         return doc;
+    }
+
+    @Override
+    public TaskEvent fromBytes(byte[] bytes) {
+        return AuditMarshaller.unMarshall(bytes, TaskEvent.class);
     }
 
     @Override

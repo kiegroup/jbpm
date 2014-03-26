@@ -16,12 +16,8 @@
 
 package org.jbpm.services.task.audit.index;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
-import java.util.zip.DataFormatException;
 
-import com.thoughtworks.xstream.XStream;
-import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -30,15 +26,12 @@ import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.jbpm.services.task.audit.marshalling.AuditMarshaller;
 
 /**
  *@author Hans Lund
  */
 public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
-
-    private XStream xs = new XStream();
-
-
 
     protected Document createDocument(T object) {
         Document doc = new Document();
@@ -54,24 +47,7 @@ public abstract class ModelIndexImpl<T> implements ModelIndex<T>  {
 
     @Override
     public byte[] toBytes(T object) {
-        try {
-            return CompressionTools.compress(xs.toXML(object).getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            //supported by all java impl
-        }
-        return null;
-    }
-
-    @Override
-    public T fromBytes(byte[] bytes) {
-        try {
-            return (T) xs.fromXML(new String(CompressionTools.decompress(bytes),"UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            //supported by all java impl
-        } catch (DataFormatException e) {
-            throw new IllegalStateException("data in index corrupted", e);
-        }
-        return null;
+        return AuditMarshaller.marshall(object);
     }
 
     protected void addBinary(T object, Document d) {

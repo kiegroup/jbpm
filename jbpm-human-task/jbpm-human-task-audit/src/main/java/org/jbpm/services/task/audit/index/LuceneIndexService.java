@@ -37,6 +37,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.store.Directory;
@@ -130,12 +131,12 @@ public class LuceneIndexService implements IndexService {
                     new Term("id", String.valueOf(getModel(t.getClass()).getId(t))));
         }
         }
-        tiw.getIndexWriter().prepareCommit();
+        //tiw.getIndexWriter().prepareCommit();
     }
 
     @Override
     public void commit() throws IOException {
-        tiw.getIndexWriter().commit();
+        //tiw.getIndexWriter().commit();
     }
 
     @Override
@@ -187,6 +188,7 @@ public class LuceneIndexService implements IndexService {
         long searchTime = System.currentTimeMillis() - start;
         int c = 0;
         List<T> l = new ArrayList<T>();
+        search.search(new TermQuery(new Term("type", "HistoryAuditTask")),5);
         try {
             while (c < number && offset + c < td.totalHits) {
                 Document doc = search.doc(td.scoreDocs[offset + c++].doc);
@@ -213,6 +215,9 @@ public class LuceneIndexService implements IndexService {
                 if (mi != null) {
                     models.put(obj, mi);
                 }
+            }
+            if (mi == null) {
+                throw new IllegalStateException("No index model is configured for " + obj.getCanonicalName());
             }
             return mi;
         }

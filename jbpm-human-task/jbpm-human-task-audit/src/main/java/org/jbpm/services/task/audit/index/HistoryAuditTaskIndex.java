@@ -17,7 +17,9 @@
 package org.jbpm.services.task.audit.index;
 
 import org.apache.lucene.document.Document;
+import org.jbpm.services.task.audit.impl.model.HistoryAuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
+import org.jbpm.services.task.audit.marshalling.AuditMarshaller;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
 
@@ -33,7 +35,16 @@ public class HistoryAuditTaskIndex extends AuditTaskIndex<HistoryAuditTask> {
     public Document prepare(HistoryAuditTask object) {
         Document doc = super.prepare(object);
         addKeyWordField("type", type, doc, false);
+        //TODO: actualOwner is not the interface!
+        if (object instanceof HistoryAuditTaskImpl) {
+            addKeyWordField("actualOwner", ((HistoryAuditTaskImpl)object).getActualOwner(), doc, false);
+        }
         return doc;
+    }
+
+    @Override
+    public HistoryAuditTask fromBytes(byte[] bytes) {
+        return AuditMarshaller.unMarshall(bytes, HistoryAuditTask.class);
     }
 
     @Override
