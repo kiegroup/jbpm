@@ -14,12 +14,27 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.index;
+
+import org.apache.lucene.document.Document;
+import org.jbpm.services.task.audit.query.Filter;
 
 /**
- *
- * @author salaboy
+ * @author Hans Lund
  */
-public interface HistoryAuditTask extends AuditTask {
-    
+public interface ModelIndex<T> {
+
+    Document prepare(T object);
+
+    byte[] toBytes(T object);
+
+    T fromBytes(byte[] bytes);
+
+    Filter getTypeFilter();
+
+    String getId(T object);
+
+    Class<T> getModelInterface();
+
+    boolean isModelFor(Class clazz);
 }

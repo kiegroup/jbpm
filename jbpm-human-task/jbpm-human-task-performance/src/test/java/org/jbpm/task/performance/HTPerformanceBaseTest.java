@@ -226,15 +226,12 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         List<TaskSummary> tasksAssignedByGroup = taskService.getTasksAssignedByGroup("Crusaders", "en-UK");
         System.out.println("Finishing query tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, tasksAssignedByGroup.size());
-
-        
         
         beforeQueryTime = System.currentTimeMillis();
         System.out.println("Querying tasks...." + beforeQueryTime);
         tasksAssignedByGroup = taskService.getTasksAssignedByGroup("Knights Templer", "en-UK");
         System.out.println("Finishing query tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, tasksAssignedByGroup.size());
-        
 
     }
 

@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.service;
+
+import org.jbpm.services.task.audit.query.QueryComparator;
 
 /**
- *
- * @author salaboy
+ * @author Hans Lund
  */
-public interface HistoryAuditTask extends AuditTask {
-    
+public class TaskIdComparator<T> extends QueryComparator<T> {
+
+    public TaskIdComparator(){
+        this(Direction.DESCENDING);
+    }
+
+    public TaskIdComparator(Direction direction) {
+        super(direction, "taskId");
+    }
 }

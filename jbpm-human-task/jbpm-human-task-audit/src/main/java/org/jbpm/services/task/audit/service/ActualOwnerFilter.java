@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.service;
+
+import org.jbpm.services.task.audit.query.TermFilter;
 
 /**
- *
- * @author salaboy
+ * @author Hans Lund
  */
-public interface HistoryAuditTask extends AuditTask {
-    
+public class ActualOwnerFilter<T> extends TermFilter<T> {
+
+    //matches if any of the users are the owner.
+    public ActualOwnerFilter(String... userIds) {
+        super(Occurs.MUST, "actualOwner", userIds);
+    }
 }

@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.query;
+
 
 /**
- *
- * @author salaboy
+ * @author Hans Lund
  */
-public interface HistoryAuditTask extends AuditTask {
-    
+public class PrefixFilter<K> extends WildCardFilter<K> {
+
+    public PrefixFilter(Occurs occurs, String field, String... matches) {
+        super(occurs, field);
+        for (String term : matches) {
+            super.add(escape(term) + WildCardFilter.DEFAULT_GENERIC_WILDCARD);
+        }
+    }
 }

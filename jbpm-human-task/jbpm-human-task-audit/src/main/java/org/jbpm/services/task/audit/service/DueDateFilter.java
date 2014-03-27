@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-package org.jbpm.services.task.audit.impl.model.api;
+package org.jbpm.services.task.audit.service;
+
+import java.util.Date;
+
+import org.jbpm.services.task.audit.query.DateRangeFilter;
 
 /**
- *
- * @author salaboy
+ * @author Hans Lund
  */
-public interface HistoryAuditTask extends AuditTask {
-    
+public class DueDateFilter<T> extends DateRangeFilter<T> {
+
+    public DueDateFilter(Date dueDate) {
+        this(dueDate,dueDate);
+    }
+
+    public DueDateFilter(Date notBefore, Date notAfter) {
+        super(Occurs.MUST, "dueDate");
+        addRange(notBefore, notAfter);
+    }
 }
