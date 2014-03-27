@@ -33,6 +33,10 @@ import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusByDueDa
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
+import org.jbpm.services.task.audit.commands.StartIndexForGroupAuditTaskCommand;
+import org.jbpm.services.task.audit.commands.StartIndexForHistoryAuditTaskCommand;
+import org.jbpm.services.task.audit.commands.StartIndexForTaskEventCommand;
+import org.jbpm.services.task.audit.commands.StartIndexForUserAuditTaskCommand;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
@@ -304,4 +308,10 @@ public class TaskAuditServiceImpl implements TaskAuditService {
         this.indexService = indexService;
     }
 
+    public void startupIndexes() {
+    	taskService.execute(new StartIndexForTaskEventCommand(indexService));
+    	taskService.execute(new StartIndexForGroupAuditTaskCommand(indexService));
+    	taskService.execute(new StartIndexForHistoryAuditTaskCommand(indexService));
+    	taskService.execute(new StartIndexForUserAuditTaskCommand(indexService));
+    }
 }

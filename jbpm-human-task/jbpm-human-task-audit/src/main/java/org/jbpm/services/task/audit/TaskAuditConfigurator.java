@@ -34,6 +34,7 @@ public class TaskAuditConfigurator {
 
     public TaskAuditConfigurator setIndexService(IndexService service) {
         taskAuditService.setIndexService(service);
+        ((TaskAuditServiceImpl) taskAuditService).startupIndexes();
         return this;
     }
     
