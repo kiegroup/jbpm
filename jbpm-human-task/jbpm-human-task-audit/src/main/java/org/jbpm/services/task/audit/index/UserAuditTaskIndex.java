@@ -1,11 +1,9 @@
 package org.jbpm.services.task.audit.index;
 
-import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.jbpm.services.task.audit.impl.model.HistoryAuditTaskImpl;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
 import org.jbpm.services.task.audit.marshalling.AuditMarshaller;
-import org.jbpm.services.task.audit.marshalling.AuditMessages;
 import org.jbpm.services.task.audit.query.Filter;
 import org.jbpm.services.task.audit.query.TypeFilter;
 

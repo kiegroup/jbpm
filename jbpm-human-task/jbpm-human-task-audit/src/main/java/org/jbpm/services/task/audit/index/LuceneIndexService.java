@@ -37,7 +37,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherFactory;
 import org.apache.lucene.search.SearcherManager;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.store.Directory;
@@ -159,7 +158,6 @@ public class LuceneIndexService implements IndexService {
     public <T> QueryResult<T> find(int offset, int count,
         QueryComparator<T> comparator, Class<T> clazz, Filter<?, ?>... filters)
         throws IOException {
-        long start = System.currentTimeMillis();
         ModelIndex<T> index = getModel(clazz);
         if (index == null) {
             throw new IllegalArgumentException(
@@ -177,28 +175,24 @@ public class LuceneIndexService implements IndexService {
         IndexSearcher search = getSearcher(tiw.getGeneration());
         Query query = queryBuilder.buildQuery(search, filters);
         TopDocs td;
-
-        int number = count == 0 ? Integer.MAX_VALUE : 1l*offset + count <= Integer.MAX_VALUE ? offset + count : Integer.MAX_VALUE;
+        count = count == 0 ? Integer.MAX_VALUE : count;
+        int number =  1l*offset + count <= Integer.MAX_VALUE ? offset + count : Integer.MAX_VALUE;
 
         if (comparator != null) {
             td = search.search(query, number, queryBuilder.getSort(comparator));
         }  else {
             td = search.search(query, number);
         }
-        long searchTime = System.currentTimeMillis() - start;
         int c = 0;
         List<T> l = new ArrayList<T>();
-        search.search(new TermQuery(new Term("type", "HistoryAuditTask")),5);
         try {
-            while (c < number && offset + c < td.totalHits) {
+            while (c < count && offset + c < td.totalHits) {
                 Document doc = search.doc(td.scoreDocs[offset + c++].doc);
                 l.add(index.fromBytes(doc.getBinaryValue(BINARY).bytes));
             }
         } finally {
             sm.release(search);
         }
-        long readTime = System.currentTimeMillis() - (searchTime + start);
-        System.out.println("Search in: " + searchTime + " read in:" + readTime);
         return new QueryResult<T>(offset, td.totalHits, l);
     }
 
