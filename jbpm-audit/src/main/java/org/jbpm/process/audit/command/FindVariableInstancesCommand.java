@@ -29,12 +29,12 @@ import org.kie.internal.command.Context;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class FindVariableInstancesCommand extends AbstractHistoryLogCommand<List<VariableInstanceLog>> {
+public class FindVariableInstancesCommand extends AuditCommand<List<VariableInstanceLog>> {
 
     /** generated serial version UID */
     private static final long serialVersionUID = 7087452375594067164L;
 
-    @XmlAttribute(required=true)
+    @XmlAttribute(required=true, name="process-instance-id")
     @XmlSchemaType(name="long")
     private Long processInstanceId;
     

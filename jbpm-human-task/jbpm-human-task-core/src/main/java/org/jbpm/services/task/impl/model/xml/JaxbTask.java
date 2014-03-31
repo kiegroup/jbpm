@@ -1,5 +1,7 @@
 package org.jbpm.services.task.impl.model.xml;
 
+import static org.jbpm.services.task.impl.model.xml.AbstractJaxbTaskObject.unsupported;
+
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -12,9 +14,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.jbpm.services.task.impl.model.xml.adapter.I18NTextXmlAdapter;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -34,6 +37,7 @@ import org.kie.internal.task.api.model.SubTasksStrategy;
 
 @XmlRootElement(name="task")
 @XmlAccessorType(XmlAccessType.FIELD)
+@JsonIgnoreProperties({"archived", "descriptions","names","subjects", "peopleAssignments"})
 public class JaxbTask implements InternalTask {
 
     @XmlElement
@@ -49,26 +53,28 @@ public class JaxbTask implements InternalTask {
     private String taskType; 
 
     @XmlElement(name="name")
-    @XmlJavaTypeAdapter(value=I18NTextXmlAdapter.class)
-    private List<I18NText> names;
+    private List<JaxbI18NText> jaxbNames;
     
     @XmlElement(name="subject")
-    @XmlJavaTypeAdapter(value=I18NTextXmlAdapter.class)
-    private List<I18NText> subjects;
+    private List<JaxbI18NText> jaxbSubjects;
     
     @XmlElement(name="description")
-    @XmlJavaTypeAdapter(value=I18NTextXmlAdapter.class)
-    private List<I18NText> descriptions;
+    private List<JaxbI18NText> jaxbDescriptions;
     
     @XmlElement(name="people-assignments")
-    private JaxbPeopleAssignments peopleAssignments;
+    private JaxbPeopleAssignments jaxbPeopleAssignments;
     
     @XmlElement
-    private JaxbTaskData taskData;
+    private JaxbTaskData jaxbTaskData;
     
     @XmlElement
+    @JsonIgnore
     private JaxbDeadlines deadlines = new JaxbDeadlines();
     
+    @XmlElement(name="form-name")
+    @XmlSchemaType(name="String")
+    private String formName;
+ 
     public JaxbTask() { 
         // Default constructor
     }
@@ -83,111 +89,157 @@ public class JaxbTask implements InternalTask {
         }
         this.id = task.getId();
         this.priority = task.getPriority();
-        this.peopleAssignments = new JaxbPeopleAssignments(task.getPeopleAssignments());
+        this.jaxbPeopleAssignments = new JaxbPeopleAssignments(task.getPeopleAssignments());
 
         // Done because we get a (lazy-initialized) entity back from the task service, which causes problems outside a tx
         // .. so we "eager-initialize" all values here to avoid problems later. (Also in JaxbPeopleAssignments)
         // Collection.toArray() == PersistenceBag.toArray(), which calls PersistenceBag.read(), initializing collection
         // See org.hibernate.collection.internal.PersistenceBag
-        this.names = task.getNames();
-        this.names.toArray();
-        this.subjects = task.getSubjects();
-        this.subjects.toArray();
-        this.descriptions = task.getDescriptions();
-        this.descriptions.toArray();
+        this.jaxbNames = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getNames());
+        this.jaxbSubjects = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getSubjects());
+        this.jaxbDescriptions = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getDescriptions());
         
-        this.taskData = new JaxbTaskData(task.getTaskData());
+        this.jaxbTaskData = new JaxbTaskData(task.getTaskData());
         this.taskType = task.getTaskType();
+        this.formName = ((InternalTask)task).getFormName();
     }
     
     @Override
+    @JsonProperty
     public Long getId() {
         return id;
     }
 
+    @JsonProperty
     public void setId(Long id) {
         this.id = id;
     }
 
     @Override
+    @JsonIgnore
     public void setId(long id) {
         this.id = id;
     }
 
     @Override
+    @JsonProperty
     public int getPriority() {
         return priority;
     }
 
+    @JsonProperty
     public void setPriority(Integer priority) {
         this.priority = priority;
     }
 
     @Override
+    @JsonIgnore
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
+    public List<JaxbI18NText> getJaxbNames() {
+        return this.jaxbNames;
+    }
+
+    public void setJaxbNames(List<JaxbI18NText> names) {
+        this.jaxbNames = names;
+    }
+
     @Override
+    @JsonIgnore
     public List<I18NText> getNames() {
-        if( names == null ) { 
-            names = Collections.emptyList();
+        if( jaxbNames == null ) { 
+            jaxbNames = Collections.emptyList();
         }
-        return Collections.unmodifiableList(names);
+        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(jaxbNames));
     }
 
     public void setNames(List<I18NText> names) {
-        this.names = names;
+        this.jaxbNames = JaxbI18NText.convertListFromInterfaceToJaxbImpl(names);
     }
 
-    @Override
+    public List<JaxbI18NText> getJaxbSubjects() {
+        return this.jaxbSubjects;
+    }
+
+    public void setJaxbSubjects(List<JaxbI18NText> subjects) {
+        this.jaxbSubjects = subjects;
+    }
+
     public List<I18NText> getSubjects() {
-        if( subjects == null ) { 
-            subjects = Collections.emptyList();
+        if( jaxbSubjects == null ) { 
+            jaxbSubjects = Collections.emptyList();
         }
-        return Collections.unmodifiableList(subjects);
+        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(jaxbSubjects));
     }
 
     public void setSubjects(List<I18NText> subjects) {
-        this.subjects = subjects;
+        this.jaxbSubjects = JaxbI18NText.convertListFromInterfaceToJaxbImpl(subjects);
+    }
+
+    public List<JaxbI18NText> getJaxbDescriptions() {
+        return this.jaxbDescriptions;
+    }
+
+    public void setJaxbDescriptions(List<JaxbI18NText> descriptions) {
+        this.jaxbDescriptions = descriptions;
     }
 
     @Override
     public List<I18NText> getDescriptions() {
-        if( descriptions == null ) { 
-            descriptions = Collections.emptyList();
+        if( jaxbDescriptions == null ) { 
+            jaxbDescriptions = Collections.emptyList();
         }
-        return Collections.unmodifiableList(descriptions);
+        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(jaxbDescriptions));
     }
 
     public void setDescriptions(List<I18NText> descriptions) {
-        this.descriptions = descriptions;
+        this.jaxbDescriptions = JaxbI18NText.convertListFromInterfaceToJaxbImpl(descriptions);
+    }
+
+    public JaxbPeopleAssignments getJaxbPeopleAssignments() {
+        return jaxbPeopleAssignments;
+    }
+
+    public void setJaxbPeopleAssignments(JaxbPeopleAssignments jaxbPeopleAssignments) {
+        this.jaxbPeopleAssignments = jaxbPeopleAssignments;
     }
 
     @Override
+    @JsonIgnore
     public PeopleAssignments getPeopleAssignments() {
-        return peopleAssignments;
+        return jaxbPeopleAssignments;
     }
 
     public void setPeopleAssignments(PeopleAssignments peopleAssignments) {
         if( peopleAssignments instanceof JaxbPeopleAssignments ) { 
-        this.peopleAssignments = (JaxbPeopleAssignments) peopleAssignments;
+        this.jaxbPeopleAssignments = (JaxbPeopleAssignments) peopleAssignments;
         } else { 
-            this.peopleAssignments = new JaxbPeopleAssignments(peopleAssignments);
+            this.jaxbPeopleAssignments = new JaxbPeopleAssignments(peopleAssignments);
         }
     }
 
     @Override
+    @JsonIgnore
     public TaskData getTaskData() {
-        return taskData;
+        return jaxbTaskData;
     }
 
     public void setTaskData(TaskData taskData) {
         if( taskData instanceof JaxbTaskData ) { 
-            this.taskData = (JaxbTaskData) taskData;
+            this.jaxbTaskData = (JaxbTaskData) taskData;
         } else { 
-            this.taskData = new JaxbTaskData(taskData);
+            this.jaxbTaskData = new JaxbTaskData(taskData);
         }
+    }
+
+    public JaxbTaskData getJaxbTaskData() {
+        return jaxbTaskData;
+    }
+
+    public void setJaxbTaskData(JaxbTaskData jaxbTaskData) {
+        this.jaxbTaskData = jaxbTaskData;
     }
 
     @Override
@@ -200,6 +252,7 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
+    @JsonIgnore
     public Deadlines getDeadlines() {
         return this.deadlines;
     }
@@ -209,29 +262,30 @@ public class JaxbTask implements InternalTask {
         // no-op
     }
 
+    @JsonIgnore
     public Task getTask() { 
         Task taskImpl = TaskModelProvider.getFactory().newTask();
         List<I18NText> names = new ArrayList<I18NText>();
         for (I18NText n: this.getNames()) {
-        	I18NText text = TaskModelProvider.getFactory().newI18NText();
-        	((InternalI18NText) text).setLanguage(n.getLanguage());
-        	((InternalI18NText) text).setText(n.getText());
+            I18NText text = TaskModelProvider.getFactory().newI18NText();
+            ((InternalI18NText) text).setLanguage(n.getLanguage());
+            ((InternalI18NText) text).setText(n.getText());
             names.add(text);
         }
         ((InternalTask)taskImpl).setNames(names);
         List<I18NText> descriptions = new ArrayList<I18NText>();
         for (I18NText n: this.getDescriptions()) {
-        	I18NText text = TaskModelProvider.getFactory().newI18NText();
-        	((InternalI18NText) text).setLanguage(n.getLanguage());
-        	((InternalI18NText) text).setText(n.getText());
+            I18NText text = TaskModelProvider.getFactory().newI18NText();
+            ((InternalI18NText) text).setLanguage(n.getLanguage());
+            ((InternalI18NText) text).setText(n.getText());
             names.add(text);
         }
         ((InternalTask)taskImpl).setDescriptions(descriptions);
         List<I18NText> subjects = new ArrayList<I18NText>();
         for (I18NText n: this.getSubjects()) {
-        	I18NText text = TaskModelProvider.getFactory().newI18NText();
-        	((InternalI18NText) text).setLanguage(n.getLanguage());
-        	((InternalI18NText) text).setText(n.getText());
+            I18NText text = TaskModelProvider.getFactory().newI18NText();
+            ((InternalI18NText) text).setLanguage(n.getLanguage());
+            ((InternalI18NText) text).setText(n.getText());
             names.add(text);
         }
         ((InternalTask)taskImpl).setSubjects(subjects);
@@ -246,12 +300,12 @@ public class JaxbTask implements InternalTask {
         List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>();
         for (OrganizationalEntity e: this.getPeopleAssignments().getPotentialOwners()) {
             if (e instanceof User) {
-            	User user = TaskModelProvider.getFactory().newUser();
-            	((InternalOrganizationalEntity) user).setId(e.getId());
+                User user = TaskModelProvider.getFactory().newUser();
+                ((InternalOrganizationalEntity) user).setId(e.getId());
                 potentialOwners.add(user);
             } else if (e instanceof Group) {
-            	Group group = TaskModelProvider.getFactory().newGroup();
-            	((InternalOrganizationalEntity) group).setId(e.getId());
+                Group group = TaskModelProvider.getFactory().newGroup();
+                ((InternalOrganizationalEntity) group).setId(e.getId());
                 potentialOwners.add(group);
             }
         }
@@ -259,19 +313,19 @@ public class JaxbTask implements InternalTask {
         List<OrganizationalEntity> businessAdmins = new ArrayList<OrganizationalEntity>();
         for (OrganizationalEntity e: this.getPeopleAssignments().getBusinessAdministrators()) {
             if (e instanceof User) {
-            	User user = TaskModelProvider.getFactory().newUser();
-            	((InternalOrganizationalEntity) user).setId(e.getId());
+                User user = TaskModelProvider.getFactory().newUser();
+                ((InternalOrganizationalEntity) user).setId(e.getId());
                 businessAdmins.add(user);
             } else if (e instanceof Group) {
-            	Group group = TaskModelProvider.getFactory().newGroup();
-            	((InternalOrganizationalEntity) group).setId(e.getId());
+                Group group = TaskModelProvider.getFactory().newGroup();
+                ((InternalOrganizationalEntity) group).setId(e.getId());
                 businessAdmins.add(group);
             }
         }
         if (this.getPeopleAssignments().getTaskInitiator() != null) {
-        	User user = TaskModelProvider.getFactory().newUser();
-        	((InternalOrganizationalEntity) user).setId(this.getPeopleAssignments().getTaskInitiator().getId());
-        	((InternalPeopleAssignments)peopleAssignments).setTaskInitiator(user);
+            User user = TaskModelProvider.getFactory().newUser();
+            ((InternalOrganizationalEntity) user).setId(this.getPeopleAssignments().getTaskInitiator().getId());
+            ((InternalPeopleAssignments)peopleAssignments).setTaskInitiator(user);
         }
         ((InternalPeopleAssignments)peopleAssignments).setBusinessAdministrators(businessAdmins);
         ((InternalPeopleAssignments)peopleAssignments).setExcludedOwners(new ArrayList<OrganizationalEntity>());
@@ -284,80 +338,68 @@ public class JaxbTask implements InternalTask {
     }
     
     @Override
+    public void setFormName(String formName) {
+        this.formName = formName;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getFormName() {
+        return this.formName;
+    }
+
+    @Override
     public void readExternal(ObjectInput arg0) throws IOException, ClassNotFoundException {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        unsupported(Task.class);
     }
 
     @Override
     public void writeExternal(ObjectOutput arg0) throws IOException {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        unsupported(Task.class);
     }
 
     @Override
-    public Boolean isArchived() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+    @JsonIgnore
+    public Short getArchived() {
+        return (Short) unsupported(Task.class);
     }
 
     @Override
+    @JsonIgnore
     public void setArchived(Boolean archived) {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        unsupported(Task.class);
     }
 
     public void setVersion(Integer version) {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        unsupported(Task.class);
     }
 
     @Override
+    @JsonIgnore
     public int getVersion() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        return (Integer) unsupported(Task.class);
     }
 
     @Override
-    public void setFormName(String formName) {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
-    }
-
-    @Override
-    public String getFormName() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
-    }
-
-    @Override
+    @JsonIgnore
     public Delegation getDelegation() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        return (Delegation) unsupported(Task.class);
     }
 
     @Override
     public void setDelegation(Delegation delegation) {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        unsupported(Task.class);
     }
 
     @Override
-    public Short getArchived() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
-    }
-
-    @Override
+    @JsonIgnore
     public SubTasksStrategy getSubTaskStrategy() {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        return (SubTasksStrategy) unsupported(Task.class);
     }
 
     @Override
     public void setSubTaskStrategy(SubTasksStrategy subTaskStrategy) {
-        String methodName = (new Throwable()).getStackTrace()[0].getMethodName();
-        throw new UnsupportedOperationException( methodName + " is not supported on the JAXB " + Task.class.getSimpleName() + " implementation.");
+        unsupported(Task.class);
     }
 
 }

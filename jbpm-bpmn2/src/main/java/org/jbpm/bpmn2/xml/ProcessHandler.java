@@ -413,13 +413,18 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             compositeNode.setDefaultContext(exceptionScope);
         }
         String errorCode = (String) node.getMetaData().get("ErrorEvent");
+        String errorStructureRef = (String) node.getMetaData().get("ErrorStructureRef");
         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
+        
+        String variable = ((EventNode)node).getVariableName();
 
         DroolsConsequenceAction action = new DroolsConsequenceAction("java",                   
-                    PROCESS_INSTANCE_SIGNAL_EVENT + "Error-" + attachedTo + "-" + errorCode + "\", null);");
+                    PROCESS_INSTANCE_SIGNAL_EVENT + "Error-" + attachedTo + "-" + errorCode + "\", kcontext.getVariable(\"" + variable +"\"));");
         
         exceptionHandler.setAction(action);
+        exceptionHandler.setFaultVariable(variable);
         exceptionScope.setExceptionHandler(errorCode, exceptionHandler);
+        exceptionScope.setExceptionHandler(errorStructureRef, exceptionHandler);
 
         List<DroolsAction> actions = ((EventNode)node).getActions(EndNode.EVENT_NODE_EXIT);
         if (actions == null) {
@@ -818,7 +823,12 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                 handleIntermediateOrEndThrowCompensationEvent((EndNode) node);
             } else if( node instanceof ActionNode ) {
                 handleIntermediateOrEndThrowCompensationEvent((ActionNode) node);
-            } 
+            } else if( node instanceof EventNode ) {
+            	final EventNode eventNode = (EventNode) node;
+                if (!(eventNode instanceof BoundaryEventNode) && eventNode.getDefaultIncomingConnections().size() == 0) {
+                	throw new IllegalArgumentException("Event node '" + node.getName() + "' [" + node.getId() + "] has no incoming connection");
+                }
+            }  
         }
     }
 

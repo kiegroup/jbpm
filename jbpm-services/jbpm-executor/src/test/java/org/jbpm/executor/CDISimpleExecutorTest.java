@@ -49,10 +49,12 @@ public class CDISimpleExecutorTest extends BasicExecutorBaseTest {
                 
                 .addAsManifestResource("META-INF/persistence.xml", ArchivePaths.create("persistence.xml"))
                 .addAsManifestResource("META-INF/Executor-orm.xml", ArchivePaths.create("Executor-orm.xml"))
-                .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"));
+                .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"))
+        		.addAsManifestResource("META-INF/javax.enterprise.inject.spi.Extension", 
+        				"services/javax.enterprise.inject.spi.Extension");
 
     }
-    
+
     private static PoolingDataSource pds;
     
     @BeforeClass

@@ -29,12 +29,12 @@ import org.kie.internal.command.Context;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class FindSubProcessInstancesCommand extends AbstractHistoryLogCommand<List<ProcessInstanceLog>> {
+public class FindSubProcessInstancesCommand extends AuditCommand<List<ProcessInstanceLog>> {
 
     /** generated serial version UID */
     private static final long serialVersionUID = 7334860936916050668L;
 
-    @XmlAttribute(required=true)
+    @XmlAttribute(required=true, name="process-instance-id")
     @XmlSchemaType(name="long")
     private Long processInstanceId;
     

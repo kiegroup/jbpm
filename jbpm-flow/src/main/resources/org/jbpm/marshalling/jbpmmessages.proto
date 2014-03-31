@@ -1,4 +1,4 @@
-import "org/drools/core/marshalling/droolsmessages.proto";
+import "org/drools/core/org.jbpm.services.task.audit.marshalling/droolsmessages.proto";
 
 package org.jbpm.marshalling;
 

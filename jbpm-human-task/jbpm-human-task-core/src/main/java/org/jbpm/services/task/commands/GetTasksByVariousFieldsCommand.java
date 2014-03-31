@@ -1,15 +1,10 @@
 package org.jbpm.services.task.commands;
 
-import static org.kie.internal.task.api.TaskQueryService.ACTUAL_OWNER_ID_LIST;
-import static org.kie.internal.task.api.TaskQueryService.BUSINESS_ADMIN_ID_LIST;
-import static org.kie.internal.task.api.TaskQueryService.LANGUAGE;
-import static org.kie.internal.task.api.TaskQueryService.POTENTIAL_OWNER_ID_LIST;
-import static org.kie.internal.task.api.TaskQueryService.PROCESS_INST_ID_LIST;
-import static org.kie.internal.task.api.TaskQueryService.STATUS_LIST;
-import static org.kie.internal.task.api.TaskQueryService.TASK_ID_LIST;
-import static org.kie.internal.task.api.TaskQueryService.WORK_ITEM_ID_LIST;
+import static org.kie.internal.task.api.TaskQueryService.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +32,7 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
     @XmlElement
     private List<Long> taskIds;
     
-    @XmlElement(name="process-instance-id")
+    @XmlElement(name="process-instance-ids")
     private List<Long> procInstIds;
     
     @XmlElement(name="business-admin")
@@ -59,6 +54,9 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
     @XmlElement
     private List<String> language;
     
+    @XmlElement
+    private Integer maxResults;
+    
     
 	public GetTasksByVariousFieldsCommand() {
 	}
@@ -72,6 +70,12 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
 	public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
 	        List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
 	        List<String> language, boolean union) { 
+	    this(workItemIds, taskIds, procInstIds, busAdmins, potOwners, taskOwners, statuses, language, union, null);
+    }
+
+	public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
+	        List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
+	        List<String> language, boolean union, Integer maxResults) { 
 		this.workItemIds = workItemIds;
 		this.taskIds = taskIds;
 		this.procInstIds = procInstIds;
@@ -79,33 +83,55 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
 		this.potOwners = potOwners;
 		this.taskOwners = taskOwners;
 		this.statuses = statuses;
-		this.union = union;
 		this.language = language;
-    }
+		this.union = union;
+		this.maxResults = maxResults;
+	}
 	
-	@SuppressWarnings("unchecked")
 	public GetTasksByVariousFieldsCommand(Map<String, List<?>> params, boolean union) { 
+	    this(params, union, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public GetTasksByVariousFieldsCommand(Map<String, List<?>> params, boolean union, Integer maxResults) { 
 	    this.union = union;
-	    
+	    this.maxResults = maxResults;
+
 	    if( params == null ) { 
-	        return;
+	        params = new HashMap<String, List<?>>();
+	    } else { 
+	        this.workItemIds = (List<Long>) params.get(WORK_ITEM_ID_LIST);
+	        this.taskIds = (List<Long>) params.get(TASK_ID_LIST);
+	        this.procInstIds = (List<Long>) params.get(PROCESS_INST_ID_LIST);
+	        this.busAdmins = (List<String>) params.get(BUSINESS_ADMIN_ID_LIST);
+	        this.potOwners = (List<String>) params.get(POTENTIAL_OWNER_ID_LIST);
+	        this.taskOwners = (List<String>) params.get(ACTUAL_OWNER_ID_LIST);
+	        this.statuses = (List<Status>) params.get(STATUS_LIST);
+	        this.language = (List<String>) params.get(LANGUAGE);
 	    }
-	    this.workItemIds = (List<Long>) params.get(WORK_ITEM_ID_LIST);
-	    this.taskIds = (List<Long>) params.get(TASK_ID_LIST);
-	    this.procInstIds = (List<Long>) params.get(PROCESS_INST_ID_LIST);
-	    this.busAdmins = (List<String>) params.get(BUSINESS_ADMIN_ID_LIST);
-	    this.potOwners = (List<String>) params.get(POTENTIAL_OWNER_ID_LIST);
-	    this.taskOwners = (List<String>) params.get(ACTUAL_OWNER_ID_LIST);
-	    this.statuses = (List<Status>) params.get(STATUS_LIST);
-	    this.language = (List<String>) params.get(LANGUAGE);
 	}
 
 	public List<TaskSummary> execute(Context cntxt) {
-        TaskContext context = (TaskContext) cntxt;
+	    TaskContext context = (TaskContext) cntxt;
         
         potOwners = populateOrganizationalEntityWithGroupInfo(potOwners, context);
     	busAdmins = populateOrganizationalEntityWithGroupInfo(busAdmins, context);
-        return context.getTaskQueryService().getTasksByVariousFields(workItemIds, taskIds, procInstIds, busAdmins, potOwners, taskOwners, statuses, language, union);
+    	
+        Map<String, List<?>> params = new HashMap<String, List<?>>();
+        params.put(WORK_ITEM_ID_LIST, workItemIds);
+        params.put(TASK_ID_LIST, taskIds);
+        params.put(PROCESS_INST_ID_LIST, procInstIds);
+        params.put(BUSINESS_ADMIN_ID_LIST, busAdmins);
+        params.put(POTENTIAL_OWNER_ID_LIST, potOwners);
+        params.put(ACTUAL_OWNER_ID_LIST, taskOwners);
+        params.put(STATUS_LIST, statuses);
+        params.put(LANGUAGE, language);
+        if( maxResults != null && maxResults.intValue() > 0 ) {
+            Integer [] maxResultsArr = { maxResults };
+            params.put("maxResults", Arrays.asList(maxResultsArr));
+        }
+        
+        return context.getTaskQueryService().getTasksByVariousFields(params, union);
     }
 
     public List<Long> getWorkItemIds() {
@@ -180,6 +206,14 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
         this.union = union;
     }
     
+    public Integer getMaxResults() {
+        return maxResults;
+    }
+
+    public void setMaxResults(Integer maxResults) {
+        this.maxResults = maxResults;
+    }
+
     /**
      * Populates given list with group information taken from UserGroupCallback implementation
      * to allow proper query for tasks based on user assignments.

@@ -19,16 +19,17 @@ package org.jbpm.executor.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 
 import org.drools.core.command.impl.GenericCommand;
@@ -56,22 +57,18 @@ import org.slf4j.LoggerFactory;
  * Additionally executor can be disable to not start at all when system property org.kie.executor.disabled is 
  * set to true
  */
-@ApplicationScoped
 public class ExecutorImpl implements Executor {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorImpl.class);
-
-    @Inject
-    private ExecutorRunnable runnableTask;
-    @Inject
-    private ExecutorQueryService queryService;
-    @Inject
+    
+    private EntityManagerFactory emf;
     private TransactionalCommandService commandService;
     
-    private ScheduledFuture<?> handle;
+    private List<ScheduledFuture<?>> handle = new ArrayList<ScheduledFuture<?>>();
     private int threadPoolSize = Integer.parseInt(System.getProperty("org.kie.executor.pool.size", "1"));
     private int retries = Integer.parseInt(System.getProperty("org.kie.executor.retry.count", "3"));
     private int interval = Integer.parseInt(System.getProperty("org.kie.executor.interval", "3"));
+    private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
     private ScheduledExecutorService scheduler;
 
     public ExecutorImpl() {
@@ -82,12 +79,8 @@ public class ExecutorImpl implements Executor {
         this.commandService = commandService;
     }
 
-    public void setExecutorRunnable(ExecutorRunnable runnableTask) {
-        this.runnableTask = runnableTask;
-    }
-
-    public void setQueryService(ExecutorQueryService queryService) {
-        this.queryService = queryService;
+    public void setEmf(EntityManagerFactory emf) {
+ 	   this.emf = emf;
     }
 
     /**
@@ -142,7 +135,9 @@ public class ExecutorImpl implements Executor {
                     threadPoolSize, interval, retries);
     
             scheduler = Executors.newScheduledThreadPool(threadPoolSize);
-            handle = scheduler.scheduleAtFixedRate(runnableTask, 2, interval, TimeUnit.SECONDS);
+            for (int i = 0; i < threadPoolSize; i++) {
+            	handle.add(scheduler.scheduleAtFixedRate(buildRunable(), 2, interval, timeunit));
+            }
         }
     }
     
@@ -152,7 +147,9 @@ public class ExecutorImpl implements Executor {
     public void destroy() {
         logger.info(" >>>>> Destroying Executor !!!");
         if (handle != null) {
-            handle.cancel(true);
+        	for (ScheduledFuture<?> h : handle) {
+        		h.cancel(true);
+        	}
         }
         if (scheduler != null) {
             scheduler.shutdownNow();
@@ -249,6 +246,21 @@ public class ExecutorImpl implements Executor {
 			return request;
 		}
     	
+    }
+    
+    private ExecutorRunnable buildRunable() {
+    	ClassCacheManager classCacheManager = new ClassCacheManager();
+    	ExecutorQueryService queryService = new ExecutorQueryServiceImpl();    	    	
+        ExecutorRunnable runnable = new ExecutorRunnable();
+        
+        TransactionalCommandService cmdService = new TransactionalCommandService(emf);
+        
+        ((ExecutorQueryServiceImpl) queryService).setCommandService(cmdService);       
+        ((ExecutorRunnable) runnable).setCommandService(cmdService);
+        runnable.setClassCacheManager(classCacheManager);
+        runnable.setQueryService(queryService);
+        
+        return runnable;
     }
 
 }

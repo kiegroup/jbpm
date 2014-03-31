@@ -3,6 +3,7 @@ package org.jbpm.services.task.audit.marshalling.test;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.jbpm.services.task.audit.impl.model.api.AuditTask;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
@@ -76,7 +77,39 @@ public class AuditTaskMarshallerTest {
 
         parsed = (UserAuditTaskImpl) AuditMarshaller.unMarshall(data, UserAuditTask.class);
         assertTrue(testEquals(userAuditTask,parsed));
+    }
 
+    @Test
+    public void testPerformance() throws Exception  {
+
+        int sampleSize = 5000;
+        long limit = 500000; //performance limit in ns (½ ms)
+
+        UserAuditTask[] tasks = new UserAuditTask[sampleSize];
+
+        for (int i = 0; i < sampleSize; i ++) {
+            tasks[i] =
+                new UserAuditTaskImpl(UUID.randomUUID().toString(), 1,
+                    UUID.randomUUID().toString(), new Date(),
+                    UUID.randomUUID().toString(), UUID.randomUUID().toString(),
+                    5, UUID.randomUUID().toString(), new Date(), new Date(System.currentTimeMillis() + 100000),
+                    2, UUID.randomUUID().toString(), 1, -1);
+        }
+
+        byte[][] data = new byte[sampleSize][];
+        long start = System.nanoTime();
+        for (int i = 0 ; i < sampleSize ; i++) {
+            data[i] = AuditMarshaller.marshall(tasks[i]);
+        }
+        assertTrue("Serialization took more than " + limit + "ns."
+            ,(limit*sampleSize >= (System.nanoTime() - start)));
+        start = System.nanoTime();
+        for (int i = 0 ; i < sampleSize ; i++) {
+            UserAuditTask ut = AuditMarshaller.unMarshall(data[i], UserAuditTask.class);
+            testEquals(ut,tasks[i]);
+        }
+        assertTrue("unSerialization took more than 3ms for very small object"
+            ,(limit*sampleSize >= (System.nanoTime() - start)));
 
     }
 

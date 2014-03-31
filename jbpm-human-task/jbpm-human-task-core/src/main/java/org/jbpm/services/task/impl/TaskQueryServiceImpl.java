@@ -17,6 +17,7 @@
 package org.jbpm.services.task.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -386,6 +387,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                     persistenceContext.addParametersToMap("userId", userId, "groupIds", "", "status", status, "expirationDate", expirationDate, "language", "en-UK"),
                     ClassUtil.<List<TaskSummary>>castClass(List.class)); //@TODO: FIX LANGUANGE
     }
+   
     
     @Override
     public List<TaskSummary> getTasksByVariousFields(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
@@ -400,6 +402,32 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         params.put(ACTUAL_OWNER_ID_LIST, taskOwners);
         params.put(STATUS_LIST, status);
         params.put(LANGUAGE, language);
+        
+        return getTasksByVariousFields(params, union);
+    }
+   
+    public static final String MAX_RESULTS = "maxResults";
+    
+    public List<TaskSummary> getTasksByVariousFields(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
+            List<String> busAdmins, List<String> potOwners, List<String> taskOwners, 
+            List<Status> status, List<String> language, boolean union, Integer maxResults) {
+        Map<String, List<?>> params = new HashMap<String, List<?>>();
+        params.put(WORK_ITEM_ID_LIST, workItemIds);
+        params.put(TASK_ID_LIST, taskIds);
+        params.put(PROCESS_INST_ID_LIST, procInstIds);
+        params.put(BUSINESS_ADMIN_ID_LIST, busAdmins);
+        params.put(POTENTIAL_OWNER_ID_LIST, potOwners);
+        params.put(ACTUAL_OWNER_ID_LIST, taskOwners);
+        params.put(STATUS_LIST, status);
+        params.put(LANGUAGE, language);
+        
+        if( maxResults != null ) {
+            if( maxResults <= 0 ) { 
+                return new ArrayList<TaskSummary>();
+            }
+            Integer [] maxResultsArr = { maxResults };
+            params.put(MAX_RESULTS, Arrays.asList(maxResultsArr));
+        }
         
         return getTasksByVariousFields(params, union);
     }
@@ -419,6 +447,14 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         List<String> taskOwners = stringQueryAdder.checkNullAndInstanceOf(parameters, ACTUAL_OWNER_ID_LIST);
         List<String> language = stringQueryAdder.checkNullAndInstanceOf(parameters, LANGUAGE);
         List<Status> status = statusQueryAdder.checkNullAndInstanceOf(parameters, STATUS_LIST);
+        
+        List<?> maxResultsList = parameters.get(MAX_RESULTS);
+        if( maxResultsList != null && ! maxResultsList.isEmpty() ) { 
+            Object maxResults = maxResultsList.get(0);
+            if( maxResults instanceof Integer ) {
+                params.put(MAX_RESULTS, maxResults);
+            }
+        }
         
         if( workItemIds != null && workItemIds.size() > 0 ) { 
             String paramName = "workItemIds";
@@ -442,7 +478,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                     procInstIds);
         }
         
-        stringQueryAdder.setAlreadyUsed(longQueryAdder.isAlreadyUsed());
+        stringQueryAdder.getQueryState(longQueryAdder);
         if( busAdmins != null && busAdmins.size() > 0 ) { 
             String paramName = "busAdminIds";
             String query = "( businessAdministrator.id in ( :" + paramName + " ) and "
@@ -468,15 +504,22 @@ public class TaskQueryServiceImpl implements TaskQueryService {
             stringQueryAdder.addToQueryBuilder(query, paramName, language);
         }
         
-        statusQueryAdder.setAlreadyUsed(stringQueryAdder.isAlreadyUsed());
+        statusQueryAdder.getQueryState(stringQueryAdder);
         if( status != null && status.size() > 0 ) { 
             String paramName = "statuses";
             String query = "( t.taskData.status in (:"+ paramName + ") ) ";
             statusQueryAdder.addToQueryBuilder(query, paramName, status);
         }
+       
+        if( ! statusQueryAdder.firstUse ) { 
+           queryBuilder.append(")"); 
+        }
+        
+        // order by task id
+        queryBuilder.append(" ORDER BY t.id" );
         
         String query = queryBuilder.toString();
-        logger.debug("QUERY: " + query);
+        logger.debug("QUERY: {}", query);
         return persistenceContext.queryStringWithParametersInTransaction(query, params,
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
@@ -516,11 +559,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
             + "  OrganizationalEntityImpl businessAdministrator, "
             + "  OrganizationalEntityImpl potentialOwners "
             + "where "
-            + "t.archived = 0 AND ";
+            + "t.archived = 0";
     
     private class WhereClauseWithListParamAppender<T> { 
 
         private final String andOr;
+        private boolean firstUse = true;
         private boolean alreadyUsed = false;
         private final StringBuilder queryBuilder;
         private final Map<String, Object> queryParams;
@@ -534,9 +578,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         }
         
         public void addToQueryBuilder(String query, String paramName, List<T> paramValList) { 
-            if( isAlreadyUsed() ) { 
+            if( this.firstUse ) { 
+                queryBuilder.append( " AND (");
+                this.firstUse = false;
+            } else if( this.alreadyUsed ) { 
                 queryBuilder.append( andOr );
-            }
+            } 
             queryBuilder.append( query );
             Set<T> paramVals = new HashSet<T>();
             for( T val : paramValList ) { 
@@ -545,15 +592,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 }
             }
             queryParams.put(paramName, paramVals);
-            setAlreadyUsed(true);
+            this.alreadyUsed = true;
         }
 
-        public boolean isAlreadyUsed() {
-            return alreadyUsed;
-        }
-
-        public void setAlreadyUsed(boolean alreadyUsed) {
-            this.alreadyUsed = alreadyUsed;
+        public void getQueryState(WhereClauseWithListParamAppender<?> paramAppender) { 
+           this.alreadyUsed = paramAppender.alreadyUsed;
+           this.firstUse = paramAppender.firstUse;
         }
         
         @SuppressWarnings("unchecked")

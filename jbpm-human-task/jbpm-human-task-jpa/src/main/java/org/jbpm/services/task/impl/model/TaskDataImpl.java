@@ -416,7 +416,7 @@ public class TaskDataImpl implements InternalTaskData {
     }
 
     public void setActualOwner(User actualOwner) {
-        this.actualOwner = (UserImpl) actualOwner;
+        this.actualOwner = convertToUserImpl(actualOwner);
     }
 
     public User getCreatedBy() {
@@ -424,7 +424,7 @@ public class TaskDataImpl implements InternalTaskData {
     }
 
     public void setCreatedBy(User createdBy) {
-        this.createdBy = (UserImpl) createdBy;
+        this.createdBy = convertToUserImpl(createdBy);
     }
 
     public Date getCreatedOn() {
@@ -793,6 +793,28 @@ public class TaskDataImpl implements InternalTaskData {
     @Override
     public void setDeploymentId(String deploymentId) {
         this.deploymentId = deploymentId;
+    }
+    
+    static UserImpl convertToUserImpl(User user) { 
+        if( user == null ) { 
+            return null;
+        }
+        if( user instanceof UserImpl ) { 
+            return (UserImpl) user;
+        } else { 
+            return new UserImpl(user.getId());
+        }
+    }
+
+    static GroupImpl convertToGroupImpl(GroupImpl group) { 
+        if( group == null ) { 
+            return null;
+        }
+        if( group instanceof GroupImpl ) { 
+            return (GroupImpl) group;
+        } else { 
+            return new GroupImpl(group.getId());
+        }
     }
 
 }

@@ -1,4 +1,4 @@
- create table Attachment (
+    create table Attachment (
         id number(19,0) not null,
         accessType number(10,0),
         attachedAt timestamp,
@@ -22,6 +22,7 @@
         taskId number(19,0) not null,
         taskName varchar2(255 char),
         userId varchar2(255 char),
+        OPTLOCK number(10,0),
         primary key (pk)
     );
 
@@ -43,6 +44,7 @@
         mappingId number(19,0) not null,
         CONTEXT_ID varchar2(255 char) not null,
         KSESSION_ID number(10,0) not null,
+        OWNER_ID varchar2(255 char),
         OPTLOCK number(10,0),
         primary key (mappingId)
     );
@@ -302,6 +304,7 @@
         taskId number(19,0),
         type varchar2(255 char),
         userId varchar2(255 char),
+        OPTLOCK number(10,0),
         primary key (id)
     );
 

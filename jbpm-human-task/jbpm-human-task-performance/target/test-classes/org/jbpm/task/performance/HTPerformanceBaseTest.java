@@ -17,6 +17,9 @@ package org.jbpm.task.performance;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import javax.inject.Inject;
@@ -27,12 +30,20 @@ import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
+import org.jbpm.services.task.audit.query.Filter;
+import org.jbpm.services.task.audit.query.QueryComparator;
+import org.jbpm.services.task.audit.query.QueryResult;
+import org.jbpm.services.task.audit.service.ActualOwnerFilter;
+import org.jbpm.services.task.audit.service.CreationTimeComparator;
+import org.jbpm.services.task.audit.service.DueDateFilter;
+import org.jbpm.services.task.audit.service.PotentialOwnerFilter;
 import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
+import sun.util.resources.CalendarData_el;
 
 public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
 
@@ -49,13 +60,12 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         System.out.println("Adding " + amount + " tasks...." + beforeAddTime);
         UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         ut.begin();
-
         for (int i = 0; i < amount; i++) {
             String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), "
-                    + "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy' )],"
-                    + "businessAdministrators = [ new User('Administrator') ], }), names = [ new I18NText( 'en-UK', 'Task #" + i + "')] })";
+                + "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy' )],"
+                + "businessAdministrators = [ new User('Administrator') ], }), names = [ new I18NText( 'en-UK', 'Task #" + i + "')] })";
 
-            Task task = (Task) TaskFactory.evalTask(new StringReader(str));
+            Task task = TaskFactory.evalTask(new StringReader(str));
             taskService.addTask(task, new HashMap<String, Object>());
         }
         ut.commit();
@@ -74,6 +84,125 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         Assert.assertEquals(1000, allUserAuditTasks.size());
 
     }
+
+    @Test
+    public void testQueryPerformance () throws Exception {
+        long beforeAddTime = System.currentTimeMillis();
+        int amount = 1000;
+        System.out.println("Adding " + amount + " tasks...." + beforeAddTime);
+        UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+        ut.begin();
+
+        Calendar cal = Calendar.getInstance();
+
+
+        cal.set(2016,Calendar.DECEMBER,25);
+        long[] exp = new long[2];
+        exp[0] = cal.getTime().getTime();
+        cal.set(2017,Calendar.DECEMBER,25);
+        exp[1] = cal.getTime().getTime();
+
+        for (int i = 0; i < amount; i++) {
+            String str = "(with (new Task()) { priority = 55, " +
+                "taskData = (with( new TaskData()) {expirationTime =  new Date(" + exp[i%2] + "), " +
+                "createdOn = new Date(" + (System.currentTimeMillis() + (i*3600l *1000)) + ")} ),"
+                + "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy' )],"
+                + "businessAdministrators = [ new User('Administrator') ], }), names = [ new I18NText( 'en-UK', 'Task #" + i + "')] })";
+
+            Task task = (Task) TaskFactory.evalTask(new StringReader(str));
+            taskService.addTask(task, new HashMap<String, Object>());
+        }
+
+
+        ut.commit();
+        long start = System.currentTimeMillis();
+
+        //Search for owner salaboy
+        Filter owner = new ActualOwnerFilter("salaboy");
+        for (int i = 0; i < 10;i++) {
+            QueryResult<UserAuditTask> qr = taskAuditService.getUserAuditTasks(
+                0, Integer.MAX_VALUE, null,owner);
+            Assert.assertEquals(amount, qr.getTotal());
+            Assert.assertEquals(amount, qr.size());
+        }
+        System.out.println(
+            " query: \"+actualOwner:salaboy\"" +
+                "result-size 1000 read-full-result=true  repeated 10 times    cumulative time-> " + (System.currentTimeMillis() - start) + "ms");
+        Assert.assertTrue(5000 >= System.currentTimeMillis() - start);
+        start = System.currentTimeMillis();
+        for (int i =  0 ; i < 10 ; i++) {
+            int j = 0;
+            while (j < amount) {
+               long inner_start = System.currentTimeMillis();
+               j += taskAuditService.getUserAuditTasks(j,20, null, owner).size();
+               Assert.assertTrue("Single page delivered in more that 100 ms", 100 >= (System.currentTimeMillis() - inner_start));
+            }
+        }
+        System.out.println(
+            " query: \"+actualOwner:salaboy\" page-size 20 " +
+                "result-size 1000 read-full-result=true  repeated 10 times    cumulative time-> " + (System.currentTimeMillis() - start) + "ms");
+        Assert.assertTrue(5000 >= System.currentTimeMillis() - start);
+
+        //sort in inverted creation order
+        QueryComparator<UserAuditTask> qc = new CreationTimeComparator<UserAuditTask>();
+        start = System.currentTimeMillis();
+        for (int i = 0; i <10; i++) {
+            int found = 0;
+
+            int j = 0;
+            while (j < amount) {
+                long inner_start = System.currentTimeMillis();
+                QueryResult<UserAuditTask> qr =
+                    taskAuditService.getUserAuditTasks(j, 20, qc, owner);
+                j += qr.size();
+                Assert.assertTrue("Single page delivered in more that 100 ms",
+                    100 >= (System.currentTimeMillis() - inner_start));
+                Assert.assertEquals(amount, qr.getTotal());
+                for (UserAuditTask auditTask : qr) {
+                    Assert.assertTrue(auditTask.getTaskId() + found++ == 1000);
+                }
+            }
+        }
+        System.out.println(
+            " query: \"+actualOwner:salaboy\" sort:createdOn DESCENDING page-size 20 " +
+                "result-size 1000 read-full-result=true  repeated 10 times    cumulative time-> " + (System.currentTimeMillis() - start) + "ms");
+
+
+        Assert.assertTrue(5000 >= System.currentTimeMillis() - start);
+
+        //sort in creation order, filter on owner and expiration december 2016
+        qc = new CreationTimeComparator<UserAuditTask>(QueryComparator.Direction.ASCENDING);
+        cal.set(2016,Calendar.DECEMBER, 1);
+        Date r1 = cal.getTime();
+        cal.set(Calendar.DAY_OF_MONTH, 31);
+        Date r2 = cal.getTime();
+        Filter expires = new DueDateFilter<UserAuditTask>(r1,r2);
+        start = System.currentTimeMillis();
+        for (int i = 0; i <10; i++) {
+            int found = 0;
+
+            int j = 0;
+            while (j < amount/2) {
+                long inner_start = System.currentTimeMillis();
+                QueryResult<UserAuditTask> qr =
+                    taskAuditService.getUserAuditTasks(j, 20, qc, expires, owner);
+                j += qr.size();
+                Assert.assertTrue("Single page delivered in more that 100 ms",
+                    100 >= (System.currentTimeMillis() - inner_start));
+                Assert.assertEquals(amount/2, qr.getTotal());
+                for (UserAuditTask auditTask : qr) {
+                    Assert.assertEquals(auditTask.getTaskId(), 1 + 2*found++);
+                }
+            }
+        }
+        System.out.println(
+            " query: \"+actualOwner:salaboy +dueDate[2016-12-01 TO 2016-12-31]\" sort:createdOn ASCENDING page-size 20 " +
+                "result-size 1000 read-full-result=true  repeated 10 times    cumulative time-> " + (System.currentTimeMillis() - start) + "ms");
+        Assert.assertTrue(5000 >= System.currentTimeMillis() - start);
+
+
+    }
+
 
     @Test
     public void testBasicGroupTaskAddingAndQueringAndClaiming() throws Exception {
@@ -182,7 +311,8 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         beforeAuditTime = System.currentTimeMillis();
 
         List<GroupAuditTask> allCrusadersAuditTasks = taskAuditService.getAllGroupAuditTasks("Crusaders",0,0);
-        Assert.assertEquals(amount * users.length, allCrusadersAuditTasks.size());
+        Assert.assertEquals(amount * users.length,
+            allCrusadersAuditTasks.size());
         System.out.println(" claiming tasks" + beforeAuditTime);
         for (int j = 0; j < users.length; j++) {
             int amoutPerUser = (amount * (j + 1));
@@ -226,15 +356,12 @@ public abstract class HTPerformanceBaseTest extends HumanTaskServicesBaseTest {
         List<TaskSummary> tasksAssignedByGroup = taskService.getTasksAssignedByGroup("Crusaders", "en-UK");
         System.out.println("Finishing query tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, tasksAssignedByGroup.size());
-
-        
         
         beforeQueryTime = System.currentTimeMillis();
         System.out.println("Querying tasks...." + beforeQueryTime);
         tasksAssignedByGroup = taskService.getTasksAssignedByGroup("Knights Templer", "en-UK");
         System.out.println("Finishing query tasks...." + (System.currentTimeMillis() - beforeQueryTime));
         Assert.assertEquals(1000, tasksAssignedByGroup.size());
-        
 
     }
 

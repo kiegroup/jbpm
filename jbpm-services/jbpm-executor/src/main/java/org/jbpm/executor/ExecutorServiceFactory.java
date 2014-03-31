@@ -36,16 +36,31 @@ import org.kie.internal.executor.api.ExecutorService;
  * environment.
  */
 public class ExecutorServiceFactory {
+	
+	private final static String mode = System.getProperty( "org.jbpm.cdi.executor.mode", "singleton" );
    
+	private static ExecutorService serviceInstance;
     
-    public static ExecutorService newExecutorService(EntityManagerFactory emf){
-        
-        return configure(emf);
+    public static synchronized ExecutorService newExecutorService(EntityManagerFactory emf){
+    	if ( mode.equalsIgnoreCase( "singleton" ) ) {
+            if (serviceInstance == null) {
+            	serviceInstance = configure(emf);
+            }
+            return serviceInstance;
+        } else {
+            return configure(emf);
+        }        
+    }
+    
+    public static synchronized void resetExecutorService(ExecutorService executorService) {
+    	if (executorService.equals(serviceInstance)) {
+    		serviceInstance = null;
+    	}
     }
 
     private static ExecutorService configure(EntityManagerFactory emf) {
     	// create instances of executor services
-    	ExecutorService service = new ExecutorServiceImpl();
+    	
     	ExecutorQueryService queryService = new ExecutorQueryServiceImpl();
     	Executor executor = new ExecutorImpl();    	
         ExecutorRunnable runnable = new ExecutorRunnable();
@@ -59,21 +74,19 @@ public class ExecutorServiceFactory {
         // set executor on all instances that requires it
         ((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);
         ((ExecutorImpl) executor).setCommandService(commandService);
+        ((ExecutorImpl) executor).setEmf(emf);
         ((ExecutorRequestAdminServiceImpl) adminService).setCommandService(commandService);
         ((ExecutorRunnable) runnable).setCommandService(commandService);
         
         // configure services
+        ExecutorService service = new ExecutorServiceImpl(executor);
     	((ExecutorServiceImpl)service).setQueryService(queryService);
     	((ExecutorServiceImpl)service).setExecutor(executor);               
         ((ExecutorServiceImpl)service).setAdminService(adminService);
         
         runnable.setClassCacheManager(classCacheManager);
-        runnable.setQueryService(queryService);
+        runnable.setQueryService(queryService);      
 
-        ((ExecutorImpl)executor).setExecutorRunnable(runnable);
-        ((ExecutorImpl)executor).setQueryService(queryService);        
-        
-        
         return service;
     }
 }
