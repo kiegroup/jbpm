@@ -26,8 +26,10 @@ public class StartIndexForUserAuditTaskCommand extends StartIndexCommand<UserAud
 	}
 	
 	@Override
-	protected Collection<UserAuditTask> iterate(TaskPersistenceContext context) {
-		return context.queryStringInTransaction("select uati from UserAuditTaskImpl uati", 
+	protected Collection<UserAuditTask> iterate(TaskPersistenceContext context, int offset, int count) {
+		String query = "SELECT uati FROM UserAuditTaskImpl uati where TYPE(uati) <> HistoryAuditTaskImpl ORDER BY uati.lastModificationDate DESC";
+		return context.queryStringWithParametersInTransaction(query,
+				context.addParametersToMap("firstResult", offset, "maxResults", count),
 				ClassUtil.<List<UserAuditTask>>castClass(List.class));
 	}
 }

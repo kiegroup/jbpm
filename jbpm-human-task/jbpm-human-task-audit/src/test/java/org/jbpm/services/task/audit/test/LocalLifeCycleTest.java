@@ -18,22 +18,22 @@ package org.jbpm.services.task.audit.test;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import bitronix.tm.TransactionManagerServices;
 import org.jbpm.services.task.HumanTaskServiceFactory;
-import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
+import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 import org.jbpm.services.task.audit.index.GroupAuditTaskIndex;
 import org.jbpm.services.task.audit.index.HistoryAuditTaskIndex;
 import org.jbpm.services.task.audit.index.IndexingTaskLifeCycleEventListener;
 import org.jbpm.services.task.audit.index.LuceneIndexService;
 import org.jbpm.services.task.audit.index.TaskEventIndex;
 import org.jbpm.services.task.audit.index.UserAuditTaskIndex;
+import org.jbpm.services.task.audit.service.TaskAuditServiceImpl;
 import org.jbpm.services.task.lifecycle.listeners.BAMTaskEventListener;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.kie.internal.task.api.InternalTaskService;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
-import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 
 /**
  *
@@ -44,13 +44,14 @@ public class LocalLifeCycleTest extends LifeCycleBaseTest {
 
 	private PoolingDataSource pds;
 	private EntityManagerFactory emf;
+	private LuceneIndexService indexService;
 	
 	@Before
 	public void setup() {
         pds = setupPoolingDataSource();
 		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
 
-        LuceneIndexService indexService = new LuceneIndexService();
+        this.indexService = new LuceneIndexService();
         indexService.addModel(new UserAuditTaskIndex());
         indexService.addModel(new GroupAuditTaskIndex());
         indexService.addModel(new TaskEventIndex());
@@ -65,7 +66,11 @@ public class LocalLifeCycleTest extends LifeCycleBaseTest {
             .getTaskService();
 
         this.taskAuditService = TaskAuditServiceFactory.
-            newTaskAuditServiceConfigurator().setTaskService(taskService).setIndexService(indexService).getTaskAuditService();
+            newTaskAuditServiceConfigurator().
+            setTaskService(taskService).
+            setIndexService(indexService).
+            setMultiThreadIndex(true).
+            getTaskAuditService();
 
 	}
 	

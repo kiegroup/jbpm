@@ -33,10 +33,6 @@ import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusByDueDa
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksByStatusCommand;
 import org.jbpm.services.task.audit.commands.GetAllUserAuditTasksCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
-import org.jbpm.services.task.audit.commands.StartIndexForGroupAuditTaskCommand;
-import org.jbpm.services.task.audit.commands.StartIndexForHistoryAuditTaskCommand;
-import org.jbpm.services.task.audit.commands.StartIndexForTaskEventCommand;
-import org.jbpm.services.task.audit.commands.StartIndexForUserAuditTaskCommand;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.UserAuditTask;
@@ -55,7 +51,8 @@ public class TaskAuditServiceImpl implements TaskAuditService {
 
     private InternalTaskService taskService;
     private IndexService indexService;
-
+    private boolean multiThreadIndex;
+    private TaskIndexThread taskIndexInitThread; 
 
     @Override
     public List<TaskEvent> getAllTaskEvents(int taskId, int offset, int count) {
@@ -308,10 +305,21 @@ public class TaskAuditServiceImpl implements TaskAuditService {
         this.indexService = indexService;
     }
 
-    public void startupIndexes() {
-    	taskService.execute(new StartIndexForTaskEventCommand(indexService));
-    	taskService.execute(new StartIndexForGroupAuditTaskCommand(indexService));
-    	taskService.execute(new StartIndexForHistoryAuditTaskCommand(indexService));
-    	taskService.execute(new StartIndexForUserAuditTaskCommand(indexService));
+	public void setMultiThreadIndex(boolean mtIndex) {
+		this.multiThreadIndex = mtIndex;
+	}
+
+	public boolean isMultiThreadIndex() {
+		return multiThreadIndex;
+	}
+	
+	public void startupIndexes() {
+		this.taskIndexInitThread = new TaskIndexThread(taskService, indexService);
+		taskIndexInitThread.start();
+    	if (!isMultiThreadIndex()) {
+    		try {
+    			taskIndexInitThread.join();
+    		} catch (InterruptedException ex) { /* do nothing */ }
+    	}
     }
 }
