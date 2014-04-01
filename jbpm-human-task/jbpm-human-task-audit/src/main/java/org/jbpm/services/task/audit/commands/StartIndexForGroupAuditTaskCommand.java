@@ -26,8 +26,10 @@ public class StartIndexForGroupAuditTaskCommand extends StartIndexCommand<GroupA
 	}
 	
 	@Override
-	protected Collection<GroupAuditTask> iterate(TaskPersistenceContext context) {
-		return context.queryStringInTransaction("select gati from GroupAuditTaskImpl gati", 
+	protected Collection<GroupAuditTask> iterate(TaskPersistenceContext context, int offset, int count) {
+		String query = "SELECT gati FROM GroupAuditTaskImpl gati ORDER BY gati.lastModificationDate DESC";
+		return context.queryStringWithParametersInTransaction(query,
+				context.addParametersToMap("firstResult", offset, "maxResults", count),
 				ClassUtil.<List<GroupAuditTask>>castClass(List.class));
 	}
 }

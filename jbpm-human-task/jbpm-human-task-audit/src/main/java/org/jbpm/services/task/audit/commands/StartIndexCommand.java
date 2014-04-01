@@ -1,6 +1,7 @@
 package org.jbpm.services.task.audit.commands;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -38,7 +39,14 @@ public abstract class StartIndexCommand<T> extends TaskCommand<Void> {
 	public Void execute(Context context) {
 		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
 		try {
-			indexService.prepare(null, iterate(persistenceContext), null);
+			int offset = 0;
+			int count = getCount();
+			Collection<T> iter = new ArrayList<T>();
+			do  {
+				iter = iterate(persistenceContext, offset, count);
+				indexService.prepare(null, iter, null);
+				offset += iter.size();
+			} while (iter.size() == count);
 			indexService.commit();
 		} catch (IOException e) {
 			throw new RuntimeException("Problem at index startup for type " + getClass().getName(), e);
@@ -46,5 +54,9 @@ public abstract class StartIndexCommand<T> extends TaskCommand<Void> {
 		return null;
 	}
 
-	protected abstract Collection<T> iterate(TaskPersistenceContext context);
+	protected abstract Collection<T> iterate(TaskPersistenceContext context, int offset, int count);
+	
+	protected int getCount() {
+		return 500;
+	}
 }

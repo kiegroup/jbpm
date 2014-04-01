@@ -29,8 +29,9 @@ public class StartIndexForTaskEventCommand extends StartIndexCommand<TaskEvent> 
 	}
 	
 	@Override
-	protected Collection<TaskEvent> iterate(TaskPersistenceContext context) {
-		return context.queryStringInTransaction("select tei from TaskEventImpl tei", 
+	protected Collection<TaskEvent> iterate(TaskPersistenceContext context, int offset, int count) {
+		return context.queryStringWithParametersInTransaction("select tei from TaskEventImpl tei order by tei.id DESC",
+				context.addParametersToMap("firstResult", offset, "maxResults", count),
 				ClassUtil.<List<TaskEvent>>castClass(List.class));
 	}
 }

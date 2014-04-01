@@ -51,8 +51,11 @@ public abstract class AbstractAuditTaskImpl implements Serializable, AuditTask {
     private String processId;
     private int processSessionId;
     private long parentId;
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date lastModificationDate;
 
     public AbstractAuditTaskImpl() {
+    	this.lastModificationDate = new Date();
     }
     
     public AbstractAuditTaskImpl(long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date dueDate, long processInstanceId, String processId, int processSessionId, long parentId) {
@@ -69,6 +72,7 @@ public abstract class AbstractAuditTaskImpl implements Serializable, AuditTask {
         this.processId = processId;
         this.processSessionId = processSessionId;
         this.parentId = parentId;
+        this.lastModificationDate = new Date();
     }
 
     @Override
@@ -201,7 +205,11 @@ public abstract class AbstractAuditTaskImpl implements Serializable, AuditTask {
         this.parentId = parentId;
     }
     
+    public Date getLastModificationDate() {
+		return lastModificationDate;
+	}
     
-
-
+    public void setLastModificationDate(Date lastModificationDate) {
+		this.lastModificationDate = lastModificationDate;
+	}
 }
