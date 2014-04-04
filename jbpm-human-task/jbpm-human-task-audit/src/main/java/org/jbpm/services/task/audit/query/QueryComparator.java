@@ -32,7 +32,7 @@ import java.util.Comparator;
  *
  * @author Hans Lund
  */
-public class QueryComparator<T> implements Comparator<T> {
+public abstract class QueryComparator<T> implements Comparator<T> {
 
     @Override
     public int compare(T o1, T o2) {
@@ -70,7 +70,7 @@ public class QueryComparator<T> implements Comparator<T> {
     protected Class type;
 
 
-    public QueryComparator(Direction direction, String name) {
+    protected QueryComparator(Direction direction, String name) {
         this.direction = direction;
         this.name = name;
         this.type = String.class;

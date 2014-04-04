@@ -20,6 +20,6 @@ package org.jbpm.services.task.audit.impl.model.api;
  *
  * @author salaboy
  */
-public interface HistoryAuditTask extends AuditTask {
+public interface HistoryAuditTask extends UserAuditTask {
     
 }

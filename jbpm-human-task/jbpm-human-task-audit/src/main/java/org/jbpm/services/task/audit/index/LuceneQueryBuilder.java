@@ -3,7 +3,6 @@ package org.jbpm.services.task.audit.index;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
@@ -165,28 +165,35 @@ public class LuceneQueryBuilder {
             String lower;
             String upper;
             for (RangeFilter.Range r : ((RangeFilter) f).getMatches()) {
-                if (r.getLower() instanceof Date) {
+
+                if (r.getLower() instanceof Long) {
+                  wrapper.add(NumericRangeQuery.newLongRange(field,(Long)r.getLower(),(Long)r.getUpper(),r.isLowIncluded(),r.isUpIncluded()),
+                      BooleanClause.Occur.SHOULD);
+                  return wrapper;
+                } else if (r.getLower() instanceof Date) {
                     lower = DateTools.dateToString((Date) r.getLower(),
                         DateTools.Resolution.SECOND);
                     upper = DateTools.dateToString((Date) r.getUpper(),
                         DateTools.Resolution.SECOND);
                 } else {
-                    try {
-                        List<String> lowers =
-                            getTerms(field, (String) r.getLower());
-                        lower = lowers.get(0);
-                        List<String> uppers =
-                            getTerms(field, (String) r.getUpper());
-                        upper = uppers.get(0);
-                        if (lowers.size() > 1 || uppers.size() > 1) {
-                            throw new IllegalArgumentException(
-                                "Range filter " + "query must boundaries must"
-                                    + " be indexed in one term");
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(
-                            "No io error reading from string");
+                    lower = (String) r.getLower();
+                    upper = (String) r.getUpper();
+                }
+                try {
+                    List<String> lowers =
+                        getTerms(field, lower);
+                    lower = lowers.get(0);
+                    List<String> uppers =
+                        getTerms(field, upper);
+                    upper = uppers.get(0);
+                    if (lowers.size() > 1 || uppers.size() > 1) {
+                        throw new IllegalArgumentException(
+                            "Range filter " + "query must boundaries must"
+                                + " be indexed in one term");
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                        "No io error reading from string");
                 }
                 wrapper.add(new TermRangeQuery(field, new BytesRef(lower),
                     new BytesRef(upper), r.isLowIncluded(), r.isUpIncluded()),

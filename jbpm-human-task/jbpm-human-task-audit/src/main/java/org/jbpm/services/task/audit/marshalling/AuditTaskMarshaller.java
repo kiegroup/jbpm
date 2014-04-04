@@ -73,7 +73,6 @@ class AuditTaskMarshaller {
         return toByte((UserAuditTask) historyAuditTask);
     }
 
-
     static byte[] toByte(GroupAuditTask groupAuditTask) {
        AuditMessages.AuditTask.Builder builder = getBuilder(groupAuditTask);
         if (groupAuditTask.getPotentialOwners() != null) {
