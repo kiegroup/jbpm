@@ -13,7 +13,7 @@ import java.util.Map;
 public abstract class FreemakerFormProvider implements FormProvider {
 
     protected String render(String name, InputStream src, Map<String, Object> renderContext) {
-
+        
         String str = null;
         try {
             freemarker.template.Configuration cfg = new freemarker.template.Configuration();
