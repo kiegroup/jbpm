@@ -179,9 +179,11 @@ public class CollectionUtils {
                     break;
                 }
             }
-             
-            item.readExternal( in );
-            list.add( item );
+            
+            if( item != null ) { 
+                item.readExternal( in );
+                list.add( item );
+            }
         }
         return list;
     }     
