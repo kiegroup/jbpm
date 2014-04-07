@@ -30,6 +30,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TrackingIndexWriter;
 import org.apache.lucene.search.ControlledRealTimeReopenThread;
@@ -56,7 +57,7 @@ public class LuceneIndexService implements IndexService {
 
     private IndexWriter iw;
     private LuceneQueryBuilder queryBuilder;
-
+    private final StatusIndex statusIndex = new StatusIndex();
     private TrackingIndexWriter tiw;
     private SearcherManager sm;
     private ControlledRealTimeReopenThread<IndexSearcher> reopener;
@@ -88,7 +89,7 @@ public class LuceneIndexService implements IndexService {
 
     public LuceneIndexService() {
         Directory directory = new RAMDirectory();
-        queryBuilder = new LuceneQueryBuilder();
+        queryBuilder = new LuceneQueryBuilder(statusIndex);
         try {
             iw = new IndexWriter(directory,
                 new IndexWriterConfig(Version.LUCENE_47, keywordAnalyzer));
@@ -223,7 +224,15 @@ public class LuceneIndexService implements IndexService {
             throw new IllegalArgumentException(
                 t.getClass().getName() + " no index defined");
         }
-        return  index.prepare(t);
+        Document isPrepared =  index.prepare(t);
+        if (isPrepared.getField("status") != null) {
+            IndexableField taskId = isPrepared.getField("taskId");
+            IndexableField fi = isPrepared.getField("status");
+            if (taskId != null) {
+                statusIndex.setStatus(taskId.numericValue().longValue(),fi.stringValue());
+            }
+        }
+        return isPrepared;
     }
 
     private IndexSearcher getSearcher(long neededCommitPoint)
@@ -263,5 +272,6 @@ public class LuceneIndexService implements IndexService {
             return 1.0f;
         }
     }
+
 
 }

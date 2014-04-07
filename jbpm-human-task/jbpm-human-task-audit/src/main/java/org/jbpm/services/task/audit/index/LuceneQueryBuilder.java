@@ -1,3 +1,19 @@
+/*
+ * Copyright 2014 JBoss by Red Hat.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.jbpm.services.task.audit.index;
 
 import java.io.IOException;
@@ -11,11 +27,21 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.DateTools;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queries.function.FunctionQuery;
+import org.apache.lucene.queries.function.FunctionValues;
+import org.apache.lucene.queries.function.ValueSource;
+import org.apache.lucene.queries.function.valuesource.LongFieldSource;
+import org.apache.lucene.queries.function.valuesource.SimpleBoolFunction;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.ConstantScoreQuery;
+import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.search.FieldComparator;
+import org.apache.lucene.search.FieldComparatorSource;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.PrefixQuery;
@@ -35,8 +61,12 @@ import org.jbpm.services.task.audit.query.QueryStringFilter;
 import org.jbpm.services.task.audit.query.RangeFilter;
 import org.jbpm.services.task.audit.query.TermFilter;
 import org.jbpm.services.task.audit.query.WildCardFilter;
+import org.jbpm.services.task.audit.service.StatusFilter;
+import org.kie.api.task.model.Status;
 
-
+/**
+ * @author Hans Lund
+ */
 public class LuceneQueryBuilder {
 
     public static final String STR = "_STR";
@@ -51,6 +81,12 @@ public class LuceneQueryBuilder {
             return f.getField();
         }
 
+    }
+
+    private StatusIndex statusIndex;
+
+    public LuceneQueryBuilder(StatusIndex statusIndex) {
+       this.statusIndex = statusIndex;
     }
 
     private Analyzer analyzer = new KeywordAnalyzer();
@@ -74,6 +110,10 @@ public class LuceneQueryBuilder {
         String name =  comparator.getName();
         QueryComparator.Direction direction = comparator.getDirection();
         SortField.Type sortType;
+        if (comparator.getType() == Status.class) {
+            return new SortField(name,
+                new StatusComparatorSource(), direction == QueryComparator.Direction.DESCENDING);
+        } else
         if (comparator.getType() == Date.class
             || comparator.getType() == Long.class) {
             sortType = SortField.Type.LONG;
@@ -98,12 +138,13 @@ public class LuceneQueryBuilder {
     @SuppressWarnings("rawtypes")
     Query buildQuery(IndexSearcher reader, Filter... filters)
         throws IOException {
+
         if (filters.length > 1) {
             BooleanQuery bq = new BooleanQuery();
             for (Filter f : filters) {
                 bq.add(buildQuery(reader, f), BooleanClause.Occur.MUST);
             }
-            return bq;
+            return new ConstantScoreQuery(bq);
         }
 
         if (filters.length == 0) {
@@ -111,17 +152,7 @@ public class LuceneQueryBuilder {
         }
 
         Filter f = filters[0];
-        return stdTermFilter(f, f.getField(), reader);
-    }
-
-
-    @SuppressWarnings("rawtypes")
-    Query getQuery(Filter... filters) {
-        try {
-            return buildQuery(null, filters);
-        } catch (IOException e) {
-            throw new RuntimeException("No searcher");
-        }
+        return new ConstantScoreQuery(stdTermFilter(f, f.getField(), reader));
     }
 
 
@@ -230,6 +261,12 @@ public class LuceneQueryBuilder {
                     new Term(f.getField() + "_str", String.valueOf(m))),
                     BooleanClause.Occur.SHOULD);
             }
+        } else if (f instanceof StatusFilter) {
+            wrapper.add(
+                new FunctionQuery(new StatusFunction
+                    (((TermFilter)f).getMatches(), new LongFieldSource("taskId"))),
+                    BooleanClause.Occur.SHOULD);
+
         } else {
             for (String s : ((TermFilter) f).getMatches()) {
                 TokenStream ts = getTokenStream(field, s);
@@ -288,6 +325,130 @@ public class LuceneQueryBuilder {
         } catch (IOException e) {
             throw new RuntimeException(
                 "StringReader should never throw io exception", e);
+        }
+    }
+
+    private class StatusFunction extends SimpleBoolFunction {
+
+        private Status[] stat;
+
+        public StatusFunction(String[] stats, ValueSource source) {
+            super(source);
+            if (stats != null) {
+                this.stat = new Status[stats.length];
+            }
+            for (int i = 0; i < stats.length; i++) {
+                this.stat[i] = Status.valueOf(stats[i]);
+            }
+        }
+
+        @Override
+        protected String name() {
+            return "status function";
+        }
+
+        @Override
+        protected boolean func(int doc, FunctionValues vals) {
+            Status indexed = statusIndex.get(vals.longVal(doc));
+            for (Status s : stat) {
+                if (s == indexed) return true;
+            }
+            return false;
+        }
+    }
+
+
+    private class StatusFieldComparator extends FieldComparator.NumericComparator<Long> {
+
+        private String field;
+        private FieldCache.Longs currentReaderValues;
+        private long[] values;
+        private long bottom;
+        private Long topValue;
+        private FieldCache.LongParser parser;
+
+        private StatusFieldComparator(int numHits, String field){
+            super(field, null);
+            this.field = field;
+            values = new long[numHits];
+            this.parser = FieldCache.NUMERIC_UTILS_LONG_PARSER;
+        }
+
+        private int getSort(long taskId) {
+            Status s = statusIndex.get(taskId);
+            if (s == null) return -1;
+            return s.ordinal();
+        }
+
+        @Override
+        public int compare(int slot1, int slot2) {
+            final int v1 = getSort(values[slot1]);
+            final int v2 =getSort(values[slot2]);
+            return v1 > v2 ? 1 : v1 == v2 ? 0 : -1;
+        }
+
+        @Override
+        public int compareBottom(int doc) throws IOException {
+            long v3 = currentReaderValues.get(doc);
+            if (docsWithField != null && v3 == 0 && !docsWithField.get(doc)) {
+                v3 = missingValue;
+            }
+            final int v1 = getSort(bottom);
+            final int v2 =getSort(v3);
+            return v1 > v2 ? 1 : v1 == v2 ? 0 : -1;
+        }
+
+        @Override
+        public void setBottom(int bottom) {
+            this.bottom = values[bottom];
+        }
+
+        @Override
+        public void setTopValue(Long value) {
+            topValue = value;
+        }
+
+
+        @Override
+        public int compareTop(int doc) {
+            long docValue = currentReaderValues.get(doc);
+            if (docsWithField != null && docValue == 0 && !docsWithField.get(doc)) {
+                docValue = missingValue;
+            }
+            final int v1 = getSort(topValue);
+            final int v2 =getSort(docValue);
+            return v1 > v2 ? 1 : v1 == v2 ? 0 : -1;
+        }
+
+        @Override
+        public void copy(int slot, int doc) throws IOException {
+            long v2 = currentReaderValues.get(doc);
+            if (docsWithField != null && v2 == 0 && !docsWithField.get(doc)) {
+                v2 = missingValue;
+            }
+            values[slot] = v2;
+        }
+
+        @Override
+        public FieldComparator setNextReader(AtomicReaderContext context)
+            throws IOException {
+            currentReaderValues = FieldCache.DEFAULT.getLongs(context.reader(), field, parser, missingValue != null);
+            return super.setNextReader(context);
+        }
+
+        @Override
+        public Long value(int slot) {
+            return Long.valueOf(values[slot]);
+        }
+    }
+
+
+    private class StatusComparatorSource extends FieldComparatorSource{
+
+        @Override
+        public FieldComparator<?> newComparator(String fieldname, int numHits,
+            int sortPos, boolean reversed) throws IOException {
+            return new StatusFieldComparator(numHits,fieldname);
         }
     }
 }
