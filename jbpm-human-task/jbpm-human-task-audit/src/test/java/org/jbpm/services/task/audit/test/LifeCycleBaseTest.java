@@ -17,6 +17,7 @@ package org.jbpm.services.task.audit.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.StringReader;
 import java.util.HashMap;
@@ -24,12 +25,19 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
+import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 import org.jbpm.services.task.audit.commands.DeleteAuditEventsCommand;
 import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
 import org.jbpm.services.task.audit.impl.model.api.GroupAuditTask;
 import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
+import org.jbpm.services.task.audit.index.GroupAuditTaskIndex;
+import org.jbpm.services.task.audit.index.HistoryAuditTaskIndex;
+import org.jbpm.services.task.audit.index.LuceneIndexService;
+import org.jbpm.services.task.audit.index.TaskEventIndex;
+import org.jbpm.services.task.audit.index.UserAuditTaskIndex;
 import org.jbpm.services.task.audit.service.TaskAuditService;
+import org.jbpm.services.task.audit.service.TaskIdComparator;
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.services.task.impl.model.command.DeleteBAMTaskSummariesCommand;
 import org.jbpm.services.task.impl.model.command.GetBAMTaskSummariesCommand;
@@ -133,6 +141,17 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         
         List<HistoryAuditTask> allHistoryAuditTasks = taskAuditService.getAllHistoryAuditTasks(0,0);
         assertEquals(2, allHistoryAuditTasks.size());
+        
+        //Test reload of index service restarts the indexes
+        LuceneIndexService reloadedIndexService = new LuceneIndexService();
+        reloadedIndexService.addModel(new UserAuditTaskIndex());
+        reloadedIndexService.addModel(new GroupAuditTaskIndex());
+        reloadedIndexService.addModel(new TaskEventIndex());
+        reloadedIndexService.addModel(new HistoryAuditTaskIndex());
+    	TaskAuditService reloadedAuditService = TaskAuditServiceFactory.newTaskAuditServiceConfigurator().
+        		setIndexService(reloadedIndexService).setTaskService(taskService).getTaskAuditService();
+    	List<HistoryAuditTask> allHistoryAuditTasksReloaded = reloadedAuditService.getAllHistoryAuditTasks(0, 0);
+    	assertEquals(2, allHistoryAuditTasksReloaded.size());
     }
     
     
