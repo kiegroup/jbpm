@@ -19,13 +19,15 @@ package org.jbpm.services.task.audit.impl.model;
 import java.util.Date;
 import javax.persistence.Entity;
 import org.jbpm.services.task.audit.impl.model.api.AuditTask;
+import org.jbpm.services.task.audit.impl.model.api.HistoryAuditTask;
 
 /**
  *
  * @author salaboy
  */
 @Entity
-public class HistoryAuditTaskImpl extends UserAuditTaskImpl implements AuditTask{
+public class HistoryAuditTaskImpl extends UserAuditTaskImpl implements
+    HistoryAuditTask {
 
     public HistoryAuditTaskImpl(String owner, long taskId, String status, Date activationTime, String name, String description, int priority, String createdBy, Date createdOn, Date dueDate, long processInstanceId, String processId, int processSessionId, long parentId) {
         super(owner, taskId, status, activationTime, name, description, priority, createdBy, createdOn, dueDate, processInstanceId, processId, processSessionId, parentId);
