@@ -15,6 +15,7 @@
  */
 package org.jbpm.services.task.audit;
 
+import org.jbpm.services.task.audit.index.IndexService;
 import org.jbpm.services.task.audit.service.TaskAuditService;
 import org.jbpm.services.task.audit.service.TaskAuditServiceImpl;
 import org.kie.api.task.TaskService;
@@ -23,17 +24,30 @@ import org.kie.api.task.TaskService;
 
  */
 public class TaskAuditConfigurator {
-    
+
     private final TaskAuditService taskAuditService = new TaskAuditServiceImpl();
-    
+    private boolean multiThreadIndex = false;
+
     public TaskAuditConfigurator setTaskService(TaskService service) {
         taskAuditService.setTaskService(service);
         return this;
     }
-    
+
+    public TaskAuditConfigurator setIndexService(IndexService service) {
+        taskAuditService.setIndexService(service);
+        return this;
+    }
+
+    public TaskAuditConfigurator setMultiThreadIndex(boolean multiThreadIndex) {
+        this.multiThreadIndex = multiThreadIndex;
+        return this;
+    }
+
     public TaskAuditService getTaskAuditService(){
+        ((TaskAuditServiceImpl) taskAuditService).setMultiThreadIndex(multiThreadIndex);
+        ((TaskAuditServiceImpl) taskAuditService).startupIndexes();
         return taskAuditService;
     }
 
-   
+
 }

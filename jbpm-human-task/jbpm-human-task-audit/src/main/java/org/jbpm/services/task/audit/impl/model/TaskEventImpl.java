@@ -67,6 +67,8 @@ public class TaskEventImpl implements TaskEvent {
         this.userId = userId;
         this.logTime = logTime;
     }
+
+
     
     
 
