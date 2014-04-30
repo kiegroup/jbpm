@@ -2055,6 +2055,30 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		ksession.dispose();
 	}
 	
+    
+    public void testTerminateWithinSubprocessEnd() throws Exception {
+    	KnowledgeBase kbase = createKnowledgeBase("subprocess/BPMN2-SubprocessWithParallelSpitTerminate.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-SubprocessWithParallelSpitTerminate");
+        
+        ksession.signalEvent("signal1", null, processInstance.getId());
+        
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        
+    }
+        
+    public void testTerminateEnd() throws Exception {
+    	KnowledgeBase kbase = createKnowledgeBase("BPMN2-ParallelSpitTerminate.bpmn2");
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        ProcessInstance processInstance = ksession.startProcess("BPMN2-ParallelSpitTerminate");
+        
+        ksession.signalEvent("Signal_1", null, processInstance.getId());
+        
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        
+    }
+
+	
 	private Date parseToDateWithTime(String dateString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         

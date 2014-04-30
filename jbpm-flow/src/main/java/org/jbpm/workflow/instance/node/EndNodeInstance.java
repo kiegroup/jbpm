@@ -58,7 +58,7 @@ public class EndNodeInstance extends ExtendedNodeInstanceImpl {
         	    if (getEndNode().getScope() == EndNode.PROCESS_SCOPE) {
                     getProcessInstance().setState( ProcessInstance.STATE_COMPLETED );
                 } else {
-        	    
+                	((CompositeNodeInstance) getNodeInstanceContainer()).cancel();
                     ((NodeInstanceContainer) getNodeInstanceContainer()).nodeInstanceCompleted(this, null);
             	    
                 }
