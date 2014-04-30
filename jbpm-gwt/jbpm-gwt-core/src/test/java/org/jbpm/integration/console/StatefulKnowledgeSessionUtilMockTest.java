@@ -41,6 +41,7 @@ public class StatefulKnowledgeSessionUtilMockTest {
         // test
         try { 
             checkPackagesFromGuvnor(mockGuvnorUtils);
+            fail( "An exception should have been thrown");
         } catch( Exception e ) { 
            assertTrue( e instanceof IllegalArgumentException ); 
         }
