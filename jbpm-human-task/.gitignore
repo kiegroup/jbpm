@@ -17,11 +17,12 @@
 /lib-jdbc/
 
 # modules present in master but not here
-/jbpm-human-task-services
-/jbpm-human-task-core
-/jbpm-human-task-hornetq
-/jbpm-human-task-jms
-/jbpm-human-task-mina
-/jbpm-human-task-war
-/jbpm-human-task-workitems
+/jbpm-human-task-services/
+/jbpm-human-task-core/
+/jbpm-human-task-hornetq/
+/jbpm-human-task-jms/
+/jbpm-human-task-mina/
+/jbpm-human-task-war/
+/jbpm-human-task-workitems/
 /jbpm-human-task-audit/
+/jbpm-human-task-jpa/

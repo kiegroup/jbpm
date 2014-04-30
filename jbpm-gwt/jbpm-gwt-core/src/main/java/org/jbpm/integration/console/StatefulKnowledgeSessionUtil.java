@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -448,25 +449,59 @@ public class StatefulKnowledgeSessionUtil {
         }
     }
     
+    /**
+     * Wrapper method for {@link StatefulKnowledgeSessionUtil#checkPackagesFromGuvnor(GuvnorConnectionUtils)} in 
+     * order to make the wrapped method testable.
+     * 
+     * @param guvnorUtils A {@link GuvnorConnectionUtils} instance
+     */
     public static synchronized void checkPackagesFromGuvnor() {
-        try {
-            GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
-            if(guvnorUtils.guvnorExists() && kagent != null) {
-                List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
-                
-                guvnorPackages.removeAll(knownPackages);
-                
-                if (guvnorPackages.size() > 0) {
-                    kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet(guvnorPackages)));
-                    knownPackages.addAll(guvnorPackages);
-                }
-            } 
+        try { 
+            checkPackagesFromGuvnor(new GuvnorConnectionUtils()); 
         } catch (Exception e) {
             logger.error("Error while checking packages from Guvnor", e);
         }
     }
+   
+    public static void checkPackagesFromGuvnor(GuvnorConnectionUtils guvnorUtils) {
+        if(guvnorUtils.guvnorExists() && kagent != null) {
+            List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
+
+            // Find the set of packages that exists in known packages, but not in guvnor packages
+            Set<String> deletedPackages = new HashSet<String>(knownPackages);
+            deletedPackages.removeAll(guvnorPackages);
+
+            // Remove the difference from known packages
+            if( deletedPackages.size() > 0 ) { 
+                knownPackages.removeAll(deletedPackages);
+            }
+
+            // Remove known packages from guvnor packages to see if there are *new* packages 
+            guvnorPackages.removeAll(knownPackages);
+
+            // if there are new packages, make sure we stay aware of them
+            if (guvnorPackages.size() > 0) {
+                kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet(guvnorPackages)));
+                knownPackages.addAll(guvnorPackages);
+            }
+        } 
+    }
     
     public static KnowledgeAgent getKagent() {
         return kagent;
+    }
+   
+    // Testability methods 
+    
+    static void setKagent(KnowledgeAgent newKagent) { 
+        kagent = newKagent;
+    }
+    
+    static void setKnownPackages(Set<String> newKnownPackages) { 
+        knownPackages = newKnownPackages;
+    }
+    
+    static Set<String> getKnownPackages() { 
+        return knownPackages;
     }
 }

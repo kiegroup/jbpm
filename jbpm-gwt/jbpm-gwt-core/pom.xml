@@ -14,6 +14,10 @@
 
 	<name>jBPM GWT Console Core</name>
 
+  <properties>
+    <version.org.mockito>1.9.0</version.org.mockito>
+  </properties>
+  
   <build>
     <testResources>
       <testResource>
@@ -160,6 +164,14 @@
       <groupId>org.drools</groupId>
       <artifactId>drools-persistence-jpa</artifactId>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- test mocks -->    
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${version.org.mockito}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
