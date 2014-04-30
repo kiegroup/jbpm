@@ -52,6 +52,7 @@ public class HornetQTaskClientHandler extends BaseClientHandler {
     	ClientProducer producer = producers.get(producerId);
     	if (producer==null) {
     		producer = session.createProducer(producerId);
+    		producers.put(producerId, producer);
     	}
 		handler.messageReceived(new HornetQSessionWriter(session, producer), message);
     }
