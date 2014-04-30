@@ -17,16 +17,31 @@
 package org.jbpm.task.service.base.async;
 
 import java.io.StringReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.task.*;
+import org.jbpm.task.AccessType;
+import org.jbpm.task.AsyncTaskService;
+import org.jbpm.task.BaseTest;
+import org.jbpm.task.Content;
+import org.jbpm.task.Group;
+import org.jbpm.task.OrganizationalEntity;
+import org.jbpm.task.Status;
+import org.jbpm.task.Task;
+import org.jbpm.task.User;
 import org.jbpm.task.query.TaskSummary;
-import org.jbpm.task.service.*;
+import org.jbpm.task.service.BaseClientHandler;
+import org.jbpm.task.service.ContentData;
+import org.jbpm.task.service.FaultData;
+import org.jbpm.task.service.PermissionDeniedException;
+import org.jbpm.task.service.TaskClient;
+import org.jbpm.task.service.TaskServer;
 import org.jbpm.task.service.responsehandlers.BlockingAddTaskResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetContentResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingGetTaskResponseHandler;
+import org.jbpm.task.service.responsehandlers.BlockingQueryGenericResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskOperationResponseHandler;
 import org.jbpm.task.service.responsehandlers.BlockingTaskSummaryResponseHandler;
 
@@ -1924,5 +1939,56 @@ public abstract class TaskServiceLifeCycleBaseAsyncTest extends BaseTest {
         List<TaskSummary> salaboyTasks = responseHandler.getResults();
         assertEquals(0, salaboyTasks.size());
     } 
-    
+
+    /*
+     * Test to verify if BlockingQueryGenericResponseHandler instances are
+     * cleared from the BaseClientHandler.responseHandlers map after execution.
+     */
+    public void testQueryBZ1087474() {
+        Map<String, Object> vars = fillVariables();
+        // One potential owner, should go straight to state Reserved
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { }),";
+        str += "names = [ new I18NText( 'en-UK', 'This is my task name')] })";
+        BlockingAddTaskResponseHandler addTaskResponseHandler = new BlockingAddTaskResponseHandler();
+        Task task = ( Task )  eval( new StringReader( str ), vars );
+        client.addTask( task, null, addTaskResponseHandler );
+        long taskId = addTaskResponseHandler.getTaskId();
+        // now check task data using some generic queries
+        BlockingQueryGenericResponseHandler queryGenericResponseHandler = new BlockingQueryGenericResponseHandler();
+		// hql to get status id from task table
+		String hsql = "select t.taskData.status from Task t where t.id = " + taskId;
+		client.query(hsql, 1, 0, queryGenericResponseHandler);
+		List<?> resultList = queryGenericResponseHandler.getResults();
+		assertEquals( 1, resultList.size());
+        // a second query
+        BlockingQueryGenericResponseHandler queryGenericResponseHandler2 = new BlockingQueryGenericResponseHandler();
+		// hql to get status id from task table
+		hsql = "select t.taskData.documentContentId from Task t where t.id = " + taskId;
+		client.query(hsql, 1, 0, queryGenericResponseHandler2);
+		resultList = queryGenericResponseHandler2.getResults();
+		assertEquals( 1, resultList.size());
+        // a third query
+        BlockingQueryGenericResponseHandler queryGenericResponseHandler3 = new BlockingQueryGenericResponseHandler();
+		// hql to get status id from task table
+		hsql = "select t.taskData.activationTime from Task t where t.id = " + taskId;
+		client.query(hsql, 1, 0, queryGenericResponseHandler3);
+		resultList = queryGenericResponseHandler3.getResults();
+		assertEquals( 1, resultList.size());
+		// check the size of responseHandlers map using reflection
+		try {
+		    TaskClient t = (TaskClient) client;
+		    Field handler = t.getClass().getDeclaredField("handler");
+		    handler.setAccessible(true);
+		    BaseClientHandler taskClientHandler = (BaseClientHandler) handler.get(t);
+		    System.out.println(" TaskClient handler = " + taskClientHandler);
+			Field responseHandlersField = taskClientHandler.getClass().getSuperclass().getDeclaredField("responseHandlers");
+		    responseHandlersField.setAccessible(true);
+		    Map responseHandlers = (Map) responseHandlersField.get(taskClientHandler);
+		    // responseHandlers map should be zero
+		    assertEquals(0, responseHandlers.size());
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
+    }    
 }

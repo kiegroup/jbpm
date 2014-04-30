@@ -219,7 +219,7 @@ public class TaskClientHandler {
                 break;
             }
             case QueryGenericResponse: {
-            	QueryGenericResponseHandler responseHandler = (QueryGenericResponseHandler) responseHandlers.get(cmd.getId());
+            	QueryGenericResponseHandler responseHandler = (QueryGenericResponseHandler) responseHandlers.remove(cmd.getId());
             	if (responseHandler != null) {
             		if (!cmd.getArguments().isEmpty() && cmd.getArguments().get(0) instanceof RuntimeException) {
             			responseHandler.setError((RuntimeException) cmd.getArguments().get(0));
