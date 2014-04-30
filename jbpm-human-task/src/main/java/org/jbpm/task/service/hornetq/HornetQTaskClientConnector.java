@@ -120,6 +120,11 @@ public class HornetQTaskClientConnector implements TaskClientConnector {
                         ClientMessage serverMessage = consumer.receive();
                         if (serverMessage != null) {
                             ((HornetQTaskClientHandler) handler).messageReceived(session, readMessage(serverMessage), BaseHornetQTaskServer.SERVER_TASK_COMMANDS_QUEUE);
+                            serverMessage.acknowledge();
+                            session.commit();
+                            if(logger.isTraceEnabled()) {
+                                logger.trace("serverMessage " + serverMessage + " consumed and ack'd with commit");
+                            }
                         }
                     } catch (HornetQException e) {
                         if (e.getCode() == HornetQException.OBJECT_CLOSED) {

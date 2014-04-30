@@ -98,10 +98,15 @@ public abstract class BaseHornetQTaskServer extends TaskServer {
 			start();
 			while (running && !consumer.isClosed()) {
 				ClientMessage clientMessage = consumer.receive();
-				if (clientMessage!=null) {
+				if (clientMessage != null) {
 					Object object = readMessage(clientMessage);
 					String clientId = clientMessage.getStringProperty("producerId");
 					handler.messageReceived(session, object, clientId);
+	                clientMessage.acknowledge();
+                    session.commit();
+                    if(logger.isTraceEnabled()) {
+                        logger.trace("clientMessage " + clientMessage + " consumed and ack'd with commit");   
+                    }
 				}
 			}
 		}
