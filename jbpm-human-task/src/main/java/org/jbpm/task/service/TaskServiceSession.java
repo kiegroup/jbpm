@@ -473,8 +473,20 @@ public class TaskServiceSession {
             // We may not be the tx owner -- but something has gone wrong.
             // ..which is why we make ourselves owner, and roll the tx back. 
             boolean takeOverTransaction = true;
-            tpm.rollBackTransaction(takeOverTransaction);
-
+            // this is not ideal, when running a CMT, you are not allowed to call
+            // rollback on the transaction, only setRollBackOnly(), which would be
+            // the behavior of when false would be passed here, and this is masking
+            // the original exception
+            // to avoid breaking the behavior for other use cases (which other people
+            // might already depend on), we are now making sure that the original
+            // exception is logged correctly as well
+            try {
+            	tpm.rollBackTransaction(takeOverTransaction);
+            } catch (RuntimeException r) {
+            	logger.error("Error when execution task operation", re);
+            	throw r;
+            }
+            
             doOperationInTransaction(new TransactedOperation() {
                 public void doOperation() {
                     task.getTaskData().setStatus(Status.Error);
