@@ -90,6 +90,7 @@ public class TestProcessEventListener implements ProcessEventListener {
     
     private void logAndAdd(String event) { 
         logger.trace(event);
+        logger.trace(event, new Throwable("Stack:"));
         eventHistory.add(event);
     }
 }

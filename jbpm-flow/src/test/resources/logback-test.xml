@@ -13,7 +13,9 @@
   <logger name="bitronix.tm" level="error"/>
   <logger name="org.hibernate" level="warn"/>
  
-  <logger name="org.jbpm" level="info" />
+  <logger name="org.jbpm.workflow.instance.stack" level="trace" />
+  <logger name="org.jbpm" level="debug" />
+  <logger name="org.jbpm.process.test" level="trace"/>
   
   <root level="info">
     <appender-ref ref="consoleAppender" />
