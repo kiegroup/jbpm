@@ -301,12 +301,6 @@ public class TaskImpl implements InternalTask {
         this.formName = formName;
     }
     
-
-    public Short getArchived() {
-        return archived;
-    }
-
-    
     @Override
     public int hashCode() {
         final int prime = 31;
