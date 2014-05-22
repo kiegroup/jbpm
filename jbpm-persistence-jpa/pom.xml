@@ -126,6 +126,7 @@
               javax.transaction.*;resolution:=optional,
               org.hibernate.proxy;resolution:=optional,
               com.google.protobuf;resolution:=optional,
+              org.drools.core,
               org.drools.core.command,
               org.drools.core.command.impl,
               org.drools.core.common,
