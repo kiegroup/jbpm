@@ -66,7 +66,7 @@ public class GetTaskAssignedAsPotentialOwnerCommand extends UserGroupCallbackTas
 	public List<TaskSummary> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
-        if (groupsIds != null) {
+        if (groupsIds != null && !groupsIds.isEmpty()) {
         	return context.getTaskQueryService().getTasksAssignedAsPotentialOwnerByStatusByGroup(userId, groupsIds, status, language);
         }
         

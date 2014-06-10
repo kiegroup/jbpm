@@ -45,6 +45,14 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     private static final Logger logger = LoggerFactory.getLogger(TaskQueryServiceImpl.class);
     
     private TaskPersistenceContext persistenceContext;
+    
+    private static final List<Status> allActiveStatus = new ArrayList<Status>(){{
+        this.add(Status.Created);
+        this.add(Status.Ready);
+        this.add(Status.Reserved);
+        this.add(Status.InProgress);
+        this.add(Status.Suspended);
+      }};
 
     public TaskQueryServiceImpl() {
     }
@@ -77,18 +85,27 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language) {
+        if(groupIds == null || groupIds.isEmpty()){
+          return getTasksAssignedAsPotentialOwner(userId, language);
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerWithGroups", 
                 persistenceContext.addParametersToMap("userId", userId, "groupIds", groupIds, "language", language),
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
     public List<TaskSummary> getTasksAssignedByGroup(String groupId, String language) {
+        if(groupId == null || groupId.isEmpty()){
+          return Collections.EMPTY_LIST;
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroup", 
                 persistenceContext.addParametersToMap("groupId", groupId, "language", language),
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDateOptional(List<String> groupIds, String language, Date expirationDate) {
+        if(groupIds == null || groupIds.isEmpty()){
+          return Collections.EMPTY_LIST;
+        }
         List<Object[]> tasksByGroups = (List<Object[]>)persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroupsByExpirationDateOptional", 
                 persistenceContext.addParametersToMap("groupIds", groupIds, "expirationDate", expirationDate),
                 ClassUtil.<List<Object[]>>castClass(List.class));
@@ -122,7 +139,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
     
     public List<TaskSummary> getTasksAssignedByGroupsByExpirationDate(List<String> groupIds, String language, Date expirationDate) {
-
+        if(groupIds == null || groupIds.isEmpty()){
+          return Collections.EMPTY_LIST;
+        }
         List<Object[]> tasksByGroups = (List<Object[]>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroupsByExpirationDate", 
                 persistenceContext.addParametersToMap("groupIds", groupIds, "expirationDate", expirationDate),
                 ClassUtil.<List<Object[]>>castClass(List.class));
@@ -130,7 +149,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }        
             
     public List<TaskSummary> getTasksAssignedByGroups(List<String> groupIds, String language) {
-
+        if(groupIds == null || groupIds.isEmpty()){
+          return Collections.EMPTY_LIST;
+        }
         List<Object[]> tasksByGroups = (List<Object[]>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByGroups", 
                 persistenceContext.addParametersToMap("groupIds", groupIds),
                 ClassUtil.<List<Object[]>>castClass(List.class));
@@ -183,6 +204,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
     
     public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, int firstResult, int maxResults) {
+        if(groupIds == null || groupIds.isEmpty()){
+          return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwner", 
+                                    persistenceContext.addParametersToMap("userId", userId, "language", language, 
+                                                    "firstResult", firstResult, "maxResults", maxResults),
+                                                    ClassUtil.<List<TaskSummary>>castClass(List.class));
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerWithGroups", 
                                     persistenceContext.addParametersToMap("userId", userId, "groupIds", groupIds, "language", language, 
                                                     "firstResult", firstResult, "maxResults", maxResults),
@@ -218,7 +245,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     
 
     public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, String language) {
-
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         List<TaskSummary> taskOwned = (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksOwnedWithParticularStatus", 
                 persistenceContext.addParametersToMap("userId", userId, "status", status, "language", language),
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
@@ -253,6 +282,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, String language) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatus", 
                                         persistenceContext.addParametersToMap("userId", userId ,"language", language,"status", status),
                                         ClassUtil.<List<TaskSummary>>castClass(List.class));
@@ -260,6 +292,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatusByGroup(String userId, List<String> groupIds, List<Status> status, String language) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
+        if(groupIds == null || groupIds.isEmpty()){
+          return getTasksAssignedAsPotentialOwnerByStatus(userId, status, language);
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatusByGroup", 
                                         persistenceContext.addParametersToMap("userId", userId, "groupIds", groupIds, "status", status, "language", language),
                                         ClassUtil.<List<TaskSummary>>castClass(List.class));
@@ -302,24 +340,39 @@ public class TaskQueryServiceImpl implements TaskQueryService {
             return (Task) (tasks.get(0));
     }
     @Override
-    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDate(String userId, List<String> groupsIds,
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDate(String userId, List<String> groupIds,
                                             List<Status> status, Date expirationDate) {
-        return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerStatusByExpirationDate",
-                          persistenceContext.addParametersToMap("userId", userId, "groupIds", groupsIds, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
+        if(groupIds == null || groupIds.isEmpty()){
+          return getTasksAssignedAsPotentialOwnerByExpirationDate(userId, status, expirationDate);
+        }
+        return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerStatusByExpirationDateByGroup",
+                          persistenceContext.addParametersToMap("userId", userId, "groupIds", groupIds, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
                           ClassUtil.<List<TaskSummary>>castClass(List.class));
 
     }
 
     @Override
-    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(String userId, List<String> groupsIds,
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(String userId, List<String> groupIds,
                         List<Status> status, Date expirationDate) {
-        return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerStatusByExpirationDateOptional",
-                    persistenceContext.addParametersToMap("userId", userId, "groupIds", groupsIds, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
-                    ClassUtil.<List<TaskSummary>>castClass(List.class)); //@TODO: FIX LANGUANGE
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
+        if(groupIds == null || groupIds.isEmpty()){
+          return getTasksAssignedAsPotentialOwnerByExpirationDateOptional(userId, status, expirationDate);
+        }
+        return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerStatusByExpirationDateOptionalByGroup",
+                    persistenceContext.addParametersToMap("userId", userId, "groupIds", groupIds, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
+                    ClassUtil.<List<TaskSummary>>castClass(List.class)); 
         
     }
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDate(String userId,  List<Status> status, Date expirationDate) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         return persistenceContext.queryWithParametersInTransaction("TasksOwnedWithParticularStatusByExpirationDate",
                           persistenceContext.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
                           ClassUtil.<List<TaskSummary>>castClass(List.class));
@@ -329,6 +382,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDateOptional(String userId, List<Status> status, Date expirationDate) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksOwnedWithParticularStatusByExpirationDateOptional",
                     persistenceContext.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
                     ClassUtil.<List<TaskSummary>>castClass(List.class)); //@TODO: FIX LANGUANGE
@@ -337,6 +393,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     
     @Override
     public List<TaskSummary> getTasksOwnedByExpirationDateBeforeSpecifiedDate(String userId, List<Status> status, Date date) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksOwnedWithParticularStatusByExpirationDateBeforeSpecifiedDate",
                 persistenceContext.addParametersToMap("userId", userId, "status", status, "date", date, "language", "en-UK"),
                 ClassUtil.<List<TaskSummary>>castClass(List.class));
@@ -344,6 +403,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     @Override
     public List<TaskSummary> getTasksByStatusByProcessInstanceId(long processInstanceId, List<Status> status, String language) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         List<TaskSummary> tasks = (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksByStatusByProcessId",
                 persistenceContext.addParametersToMap("processInstanceId", processInstanceId, 
                                         "status", status,
@@ -356,6 +418,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     @Override
     public List<TaskSummary> getTasksByStatusByProcessInstanceIdByTaskName(long processInstanceId, List<Status> status, String taskName,
             String language) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }    
         List<TaskSummary> tasks = (List<TaskSummary>)persistenceContext.queryWithParametersInTransaction("TasksByStatusByProcessIdByTaskName", 
                 persistenceContext.addParametersToMap("processInstanceId", processInstanceId,
                                         "status", status, 
@@ -376,15 +441,21 @@ public class TaskQueryServiceImpl implements TaskQueryService {
 
     @Override
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDate(String userId, List<Status> status, Date expirationDate) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerStatusByExpirationDate",
-                          persistenceContext.addParametersToMap("userId", userId, "groupIds", "", "status", status, "expirationDate", expirationDate, "language", "en-UK"),
+                          persistenceContext.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
                           ClassUtil.<List<TaskSummary>>castClass(List.class));
     }
 
     @Override
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(String userId, List<Status> status, Date expirationDate) {
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerStatusByExpirationDateOptional",
-                    persistenceContext.addParametersToMap("userId", userId, "groupIds", "", "status", status, "expirationDate", expirationDate, "language", "en-UK"),
+                    persistenceContext.addParametersToMap("userId", userId, "status", status, "expirationDate", expirationDate, "language", "en-UK"),
                     ClassUtil.<List<TaskSummary>>castClass(List.class)); //@TODO: FIX LANGUANGE
     }
    
@@ -418,6 +489,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         params.put(BUSINESS_ADMIN_ID_LIST, busAdmins);
         params.put(POTENTIAL_OWNER_ID_LIST, potOwners);
         params.put(ACTUAL_OWNER_ID_LIST, taskOwners);
+        if(status == null || status.isEmpty()){
+          status = allActiveStatus;
+        }
         params.put(STATUS_LIST, status);
         params.put(LANGUAGE, language);
         
@@ -447,7 +521,6 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         List<String> taskOwners = stringQueryAdder.checkNullAndInstanceOf(parameters, ACTUAL_OWNER_ID_LIST);
         List<String> language = stringQueryAdder.checkNullAndInstanceOf(parameters, LANGUAGE);
         List<Status> status = statusQueryAdder.checkNullAndInstanceOf(parameters, STATUS_LIST);
-        
         List<?> maxResultsList = parameters.get(MAX_RESULTS);
         if( maxResultsList != null && ! maxResultsList.isEmpty() ) { 
             Object maxResults = maxResultsList.get(0);
