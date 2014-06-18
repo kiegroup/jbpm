@@ -170,6 +170,7 @@ public class ProcessInstanceInfo{
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
             	context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
                 processInstance = marshaller.readProcessInstance(context);
+                ((WorkflowProcessInstanceImpl) processInstance).setPersisted(false);
                 if (readOnly) {
                     ((WorkflowProcessInstanceImpl) processInstance).disconnect();
                 }
@@ -251,6 +252,7 @@ public class ProcessInstanceInfo{
                 eventTypes.add( type );
             }
         }
+        ((WorkflowProcessInstanceImpl) processInstance).setPersisted(true);
     }
 
 
