@@ -415,7 +415,7 @@ public class SessionTest extends AbstractBaseTest {
         manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
 		try{
-			ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello", null);
+			ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello3", null);
 			fail("Started process instance " + processInstance.getId());
 		} catch (RuntimeException e) {
 			// do nothing
@@ -449,7 +449,7 @@ public class SessionTest extends AbstractBaseTest {
         manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
 
-		ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello", null);
+		ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello2", null);
 		long workItemId = ((HumanTaskNodeInstance) ((WorkflowProcessInstance) processInstance).getNodeInstances().iterator().next()).getWorkItemId();
 		long taskId = runtime.getTaskService().getTaskByWorkItemId(workItemId).getId();
 		runtime.getTaskService().claim(taskId, "mary");
@@ -501,7 +501,7 @@ public class SessionTest extends AbstractBaseTest {
         manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
 
-		ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello", null);
+		ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello2", null);
 		long workItemId = ((HumanTaskNodeInstance) ((WorkflowProcessInstance) processInstance).getNodeInstances().iterator().next()).getWorkItemId();
 		long taskId = runtime.getTaskService().getTaskByWorkItemId(workItemId).getId();
 		runtime.getTaskService().claim(taskId, "mary");

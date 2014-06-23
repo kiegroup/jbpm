@@ -12,7 +12,7 @@
              xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
              xmlns:tns="http://www.jboss.org/drools">
 
-  <process processType="Private" isExecutable="true" id="com.sample.bpmn.hello" name="Hello World" >
+  <process processType="Private" isExecutable="true" id="com.sample.bpmn.hello2" name="Hello World" >
 
     <!-- nodes -->
     <startEvent id="_1" />
@@ -99,7 +99,7 @@
   </process>
 
   <bpmndi:BPMNDiagram>
-    <bpmndi:BPMNPlane bpmnElement="com.sample.bpmn.hello" >
+    <bpmndi:BPMNPlane bpmnElement="com.sample.bpmn.hello2" >
       <bpmndi:BPMNShape bpmnElement="_1" >
         <dc:Bounds x="7" y="16" width="48" height="48" />
       </bpmndi:BPMNShape>
