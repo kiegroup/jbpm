@@ -469,6 +469,7 @@ public class TaskServiceSession {
             tpm.endTransaction(transactionOwner);
             
         } catch (RuntimeException re) {
+        	logger.error("Error when execution task operation", re);
             
             // We may not be the tx owner -- but something has gone wrong.
             // ..which is why we make ourselves owner, and roll the tx back. 
@@ -480,12 +481,7 @@ public class TaskServiceSession {
             // to avoid breaking the behavior for other use cases (which other people
             // might already depend on), we are now making sure that the original
             // exception is logged correctly as well
-            try {
-            	tpm.rollBackTransaction(takeOverTransaction);
-            } catch (RuntimeException r) {
-            	logger.error("Error when execution task operation", re);
-            	throw r;
-            }
+        	tpm.rollBackTransaction(takeOverTransaction);
             
             doOperationInTransaction(new TransactedOperation() {
                 public void doOperation() {
