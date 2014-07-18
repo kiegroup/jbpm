@@ -105,6 +105,8 @@ public class CompensationTest extends AbstractBaseTest {
         CompensationHandler handler = new CompensationHandler();
         handler.setNode(node);
         scope.setExceptionHandler(compensationHandlerId, handler);
+        
+        node.setMetaData("isForCompensation", Boolean.TRUE);
     }
 
     private StatefulKnowledgeSession createKieSession(RuleFlowProcess process) {
