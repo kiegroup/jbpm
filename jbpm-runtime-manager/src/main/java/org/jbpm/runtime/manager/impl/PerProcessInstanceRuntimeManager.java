@@ -24,6 +24,7 @@ import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.impl.GenericCommand;
 import org.drools.core.command.impl.KnowledgeCommandContext;
 import org.drools.persistence.OrderedTransactionSynchronization;
+import org.drools.persistence.TransactionManager;
 import org.drools.persistence.TransactionManagerHelper;
 import org.drools.persistence.jta.JtaTransactionManager;
 import org.jbpm.runtime.manager.impl.factory.CDITaskServiceFactory;
@@ -34,6 +35,7 @@ import org.jbpm.runtime.manager.impl.tx.DisposeSessionTransactionSynchronization
 import org.kie.api.event.process.DefaultProcessEventListener;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
+import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -295,8 +297,8 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
                 	ksession.destroy();
                 	return null;
             	}
-                JtaTransactionManager tm = new JtaTransactionManager(null, null, null);
-                if (tm.getStatus() != JtaTransactionManager.STATUS_NO_TRANSACTION
+                TransactionManager tm = (TransactionManager) initialKsession.getEnvironment().get(EnvironmentName.TRANSACTION_MANAGER);
+                if (tm != null && tm.getStatus() != JtaTransactionManager.STATUS_NO_TRANSACTION
                         && tm.getStatus() != JtaTransactionManager.STATUS_ROLLEDBACK
                         && tm.getStatus() != JtaTransactionManager.STATUS_COMMITTED) {
                 	TransactionManagerHelper.registerTransactionSyncInContainer(tm, new OrderedTransactionSynchronization(5) {
