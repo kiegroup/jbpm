@@ -24,6 +24,8 @@ bitronix-default-config.properties
 *.tlog
 
 # modules that don't exist on this branch
-jbpm-audit/
-jbpm-runtime-manager/
-jbpm-services/
+/jbpm-audit/
+/jbpm-runtime-manager/
+/jbpm-services/
+/jbpm-document/
+

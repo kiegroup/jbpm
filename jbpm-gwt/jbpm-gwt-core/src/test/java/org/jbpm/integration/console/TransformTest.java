@@ -1,7 +1,6 @@
 package org.jbpm.integration.console;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.drools.runtime.process.NodeInstance;
 import org.jboss.bpm.console.client.model.ProcessDefinitionRef;

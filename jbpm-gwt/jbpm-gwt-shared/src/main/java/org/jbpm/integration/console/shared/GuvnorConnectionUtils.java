@@ -15,14 +15,25 @@
  */
 package org.jbpm.integration.console.shared;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,13 +41,13 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.antlr.stringtemplate.StringTemplate;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jbpm.integration.console.shared.model.GuvnorPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.commons.codec.binary.Base64;
 
 public class GuvnorConnectionUtils {
     public static final String GUVNOR_PROTOCOL_KEY = "guvnor.protocol";
@@ -63,6 +74,129 @@ public class GuvnorConnectionUtils {
             throw new RuntimeException("Could not load jbpm.console.properties", e);
         }
     }
+   
+    // Guvnor communication
+    
+    public String getGuvnorProtocol() {
+        return isEmpty(properties.getProperty(GUVNOR_PROTOCOL_KEY)) ? "" : properties.getProperty(GUVNOR_PROTOCOL_KEY).trim();
+    }
+
+    public String getGuvnorHost() {
+        if(!isEmpty(properties.getProperty(GUVNOR_HOST_KEY))) {
+            String retStr = properties.getProperty(GUVNOR_HOST_KEY).trim();
+            if(retStr.startsWith("/")){
+                retStr = retStr.substring(1);
+            }
+            if(retStr.endsWith("/")) {
+                retStr = retStr.substring(0,retStr.length() - 1);
+            }
+            return retStr;
+        } else {
+            return "";
+        }
+    }
+
+    public String getGuvnorSubdomain() {
+        return isEmpty(properties.getProperty(GUVNOR_SUBDOMAIN_KEY)) ? "" : properties.getProperty(GUVNOR_SUBDOMAIN_KEY).trim();
+    }
+
+    public String getGuvnorUsr() {
+        return isEmpty(properties.getProperty(GUVNOR_USR_KEY)) ? "" : properties.getProperty(GUVNOR_USR_KEY).trim();
+    }
+
+    public String getGuvnorPwd() {
+        if(getGuvnorPwdEnc().equalsIgnoreCase("true")) {
+            if(System.getProperty(externalPwdKey) == null) {
+                throw new IllegalStateException("Unable to find system property: " + externalPwdKey);
+            } else {
+                try {
+                    FileInputStream inputStream = new FileInputStream(System.getProperty(externalPwdKey));
+                    String encKey = IOUtils.toString(inputStream);
+                    encKey = encKey.replace("\n", "").replace("\r", "");
+    
+                    String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+                    StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+                    encryptor.setPassword(encKey);
+                    encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
+                    return encryptor.decrypt(_pwd);
+                } catch (Exception e) {
+                    throw new IllegalStateException("Unable to decrypt pwd: " + e.getMessage());
+                }
+            }
+        } else {
+            return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
+        }
+    
+    }
+
+    public String getGuvnorPwdEnc() {
+        return isEmpty(properties.getProperty(GUVNOR_PWD_ENC_KEY)) ? "false" : properties.getProperty(GUVNOR_PWD_ENC_KEY).trim();
+    }
+
+    public String getGuvnorPackages() {
+        return isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY)) ? "" : properties.getProperty(GUVNOR_PACKAGES_KEY).trim();
+    }
+
+    public String getGuvnorConnectTimeout() {
+        return isEmpty(properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY).trim();
+    }
+
+    public String getGuvnorReadTimeout() {
+        return isEmpty(properties.getProperty(GUVNOR_READTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_READTIMEOUT_KEY).trim();
+    }
+
+    public String getGuvnorSnapshotName() {
+    	return isEmpty(properties.getProperty(GUVNOR_SNAPSHOT_NAME)) ? "LATEST" : properties.getProperty(GUVNOR_SNAPSHOT_NAME).trim();
+    }
+
+    protected Properties getGuvnorProperties() {
+        return properties;
+    }
+
+    // public scope for testing
+    public boolean isEmpty(final CharSequence str) {
+        if ( str == null || str.length() == 0 ) {
+            return true;
+        }
+        for ( int i = 0, length = str.length(); i < length; i++ ){
+            if ( str.charAt( i ) != ' ' ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private InputStream getInputStreamForURL(String urlLocation,
+            String requestMethod) throws Exception {
+        URL url = new URL(urlLocation);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    
+        connection.setRequestMethod(requestMethod);
+        connection
+        .setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
+        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
+        connection.setRequestProperty("charset", "UTF-8");
+        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
+        applyAuth(connection);
+        connection.connect();
+    
+        BufferedReader sreader = new BufferedReader(new InputStreamReader(
+                connection.getInputStream(), "UTF-8"));
+        StringBuilder stringBuilder = new StringBuilder();
+    
+        String line = null;
+        while ((line = sreader.readLine()) != null) {
+            stringBuilder.append(line + "\n");
+        }
+        
+        return new ByteArrayInputStream(stringBuilder.toString().getBytes(
+                "UTF-8"));
+    }
+
+    // Image, Form, Template methods ----------------------------------------------------------------------------------------------
     
     public String getProcessImageURLFromGuvnor(String processId) {
         List<String> allPackages = getPackageNames();
@@ -110,6 +244,25 @@ public class GuvnorConnectionUtils {
         return null;
     }
     
+    private InputStream getInputStreamForImageURL(String urlLocation, String requestMethod) throws Exception {
+        URL url = new URL(urlLocation);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    
+        connection.setRequestMethod(requestMethod);
+        connection
+        .setRequestProperty(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
+        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
+        connection.setRequestProperty("charset", "UTF-8");
+        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
+        applyAuth(connection);
+    
+        connection.connect();
+        return connection.getInputStream();
+    }
+
     public String getFormTemplateURLFromGuvnor(String templateName) {
         return getFormTemplateURLFromGuvnor(templateName, "drl");
     }
@@ -259,187 +412,7 @@ public class GuvnorConnectionUtils {
         } 
         return processes;
     }
-    
-    public List<String> getPackageNames() {
-        List<String> allPackages = getPackageNamesFromGuvnor();
-        if(!isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY))) {
-            // make sure that all user defined package names are in the list of provided packages
-            String[] providedPackages = properties.getProperty(GUVNOR_PACKAGES_KEY).trim().split( ",\\s*" );
-            List<String> retList = new ArrayList<String>();
-            for(String pkg : providedPackages) {
-                if(allPackages.contains(pkg)) {
-                    retList.add(pkg);
-                }
-            }
-            return retList;
-        } else {
-            return allPackages;
-        }
-    }
-    
-    public List<String> getBuiltPackageNames() {
-    	List<String> allPackageNames = getPackageNames();
-    	
-    	List<String> builtPackageNames = new ArrayList<String>();
-    	for(String nextPkg : allPackageNames) {
-    		if(canBuildPackage(nextPkg)) {
-    			builtPackageNames.add(nextPkg);
-    		} else {
-    			logger.info("Excluding package: " + nextPkg + " because it cannot be built.");
-    		}
-    	}
-    	
-    	return builtPackageNames;
-    }
-    
-    public boolean canBuildPackage(String packageName) {
-    	try {	
-    		String packagesBinaryURL = getGuvnorProtocol()
-                + "://"
-                + getGuvnorHost()
-                + "/"
-                + getGuvnorSubdomain()
-                + "/rest/packages/" + packageName + "/binary";
-    	
-    	
-    		URL checkURL = new URL(packagesBinaryURL);
-            HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
-            checkConnection.setRequestMethod("GET");
-            checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
-            checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
-            applyAuth(checkConnection);
-            checkConnection.connect();
-            return checkConnection.getResponseCode() == 200;
-    	} catch(Exception e) {
-    		return false;
-    	}
-    }
-
-    
-    public StringReader createChangeSet() {
-        return createChangeSet(getBuiltPackageNames());
-    }
-    
-    public StringReader createChangeSet(List<String> packageNames) {
-        try {
-            StringTemplate changeSetTemplate = new StringTemplate(
-                    readFile(GuvnorConnectionUtils.class.getResourceAsStream("/ChangeSet.st")));
-            TemplateInfo info = new TemplateInfo(getGuvnorProtocol(), getGuvnorHost(), 
-                    getGuvnorUsr(), getGuvnorPwd(), getGuvnorSubdomain(), packageNames);
-            changeSetTemplate.setAttribute("data",  info.getData());
-            return new StringReader(changeSetTemplate.toString());
-        } catch (IOException e) {
-            logger.error("Exception creating changeset: " + e.getMessage());
-            return new StringReader("");
-        }
-    }
-    
-
-    public String getGuvnorProtocol() {
-        return isEmpty(properties.getProperty(GUVNOR_PROTOCOL_KEY)) ? "" : properties.getProperty(GUVNOR_PROTOCOL_KEY).trim();
-    }
-    
-    public String getGuvnorHost() {
-        if(!isEmpty(properties.getProperty(GUVNOR_HOST_KEY))) {
-            String retStr = properties.getProperty(GUVNOR_HOST_KEY).trim();
-            if(retStr.startsWith("/")){
-                retStr = retStr.substring(1);
-            }
-            if(retStr.endsWith("/")) {
-                retStr = retStr.substring(0,retStr.length() - 1);
-            }
-            return retStr;
-        } else {
-            return "";
-        }
-    }
-    
-    public String getGuvnorSubdomain() {
-        return isEmpty(properties.getProperty(GUVNOR_SUBDOMAIN_KEY)) ? "" : properties.getProperty(GUVNOR_SUBDOMAIN_KEY).trim();
-    }
-    
-    public String getGuvnorUsr() {
-        return isEmpty(properties.getProperty(GUVNOR_USR_KEY)) ? "" : properties.getProperty(GUVNOR_USR_KEY).trim();
-    }
-    
-    public String getGuvnorPwd() {
-        if(getGuvnorPwdEnc().equalsIgnoreCase("true")) {
-            if(System.getProperty(externalPwdKey) == null) {
-                throw new IllegalStateException("Unable to find system property: " + externalPwdKey);
-            } else {
-                try {
-                    FileInputStream inputStream = new FileInputStream(System.getProperty(externalPwdKey));
-                    String encKey = IOUtils.toString(inputStream);
-                    encKey = encKey.replace("\n", "").replace("\r", "");
-
-                    String _pwd = isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
-                    StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
-                    encryptor.setPassword(encKey);
-                    encryptor.setAlgorithm("PBEWithMD5AndTripleDES");
-                    return encryptor.decrypt(_pwd);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Unable to decrypt pwd: " + e.getMessage());
-                }
-            }
-        } else {
-            return isEmpty(properties.getProperty(GUVNOR_PWD_KEY)) ? "" : properties.getProperty(GUVNOR_PWD_KEY).trim();
-        }
-
-    }
-
-    public String getGuvnorPwdEnc() {
-        return isEmpty(properties.getProperty(GUVNOR_PWD_ENC_KEY)) ? "false" : properties.getProperty(GUVNOR_PWD_ENC_KEY).trim();
-    }
-    
-    public String getGuvnorPackages() {
-        return isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY)) ? "" : properties.getProperty(GUVNOR_PACKAGES_KEY).trim();
-    }
-    
-    public String getGuvnorConnectTimeout() {
-        return isEmpty(properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_CONNECTTIMEOUT_KEY).trim();
-    }
-    
-    public String getGuvnorReadTimeout() {
-        return isEmpty(properties.getProperty(GUVNOR_READTIMEOUT_KEY)) ? "10000" : properties.getProperty(GUVNOR_READTIMEOUT_KEY).trim();
-    }
-    
-    public String getGuvnorSnapshotName() {
-    	return isEmpty(properties.getProperty(GUVNOR_SNAPSHOT_NAME)) ? "LATEST" : properties.getProperty(GUVNOR_SNAPSHOT_NAME).trim();
-    }
-    
-    protected Properties getGuvnorProperties() {
-        return properties;
-    }
-    
-    private List<String> getPackageNamesFromGuvnor() {
-        List<String> packages = new ArrayList<String>();
-        String packagesURL = getGuvnorProtocol()
-                + "://"
-                + getGuvnorHost()
-                + "/"
-                + getGuvnorSubdomain()
-                + "/rest/packages/";
-        try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
-            XMLStreamReader reader = factory
-                    .createXMLStreamReader(getInputStreamForURL(packagesURL, "GET"));
-            while (reader.hasNext()) {
-                if (reader.next() == XMLStreamReader.START_ELEMENT) {
-                    if ("title".equals(reader.getLocalName())) {
-                        String pname = reader.getElementText();
-                        if(!pname.equalsIgnoreCase("Packages")) {
-                             packages.add(pname);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Error retriving packages from guvnor: " + e.getMessage());
-        }
-        return packages;
-    }
-    
-    
+   
     public boolean templateExistsInRepo(String templateName) throws Exception {
         List<String> allPackages = getPackageNames();
         try {
@@ -491,7 +464,169 @@ public class GuvnorConnectionUtils {
         logger.info("Could not find process template for: " + templateName);
         return false;
     }
+
+    // Package information methods -----------------------------------------------------------------------------------------------
+   
+    // public scope for testing
+    public List<GuvnorPackage> getPackagesFromGuvnor() {
+        String packagesURL = getGuvnorProtocol()
+                + "://"
+                + getGuvnorHost()
+                + "/"
+                + getGuvnorSubdomain()
+                + "/rest/packages/";
+        
+        InputStream inputStream = null;
+        try {
+            inputStream = getInputStreamForURL(packagesURL, "GET");
+        } catch (Exception e) {
+            logger.error("Error retriving packages from guvnor: " + e.getMessage());
+        }
+        List<GuvnorPackage> packages = getPackagesFromXmlInputStream(inputStream);
+        return packages;
+    }
+
+    // package scope for testing
+    static List<GuvnorPackage> getPackagesFromXmlInputStream(InputStream inputStream) { 
+        List<GuvnorPackage> packages = new ArrayList<GuvnorPackage>();
+        try {
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            XMLStreamReader reader = factory.createXMLStreamReader(inputStream);
+            GuvnorPackage pkg = null;
+            while (reader.hasNext()) {
+                if (reader.next() == XMLStreamReader.START_ELEMENT) {
+                    String name = reader.getLocalName();
+                    if( "package".equals(name) ) { 
+                        if( pkg != null && ! "Packages".equalsIgnoreCase(pkg.getTitle()) ) { 
+                           packages.add(pkg); 
+                        }
+                        pkg = new GuvnorPackage();
+                    }
+                    if( pkg != null ) { 
+                        if( "uuid".equals(name) ) { 
+                            pkg.setUuid(reader.getElementText());
+                        } else if( "title".equals(name) ) { 
+                            pkg.setTitle(reader.getElementText());
+                        } else if( "archived".equals(name) ) { 
+                           String text =  reader.getElementText();
+                           pkg.setArchived(Boolean.valueOf(text));
+                        }
+                    }
+                }
+            }
+            if( pkg != null && ! "Packages".equalsIgnoreCase(pkg.getTitle()) ) { 
+                packages.add(pkg); 
+            }
+        } catch (Exception e) {
+            logger.error("Error retriving packages from guvnor: " + e.getMessage());
+        }
+        return packages;
+    }
+
+    private List<String> getPackageNamesFromGuvnor() {
+       List<GuvnorPackage> guvnorPkgs = getPackagesFromGuvnor();
+       List<String> pkgNames = new ArrayList<String>();
+       if( guvnorPkgs.size() > 0 ) { 
+          for( GuvnorPackage pkg : guvnorPkgs ) { 
+              pkgNames.add(pkg.getTitle());
+          }
+       }
+       return pkgNames;
+    }
+
+    private List<String> filterPackageNamesByUserDefinedList(List<String> allPackages) { 
+        if(!isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY))) {
+            // make sure that all user defined package names are in the list of provided packages
+            String[] providedPackages = properties.getProperty(GUVNOR_PACKAGES_KEY).trim().split( ",\\s*" );
+            List<String> retList = new ArrayList<String>();
+            for(String pkg : providedPackages) {
+                if(allPackages.contains(pkg)) {
+                    retList.add(pkg);
+                }
+            }
+            return retList;
+        } else {
+            return allPackages;
+        }
+    }
+
+    // public scope for testing purposes
+    public List<GuvnorPackage> filterPackagesByUserDefinedList(List<GuvnorPackage> allPackages) { 
+        if(!isEmpty(properties.getProperty(GUVNOR_PACKAGES_KEY))) {
+            // make sure that all user defined package names are in the list of provided packages
+            String[] providedPkgArr = properties.getProperty(GUVNOR_PACKAGES_KEY).trim().split( ",\\s*" );
+            Set<String> providedPkgSet = new HashSet<String>(Arrays.asList(providedPkgArr));
+            List<GuvnorPackage> retList = new ArrayList<GuvnorPackage>();
+            for(GuvnorPackage pkg : allPackages) {
+                if(providedPkgSet.contains(pkg.getTitle())) {
+                    retList.add(pkg);
+                }
+            }
+            return retList;
+        } else {
+            return allPackages;
+        }
+    }
+
+    private List<String> getPackageNames() {
+        List<String> allPackages = getPackageNamesFromGuvnor();
+        List<String> filteredPkgNames = filterPackageNamesByUserDefinedList(allPackages);
+        return filteredPkgNames;
+    }
+  
+    // public scope for testing
+    public boolean canBuildPackage(String packageName) {
+    	try {	
+    		String packagesBinaryURL = getGuvnorProtocol()
+                + "://"
+                + getGuvnorHost()
+                + "/"
+                + getGuvnorSubdomain()
+                + "/rest/packages/" + packageName + "/binary";
+    	
+    	
+    		URL checkURL = new URL(packagesBinaryURL);
+            HttpURLConnection checkConnection = (HttpURLConnection) checkURL.openConnection();
+            checkConnection.setRequestMethod("GET");
+            checkConnection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
+            checkConnection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
+            applyAuth(checkConnection);
+            checkConnection.connect();
+            return checkConnection.getResponseCode() == 200;
+    	} catch(Exception e) {
+    		return false;
+    	}
+    }
+
+    public List<String> getBuiltPackageNames() {
+    	List<String> allPackageNames = getPackageNames();
+    	
+    	List<String> builtPackageNames = new ArrayList<String>();
+    	for(String nextPkg : allPackageNames) {
+    		if(canBuildPackage(nextPkg)) {
+    			builtPackageNames.add(nextPkg);
+    		} else {
+    			logger.info("Excluding package: " + nextPkg + " because it cannot be built.");
+    		}
+    	}
+    	
+    	return builtPackageNames;
+    }
     
+    public List<GuvnorPackage> getBuiltPackages() { 
+        List<GuvnorPackage> guvnorPkgs = getPackagesFromGuvnor();
+        guvnorPkgs = filterPackagesByUserDefinedList(guvnorPkgs);
+        List<GuvnorPackage> builtPkgs = new ArrayList<GuvnorPackage>();
+        for(GuvnorPackage nextPkg : guvnorPkgs) {
+            if(canBuildPackage(nextPkg.getTitle())) {
+                builtPkgs.add(nextPkg);
+            } else {
+                logger.info("Excluding package: " + nextPkg.getTitle() + " because it cannot be built.");
+            }
+        }
+        return builtPkgs;
+    }
+   
     protected void applyAuth(HttpURLConnection connection) {
         try {
             String auth = getGuvnorUsr() + ":" + getGuvnorPwd();
@@ -503,81 +638,6 @@ public class GuvnorConnectionUtils {
         }
     }
 
-    private InputStream getInputStreamForImageURL(String urlLocation, String requestMethod) throws Exception {
-        URL url = new URL(urlLocation);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setRequestMethod(requestMethod);
-        connection
-        .setRequestProperty(
-                "User-Agent",
-                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
-        connection.setRequestProperty("charset", "UTF-8");
-        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
-        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
-        applyAuth(connection);
-
-        connection.connect();
-        return connection.getInputStream();
-    }
-    
-    private InputStream getInputStreamForURL(String urlLocation,
-            String requestMethod) throws Exception {
-        URL url = new URL(urlLocation);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setRequestMethod(requestMethod);
-        connection
-        .setRequestProperty(
-                "User-Agent",
-                "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.6; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        connection.setRequestProperty("Accept", "text/plain,text/html,application/xhtml+xml,application/xml");
-        connection.setRequestProperty("charset", "UTF-8");
-        connection.setConnectTimeout(Integer.parseInt(getGuvnorConnectTimeout()));
-        connection.setReadTimeout(Integer.parseInt(getGuvnorReadTimeout()));
-        applyAuth(connection);
-        connection.connect();
-
-        BufferedReader sreader = new BufferedReader(new InputStreamReader(
-                connection.getInputStream(), "UTF-8"));
-        StringBuilder stringBuilder = new StringBuilder();
-
-        String line = null;
-        while ((line = sreader.readLine()) != null) {
-            stringBuilder.append(line + "\n");
-        }
-        
-        return new ByteArrayInputStream(stringBuilder.toString().getBytes(
-                "UTF-8"));
-    }
-    
-    protected boolean isEmpty(final CharSequence str) {
-        if ( str == null || str.length() == 0 ) {
-            return true;
-        }
-        for ( int i = 0, length = str.length(); i < length; i++ ){
-            if ( str.charAt( i ) != ' ' ) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    private String readFile(InputStream inStream) throws IOException {
-        StringBuilder fileContents = new StringBuilder();
-        Scanner scanner = new Scanner(inStream);
-        String lineSeparator = System.getProperty("line.separator");
-        try {
-            while(scanner.hasNextLine()) {        
-                fileContents.append(scanner.nextLine() + lineSeparator);
-            }
-            return fileContents.toString();
-        } finally {
-            scanner.close();
-        }
-    }
-    
     public boolean guvnorExists() {
         String checkURLStr = getGuvnorProtocol()
                 + "://"
@@ -601,7 +661,43 @@ public class GuvnorConnectionUtils {
             return false;
         } 
     }
+  
+    // ChangeSet creation ---------------------------------------------------------------------------------------------------------
+
+    // Is this still used?
+    @Deprecated
+    public StringReader createChangeSet() {
+        return createChangeSet(getBuiltPackageNames());
+    }
     
+    public StringReader createChangeSet(List<String> packageNames) {
+        try {
+            StringTemplate changeSetTemplate = new StringTemplate(
+                    readFile(GuvnorConnectionUtils.class.getResourceAsStream("/ChangeSet.st")));
+            TemplateInfo info = new TemplateInfo(getGuvnorProtocol(), getGuvnorHost(), 
+                    getGuvnorUsr(), getGuvnorPwd(), getGuvnorSubdomain(), packageNames);
+            changeSetTemplate.setAttribute("data",  info.getData());
+            return new StringReader(changeSetTemplate.toString());
+        } catch (IOException e) {
+            logger.error("Exception creating changeset: " + e.getMessage());
+            return new StringReader("");
+        }
+    }
+    
+    private String readFile(InputStream inStream) throws IOException {
+        StringBuilder fileContents = new StringBuilder();
+        Scanner scanner = new Scanner(inStream);
+        String lineSeparator = System.getProperty("line.separator");
+        try {
+            while(scanner.hasNextLine()) {        
+                fileContents.append(scanner.nextLine() + lineSeparator);
+            }
+            return fileContents.toString();
+        } finally {
+            scanner.close();
+        }
+    }
+
     private class TemplateInfo {
         List<String> data = new ArrayList<String>();
         
@@ -633,4 +729,5 @@ public class GuvnorConnectionUtils {
             this.data = data;
         }
     }
+    
 }

@@ -1,0 +1,40 @@
+<packages>
+  <package>
+    <assets>http://localhost:8080/jboss-brms/rest/packages/defaultPackage/assets/drools</assets>
+    <binaryLink>http://localhost:8080/jboss-brms/rest/packages/defaultPackage/binary</binaryLink>
+    <checkInComment>Initial</checkInComment>
+    <description>The default rule package</description>
+    <metadata>
+      <archived>false</archived>
+      <created>2014-07-23T18:04:03.968+02:00</created>
+      <lastContributor>admin</lastContributor>
+      <lastModified>2014-07-23T18:04:59.466+02:00</lastModified>
+      <state />
+      <uuid>9d188bd7-5e3b-41cb-a191-fc9c298c3a9c</uuid>
+    </metadata>
+    <sourceLink>http://localhost:8080/jboss-brms/rest/packages/defaultPackage/source</sourceLink>
+    <title>defaultPackage</title>
+    <version>1</version>
+  </package>
+  <package>
+    <assets>http://localhost:8080/jboss-brms/rest/packages/com.sample/assets/defaultlogicon</assets>
+    <assets>http://localhost:8080/jboss-brms/rest/packages/com.sample/assets/WorkDefinitions</assets>
+    <assets>http://localhost:8080/jboss-brms/rest/packages/com.sample/assets/defaultemailicon</assets>
+    <assets>http://localhost:8080/jboss-brms/rest/packages/com.sample/assets/invisible</assets>
+    <assets>http://localhost:8080/jboss-brms/rest/packages/com.sample/assets/defaultservicenodeicon</assets>
+    <binaryLink>http://localhost:8080/jboss-brms/rest/packages/com.sample/binary</binaryLink>
+    <checkInComment>Initial</checkInComment>
+    <description />
+    <metadata>
+      <archived>true</archived>
+      <created>2014-07-23T18:10:41.696+02:00</created>
+      <lastContributor>john</lastContributor>
+      <lastModified>2014-07-23T18:12:05.661+02:00</lastModified>
+      <state />
+      <uuid>141ef0aa-9355-46d6-bb21-dbf8acb4449f</uuid>
+    </metadata>
+    <sourceLink>http://localhost:8080/jboss-brms/rest/packages/com.sample/source</sourceLink>
+    <title>com.sample</title>
+    <version>1</version>
+  </package>
+</packages>

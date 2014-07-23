@@ -33,7 +33,6 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.NodeInstance;
 import org.drools.runtime.process.ProcessInstance;
 import org.jbpm.process.audit.JPAProcessInstanceDbLog;
-import org.jbpm.process.audit.NodeInstanceLog;
 import org.jbpm.process.audit.ProcessInstanceLog;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -59,13 +58,24 @@ public class CommandDelegate {
      * @return a (stateful knowledge) session.
      */
     private static StatefulKnowledgeSession getSession() { 
+       return getSession(false); 
+    }
+    
+    /**
+     * This method retrieves the stateful knowledge session associated with the console.
+     * @param checkPackages Whether or not to retrieve the packages from the Guvnor instance and apply the changeset based on them
+     * @return a (stateful knowledge) session.
+     */
+    private static StatefulKnowledgeSession getSession(boolean checkPackages) { 
+        if( checkPackages ) { 
+            StatefulKnowledgeSessionUtil.checkPackagesFromGuvnor();
+        }
         return StatefulKnowledgeSessionUtil.getStatefulKnowledgeSession();
     }
     
     public static List<Process> getProcesses() {
         List<Process> result = new ArrayList<Process>();
-        StatefulKnowledgeSessionUtil.checkPackagesFromGuvnor();
-        KnowledgeBase kbase = getSession().getKnowledgeBase();
+        KnowledgeBase kbase = getSession(true).getKnowledgeBase();
         for (KnowledgePackage kpackage: kbase.getKnowledgePackages()) {
             result.addAll(kpackage.getProcesses());
         }

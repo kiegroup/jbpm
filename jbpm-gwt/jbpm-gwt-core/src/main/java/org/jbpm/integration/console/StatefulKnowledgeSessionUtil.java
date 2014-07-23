@@ -22,12 +22,18 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -46,7 +52,6 @@ import org.drools.command.impl.KnowledgeCommandContext;
 import org.drools.compiler.BPMN2ProcessFactory;
 import org.drools.compiler.ProcessBuilderFactory;
 import org.drools.core.util.StringUtils;
-import org.drools.definition.KnowledgePackage;
 import org.drools.event.ActivationCancelledEvent;
 import org.drools.event.ActivationCreatedEvent;
 import org.drools.event.AfterActivationFiredEvent;
@@ -56,6 +61,7 @@ import org.drools.event.BeforeActivationFiredEvent;
 import org.drools.event.RuleFlowGroupActivatedEvent;
 import org.drools.event.RuleFlowGroupDeactivatedEvent;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
+import org.drools.io.Resource;
 import org.drools.io.ResourceChangeScannerConfiguration;
 import org.drools.io.ResourceFactory;
 import org.drools.marshalling.impl.ProcessMarshallerFactory;
@@ -67,6 +73,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.process.ProcessRuntimeFactory;
 import org.jbpm.bpmn2.BPMN2ProcessProviderImpl;
 import org.jbpm.integration.console.shared.GuvnorConnectionUtils;
+import org.jbpm.integration.console.shared.model.GuvnorPackage;
 import org.jbpm.marshalling.impl.ProcessMarshallerFactoryServiceImpl;
 import org.jbpm.process.audit.JPAWorkingMemoryDbLogger;
 import org.jbpm.process.builder.ProcessBuilderFactoryServiceImpl;
@@ -96,8 +103,8 @@ public class StatefulKnowledgeSessionUtil {
     private static int ksessionId = 0;
     private static Properties _jbpmConsoleProperties = new Properties();
     private static KnowledgeAgent kagent = null;
-    private static Set<String> knownPackages;
-   
+    private static Map<String, String> knownPackages;
+
     protected StatefulKnowledgeSessionUtil() {
     }
     
@@ -146,14 +153,11 @@ public class StatefulKnowledgeSessionUtil {
         try {
             // Prepare knowledge base to create the knowledge session
             Properties jbpmConsoleProperties = getJbpmConsoleProperties();
-            knownPackages = new CopyOnWriteArraySet<String>();
-            KnowledgeBase localKBase = loadKnowledgeBase();
+            knownPackages = new ConcurrentHashMap<String, String>();
+            // knownPackages is filled in loadKnowledgeBase();
+            KnowledgeBase localKBase = loadKnowledgeBase(knownPackages);
             addProcessesFromConsoleDirectory(localKBase, jbpmConsoleProperties);
-            
-            for (KnowledgePackage pkg : localKBase.getKnowledgePackages()) {
-                knownPackages.add(pkg.getName());
-            }
-            
+
             // try to restore known session id for reuse
             ksessionId = getPersistedSessionId(jbpmConsoleProperties.getProperty("jbpm.console.tmp.dir", System.getProperty("jboss.server.temp.dir")));
             // Create knowledge session
@@ -192,7 +196,7 @@ public class StatefulKnowledgeSessionUtil {
      * This method creates and fills the knowledge base, using a local guvnor instance if possible. 
      * @return a knowledge base. 
      */
-    private static KnowledgeBase loadKnowledgeBase() { 
+    private static KnowledgeBase loadKnowledgeBase(Map<String, String> knownPackages) {
         KnowledgeBase kbase = null;
         GuvnorConnectionUtils guvnorUtils = new GuvnorConnectionUtils();
         if(guvnorUtils.guvnorExists()) {
@@ -204,8 +208,18 @@ public class StatefulKnowledgeSessionUtil {
                 ResourceFactory.getResourceChangeNotifierService().start();
                 KnowledgeAgentConfiguration aconf = KnowledgeAgentFactory.newKnowledgeAgentConfiguration();
                 aconf.setProperty("drools.agent.newInstance", "false");
+               
+                // fill known packages
+                List<GuvnorPackage> guvnorPkgs = guvnorUtils.getBuiltPackages();
+                List<String> builtPkgNames = new ArrayList<String>();
+                for( GuvnorPackage pkg : guvnorPkgs ) { 
+                    String pkgName = pkg.getTitle();
+                    knownPackages.put(pkgName, pkg.getUuid());
+                    builtPkgNames.add(pkgName);
+                }
+                
                 kagent = KnowledgeAgentFactory.newKnowledgeAgent("Guvnor default", aconf);
-                kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet()));
+                kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet(builtPkgNames)));
                 kbase = kagent.getKnowledgeBase();
             } catch (Throwable t) {
                 logger.error("Could not load processes from Guvnor: " + t.getMessage(), t);
@@ -464,27 +478,56 @@ public class StatefulKnowledgeSessionUtil {
     }
    
     public static void checkPackagesFromGuvnor(GuvnorConnectionUtils guvnorUtils) {
-        if(guvnorUtils.guvnorExists() && kagent != null) {
-            List<String> guvnorPackages = guvnorUtils.getBuiltPackageNames();
+        if (guvnorUtils.guvnorExists() && kagent != null) {
+            List<GuvnorPackage> guvnorPackages = guvnorUtils.getBuiltPackages();
 
-            // Find the set of packages that exists in known packages, but not in guvnor packages
-            Set<String> deletedPackages = new HashSet<String>(knownPackages);
-            deletedPackages.removeAll(guvnorPackages);
+            Set<String> deletedPackages = new HashSet<String>(knownPackages.keySet());
+            Map<String, String> newPkgUuids = new HashMap<String, String>();
+            for (GuvnorPackage pkg : guvnorPackages) {
+                String pkgName = pkg.getTitle();
+                String knownPkgUuid = knownPackages.get(pkgName);
+                if (knownPkgUuid == null) {
+                    // add new packages
+                    newPkgUuids.put(pkgName, pkg.getUuid());
+                } else if (!pkg.getUuid().equals(knownPkgUuid)) {
+                    // deleted and recreated packages also!
+                    newPkgUuids.put(pkgName, pkg.getUuid());
+                }
 
-            // Remove the difference from known packages
-            if( deletedPackages.size() > 0 ) { 
-                knownPackages.removeAll(deletedPackages);
+                // delete all guvnor packages, what's left are deleted packages
+                deletedPackages.remove(pkgName);
             }
 
-            // Remove known packages from guvnor packages to see if there are *new* packages 
-            guvnorPackages.removeAll(knownPackages);
-
-            // if there are new packages, make sure we stay aware of them
-            if (guvnorPackages.size() > 0) {
-                kagent.applyChangeSet(ResourceFactory.newReaderResource(guvnorUtils.createChangeSet(guvnorPackages)));
-                knownPackages.addAll(guvnorPackages);
+            // Remove deleted from known packages (no change-set necessary here)
+            if (deletedPackages.size() > 0) {
+                for (String pkgName : deletedPackages) {
+                    knownPackages.remove(pkgName);
+                }
             }
-        } 
+                
+            // if there are new/recreated packages, make sure we stay aware of them (change-set to kagent)
+            if (newPkgUuids.size() > 0 ) { 
+                // apply changeset
+                List<String> changeSetPackages = new ArrayList<String>(newPkgUuids.keySet());
+                StringReader changeSetReader = guvnorUtils.createChangeSet(changeSetPackages);
+                applyChangeSet(changeSetReader);
+                // update known package info
+                for( Entry<String, String> newPkgUuidEntry : newPkgUuids.entrySet() ) { 
+                   knownPackages.put(newPkgUuidEntry.getKey(), newPkgUuidEntry.getValue());
+                }
+            }
+        }
+    }
+
+    // separate method for testability
+    public static void applyChangeSet(Reader changeSetReader) { 
+        if( changeSetReader == null) { 
+           logger.error("Input for change set is null, unable to update knowledge agent with changed packages!"); 
+           return;
+        }
+        Resource changeSetResource = ResourceFactory.newReaderResource(changeSetReader);
+        kagent.applyChangeSet(changeSetResource);
+        
     }
     
     public static KnowledgeAgent getKagent() {
@@ -497,11 +540,11 @@ public class StatefulKnowledgeSessionUtil {
         kagent = newKagent;
     }
     
-    static void setKnownPackages(Set<String> newKnownPackages) { 
+    static void setKnownPackages(Map<String, String> newKnownPackages) { 
         knownPackages = newKnownPackages;
     }
     
-    static Set<String> getKnownPackages() { 
+    static Map<String, String> getKnownPackages() { 
         return knownPackages;
     }
 }
