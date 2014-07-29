@@ -128,7 +128,7 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
             taskServiceFactory = taskServiceFactoryInjected.get();
             // since this is CDI let's make sure it has all dependencies met
             taskServiceFactory.newTaskService().toString();
-        } catch (Exception e) {
+        } catch (Throwable t) {
             taskServiceFactory = new LocalTaskServiceFactory(environment);
         }
         
