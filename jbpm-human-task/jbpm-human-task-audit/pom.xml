@@ -151,13 +151,13 @@
               !org.jbpm.services.task.audit,
               javassist.util.proxy;resolution:=optional,
               org.hibernate.proxy;resolution:=optional,
-              org.jbpm.services.task.lifecycle.listeners,
+              org.jbpm.services.task.audit.lifecycle.listeners,
               *
             </Import-Package>
             <Private-Package></Private-Package>
             <Export-Package>
-              org.jbpm.services.task.audit*,
-              org.jbpm.services.task.lifecycle.listeners
+              org.jbpm.services.task.audit.*,
+              org.jbpm.services.task.audit.lifecycle.listeners
             </Export-Package>
           </instructions>
         </configuration>

@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.services.task.lifecycle.listeners;
+package org.jbpm.services.task.audit.lifecycle.listeners;
 
 import java.util.Date;
 import java.util.List;
 
-import org.jbpm.services.task.impl.model.BAMTaskSummaryImpl;
+import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
+import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.Status;

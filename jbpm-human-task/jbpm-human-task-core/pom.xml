@@ -170,6 +170,10 @@
           <instructions>
             <Bundle-SymbolicName>org.jbpm.services.task</Bundle-SymbolicName>
             <Import-Package>
+              javassist.util.proxy;resolution:=optional,
+              javax.transaction.*;resolution:=optional,
+              org.hibernate.proxy;resolution:=optional,
+              org.kie.spring.persistence;resolution:=optional,
               !org.jbpm.services.task.admin,
               !org.jbpm.services.task.commands,
               !org.jbpm.services.task.deadlines,
