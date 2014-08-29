@@ -222,7 +222,7 @@ public class TaskTransactionInterceptor extends AbstractInterceptor {
 		TaskTransactionInterceptor service;
 
 		public TaskSynchronizationImpl(TaskTransactionInterceptor service) {
-			super(1);
+			super(1, "TaskService-"+service.toString());
 			this.service = service;
 		}
 
