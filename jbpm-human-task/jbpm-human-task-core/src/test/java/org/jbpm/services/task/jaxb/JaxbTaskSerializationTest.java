@@ -36,6 +36,7 @@ public class JaxbTaskSerializationTest extends AbstractTaskSerializationTest {
         return convertStringToJaxbObject(xmlStr);
     }
 
+
     public String convertJaxbObjectToString(Object object) throws JAXBException {
         Marshaller marshaller = JAXBContext.newInstance(jaxbClasses).createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);

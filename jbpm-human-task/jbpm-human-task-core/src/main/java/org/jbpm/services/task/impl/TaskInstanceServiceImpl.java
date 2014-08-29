@@ -46,6 +46,8 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private static final Logger logger = LoggerFactory.getLogger(TaskInstanceServiceImpl.class);
     
     private LifeCycleManager lifeCycleManager;
+    
+    private org.kie.internal.task.api.TaskContext context;
    
     private TaskPersistenceContext persistenceContext;    
     private TaskEventSupport taskEventSupport;
@@ -54,9 +56,10 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     public TaskInstanceServiceImpl() {
     }
 
-    public TaskInstanceServiceImpl(TaskPersistenceContext persistenceContext,
+    public TaskInstanceServiceImpl(org.kie.internal.task.api.TaskContext context, TaskPersistenceContext persistenceContext,
     		LifeCycleManager lifeCycleManager, TaskEventSupport taskEventSupport,
     		Environment environment) {
+    	this.context = context;
     	this.persistenceContext = persistenceContext;
     	this.lifeCycleManager = lifeCycleManager;
     	this.taskEventSupport = taskEventSupport;
@@ -78,7 +81,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
    
     public long addTask(Task task, Map<String, Object> params) {    	
-    	taskEventSupport.fireBeforeTaskAdded(task, persistenceContext);
+    	taskEventSupport.fireBeforeTaskAdded(task, context);
     	
     	if (params != null) {
 			ContentData contentData = ContentMarshallerHelper.marshal(params, environment);
@@ -90,13 +93,13 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 		}
 
 		persistenceContext.persistTask(task);
-		taskEventSupport.fireAfterTaskAdded(task, persistenceContext);
+		taskEventSupport.fireAfterTaskAdded(task, context);
 		return task.getId();
     }
 
     public long addTask(Task task, ContentData contentData) {
-    	taskEventSupport.fireBeforeTaskAdded(task, persistenceContext);   	
 
+    	taskEventSupport.fireBeforeTaskAdded(task, context);   	
         if (contentData != null) {
             Content content = TaskModelProvider.getFactory().newContent();
             ((InternalContent) content).setContent(contentData.getContent());
@@ -105,7 +108,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         }
         
         persistenceContext.persistTask(task);
-        taskEventSupport.fireAfterTaskAdded(task, persistenceContext);
+        taskEventSupport.fireAfterTaskAdded(task, context);
         return task.getId();
     }
 
