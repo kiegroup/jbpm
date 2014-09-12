@@ -63,6 +63,8 @@ import org.slf4j.LoggerFactory;
 public class QuartzSchedulerService implements GlobalSchedulerService {
     
     private static final Logger logger = LoggerFactory.getLogger(QuartzSchedulerService.class);
+    
+    private static final Integer START_DELAY = Integer.parseInt(System.getProperty("org.jbpm.timer.delay", "2"));
 
     private AtomicLong idCounter = new AtomicLong();
     private TimerService globalTimerService;
@@ -70,7 +72,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
     
     // global data shared across all scheduler service instances
     private static Scheduler scheduler;    
-    private static AtomicInteger timerServiceCounter = new AtomicInteger();
+    private static AtomicInteger timerServiceCounter = new AtomicInteger(0);
  
     public QuartzSchedulerService() {
         
@@ -93,7 +95,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
             jobname = "Timer-"+ctx.getClass().getSimpleName()+ "-" + id;
         
         }
-        
+        logger.debug("Scheduling timer with name " + jobname);
         // check if this scheduler already has such job registered if so there is no need to schedule it again        
         try {
             JobDetail jobDetail = scheduler.getJobDetail(jobname, "jbpm");
@@ -201,7 +203,7 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
         if (scheduler == null) {            
             try {
                 scheduler = StdSchedulerFactory.getDefaultScheduler();            
-                scheduler.start();
+                scheduler.startDelayed(START_DELAY);
             } catch (SchedulerException e) {
                 throw new RuntimeException("Exception when initializing QuartzSchedulerService", e);
             }
@@ -217,21 +219,26 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
 
     @Override
     public void shutdown() {
+    	if (scheduler == null) {
+    		return;
+    	}
         int current = timerServiceCounter.decrementAndGet();
         if (scheduler != null && current == 0) {
             try {
-                scheduler.shutdown();
+                scheduler.shutdown();        
             } catch (SchedulerException e) {
                 logger.warn("Error encountered while shutting down the scheduler", e);
             }
             scheduler = null;
         }
+        
     }
     
     public void forceShutdown() {
         if (scheduler != null) {
             try {
                 scheduler.shutdown();
+                timerServiceCounter.set(0);
             } catch (SchedulerException e) {
                 logger.warn("Error encountered while shutting down (forced) the scheduler", e);
             }
@@ -266,6 +273,43 @@ public class QuartzSchedulerService implements GlobalSchedulerService {
         public void setJobGroup(String jobGroup) {
             this.jobGroup = jobGroup;
         }
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((jobGroup == null) ? 0 : jobGroup.hashCode());
+			result = prime * result
+					+ ((jobName == null) ? 0 : jobName.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (getClass() != obj.getClass())
+				return false;
+			GlobalQuartzJobHandle other = (GlobalQuartzJobHandle) obj;
+			if (jobGroup == null) {
+				if (other.jobGroup != null)
+					return false;
+			} else if (!jobGroup.equals(other.jobGroup))
+				return false;
+			if (jobName == null) {
+				if (other.jobName != null)
+					return false;
+			} else if (!jobName.equals(other.jobName))
+				return false;
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return "GlobalQuartzJobHandle [jobName=" + jobName + ", jobGroup="
+					+ jobGroup + "]";
+		}
     
     }
     
