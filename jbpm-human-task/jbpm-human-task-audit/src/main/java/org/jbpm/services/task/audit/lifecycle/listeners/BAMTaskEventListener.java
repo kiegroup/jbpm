@@ -16,7 +16,9 @@
 package org.jbpm.services.task.audit.lifecycle.listeners;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
 import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
@@ -24,6 +26,7 @@ import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
+import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskPersistenceContext;
 import org.slf4j.Logger;
@@ -71,7 +74,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskStartedEvent(TaskEvent event) {
-        createOrUpdateTask(event, new BAMTaskWorker() {
+    	updateTask(event, new BAMTaskWorker() {
             @Override
             public BAMTaskSummaryImpl createTask(BAMTaskSummaryImpl bamTask, Task task) {
                 bamTask.setStartDate(new Date());
@@ -87,16 +90,16 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskActivatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskClaimedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskCompletedEvent(TaskEvent event) {
 
-        createOrUpdateTask(event, new BAMTaskWorker() {
+    	updateTask(event, new BAMTaskWorker() {
             @Override
             public BAMTaskSummaryImpl createTask(BAMTaskSummaryImpl bamTask, Task task) {
                 return bamTask;
@@ -113,7 +116,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskAddedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+        createTask(event, null, null);
     }
 
     /**
@@ -148,32 +151,32 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskReleasedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskDelegatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskForwaredEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskNomiatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskResumedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskSuspendedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
     
     @Override
     public void afterTaskForwardedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     /**
@@ -183,8 +186,8 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @param worker Perform additional operations to the bam task summary instance.
      * @return The created or updated bam task summary instance.
      */
-    protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event, BAMTaskWorker worker) {
-        return createOrUpdateTask(event, null, worker);
+    protected BAMTaskSummaryImpl updateTask(TaskEvent event, BAMTaskWorker worker) {
+        return updateTask(event, null, worker);
     }
 
 
@@ -194,8 +197,8 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @param ti The source task
      * @return The created or updated bam task summary instance.
      */
-    protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event) {
-        return createOrUpdateTask(event, null, null);
+    protected BAMTaskSummaryImpl updateTask(TaskEvent event) {
+        return updateTask(event, null, null);
     }
 
     /**
@@ -206,7 +209,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @return The created or updated bam task summary instance.
      */
     protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event, Status newStatus) {
-        return createOrUpdateTask(event, newStatus, null);
+        return updateTask(event, newStatus, null);
     }
 
     /**
@@ -217,7 +220,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @param worker Perform additional operations to the bam task summary instance.
      * @return The created or updated bam task summary instance.
      */
-    protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
+    protected BAMTaskSummaryImpl createTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
         BAMTaskSummaryImpl result = null;
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
@@ -229,37 +232,90 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
 
         Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
 
-        List<BAMTaskSummaryImpl> taskSummaries = 
-        		persistenceContext.queryStringWithParametersInTransaction("select bts from BAMTaskSummaryImpl bts where bts.taskId=:taskId",
-        												persistenceContext.addParametersToMap("taskId", ti.getId()), 
-        												ClassUtil.<List<BAMTaskSummaryImpl>>castClass(List.class));
-        if (taskSummaries.isEmpty()) {
-
-            String actualOwner = "";
-            if (ti.getTaskData().getActualOwner() != null) {
-                actualOwner = ti.getTaskData().getActualOwner().getId();
-            }
-
-            result = new BAMTaskSummaryImpl(ti.getId(), ti.getNames().get(0).getText(), status.toString(), new Date(), actualOwner, ti.getTaskData().getProcessInstanceId());
-            if (worker != null) worker.createTask(result, ti);
-            persistenceContext.persist(result);
-        } else if (taskSummaries.size() == 1) {
-
-            result = taskSummaries.get(0);
-            result.setStatus(status.toString());
-            if (ti.getTaskData().getActualOwner() != null) {
-                result.setUserId(ti.getTaskData().getActualOwner().getId());
-            }
-            if (worker != null) worker.updateTask(result, ti);
-            persistenceContext.merge(result);
-
-        } else {
-            logger.warn("Something went wrong with the Task BAM Listener");
-            throw new IllegalStateException("We cannot have more than one BAM Task Summary for the task id = " + ti.getId());
+        String actualOwner = "";
+        if (ti.getTaskData().getActualOwner() != null) {
+            actualOwner = ti.getTaskData().getActualOwner().getId();
         }
 
+        result = new BAMTaskSummaryImpl(ti.getId(), ti.getNames().get(0).getText(), status.toString(), new Date(), actualOwner, ti.getTaskData().getProcessInstanceId());
+        if (worker != null) worker.createTask(result, ti);
+        store(event, result);
+        persistenceContext.persist(result);
+    
         return result;
     }
+    
+    protected BAMTaskSummaryImpl updateTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
+        List<BAMTaskSummaryImpl> result = null;
+        BAMTaskSummaryImpl existing = null;
+        Task ti = event.getTask();
+        TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
+
+        if (ti == null) {
+            logger.error("The task instance does not exist.");
+            return null;
+        }
+
+        Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
+
+        result = persistenceContext.queryStringWithParametersInTransaction("select bts from BAMTaskSummaryImpl bts where bts.taskId=:taskId",
+        												persistenceContext.addParametersToMap("taskId", ti.getId()), 
+        												ClassUtil.<List<BAMTaskSummaryImpl>>castClass(List.class));
+        if (result != null && !result.isEmpty()) {
+        	existing = result.get(0);
+        }
+        
+        
+        if (existing == null) {
+        	// in case there was nothing returned by the query check current transaction items - due to COMMIT flush mode 
+        	existing = getCurrentTxBAMTasks(event);
+        } 
+        
+        if (existing == null) {
+        	logger.warn("Unable find bam task entry for task id {} '{}', skipping bam task update", ti.getId(), ti.getNames().get(0).getText());
+        	return null;
+        }
+        	
+        existing.setStatus(status.toString());
+        if (ti.getTaskData().getActualOwner() != null) {
+        	existing.setUserId(ti.getTaskData().getActualOwner().getId());
+        }
+        if (worker != null) worker.updateTask(existing, ti);
+        persistenceContext.merge(existing);
+
+      
+        return existing;
+    }
+    
+	@SuppressWarnings("unchecked")
+	private void store(TaskEvent event, BAMTaskSummaryImpl bamTask) {
+		TaskContext context = (TaskContext) event.getTaskContext();
+		Set<BAMTaskSummaryImpl> bamTasks = (Set<BAMTaskSummaryImpl>) context.get("local:current-bam-tasks");
+		if (bamTasks == null) {
+			bamTasks = new HashSet<BAMTaskSummaryImpl>();
+			context.set("local:current-bam-tasks", bamTasks);
+		}
+		bamTasks.add(bamTask);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private BAMTaskSummaryImpl getCurrentTxBAMTasks(TaskEvent event) {
+		TaskContext context = (TaskContext) event.getTaskContext();
+		Set<BAMTaskSummaryImpl> currentTxBAMTasks = (Set<BAMTaskSummaryImpl>) context.get("local:current-bam-tasks");
+		if (currentTxBAMTasks != null) {
+			
+			if (currentTxBAMTasks != null) {
+				for (BAMTaskSummaryImpl bamTask : currentTxBAMTasks) {
+					if (bamTask.getTaskId() == event.getTask().getId()) {
+						return bamTask;
+					}
+				}
+				
+			}
+		}
+		
+		return null;
+	}
 
     /**
      * Interface for performing additional operations to a <code>org.jbpm.services.task.impl.model.BAMTaskSummaryImpl</code> instance.
