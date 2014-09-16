@@ -1,17 +1,18 @@
 package org.jbpm.services.task.jaxb;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Queue;
 
 import org.jbpm.services.task.MvelFilePath;
+import org.jbpm.services.task.admin.listener.internal.GetCurrentTxTasksCommand;
 import org.jbpm.services.task.commands.CancelDeadlineCommand;
 import org.jbpm.services.task.commands.CompositeCommand;
 import org.jbpm.services.task.commands.ProcessSubTaskCommand;
@@ -126,7 +127,8 @@ public abstract class AbstractTaskSerializationTest {
         Assume.assumeTrue(!getType().equals(TestType.YAML));
 
         for (Class<?> jaxbClass : reflections.getSubTypesOf(TaskCommand.class)) {
-            if (jaxbClass.equals(UserGroupCallbackTaskCommand.class)) {
+            if (jaxbClass.equals(UserGroupCallbackTaskCommand.class)
+            		|| jaxbClass.equals(GetCurrentTxTasksCommand.class)) {
                 continue;
             }
             addClassesToSerializationContext(jaxbClass);

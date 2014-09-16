@@ -8,6 +8,7 @@ import org.jbpm.services.task.commands.TaskCommand;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.command.Context;
 
+
 public class GetCurrentTxTasksCommand extends TaskCommand<List<TaskSummary>> {
 
 	private static final long serialVersionUID = 6474368266134150938L;
