@@ -930,6 +930,15 @@ public class SimpleBPMNProcessTest extends JbpmBpmn2TestCase {
 		assertTrue(processInstance.getState() == ProcessInstance.STATE_COMPLETED);
 	}
 	
+	public void testSubProcessInvalid() throws Exception {
+		try {
+			KnowledgeBase kbase = createKnowledgeBase("BPMN2-SubProcessInvalid.bpmn2");
+			fail("Shouldn't be able to compile invalid sub process");
+		} catch (IllegalArgumentException e) {
+			// do nothing
+		}
+	}
+	
 	public void testSubProcessWithTerminateEndEvent() throws Exception {
         KnowledgeBase kbase = createKnowledgeBase("BPMN2-SubProcessWithTerminateEndEvent.bpmn2");
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);

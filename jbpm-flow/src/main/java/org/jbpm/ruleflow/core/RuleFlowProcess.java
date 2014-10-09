@@ -16,6 +16,8 @@
 
 package org.jbpm.ruleflow.core;
 
+import java.util.List;
+
 import org.drools.definition.process.Node;
 import org.drools.definition.process.NodeContainer;
 import org.jbpm.process.core.context.exception.ExceptionScope;
@@ -62,7 +64,10 @@ public class RuleFlowProcess extends WorkflowProcessImpl {
     }
     
     public StartNode getStart() {
-        Node[] nodes = getNodes();
+    	return getStart(this.getNodes());
+    }
+    
+    public static StartNode getStart(Node[] nodes) {
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] instanceof StartNode) {
                 return (StartNode) nodes[i];
