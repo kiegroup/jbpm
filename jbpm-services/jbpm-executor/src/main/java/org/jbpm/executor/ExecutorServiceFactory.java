@@ -48,6 +48,9 @@ import org.slf4j.LoggerFactory;
 public class ExecutorServiceFactory {
 	
 	private final static String mode = System.getProperty( "org.jbpm.cdi.executor.mode", "singleton" );
+
+	private final static String ejb_mode = System.getProperty("org.jbpm.ejb.executor.mode", "enabled");
+
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceFactory.class);
    
 	private static ExecutorService serviceInstance;
@@ -142,6 +145,9 @@ public class ExecutorServiceFactory {
     	AvailableJobsExecutor jobExecutor = null;
     	try {
     		jobExecutor = InitialContext.doLookup("java:module/AvailableJobsExecutor");
+			if(!"enabled".equals(ejb_mode)){
+				throw new Exception();
+			}
     	} catch (Exception e) {
     		jobExecutor = new AvailableJobsExecutor();
 	    	ClassCacheManager classCacheManager = new ClassCacheManager();
