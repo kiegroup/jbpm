@@ -46,12 +46,15 @@ import org.slf4j.LoggerFactory;
  * environment.
  */
 public class ExecutorServiceFactory {
-	
+
 	private final static String mode = System.getProperty( "org.jbpm.cdi.executor.mode", "singleton" );
+
+	private final static String ejb_mode = System.getProperty("org.jbpm.ejb.executor.mode", "enabled");
+
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceFactory.class);
-   
+
 	private static ExecutorService serviceInstance;
-    
+
     public static synchronized ExecutorService newExecutorService(EntityManagerFactory emf){
     	if ( mode.equalsIgnoreCase( "singleton" ) ) {
             if (serviceInstance == null) {
@@ -60,9 +63,9 @@ public class ExecutorServiceFactory {
             return serviceInstance;
         } else {
             return configure(emf);
-        }        
+        }
     }
-    
+
     public static synchronized ExecutorService newExecutorService(){
     	if ( mode.equalsIgnoreCase( "singleton" ) ) {
             if (serviceInstance == null) {
@@ -71,9 +74,9 @@ public class ExecutorServiceFactory {
             return serviceInstance;
         } else {
             return configure();
-        }        
+        }
     }
-    
+
     public static synchronized void resetExecutorService(ExecutorService executorService) {
     	if (executorService.equals(serviceInstance)) {
     		serviceInstance = null;
@@ -82,82 +85,87 @@ public class ExecutorServiceFactory {
 
     private static ExecutorService configure(EntityManagerFactory emf) {
     	// create instances of executor services
-    	
+
     	ExecutorQueryService queryService = new ExecutorQueryServiceImpl(true);
-    	Executor executor = new ExecutorImpl();    	
+    	Executor executor = new ExecutorImpl();
     	ExecutorAdminService adminService = new ExecutorRequestAdminServiceImpl();
-    	
+
     	// create executor for persistence handling
         TransactionalCommandService commandService = new TransactionalCommandService(emf);
-        
+
         ExecutorStoreService storeService = new JPAExecutorStoreService(true);
         ((JPAExecutorStoreService)storeService).setCommandService(commandService);
         ((JPAExecutorStoreService)storeService).setEmf(emf);
-        
+
         ((ExecutorImpl) executor).setExecutorStoreService(storeService);
-        
+
         // set executor on all instances that requires it
-        ((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);        
+        ((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);
         ((ExecutorRequestAdminServiceImpl) adminService).setCommandService(commandService);
-        
-        
+
+
         // configure services
         ExecutorService service = new ExecutorServiceImpl(executor);
     	((ExecutorServiceImpl)service).setQueryService(queryService);
-    	((ExecutorServiceImpl)service).setExecutor(executor);               
+    	((ExecutorServiceImpl)service).setExecutor(executor);
         ((ExecutorServiceImpl)service).setAdminService(adminService);
-         
+
 
         return service;
     }
-    
+
     private static ExecutorService configure() {
     	// create instances of executor services
-    	
+
     	ExecutorQueryService queryService = new InMemoryExecutorQueryServiceImpl(true);
-    	Executor executor = new ExecutorImpl();    	
+    	Executor executor = new ExecutorImpl();
     	ExecutorAdminService adminService = new InMemoryExecutorAdminServiceImpl(true);
-    	        
-    	InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);        
-        
+
+    	InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
+
         ((ExecutorImpl) executor).setExecutorStoreService(storeService);
-        
+
         // set executor on all instances that requires it
-        ((InMemoryExecutorQueryServiceImpl) queryService).setStoreService(storeService);        
+        ((InMemoryExecutorQueryServiceImpl) queryService).setStoreService(storeService);
         ((InMemoryExecutorAdminServiceImpl) adminService).setStoreService(storeService);
-        
-        
+
+
         // configure services
         ExecutorService service = new ExecutorServiceImpl(executor);
     	((ExecutorServiceImpl)service).setQueryService(queryService);
-    	((ExecutorServiceImpl)service).setExecutor(executor);               
+    	((ExecutorServiceImpl)service).setExecutor(executor);
         ((ExecutorServiceImpl)service).setAdminService(adminService);
-         
+
 
         return service;
     }
-    
+
     public static ExecutorRunnable buildRunable(EntityManagerFactory emf) {
     	ExecutorRunnable runnable = new ExecutorRunnable();
     	AvailableJobsExecutor jobExecutor = null;
     	try {
     		jobExecutor = InitialContext.doLookup("java:module/AvailableJobsExecutor");
+
+			if(!"enabled".equals(ejb_mode)){
+				throw new Exception();
+			}
+
     	} catch (Exception e) {
     		jobExecutor = new AvailableJobsExecutor();
 	    	ClassCacheManager classCacheManager = new ClassCacheManager();
-	    	ExecutorQueryService queryService = new ExecutorQueryServiceImpl(true);    	    	
-	        
-	        
+	    	ExecutorQueryService queryService = new ExecutorQueryServiceImpl(true);
+
+
 	        TransactionalCommandService cmdService = new TransactionalCommandService(emf);
 	        ExecutorStoreService storeService = new JPAExecutorStoreService(true);
 	        ((JPAExecutorStoreService)storeService).setCommandService(cmdService);
 	        ((JPAExecutorStoreService)storeService).setEmf(emf);
-	        
-	        ((ExecutorQueryServiceImpl) queryService).setCommandService(cmdService);       
+
+	        ((ExecutorQueryServiceImpl) queryService).setCommandService(cmdService);
 	        jobExecutor.setClassCacheManager(classCacheManager);
 	        jobExecutor.setQueryService(queryService);
 	        jobExecutor.setExecutorStoreService(storeService);
-	        // provide bean manager instance as context data as it might not be available to 
+	        // provide bean manager instance as context data as it might not be available to
 	        // be looked up from JNDI in non managed threads
 	        try {
 				Object beanManager = InitialContext.doLookup("java:comp/BeanManager");
@@ -170,7 +178,7 @@ public class ExecutorServiceFactory {
         runnable.setAvailableJobsExecutor(jobExecutor);
         return runnable;
     }
-    
+
     public static ExecutorRunnable buildRunable() {
     	ExecutorRunnable runnable = new ExecutorRunnable();
     	AvailableJobsExecutor jobExecutor = null;
@@ -178,16 +186,16 @@ public class ExecutorServiceFactory {
     		jobExecutor = InitialContext.doLookup("java:module/AvailableJobsExecutor");
     	} catch (Exception e) {
     		jobExecutor = new AvailableJobsExecutor();
-	    	ClassCacheManager classCacheManager = new ClassCacheManager();	    	   	    
-	        
-	    	InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);	        
+	    	ClassCacheManager classCacheManager = new ClassCacheManager();
+
+	    	InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
 	    	InMemoryExecutorQueryServiceImpl queryService = new InMemoryExecutorQueryServiceImpl(true);
 	        queryService.setStoreService(storeService);
-	        
+
 	        jobExecutor.setClassCacheManager(classCacheManager);
 	        jobExecutor.setQueryService(queryService);
 	        jobExecutor.setExecutorStoreService(storeService);
-	        // provide bean manager instance as context data as it might not be available to 
+	        // provide bean manager instance as context data as it might not be available to
 	        // be looked up from JNDI in non managed threads
 	        try {
 				Object beanManager = InitialContext.doLookup("java:comp/BeanManager");
