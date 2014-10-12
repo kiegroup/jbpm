@@ -145,6 +145,7 @@ public class ExecutorServiceFactory {
     	AvailableJobsExecutor jobExecutor = null;
     	try {
     		jobExecutor = InitialContext.doLookup("java:module/AvailableJobsExecutor");
+
 			if(!"enabled".equals(ejb_mode)){
 				throw new Exception();
 			}
