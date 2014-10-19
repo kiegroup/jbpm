@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Creates singleton instance of <code>ExecutorService</code> that shall be used outside of CDI
+ * Creates singleton instance of <code>ExecutorService</code> that shall be used outside of CDI 
  * environment.
  */
 public class ExecutorServiceFactory {
@@ -51,9 +51,9 @@ public class ExecutorServiceFactory {
     private final static String ejb_mode = System.getProperty("org.jbpm.ejb.executor.mode", "enabled");
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceFactory.class);
-
+   
 	private static ExecutorService serviceInstance;
-
+    
     public static synchronized ExecutorService newExecutorService(EntityManagerFactory emf){
     	if ( mode.equalsIgnoreCase( "singleton" ) ) {
             if (serviceInstance == null) {
@@ -62,9 +62,9 @@ public class ExecutorServiceFactory {
             return serviceInstance;
         } else {
             return configure(emf);
-        }
+        }        
     }
-
+    
     public static synchronized ExecutorService newExecutorService(){
     	if ( mode.equalsIgnoreCase( "singleton" ) ) {
             if (serviceInstance == null) {
@@ -73,9 +73,9 @@ public class ExecutorServiceFactory {
             return serviceInstance;
         } else {
             return configure();
-        }
+        }        
     }
-
+    
     public static synchronized void resetExecutorService(ExecutorService executorService) {
     	if (executorService.equals(serviceInstance)) {
     		serviceInstance = null;
@@ -91,28 +91,28 @@ public class ExecutorServiceFactory {
 
     	// create executor for persistence handling
         TransactionalCommandService commandService = new TransactionalCommandService(emf);
-
+        
         ExecutorStoreService storeService = new JPAExecutorStoreService(true);
         ((JPAExecutorStoreService)storeService).setCommandService(commandService);
         ((JPAExecutorStoreService)storeService).setEmf(emf);
-
+        
         ((ExecutorImpl) executor).setExecutorStoreService(storeService);
-
+        
         // set executor on all instances that requires it
-        ((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);
+        ((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);        
         ((ExecutorRequestAdminServiceImpl) adminService).setCommandService(commandService);
-
-
+        
+        
         // configure services
         ExecutorService service = new ExecutorServiceImpl(executor);
     	((ExecutorServiceImpl)service).setQueryService(queryService);
     	((ExecutorServiceImpl)service).setExecutor(executor);
         ((ExecutorServiceImpl)service).setAdminService(adminService);
-
+         
 
         return service;
     }
-
+    
     private static ExecutorService configure() {
     	// create instances of executor services
 
@@ -121,20 +121,20 @@ public class ExecutorServiceFactory {
     	ExecutorAdminService adminService = new InMemoryExecutorAdminServiceImpl(true);
 
     	InMemoryExecutorStoreService storeService = new InMemoryExecutorStoreService(true);
-
+        
         ((ExecutorImpl) executor).setExecutorStoreService(storeService);
-
+        
         // set executor on all instances that requires it
-        ((InMemoryExecutorQueryServiceImpl) queryService).setStoreService(storeService);
+        ((InMemoryExecutorQueryServiceImpl) queryService).setStoreService(storeService);        
         ((InMemoryExecutorAdminServiceImpl) adminService).setStoreService(storeService);
-
-
+        
+        
         // configure services
         ExecutorService service = new ExecutorServiceImpl(executor);
     	((ExecutorServiceImpl)service).setQueryService(queryService);
     	((ExecutorServiceImpl)service).setExecutor(executor);
         ((ExecutorServiceImpl)service).setAdminService(adminService);
-
+         
 
         return service;
     }
@@ -181,7 +181,7 @@ public class ExecutorServiceFactory {
         }
         return jobExecutor;
     }
-
+    
     public static ExecutorRunnable buildRunable() {
     	ExecutorRunnable runnable = new ExecutorRunnable();
     	AvailableJobsExecutor jobExecutor = null;
