@@ -2,6 +2,7 @@ package org.jbpm.runtime.manager.impl.deploy;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import java.util.List;
 import org.junit.Test;
 import org.kie.internal.runtime.conf.AuditMode;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
+import org.kie.internal.runtime.conf.NamedObjectModel;
 import org.kie.internal.runtime.conf.ObjectModel;
 import org.kie.internal.runtime.conf.PersistenceMode;
 import org.kie.internal.runtime.conf.RuntimeStrategy;
@@ -151,5 +153,112 @@ public class DeploymentDescriptorTest {
 		assertEquals(0, descriptor.getTaskEventListeners().size());
 		assertEquals(0, descriptor.getWorkItemHandlers().size());
 		assertEquals(1, descriptor.getRequiredRoles().size());
+	}
+	
+	@Test
+	public void testPringDescriptor() {
+		DeploymentDescriptor descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
+		
+		descriptor.getBuilder()
+		.addWorkItemHandler(new NamedObjectModel("mvel", "Log", "new org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler()"))
+		.addWorkItemHandler(new NamedObjectModel("mvel", "WebService", "new org.jbpm.process.workitem.webservice.WebServiceWorkItemHandler(ksession)"))
+		.addWorkItemHandler(new NamedObjectModel("mvel", "Rest", "new org.jbpm.process.workitem.rest.RESTWorkItemHandler()"))
+		.addWorkItemHandler(new NamedObjectModel("mvel", "Service Task", "new org.jbpm.process.workitem.bpmn2.ServiceTaskHandler(ksession)"));
+		
+		System.out.println(descriptor.toXml());
+	}
+	
+	@Test
+	public void testWriteDeploymentDescriptorXmlWithDuplicateNamedObjects() {
+		DeploymentDescriptor descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
+		
+		descriptor.getBuilder()
+		.addWorkItemHandler(new NamedObjectModel("mvel", "Log", "new org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler()"))
+		.addWorkItemHandler(new NamedObjectModel("mvel", "Log", "new org.jbpm.process.instance.impl.demo.CustomSystemOutWorkItemHandler()"))
+		.addRequiredRole("experts");
+		
+		String deploymentDescriptorXml = descriptor.toXml();
+		assertNotNull(deploymentDescriptorXml);
+		logger.info(deploymentDescriptorXml);
+		
+		ByteArrayInputStream stream = new ByteArrayInputStream(deploymentDescriptorXml.getBytes());
+		DeploymentDescriptor fromXml = DeploymentDescriptorIO.fromXml(stream);
+		
+		assertNotNull(fromXml);
+		assertEquals("org.jbpm.domain", fromXml.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", fromXml.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JPA, fromXml.getAuditMode());
+		assertEquals(PersistenceMode.JPA, fromXml.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, fromXml.getRuntimeStrategy());
+		assertEquals(0, fromXml.getMarshallingStrategies().size());
+		assertEquals(0, fromXml.getConfiguration().size());
+		assertEquals(0, fromXml.getEnvironmentEntries().size());
+		assertEquals(0, fromXml.getEventListeners().size());
+		assertEquals(0, fromXml.getGlobals().size());		
+		assertEquals(0, fromXml.getTaskEventListeners().size());
+		assertEquals(1, fromXml.getWorkItemHandlers().size());
+		assertEquals(1, fromXml.getRequiredRoles().size());
+	}
+	
+	@Test
+	public void testCreateDeploymentDescriptorWithPrefixedRoles() {
+		DeploymentDescriptorImpl descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
+		
+		descriptor.setAuditMode(AuditMode.JMS);
+		descriptor.setEnvironmentEntries(null);
+		
+		List<ObjectModel> marshallingStrategies = new ArrayList<ObjectModel>();
+		marshallingStrategies.add(new ObjectModel("org.jbpm.testCustomStrategy", 
+				new Object[]{
+				new ObjectModel("java.lang.String", new Object[]{"param1"}),
+				"param2"}));
+		descriptor.setMarshallingStrategies(marshallingStrategies);
+		
+		List<String> roles = new ArrayList<String>();
+		roles.add("view:managers");
+		roles.add("execute:experts");
+		roles.add("all:everyone");
+		roles.add("employees");
+		
+		descriptor.setRequiredRoles(roles);
+		
+		assertNotNull(descriptor);
+		assertEquals("org.jbpm.domain", descriptor.getPersistenceUnit());
+		assertEquals("org.jbpm.domain", descriptor.getAuditPersistenceUnit());
+		assertEquals(AuditMode.JMS, descriptor.getAuditMode());
+		assertEquals(PersistenceMode.JPA, descriptor.getPersistenceMode());
+		assertEquals(RuntimeStrategy.SINGLETON, descriptor.getRuntimeStrategy());
+		assertEquals(1, descriptor.getMarshallingStrategies().size());
+		assertEquals(0, descriptor.getConfiguration().size());
+		assertEquals(0, descriptor.getEnvironmentEntries().size());
+		assertEquals(0, descriptor.getEventListeners().size());
+		assertEquals(0, descriptor.getGlobals().size());		
+		assertEquals(0, descriptor.getTaskEventListeners().size());
+		assertEquals(0, descriptor.getWorkItemHandlers().size());
+		assertEquals(4, descriptor.getRequiredRoles().size());
+		
+		List<String> toVerify = descriptor.getRequiredRoles();
+		assertEquals(4, toVerify.size());
+		assertTrue(toVerify.contains("view:managers"));
+		assertTrue(toVerify.contains("execute:experts"));
+		assertTrue(toVerify.contains("all:everyone"));
+		assertTrue(toVerify.contains("employees"));
+		
+		toVerify = descriptor.getRequiredRoles(DeploymentDescriptor.TYPE_ALL);
+		assertEquals(4, toVerify.size());
+		assertTrue(toVerify.contains("managers"));
+		assertTrue(toVerify.contains("experts"));
+		assertTrue(toVerify.contains("everyone"));
+		assertTrue(toVerify.contains("employees"));
+		
+		toVerify = descriptor.getRequiredRoles(DeploymentDescriptor.TYPE_EXECUTE);
+		assertEquals(2, toVerify.size());
+		assertTrue(toVerify.contains("experts"));
+		assertTrue(toVerify.contains("employees"));
+		
+		toVerify = descriptor.getRequiredRoles(DeploymentDescriptor.TYPE_VIEW);
+		assertEquals(2, toVerify.size());
+		assertTrue(toVerify.contains("managers"));
+		assertTrue(toVerify.contains("employees"));
 	}
 }

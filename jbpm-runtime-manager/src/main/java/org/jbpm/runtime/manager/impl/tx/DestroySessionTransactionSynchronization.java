@@ -24,15 +24,15 @@ import org.kie.api.runtime.KieSession;
 import org.kie.internal.command.Context;
 
 /**
- * Transaction synchronization implementation that destroy the <code>KieSession</code> instance
- * in beforeCompletion call to be executed as part of current transaction.
+ * Transaction synchronization implementation that destroys the <code>KieSession</code> instance
+ * in the <code>beforeCompletion</code> call executed for the current transaction.
  *
  */
 public class DestroySessionTransactionSynchronization extends OrderedTransactionSynchronization {
 
     private KieSession ksession;
     public DestroySessionTransactionSynchronization(KieSession ksession) {
-    	super(5);
+    	super(5, "DestroySessionTransactionSynchronization"+ksession.getId());
         this.ksession = ksession;
     }
 

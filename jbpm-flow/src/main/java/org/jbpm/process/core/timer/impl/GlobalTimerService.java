@@ -44,10 +44,15 @@ import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.internal.command.Context;
+import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class GlobalTimerService implements TimerService, InternalSchedulerService, AcceptsTimerJobFactoryManager {
+	
+	private static final Logger logger = LoggerFactory.getLogger(GlobalTimerService.class);
     
     protected TimerJobFactoryManager jobFactoryManager;
     protected GlobalSchedulerService schedulerService;
@@ -103,15 +108,19 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         int sessionId = ((GlobalJobHandle) jobHandle).getSessionId();
         List<GlobalJobHandle> handles = timerJobsPerSession.get(sessionId);
         if (handles == null) {
+        	logger.debug("No known job handles for session {}", sessionId);
             return this.schedulerService.removeJob(jobHandle);
-        }
+        }       
+
         if (handles.contains(jobHandle)) {
+        	logger.debug("Found match so removing job handle {} from sessions {} handles", jobHandle, sessionId);
             handles.remove(jobHandle);
             if (handles.isEmpty()) {
                 timerJobsPerSession.remove(sessionId);
             }
             return this.schedulerService.removeJob(jobHandle);
         } else {
+        	logger.debug("No match for job handle {} within handles of session {}", jobHandle, sessionId);
             return false;
         }
     }
@@ -147,10 +156,13 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
         List<GlobalJobHandle> jobs = timerJobsPerSession.get(id); {
             if (jobs != null) {
                 for (GlobalJobHandle job : jobs) {
-                    timers.add(job.getTimerJobInstance());
+                	if (schedulerService.isValid(job)) {
+                		timers.add(job.getTimerJobInstance());
+                	}
                 }
             }
-        }        
+        }   
+        logger.debug("Returning  timers {} for session {}", timers, id);
         return timers;
     }
 
@@ -202,6 +214,10 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     
     public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
         return this.schedulerService.buildJobHandleForContext(ctx);
+    }
+    
+    public InternalRuntimeManager getRuntimeManager() {
+    	return (InternalRuntimeManager) manager;
     }
     
     protected CommandService getCommandService(Long processInstanceId, ProcessJobContext ctx) {

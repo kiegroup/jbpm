@@ -25,6 +25,7 @@ import org.kie.api.task.model.User;
 import org.kie.internal.command.Context;
 import org.kie.internal.task.api.TaskContext;
 import org.kie.internal.task.api.TaskModelProvider;
+import org.kie.internal.task.api.TaskPersistenceContext;
 import org.kie.internal.task.api.model.Deadline;
 import org.kie.internal.task.api.model.Deadlines;
 import org.kie.internal.task.api.model.Escalation;
@@ -37,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @XmlTransient
-@XmlRootElement(name="user-group-callback-command")
+@XmlRootElement(name="user-group-callback-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
 
@@ -107,7 +108,13 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
     }
     
     protected void persistIfNotExists(final OrganizationalEntity entity, TaskContext context) {
-    	context.getPersistenceContext().persistOrgEntity(entity);
+    	TaskPersistenceContext tpc = context.getPersistenceContext();
+    	OrganizationalEntity orgEntity = tpc.findOrgEntity(entity.getId());
+    	if( orgEntity == null
+    	    || (orgEntity instanceof Group && entity instanceof User)  
+    	    || (orgEntity instanceof User && entity instanceof Group) ) { 
+    	    tpc.persistOrgEntity(entity);
+    	}
     }
 
     protected void doCallbackGroupsOperation(String userId, List<String> groupIds, TaskContext context) {
@@ -465,7 +472,7 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
 
 	@Override
 	public T execute(Context context) {
-		return null;
+	    throw new UnsupportedOperationException("The " + this.getClass().getSimpleName() + " is not a standalone command that can be executed.");
 	}
 
 }

@@ -15,9 +15,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
@@ -37,7 +36,8 @@ import org.kie.internal.task.api.model.SubTasksStrategy;
 
 @XmlRootElement(name="task")
 @XmlAccessorType(XmlAccessType.FIELD)
-@JsonIgnoreProperties({"archived", "descriptions","names","subjects", "peopleAssignments"})
+@JsonIgnoreProperties({"archived","deadlines"})
+@JsonAutoDetect(getterVisibility=JsonAutoDetect.Visibility.NONE, setterVisibility=JsonAutoDetect.Visibility.NONE, fieldVisibility=JsonAutoDetect.Visibility.ANY)
 public class JaxbTask implements InternalTask {
 
     @XmlElement
@@ -45,42 +45,41 @@ public class JaxbTask implements InternalTask {
     private Long id;
     
     @XmlElement
-    @XmlSchemaType(name="long")
+    @XmlSchemaType(name="int")
     private Integer priority;
 
     @XmlElement(name="task-type")
-    @XmlSchemaType(name="int")
+    @XmlSchemaType(name="string")
     private String taskType; 
     
-    @XmlElement(name="name")
+    @XmlElement
     @XmlSchemaType(name="string")
     private String name;
     
-    @XmlElement(name="subject")
+    @XmlElement
     @XmlSchemaType(name="string")
     private String subject;
     
-    @XmlElement(name="description")
+    @XmlElement
     @XmlSchemaType(name="string")
     private String description;
     
-    @XmlElement(name="names")
-    private List<JaxbI18NText> jaxbNames;
+    @XmlElement
+    private List<JaxbI18NText> names;
     
-    @XmlElement(name="subjects")
-    private List<JaxbI18NText> jaxbSubjects;
+    @XmlElement
+    private List<JaxbI18NText> subjects;
     
-    @XmlElement(name="descriptions")
-    private List<JaxbI18NText> jaxbDescriptions;
+    @XmlElement
+    private List<JaxbI18NText> descriptions;
     
     @XmlElement(name="people-assignments")
-    private JaxbPeopleAssignments jaxbPeopleAssignments;
+    private JaxbPeopleAssignments peopleAssignments;
     
     @XmlElement
-    private JaxbTaskData jaxbTaskData;
+    private JaxbTaskData taskData;
     
     @XmlElement
-    @JsonIgnore
     private JaxbDeadlines deadlines = new JaxbDeadlines();
     
     @XmlElement(name="form-name")
@@ -101,17 +100,17 @@ public class JaxbTask implements InternalTask {
         }
         this.id = task.getId();
         this.priority = task.getPriority();
-        this.jaxbPeopleAssignments = new JaxbPeopleAssignments(task.getPeopleAssignments());
+        this.peopleAssignments = new JaxbPeopleAssignments(task.getPeopleAssignments());
 
         // Done because we get a (lazy-initialized) entity back from the task service, which causes problems outside a tx
         // .. so we "eager-initialize" all values here to avoid problems later. (Also in JaxbPeopleAssignments)
         // Collection.toArray() == PersistenceBag.toArray(), which calls PersistenceBag.read(), initializing collection
         // See org.hibernate.collection.internal.PersistenceBag
-        this.jaxbNames = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getNames());
-        this.jaxbSubjects = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getSubjects());
-        this.jaxbDescriptions = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getDescriptions());
+        this.names = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getNames());
+        this.subjects = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getSubjects());
+        this.descriptions = JaxbI18NText.convertListFromInterfaceToJaxbImpl(task.getDescriptions());
         
-        this.jaxbTaskData = new JaxbTaskData(task.getTaskData());
+        this.taskData = new JaxbTaskData(task.getTaskData());
         this.taskType = task.getTaskType();
         this.formName = ((InternalTask)task).getFormName();
         this.name = ((InternalTask)task).getName();
@@ -120,141 +119,124 @@ public class JaxbTask implements InternalTask {
     }
     
     @Override
-    @JsonProperty
     public Long getId() {
         return id;
     }
 
-    @JsonProperty
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
-    @JsonIgnore
     public void setId(long id) {
         this.id = id;
     }
 
     @Override
-    @JsonProperty
     public int getPriority() {
         return priority;
     }
 
-    @JsonProperty
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
-
     @Override
-    @JsonIgnore
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
     public List<JaxbI18NText> getJaxbNames() {
-        return this.jaxbNames;
+        return this.names;
     }
 
     public void setJaxbNames(List<JaxbI18NText> names) {
-        this.jaxbNames = names;
+        this.names = names;
     }
 
     @Override
-    @JsonIgnore
     public List<I18NText> getNames() {
-        if( jaxbNames == null ) { 
-            jaxbNames = Collections.emptyList();
+        if( names == null ) { 
+            names = Collections.emptyList();
         }
-        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(jaxbNames));
+        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(names));
     }
 
     public void setNames(List<I18NText> names) {
-        this.jaxbNames = JaxbI18NText.convertListFromInterfaceToJaxbImpl(names);
+        this.names = JaxbI18NText.convertListFromInterfaceToJaxbImpl(names);
     }
 
     public List<JaxbI18NText> getJaxbSubjects() {
-        return this.jaxbSubjects;
+        return this.subjects;
     }
 
     public void setJaxbSubjects(List<JaxbI18NText> subjects) {
-        this.jaxbSubjects = subjects;
+        this.subjects = subjects;
     }
 
     public List<I18NText> getSubjects() {
-        if( jaxbSubjects == null ) { 
-            jaxbSubjects = Collections.emptyList();
+        if( subjects == null ) { 
+            subjects = Collections.emptyList();
         }
-        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(jaxbSubjects));
+        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(subjects));
     }
 
     public void setSubjects(List<I18NText> subjects) {
-        this.jaxbSubjects = JaxbI18NText.convertListFromInterfaceToJaxbImpl(subjects);
+        this.subjects = JaxbI18NText.convertListFromInterfaceToJaxbImpl(subjects);
     }
 
     public List<JaxbI18NText> getJaxbDescriptions() {
-        return this.jaxbDescriptions;
+        return this.descriptions;
     }
 
     public void setJaxbDescriptions(List<JaxbI18NText> descriptions) {
-        this.jaxbDescriptions = descriptions;
+        this.descriptions = descriptions;
     }
 
     @Override
     public List<I18NText> getDescriptions() {
-        if( jaxbDescriptions == null ) { 
-            jaxbDescriptions = Collections.emptyList();
+        if( descriptions == null ) { 
+            descriptions = Collections.emptyList();
         }
-        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(jaxbDescriptions));
+        return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(descriptions));
     }
 
     public void setDescriptions(List<I18NText> descriptions) {
-        this.jaxbDescriptions = JaxbI18NText.convertListFromInterfaceToJaxbImpl(descriptions);
+        this.descriptions = JaxbI18NText.convertListFromInterfaceToJaxbImpl(descriptions);
     }
 
     public JaxbPeopleAssignments getJaxbPeopleAssignments() {
-        return jaxbPeopleAssignments;
+        return peopleAssignments;
     }
 
     public void setJaxbPeopleAssignments(JaxbPeopleAssignments jaxbPeopleAssignments) {
-        this.jaxbPeopleAssignments = jaxbPeopleAssignments;
+        this.peopleAssignments = jaxbPeopleAssignments;
     }
 
     @Override
-    @JsonIgnore
     public PeopleAssignments getPeopleAssignments() {
-        return jaxbPeopleAssignments;
+        return peopleAssignments;
     }
 
     public void setPeopleAssignments(PeopleAssignments peopleAssignments) {
         if( peopleAssignments instanceof JaxbPeopleAssignments ) { 
-        this.jaxbPeopleAssignments = (JaxbPeopleAssignments) peopleAssignments;
+        this.peopleAssignments = (JaxbPeopleAssignments) peopleAssignments;
         } else { 
-            this.jaxbPeopleAssignments = new JaxbPeopleAssignments(peopleAssignments);
+            this.peopleAssignments = new JaxbPeopleAssignments(peopleAssignments);
         }
     }
 
     @Override
-    @JsonIgnore
     public TaskData getTaskData() {
-        return jaxbTaskData;
+        return taskData;
     }
 
     public void setTaskData(TaskData taskData) {
         if( taskData instanceof JaxbTaskData ) { 
-            this.jaxbTaskData = (JaxbTaskData) taskData;
+            this.taskData = (JaxbTaskData) taskData;
         } else { 
-            this.jaxbTaskData = new JaxbTaskData(taskData);
+            this.taskData = new JaxbTaskData(taskData);
         }
     }
 
     public JaxbTaskData getJaxbTaskData() {
-        return jaxbTaskData;
+        return taskData;
     }
 
     public void setJaxbTaskData(JaxbTaskData jaxbTaskData) {
-        this.jaxbTaskData = jaxbTaskData;
+        this.taskData = jaxbTaskData;
     }
 
     @Override
@@ -267,7 +249,6 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
-    @JsonIgnore
     public Deadlines getDeadlines() {
         return this.deadlines;
     }
@@ -277,7 +258,6 @@ public class JaxbTask implements InternalTask {
         // no-op
     }
 
-    @JsonIgnore
     public Task getTask() { 
         Task taskImpl = TaskModelProvider.getFactory().newTask();
         List<I18NText> names = new ArrayList<I18NText>();
@@ -358,7 +338,6 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
-    @JsonIgnore
     public String getFormName() {
         return this.formName;
     }
@@ -374,13 +353,11 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
-    @JsonIgnore
     public Boolean isArchived() {
         return (Boolean) unsupported(Task.class);
     }
 
     @Override
-    @JsonIgnore
     public void setArchived(Boolean archived) {
         unsupported(Task.class);
     }
@@ -390,13 +367,11 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
-    @JsonIgnore
     public int getVersion() {
         return (Integer) unsupported(Task.class);
     }
 
     @Override
-    @JsonIgnore
     public Delegation getDelegation() {
         return (Delegation) unsupported(Task.class);
     }
@@ -407,7 +382,6 @@ public class JaxbTask implements InternalTask {
     }
 
     @Override
-    @JsonIgnore
     public SubTasksStrategy getSubTaskStrategy() {
         return (SubTasksStrategy) unsupported(Task.class);
     }

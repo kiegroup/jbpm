@@ -21,7 +21,7 @@ public class WebSphereUserGroupAdapter implements UserGroupAdapter {
         try {
             this.registry = InitialContext.doLookup("UserRegistry");
         } catch (NamingException e) {
-            logger.warn("Unable to look up UserRegistry in JNDI under key 'UserRegistry', disabling websphere adapter");
+            logger.info("Unable to look up UserRegistry in JNDI under key 'UserRegistry', disabling websphere adapter");
         }
     }
 
@@ -29,7 +29,7 @@ public class WebSphereUserGroupAdapter implements UserGroupAdapter {
 	@Override
     public List<String> getGroupsForUser(String userId) {
         List<String> roles = new ArrayList<String>();
-        if (registry == null || userId == null || !userId.isEmpty()) {
+        if (registry == null || userId == null || userId.isEmpty()) {
             return roles;
         }
         try {

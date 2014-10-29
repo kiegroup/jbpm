@@ -44,8 +44,9 @@ import org.kie.internal.task.api.model.FaultData;
 import org.kie.internal.task.api.model.SubTasksStrategy;
 import org.kie.internal.task.api.model.TaskDef;
 import org.kie.internal.task.api.model.TaskEvent;
+import org.kie.internal.task.query.TaskQueryBuilder;
 /**
- * Fully synchronized <code>TaskService</code> implementation used by <code>SingletonRuntimeManager</code>.
+ * Fully synchronized <code>TaskService</code> implementation used by the <code>SingletonRuntimeManager</code>.
  * Synchronization is done on <code>CommandService</code> of the <code>KieSession</code> to ensure correctness 
  * until transaction completion.
  *
@@ -905,13 +906,13 @@ public class SynchronizedTaskService
 
 
 	@Override
-	public List<TaskSummary> getTasksByVariousFields(List<Long> workItemIds,
+	public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds,
 			List<Long> taskIds, List<Long> procInstIds, List<String> busAdmins,
 			List<String> potOwners, List<String> taskOwners,
 			List<Status> status,  boolean union) {
 		synchronized (ksession) {
             if (taskService != null) {
-                return taskService.getTasksByVariousFields(workItemIds, taskIds, procInstIds,
+                return taskService.getTasksByVariousFields(userId, workItemIds, taskIds, procInstIds,
                 		busAdmins, potOwners, taskOwners, status, union);
             }
             return null;
@@ -920,26 +921,29 @@ public class SynchronizedTaskService
 
 
 	@Override
-	public List<TaskSummary> getTasksByVariousFields(
-			Map<String, List<?>> parameters, boolean union) {
+	public List<TaskSummary> getTasksByVariousFields(String userId, Map<String, List<?>> parameters, boolean union) {
 		synchronized (ksession) {
             if (taskService != null) {
-                return taskService.getTasksByVariousFields(parameters, union);
+                return taskService.getTasksByVariousFields(userId, parameters, union);
             }
             
             return null;
         }
 	}
 
-        @Override
-        public List<TaskSummary> getTasksOwned(String userId, List<Status> status, QueryFilter filter) {
-            return taskService.getTasksOwned(userId, status, filter);
-        }
+	@Override
+	public List<TaskSummary> getTasksOwned(String userId, List<Status> status, QueryFilter filter) {
+	    return taskService.getTasksOwned(userId, status, filter);
+	}
 
-        @Override
-        public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
-            return taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, status, filter);
-        }
+	@Override
+	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
+	    return taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, status, filter);
+	}
 
+	@Override
+	public TaskQueryBuilder taskQuery(String userId) {
+	    return taskService.taskQuery(userId);
+	}
 
 }

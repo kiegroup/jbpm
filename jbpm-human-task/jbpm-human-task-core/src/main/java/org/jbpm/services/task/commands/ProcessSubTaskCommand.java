@@ -18,7 +18,7 @@ import org.kie.internal.task.api.TaskQueryService;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.SubTasksStrategy;
 
-@XmlRootElement(name="process-sub-tasks-command")
+@XmlRootElement(name="process-sub-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ProcessSubTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
@@ -72,7 +72,7 @@ public class ProcessSubTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 	            		((InternalTask) parentTask).getSubTaskStrategy().equals(SubTasksStrategy.EndParentOnAllSubTasksEnd)){
 	                List<TaskSummary> subTasks = queryService.getSubTasksByParent(parentTask.getId());
 	                    // If there are no more sub tasks or if the last sub task is the one that we are completing now
-	                    if (subTasks.isEmpty() || (subTasks.size() == 1 && subTasks.get(0).getId() == taskId)) {
+	                    if (subTasks.isEmpty() || (subTasks.size() == 1 && subTasks.get(0).getId().equals(taskId)) ) {
 	                        // Completing parent task if all the sub task has being completed, including the one that we are completing now
 	                    	instanceService.complete(parentTask.getId(), "Administrator", data);
 	                    }

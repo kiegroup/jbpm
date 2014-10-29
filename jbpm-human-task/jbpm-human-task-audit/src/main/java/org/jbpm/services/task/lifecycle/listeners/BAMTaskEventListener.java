@@ -15,11 +15,10 @@
  */
 package org.jbpm.services.task.lifecycle.listeners;
 
+import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
-import org.jbpm.services.task.utils.ClassUtil;
 import org.kie.api.task.TaskEvent;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
@@ -70,7 +69,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskStartedEvent(TaskEvent event) {
-        createOrUpdateTask(event, new BAMTaskWorker() {
+    	updateTask(event, new BAMTaskWorker() {
             @Override
             public BAMTaskSummaryImpl createTask(BAMTaskSummaryImpl bamTask, Task task) {
                 bamTask.setStartDate(new Date());
@@ -86,16 +85,16 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskActivatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskClaimedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskCompletedEvent(TaskEvent event) {
 
-        createOrUpdateTask(event, new BAMTaskWorker() {
+    	updateTask(event, new BAMTaskWorker() {
             @Override
             public BAMTaskSummaryImpl createTask(BAMTaskSummaryImpl bamTask, Task task) {
                 return bamTask;
@@ -112,7 +111,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskAddedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+        createTask(event, null, null);
     }
 
     /**
@@ -147,37 +146,37 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
     }
 
     public void afterTaskReleasedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskDelegatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskForwaredEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskNomiatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskResumedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     public void afterTaskSuspendedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
     
     @Override
     public void afterTaskForwardedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
     
     @Override
     public void afterTaskNominatedEvent(TaskEvent event) {
-        createOrUpdateTask(event);
+    	updateTask(event);
     }
 
     /**
@@ -187,8 +186,8 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @param worker Perform additional operations to the bam task summary instance.
      * @return The created or updated bam task summary instance.
      */
-    protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event, BAMTaskWorker worker) {
-        return createOrUpdateTask(event, null, worker);
+    protected BAMTaskSummaryImpl updateTask(TaskEvent event, BAMTaskWorker worker) {
+        return updateTask(event, null, worker);
     }
 
 
@@ -198,8 +197,8 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @param ti The source task
      * @return The created or updated bam task summary instance.
      */
-    protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event) {
-        return createOrUpdateTask(event, null, null);
+    protected BAMTaskSummaryImpl updateTask(TaskEvent event) {
+        return updateTask(event, null, null);
     }
 
     /**
@@ -210,7 +209,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @return The created or updated bam task summary instance.
      */
     protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event, Status newStatus) {
-        return createOrUpdateTask(event, newStatus, null);
+        return updateTask(event, newStatus, null);
     }
 
     /**
@@ -221,7 +220,7 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
      * @param worker Perform additional operations to the bam task summary instance.
      * @return The created or updated bam task summary instance.
      */
-    protected BAMTaskSummaryImpl createOrUpdateTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
+    protected BAMTaskSummaryImpl createTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
         BAMTaskSummaryImpl result = null;
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
@@ -233,35 +232,48 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
 
         Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
 
-        List<BAMTaskSummaryImpl> taskSummaries = 
-        		persistenceContext.queryStringWithParametersInTransaction("select bts from BAMTaskSummaryImpl bts where bts.taskId=:taskId",
-        												persistenceContext.addParametersToMap("taskId", ti.getId()), 
-        												ClassUtil.<List<BAMTaskSummaryImpl>>castClass(List.class));
-        if (taskSummaries.isEmpty()) {
-
-            String actualOwner = "";
-            if (ti.getTaskData().getActualOwner() != null) {
-                actualOwner = ti.getTaskData().getActualOwner().getId();
-            }
-
-            result = new BAMTaskSummaryImpl(ti.getId(), ti.getName(), status.toString(), new Date(), actualOwner, ti.getTaskData().getProcessInstanceId());
-            if (worker != null) worker.createTask(result, ti);
-            persistenceContext.persist(result);
-        } else if (taskSummaries.size() == 1) {
-
-            result = taskSummaries.get(0);
-            result.setStatus(status.toString());
-            if (ti.getTaskData().getActualOwner() != null) {
-                result.setUserId(ti.getTaskData().getActualOwner().getId());
-            }
-            if (worker != null) worker.updateTask(result, ti);
-            persistenceContext.merge(result);
-
-        } else {
-            logger.warn("Something went wrong with the Task BAM Listener");
-            throw new IllegalStateException("We cannot have more than one BAM Task Summary for the task id = " + ti.getId());
+        String actualOwner = "";
+        if (ti.getTaskData().getActualOwner() != null) {
+            actualOwner = ti.getTaskData().getActualOwner().getId();
         }
 
+        result = new BAMTaskSummaryImpl(ti.getId(), ti.getName(), status.toString(), new Date(), actualOwner, ti.getTaskData().getProcessInstanceId());
+        if (worker != null) worker.createTask(result, ti);
+        persistenceContext.persist(result);
+    
+
+        return result;
+    }
+    
+    protected BAMTaskSummaryImpl updateTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
+        BAMTaskSummaryImpl result = null;
+        Task ti = event.getTask();
+        TaskPersistenceContext persistenceContext = ((TaskContext)event.getTaskContext()).getPersistenceContext();
+
+        if (ti == null) {
+            logger.error("The task instance does not exist.");
+            return result;
+        }
+
+        Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
+
+        result = persistenceContext.queryStringWithParametersInTransaction("select bts from BAMTaskSummaryImpl bts where bts.taskId=:taskId", true,
+        												persistenceContext.addParametersToMap("taskId", ti.getId()), 
+        												BAMTaskSummaryImpl.class);
+        
+        if (result == null) {
+        	logger.warn("Unable find bam task entry for task id {} '{}', skipping bam task update", ti.getId(), ti.getName());
+        	return null;
+        }
+        	
+        result.setStatus(status.toString());
+        if (ti.getTaskData().getActualOwner() != null) {
+            result.setUserId(ti.getTaskData().getActualOwner().getId());
+        }
+        if (worker != null) worker.updateTask(result, ti);
+        persistenceContext.merge(result);
+
+      
         return result;
     }
 
@@ -337,5 +349,13 @@ public class BAMTaskEventListener implements TaskLifeCycleEventListener {
 	
 	@Override
 	public void beforeTaskNominatedEvent(TaskEvent event) {
+	}
+	
+	private class BAMSummaryComparator implements Comparator<BAMTaskSummaryImpl> {
+
+		@Override
+		public int compare(BAMTaskSummaryImpl o1, BAMTaskSummaryImpl o2) {	
+			return (o1.getTaskId()<o2.getTaskId() ? -1 : (o1.getTaskId()==o2.getTaskId() ? 0 : 1));
+		}
 	}
 }

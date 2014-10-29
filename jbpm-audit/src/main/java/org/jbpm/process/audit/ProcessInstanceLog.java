@@ -29,6 +29,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.jbpm.process.audit.event.AuditEvent;
+import org.jbpm.process.audit.event.AuditEventBuilder;
+import org.kie.api.runtime.KieRuntime;
 
 @Entity
 @SequenceGenerator(name="processInstanceLogIdSeq", sequenceName="PROC_INST_LOG_ID_SEQ", allocationSize=1)
@@ -41,28 +43,45 @@ public class ProcessInstanceLog implements Serializable, AuditEvent, org.kie.api
 	private long id;
 	
     private long processInstanceId;
+    
     private String processId;
     
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "start_date")
     private Date start;
+    
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "end_date")
     private Date end;
     
     @Column(nullable=true)
     private Integer status;
+    
     @Column(nullable=true)
     private Long parentProcessInstanceId;
+    
     @Column(nullable=true)
     private String outcome;    
+    
     private Long duration;
+    
     @Column(name="user_identity")
     private String identity;    
-    private String processVersion;
-    private String processName;
     
+    private String processVersion;
+    
+    private String processName;
+   
+    /**
+     * Dependening on the {@link AuditEventBuilder} implementation, 
+     * this can be<ul>
+     * <li>The {@link KieRuntime} id</li>
+     * <li>The deployment unit Id</li>
+     * 
+     */
     private String externalId;
+    
+    private String processInstanceDescription;
     
     public ProcessInstanceLog() {
     }
@@ -81,11 +100,11 @@ public class ProcessInstanceLog implements Serializable, AuditEvent, org.kie.api
 		this.id = id;
 	}
 
-    public long getProcessInstanceId() {
+    public Long getProcessInstanceId() {
         return processInstanceId;
     }
     
-    private void setProcessInstanceId(long processInstanceId) {
+    public void setProcessInstanceId(long processInstanceId) {
         this.processInstanceId = processInstanceId;
     }
     
@@ -135,6 +154,7 @@ public class ProcessInstanceLog implements Serializable, AuditEvent, org.kie.api
 		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
 		result = prime * result + ((processVersion == null) ? 0 : processVersion.hashCode());
 		result = prime * result + ((processName == null) ? 0 : processName.hashCode());
+		result = prime * result + ((processInstanceDescription == null) ? 0 : processInstanceDescription.hashCode());
 		return result;
 	}
 
@@ -214,7 +234,12 @@ public class ProcessInstanceLog implements Serializable, AuditEvent, org.kie.api
                 return false;
         } else if (!processName.equals(other.processName))
             return false; 
-		return true;
+        if (processInstanceDescription == null) {
+            if (other.processInstanceDescription != null)
+                return false;
+        } else if (!processInstanceDescription.equals(other.processInstanceDescription))
+            return false; 
+		return true; 
 	}
 
 	public Integer getStatus() {
@@ -280,4 +305,13 @@ public class ProcessInstanceLog implements Serializable, AuditEvent, org.kie.api
     public void setProcessName(String processName) {
         this.processName = processName;
     }
+    
+    public String getProcessInstanceDescription() {
+        return processInstanceDescription;
+    }
+
+    public void setProcessInstanceDescription(String processInstanceDescription) {
+        this.processInstanceDescription = processInstanceDescription;
+    }
+
 }

@@ -17,7 +17,10 @@ package org.jbpm.runtime.manager.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
@@ -45,7 +48,7 @@ import org.kie.internal.runtime.manager.Mapper;
 import org.kie.internal.runtime.manager.RuntimeEnvironment;
 
 /**
- * The most basic implementation of <code>RuntimeEnvironment</code> that at the same time serves as base 
+ * The most basic implementation of the <code>RuntimeEnvironment</code> that, at the same time, serves as base 
  * implementation for all extensions. Encapsulates all important configuration that <code>RuntimeManager</code>
  * requires for execution.
  * <ul>
@@ -66,6 +69,7 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
     protected boolean usePersistence;
     protected EntityManagerFactory emf;
     
+    protected Map<String, Object> environmentEntries;
     protected Environment environment;
     protected KieSessionConfiguration configuration;
     protected KieBase kbase;
@@ -84,6 +88,7 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
     
     public SimpleRuntimeEnvironment(RegisterableItemsFactory registerableItemsFactory) {
         this.environment = EnvironmentFactory.newEnvironment();
+        this.environmentEntries = new HashMap<String, Object>();
         this.kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         this.registerableItemsFactory = registerableItemsFactory;
 
@@ -120,6 +125,7 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
      */
     public void addToEnvironment(String name, Object value) {
         this.environment.set(name, value);
+        this.environmentEntries.put(name, value);
     }
     
     /**
@@ -197,11 +203,12 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         addIfPresent(EnvironmentName.GLOBALS, copy);
         addIfPresent(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, copy);
         addIfPresent(EnvironmentName.PERSISTENCE_CONTEXT_MANAGER, copy);
+        addIfPresent(EnvironmentName.TASK_PERSISTENCE_CONTEXT_MANAGER, copy);
         addIfPresent(EnvironmentName.TRANSACTION_MANAGER, copy);
         addIfPresent(EnvironmentName.TRANSACTION_SYNCHRONIZATION_REGISTRY, copy);
         addIfPresent(EnvironmentName.TRANSACTION, copy);
         addIfPresent(EnvironmentName.USE_LOCAL_TRANSACTIONS, copy);
-        addIfPresent(EnvironmentName.USE_PESSIMISTIC_LOCKING, copy);
+        addIfPresent(EnvironmentName.USE_PESSIMISTIC_LOCKING, copy);        
         
         if (usePersistence()) {
             ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) copy.get(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES);        
@@ -218,9 +225,22 @@ public class SimpleRuntimeEnvironment implements RuntimeEnvironment, SchedulerPr
         
         
         addIfPresent("IS_JTA_TRANSACTION", copy);
+        addIfPresent("IS_TIMER_CMT", copy);
 		addIfPresent("IS_SHARED_ENTITY_MANAGER", copy);
 		addIfPresent("TRANSACTION_LOCK_ENABLED", copy);
 		addIfPresent("IdentityProvider", copy);
+		addIfPresent("jbpm.business.calendar", copy);
+		
+		// handle for custom environment entries that might be required by non engine use cases
+		if (!environmentEntries.isEmpty()) {
+			for (Entry<String, Object> entry : environmentEntries.entrySet()) {
+				// don't override
+				if (copy.get(entry.getKey()) != null) {
+					continue;
+				}
+				copy.set(entry.getKey(), entry.getValue());
+			}
+		}
 
         return copy;
     }

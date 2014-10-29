@@ -41,6 +41,7 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
+import org.kie.internal.runtime.manager.CacheManager;
 import org.kie.internal.runtime.manager.Disposable;
 import org.kie.internal.runtime.manager.DisposeListener;
 import org.kie.internal.runtime.manager.InternalRegisterableItemsFactory;
@@ -52,23 +53,25 @@ import org.kie.internal.task.api.EventService;
 import org.kie.internal.task.api.InternalTaskService;
 
 /**
- * Common implementation that all <code>RuntimeManager</code> implementation should inherit from.
- * Provides following capabilities:
+ * Common implementation that all <code>RuntimeManager</code> implementations should inherit from.
+ * Provides the following capabilities:
  * <ul>
- *  <li>keeps track of all active managers by its identifier and prevents of having multiple managers with same id</li>
- *  <li>provides common close operation</li>
- *  <li>injects RuntimeManager into ksession's environment for further reference</li>
+ *  <li>keeps track of all active managers by their identifier and prevents multiple managers from having the same id</li>
+ *  <li>provides a common close operation</li>
+ *  <li>injects the RuntimeManager into the ksession's environment for further reference</li>
  *  <li>registers dispose callbacks (via transaction synchronization) 
- *  to dispose runtime engine automatically on transaction completion</li>
+ *  to dispose of the runtime engine automatically on transaction completion</li>
  *  <li>registers all defined items (work item handlers, event listeners)</li>
  * </ul>
- * Additionally, provides abstract <code>init</code> method that will be called on RuntimeManager instantiation. 
+ * Additionally, this provides a abstract <code>init</code> method that will be called on RuntimeManager instantiation. 
  */
 public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
     protected RuntimeManagerRegistry registry = RuntimeManagerRegistry.get();
     protected RuntimeEnvironment environment;
     protected DeploymentDescriptor deploymentDescriptor;
+    
+    protected CacheManager cacheManager = new CacheManagerImpl();
     
     protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "false"));
 
@@ -163,6 +166,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     }
     
     public void close(boolean removeJobs) {
+    	cacheManager.dispose();
         environment.close();
         registry.remove(identifier);
         TimerService timerService = TimerServiceRegistry.getInstance().remove(getIdentifier() + TimerServiceRegistry.TIMER_SERVICE_SUFFIX);
@@ -227,7 +231,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     
 
     protected boolean canDestroy(RuntimeEngine runtime) {
-    	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
+    	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false) || ((RuntimeEngineImpl) runtime).isAfterCompletion()) {
     		return false;
     	}
         TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
@@ -281,4 +285,18 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     		this.securityManager.checkPermission();
     	}
     }
+
+	@Override
+	public void setCacheManager(CacheManager cacheManager) {
+		if (cacheManager != null) {
+			this.cacheManager = cacheManager;
+		}
+	}
+
+	@Override
+	public CacheManager getCacheManager() {
+		return cacheManager;
+	}
+    
+    
 }

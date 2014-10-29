@@ -16,12 +16,13 @@
 package org.jbpm.runtime.manager.impl.tx;
 
 import org.drools.persistence.OrderedTransactionSynchronization;
+import org.jbpm.runtime.manager.impl.RuntimeEngineImpl;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 
 /**
- * Transaction synchronization that disposed <code>KieSession</code> instance on transaction completion during
- * afterCompletion phase.
+ * Transaction synchronization that disposes of the <code>KieSession</code> instance on transaction completion during
+ * the <code>afterCompletion</code> phase.
  *
  */
 public class DisposeSessionTransactionSynchronization extends OrderedTransactionSynchronization {
@@ -30,7 +31,7 @@ public class DisposeSessionTransactionSynchronization extends OrderedTransaction
 	private RuntimeManager manager;
 	
 	public DisposeSessionTransactionSynchronization(RuntimeManager manager, RuntimeEngine runtime) {
-		super(10);
+		super(10, "DestroySessionTransactionSynchronization"+runtime.toString());
 		this.manager = manager;
 	    this.runtime = runtime;
 	}
@@ -40,6 +41,7 @@ public class DisposeSessionTransactionSynchronization extends OrderedTransaction
 
 	public void afterCompletion(int status) {
 	    try {
+	    	((RuntimeEngineImpl) runtime).setAfterCompletion(true);
 	        manager.disposeRuntimeEngine(runtime);
 	    } catch (Throwable e) {
 	        // catch exception as it's only clean up and should not affect runtime

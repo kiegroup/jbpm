@@ -28,6 +28,7 @@ import org.jbpm.process.audit.AbstractAuditLogger;
 import org.jbpm.process.audit.AuditLoggerFactory;
 import org.jbpm.process.audit.event.AuditEventBuilder;
 import org.jbpm.process.instance.event.listeners.TriggerRulesEventListener;
+import org.jbpm.process.instance.impl.ProcessInstanceDescriptionListener;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.wih.LocalHTWorkItemHandler;
@@ -50,17 +51,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Default implementation of <code>RegisterableItemsFactory</code> responsible for providing 
- * common set of WorkItemHandlers and EventListeners. This factory should not be used in CDI container.
+ * Default implementation of the <code>RegisterableItemsFactory</code> responsible for providing 
+ * a common set of WorkItemHandlers and EventListeners. This factory should not be used in CDI container.
  * <br/>
- * It will deliver fully configured instances of:
+ * It will deliver fully configured instances of the following:
  * <ul>
- *  <li>WorkItemHandler for "Human Task" that is configured with local task service</li>
- *  <li>JPA audit logger - for history log</li>
- *  <li>event listener to trigger rules automatically without a need of invoking fireAllRules</li>
+ *  <li>a WorkItemHandler for "Human Task" that is configured with local task service</li>
+ *  <li>a JPA audit logger - for history logging</li>
+ *  <li>a event listener to trigger rules automatically without a need of invoking fireAllRules</li>
  * </ul>
- * Moreover it will invoke its super methods to get rest of registerable items defined, that might override defaults
- * as they are added to resulting map at the end.
+ * Moreover, it will invoke its super methods to define the rest of the registerable items, that might override defaults
+ * when they are added to the resulting map at the end.
  * 
  * @see InjectableRegisterableItemsFactory
  */
@@ -89,6 +90,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {    	
         List<ProcessEventListener> defaultListeners = new ArrayList<ProcessEventListener>();
         DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
+        defaultListeners.add(new ProcessInstanceDescriptionListener());
         if (descriptor == null) {
         	// register JPAWorkingMemoryDBLogger
 	        AbstractAuditLogger logger = AuditLoggerFactory.newJPAInstance(runtime.getKieSession().getEnvironment());
@@ -120,7 +122,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
             } catch (IOException e) {
                 logger.error("Unable to load jms audit properties from {}", "/jbpm.audit.jms.properties", e);
             }
-        }
+        }   
         // add any custom listeners
         defaultListeners.addAll(super.getProcessEventListeners(runtime));
         // add listeners from descriptor
@@ -217,6 +219,7 @@ public class DefaultRegisterableItemsFactory extends SimpleRegisterableItemsFact
         parameters.put("ksession", runtime.getKieSession());
         parameters.put("taskService", runtime.getTaskService());
         parameters.put("runtimeManager", manager);
+        parameters.put("classLoader", getRuntimeManager().getEnvironment().getClassLoader());
         parameters.put("entityManagerFactory", 
         		runtime.getKieSession().getEnvironment().get(EnvironmentName.ENTITY_MANAGER_FACTORY));
         

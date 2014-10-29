@@ -1,5 +1,6 @@
 package org.jbpm.services.task.impl.command;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,7 +89,7 @@ import org.jbpm.services.task.commands.TaskCommand;
 import org.jbpm.services.task.commands.UndeployTaskDefCommand;
 import org.jbpm.services.task.events.TaskEventSupport;
 import org.jbpm.services.task.impl.TaskContentRegistry;
-import org.jbpm.services.task.query.QueryFilterImpl;
+import org.jbpm.services.task.impl.TaskQueryBuilderImpl;
 import org.jbpm.services.task.rule.TaskRuleService;
 import org.kie.api.command.Command;
 import org.kie.api.task.TaskLifeCycleEventListener;
@@ -112,6 +113,7 @@ import org.kie.internal.task.api.model.FaultData;
 import org.kie.internal.task.api.model.SubTasksStrategy;
 import org.kie.internal.task.api.model.TaskDef;
 import org.kie.internal.task.api.model.TaskEvent;
+import org.kie.internal.task.query.TaskQueryBuilder;
 
 public class CommandBasedTaskService implements InternalTaskService, EventService<TaskLifeCycleEventListener> {
 
@@ -184,12 +186,12 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		return getTasksAssignedAsPotentialOwner(userId, null, null, null);
 	}
         
-        @Override
-        public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds) {
-                return getTasksAssignedAsPotentialOwner(userId, groupIds, null, null);
-        }
+	@Override
+	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds) {
+	    return getTasksAssignedAsPotentialOwner(userId, groupIds, null, null);
+	}
         
-        public List<TaskSummary> getTasksAssignedAsPotentialOwner(
+	public List<TaskSummary> getTasksAssignedAsPotentialOwner(
 			String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
 		return executor.execute(new GetTaskAssignedAsPotentialOwnerCommand(userId, groupIds, status, filter));
 	}
@@ -199,13 +201,13 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		return getTasksAssignedAsPotentialOwner(userId, null, status, null);
 	}
         
-        @Override
+	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDate(
 			String userId, List<Status> statuses, Date expirationDate) {	
                         Map<String, Object> params = new HashMap<String, Object>();
                         params.put("expirationDate", expirationDate);
 		return getTasksAssignedAsPotentialOwner(userId, null, statuses, 
-                        new QueryFilterImpl( "t.taskData.expirationTime = :expirationDate", params, "t.id", false));
+                        new QueryFilter( "t.taskData.expirationTime = :expirationDate", params, "t.id", false));
 	}
 
 	@Override
@@ -214,14 +216,14 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("expirationDate", expirationDate);
 		return getTasksAssignedAsPotentialOwner(userId, null, statuses, 
-                        new QueryFilterImpl( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", params, "t.id", false));
+                        new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", params, "t.id", false));
 	}
         
         @Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId,
 			List<String> groupIds, int firstResult,
 			int maxResults) {
-		return getTasksAssignedAsPotentialOwner(userId, groupIds, null, new QueryFilterImpl(firstResult, maxResults));
+		return getTasksAssignedAsPotentialOwner(userId, groupIds, null, new QueryFilter(firstResult, maxResults));
 	}
 
 	@Override
@@ -254,20 +256,40 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	}
 	
     @Override
-    public List<TaskSummary> getTasksByVariousFields(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
+    /**
+     *  This method should be deleted in jBPM 7.x
+     *  @see {@link CommandBasedTaskService#fluentTaskQuery}
+     */
+    @Deprecated
+    public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
             List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
             boolean union) {
-		return executor.execute(new GetTasksByVariousFieldsCommand(workItemIds, taskIds, procInstIds, 
+
+        GetTasksByVariousFieldsCommand cmd = new GetTasksByVariousFieldsCommand(workItemIds, taskIds, procInstIds, 
 		        busAdmins, potOwners, taskOwners, 
-		        statuses, union));
+		        statuses, union);
+        cmd.setUserId(userId);
+        
+		return executor.execute(cmd);
     }
 
+    /**
+     *  This method should be deleted in jBPM 7.x
+     *  @see {@link CommandBasedTaskService#fluentTaskQuery}
+     */
     @Override
-    public List<TaskSummary> getTasksByVariousFields(Map<String, List<?>> parameters, boolean union) {
-		return executor.execute(new GetTasksByVariousFieldsCommand(parameters, union));
+    public List<TaskSummary> getTasksByVariousFields(String userId, Map<String, List<?>> parameters, boolean union) {
+		GetTasksByVariousFieldsCommand cmd = new GetTasksByVariousFieldsCommand(parameters, union);
+		cmd.setUserId(userId);
+		return executor.execute(cmd);
     }
 
-	public long addTask(Task task, Map<String, Object> params) {
+	@Override
+    public TaskQueryBuilder taskQuery(String userId) {
+        return new TaskQueryBuilderImpl(userId, executor);
+    }
+
+    public long addTask(Task task, Map<String, Object> params) {
 		return executor.execute(new AddTaskCommand(task, params));
 	}
 
@@ -424,7 +446,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("expirationDate", expirationDate);
-                return getTasksOwned(userId, statuses, new QueryFilterImpl("t.taskData.expirationTime = :expirationDate", params, "t.id", false));
+                return getTasksOwned(userId, statuses, new QueryFilter("t.taskData.expirationTime = :expirationDate", params, "t.id", false));
 	}
 
 	@Override
@@ -432,7 +454,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 			String userId, List<Status> statuses, Date expirationDate) {
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("expirationDate", expirationDate);
-                return getTasksOwned(userId, statuses, new QueryFilterImpl("(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", params, "t.id", false));
+                return getTasksOwned(userId, statuses, new QueryFilter("(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", params, "t.id", false));
 	}
 
 	@Override
@@ -709,18 +731,16 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		return TaskContentRegistry.get().getMarshallerContext(task);
 	}
 
-	
-
 	@Override
 	public void removeTaskEventsById(long taskId) {
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " + 
+		        this.getClass().getSimpleName());
 	}	
 
 	@Override
 	public List<TaskEvent> getTaskEventsById(long taskId) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " + 
+		        this.getClass().getSimpleName());
 	}
 
 	// notification service methods
@@ -732,7 +752,6 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 
 	@Override
 	public List<TaskLifeCycleEventListener> getTaskEventListeners() {
-
 		return taskEventSupport.getEventListeners();
 	}
 

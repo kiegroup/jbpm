@@ -32,7 +32,6 @@ import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
 import org.jbpm.kie.services.impl.security.IdentityRolesSecurityManager;
 import org.jbpm.process.audit.event.AuditEventBuilder;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
-import org.jbpm.runtime.manager.impl.SimpleRegisterableItemsFactory;
 import org.jbpm.runtime.manager.impl.SimpleRuntimeEnvironment;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
@@ -42,12 +41,11 @@ import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.DeployedUnit;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
-import org.jbpm.services.api.model.QueryContextImpl;
-import org.kie.api.runtime.manager.RegisterableItemsFactory;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 
@@ -127,12 +125,13 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
                 }            
                 deployedUnit.setRuntimeManager(manager);
                 DeploymentDescriptor descriptor = ((InternalRuntimeManager)manager).getDeploymentDescriptor();
-                if (descriptor.getRequiredRoles() != null && !descriptor.getRequiredRoles().isEmpty()) {
-                	((InternalRuntimeManager)manager).setSecurityManager(new IdentityRolesSecurityManager(identityProvider, descriptor.getRequiredRoles()));
+                List<String> requiredRoles = descriptor.getRequiredRoles(DeploymentDescriptor.TYPE_EXECUTE);
+                if (requiredRoles != null && !requiredRoles.isEmpty()) {
+                	((InternalRuntimeManager)manager).setSecurityManager(new IdentityRolesSecurityManager(identityProvider, requiredRoles));
                 }
                 notifyOnDeploy(unit, deployedUnit);
                 
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 deploymentsMap.remove(unit.getIdentifier());
                 if (manager != null) {
                 	manager.close();
@@ -150,7 +149,7 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
         states.add(ProcessInstance.STATE_ACTIVE);
         states.add(ProcessInstance.STATE_PENDING);
         states.add(ProcessInstance.STATE_SUSPENDED);
-        Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContextImpl());
+        Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstancesByDeploymentId(unit.getIdentifier(), states, new QueryContext());
         if (!activeProcesses.isEmpty()) {
             throw new IllegalStateException("Undeploy forbidden - there are active processes instances for deployment " 
                                             + unit.getIdentifier());

@@ -134,6 +134,15 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
     
     public void cancel() {
         nodeInstanceContainer.removeNodeInstance(this);
+        boolean hidden = false;
+    	if (getNode().getMetaData().get("hidden") != null) {
+    		hidden = true;
+    	}
+    	if (!hidden) {
+    		InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+        	((InternalProcessRuntime) kruntime.getProcessRuntime())
+        		.getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
+        }
     }
     
     public final void trigger(NodeInstance from, String type) {
@@ -206,6 +215,7 @@ public abstract class NodeInstanceImpl implements org.jbpm.workflow.instance.Nod
 	    	    uniqueId = ((NodeImpl) node).getUniqueId();
 	    	}
 	    	((WorkflowProcessInstanceImpl) processInstance).addCompletedNodeId(uniqueId);
+	    	((WorkflowProcessInstanceImpl) processInstance).getIterationLevels().remove(uniqueId);
         }
 
         // if node instance was cancelled, or containing container instance was cancelled

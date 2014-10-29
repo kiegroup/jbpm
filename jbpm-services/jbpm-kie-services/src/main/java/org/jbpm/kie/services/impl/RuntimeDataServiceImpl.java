@@ -40,7 +40,6 @@ import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
 import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.model.VariableDesc;
-import org.jbpm.services.task.query.QueryFilterImpl;
 import org.jbpm.shared.services.impl.QueryManager;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.QueryNameCommand;
@@ -370,20 +369,19 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      * node instances methods
      */    
     @Override
-    public Collection<NodeInstanceDesc> getProcessInstanceHistoryActive(String deploymentId, long processId, QueryContext queryContext) {
-        return getProcessInstanceHistory(deploymentId, processId, false, queryContext);
+    public Collection<NodeInstanceDesc> getProcessInstanceHistoryActive(long processId, QueryContext queryContext) {
+        return getProcessInstanceHistory(processId, false, queryContext);
     }
     
     @Override
-    public Collection<NodeInstanceDesc> getProcessInstanceHistoryCompleted(String deploymentId, long processId, QueryContext queryContext) {
-        return getProcessInstanceHistory(deploymentId, processId, true, queryContext);
+    public Collection<NodeInstanceDesc> getProcessInstanceHistoryCompleted(long processId, QueryContext queryContext) {
+        return getProcessInstanceHistory(processId, true, queryContext);
     }
 
     
-    protected Collection<NodeInstanceDesc> getProcessInstanceHistory(String deploymentId, long processId, boolean completed, QueryContext queryContext) {
+    protected Collection<NodeInstanceDesc> getProcessInstanceHistory(long processId, boolean completed, QueryContext queryContext) {
     	Map<String, Object> params = new HashMap<String, Object>();
     	params.put("processId", processId);
-    	params.put("externalId", deploymentId);
     	applyQueryContext(params, queryContext);
     	List<NodeInstanceDesc> nodeInstances = Collections.emptyList();
         if (completed) {
@@ -400,10 +398,9 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
     
     @Override
-    public Collection<NodeInstanceDesc> getProcessInstanceFullHistory(String deploymentId, long processId, QueryContext queryContext) {
+    public Collection<NodeInstanceDesc> getProcessInstanceFullHistory(long processId, QueryContext queryContext) {
     	Map<String, Object> params = new HashMap<String, Object>();
     	params.put("processId", processId);
-    	params.put("externalId", deploymentId);
     	applyQueryContext(params, queryContext);
         List<NodeInstanceDesc> nodeInstances = commandService.execute(
 				new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceFullHistory", 
@@ -413,10 +410,9 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
     
     @Override
-    public Collection<NodeInstanceDesc> getProcessInstanceFullHistoryByType(String deploymentId, long processId, EntryType type, QueryContext queryContext) {    	
+    public Collection<NodeInstanceDesc> getProcessInstanceFullHistoryByType(long processId, EntryType type, QueryContext queryContext) {    	
     	Map<String, Object> params = new HashMap<String, Object>();
     	params.put("processId", processId);
-    	params.put("externalId", deploymentId);
     	params.put("type", type.getValue());
     	applyQueryContext(params, queryContext);
         List<NodeInstanceDesc> nodeInstances = commandService.execute(
@@ -542,13 +538,13 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if (from != null) {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("expirationDate", from);
-			QueryFilter qf = new QueryFilterImpl( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", 
+			QueryFilter qf = new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", 
 	                            params, "order by t.id DESC", filter.getOffset(), filter.getCount());
 	                
 	 
 			taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, qf);
         } else {
-            QueryFilter qf = new QueryFilterImpl(filter.getOffset(), filter.getCount());
+            QueryFilter qf = new QueryFilter(filter.getOffset(), filter.getCount());
             taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId,null, status, qf);
         }
         return taskSummaries;
@@ -561,13 +557,13 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if (from != null) {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("expirationDate", from);
-			QueryFilter qf = new QueryFilterImpl( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", 
+			QueryFilter qf = new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", 
 	                            params, "order by t.id DESC", filter.getOffset(), filter.getCount());
 	                
 	 
 			taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId, null, qf);
         } else {
-            QueryFilter qf = new QueryFilterImpl(filter.getOffset(), filter.getCount());
+            QueryFilter qf = new QueryFilter(filter.getOffset(), filter.getCount());
             taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId,null, qf);
         }
         return taskSummaries;
