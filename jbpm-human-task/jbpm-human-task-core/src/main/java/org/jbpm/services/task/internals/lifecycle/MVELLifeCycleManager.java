@@ -227,7 +227,12 @@ public class MVELLifeCycleManager implements LifeCycleManager {
         if (command.getExec() != null) {
             switch (command.getExec()) {
                 case Claim: {
-                    taskData.setActualOwner((User) targetEntity);
+                    if(targetEntity instanceof User){
+                        taskData.setActualOwner((User) targetEntity);
+                    }
+                    // else if(targetEntity instanceof Group){
+                    // //@TODO when it is delegated to a group, what should to do for actual owner? 
+                    // }
                     // @TODO: Ical stuff
                     // Task was reserved so owner should get icals
 //                    SendIcal.getInstance().sendIcalForTask(task, service.getUserinfo());
