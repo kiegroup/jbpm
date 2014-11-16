@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManagerFactory;
 
-import org.jbpm.kie.services.api.IdentityProvider;
+import org.jbpm.kie.services.api.DeploymentIdResolver;
 import org.jbpm.kie.services.impl.audit.ServicesAwareAuditEventBuilder;
 import org.jbpm.kie.services.impl.security.IdentityRolesSecurityManager;
 import org.jbpm.process.audit.event.AuditEventBuilder;
@@ -45,6 +45,7 @@ import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
@@ -168,15 +169,24 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
     public RuntimeManager getRuntimeManager(String deploymentUnitId) {
         if (deploymentUnitId != null && deploymentsMap.containsKey(deploymentUnitId)) {
             return deploymentsMap.get(deploymentUnitId).getRuntimeManager();
+        } else if (deploymentUnitId != null && deploymentUnitId.toLowerCase().contains("latest")) {
+        	String matched = DeploymentIdResolver.matchAndReturnLatest(deploymentUnitId, deploymentsMap.keySet());
+
+    		return deploymentsMap.get(matched).getRuntimeManager();
+
         }
         
         return null;
     }
 
-    @Override
+	@Override
     public DeployedUnit getDeployedUnit(String deploymentUnitId) {
         if (deploymentsMap.containsKey(deploymentUnitId)) {
             return deploymentsMap.get(deploymentUnitId);
+        } else if (deploymentUnitId != null && deploymentUnitId.toLowerCase().contains("latest")) {
+        	String matched = DeploymentIdResolver.matchAndReturnLatest(deploymentUnitId, deploymentsMap.keySet());
+
+    		return deploymentsMap.get(matched);        	
         }
         
         return null;
@@ -229,4 +239,6 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
         
         return auditEventBuilder;
     }
+	
+	
 }
