@@ -134,11 +134,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,  
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     potentialOwners.id = :userId and
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and    
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
 
     (
@@ -188,11 +190,13 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     potentialOwners.id = :userId and
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and    
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
 
     (
@@ -242,13 +246,15 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
-
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and
+    
     (
     name.language = :language
     or t.names.size = 0
@@ -296,12 +302,14 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and    
 
     (
     name.language = :language
@@ -350,12 +358,14 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners )  and
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and    
 
     (
     name.language = :language
@@ -490,66 +500,14 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
-    OrganizationalEntityImpl potentialOwners
-where
-    t.archived = 0 and
-    potentialOwners.id = :userId  and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
-
-    (
-    name.language = :language
-    or t.names.size = 0
-    ) and
-
-    (
-    subject.language = :language
-    or t.subjects.size = 0
-    ) and
-
-    (
-    description.language = :language
-    or t.descriptions.size = 0
-    ) and
-    t.taskData.expirationTime = :expirationDate and
-    t.taskData.status in (:status) 
-              order by t.id DESC
-          </query>
-          <!-- hint name="org.hibernate.timeout" value="200"/ -->
-      </named-query>
-      <named-query name="TasksAssignedAsPotentialOwnerStatusByExpirationDateByGroup">
-          <query>
-select distinct 
-     new org.jbpm.services.task.query.TaskSummaryImpl(
-     t.id,
-     t.taskData.processInstanceId,
-     name.shortText,
-     subject.shortText,
-     description.shortText,
-     t.taskData.status,
-     t.priority,
-     t.taskData.skipable,
-     actualOwner,
-     createdBy,
-     t.taskData.createdOn,
-     t.taskData.activationTime,
-     t.taskData.expirationTime,
-     t.taskData.processId,
-     t.taskData.processSessionId,
-     t.subTaskStrategy,
-     t.taskData.parentId              )
-from
-    TaskImpl t 
-    left join t.taskData.createdBy as createdBy
-    left join t.taskData.actualOwner as actualOwner
-    left join t.subjects as subject
-    left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and    
 
     (
     name.language = :language
@@ -571,6 +529,7 @@ where
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
+      
        <named-query name="TasksAssignedAsPotentialOwnerStatusByExpirationDateOptional">
           <query>
 select distinct 
@@ -598,67 +557,14 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
-    OrganizationalEntityImpl potentialOwners
-where
-    t.archived = 0 and
-    potentialOwners.id = :userId  and
-    potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
-
-    (
-    name.language = :language
-    or t.names.size = 0
-    ) and
-
-    (
-    subject.language = :language
-    or t.subjects.size = 0
-    ) and
-
-    (
-    description.language = :language
-    or t.descriptions.size = 0
-    ) and
-    (t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null) and
-    t.taskData.status in (:status) 
-    order by t.id DESC     
-          </query>
-          <!-- hint name="org.hibernate.timeout" value="200"/ -->
-      </named-query>
-       <named-query name="TasksAssignedAsPotentialOwnerStatusByExpirationDateOptionalByGroup">
-          <query>
-select distinct 
-     new org.jbpm.services.task.query.TaskSummaryImpl(
-     t.id,
-     t.taskData.processInstanceId,
-     name.shortText,
-     subject.shortText,
-     description.shortText,
-     t.taskData.status,
-     t.priority,
-     t.taskData.skipable,
-     actualOwner,
-     createdBy,
-     t.taskData.createdOn,
-     t.taskData.activationTime,
-     t.taskData.expirationTime,
-     t.taskData.processId,
-     t.taskData.processSessionId,
-     t.subTaskStrategy,
-     t.taskData.parentId              )
-from
-    TaskImpl t 
-    left join t.taskData.createdBy as createdBy
-    left join t.taskData.actualOwner as actualOwner
-    left join t.subjects as subject
-    left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     ( potentialOwners.id = :userId or potentialOwners.id in (:groupIds) ) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
-
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and
     (
     name.language = :language
     or t.names.size = 0
@@ -679,6 +585,7 @@ where
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
+      
        <named-query name="TasksAssignedAsPotentialOwnerByGroupsByExpirationDate">
           <query>
 select
@@ -688,7 +595,8 @@ select
 
 from
     TaskImpl t, 
-    OrganizationalEntityImpl potentialOwners        
+    
+              OrganizationalEntityImpl potentialOwners        
 
 where
     
@@ -698,6 +606,10 @@ where
     t.taskData.actualOwner = null and          
     t.taskData.expirationTime = :expirationDate and
     t.taskData.status in ('Created', 'Ready', 'Reserved', 'InProgress', 'Suspended') 
+    
+    
+              
+    
           </query>
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
@@ -776,13 +688,15 @@ from
     left join t.taskData.actualOwner as actualOwner
     left join t.subjects as subject
     left join t.descriptions as description
-    left join t.names as name,
+    left join t.names as name
+    left join t.peopleAssignments.excludedOwners as excludedOwners,    
     OrganizationalEntityImpl potentialOwners
 where
     t.archived = 0 and
     t.taskData.parentId = :parentId and
     (potentialOwners.id = :userId or potentialOwners.id in (:groupIds)) and
     potentialOwners in elements ( t.peopleAssignments.potentialOwners  )  and
+    (t.peopleAssignments.excludedOwners is empty or excludedOwners.id != :userId) and    
 
     (
     name.language = :language
@@ -1514,7 +1428,7 @@ where
           <!-- hint name="org.hibernate.timeout" value="200"/ -->
       </named-query>
  
-	  <named-query name="UnescalatedEndDeadlines">
+      <named-query name="UnescalatedEndDeadlines">
           <query>
 select
      new org.jbpm.services.task.query.DeadlineSummaryImpl(
