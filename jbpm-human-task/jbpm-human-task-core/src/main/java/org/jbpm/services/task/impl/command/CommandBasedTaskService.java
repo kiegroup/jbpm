@@ -278,6 +278,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
      *  @see {@link CommandBasedTaskService#fluentTaskQuery}
      */
     @Override
+    @Deprecated
     public List<TaskSummary> getTasksByVariousFields(String userId, Map<String, List<?>> parameters, boolean union) {
 		GetTasksByVariousFieldsCommand cmd = new GetTasksByVariousFieldsCommand(parameters, union);
 		cmd.setUserId(userId);
