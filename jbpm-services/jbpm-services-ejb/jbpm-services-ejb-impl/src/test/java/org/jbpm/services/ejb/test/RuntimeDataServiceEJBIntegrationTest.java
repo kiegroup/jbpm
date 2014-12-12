@@ -104,7 +104,8 @@ public class RuntimeDataServiceEJBIntegrationTest extends AbstractTestSupport {
         List<String> processes = new ArrayList<String>();
         processes.add("processes/EmptyHumanTask.bpmn");
         processes.add("processes/humanTask.bpmn");
-
+        processes.add("processes/SimpleHTProcess.bpmn2");
+        
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
@@ -161,12 +162,12 @@ public class RuntimeDataServiceEJBIntegrationTest extends AbstractTestSupport {
     public void testGetProcessByDeploymentId() {
     	Collection<ProcessDefinition> definitions = runtimeDataService.getProcessesByDeploymentId(deploymentUnit.getIdentifier(), new QueryContext());
     	assertNotNull(definitions);
-
-    	assertEquals(2, definitions.size());
+    	assertEquals(3, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
     	expectedProcessIds.add("org.jbpm.writedocument.empty");
     	expectedProcessIds.add("org.jbpm.writedocument");
-
+    	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
+    	
     	for (ProcessDefinition def : definitions) {
     		assertTrue(expectedProcessIds.contains(def.getId()));
     	}
@@ -209,11 +210,12 @@ public class RuntimeDataServiceEJBIntegrationTest extends AbstractTestSupport {
     	Collection<ProcessDefinition> definitions = runtimeDataService.getProcesses(new QueryContext());
     	assertNotNull(definitions);
 
-    	assertEquals(2, definitions.size());
+    	assertEquals(3, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
     	expectedProcessIds.add("org.jbpm.writedocument.empty");
     	expectedProcessIds.add("org.jbpm.writedocument");
-
+    	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
+    	
     	for (ProcessDefinition def : definitions) {
     		assertTrue(expectedProcessIds.contains(def.getId()));
     	}
@@ -223,11 +225,13 @@ public class RuntimeDataServiceEJBIntegrationTest extends AbstractTestSupport {
     public void testGetProcessIds() {
     	Collection<String> definitions = runtimeDataService.getProcessIds(deploymentUnit.getIdentifier(), new QueryContext());
     	assertNotNull(definitions);
-
-    	assertEquals(2, definitions.size());
-
+    	
+    	assertEquals(3, definitions.size());
+    	
     	assertTrue(definitions.contains("org.jbpm.writedocument.empty"));
     	assertTrue(definitions.contains("org.jbpm.writedocument"));
+    	assertTrue(definitions.contains("org.jboss.qa.bpms.HumanTask"));
+    	
     }
 
     @Test
