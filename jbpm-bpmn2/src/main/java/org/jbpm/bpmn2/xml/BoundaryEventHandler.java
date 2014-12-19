@@ -465,6 +465,7 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
                 writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
                 xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
                 xmlDump.append(">" + EOL);
+                writeVariableName(eventNode, xmlDump);
                 writeExtensionElements(node, xmlDump);
                 String errorId = getErrorIdForErrorCode(type, eventNode);
                 xmlDump.append("      <errorEventDefinition errorRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(errorId) + "\" />" + EOL);
@@ -543,5 +544,19 @@ public class BoundaryEventHandler extends AbstractNodeHandler {
             }
         }
     }
+
+	private void writeVariableName(EventNode eventNode, StringBuilder xmlDump) {
+		if (eventNode.getVariableName() != null) {
+			xmlDump.append("      <dataOutput id=\"" + XmlBPMNProcessDumper.getUniqueNodeId(eventNode) + "_Output\" name=\"event\" />" + EOL);
+			xmlDump.append("      <dataOutputAssociation>" + EOL);
+			xmlDump.append(
+				"      <sourceRef>" + XmlBPMNProcessDumper.getUniqueNodeId(eventNode) + "_Output</sourceRef>" + EOL +
+				"      <targetRef>" + XmlDumper.replaceIllegalChars(eventNode.getVariableName()) + "</targetRef>" + EOL);
+			xmlDump.append("      </dataOutputAssociation>" + EOL);
+			xmlDump.append("      <outputSet>" + EOL);
+			xmlDump.append("        <dataOutputRefs>" + XmlBPMNProcessDumper.getUniqueNodeId(eventNode) + "_Output</dataOutputRefs>" + EOL);
+			xmlDump.append("      </outputSet>" + EOL);
+		}
+	}
 
 }
