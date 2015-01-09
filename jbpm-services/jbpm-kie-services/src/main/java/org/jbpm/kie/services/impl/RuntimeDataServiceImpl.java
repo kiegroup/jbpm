@@ -616,20 +616,12 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 	@Override
 	public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter) {
 		
-		List<Status> allActiveStatus = new ArrayList<Status>();
-		allActiveStatus.add(Status.Created);
-		allActiveStatus.add(Status.Ready);
-		allActiveStatus.add(Status.Reserved);
-		allActiveStatus.add(Status.InProgress);
-		allActiveStatus.add(Status.Suspended);
-	        
 		Map<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
-        params.put("status", allActiveStatus);
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         return (List<TaskSummary>) commandService.execute(
-				new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsBusinessAdministratorByStatus",params));
+				new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsBusinessAdministrator",params));
 			
 	}
 
