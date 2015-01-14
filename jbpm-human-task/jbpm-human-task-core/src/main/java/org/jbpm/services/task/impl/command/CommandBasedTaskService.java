@@ -29,7 +29,6 @@ import org.jbpm.services.task.commands.DeleteContentCommand;
 import org.jbpm.services.task.commands.DeleteFaultCommand;
 import org.jbpm.services.task.commands.DeleteOutputCommand;
 import org.jbpm.services.task.commands.DeployTaskDefCommand;
-import org.jbpm.services.task.commands.ExecuteTaskRulesCommand;
 import org.jbpm.services.task.commands.ExitTaskCommand;
 import org.jbpm.services.task.commands.FailTaskCommand;
 import org.jbpm.services.task.commands.ForwardTaskCommand;
@@ -90,7 +89,6 @@ import org.jbpm.services.task.commands.UndeployTaskDefCommand;
 import org.jbpm.services.task.events.TaskEventSupport;
 import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.impl.TaskQueryBuilderImpl;
-import org.jbpm.services.task.rule.TaskRuleService;
 import org.kie.api.command.Command;
 import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.model.Attachment;
@@ -119,17 +117,17 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 
 	private CommandService executor;
 	private TaskEventSupport taskEventSupport;
-	
-	public CommandBasedTaskService(CommandService executor, TaskEventSupport taskEventSupport) {		
+
+	public CommandBasedTaskService(CommandService executor, TaskEventSupport taskEventSupport) {
 		this.executor = executor;
 		this.taskEventSupport = taskEventSupport;
 	}
-	
+
 	@Override
 	public <T> T execute(Command<T> command) {
 		return executor.execute(command);
 	}
-	
+
 	public void activate(long taskId, String userId) {
 		executor.execute(new ActivateTaskCommand(taskId, userId));
 	}
@@ -145,7 +143,6 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	public void complete(long taskId, String userId, Map<String, Object> data) {
 		executor.execute(new CompositeCommand<Void>(
 				new CompleteTaskCommand(taskId, userId, data),
-				new ExecuteTaskRulesCommand(taskId, userId, data, TaskRuleService.COMPLETE_TASK_SCOPE),
 				new ProcessSubTaskCommand(taskId, userId, data),
 				new CancelDeadlineCommand(taskId, true, true)));
 	}
@@ -185,28 +182,28 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language) {
 		return getTasksAssignedAsPotentialOwner(userId, null, null, null);
 	}
-        
+
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds) {
 	    return getTasksAssignedAsPotentialOwner(userId, groupIds, null, null);
 	}
-        
+
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(
 			String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
 		return executor.execute(new GetTaskAssignedAsPotentialOwnerCommand(userId, groupIds, status, filter));
 	}
-        
+
 	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(
 			String userId, List<Status> status, String language) {
 		return getTasksAssignedAsPotentialOwner(userId, null, status, null);
 	}
-        
+
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDate(
-			String userId, List<Status> statuses, Date expirationDate) {	
+			String userId, List<Status> statuses, Date expirationDate) {
                         Map<String, Object> params = new HashMap<String, Object>();
                         params.put("expirationDate", expirationDate);
-		return getTasksAssignedAsPotentialOwner(userId, null, statuses, 
+		return getTasksAssignedAsPotentialOwner(userId, null, statuses,
                         new QueryFilter( "t.taskData.expirationTime = :expirationDate", params, "t.id", false));
 	}
 
@@ -215,10 +212,10 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 			String userId, List<Status> statuses, Date expirationDate) {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("expirationDate", expirationDate);
-		return getTasksAssignedAsPotentialOwner(userId, null, statuses, 
+		return getTasksAssignedAsPotentialOwner(userId, null, statuses,
                         new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)", params, "t.id", false));
 	}
-        
+
         @Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId,
 			List<String> groupIds, int firstResult,
@@ -236,7 +233,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 			List<Status> status, QueryFilter filter) {
 		return executor.execute(new GetTasksOwnedCommand(userId, status, filter));
 	}
-        
+
 	public List<TaskSummary> getTasksOwned(String userId, String language) {
 		return getTasksOwned(userId, null, null);
 	}
@@ -254,7 +251,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	public List<Long> getTasksByProcessInstanceId(long processInstanceId) {
 		return executor.execute(new GetTasksByProcessInstanceIdCommand(processInstanceId));
 	}
-	
+
     @Override
     /**
      *  This method should be deleted in jBPM 7.x
@@ -262,14 +259,14 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
      */
     @Deprecated
     public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
-            List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
+            List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses,
             boolean union) {
 
-        GetTasksByVariousFieldsCommand cmd = new GetTasksByVariousFieldsCommand(workItemIds, taskIds, procInstIds, 
-		        busAdmins, potOwners, taskOwners, 
+        GetTasksByVariousFieldsCommand cmd = new GetTasksByVariousFieldsCommand(workItemIds, taskIds, procInstIds,
+		        busAdmins, potOwners, taskOwners,
 		        statuses, union);
         cmd.setUserId(userId);
-        
+
 		return executor.execute(cmd);
     }
 
@@ -299,7 +296,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	}
 
 	public void resume(long taskId, String userId) {
-		executor.execute(new ResumeTaskCommand(taskId, userId));		
+		executor.execute(new ResumeTaskCommand(taskId, userId));
 	}
 
 	public void skip(long taskId, String userId) {
@@ -444,7 +441,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	@Override
 	public List<TaskSummary> getTasksOwnedByExpirationDate(String userId,
 			List<Status> statuses, Date expirationDate) {
-		
+
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("expirationDate", expirationDate);
                 return getTasksOwned(userId, statuses, new QueryFilter("t.taskData.expirationTime = :expirationDate", params, "t.id", false));
@@ -681,7 +678,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	}
 
 	@Override
-	public List<TaskSummary> getTasksAssignedByGroup(String groupId) {		
+	public List<TaskSummary> getTasksAssignedByGroup(String groupId) {
 		return executor.execute(new GetTaskAssignedByGroupsCommand(Collections.singletonList(groupId)));
 	}
 
@@ -714,7 +711,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	public Map<String, Object> getTaskContent(long taskId) {
 		return executor.execute(new GetTaskContentCommand(taskId));
 	}
-	
+
 	// marshaller context methods
 
 	@Override
@@ -728,24 +725,24 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	}
 
 	@Override
-	public ContentMarshallerContext getMarshallerContext(Task task) {		
+	public ContentMarshallerContext getMarshallerContext(Task task) {
 		return TaskContentRegistry.get().getMarshallerContext(task);
 	}
 
 	@Override
 	public void removeTaskEventsById(long taskId) {
-		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " + 
+		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " +
 		        this.getClass().getSimpleName());
-	}	
+	}
 
 	@Override
 	public List<TaskEvent> getTaskEventsById(long taskId) {
-		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " + 
+		throw new UnsupportedOperationException(Thread.currentThread().getStackTrace()[1].getMethodName() + " is not supported on the " +
 		        this.getClass().getSimpleName());
 	}
 
 	// notification service methods
-	
+
 	@Override
 	public void registerTaskEventListener(TaskLifeCycleEventListener listener) {
 		taskEventSupport.addEventListener(listener);
@@ -766,4 +763,3 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		taskEventSupport.removeEventListener(listener);
 	}
 }
-
