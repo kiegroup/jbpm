@@ -118,6 +118,17 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	private CommandService executor;
 	private TaskEventSupport taskEventSupport;
 
+	private QueryFilter addLanguageFilter(String language) { 
+	   if( language == null ) { 
+	       return null;
+	   }
+	   QueryFilter filter = new QueryFilter();
+	   filter.setCount(null);
+	   filter.setOffset(null);
+	   filter.setLanguage(language);
+	   return filter;
+	}
+
 	public CommandBasedTaskService(CommandService executor, TaskEventSupport taskEventSupport) {
 		this.executor = executor;
 		this.taskEventSupport = taskEventSupport;
@@ -136,6 +147,7 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		executor.execute(new ClaimTaskCommand(taskId, userId));
 	}
 
+	// TODO: does not filter on language
 	public void claimNextAvailable(String userId, String language) {
 		executor.execute(new ClaimNextAvailableTaskCommand(userId));
 	}
@@ -175,12 +187,14 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 		return executor.execute(new GetTaskCommand(taskId));
 	}
 
+	// TODO: does not filter on language
 	public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, String language) {
 		return executor.execute(new GetTaskAssignedAsBusinessAdminCommand(userId));
 	}
 
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language) {
-		return getTasksAssignedAsPotentialOwner(userId, null, null, null);
+	    QueryFilter filter = addLanguageFilter(language);
+		return getTasksAssignedAsPotentialOwner(userId, null, null, filter);
 	}
 
 	@Override
@@ -194,7 +208,8 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 
 	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(
 			String userId, List<Status> status, String language) {
-		return getTasksAssignedAsPotentialOwner(userId, null, status, null);
+	    QueryFilter filter = addLanguageFilter(language);
+		return getTasksAssignedAsPotentialOwner(userId, null, status, filter);
 	}
 
 	@Override
@@ -232,14 +247,17 @@ public class CommandBasedTaskService implements InternalTaskService, EventServic
 	}
 
 	public List<TaskSummary> getTasksOwned(String userId, String language) {
-		return getTasksOwned(userId, null, null);
+	    QueryFilter filter = addLanguageFilter(language);
+		return getTasksOwned(userId, null, filter);
 	}
 
 	public List<TaskSummary> getTasksOwnedByStatus(String userId,
 			List<Status> status, String language) {
-		return getTasksOwned(userId, status, null);
+	    QueryFilter filter = addLanguageFilter(language);
+		return getTasksOwned(userId, status, filter);
 	}
 
+	// TODO: does not filter on language
 	public List<TaskSummary> getTasksByStatusByProcessInstanceId(
 			long processInstanceId, List<Status> status, String language) {
 		return executor.execute(new GetTasksByStatusByProcessInstanceIdCommand(processInstanceId, status));
