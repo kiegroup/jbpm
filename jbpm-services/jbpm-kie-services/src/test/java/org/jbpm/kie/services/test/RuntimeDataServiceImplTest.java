@@ -80,7 +80,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/BPMN2-UserTask.bpmn2");
         processes.add("repo/processes/general/SimpleHTProcess.bpmn2");
-        
+
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
@@ -141,7 +141,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	expectedProcessIds.add("org.jbpm.writedocument");
     	expectedProcessIds.add("UserTask");
     	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
-    	
+
     	for (ProcessDefinition def : definitions) {
     		assertTrue(expectedProcessIds.contains(def.getId()));
     	}
@@ -189,7 +189,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	expectedProcessIds.add("org.jbpm.writedocument");
     	expectedProcessIds.add("UserTask");
     	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
-    	
+
     	for (ProcessDefinition def : definitions) {
     		assertTrue(expectedProcessIds.contains(def.getId()));
     	}
@@ -200,7 +200,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<String> definitions = runtimeDataService.getProcessIds(deploymentUnit.getIdentifier(), new QueryContext());
     	assertNotNull(definitions);
     	assertEquals(4, definitions.size());
-    	
+
     	assertTrue(definitions.contains("org.jbpm.writedocument.empty"));
     	assertTrue(definitions.contains("org.jbpm.writedocument"));
     	assertTrue(definitions.contains("UserTask"));
@@ -214,12 +214,12 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
 
     	assertEquals(4, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
-    	
+
     	expectedProcessIds.add("HumanTask");
     	expectedProcessIds.add("User Task");
     	expectedProcessIds.add("humanTaskSample");
-    	expectedProcessIds.add("humanTaskSample");      	
-    	
+    	expectedProcessIds.add("humanTaskSample");
+
     	int index = 0;
     	for (ProcessDefinition def : definitions) {
     		assertEquals(def.getName(), expectedProcessIds.get(index));
@@ -238,8 +238,8 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	expectedProcessIds.add("UserTask");
     	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
     	expectedProcessIds.add("org.jbpm.writedocument.empty");
-    	expectedProcessIds.add("org.jbpm.writedocument");    	
-    	
+    	expectedProcessIds.add("org.jbpm.writedocument");
+
     	int index = 0;
     	for (ProcessDefinition def : definitions) {
     		assertEquals(def.getId(), expectedProcessIds.get(index));
@@ -386,15 +386,15 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<ProcessInstanceDesc> instances = runtimeDataService.getProcessInstances(new QueryContext());
     	assertNotNull(instances);
     	assertEquals(0, instances.size());
-    	
+
     	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
     	assertNotNull(processInstanceId);
-    	
+
     	Long processInstanceIdToAbort = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
-    	
+
     	List<Integer> statuses = new ArrayList<Integer>();
     	statuses.add(ProcessInstance.STATE_ACTIVE);
-    	
+
     	instances = runtimeDataService.getProcessInstancesByProcessDefinition("org.jbpm.writedocument", statuses, new QueryContext());
     	assertNotNull(instances);
     	assertEquals(2, instances.size());
@@ -403,22 +403,22 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
 	    	assertEquals(ProcessInstance.STATE_ACTIVE, (int)instance.getState());
 	    	assertEquals("org.jbpm.writedocument", instance.getProcessId());
     	}
-    	
+
     	processService.abortProcessInstance(processInstanceIdToAbort);
-    	
+
     	instances = runtimeDataService.getProcessInstancesByProcessDefinition("org.jbpm.writedocument", statuses, new QueryContext());
     	assertNotNull(instances);
     	assertEquals(1, instances.size());
     	ProcessInstanceDesc instance2 = instances.iterator().next();
     	assertEquals(ProcessInstance.STATE_ACTIVE, (int)instance2.getState());
     	assertEquals("org.jbpm.writedocument", instance2.getProcessId());
-    	
+
     	processService.abortProcessInstance(processInstanceId);
     	processInstanceId = null;
-    	
+
     	statuses.clear();
     	statuses.add(ProcessInstance.STATE_ABORTED);
-    	
+
     	instances = runtimeDataService.getProcessInstancesByProcessDefinition("org.jbpm.writedocument", statuses, new QueryContext());
     	assertNotNull(instances);
     	assertEquals(2, instances.size());
@@ -428,7 +428,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
 	    	assertEquals("org.jbpm.writedocument", instance.getProcessId());
     	}
     }
-    
+
     @Test
     public void testGetProcessInstanceById() {
     	Collection<ProcessInstanceDesc> instances = runtimeDataService.getProcessInstances(new QueryContext());
@@ -854,4 +854,80 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	}
     }
 
+    @Test
+    public void testGetTasksAssignedAsPotentialOwnerByStatusPagingAndFiltering() {
+    	List<Long> processInstanceIds = new ArrayList<Long>();
+    	for (int i = 0; i < 10; i++) {
+
+    		processInstanceIds.add(processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument"));
+    	}
+
+    	Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processInstanceId", processInstanceIds);
+		QueryFilter qf = new QueryFilter( "t.taskData.processInstanceId in (:processInstanceId)",
+                            params, "t.id", false);
+		qf.setOffset(0);
+		qf.setCount(5);
+
+		List<Status> statuses = new ArrayList<Status>();
+		statuses.add(Status.Ready);
+		statuses.add(Status.Reserved);
+
+    	List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, qf);
+    	assertNotNull(tasks);
+    	assertEquals(5, tasks.size());
+
+    	TaskSummary userTask = tasks.get(0);
+    	assertNotNull(userTask);
+    	assertEquals("Write a Document", userTask.getName());
+
+    	Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstances(new QueryContext(0,  20));
+    	for (ProcessInstanceDesc pi : activeProcesses) {
+    		processService.abortProcessInstance(pi.getId());
+    	}
+    }
+
+    @Test
+    public void testTasksByStatusByProcessInstanceIdPagingAndFiltering() {
+
+    	Long pid = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+
+    	List<Status> statuses = new ArrayList<Status>();
+		statuses.add(Status.Ready);
+		statuses.add(Status.Reserved);
+
+    	List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, new QueryFilter(0, 5));
+    	assertNotNull(tasks);
+    	assertEquals(1, tasks.size());
+
+    	long taskId = tasks.get(0).getId();
+
+    	userTaskService.start(taskId, "salaboy");
+    	userTaskService.complete(taskId, "salaboy", null);
+
+    	Map<String, Object> params = new HashMap<String, Object>();
+        params.put("name", "Review Document");
+		QueryFilter qf = new QueryFilter( "t.name = :name",
+                            params, "t.id", false);
+		qf.setOffset(0);
+		qf.setCount(5);
+
+
+    	tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(pid, statuses, qf);
+    	assertNotNull(tasks);
+    	assertEquals(1, tasks.size());
+
+    	TaskSummary userTask = tasks.get(0);
+    	assertNotNull(userTask);
+    	assertEquals("Review Document", userTask.getName());
+
+    	tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(pid, statuses, new QueryFilter(0, 5));
+    	assertNotNull(tasks);
+    	assertEquals(2, tasks.size());
+
+    	Collection<ProcessInstanceDesc> activeProcesses = runtimeDataService.getProcessInstances(new QueryContext(0,  20));
+    	for (ProcessInstanceDesc pi : activeProcesses) {
+    		processService.abortProcessInstance(pi.getId());
+    	}
+    }
 }
