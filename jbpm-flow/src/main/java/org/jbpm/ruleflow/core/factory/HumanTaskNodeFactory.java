@@ -30,6 +30,8 @@ import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
 
+import com.cougaarsoftware.workflow.jbpm.util.HumanTaskNodeFactoryFix;
+
 /**
  *
  * @author salaboy
@@ -162,6 +164,16 @@ public class HumanTaskNodeFactory extends NodeFactory {
     	getHumanTaskNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
     	return this;
     }
-    
+
+	public HumanTaskNodeFactory workParameter(String name, Object value) {
+		Work work = getHumanTaskNode().getWork();
+		if (work == null) {
+			work = new WorkImpl();
+			getHumanTaskNode().setWork(work);
+		}
+		work.setParameter(name, value);
+		return this;
+	}
+
 }
 
