@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>6.1.0.Final</version>
+    <version>6.1.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-runtime-manager</artifactId>
@@ -177,6 +177,7 @@
               org.drools.persistence.jta,
               org.jboss.solder.core;resolution:=optional,
               org.jbpm.marshalling.impl,
+              org.jbpm.persistence.timer,
               org.jbpm.process.audit,
               org.jbpm.process.audit.event,
               org.jbpm.process.core.timer,
@@ -187,6 +188,7 @@
               org.jbpm.services.task,
               org.jbpm.services.task.audit;resolution:=optional,
               org.jbpm.services.task.identity,
+              org.jbpm.services.task.lifecycle.listeners,
               org.jbpm.services.task.wih,
               org.hibernate.proxy;resolution:=optional,
               org.kie.api,

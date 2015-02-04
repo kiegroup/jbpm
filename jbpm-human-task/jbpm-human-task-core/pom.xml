@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-human-task</artifactId>
-    <version>6.1.0.Final</version>
+    <version>6.1.1-SNAPSHOT</version>
   </parent>
   <artifactId>jbpm-human-task-core</artifactId>
   <packaging>bundle</packaging>
@@ -162,7 +162,19 @@
           <instructions>
             <Bundle-SymbolicName>org.jbpm.services.task</Bundle-SymbolicName>
             <Import-Package>
-              !org.jbpm.services.task,
+              !org.jbpm.services.task.admin,
+              !org.jbpm.services.task.commands,
+              !org.jbpm.services.task.deadlines,
+              !org.jbpm.services.task.events,
+              !org.jbpm.services.task.exception,
+              !org.jbpm.services.task.identity,
+              !org.jbpm.services.task.impl,
+              !org.jbpm.services.task.internals,
+              !org.jbpm.services.task.lifecycle,
+              !org.jbpm.services.task.query,
+              !org.jbpm.services.task.rule,
+              !org.jbpm.services.task.utils,
+              org.jbpm.services.task.persistence;resolution:=optional,
               *
             </Import-Package>
             <Private-Package></Private-Package>
