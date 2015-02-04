@@ -30,8 +30,6 @@ import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.jbpm.workflow.core.node.MilestoneNode;
 
-import com.cougaarsoftware.workflow.jbpm.util.HumanTaskNodeFactoryFix;
-
 /**
  *
  * @author salaboy
