@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 <definitions id="Definition"
              typeLanguage="http://www.java.com/javaTypes"
              expressionLanguage="http://www.mvel.org/2.0"
@@ -282,6 +282,11 @@
           <to xsi:type="tFormalExpression">_11_TaskNameInput</to>
         </assignment>
       </dataInputAssociation>
+      <potentialOwner>
+        <resourceAssignmentExpression>
+          <formalExpression>sales-rep</formalExpression>
+        </resourceAssignmentExpression>
+      </potentialOwner>
     </userTask>
     <endEvent id="_12" name="End" >
         <terminateEventDefinition/>
