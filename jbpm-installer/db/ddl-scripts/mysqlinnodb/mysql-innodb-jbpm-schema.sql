@@ -25,7 +25,7 @@
         priority integer not null,
         processId varchar(255),
         processInstanceId bigint not null,
-        processSessionId integer not null,
+        processSessionId bigint not null,
         status varchar(255),
         taskId bigint,
         primary key (id)
@@ -63,7 +63,7 @@
     create table ContextMappingInfo (
         mappingId bigint not null auto_increment,
         CONTEXT_ID varchar(255) not null,
-        KSESSION_ID integer not null,
+        KSESSION_ID bigint not null,
         OWNER_ID varchar(255),
         OPTLOCK integer,
         primary key (mappingId)
@@ -278,7 +278,7 @@
     ) ENGINE=InnoDB;
 
     create table SessionInfo (
-        id integer not null auto_increment,
+        id bigint not null auto_increment,
         lastModificationDate datetime,
         rulesByteArray longblob,
         startDate datetime,
@@ -314,7 +314,7 @@
         previousStatus integer,
         processId varchar(255),
         processInstanceId bigint not null,
-        processSessionId integer not null,
+        processSessionId bigint not null,
         skipable boolean not null,
         status varchar(255),
         workItemId bigint not null,
