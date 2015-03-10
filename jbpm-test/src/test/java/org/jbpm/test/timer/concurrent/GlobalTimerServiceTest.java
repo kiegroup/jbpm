@@ -132,7 +132,7 @@ public class GlobalTimerServiceTest extends TimerBaseTest {
         }
         //make sure all process instance were completed
         engine = manager.getRuntimeEngine(EmptyContext.get());
-        AuditService logService = engine.getAuditLogService();
+        AuditService logService = engine.getAuditService();
         //active
         List<? extends ProcessInstanceLog> logs = logService.findActiveProcessInstances("IntermediateCatchEvent");
         assertNotNull(logs);
@@ -156,14 +156,14 @@ public class GlobalTimerServiceTest extends TimerBaseTest {
 		synchronized((SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) runtime.getKieSession()).getCommandService()) {
 			UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
 			ut.begin();
-			logger.debug("Starting process on ksession {}", runtime.getKieSession().getId());
+			logger.debug("Starting process on ksession {}", runtime.getKieSession().getIdentifier());
 			Map<String, Object> params = new HashMap<String, Object>();
 			DateTime now = new DateTime();
 		    now.plus(1000);
 
 			params.put("x", "R2/" + wait + "/PT1S");
 			ProcessInstance processInstance = runtime.getKieSession().startProcess("IntermediateCatchEvent", params);
-			logger.debug("Started process instance {} on ksession {}", processInstance.getId(), runtime.getKieSession().getId());			
+			logger.debug("Started process instance {} on ksession {}", processInstance.getId(), runtime.getKieSession().getIdentifier());			
 			ut.commit();
 		}
 		

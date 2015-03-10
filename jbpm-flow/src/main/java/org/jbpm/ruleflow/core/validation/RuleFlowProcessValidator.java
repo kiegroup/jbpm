@@ -18,7 +18,6 @@ package org.jbpm.ruleflow.core.validation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,6 +29,7 @@ import org.drools.core.process.core.Work;
 import org.drools.core.process.core.datatype.DataType;
 import org.drools.core.process.core.datatype.impl.type.ObjectDataType;
 import org.drools.core.time.TimeUtils;
+import org.drools.core.time.impl.CronExpression;
 import org.jbpm.process.core.context.exception.CompensationScope;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.event.EventFilter;
@@ -361,7 +361,7 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                     Work work = workItemNode.getWork();
                     if (work.getName() == null || work.getName().trim().length() == 0) {
                         errors.add(new ProcessValidationErrorImpl(process,
-                            "Task node '" + node.getName() + "' [" + node.getId() + "] has no work name."));
+                            "Task node '" + node.getName() + "' [" + node.getId() + "] has no task type."));
                     }
                 }
                 if (workItemNode.getTimers() != null) {
@@ -408,6 +408,10 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                 if (dynamicNode.getDefaultOutgoingConnections().size() == 0) {
                     errors.add(new ProcessValidationErrorImpl(process,
                         "Dynamic node '" + node.getName() + "' [" + node.getId() + "] has no outgoing connection"));
+                }
+                if ("".equals(dynamicNode.getCompletionExpression()) && !dynamicNode.isAutoComplete()) {
+                    errors.add(new ProcessValidationErrorImpl(process,
+                        "Dynamic node '" + node.getName() + "' [" + node.getId() + "] has no completion condition set"));
                 }
                 validateNodes(dynamicNode.getNodes(), errors, process);
             } else if (node instanceof CompositeNode) {
@@ -457,6 +461,16 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                        }
                    }
                    
+                } else {
+                	Boolean isForCompensationObject = (Boolean) compositeNode.getMetaData("isForCompensation"); 
+                	if( compositeNode.getIncomingConnections().size() == 0 && !Boolean.TRUE.equals(isForCompensationObject)) { 
+                        errors.add(new ProcessValidationErrorImpl(process, 
+                                "Embedded subprocess '" + node.getName() + "' [" + node.getId() + "] does not have incoming connection." ));
+                    }
+                	if( compositeNode.getOutgoingConnections().size() == 0 && !Boolean.TRUE.equals(isForCompensationObject)) { 
+                        errors.add(new ProcessValidationErrorImpl(process, 
+                                "Embedded subprocess '" + node.getName() + "' [" + node.getId() + "] does not have outgoing connection." ));
+                    }
                 }
                 validateNodes(compositeNode.getNodes(), errors, process);
             } else if (node instanceof EventNode) {
@@ -628,9 +642,13 @@ public class RuleFlowProcessValidator implements ProcessValidator {
 	    	            if (timer.getPeriod() != null) {
 	    	                TimeUtils.parseTimeString(timer.getDelay());
 	    	            } else {
-	    	                // when using ISO date/time period is not set
-	    	                DateTimeUtils.parseRepeatableDateTime(timer.getDelay());
-
+	    	            	if (CronExpression.isValidExpression(timer.getDelay())){
+	    	            		
+	    	            	} else {
+	    	            	
+		    	                // when using ISO date/time period is not set
+		    	                DateTimeUtils.parseRepeatableDateTime(timer.getDelay());
+	    	            	}
 	    	            }
 	    	            break;
 	    	        case Timer.TIME_DURATION:
@@ -681,14 +699,6 @@ public class RuleFlowProcessValidator implements ProcessValidator {
                 DataType varDataType = var.getType();                
                 if (varDataType == null) {
                     errors.add(new ProcessValidationErrorImpl(process, "Variable '" + var.getName() + "' has no type."));
-                }
-                
-                String stringType = varDataType.getStringType();
-                if (varDataType instanceof ObjectDataType) {
-                     if (stringType.startsWith("java.lang")) {
-                        logger.warn("Process variable {} uses ObjectDataType for default type (java.lang) which could cause problems with setting variables, use dedicated type instead",
-                                var.getName());
-                    }
                 }
             }
         }

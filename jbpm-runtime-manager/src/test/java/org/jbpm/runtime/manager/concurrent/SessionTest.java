@@ -152,7 +152,7 @@ public class SessionTest extends AbstractBaseTest {
 		Thread.sleep(1000);
 	      //make sure all process instance were completed
 		RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
-		AuditService logService = runtime.getAuditLogService();       
+		AuditService logService = runtime.getAuditService();       
         //active
         List<? extends ProcessInstanceLog> logs = logService.findActiveProcessInstances("com.sample.bpmn.hello");
         assertNotNull(logs);
@@ -197,7 +197,7 @@ public class SessionTest extends AbstractBaseTest {
 		}
 		//make sure all process instance were completed
 		RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
-		AuditService logService = runtime.getAuditLogService();
+		AuditService logService = runtime.getAuditService();
         
 		//active
 		List<? extends ProcessInstanceLog> logs = logService.findActiveProcessInstances("com.sample.bpmn.hello");
@@ -243,7 +243,7 @@ public class SessionTest extends AbstractBaseTest {
         }
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         //make sure all process instance were completed
-        AuditService logService = runtime.getAuditLogService();
+        AuditService logService = runtime.getAuditService();
         
         //active
         List<? extends ProcessInstanceLog> logs = logService.findActiveProcessInstances("com.sample.bpmn.hello");
@@ -544,9 +544,9 @@ public class SessionTest extends AbstractBaseTest {
 		synchronized((SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) runtime.getKieSession()).getCommandService()) {
 			UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
 			ut.begin();
-			logger.debug("Starting process on ksession {}", runtime.getKieSession().getId());
+			logger.debug("Starting process on ksession {}", runtime.getKieSession().getIdentifier());
 			ProcessInstance processInstance = runtime.getKieSession().startProcess("com.sample.bpmn.hello", null);
-			logger.debug("Started process instance {} on ksession {}", processInstance.getId(), runtime.getKieSession().getId());
+			logger.debug("Started process instance {} on ksession {}", processInstance.getId(), runtime.getKieSession().getIdentifier());
 			long workItemId = ((HumanTaskNodeInstance) ((WorkflowProcessInstance) processInstance).getNodeInstances().iterator().next()).getWorkItemId();
 			taskId = runtime.getTaskService().getTaskByWorkItemId(workItemId).getId();
 			logger.debug("Created task {}", taskId);

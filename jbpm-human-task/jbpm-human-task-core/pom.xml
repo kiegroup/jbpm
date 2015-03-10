@@ -90,7 +90,7 @@
 	    <groupId>org.jbpm</groupId>
 	    <artifactId>jbpm-human-task-jpa</artifactId>
 	    <scope>test</scope>
-	  </dependency>
+    </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
@@ -160,6 +160,11 @@
     <dependency>
       <groupId>com.unboundid</groupId>
       <artifactId>unboundid-ldapsdk</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

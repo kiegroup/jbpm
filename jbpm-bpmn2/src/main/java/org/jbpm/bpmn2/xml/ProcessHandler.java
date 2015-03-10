@@ -157,6 +157,11 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 		if (typedImports != null) {
 		    process.setMetaData("Bpmn2Imports", typedImports);
 		}
+		// register item definitions as meta data of process
+		Object itemDefinitions = ((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+		if (itemDefinitions != null) {
+		    process.setMetaData("ItemDefinitions", itemDefinitions);
+		}
 		
 		// for unique id's of nodes, start with one to avoid returning wrong nodes for dynamic nodes
 		parser.getMetaData().put("idGen", new AtomicInteger(1));
@@ -385,11 +390,13 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             compositeNode.setDefaultContext(exceptionScope);
         }
         
+        String variable = ((EventNode)node).getVariableName();
         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
         DroolsConsequenceAction action = new DroolsConsequenceAction("java", 
-                    PROCESS_INSTANCE_SIGNAL_EVENT + "Escalation-" + attachedTo + "-" + escalationCode + "\", null);");
+                    PROCESS_INSTANCE_SIGNAL_EVENT + "Escalation-" + attachedTo + "-" + escalationCode + "\", kcontext.getVariable(\"" + variable +"\"));");
         
         exceptionHandler.setAction(action);
+        exceptionHandler.setFaultVariable(variable);
         exceptionScope.setExceptionHandler(escalationCode, exceptionHandler);
         if (escalationStructureRef != null) {
         	exceptionScope.setExceptionHandler(escalationStructureRef, exceptionHandler);
@@ -417,6 +424,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
             compositeNode.setDefaultContext(exceptionScope);
         }
         String errorCode = (String) node.getMetaData().get("ErrorEvent");
+        boolean hasErrorCode = (Boolean) node.getMetaData().get("HasErrorEvent");
         String errorStructureRef = (String) node.getMetaData().get("ErrorStructureRef");
         ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
         
@@ -427,7 +435,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
         
         exceptionHandler.setAction(action);
         exceptionHandler.setFaultVariable(variable);
-        exceptionScope.setExceptionHandler(errorCode, exceptionHandler);
+        exceptionScope.setExceptionHandler(hasErrorCode?errorCode:null, exceptionHandler);
         if (errorStructureRef != null) {
         	exceptionScope.setExceptionHandler(errorStructureRef, exceptionHandler);
         }
@@ -772,6 +780,7 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
 
                                         String type = ((EventTypeFilter) filter).getType();
                                         if (type.startsWith("Error-") || type.startsWith("Escalation")) {
+                                        	String faultCode = (String) subNode.getMetaData().get("FaultCode");
                                             String replaceRegExp = "Error-|Escalation-";
                                             final String signalType = type;
 
@@ -781,10 +790,21 @@ public class ProcessHandler extends BaseAbstractHandler implements Handler {
                                                 ((ContextContainer) eventSubProcessNode.getNodeContainer()).addContext(exceptionScope);
                                                 ((ContextContainer) eventSubProcessNode.getNodeContainer()).setDefaultContext(exceptionScope);
                                             }
+                                            String faultVariable = null;
+                                            if (trigger.getInAssociations() != null && !trigger.getInAssociations().isEmpty()) {
+                                            	faultVariable = trigger.getInAssociations().get(0).getTarget();
+                                            }
+                                            
                                             ActionExceptionHandler exceptionHandler = new ActionExceptionHandler();
-                                            DroolsConsequenceAction action = new DroolsConsequenceAction("java", PROCESS_INSTANCE_SIGNAL_EVENT + signalType+"\", null);");
+                                            DroolsConsequenceAction action = new DroolsConsequenceAction("java", PROCESS_INSTANCE_SIGNAL_EVENT + signalType+"\", "
+                                            																+(faultVariable==null?"null":"kcontext.getVariable(\""+faultVariable+"\")")+");");
                                             exceptionHandler.setAction(action);
-                                            exceptionScope.setExceptionHandler(type.replaceFirst(replaceRegExp, ""), exceptionHandler);
+                                            exceptionHandler.setFaultVariable(faultVariable);
+                                            if (faultCode != null) {
+                                            	exceptionScope.setExceptionHandler(type.replaceFirst(replaceRegExp, ""), exceptionHandler);
+                                            } else {
+                                            	exceptionScope.setExceptionHandler(faultCode, exceptionHandler);
+                                            }
                                         } else if( type.equals("Compensation") ) { 
                                             // 1. Find the parent sub-process to this event sub-process
                                             NodeContainer parentSubProcess;  

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.drools.compiler.kie.builder.impl.InternalKieModule;
+import org.drools.core.util.StringUtils;
 import org.jbpm.kie.services.impl.KModuleDeploymentUnit;
 import org.jbpm.kie.test.util.AbstractBaseTest;
 import org.jbpm.services.api.ProcessInstanceNotFoundException;
@@ -53,6 +54,7 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.User;
 import org.kie.internal.task.api.TaskModelProvider;
+import org.kie.internal.task.api.model.InternalTask;
 import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/general/EmptyHumanTask.bpmn");
         processes.add("repo/processes/general/humanTask.bpmn");
+        processes.add("repo/processes/general/NoFormNameHumanTask.bpmn");
         
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -366,10 +369,10 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	    	
     	userTaskService.setPriority(taskId, 8);
     	
-    	Task taskInstance = userTaskService.getTask(taskId);
-    	assertNotNull(taskInstance);
-    	assertEquals(Status.Reserved, taskInstance.getTaskData().getStatus());
-    	assertEquals(8, (int)taskInstance.getPriority());
+    	task = runtimeDataService.getTaskById(taskId);
+    	assertNotNull(task);
+    	assertEquals(Status.Reserved.toString(), task.getStatus());
+    	assertEquals(8, (int)task.getPriority());
     }
     
     @Test
@@ -388,14 +391,14 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Date origDueDate = task.getDueDate();
     	assertNull(origDueDate);
     	    	
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-dd-mm");
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     	
     	userTaskService.setExpirationDate(taskId, sdf.parse("2013-12-31"));
     	
-    	Task taskInstance = userTaskService.getTask(taskId);
-    	assertNotNull(taskInstance);
-    	assertEquals(Status.Reserved, taskInstance.getTaskData().getStatus());
-    	assertEquals("2013-12-31", sdf.format(taskInstance.getTaskData().getExpirationTime()));
+    	task = runtimeDataService.getTaskById(taskId);
+    	assertNotNull(task);
+    	assertEquals(Status.Reserved.toString(), task.getStatus());
+    	assertEquals("2013-12-31", sdf.format(task.getDueDate()));
     }
     
     @Test
@@ -437,10 +440,10 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	assertEquals("Write a Document", task.getName());   	
     	userTaskService.setName(taskId, "updated");
     	
-    	Task taskInstance = userTaskService.getTask(taskId);
-    	assertNotNull(taskInstance);
-    	assertEquals(Status.Reserved, taskInstance.getTaskData().getStatus());
-    	assertEquals("updated", taskInstance.getName());
+    	task = runtimeDataService.getTaskById(taskId);
+    	assertNotNull(task);
+    	assertEquals(Status.Reserved.toString(), task.getStatus());
+    	assertEquals("updated", task.getName());
     }
     
     @Test
@@ -459,10 +462,10 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	assertEquals("Write a Document", task.getDescription());   	
     	userTaskService.setDescription(taskId, "updated");
     	
-    	Task taskInstance = userTaskService.getTask(taskId);
-    	assertNotNull(taskInstance);
-    	assertEquals(Status.Reserved, taskInstance.getTaskData().getStatus());
-    	assertEquals("updated", taskInstance.getDescription());
+    	task = runtimeDataService.getTaskById(taskId);
+    	assertNotNull(task);
+    	assertEquals(Status.Reserved.toString(), task.getStatus());
+    	assertEquals("updated", task.getDescription());
     }
     
     @Test
@@ -571,6 +574,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	assertNotNull(attachment);
     	assertEquals("john", attachment.getAttachedBy().getId());
     	assertNotNull(attachment.getAttachmentContentId());
+    	assertEquals("java.lang.String", attachment.getContentType());
     	
     	userTaskService.deleteAttachment(taskId, attId);
     	
@@ -593,5 +597,22 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	assertNotNull(task);
     	assertEquals(taskId, task.getId());
     	assertEquals("Write a Document", task.getName());
+    }
+    
+    @Test
+    public void testGetTask() {
+    	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument.noform");
+    	assertNotNull(processInstanceId);
+    	List<Long> taskIds = runtimeDataService.getTasksByProcessInstanceId(processInstanceId);
+    	assertNotNull(taskIds);
+    	assertEquals(1, taskIds.size());
+    	
+    	Long taskId = taskIds.get(0);
+    	
+    	Task taskInstance = userTaskService.getTask(taskId);
+    	assertNotNull(taskInstance);
+    	assertEquals(Status.Reserved, taskInstance.getTaskData().getStatus());
+    	assertEquals("Write a Document", taskInstance.getName());
+    	assertTrue(StringUtils.isEmpty(((InternalTask)taskInstance).getFormName()));
     }
 }

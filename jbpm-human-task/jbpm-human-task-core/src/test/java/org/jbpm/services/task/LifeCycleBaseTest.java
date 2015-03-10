@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.jbpm.services.task.exception.PermissionDeniedException;
 import org.jbpm.services.task.impl.factories.TaskFactory;
+import org.jbpm.services.task.impl.model.xml.JaxbContent;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.junit.Test;
 import org.kie.api.task.model.Comment;
@@ -168,8 +169,6 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
     
     @Test
     public void testNewTaskWithMapContent() {
-        
-        
         String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet') ],businessAdministrators = [ new User('Administrator') ], }),";                        
         str += "name =  'This is my task name' })";
@@ -186,28 +185,25 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         long taskId = task.getId();
         
         // Task should be assigned to the single potential owner and state set to Reserved
-        
-        
         Task task1 = taskService.getTaskById( taskId );
         assertEquals( AccessType.Inline, ((InternalTaskData) task1.getTaskData()).getDocumentAccessType() );
         assertEquals( "java.util.HashMap", task1.getTaskData().getDocumentType() );
         long contentId = task1.getTaskData().getDocumentContentId();
         assertTrue( contentId != -1 ); 
-
-        
-        
+       
+        // content
         Content content = taskService.getContentById(contentId);
         Object unmarshalledObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         if(!(unmarshalledObject instanceof Map)){
             fail("The variables should be a Map");
-        
         }
         Map<String, Object> unmarshalledvars = (Map<String, Object>)unmarshalledObject;
+        JaxbContent jaxbContent = xmlRoundTripContent(content);
+        assertNotNull( "Jaxb Content map not filled", jaxbContent.getContentMap());
         
         assertEquals("value1",unmarshalledvars.get("key1") );
         assertNull(unmarshalledvars.get("key2") );
         assertEquals("value3",unmarshalledvars.get("key3") );
-        xmlRoundTripContent(content);
     }
     
     /*
@@ -2430,5 +2426,66 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(1000, resultDescription.getText().length()); // This is text
 
         // 6.1.x no longer uses shortText in API and Taskorm.xml so no assert.
+    }
+    
+    @Test
+    public void testCompleteByActiveTasks() {
+        
+
+        // One potential owner, should go straight to state Reserved
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { activationTime = new Date(), processInstanceId = 123 } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet'), new User('Darth Vader') ],businessAdministrators = [ new User('Administrator') ], }),";
+        str += "name = 'This is my task name' })";
+
+        Date creationTime = new Date();
+        
+        Task task = (Task) TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+
+
+        long taskId = task.getId();
+        assertNotNull(task.getTaskData().getActivationTime());
+
+        // Go straight from Ready to Inprogress
+        taskService.start(taskId, "Darth Vader");
+        
+        List<TaskSummary> activeTasks = taskService.getActiveTasks();
+        assertNotNull(activeTasks);
+        assertEquals(1,  activeTasks.size());
+        
+        activeTasks = taskService.getActiveTasks(creationTime);
+        assertNotNull(activeTasks);
+        assertEquals(1,  activeTasks.size());
+
+
+        Task task1 = taskService.getTaskById(taskId);
+        assertEquals(Status.InProgress, task1.getTaskData().getStatus());
+        assertEquals("Darth Vader", task1.getTaskData().getActualOwner().getId());
+
+        // Check is Complete
+
+        taskService.complete(taskId, "Darth Vader", null);
+
+        Task task2 = taskService.getTaskById(taskId);
+        assertEquals(Status.Completed, task2.getTaskData().getStatus());
+        assertEquals("Darth Vader", task2.getTaskData().getActualOwner().getId());
+        
+        List<TaskSummary> completedTasks = taskService.getCompletedTasks();
+        assertNotNull(completedTasks);
+        assertEquals(1,  completedTasks.size());
+        
+        completedTasks = taskService.getCompletedTasks(creationTime);
+        assertNotNull(completedTasks);
+        assertEquals(1,  completedTasks.size());
+        
+        completedTasks = taskService.getCompletedTasksByProcessId(123l);
+        assertNotNull(completedTasks);
+        assertEquals(1,  completedTasks.size());
+        
+        taskService.archiveTasks(completedTasks);
+        
+        List<TaskSummary> archiveddTasks = taskService.getArchivedTasks();
+        assertNotNull(archiveddTasks);
+        assertEquals(1,  archiveddTasks.size());
     }
 }

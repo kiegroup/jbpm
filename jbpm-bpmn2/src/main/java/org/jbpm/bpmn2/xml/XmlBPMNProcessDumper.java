@@ -36,6 +36,8 @@ import org.jbpm.bpmn2.core.Association;
 import org.jbpm.bpmn2.core.DataStore;
 import org.jbpm.bpmn2.core.Definitions;
 import org.jbpm.bpmn2.core.Error;
+import org.jbpm.bpmn2.core.ItemDefinition;
+import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.compiler.xml.XmlProcessReader;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.swimlane.Swimlane;
@@ -141,6 +143,20 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
     	VariableScope variableScope = (VariableScope)
     		((org.jbpm.process.core.Process) process).getDefaultContext(VariableScope.VARIABLE_SCOPE);
     	Set<String> dumpedItemDefs = new HashSet<String>();
+    	Map<String, ItemDefinition> itemDefs = (Map<String, ItemDefinition>) process.getMetaData().get("ItemDefinitions");
+    	
+    	if (itemDefs != null) {
+    		for (ItemDefinition def : itemDefs.values()) {
+    			xmlDump.append(
+                        "  <itemDefinition id=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(def.getId()) + "\" ");
+                    if (def.getStructureRef() != null && !"java.lang.Object".equals(def.getStructureRef())) {
+                        xmlDump.append("structureRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(def.getStructureRef()) + "\" ");
+                    }
+                    xmlDump.append("/>" + EOL);
+                    dumpedItemDefs.add(def.getId().intern());
+    		}
+    	}
+    	
     	visitVariableScope(variableScope, "_", xmlDump, dumpedItemDefs);
     	visitSubVariableScopes(process.getNodes(), xmlDump, dumpedItemDefs);
         
@@ -590,8 +606,12 @@ public class XmlBPMNProcessDumper implements XmlProcessDumper {
         }
         for( org.jbpm.bpmn2.core.Error error : errors ) { 
             String id = XmlBPMNProcessDumper.replaceIllegalCharsAttribute(error.getId());
-            String code = XmlBPMNProcessDumper.replaceIllegalCharsAttribute(error.getErrorCode());
-            xmlDump.append("  <error id=\"" + id + "\" errorCode=\"" + code + "\"" );
+            String code = error.getErrorCode();
+            xmlDump.append("  <error id=\"" + id + "\"" );
+            if (error.getErrorCode() != null) {
+            	code = XmlBPMNProcessDumper.replaceIllegalCharsAttribute(code);
+            	xmlDump.append(" errorCode=\"" + code + "\"" );
+            }
             String structureRef = error.getStructureRef();
             if( structureRef != null ) { 
                 structureRef = XmlBPMNProcessDumper.replaceIllegalCharsAttribute(structureRef);

@@ -57,7 +57,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     protected TimerJobFactoryManager jobFactoryManager;
     protected GlobalSchedulerService schedulerService;
     protected RuntimeManager manager;
-    protected ConcurrentHashMap<Integer, List<GlobalJobHandle>> timerJobsPerSession = new ConcurrentHashMap<Integer, List<GlobalJobHandle>>();
+    protected ConcurrentHashMap<Long, List<GlobalJobHandle>> timerJobsPerSession = new ConcurrentHashMap<Long, List<GlobalJobHandle>>();
     private String timerServiceId;
     
     public GlobalTimerService(RuntimeManager manager, GlobalSchedulerService schedulerService) {
@@ -91,8 +91,10 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
                 }
             }
             GlobalJobHandle jobHandle = (GlobalJobHandle) this.schedulerService.scheduleJob(job, ctx, trigger);
-            jobHandles.add(jobHandle);
-            
+            if (jobHandle != null) {
+            	jobHandles.add(jobHandle);
+            }
+                       
             return jobHandle;
         }
         GlobalJobHandle jobHandle = (GlobalJobHandle) this.schedulerService.scheduleJob(job, ctx, trigger);
@@ -105,7 +107,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             return false;
         }
         
-        int sessionId = ((GlobalJobHandle) jobHandle).getSessionId();
+        long sessionId = ((GlobalJobHandle) jobHandle).getSessionId();
         List<GlobalJobHandle> handles = timerJobsPerSession.get(sessionId);
         if (handles == null) {
         	logger.debug("No known job handles for session {}", sessionId);
@@ -151,12 +153,12 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
     }
 
     @Override
-    public Collection<TimerJobInstance> getTimerJobInstances(int id) {
+    public Collection<TimerJobInstance> getTimerJobInstances(long id) {
         Collection<TimerJobInstance> timers = new ArrayList<TimerJobInstance>();
         List<GlobalJobHandle> jobs = timerJobsPerSession.get(id); {
             if (jobs != null) {
                 for (GlobalJobHandle job : jobs) {
-                	if (schedulerService.isValid(job)) {
+                	if (job != null && schedulerService.isValid(job)) {
                 		timers.add(job.getTimerJobInstance());
                 	}
                 }
@@ -258,7 +260,7 @@ public class GlobalTimerService implements TimerService, InternalSchedulerServic
             return ((ProcessJobContext)ctx).getTimer().getId();
         }
     
-        public int getSessionId() {
+        public long getSessionId() {
         	if (this.getTimerJobInstance() != null) {
 	            JobContext ctx = this.getTimerJobInstance().getJobContext();
 	            if (ctx instanceof SelfRemovalJobContext) {

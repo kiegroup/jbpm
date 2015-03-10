@@ -49,8 +49,12 @@ import org.kie.internal.identity.IdentityProvider;
 import org.kie.internal.query.QueryContext;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDeploymentService implements DeploymentService, ListenerSupport {
+	
+	private static Logger logger = LoggerFactory.getLogger(AbstractDeploymentService.class);
     
     protected RuntimeManagerFactory managerFactory;     
     protected RuntimeDataService runtimeDataService;    
@@ -58,6 +62,7 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
     protected IdentityProvider identityProvider;
     
     protected Set<DeploymentEventListener> listeners = new HashSet<DeploymentEventListener>();
+    
     
     @Override
     public void addListener(DeploymentEventListener listener) {
@@ -82,7 +87,7 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
             throw new IllegalStateException("Unit with id " + unit.getIdentifier() + " is already deployed");
         }
     }
-    
+   
     public void notifyOnDeploy(DeploymentUnit unit, DeployedUnit deployedUnit){
     	DeploymentEvent event = new DeploymentEvent(unit.getIdentifier(), deployedUnit);
     	for (DeploymentEventListener listener : listeners) {
@@ -93,6 +98,19 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
     	DeploymentEvent event = new DeploymentEvent(unit.getIdentifier(), deployedUnit);
     	for (DeploymentEventListener listener : listeners) {
     		listener.onUnDeploy(event);
+    	}
+    }
+    
+    public void notifyOnActivate(DeploymentUnit unit, DeployedUnit deployedUnit){
+    	DeploymentEvent event = new DeploymentEvent(unit.getIdentifier(), deployedUnit);
+    	for (DeploymentEventListener listener : listeners) {
+    		listener.onActivate(event);
+    	}    
+    }
+    public void notifyOnDeactivate(DeploymentUnit unit, DeployedUnit deployedUnit){
+    	DeploymentEvent event = new DeploymentEvent(unit.getIdentifier(), deployedUnit);
+    	for (DeploymentEventListener listener : listeners) {
+    		listener.onDeactivate(event);
     	}
     }
     
@@ -181,15 +199,16 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
 
 	@Override
     public DeployedUnit getDeployedUnit(String deploymentUnitId) {
-        if (deploymentsMap.containsKey(deploymentUnitId)) {
-            return deploymentsMap.get(deploymentUnitId);
+		DeployedUnit deployedUnit = null;
+		if (deploymentsMap.containsKey(deploymentUnitId)) {
+			deployedUnit = deploymentsMap.get(deploymentUnitId);
         } else if (deploymentUnitId != null && deploymentUnitId.toLowerCase().contains("latest")) {
         	String matched = DeploymentIdResolver.matchAndReturnLatest(deploymentUnitId, deploymentsMap.keySet());
 
-    		return deploymentsMap.get(matched);        	
+        	deployedUnit = deploymentsMap.get(matched);        	
         }
-        
-        return null;
+		
+        return deployedUnit;
     }
     
     public Map<String, DeployedUnit> getDeploymentsMap() {
@@ -240,5 +259,22 @@ public abstract class AbstractDeploymentService implements DeploymentService, Li
         return auditEventBuilder;
     }
 	
+    @Override
+    public boolean isDeployed(String deploymentUnitId) {
+        return deploymentsMap.containsKey(deploymentUnitId);
+    }
+    
+    public void shutdown() {
+    	Collection<DeployedUnit> deployedUnits = getDeployedUnits();
+    	
+    	for (DeployedUnit deployed : deployedUnits) {
+    		try {
+    			deployed.getRuntimeManager().close();
+    		} catch (Exception e) {
+    			logger.warn("Error encountered while shutting down deplyment {} due to {}", 
+    					deployed.getDeploymentUnit().getIdentifier(), e.getMessage());
+    		}
+    	}
+    }
 	
 }

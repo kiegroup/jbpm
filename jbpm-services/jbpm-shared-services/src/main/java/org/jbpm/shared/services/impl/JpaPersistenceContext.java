@@ -154,13 +154,16 @@ public class JpaPersistenceContext implements Context {
 					continue;
 				}
 				else if (MAX_RESULTS.equals(name)) {
-					query.setMaxResults((Integer) params.get(name));
+					if (((Integer) params.get(name)) > -1) {
+						query.setMaxResults((Integer) params.get(name));
+					}
 					continue;
 				} 
 				// skip control parameters
 				else if (QueryManager.ASCENDING_KEY.equals(name) 
 						|| QueryManager.DESCENDING_KEY.equals(name)
-						|| QueryManager.ORDER_BY_KEY.equals(name)) {
+						|| QueryManager.ORDER_BY_KEY.equals(name)
+						|| QueryManager.FILTER.equals(name)) {
 					continue;
 				}
 				query.setParameter(name, params.get(name));

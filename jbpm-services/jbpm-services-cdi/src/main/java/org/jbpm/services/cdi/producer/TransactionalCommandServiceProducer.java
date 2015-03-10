@@ -21,7 +21,11 @@ import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
+import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManager;
+import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
+import org.jbpm.services.cdi.Audit;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
+import org.kie.internal.runtime.conf.DeploymentDescriptor;
 
 public class TransactionalCommandServiceProducer {
 
@@ -31,6 +35,18 @@ public class TransactionalCommandServiceProducer {
 
     @Produces
     public TransactionalCommandService produceCommandService() {
+        return new TransactionalCommandService( emf );
+    }
+    
+    @Produces
+	@Audit
+    public TransactionalCommandService produceAuditCommandService() {
+    	DeploymentDescriptorManager manager = new DeploymentDescriptorManager("org.jbpm.domain");
+    	DeploymentDescriptor descriptor = manager.getDefaultDescriptor();
+    	if (!"org.jbpm.domain".equals(descriptor.getAuditPersistenceUnit())) {
+    		return new TransactionalCommandService( EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()) );
+    	}
+    	
         return new TransactionalCommandService( emf );
     }
 }

@@ -22,7 +22,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.jbpm.kie.services.api.AttributesAware;
 import org.jbpm.services.api.model.DeploymentUnit;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.MergeObjectCommand;
@@ -34,6 +36,12 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.XStream;
 
 public class DeploymentStore {
+	
+	private static final Integer STATE_DISABLED = 0;
+	private static final Integer STATE_ENABLED = 1;
+	private static final Integer STATE_ACTIVATED = 2;
+	private static final Integer STATE_DEACTIVATED = 3;
+	private static final Integer STATE_OBSOLETE = -1;
 	
 	private static final Logger logger = LoggerFactory.getLogger(DeploymentStore.class);
 
@@ -49,20 +57,51 @@ public class DeploymentStore {
 	public Collection<DeploymentUnit> getEnabledDeploymentUnits() {
 		List<DeploymentUnit> activeDeployments = new ArrayList<DeploymentUnit>();
 		Map<String, Object> params = new HashMap<String, Object>();
-        params.put("state", 1);
+		List<Integer> states = new ArrayList<Integer>();
+		states.add(STATE_ENABLED);
+		states.add(STATE_ACTIVATED);
+		states.add(STATE_DEACTIVATED);
+        params.put("state", states);
         List<DeploymentStoreEntry> deployments = commandService.execute(
 				new QueryNameCommand<List<DeploymentStoreEntry>>("getDeploymentUnitsByState", params));
         
         for (DeploymentStoreEntry entry : deployments) {
-        	DeploymentUnit unit = (DeploymentUnit) xstream.fromXML(entry.getDeploymentUnit());
-        	
-        	activeDeployments.add(unit);
+        	String sync = getEntryAttributes(entry.getAttributes()).get("sync");
+        	// add to the deployable list only sync flag is set to true or does not exists (default)
+        	if (sync == null || sync.equalsIgnoreCase("true")) {
+	        	DeploymentUnit unit = (DeploymentUnit) xstream.fromXML(entry.getDeploymentUnit());
+	        	
+	        	activeDeployments.add(unit);
+        	}
         }
         
         return activeDeployments;
 	}
 	
-	public void getDeploymentUnitsByDate(Date date, Collection<DeploymentUnit> enabled, Collection<DeploymentUnit> disabled) {
+	public Collection<DeploymentUnit> getDeactivatedDeploymentUnits() {
+		List<DeploymentUnit> activeDeployments = new ArrayList<DeploymentUnit>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		List<Integer> states = new ArrayList<Integer>();
+		states.add(STATE_DEACTIVATED);
+        params.put("state", states);
+        List<DeploymentStoreEntry> deployments = commandService.execute(
+				new QueryNameCommand<List<DeploymentStoreEntry>>("getDeploymentUnitsByState", params));
+        
+        for (DeploymentStoreEntry entry : deployments) {
+        	String sync = getEntryAttributes(entry.getAttributes()).get("sync");
+        	// add to the deployable list only sync flag is set to true or does not exists (default)
+        	if (sync == null || sync.equalsIgnoreCase("true")) {
+	        	DeploymentUnit unit = (DeploymentUnit) xstream.fromXML(entry.getDeploymentUnit());
+	        	
+	        	activeDeployments.add(unit);
+        	}
+        }
+        
+        return activeDeployments;
+	}
+	
+	public void getDeploymentUnitsByDate(Date date, Collection<DeploymentUnit> enabled, Collection<DeploymentUnit> disabled,
+			Collection<DeploymentUnit> activated, Collection<DeploymentUnit> deactivated) {
 		
 		Map<String, Object> params = new HashMap<String, Object>();
         params.put("ludate", date);
@@ -70,13 +109,22 @@ public class DeploymentStore {
 				new QueryNameCommand<List<DeploymentStoreEntry>>("getDeploymentUnitsByDate", params));
         
         for (DeploymentStoreEntry entry : deployments) {
-        	DeploymentUnit unit = (DeploymentUnit) xstream.fromXML(entry.getDeploymentUnit());
-        	if (entry.getState() == 1) {
-        		enabled.add(unit);
-        	} else if (entry.getState() == 0) {
-        		disabled.add(unit);
-        	} else {
-        		logger.warn("Unknown state of deployment store entry {} for entry {} will be ignored", entry.getId(), entry);
+        	String sync = getEntryAttributes(entry.getAttributes()).get("sync");
+        	// add to the deployable list only sync flag is set to true or does not exists (default)
+        	if (sync == null || sync.equalsIgnoreCase("true")) {
+	        
+	        	DeploymentUnit unit = (DeploymentUnit) xstream.fromXML(entry.getDeploymentUnit());
+	        	if (entry.getState() == STATE_ENABLED) {
+	        		enabled.add(unit);
+	        	} else if (entry.getState() == STATE_DISABLED) {
+	        		disabled.add(unit);
+	        	} else if (entry.getState() == STATE_ACTIVATED) {
+	        		activated.add(unit);
+	        	} else if (entry.getState() == STATE_DEACTIVATED) {
+	        		deactivated.add(unit);
+	        	} else {
+	        		logger.warn("Unknown state of deployment store entry {} for {} will be ignored", entry.getId(), entry);
+	        	}
         	}
         }
         
@@ -87,7 +135,7 @@ public class DeploymentStore {
 		DeploymentStoreEntry entry = findDeploymentStoreByDeploymentId(unit.getIdentifier());
 		if (entry != null) {
 			// update only
-			entry.setState(1);// 0 - disabled, 1 - enabled
+			entry.setState(STATE_ENABLED);// 0 - disabled, 1 - enabled, 2 - activated, 3 - deactivated
 			entry.setUpdateDate(new Date());		
 			entry.setDeploymentUnit(unitContent);
 			
@@ -97,9 +145,14 @@ public class DeploymentStore {
 		
 		entry = new DeploymentStoreEntry();
 		entry.setDeploymentId(unit.getIdentifier());
-		entry.setState(1);// 0 - disabled, 1 - enabled
+		entry.setState(STATE_ENABLED);// 0 - disabled, 1 - enabled, 2 - activated, 3 - deactivated
 		entry.setUpdateDate(new Date());		
 		entry.setDeploymentUnit(unitContent);
+		
+		if (unit instanceof AttributesAware) {
+			String attribtues = buildEntryAttributes(((AttributesAware) unit).getAttributes());
+			entry.setAttributes(attribtues);
+		}
 		
 		commandService.execute(new PersistObjectCommand(entry));
 		
@@ -110,9 +163,35 @@ public class DeploymentStore {
 		DeploymentStoreEntry entry = findDeploymentStoreByDeploymentId(unit.getIdentifier());
 		if (entry != null) {
 			// update only
-			entry.setState(0);// 0 - disabled, 1 - enabled
+			entry.setState(STATE_DISABLED);// 0 - disabled, 1 - enabled, 2 - activated, 3 - deactivated
 			entry.setUpdateDate(new Date());		
 			
+			commandService.execute(new MergeObjectCommand(entry));	
+		}
+		
+	}
+	
+	public void deactivateDeploymentUnit(DeploymentUnit unit) {
+		
+		DeploymentStoreEntry entry = findDeploymentStoreByDeploymentId(unit.getIdentifier());
+		if (entry != null && entry.getState() != STATE_DEACTIVATED) {
+			// update only
+			entry.setState(STATE_DEACTIVATED);// 0 - disabled, 1 - enabled, 2 - activated, 3 - deactivated
+			entry.setUpdateDate(new Date());	
+						
+			commandService.execute(new MergeObjectCommand(entry));	
+		}
+		
+	}
+	
+	public void activateDeploymentUnit(DeploymentUnit unit) {
+		
+		DeploymentStoreEntry entry = findDeploymentStoreByDeploymentId(unit.getIdentifier());
+		if (entry != null && entry.getState() != STATE_ACTIVATED) {
+			// update only
+			entry.setState(STATE_ACTIVATED);// 0 - disabled, 1 - enabled, 2 - activated, 3 - deactivated
+			entry.setUpdateDate(new Date());	
+						
 			commandService.execute(new MergeObjectCommand(entry));	
 		}
 		
@@ -123,7 +202,7 @@ public class DeploymentStore {
 		DeploymentStoreEntry entry = findDeploymentStoreByDeploymentId(unit.getIdentifier());
 		if (entry != null) {
 			// update only
-			entry.setState(-1);// 0 - disabled, 1 - enabled, -1 - obsolete 
+			entry.setState(STATE_OBSOLETE);// 0 - disabled, 1 - enabled, -1 - obsolete 
 			entry.setUpdateDate(new Date());		
 			
 			commandService.execute(new MergeObjectCommand(entry));	
@@ -144,5 +223,33 @@ public class DeploymentStore {
         return null;
 	}
 
+	protected Map<String, String> getEntryAttributes(String attributes) {
+		logger.debug("Reading attributes string {}", attributes);
+		Map<String, String> attributeMap = new HashMap<String, String>();
+		if (attributes != null && !attributes.isEmpty()) {
+			// expected format: key=value;key=value;...
+			String[] pairs = attributes.split(";");
+			
+			for (String pair : pairs) {
+				String[] keyValue = pair.split("=");
+				
+				attributeMap.put(keyValue[0], keyValue[1]);
+			}
+		}
+		
+		return attributeMap;
+	}
+	
+	protected String buildEntryAttributes(Map<String, String> attributes) {
+		StringBuilder builder = new StringBuilder();
+		if (attributes != null && !attributes.isEmpty()) {
+			for (Entry<String, String> entry : attributes.entrySet()) {
+				builder.append(entry.getKey() + "=" + entry.getValue() + ";");
+			}
+			builder.deleteCharAt(builder.length()-1);
+		}
+		logger.debug("Built attributes as string {}", builder);
+		return builder.toString();
+	}
 
 }

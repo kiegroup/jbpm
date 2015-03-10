@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
+import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.process.instance.ContextInstance;
@@ -55,6 +56,7 @@ import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstanceContainer;
 import org.kie.internal.runtime.KnowledgeRuntime;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 /**
@@ -279,11 +281,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	}
 	
 	public void setVariable(String name, Object value) {
+		VariableScope variableScope = (VariableScope) ((ContextContainer) getProcess()).getDefaultContext( VariableScope.VARIABLE_SCOPE );
 		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
 			getContextInstance(VariableScope.VARIABLE_SCOPE);
 		if (variableScopeInstance == null) {
 			throw new IllegalArgumentException("No variable scope found.");
 		}
+		variableScope.validateVariable(getProcessName(), name, value);
 		variableScopeInstance.setVariable(name, value);
 	}
 	
@@ -313,9 +317,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             
             RuntimeManager manager = (RuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
             if (getParentProcessInstanceId() > 0 && manager != null) {
-                RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(getParentProcessInstanceId()));
-                KnowledgeRuntime managedkruntime = (KnowledgeRuntime) runtime.getKieSession();
-                managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+            	try {
+	                RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(getParentProcessInstanceId()));
+	                KnowledgeRuntime managedkruntime = (KnowledgeRuntime) runtime.getKieSession();
+	                managedkruntime.signalEvent("processInstanceCompleted:" + getId(), this);
+            	} catch (SessionNotFoundException e) {
+            		// in case no session is found for parent process let's skip signal for process instance completion
+            	}
             } else {
                 processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);    
             }

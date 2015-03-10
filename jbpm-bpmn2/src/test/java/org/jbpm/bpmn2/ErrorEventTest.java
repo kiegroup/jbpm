@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.jbpm.bpmn2.handler.ServiceTaskHandler;
 import org.jbpm.bpmn2.handler.SignallingTaskHandlerDecorator;
 import org.jbpm.bpmn2.objects.ExceptionOnPurposeHandler;
@@ -32,6 +30,7 @@ import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
+import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,6 +45,7 @@ import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,6 +180,62 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceAborted(processInstance);
         assertNodeTriggered(processInstance.getId(), "start", "User Task 1",
                 "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+        assertEquals(1, executednodes.size());
+
+    }
+    
+    @Test
+    public void testEventSubprocessErrorWithErrorCode() throws Exception {
+        KieBase kbase = createKnowledgeBase("subprocess/EventSubprocessErrorHandlingWithErrorCode.bpmn2");
+        final List<Long> executednodes = new ArrayList<Long>();
+        ProcessEventListener listener = new DefaultProcessEventListener() {
+
+            @Override
+            public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                if (event.getNodeInstance().getNodeName()
+                        .equals("Script2")) {
+                    executednodes.add(event.getNodeInstance().getId());
+                }
+            }
+
+        };
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(listener);
+
+        ProcessInstance processInstance = ksession.startProcess("order-fulfillment-bpm.ccc");
+
+        assertProcessInstanceFinished(processInstance, ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "Script1",
+                "starterror", "Script2", "end2", "eventsubprocess");
+        assertProcessVarValue(processInstance, "CapturedException", "java.lang.RuntimeException: XXX");
+        assertEquals(1, executednodes.size());
+
+    }
+    
+    @Test
+    public void testEventSubprocessErrorWithOutErrorCode() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper("subprocess/EventSubprocessErrorHandlingWithOutErrorCode.bpmn2");
+        final List<Long> executednodes = new ArrayList<Long>();
+        ProcessEventListener listener = new DefaultProcessEventListener() {
+
+            @Override
+            public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                if (event.getNodeInstance().getNodeName()
+                        .equals("Script2")) {
+                    executednodes.add(event.getNodeInstance().getId());
+                }
+            }
+
+        };
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(listener);
+
+        ProcessInstance processInstance = ksession.startProcess("order-fulfillment-bpm.ccc");
+
+        assertProcessInstanceFinished(processInstance, ksession);
+        assertNodeTriggered(processInstance.getId(), "start", "Script1",
+                "starterror", "Script2", "end2", "eventsubprocess");
+        assertProcessVarValue(processInstance, "CapturedException", "java.lang.RuntimeException: XXX");
         assertEquals(1, executednodes.size());
 
     }
@@ -328,5 +384,100 @@ public class ErrorEventTest extends JbpmBpmn2TestCase {
         
         assertEquals(1, handler.getWorkItems().size());
     } 
+
+    @Test
+    public void testBoundaryErrorEventDefaultHandlerWithErrorCodeWithStructureRef() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventDefaultHandlerWithErrorCodeWithStructureRef.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ExceptionWorkItemHandler handler = new ExceptionWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+		try {
+			ProcessInstance processInstance = ksession
+					.startProcess("com.sample.bpmn.hello");
+			fail("This is not a default handler. So WorkflowRuntimeException must be thrown");
+		} catch (WorkflowRuntimeException e) {
+			assertTrue(true);
+		}
+    }
+
+    @Test
+    public void testBoundaryErrorEventDefaultHandlerWithErrorCodeWithoutStructureRef() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventDefaultHandlerWithErrorCodeWithoutStructureRef.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ExceptionWorkItemHandler handler = new ExceptionWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+		try {
+			ProcessInstance processInstance = ksession
+					.startProcess("com.sample.bpmn.hello");
+			fail("This is not a default handler. So WorkflowRuntimeException must be thrown");
+		} catch (WorkflowRuntimeException e) {
+			assertTrue(true);
+		}
+    }
+
+    @Test
+    public void testBoundaryErrorEventDefaultHandlerWithoutErrorCodeWithStructureRef() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventDefaultHandlerWithoutErrorCodeWithStructureRef.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ExceptionWorkItemHandler handler = new ExceptionWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+        ProcessInstance processInstance = ksession
+            .startProcess("com.sample.bpmn.hello");
+
+        assertNodeTriggered(processInstance.getId(), "Start", "User Task", "MyBoundaryErrorEvent");
+    }
+
+    @Test
+    public void testBoundaryErrorEventDefaultHandlerWithoutErrorCodeWithoutStructureRef() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventDefaultHandlerWithoutErrorCodeWithoutStructureRef.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ExceptionWorkItemHandler handler = new ExceptionWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+        ProcessInstance processInstance = ksession
+            .startProcess("com.sample.bpmn.hello");
+
+        assertNodeTriggered(processInstance.getId(), "Start", "User Task", "MyBoundaryErrorEvent");
+    }
+
+    @Test
+    public void testBoundaryErrorEventSubProcessExceptionMapping() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventSubProcessExceptionMapping.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ExceptionWorkItemHandler handler = new ExceptionWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+        ProcessInstance processInstance = ksession
+            .startProcess("com.sample.bpmn.hello");
+
+        assertEquals("java.lang.RuntimeException", getProcessVarValue(processInstance, "var1"));
+    }
     
+	@Test
+    public void testBoundaryErrorEventStructureRef() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventStructureRef.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ExceptionWorkItemHandler handler = new ExceptionWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+        ProcessInstance processInstance = ksession.startProcess("com.sample.bpmn.hello");
+
+        assertNodeTriggered(processInstance.getId(), "Start", "User Task", "MyBoundaryErrorEvent");
+    }
+
+    class ExceptionWorkItemHandler implements WorkItemHandler {
+
+		@Override
+		public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+		}
+
+    }
 }

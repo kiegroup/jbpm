@@ -11,6 +11,16 @@
 
   <name>jBPM :: RuntimeManager</name>
   <description>jBPM RuntimeManager</description>
+  
+  <properties>
+    <maven.hibernate.dialect>org.hibernate.dialect.H2Dialect</maven.hibernate.dialect>
+    <maven.datasource.classname>bitronix.tm.resource.jdbc.lrc.LrcXADataSource</maven.datasource.classname>
+    <maven.jdbc.driver.class>org.h2.Driver</maven.jdbc.driver.class>
+    <maven.jdbc.db.name/>
+    <maven.jdbc.db.port/>
+    <maven.jdbc.db.server/> 
+    <maven.jdbc.url>jdbc:h2:mem:jbpm-db;MVCC=true</maven.jdbc.url>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -83,6 +93,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-jpa</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.spec.javax.ejb</groupId>
       <artifactId>jboss-ejb-api_3.1_spec</artifactId>
       <scope>test</scope>
@@ -128,7 +144,6 @@
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-jpa</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>javax.enterprise</groupId>
@@ -177,6 +192,7 @@
               javax.enterprise.inject.spi,
               javax.enterprise.util,
               javax.inject,
+              javax.naming,
               javax.persistence,
               javax.xml,
               javax.xml.bind,
@@ -184,6 +200,7 @@
               javax.xml.validation,
               org.drools.compiler.kie.builder.impl,
               org.drools.compiler.kie.util,
+              org.drools.core.builder.conf.impl,
               org.drools.core.command,
               org.drools.core.command.impl,
               org.drools.core.common,
@@ -207,6 +224,7 @@
               org.jbpm.process.instance.impl,
               org.jbpm.process.instance.timer,
               org.jbpm.services.task,
+              org.jbpm.services.task.impl,
               org.jbpm.services.task.audit;resolution:=optional,
               org.jbpm.services.task.identity,
               org.jbpm.services.task.lifecycle.listeners,
@@ -228,6 +246,7 @@
               org.kie.api.task,
               org.kie.api.task.model,
               org.kie.internal,
+              org.kie.internal.io,
               org.kie.internal.query,
               org.kie.internal.builder,
               org.kie.internal.command,

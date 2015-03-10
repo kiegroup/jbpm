@@ -16,24 +16,35 @@
 
 package org.jbpm.kie.services.test;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.kie.internal.identity.IdentityProvider;
 
 public class TestIdentityProvider implements IdentityProvider {
+	
+	private String name = "testUser";
+	private List<String> roles = new ArrayList<String>();
 
     public String getName() {
-        return "testUser";
+        return name;
     }
 
     public List<String> getRoles() {
-        return Collections.emptyList();
+        return roles;
     }
 
 	@Override
 	public boolean hasRole(String role) {
-		return false;
+		return roles.contains(role);
 	}
 
+	// just for testing
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
 }

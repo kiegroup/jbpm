@@ -32,6 +32,8 @@ import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.query.QueryContext;
 import org.kie.internal.query.QueryFilter;
+import org.kie.internal.task.api.AuditTask;
+import org.kie.internal.task.api.model.TaskEvent;
 
 /**
  * This service provides an interface to retrieve data about the runtime, including the following:
@@ -113,7 +115,9 @@ public interface RuntimeDataService {
     Collection<ProcessInstanceDesc> getProcessInstancesByDeploymentId(String deploymentId, List<Integer> states, QueryContext queryContext);
     
     /**
-     * Returns process instance descriptions found for given processInstanceId if found otherwise null. 
+     * Returns process instance descriptions found for given processInstanceId if found otherwise null. At the same time it will
+     * fetch all active tasks (in status: Ready, Reserved, InProgress) to provide information what user task is keeping instance
+     * and who owns them (if were already claimed). 
      * @param processInstanceId The id of the process instance to be fetched
      * @return Process instance information, in the form of a {@link ProcessInstanceDesc} instance.
      */
@@ -127,6 +131,16 @@ public interface RuntimeDataService {
      *         the given criteria (deploymentId and states).
      */
     Collection<ProcessInstanceDesc> getProcessInstancesByProcessDefinition(String processDefId, QueryContext queryContext);
+    
+    /**
+     * Returns list of process instance descriptions found for given process definition id
+     * @param processDefId The id of the process (definition) 
+     * @param states A list of possible state (int) values that the {@link ProcessInstance} can have.
+     * @param queryContext control parameters for the result e.g. sorting, paging
+     * @return A list of {@link ProcessInstanceDesc} instances representing the process instances that match
+     *         the given criteria (deploymentId and states).
+     */
+    Collection<ProcessInstanceDesc> getProcessInstancesByProcessDefinition(String processDefId, List<Integer> states, QueryContext queryContext);
 
     
     // Node and Variable instance information
@@ -278,6 +292,16 @@ public interface RuntimeDataService {
 	 * @return
 	 */
 	List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter);
+	
+	/**
+     * Return a list of assigned tasks as a Business Administrator for with one of the listed
+     * statuses
+     * @param userId
+     * @param status
+     * @param filter
+     * @return
+     */
+	List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, List<Status> statuses, QueryFilter filter);
 
 	/**
 	 * Return a list of tasks the user is eligible for.
@@ -384,5 +408,23 @@ public interface RuntimeDataService {
 	 * @return
 	 */
 	List<TaskSummary> getTasksByStatusByProcessInstanceId(Long processInstanceId, List<Status> status, QueryFilter filter);
+        
+    /**
+	 * Get a list of tasks audit logs for the user provides applying the query filter
+	 * listed statuses.
+	 * 
+	 * @param userId
+	 * @param filter
+	 * @return
+	 */
+    List<AuditTask> getAllAuditTask(String userId, QueryFilter filter);
+     
+    /**
+     * Gets a list of task events for given task
+     * @param taskId
+     * @param filter
+     * @return
+     */
+    List<TaskEvent> getTaskEvents(long taskId, QueryFilter filter); 
 	    
 }

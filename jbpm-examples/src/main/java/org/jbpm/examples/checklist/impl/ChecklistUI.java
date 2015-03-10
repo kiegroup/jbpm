@@ -29,7 +29,17 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -39,14 +49,12 @@ import org.jbpm.examples.checklist.ChecklistContextConstraint;
 import org.jbpm.examples.checklist.ChecklistItem;
 import org.jbpm.examples.checklist.ChecklistItem.Status;
 import org.jbpm.examples.checklist.ChecklistManager;
-import org.jbpm.process.audit.AuditLogService;
-import org.jbpm.process.audit.JPAAuditLogService;
-import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.test.JBPMHelper;
+import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
-import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.manager.RuntimeEnvironment;
-import org.kie.internal.task.api.UserGroupCallback;
+import org.kie.api.runtime.manager.RuntimeEnvironment;
+import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
+import org.kie.api.task.UserGroupCallback;
 
 /**
  * 
@@ -86,7 +94,7 @@ public class ChecklistUI extends JFrame {
         
 		JBPMHelper.startH2Server();
 		JBPMHelper.setupDataSource();
-		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.getDefault()
+		RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
     			public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
     				List<String> result = new ArrayList<String>();
@@ -106,12 +114,12 @@ public class ChecklistUI extends JFrame {
     				return true;
     			}
     		})
-            .addAsset(ResourceFactory.newClassPathResource("checklist/SampleChecklistProcess.bpmn"), ResourceType.BPMN2)
-            .addAsset(ResourceFactory.newClassPathResource("checklist/AdHocProcess.bpmn"), ResourceType.BPMN2)
-            .addAsset(ResourceFactory.newClassPathResource("checklist/travel.bpmn"), ResourceType.BPMN2)
+            .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/SampleChecklistProcess.bpmn"), ResourceType.BPMN2)
+            .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/AdHocProcess.bpmn"), ResourceType.BPMN2)
+            .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/travel.bpmn"), ResourceType.BPMN2)
+            .addAsset(KieServices.Factory.get().getResources().newClassPathResource("checklist/expenses.bpmn"), ResourceType.BPMN2)
             .get();
 		checklistManager = new DefaultChecklistManager(environment);
-		AuditLogService auditLogService = new JPAAuditLogService(environment.getEnvironment());
     }
     
     private void initializeComponent() {

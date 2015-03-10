@@ -310,11 +310,9 @@ public class SynchronizedTaskService
     }
 
     @Override
-    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId,
-            List<String> groupIds,  int firstResult,
-            int maxResults) {
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, int firstResult, int maxResults) {
         synchronized (ksession) {
-           return  taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, firstResult, maxResults);
+           return  taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, language, firstResult, maxResults);
         }
     }
 
@@ -909,11 +907,11 @@ public class SynchronizedTaskService
 	public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds,
 			List<Long> taskIds, List<Long> procInstIds, List<String> busAdmins,
 			List<String> potOwners, List<String> taskOwners,
-			List<Status> status,  boolean union) {
+			List<Status> status,  List<String> language, boolean union) {
 		synchronized (ksession) {
             if (taskService != null) {
                 return taskService.getTasksByVariousFields(userId, workItemIds, taskIds, procInstIds,
-                		busAdmins, potOwners, taskOwners, status, union);
+                		busAdmins, potOwners, taskOwners, status, language, union);
             }
             return null;
         }
@@ -945,5 +943,21 @@ public class SynchronizedTaskService
 	public TaskQueryBuilder taskQuery(String userId) {
 	    return taskService.taskQuery(userId);
 	}
+
+        @Override
+        public List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, String language, List<Status> statuses) {
+            synchronized (ksession) {
+                return taskService.getTasksAssignedAsBusinessAdministratorByStatus(userId, language, statuses);
+            }
+        }
+
+
+		@Override
+		public void executeReminderForTask(long taskId,String initiator) {
+			synchronized (ksession) {
+                taskService.executeReminderForTask(taskId,initiator);
+            }
+			
+		}
 
 }

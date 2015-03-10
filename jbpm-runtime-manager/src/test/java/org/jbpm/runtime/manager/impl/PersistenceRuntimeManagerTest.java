@@ -86,7 +86,7 @@ public class PersistenceRuntimeManagerTest extends AbstractBaseTest {
         KieSession ksession = runtime.getKieSession();
 
         assertNotNull(ksession);       
-        int ksession1Id = ksession.getId();
+        long ksession1Id = ksession.getIdentifier();
         assertTrue(ksession1Id == 2);
 
         ProcessInstance pi1 = ksession.startProcess("UserTask");
@@ -104,7 +104,7 @@ public class PersistenceRuntimeManagerTest extends AbstractBaseTest {
         ksession.getWorkItemManager().completeWorkItem(1, null);
         // since process is completed now session should not be there any more
         try {
-            manager.getRuntimeEngine(ProcessInstanceIdContext.get(pi1.getId()));
+            manager.getRuntimeEngine(ProcessInstanceIdContext.get(pi1.getId())).getKieSession();
             fail("Session for this (" + pi1.getId() + ") process instance is no more accessible");
         } catch (RuntimeException e) {
             

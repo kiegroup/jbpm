@@ -31,6 +31,8 @@ import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
 import org.jbpm.bpmn2.xml.BPMNExtensionsSemanticModule;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.services.api.DefinitionService;
+import org.jbpm.services.api.DeploymentEvent;
+import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.UserTaskDefinition;
 import org.kie.api.io.ResourceType;
@@ -42,9 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BPMN2DataServiceImpl implements DefinitionService {
+public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventListener {
     
     private static final Logger logger = LoggerFactory.getLogger(BPMN2DataServiceImpl.class);
+    private static final BPMN2DataServiceSemanticModule MODULE = new BPMN2DataServiceSemanticModule();
     
     private ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>> definitionCache = 
     		new ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>>();
@@ -75,60 +78,61 @@ public class BPMN2DataServiceImpl implements DefinitionService {
 		if (StringUtils.isEmpty(bpmn2Content)) {
             return null;
         }
-		BPMN2DataServiceSemanticModule module = new BPMN2DataServiceSemanticModule();
-        BPMN2ProcessProvider provider = getProvider(module);
+		
+        BPMN2ProcessProvider provider = getProvider(MODULE);
         BPMN2ProcessProvider originalProvider = BPMN2ProcessFactory.getBPMN2ProcessProvider();
         if (originalProvider != provider) {
             BPMN2ProcessFactory.setBPMN2ProcessProvider(provider);
         }
+        try {
+	        BPMN2DataServiceSemanticModule.setRepoHelper(new ProcessDescRepoHelper());
+	        KnowledgeBuilder kbuilder = null;
+	        if (classLoader != null) {
+	            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(classLoader);
+	            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(pconf);
+	        } else {
+	            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+	        }
+	        kbuilder.add(new ByteArrayResource(bpmn2Content.getBytes()), ResourceType.BPMN2);
+	        if (kbuilder.hasErrors()) {
+	            for(KnowledgeBuilderError error: kbuilder.getErrors()){
+	                logger.error("Error: {}", error.getMessage());
+	            }
+	            logger.debug("Process Cannot be Parsed! \n {} \n", bpmn2Content);
+	            return null;
+	        }
 
-        KnowledgeBuilder kbuilder = null;
-        if (classLoader != null) {
-            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(classLoader);
-            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(pconf);
-        } else {
-            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+	        KnowledgePackage pckg = kbuilder.getKnowledgePackages().iterator().next();
+	        
+	        org.kie.api.definition.process.Process process = pckg.getProcesses().iterator().next();
+	        
+	        ProcessDescRepoHelper helper = MODULE.getRepo().removeProcessDescription(process.getId());
+	        ProcessAssetDesc definition = helper.getProcess();
+	        
+	        definition.setAssociatedEntities(helper.getTaskAssignments());
+	        definition.setProcessVariables(helper.getInputs());
+	        definition.setReusableSubProcesses(helper.getReusableSubProcesses());
+	        definition.setServiceTasks(helper.getServiceTasks());
+	        
+	        // cache the data if requested
+	        if (cache) {
+	        	Map<String, ProcessDescRepoHelper> definitions = null;
+	        	synchronized (definitionCache) {
+	        		definitions = definitionCache.get(deploymentId);
+	        		if (definitions == null) {
+	        			definitions = new ConcurrentHashMap<String, ProcessDescRepoHelper>();
+	        			definitionCache.put(deploymentId, definitions);
+	        		}
+	        		definitions.put(process.getId(), helper);
+				}
+	        }
+	        
+	        
+	        return definition;
+        } finally {
+        	BPMN2ProcessFactory.setBPMN2ProcessProvider(originalProvider);
+            BPMN2DataServiceSemanticModule.dispose();
         }
-        kbuilder.add(new ByteArrayResource(bpmn2Content.getBytes()), ResourceType.BPMN2);
-        if (kbuilder.hasErrors()) {
-            for(KnowledgeBuilderError error: kbuilder.getErrors()){
-                logger.error("Error: {}", error.getMessage());
-            }
-            logger.debug("Process Cannot be Parsed! \n {} \n", bpmn2Content);
-            return null;
-        }
-        
-        BPMN2ProcessFactory.setBPMN2ProcessProvider(originalProvider);
-        
-        KnowledgePackage pckg = kbuilder.getKnowledgePackages().iterator().next();
-        
-        org.kie.api.definition.process.Process process = pckg.getProcesses().iterator().next();
-        ProcessAssetDesc definition = new ProcessAssetDesc(process.getId(), process.getName(), process.getVersion()
-                , process.getPackageName(), process.getType(), process.getKnowledgeType().name(),
-                process.getNamespace(), "");
-        
-        ProcessDescRepoHelper helper = module.getRepo().removeProcessDescription(process.getId());
-        
-        definition.setAssociatedEntities(helper.getTaskAssignments());
-        definition.setProcessVariables(helper.getInputs());
-        definition.setReusableSubProcesses(helper.getReusableSubProcesses());
-        definition.setServiceTasks(helper.getServiceTasks());
-        
-        // cache the data if requested
-        if (cache) {
-        	Map<String, ProcessDescRepoHelper> definitions = null;
-        	synchronized (definitionCache) {
-        		definitions = definitionCache.get(deploymentId);
-        		if (definitions == null) {
-        			definitions = new ConcurrentHashMap<String, ProcessDescRepoHelper>();
-        			definitionCache.put(deploymentId, definitions);
-        		}
-        		definitions.put(process.getId(), helper);
-			}
-        }
-        
-        
-        return definition;
 	}
 
 	@Override
@@ -296,5 +300,26 @@ public class BPMN2DataServiceImpl implements DefinitionService {
         }
         
         return Collections.emptyMap();
+	}
+
+	@Override
+	public void onDeploy(DeploymentEvent event) {
+		// no op
+	}
+
+	@Override
+	public void onUnDeploy(DeploymentEvent event) {
+		// remove process definitions from the cache
+		definitionCache.remove(event.getDeploymentId());
+	}
+
+	@Override
+	public void onActivate(DeploymentEvent event) {
+		// no op
+	}
+
+	@Override
+	public void onDeactivate(DeploymentEvent event) {
+		// no op
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.junit.After;
@@ -19,6 +20,7 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.task.TaskService;
+import org.kie.api.task.model.Content;
 import org.kie.api.task.model.Group;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
@@ -102,7 +104,7 @@ public class LocalTasksServiceTest extends JbpmJUnitBaseTestCase {
     @Test
     public void testMultipleActorsClaimedQuery() {
         RuntimeManager manager = createRuntimeManager("BPMN2-HumanTaskMultipleActors.bpmn2");        
-        RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
+        RuntimeEngine runtime = getRuntimeEngine();
         KieSession ksession = runtime.getKieSession();
 
         // start a new process instance
@@ -126,9 +128,58 @@ public class LocalTasksServiceTest extends JbpmJUnitBaseTestCase {
 		taskService.start(task1.get(0).getId(), "krisv");
 		taskService.complete(task1.get(0).getId(), "krisv", null);
 		
-		assertProcessInstanceCompleted(pi.getId(), ksession);
+		assertProcessInstanceCompleted(pi.getId());
 		
 		manager.disposeRuntimeEngine(runtime);
     }
    
+    
+	@Test
+	public void testHumanTaskWithSingleTypeContent() {
+		RuntimeManager manager = createRuntimeManager("HumanTaskWithSingleTypeContent.bpmn2");
+		RuntimeEngine runtime = getRuntimeEngine();
+		KieSession ksession = runtime.getKieSession();
+		TaskService taskService = runtime.getTaskService();
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("pVar", "sampleValue");
+
+		ksession.startProcess("com.sample.bpmn.hello1", params);
+
+		// let john execute Task 1
+		List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+		TaskSummary task = list.get(0);
+		logger.info("John is executing task {}", task.getName());
+		taskService.start(task.getId(), "john");
+
+		// let's verify content, first manually by using marshaler helper
+		Content content = taskService.getContentById(taskService.getTaskById(task.getId()).getTaskData().getDocumentContentId());
+		byte[] contentbyte = content.getContent();
+		Object tmpObject = ContentMarshallerHelper.unmarshall(contentbyte, ksession.getEnvironment());
+		assertNotNull(tmpObject);
+		assertTrue(tmpObject instanceof String);
+		assertEquals("someContent", tmpObject);
+
+		// then by using getTaskContent api method
+		Map<String, Object> contentMap = taskService.getTaskContent(task.getId());
+		assertNotNull(contentMap);
+		assertEquals(1, contentMap.size());
+		assertTrue(contentMap.containsKey("Content"));
+		
+		String actualContent = (String) contentMap.get("Content");
+		assertNotNull(actualContent);
+		assertEquals("someContent", actualContent);
+		
+		// let's move on to complete the tasks and process instance
+		taskService.complete(task.getId(), "john", null);
+
+		// let mary execute Task 2
+		list = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK");
+		task = list.get(0);
+		logger.info("Mary is executing task {}", task.getName());
+		taskService.start(task.getId(), "mary");
+		taskService.complete(task.getId(), "mary", null);
+
+		manager.disposeRuntimeEngine(runtime);
+	}
 }

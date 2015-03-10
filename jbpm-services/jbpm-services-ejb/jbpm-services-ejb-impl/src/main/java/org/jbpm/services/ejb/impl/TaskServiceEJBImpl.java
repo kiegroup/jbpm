@@ -25,10 +25,14 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
+import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManager;
 import org.jbpm.runtime.manager.impl.identity.UserDataServiceProvider;
+import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.ejb.TaskServiceEJBLocal;
 import org.jbpm.services.task.HumanTaskConfigurator;
 import org.jbpm.services.task.HumanTaskServiceFactory;
+import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
+import org.jbpm.services.task.lifecycle.listeners.BAMTaskEventListener;
 import org.kie.api.command.Command;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
@@ -43,6 +47,8 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.model.User;
 import org.kie.internal.query.QueryFilter;
+import org.kie.internal.runtime.conf.AuditMode;
+import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.task.api.ContentMarshallerContext;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.UserInfo;
@@ -59,7 +65,7 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 	
 	private InternalTaskService delegate;
 	
-	@PersistenceUnit(name="org.jbpm.domain")
+	@PersistenceUnit(unitName="org.jbpm.domain")
 	private EntityManagerFactory emf;
 	
 	@PostConstruct
@@ -70,6 +76,23 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
                 .entityManagerFactory( emf )
                 .userGroupCallback( callback );
 		
+		DeploymentDescriptorManager manager = new DeploymentDescriptorManager("org.jbpm.domain");
+    	DeploymentDescriptor descriptor = manager.getDefaultDescriptor();
+    	// in case there is descriptor with enabled audit register then by default
+    	if (!descriptor.getAuditMode().equals(AuditMode.NONE)) {
+        	JPATaskLifeCycleEventListener listener = new JPATaskLifeCycleEventListener(false);
+        	BAMTaskEventListener bamListener = new BAMTaskEventListener(false);
+        	// if the audit persistence unit is different than default for the engine perform proper init
+        	if (!"org.jbpm.domain".equals(descriptor.getAuditPersistenceUnit())) {
+        		 EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit());
+        		 listener = new JPATaskLifeCycleEventListener(emf);
+        		 
+        		 bamListener = new BAMTaskEventListener(emf);
+        	}
+        	configurator.listener( listener );
+        	configurator.listener( bamListener );
+    	}
+		
 		delegate = (InternalTaskService) configurator.getTaskService();
 	}
 	
@@ -79,6 +102,11 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 		return delegate.getTasksAssignedAsBusinessAdministrator(userId, language);
 	}
 
+	@Override
+    public List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, String language ,List<Status> statuses) {
+        return delegate.getTasksAssignedAsBusinessAdministratorByStatus(userId, language, statuses);
+    }
+	
 	@Override
 	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, String language) {
 		return delegate.getTasksAssignedAsPotentialOwner(userId, language);
@@ -199,9 +227,8 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 	}
 
 	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId,
-			List<String> groupIds, int firstResult, int maxResults) {
-		return delegate.getTasksAssignedAsPotentialOwner(userId, groupIds, firstResult, maxResults);
+	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, String language, int firstResult, int maxResults) {
+		return delegate.getTasksAssignedAsPotentialOwner(userId, groupIds, language, firstResult, maxResults);
 	}
 
 	@Override
@@ -251,13 +278,14 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
 	public List<TaskSummary> getTasksAssignedByGroups(List<String> groupIds) {
 		return delegate.getTasksAssignedByGroups(groupIds);
 	}
+	
 	@Override
 	public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds,
 			List<Long> taskIds, List<Long> procInstIds, List<String> busAdmins,
 			List<String> potOwners, List<String> taskOwners,
-			List<Status> status, boolean union) {
+			List<Status> status, List<String> languages, boolean union) {
 		return delegate.getTasksByVariousFields(userId, workItemIds, taskIds, procInstIds, 
-				busAdmins, potOwners, taskOwners, status, union);
+				busAdmins, potOwners, taskOwners, status, languages, union);
 	}
 
 	@Override
@@ -670,6 +698,11 @@ public class TaskServiceEJBImpl implements InternalTaskService, TaskService, Tas
     public TaskQueryBuilder taskQuery(String userId) {
         throw new UnsupportedOperationException("This method is not supported, use UserTaskService instead");
     }
+
+	@Override
+	public void executeReminderForTask(long taskId,String initiator) {
+		delegate.executeReminderForTask(taskId,initiator);
+	}
 
 
 }

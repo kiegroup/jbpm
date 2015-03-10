@@ -16,8 +16,12 @@
  
     <dependencies>
         <dependency>
-            <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-human-task-core</artifactId>
+          <groupId>org.jbpm</groupId>
+          <artifactId>jbpm-human-task-core</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.jbpm</groupId>
+          <artifactId>jbpm-human-task-jpa</artifactId>
         </dependency>
         <dependency>
           <groupId>org.kie</groupId>
@@ -33,21 +37,6 @@
         </dependency>
         
         <!-- test -->
-        <dependency>
-            <groupId>org.jboss.solder</groupId>
-            <artifactId>solder-impl</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.solder</groupId>
-            <artifactId>solder-logging</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.solder</groupId>
-            <artifactId>solder-api</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.jboss.weld</groupId>
             <artifactId>weld-core</artifactId>
@@ -126,11 +115,6 @@
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-        	<groupId>org.jbpm</groupId>
-        	<artifactId>jbpm-human-task-jpa</artifactId>
-        	<scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.jbpm</groupId>
@@ -143,7 +127,11 @@
             <artifactId>jbpm-persistence-jpa</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
-        </dependency>  
+        </dependency>
+        <dependency>
+          <groupId>org.jbpm</groupId>
+          <artifactId>jbpm-audit</artifactId>
+        </dependency>
     </dependencies>
     
     <build>

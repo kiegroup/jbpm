@@ -4,9 +4,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.DATE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_ID_LIST;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.jbpm.process.audit.JPAAuditLogService;
 import org.jbpm.process.audit.command.AuditCommand;
@@ -79,7 +77,7 @@ public class AbstractAuditQueryBuilderImpl<T> extends AbstractQueryBuilderImpl<T
 
     @SuppressWarnings("unchecked")
     public T dateRangeEnd( Date rangeStart ) {
-        addRangeParameter(DATE_LIST, "date range end", rangeStart, true);
+        addRangeParameter(DATE_LIST, "date range end", rangeStart, false);
         return (T) this;
     }
 

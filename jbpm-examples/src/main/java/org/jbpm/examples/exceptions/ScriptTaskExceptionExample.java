@@ -19,13 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
-import org.kie.api.KieBase;
+import org.kie.api.KieServices;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.io.ResourceFactory;
+import org.kie.api.runtime.manager.RuntimeEnvironment;
+import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
+import org.kie.api.runtime.manager.RuntimeManagerFactory;
 
 public class ScriptTaskExceptionExample {
 
@@ -39,7 +38,7 @@ public class ScriptTaskExceptionExample {
         String varName = "var1";
         params.put( varName , "valueOne" );
         try { 
-            ProcessInstance processInstance = ksession.startProcess("ExceptionScriptTask", params);
+            ksession.startProcess("ExceptionScriptTask", params);
         } catch( WorkflowRuntimeException wfre ) { 
             String msg = "An exception happened in "
                     + "process instance [" + wfre.getProcessInstanceId()
@@ -53,10 +52,11 @@ public class ScriptTaskExceptionExample {
     }
     
     private static KieSession createKieSession() {
-        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        kbuilder.add(ResourceFactory.newClassPathResource("exceptions/ScriptTaskException.bpmn2"), ResourceType.BPMN2);
-        KieBase kbase = kbuilder.newKnowledgeBase();
-        return kbase.newKieSession();
+    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
+            .addAsset(KieServices.Factory.get().getResources()
+        		.newClassPathResource("exceptions/ScriptTaskException.bpmn2"), ResourceType.BPMN2)
+            .get();
+        return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment).getRuntimeEngine(null).getKieSession();
     }
  
 }

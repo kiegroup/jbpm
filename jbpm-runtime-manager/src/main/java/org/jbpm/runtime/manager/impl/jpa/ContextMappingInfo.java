@@ -48,7 +48,7 @@ import javax.persistence.Version;
     @NamedQuery(name="FindKSessionToInit", 
                 query="select cmInfo.ksessionId from ContextMappingInfo cmInfo, "
                 		+ "ProcessInstanceInfo processInstanceInfo join processInstanceInfo.eventTypes eventTypes"
-                		+ " where eventTypes = 'timer' and cmInfo.contextId = concat(processInstanceInfo.processInstanceId, '')"
+                		+ " where eventTypes = 'timer' and cmInfo.contextId = cast(processInstanceInfo.processInstanceId as string)"
                 		+ " and cmInfo.ownerId = :ownerId")})
 public class ContextMappingInfo implements Serializable {
 
@@ -65,7 +65,7 @@ public class ContextMappingInfo implements Serializable {
     @Column(name="CONTEXT_ID", nullable=false)
     private String contextId;
     @Column(name="KSESSION_ID", nullable=false)
-    private Integer ksessionId;
+    private Long ksessionId;
     @Column(name="OWNER_ID")
     private String ownerId;
 
@@ -73,7 +73,7 @@ public class ContextMappingInfo implements Serializable {
         
     }
 
-    public ContextMappingInfo(String contextId, Integer ksessionId, String ownerId) {
+    public ContextMappingInfo(String contextId, Long ksessionId, String ownerId) {
         this.contextId = contextId;
         this.ksessionId = ksessionId;
         this.ownerId = ownerId;
@@ -103,11 +103,11 @@ public class ContextMappingInfo implements Serializable {
         this.contextId = contextId;
     }
 
-    public Integer getKsessionId() {
+    public Long getKsessionId() {
         return ksessionId;
     }
 
-    public void setKsessionId(Integer ksessionId) {
+    public void setKsessionId(Long ksessionId) {
         this.ksessionId = ksessionId;
     }
         

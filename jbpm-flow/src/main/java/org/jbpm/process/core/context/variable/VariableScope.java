@@ -18,15 +18,19 @@ package org.jbpm.process.core.context.variable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.context.AbstractContext;
+import org.kie.api.runtime.process.WorkItem;
 
 /**
  * 
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class VariableScope extends AbstractContext {
+	
+	private static boolean variableStrictEnabled = Boolean.parseBoolean(System.getProperty("org.jbpm.variable.strict", "false"));
 
     public static final String VARIABLE_SCOPE = "VariableScope";
     
@@ -79,5 +83,41 @@ public class VariableScope extends AbstractContext {
         throw new IllegalArgumentException(
             "VariableScopes can only resolve variable names: " + param);
     }
+    
+	public void validateVariable(String processName, String name, Object value) {
+		if (!variableStrictEnabled) {
+			return;
+		}
+		Variable var = findVariable(name);
+    	if (var == null) {
+    		throw new IllegalArgumentException("Variable '" + name +"' is not defined in process " + processName);
+    	}
+    	if (var.getType() != null && value != null) {
+	    	boolean isValidType = var.getType().verifyDataType(value);
+	    	if (!isValidType) {
+	    		throw new IllegalArgumentException("Variable '" + name +"' has incorrect data type expected:" 
+	    						+ var.getType().getStringType() + " actual:" + value.getClass().getName());
+	    	}
+    	}
+	}
+	
+	public void validateWorkItemResultVariable(String processName, String name, WorkItem workItem) {
+		// in case work item results are skip validation as there is no notion of mandatory data outputs 
+		if (!variableStrictEnabled || workItem.getResults().isEmpty()) {
+			return;
+		}
+		
+		if (workItem.getResult(name) == null) {
+			throw new IllegalArgumentException("Variable '" + name +"' is not defined in process '" 
+												+ processName + "' for task '" + workItem.getName() +"'");
+		}
+	}
+	
+	/*
+	 * mainly for test coverage to easily switch between settings 
+	 */
+	public static void setVariableStrictOption(boolean turnedOn) {
+		variableStrictEnabled = turnedOn;
+	}
 
 }

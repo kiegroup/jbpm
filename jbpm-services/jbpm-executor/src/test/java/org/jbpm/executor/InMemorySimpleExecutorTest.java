@@ -17,6 +17,8 @@ package org.jbpm.executor;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 
 public class InMemorySimpleExecutorTest extends BasicExecutorBaseTest{
@@ -37,5 +39,18 @@ public class InMemorySimpleExecutorTest extends BasicExecutorBaseTest{
         executorService.destroy();
     }
    
+    @Override
+    @Test
+    @Ignore("It's only for JPA based as it removes data from db")
+    public void cleanupLogExcecutionTest() throws InterruptedException {
+    	
+    }
+    
+    @Override
+    @Test
+    @Ignore("It's only for JPA based as it removes data from db")
+    public void reoccurringExcecutionTest() throws InterruptedException {
+    	
+    }
     
 }

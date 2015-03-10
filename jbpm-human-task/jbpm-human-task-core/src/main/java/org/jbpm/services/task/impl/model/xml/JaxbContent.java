@@ -12,10 +12,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.task.model.Content;
 import org.kie.internal.jaxb.StringKeyObjectValueMapXmlAdapter;
 
@@ -31,7 +32,6 @@ public class JaxbContent implements Content {
     @XmlSchemaType(name="base64Binary")
     private byte[] content = null;
     
-    @XmlElement(name="content-map")
     @XmlJavaTypeAdapter(StringKeyObjectValueMapXmlAdapter.class)
     private Map<String, Object> contentMap = null;
     
@@ -43,12 +43,17 @@ public class JaxbContent implements Content {
         initialize(content);
     }
     
+    @SuppressWarnings("unchecked")
     public void initialize(Content content) { 
         if( content == null || content.getId() == -1) { 
             return; 
         }
         this.id = content.getId();
         this.content = content.getContent();
+        Object unmarshalledContent = ContentMarshallerHelper.unmarshall(content.getContent(), null);
+        if( unmarshalledContent != null && unmarshalledContent instanceof Map ) { 
+           contentMap = (Map<String, Object>) unmarshalledContent;
+        }
     }
     
     @Override
@@ -79,13 +84,16 @@ public class JaxbContent implements Content {
     
     public void setId(Long id) {
         this.id = id; 
-    } 
-    
-    public void readExternal(ObjectInput arg0) throws IOException, ClassNotFoundException {
+    }
+
+    @Override
+    public void writeExternal( ObjectOutput out ) throws IOException {
         unsupported(Content.class);
     }
 
-    public void writeExternal(ObjectOutput arg0) throws IOException {
+    @Override
+    public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException {
         unsupported(Content.class);
-    }
+    } 
+    
 }

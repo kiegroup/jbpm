@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManagerFactory;
 
+import org.jbpm.executor.impl.jpa.ExecutorJPAAuditService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +42,7 @@ import org.kie.internal.executor.api.ErrorInfo;
 import org.kie.internal.executor.api.ExecutionResults;
 import org.kie.internal.executor.api.ExecutorService;
 import org.kie.internal.executor.api.RequestInfo;
+import org.kie.internal.executor.api.STATUS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +54,7 @@ public abstract class BasicExecutorBaseTest {
     protected ExecutorService executorService;
     public static final Map<String, Object> cachedEntities = new HashMap<String, Object>();
     
-    
+    protected EntityManagerFactory emf = null;
     
     @Before
     public void setUp() {
@@ -296,6 +300,79 @@ public abstract class BasicExecutorBaseTest {
         assertEquals(20, error.getStacktrace().length());
 
 
+    }
+    
+    @Test
+    public void reoccurringExcecutionTest() throws InterruptedException {
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", UUID.randomUUID().toString());
+
+        executorService.scheduleRequest("org.jbpm.executor.commands.ReoccurringPrintOutCommand", ctxCMD);
+
+        Thread.sleep(10000);
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests();
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests();
+        assertEquals(1, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests();
+        assertEquals(3, executedRequests.size());
+
+
+    }
+    
+    @Test
+    public void cleanupLogExcecutionTest() throws InterruptedException {
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", UUID.randomUUID().toString());
+        
+        Long requestId = executorService.scheduleRequest("org.jbpm.executor.commands.ReoccurringPrintOutCommand", ctxCMD);
+
+        Thread.sleep(9000);
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests();
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests();
+        assertEquals(1, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests();
+        assertEquals(3, executedRequests.size());
+        
+        executorService.cancelRequest(requestId+3);
+        
+        List<RequestInfo> canceled = executorService.getCancelledRequests();
+        
+        ExecutorJPAAuditService auditService = new ExecutorJPAAuditService(emf);
+        int resultCount = auditService.requestInfoLogDeleteBuilder()
+                .date(canceled.get(0).getTime())
+                .status(STATUS.ERROR)
+                .build()
+                .execute();
+        
+        assertEquals(0, resultCount);
+        
+        resultCount = auditService.errorInfoLogDeleteBuilder()
+                .date(canceled.get(0).getTime())
+                .build()
+                .execute();
+        
+        assertEquals(0, resultCount);
+
+        ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", UUID.randomUUID().toString());
+        ctxCMD.setData("SingleRun", "true");
+        ctxCMD.setData("EmfName", "org.jbpm.executor");
+        ctxCMD.setData("SkipProcessLog", "true");
+        ctxCMD.setData("SkipTaskLog", "true");
+        executorService.scheduleRequest("org.jbpm.executor.commands.LogCleanupCommand", ctxCMD);
+        
+        Thread.sleep(5000);
+        
+        inErrorRequests = executorService.getInErrorRequests();
+        assertEquals(0, inErrorRequests.size());
+        queuedRequests = executorService.getQueuedRequests();
+        assertEquals(0, queuedRequests.size());
+        executedRequests = executorService.getCompletedRequests();
+        assertEquals(1, executedRequests.size());
     }
 
     

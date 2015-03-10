@@ -47,20 +47,22 @@ public class ProcessAssetDesc implements ProcessDefinition {
     private Map<String, String> serviceTasks;
     private Map<String, String> processVariables;
     private Collection<String> reusableSubProcesses;
+    
+    private boolean active = true;
 
 	public ProcessAssetDesc() {
     }
 
     
     public ProcessAssetDesc(String id, String name, String version, String packageName, String type, String knowledgeType, String namespace, String deploymentId) {
-        this.id = id;
-        this.name = name;
-        this.version = version;
-        this.packageName = packageName;
-        this.type = type;
-        this.knowledgeType = knowledgeType;
-        this.namespace = namespace;
-        this.deploymentId = deploymentId;
+        this.id = safeValue(id);
+        this.name = safeValue(name);
+        this.version = safeValue(version);
+        this.packageName = safeValue(packageName);
+        this.type = safeValue(type);
+        this.knowledgeType = safeValue(knowledgeType);
+        this.namespace = safeValue(namespace);
+        this.deploymentId = safeValue(deploymentId);
     }
     
     public String getId() {
@@ -93,7 +95,8 @@ public class ProcessAssetDesc implements ProcessDefinition {
  
     @Override
     public String toString() {
-        return "ProcessDesc{id=" + id + ", name=" + name + ", version=" + version + ", packageName=" + packageName + ", type=" + type + ", knowledgeType=" + knowledgeType + ", namespace=" + namespace + "}";
+        return "ProcessDesc{id=" + id + ", name=" + name + ", version=" + version + ", packageName=" + packageName 
+        		+ ", type=" + type + ", knowledgeType=" + knowledgeType + ", namespace=" + namespace + "active=" + active + "}";
     }
 
     public void setId(String id) {
@@ -258,5 +261,21 @@ public class ProcessAssetDesc implements ProcessDefinition {
 		this.reusableSubProcesses = reusableSubProcesses;
 	}
     
+    private String safeValue(String value) {
+    	if (value == null) {
+    		return "";
+    	}
+    	
+    	return value;
+    }
 
+
+	public boolean isActive() {
+		return active;
+	}
+
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 }

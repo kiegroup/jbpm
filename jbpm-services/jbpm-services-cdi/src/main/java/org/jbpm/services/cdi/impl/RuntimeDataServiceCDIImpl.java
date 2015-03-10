@@ -23,6 +23,9 @@ import javax.inject.Inject;
 
 import org.jbpm.kie.services.impl.RuntimeDataServiceImpl;
 import org.jbpm.services.api.DeploymentEvent;
+import org.jbpm.services.cdi.Activate;
+import org.jbpm.services.cdi.Audit;
+import org.jbpm.services.cdi.Deactivate;
 import org.jbpm.services.cdi.Deploy;
 import org.jbpm.services.cdi.RequestScopedBackupIdentityProvider;
 import org.jbpm.services.cdi.Undeploy;
@@ -46,9 +49,19 @@ public class RuntimeDataServiceCDIImpl extends RuntimeDataServiceImpl {
         super.onUnDeploy(event);
     }
 
-    @Inject
+    @Override
+	public void onActivate(@Observes@Activate DeploymentEvent event) {
+		super.onActivate(event);
+	}
+
 	@Override
-	public void setCommandService(TransactionalCommandService commandService) {
+	public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
+		super.onDeactivate(event);
+	}
+
+	@Inject	
+	@Override
+	public void setCommandService(@Audit TransactionalCommandService commandService) {
 		super.setCommandService(commandService);
 	}
 

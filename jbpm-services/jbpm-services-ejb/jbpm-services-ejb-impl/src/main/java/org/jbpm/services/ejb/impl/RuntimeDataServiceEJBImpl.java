@@ -36,7 +36,7 @@ import org.jbpm.services.ejb.TaskServiceEJBLocal;
 import org.jbpm.services.ejb.api.RuntimeDataServiceEJBLocal;
 import org.jbpm.services.ejb.api.RuntimeDataServiceEJBRemote;
 import org.jbpm.services.ejb.impl.identity.EJBContextIdentityProvider;
-import org.jbpm.services.ejb.impl.tx.TransactionalCommandServiceEJBImpl;
+import org.jbpm.services.ejb.impl.tx.AuditTransactionalCommandServiceEJBImpl;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.kie.api.task.TaskService;
 import org.kie.internal.identity.IdentityProvider;
@@ -62,7 +62,7 @@ public class RuntimeDataServiceEJBImpl extends RuntimeDataServiceImpl implements
 		}
 	}	
 	
-	@EJB(beanInterface=TransactionalCommandServiceEJBImpl.class)
+	@EJB(beanInterface=AuditTransactionalCommandServiceEJBImpl.class)
 	@Override
 	public void setCommandService(TransactionalCommandService commandService) {
 		super.setCommandService(commandService);
@@ -85,6 +85,18 @@ public class RuntimeDataServiceEJBImpl extends RuntimeDataServiceImpl implements
 	@Override
 	public void onUnDeploy(DeploymentEvent event) {
 		super.onUnDeploy(event);
+	}
+
+	@Lock(LockType.WRITE)
+	@Override
+	public void onActivate(DeploymentEvent event) {
+		super.onActivate(event);
+	}
+
+	@Lock(LockType.WRITE)
+	@Override
+	public void onDeactivate(DeploymentEvent event) {
+		super.onDeactivate(event);
 	}
 
 }

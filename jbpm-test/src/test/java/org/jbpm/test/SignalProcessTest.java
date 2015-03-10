@@ -36,13 +36,13 @@ public class SignalProcessTest extends JbpmJUnitBaseTestCase {
         ProcessInstance processInstance = ksession.startProcess("com.sample.signal");
         assertProcessInstanceActive(processInstance.getId(), ksession);
         
-        ksession.signalEvent("Signal_1", "", processInstance.getId());
+        ksession.signalEvent("Signal1", "", processInstance.getId());
         assertProcessInstanceActive(processInstance.getId(), ksession);
         
-        ksession.signalEvent("Signal_1", "", processInstance.getId());
+        ksession.signalEvent("Signal1", "", processInstance.getId());
         
         // check whether the process instance has completed successfully
-        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
         
     }
 	
@@ -61,7 +61,7 @@ public class SignalProcessTest extends JbpmJUnitBaseTestCase {
         ksession.signalEvent("Message-TestMessage", "", processInstance.getId());
         
         // check whether the process instance has completed successfully
-        assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        assertProcessInstanceNotActive(processInstance.getId(), ksession);
         
     }
 

@@ -58,4 +58,23 @@ public interface DeploymentServiceEJBRemote  {
      * @param deploymentId unique identifier of the deployment
      */
     void undeploy(String deploymentId);
+    
+    /**
+     * Activates given deployment by making sure it will be available for execution.
+     * @param deploymentId
+     */
+    void activate(String deploymentId);
+    
+    /**
+     * Deactivates given deployment by making it only available for already running instances.
+     * @param deploymentId
+     */
+    void deactivate(String deploymentId);
+    
+    /**
+     * Performs a check if given deployment is already active
+     * @param deploymentUnitId
+     * @return
+     */
+    boolean isDeployed(String deploymentUnitId);
 }

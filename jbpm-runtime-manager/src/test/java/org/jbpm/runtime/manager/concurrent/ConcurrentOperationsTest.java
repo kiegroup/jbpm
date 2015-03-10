@@ -13,6 +13,7 @@ import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
 import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
+import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManager;
 import org.jbpm.runtime.manager.util.TestUtil;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.util.AbstractBaseTest;
@@ -35,14 +36,19 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.task.api.UserGroupCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class ConcurrentOperationsTest extends AbstractBaseTest {
+   
+    private static final Logger logger = LoggerFactory.getLogger(ConcurrentOperationsTest.class);    
     
     private PoolingDataSource pds;
     private UserGroupCallback userGroupCallback;  
     private RuntimeManager manager;
+    
     @Before
     public void setup() {
         TestUtil.cleanupSingletonSessionId();
@@ -90,17 +96,17 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
         KieSession ksession = runtime.getKieSession();
         assertNotNull(ksession);       
         
-        int sessionId = ksession.getId();
+        long sessionId = ksession.getIdentifier();
         assertTrue(sessionId == 1);
         
         runtime = manager.getRuntimeEngine(EmptyContext.get());
         ksession = runtime.getKieSession();        
-        assertEquals(sessionId, ksession.getId());
+        assertEquals(sessionId, ksession.getIdentifier());
         
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
         ut.begin();
         ProcessInstance processInstance = ksession.startProcess("customtask");
-        System.out.println("Started process, committing...");
+        logger.debug("Started process, committing...");
         ut.commit();
         
         Thread.sleep(2000);
@@ -142,16 +148,16 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
         KieSession ksession = runtime.getKieSession();
         assertNotNull(ksession);       
         
-        int sessionId = ksession.getId();
+        long sessionId = ksession.getIdentifier();
         assertTrue(sessionId == 1);
         
         runtime = manager.getRuntimeEngine(EmptyContext.get());
         ksession = runtime.getKieSession();        
-        assertEquals(sessionId, ksession.getId());
+        assertEquals(sessionId, ksession.getIdentifier());
         
         
         ProcessInstance processInstance = ksession.startProcess("customandhumantask");
-        System.out.println("Started process, committing...");
+        logger.debug("Started process, committing...");
         
         TaskService taskService = runtime.getTaskService();
         
@@ -164,7 +170,7 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
         ut.begin();        
         taskService.complete(taskId, "john", null);
-        System.out.println("Task completed, committing...");
+        logger.debug("Task completed, committing...");
         ut.commit();
         Thread.sleep(2000);
         
@@ -193,14 +199,14 @@ public class ConcurrentOperationsTest extends AbstractBaseTest {
 
 				@Override
 				public void run() {
-					System.out.println("staring a thread....");
+					logger.debug("staring a thread....");
 					ksession.insert("doing it async");
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						
 					}
-					System.out.println("Completing the work item");
+					logger.debug("Completing the work item");
 					ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
 				}
 				

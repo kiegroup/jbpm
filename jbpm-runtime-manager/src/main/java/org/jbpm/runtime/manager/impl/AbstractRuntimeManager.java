@@ -30,6 +30,7 @@ import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.runtime.manager.api.SchedulerProvider;
 import org.jbpm.runtime.manager.impl.deploy.DeploymentDescriptorManager;
+import org.jbpm.services.task.impl.TaskContentRegistry;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.AgendaEventListener;
@@ -40,6 +41,7 @@ import org.kie.api.runtime.manager.RegisterableItemsFactory;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.process.WorkItemHandler;
+import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.internal.runtime.conf.DeploymentDescriptor;
 import org.kie.internal.runtime.manager.CacheManager;
 import org.kie.internal.runtime.manager.Disposable;
@@ -104,7 +106,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
 	public abstract void init();
     
-    protected void registerItems(RuntimeEngine runtime) {
+    @SuppressWarnings("unchecked")
+	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
         // process handlers
         Map<String, WorkItemHandler> handlers = factory.getWorkItemHandlers(runtime);
@@ -135,6 +138,11 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         for (RuleRuntimeEventListener listener : wmListeners) {
             runtime.getKieSession().addEventListener(listener);
         }
+        
+      	// register task listeners if any    	
+    	for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
+    		((EventService<TaskLifeCycleEventListener>)runtime.getTaskService()).registerTaskEventListener(taskListener);
+    	}
     }
     
     protected void registerDisposeCallback(RuntimeEngine runtime, TransactionSynchronization sync) {
@@ -201,9 +209,9 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void configureRuntimeOnTaskService(InternalTaskService internalTaskService, RuntimeEngine engine) {
+    	
         if (internalTaskService != null) {
-            internalTaskService.addMarshallerContext(getIdentifier(), 
-                new ContentMarshallerContext(environment.getEnvironment(), environment.getClassLoader()));
+            
             ExternalTaskEventListener listener = new ExternalTaskEventListener();
             if (internalTaskService instanceof EventService) {
                 ((EventService)internalTaskService).registerTaskEventListener(listener);
@@ -223,10 +231,8 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         }
     }
     
-    protected void removeRuntimeFromTaskService(InternalTaskService internalTaskService) {
-        if (internalTaskService != null) {
-            internalTaskService.removeMarshallerContext(getIdentifier());
-        }
+    protected void removeRuntimeFromTaskService() {
+    	TaskContentRegistry.get().removeMarshallerContext(getIdentifier());
     }
     
 

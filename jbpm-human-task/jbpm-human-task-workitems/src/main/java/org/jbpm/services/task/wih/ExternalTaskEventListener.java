@@ -18,12 +18,12 @@ package org.jbpm.services.task.wih;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jbpm.services.task.lifecycle.listeners.TaskLifeCycleEventListener;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.task.TaskEvent;
+import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.model.Content;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
@@ -53,7 +53,7 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
         if (task.getTaskData().getStatus() == Status.Completed) {
             String userId = task.getTaskData().getActualOwner().getId();
             Map<String, Object> results = new HashMap<String, Object>();
-            results.put("ActorId", userId);
+            
             long contentId = task.getTaskData().getOutputContentId();
             if (contentId != -1) {
                 Content content = runtime.getTaskService().getContentById(contentId);
@@ -71,9 +71,10 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
                         }
                     }
                 }
-
+                results.put("ActorId", userId);
                 session.getWorkItemManager().completeWorkItem(task.getTaskData().getWorkItemId(), results);
             } else {
+            	results.put("ActorId", userId);
                 session.getWorkItemManager().completeWorkItem(workItemId, results);
             }
         } else {
@@ -287,5 +288,26 @@ public class ExternalTaskEventListener implements TaskLifeCycleEventListener {
 	@Override
 	public void afterTaskNominatedEvent(TaskEvent event) {
 
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if ( this == obj ) 
+			return true;
+        if ( obj == null ) 
+        	return false;
+        if ( (obj instanceof ExternalTaskEventListener) ) 
+        	return true;
+        
+        return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+        int result = 1;
+        result = prime * result + this.getClass().getName().hashCode();
+        
+        return result;
 	}
 }

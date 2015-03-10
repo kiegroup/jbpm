@@ -31,4 +31,6 @@ public interface DeployedUnit {
     Collection<Class<?>> getDeployedClasses(); 
     
     RuntimeManager getRuntimeManager();
+    
+    boolean isActive();
 }

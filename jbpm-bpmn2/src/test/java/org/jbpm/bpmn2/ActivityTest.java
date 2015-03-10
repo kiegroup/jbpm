@@ -548,7 +548,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(
                 workItemHandler.getWorkItem().getId(), null);
 
-        int sessionId = ksession.getId();
+        long sessionId = ksession.getIdentifier();
         Environment env = ksession.getEnvironment();
 
         ksession.dispose();
@@ -723,7 +723,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(
                 workItemHandler.getWorkItem().getId(), res);
 
-        int sessionId = ksession.getId();
+        long sessionId = ksession.getIdentifier();
         Environment env = ksession.getEnvironment();
 
         logger.info("dispose");
@@ -1636,5 +1636,26 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         String description = ((org.jbpm.process.instance.impl.ProcessInstanceImpl)processInstance).getDescription();
         assertNotNull(description);
         assertEquals("variable name for process", description);
+    }
+    
+    @Test
+    public void testInvalidSubProcessNoOutgoingSF() throws Exception {
+    	try {
+    		KieBase kbase = createKnowledgeBase("subprocess/BPMN2-InvalidEmdeddedSubProcess.bpmn2");
+    		ksession = createKnowledgeSession(kbase);
+    		fail("Process should be invalid, there should be build errors");
+    	} catch (RuntimeException e) {
+    		// there should be build errors
+    	}
+    }
+    
+    @Test
+    public void testAdHocSubProcessEmptyCompleteExpression() throws Exception {
+        try { 
+        	createKnowledgeBaseWithoutDumper("BPMN2-AdHocSubProcessEmptyCompleteExpression.bpmn2");
+        	fail("Process should be invalid, there should be build errors");
+    	} catch (RuntimeException e) {
+    		// there should be build errors
+    	}
     }
 }

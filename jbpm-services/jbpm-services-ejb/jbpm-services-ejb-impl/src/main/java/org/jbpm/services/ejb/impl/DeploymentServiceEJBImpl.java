@@ -17,6 +17,7 @@
 package org.jbpm.services.ejb.impl;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -69,12 +70,18 @@ public class DeploymentServiceEJBImpl extends KModuleDeploymentService implement
 		super.onInit();
 	}
 	
+    @PreDestroy
+	@Override
+	public void shutdown() {
+		super.shutdown();
+	}
+	
 	@Resource
 	public void setContext(EJBContext context) {
 		this.context = context;
 	}
 	
-	@PersistenceUnit(name="org.jbpm.domain")
+	@PersistenceUnit(unitName="org.jbpm.domain")
 	@Override
 	public void setEmf(EntityManagerFactory emf) {
 		
@@ -87,6 +94,7 @@ public class DeploymentServiceEJBImpl extends KModuleDeploymentService implement
 	public void setBpmn2Service(DefinitionService bpmn2Service) {
 		
 		super.setBpmn2Service(bpmn2Service);
+		super.addListener((DeploymentEventListener) bpmn2Service);
 	}
 
 	@EJB(beanInterface=RuntimeDataServiceEJBLocal.class)

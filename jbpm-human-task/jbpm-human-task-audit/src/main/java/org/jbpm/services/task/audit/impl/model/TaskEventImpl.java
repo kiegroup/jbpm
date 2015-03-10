@@ -4,6 +4,7 @@
  */
 package org.jbpm.services.task.audit.impl.model;
 
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
@@ -29,7 +30,7 @@ import org.kie.internal.task.api.model.TaskEvent;
 @Entity
 @Table(name = "TaskEvent")
 @SequenceGenerator(name = "taskEventIdSeq", sequenceName = "TASK_EVENT_ID_SEQ")
-public class TaskEventImpl implements TaskEvent {
+public class TaskEventImpl implements TaskEvent, Externalizable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "taskEventIdSeq")
@@ -122,13 +123,51 @@ public class TaskEventImpl implements TaskEvent {
   @Override
   public void readExternal(ObjectInput in) throws IOException,
           ClassNotFoundException {
-    // TODO Auto-generated method stub
-
+	  id = in.readLong();
+	  
+	  processInstanceId = in.readLong();
+	  
+	  taskId = in.readLong();
+	  
+	  type = TaskEventType.valueOf(in.readUTF());
+	  
+	  userId = in.readUTF();
+	  
+	  workItemId = in.readLong();
+	  
+	  if (in.readBoolean()) {
+          logTime = new Date(in.readLong());
+      }
   }
 
   @Override
   public void writeExternal(ObjectOutput out) throws IOException {
-    // TODO Auto-generated method stub
+	  out.writeLong( id );
+	  
+	  out.writeLong( processInstanceId );
+	  
+	  out.writeLong( taskId );
+	  
+	  if (type != null) {
+      	out.writeUTF(type.name());
+      } else {
+      	out.writeUTF("");
+      }
+	  
+	  if (userId != null) {
+      	out.writeUTF(userId);
+      } else {
+      	out.writeUTF("");
+      }
+	  
+	  out.writeLong( workItemId );
+	  
+	  if (logTime != null) {
+          out.writeBoolean(true);
+          out.writeLong(logTime.getTime());
+      } else {
+          out.writeBoolean(false);
+      }
 
   }
 
