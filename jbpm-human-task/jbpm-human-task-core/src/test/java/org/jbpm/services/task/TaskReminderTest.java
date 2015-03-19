@@ -33,15 +33,9 @@ public class TaskReminderTest extends HumanTaskServicesBaseTest {
 	private Wiser wiser;
 	@Before
 	public void setup() {
-		Properties conf = new Properties();
-        conf.setProperty("mail.smtp.host", "localhost");
-        conf.setProperty("mail.smtp.port", "2345");
-        conf.setProperty("mail.from", "from@domain.com");
-        conf.setProperty("mail.replyto", "replyTo@domain.com");
-        
         wiser = new Wiser();
-        wiser.setHostname(conf.getProperty("mail.smtp.host"));
-        wiser.setPort(Integer.parseInt(conf.getProperty("mail.smtp.port")));        
+        wiser.setHostname("localhost");
+        wiser.setPort(2345);
         wiser.start();
         try {
         	Thread.sleep(1000);
