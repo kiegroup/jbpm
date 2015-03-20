@@ -48,7 +48,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
 
     @Before
     public void setUp() throws Exception {
-        ChainedProperties props = new ChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false));
+        ChainedProperties props = new ChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader( null, getClass(), false ));
         emailHost = props.getProperty( "mail.smtp.host", "localhost" );
         emailPort = props.getProperty( "mail.smtp.port", "2345" );
 

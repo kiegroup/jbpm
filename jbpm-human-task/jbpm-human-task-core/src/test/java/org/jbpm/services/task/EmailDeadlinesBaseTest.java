@@ -66,7 +66,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
 
     public void setup() {
         final ChainedProperties props =
-                new ChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false));
+                new ChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader( null, getClass(), false ));
 
         wiser = new Wiser();
         wiser.setHostname(props.getProperty( "mail.smtp.host", "localhost" ));
