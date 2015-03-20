@@ -35,20 +35,26 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.internal.utils.ChainedProperties;
+import org.kie.internal.utils.ClassLoaderUtil;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 public class EmailWorkItemHandlerTest extends AbstractBaseTest {
     private Wiser wiser;    
-    
-    private static final String EMAIL_HOST = "localhost";
-    private static final String EMAIL_PORT = "2345";
-    
+
+    private String emailHost;
+    private String emailPort;
+
     @Before
     public void setUp() throws Exception {
+        ChainedProperties props = new ChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false));
+        emailHost = props.getProperty( "mail.smtp.host", "localhost" );
+        emailPort = props.getProperty( "mail.smtp.port", "2345" );
+
         wiser = new Wiser();
-        wiser.setHostname( EMAIL_HOST );
-        wiser.setPort( Integer.valueOf( EMAIL_PORT ) );
+        wiser.setHostname( emailHost );
+        wiser.setPort( Integer.parseInt( emailPort ) );
         wiser.start();
         Thread.sleep(200);
     }
@@ -66,7 +72,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
     @Test
     public void testSingleTo() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
-        handler.setConnection(EMAIL_HOST, EMAIL_PORT, null, null );
+        handler.setConnection( emailHost, emailPort, null, null );
         
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com" );
@@ -95,7 +101,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
     @Test
     public void testSingleToWithSingleCCAndBCC() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
-        handler.setConnection(EMAIL_HOST, EMAIL_PORT, null, null );
+        handler.setConnection( emailHost, emailPort, null, null );
         
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com" );
@@ -136,7 +142,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
     @Test
     public void testMultipleToWithSingleCCAndBCC() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
-        handler.setConnection(EMAIL_HOST, EMAIL_PORT, null, null );
+        handler.setConnection( emailHost, emailPort, null, null );
         
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com; person2@domain.com" );
@@ -176,7 +182,7 @@ public class EmailWorkItemHandlerTest extends AbstractBaseTest {
     @Test(expected=WorkItemHandlerRuntimeException.class)
     public void testFailedExecuteToHandleException() throws Exception {
         EmailWorkItemHandler handler = new EmailWorkItemHandler();
-        handler.setConnection(EMAIL_HOST, "123", null, null );
+        handler.setConnection( emailHost, "123", null, null );
         
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "To", "person1@domain.com" );

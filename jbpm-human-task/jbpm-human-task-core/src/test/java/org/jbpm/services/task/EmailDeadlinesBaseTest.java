@@ -46,6 +46,8 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 import org.kie.internal.task.api.model.InternalPeopleAssignments;
 import org.kie.internal.task.api.model.InternalTask;
 import org.kie.internal.task.api.model.InternalTaskData;
+import org.kie.internal.utils.ChainedProperties;
+import org.kie.internal.utils.ClassLoaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.subethamail.wiser.Wiser;
@@ -61,12 +63,14 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(EmailDeadlinesBaseTest.class);
     
     private Wiser wiser;
-    
-    
+
     public void setup() {
+        final ChainedProperties props =
+                new ChainedProperties( "email.conf", ClassLoaderUtil.getClassLoader(null, getClass(), false));
+
         wiser = new Wiser();
-        wiser.setHostname("localhost");
-        wiser.setPort(2345);
+        wiser.setHostname(props.getProperty( "mail.smtp.host", "localhost" ));
+        wiser.setPort(Integer.parseInt(props.getProperty("mail.smtp.port", "2345")));
         wiser.start();
         try {
         	Thread.sleep(1000);
