@@ -134,9 +134,9 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         assertEquals(0, list.size());
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(500);
-        }
+        // Timer in the process takes 500ms, so after 2.5 seconds, there should be 5 process IDs in the list.
+        // 2600ms is here because it is important to be sure that 2.5 seconds have passed.
+        Thread.sleep(2600);
         assertEquals(5, getNumberOfProcessInstances("Minimal"));
 
     }
@@ -180,9 +180,9 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         assertEquals(0, list.size());
-        for (int i = 0; i < 6; i++) {
-            Thread.sleep(1000);
-        }
+        // Timer in the process takes 1s, so after 6 seconds, there should be 6 process IDs in the list.
+        // 6100ms is here because it is important to be sure that 6 seconds have passed.
+        Thread.sleep(6100);
         assertEquals(6, getNumberOfProcessInstances("Minimal"));
 
     }
@@ -216,9 +216,10 @@ public class StartEventTest extends JbpmBpmn2TestCase {
                 list.add(event.getProcessInstance().getId());
             }
         });
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(1000);
-        }
+
+        // Timer in the process takes 1s, so after 5 seconds, there should be 5 process IDs in the list.
+        // 5100ms is here because it is important to be sure that 5 seconds have passed.
+        Thread.sleep(5100);
         assertEquals(5, getNumberOfProcessInstances("Minimal"));
 
     }
@@ -335,9 +336,9 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         assertEquals(0, list.size());
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(500);
-        }
+        // Timer in the process takes 500ms, so after 2.5 seconds, there should be 5 process IDs in the list.
+        // 2600ms is here because it is important to be sure that 2.5 seconds have passed.
+        Thread.sleep(2600);
         assertEquals(5, getNumberOfProcessInstances("MultipleStartEvents"));
 
     }
@@ -424,9 +425,9 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         });
 
         assertEquals(0, list.size());
-        for (int i = 0; i < 2; i++) {
-            Thread.sleep(1200);
-        }
+        // Timer in the process takes 1000ms, so after 2 seconds, there should be 2 process IDs in the list.
+        // 2100ms is here because it is important to be sure that 2 seconds have passed.
+        Thread.sleep(2100);
 
         assertEquals(2, list.size());
         List<WorkItem> workItems = workItemHandler.getWorkItems();
@@ -494,9 +495,9 @@ public class StartEventTest extends JbpmBpmn2TestCase {
             }
         });
         assertEquals(0, list.size());
-        for (int i = 0; i < 5; i++) {
-            Thread.sleep(500);
-        }
+        // Timer in the process takes 500ms, so after 2.5 seconds, there should be 5 process IDs in the list.
+        // 2600ms is here because it is important to be sure that 2.5 seconds have passed.
+        Thread.sleep(2600);
         assertEquals(5, getNumberOfProcessInstances("MultipleStartEvents"));
 
     }
