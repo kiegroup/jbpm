@@ -147,6 +147,16 @@
       <artifactId>cxf-rt-transports-http-jetty</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.servlet</groupId>
+      <artifactId>jboss-servlet-api_3.0_spec</artifactId>
+      <scope>test</scope>
+    </dependency>
     <!-- REST -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
