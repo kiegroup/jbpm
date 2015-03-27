@@ -45,7 +45,7 @@ public class DisposeSessionTransactionSynchronization extends OrderedTransaction
 	    try {
 	        manager.disposeRuntimeEngine(runtime);
 	    } catch (Throwable e) {
-	        logger.warn("Could not dispose runtime engine", e);
+	        logger.debug("Could not dispose runtime engine", e);
 	    }
 	}
 
