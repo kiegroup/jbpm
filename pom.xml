@@ -67,23 +67,30 @@
   </issueManagement>
 
   <modules>
+    
     <module>jbpm-flow</module>
     <module>jbpm-flow-builder</module>
     <module>jbpm-persistence-jpa</module>
     <module>jbpm-query-jpa</module>
     <module>jbpm-audit</module>
     <module>jbpm-bpmn2</module>
+<!-- DBG
     <module>jbpm-bpmn2-emfextmodel</module>
     <module>jbpm-workitems</module>
     <module>jbpm-human-task</module>
+-->
     <module>jbpm-runtime-manager</module>
     <module>jbpm-services</module>
+<!-- DBG
     <module>jbpm-document</module>
     <module>jbpm-test</module>
+-->
     <module>jbpm-case-mgmt</module>
+<!-- DBG
     <module>jbpm-test-coverage</module>
     <module>jbpm-examples</module>
     <module>jbpm-installer</module>
+-->
   </modules>
 
   <build>
