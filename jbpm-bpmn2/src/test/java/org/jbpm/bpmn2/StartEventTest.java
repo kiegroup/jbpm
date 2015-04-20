@@ -223,7 +223,7 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         });
 
         // Timer in the process takes 1s, so after 5 seconds, there should be 5 process IDs in the list.
-        Thread.sleep(5000 + EXTRA_SLEEP_TIME);
+        Thread.sleep(5000);
         assertEquals(5, getNumberOfProcessInstances("Minimal"));
 
     }
