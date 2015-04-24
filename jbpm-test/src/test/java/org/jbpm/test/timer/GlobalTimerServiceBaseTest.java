@@ -47,6 +47,7 @@ import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.TaskService;
 import org.kie.api.task.UserGroupCallback;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.TaskSummary;
@@ -744,8 +745,52 @@ public abstract class GlobalTimerServiceBaseTest extends TimerBaseTest{
    
         assertEquals(3, timerExporations.size());
     }
-    
-    
+
+    @Test
+    public void testTimerInMultipleInstances() throws Exception {
+        // prepare listener to assert results
+        final List<Long> timerExporations = new ArrayList<Long>();
+        ProcessEventListener listener = new DefaultProcessEventListener(){
+            @Override
+            public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                if (event.getNodeInstance().getNodeName().equals("timer")) {
+                    timerExporations.add(event.getProcessInstance().getId());
+                }
+            }
+        };
+
+        environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-BoundaryTimerInMultipleInstances.bpmn2"), ResourceType.BPMN2)
+                .schedulerService(globalScheduler)
+                .registerableItemsFactory(new TestRegisterableItemsFactory(listener))
+                .get();
+
+        manager = getManager(environment, false);
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+        ProcessInstance processInstance = ksession.startProcess("project1.BoundaryTimerMultipleInstances");
+        long piid = processInstance.getId();
+
+        assertEquals(0, timerExporations.size());
+
+        Thread.sleep(3000);
+        manager.disposeRuntimeEngine(runtime);
+        assertEquals(3, timerExporations.size()); // john, mary, krisv
+
+        RuntimeEngine runtime2 = manager.getRuntimeEngine(ProcessInstanceIdContext.get(piid));
+        TaskService taskService2 = runtime2.getTaskService();
+        List<TaskSummary> list = taskService2.getTasksAssignedAsPotentialOwner("john", "en-UK");
+        for (TaskSummary taskSummary : list) {
+            taskService2.start(taskSummary.getId(), "john");
+            taskService2.complete(taskSummary.getId(), "john", null);
+        }
+
+        Thread.sleep(4000);
+        manager.disposeRuntimeEngine(runtime2);
+        assertEquals(5, timerExporations.size()); // john, mary, krisv, mary, krisv
+    }
+
     public static void cleanupSingletonSessionId() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         if (tempDir.exists()) {
