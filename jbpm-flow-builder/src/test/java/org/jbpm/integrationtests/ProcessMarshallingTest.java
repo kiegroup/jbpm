@@ -479,7 +479,7 @@ public class ProcessMarshallingTest extends AbstractBaseTest {
     		"\n" +
     		"    <nodes>\n" +
     		"      <start id=\"1\" name=\"Start\" />\n" +
-    		"      <timerNode id=\"4\" name=\"Timer\" delay=\"200\" />\n" +
+    		"      <timerNode id=\"4\" name=\"Timer\" delay=\"1000\" />\n" +
     		"      <end id=\"3\" name=\"End\" />\n" +
     		"    </nodes>\n" +
     		"\n" +
