@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
@@ -28,14 +30,25 @@ import org.drools.compiler.compiler.BPMN2ProcessProvider;
 import org.drools.core.io.impl.ByteArrayResource;
 import org.drools.core.util.StringUtils;
 import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
-import org.jbpm.bpmn2.xml.BPMNExtensionsSemanticModule;
+import org.jbpm.kie.services.impl.bpmn2.builder.DataServiceExpressionBuilder;
+import org.jbpm.kie.services.impl.bpmn2.builder.dialect.ThreadLocalAbstractBuilderFacade;
+import org.jbpm.kie.services.impl.bpmn2.builder.dialect.java.DataServiceJavaProcessDialect;
+import org.jbpm.kie.services.impl.bpmn2.builder.dialect.mvel.DataServiceMvelProcessDialect;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
+import org.jbpm.process.builder.ActionBuilder;
+import org.jbpm.process.builder.AssignmentBuilder;
+import org.jbpm.process.builder.ProcessClassBuilder;
+import org.jbpm.process.builder.ReturnValueEvaluatorBuilder;
+import org.jbpm.process.builder.dialect.ProcessDialect;
+import org.jbpm.process.builder.dialect.ProcessDialectRegistry;
 import org.jbpm.services.api.DefinitionService;
 import org.jbpm.services.api.DeploymentEvent;
 import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.UserTaskDefinition;
+import org.kie.api.definition.process.Process;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieContainer;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderError;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
@@ -47,17 +60,32 @@ import org.slf4j.LoggerFactory;
 public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventListener {
     
     private static final Logger logger = LoggerFactory.getLogger(BPMN2DataServiceImpl.class);
+    
     private static final BPMN2DataServiceSemanticModule MODULE = new BPMN2DataServiceSemanticModule();
+    private static final BPMN2DataServiceExtensionSemanticModule EXTENSIONS_MODULE = new BPMN2DataServiceExtensionSemanticModule(MODULE);
     
-    private ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>> definitionCache = 
+    private ConcurrentMap<String, Map<String, ProcessDescRepoHelper>> definitionCache = 
     		new ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>>();
+   
+    private static final String [] dialectNames = { "java", "mvel" };
+    private static final ProcessDialect [] dataServiceDialects = { 
+            new DataServiceJavaProcessDialect(),
+            new DataServiceMvelProcessDialect()
+    };
     
-
-
+    static { 
+        /**
+         * Replace the original dialects with the data service dialect instances.
+         */
+        for( int i = 0; i < dialectNames.length; ++i ) { 
+            ProcessDialectRegistry.setDialect(dialectNames[i], dataServiceDialects[i]);
+        }
+    }
+    
     public BPMN2DataServiceImpl() {
     }
-        
-    public BPMN2ProcessProvider getProvider(final BPMN2DataServiceSemanticModule module) {
+   
+    public BPMN2ProcessProvider getProvider(final BPMN2DataServiceSemanticModule module, final BPMN2DataServiceExtensionSemanticModule extensionsModule) {
          return new BPMN2ProcessProvider() {
             @Override
             public void configurePackageBuilder(KnowledgeBuilder packageBuilder) {
@@ -66,29 +94,71 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
                 if (conf.getSemanticModules().getSemanticModule("http://www.jboss.org/bpmn2-data-services") == null) {
                     conf.addSemanticModule(module);
                 }
-                conf.addSemanticModule( new BPMNExtensionsSemanticModule() );
+                if (conf.getSemanticModules().getSemanticModule("http://www.jboss.org/bpmn2-data-services-ext") == null) {
+                    conf.addSemanticModule(extensionsModule);
+                }
                 conf.addSemanticModule( new BPMNDISemanticModule() );
             }
         };
     }
+   
+    private void validateNonEmptyDeploymentIdAndProcessId(String deploymentId, String processId) { 
+       validateNonEmptyDeploymentIdAndProcessIdAndTaskName(deploymentId, processId, "x"); 
+    }
     
+    private void validateNonEmptyDeploymentIdAndProcessIdAndTaskName(String deploymentId, String processId, String taskName) { 
+        boolean emptyDepId = StringUtils.isEmpty(deploymentId);
+        boolean emptyProcId = StringUtils.isEmpty(processId);
+        boolean emptyTaskName = StringUtils.isEmpty(taskName);
+        if ( emptyDepId || emptyProcId || emptyTaskName ) { 
+            StringBuffer msg = new StringBuffer("The ");
+            if( emptyDepId ) { 
+                msg.append( "deployment id " );
+            }
+            if( emptyDepId && ( emptyProcId || emptyTaskName ) ) { 
+                msg.append( "and the " );
+            }
+            if( emptyProcId ) { 
+                msg.append( "process id " );
+            }
+            if( emptyDepId && emptyTaskName ) { 
+                msg.append( "and the " );
+            }
+            if( emptyTaskName ) { 
+                msg.append( "task name " );
+            }
+            msg.append( "may not be empty or null!");
+            throw new IllegalStateException( msg.toString() );
+        } 
+    }
+   
 	@Override
-	public ProcessDefinition buildProcessDefinition(String deploymentId,String bpmn2Content, ClassLoader classLoader, boolean cache)
+	public ProcessDefinition buildProcessDefinition(String deploymentId,String bpmn2Content, KieContainer kieContainer, boolean cache)
 			throws IllegalArgumentException {
 		if (StringUtils.isEmpty(bpmn2Content)) {
             return null;
         }
 		
-        BPMN2ProcessProvider provider = getProvider(MODULE);
+		validateNonEmptyDeploymentIdAndProcessId(deploymentId, "no proc id");
+	
+        BPMN2ProcessProvider provider = getProvider(MODULE, EXTENSIONS_MODULE);
         BPMN2ProcessProvider originalProvider = BPMN2ProcessFactory.getBPMN2ProcessProvider();
         if (originalProvider != provider) {
             BPMN2ProcessFactory.setBPMN2ProcessProvider(provider);
         }
         try {
-	        BPMN2DataServiceSemanticModule.setRepoHelper(new ProcessDescRepoHelper());
+            ProcessDescRepoHelper threadLocalHelper = new ProcessDescRepoHelper();
+	        BPMN2DataServiceSemanticModule.setRepoHelper(threadLocalHelper);
+	        BPMN2DataServiceExtensionSemanticModule.setRepoHelper(threadLocalHelper);
+	      
+	        // attach the threadLocalHelper to dialect expression builders 
+	        // in order to retrieve information about classes used in scripts, etc.
+	        useDataServiceExpressionBuilders(threadLocalHelper);
+	        
 	        KnowledgeBuilder kbuilder = null;
-	        if (classLoader != null) {
-	            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(classLoader);
+	        
+	        if (kieContainer != null && kieContainer.getClassLoader() != null ) { 
+	            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(kieContainer.getClassLoader());
 	            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(pconf);
 	        } else {
 	            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -104,15 +174,19 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 
 	        KnowledgePackage pckg = kbuilder.getKnowledgePackages().iterator().next();
 	        
-	        org.kie.api.definition.process.Process process = pckg.getProcesses().iterator().next();
+	        Process process = pckg.getProcesses().iterator().next();
 	        
 	        ProcessDescRepoHelper helper = MODULE.getRepo().removeProcessDescription(process.getId());
 	        ProcessAssetDesc definition = helper.getProcess();
 	        
 	        definition.setAssociatedEntities(helper.getTaskAssignments());
 	        definition.setProcessVariables(helper.getInputs());
-	        definition.setReusableSubProcesses(helper.getReusableSubProcesses());
 	        definition.setServiceTasks(helper.getServiceTasks());
+	      
+	        if( kieContainer != null && helper.hasUnresolvedReusableSubProcessNames() ) { 
+	           helper.resolveReusableSubProcessNames(kieContainer.getKieBase().getProcesses());
+	        }
+	        definition.setReusableSubProcesses(helper.getReusableSubProcesses());
 	        
 	        // cache the data if requested
 	        if (cache) {
@@ -132,14 +206,113 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
         } finally {
         	BPMN2ProcessFactory.setBPMN2ProcessProvider(originalProvider);
             BPMN2DataServiceSemanticModule.dispose();
+            // BPMN2DataServiceExtensionSemanticModule.dispose() <-- not needed because the modules share the same ThreadLocal instance
+            
+            // reset dialects
+            resetDialectExpressionBuilders();
         }
 	}
 
+	private void useDataServiceExpressionBuilders(ProcessDescRepoHelper processHelper) { 
+	   for( int i = 0; i < dialectNames.length; ++i ) { 
+	       ProcessDialect dialect = ProcessDialectRegistry.getDialect(dialectNames[i]);
+	       
+	       ActionBuilder actionBuilder = null;
+	       try { 
+	           // why must I wait so long for Java 8?!? :) 
+	           // (and copy/paste this code 4 times.. :/ )
+	           actionBuilder = dialect.getActionBuilder();
+	           if( actionBuilder instanceof ThreadLocalAbstractBuilderFacade ) { 
+	               ((ThreadLocalAbstractBuilderFacade) actionBuilder).useDataServiceBuilder(processHelper);
+	           }
+	       } catch( UnsupportedOperationException uoe ) { 
+	           // do nothing
+	       }
+	       
+	       AssignmentBuilder assignmentBuilder = null;
+	       try { 
+	           assignmentBuilder = dialect.getAssignmentBuilder();
+	           if( assignmentBuilder instanceof DataServiceExpressionBuilder ) { 
+	               ((DataServiceExpressionBuilder) assignmentBuilder).setThreadLocalHelper(processHelper);
+	           }
+	       } catch( UnsupportedOperationException uoe ) { 
+	           // do nothing
+	       }
+	       
+	       ReturnValueEvaluatorBuilder returnValueEvaluatorBuilder = null;
+	       try { 
+	           returnValueEvaluatorBuilder = dialect.getReturnValueEvaluatorBuilder();
+	           if( returnValueEvaluatorBuilder instanceof DataServiceExpressionBuilder ) { 
+	               ((DataServiceExpressionBuilder) returnValueEvaluatorBuilder).setThreadLocalHelper(processHelper);
+	           }
+	       } catch( UnsupportedOperationException uoe ) { 
+	           // do nothing
+	       }
+	       
+	       ProcessClassBuilder processClassBuilder = null;
+	       try { 
+	           processClassBuilder = dialect.getProcessClassBuilder();
+	           if( processClassBuilder instanceof DataServiceExpressionBuilder ) { 
+	               ((DataServiceExpressionBuilder) processClassBuilder).setThreadLocalHelper(processHelper);
+	           }
+	       } catch( UnsupportedOperationException uoe ) { 
+	           // do nothing
+	       }
+	   }
+	}
+
+	private void resetDialectExpressionBuilders() { 
+	       for( int i = 0; i < dialectNames.length; ++i ) { 
+	           ProcessDialect dialect = ProcessDialectRegistry.getDialect(dialectNames[i]);
+	           
+	           ActionBuilder actionBuilder = null;
+	           try { 
+	               // why must I wait so long for Java 8?!? :) 
+	               // (and instead have to copy/paste this code 4 times.. :/ )
+	               actionBuilder = dialect.getActionBuilder();
+	               if( actionBuilder instanceof ThreadLocalAbstractBuilderFacade ) { 
+	                   ((ThreadLocalAbstractBuilderFacade) actionBuilder).resetThreadLocalBuilder();
+	               }
+	           } catch( UnsupportedOperationException uoe ) { 
+	               // do nothing
+	           }
+	           
+	           AssignmentBuilder assignmentBuilder = null;
+	           try { 
+	               assignmentBuilder = dialect.getAssignmentBuilder();
+	               if( assignmentBuilder instanceof ThreadLocalAbstractBuilderFacade ) { 
+	                   ((ThreadLocalAbstractBuilderFacade) assignmentBuilder).resetThreadLocalBuilder();
+	               }
+	           } catch( UnsupportedOperationException uoe ) { 
+	               // do nothing
+	           }
+	           
+	           ReturnValueEvaluatorBuilder returnValueEvaluatorBuilder = null;
+	           try { 
+	               returnValueEvaluatorBuilder = dialect.getReturnValueEvaluatorBuilder();
+	               if( returnValueEvaluatorBuilder instanceof ThreadLocalAbstractBuilderFacade ) { 
+	                   ((ThreadLocalAbstractBuilderFacade) returnValueEvaluatorBuilder).resetThreadLocalBuilder();
+	               }
+	           } catch( UnsupportedOperationException uoe ) { 
+	               // do nothing
+	           }
+	           
+	           ProcessClassBuilder processClassBuilder = null;
+	           try { 
+	               processClassBuilder = dialect.getProcessClassBuilder();
+	               if( processClassBuilder instanceof ThreadLocalAbstractBuilderFacade ) { 
+	                   ((ThreadLocalAbstractBuilderFacade) processClassBuilder).resetThreadLocalBuilder();
+	               }
+	           } catch( UnsupportedOperationException uoe ) { 
+	               // do nothing
+	           } 
+	       }
+	}
+	    
+	   
 	@Override
 	public Map<String, String> getServiceTasks(String deploymentId, String processId) {
-        if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
-            throw new IllegalStateException("The Deployment id and Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
         
         if (definitionCache.containsKey(deploymentId)) {
 	        
@@ -155,9 +328,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 
 	@Override
 	public ProcessDefinition getProcessDefinition(String deploymentId, String processId) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
-            throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
         
         if (definitionCache.containsKey(deploymentId)) {
 	        
@@ -171,13 +342,10 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
         return null;
 	}
 
-
-
 	@Override
 	public Collection<String> getReusableSubProcesses(String deploymentId, String processId) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
-            throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
+            
         if (definitionCache.containsKey(deploymentId)) {
 	        
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
@@ -197,9 +365,8 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 
 	@Override
 	public Map<String, String> getProcessVariables(String deploymentId, String processId) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
-			throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
+
         if (definitionCache.containsKey(deploymentId)) {
 	        
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
@@ -217,9 +384,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	
 	@Override
 	public Map<String, Collection<String>> getAssociatedEntities(String deploymentId, String processId) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
-		     throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
         
         if (definitionCache.containsKey(deploymentId)) {
 	        
@@ -236,13 +401,9 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
         return Collections.emptyMap();
 	}
 
-
-
 	@Override
 	public Collection<UserTaskDefinition> getTasksDefinitions(String deploymentId, String processId) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
-			 throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
     
         if (definitionCache.containsKey(deploymentId)) {
 	        
@@ -262,9 +423,8 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 
 	@Override
 	public Map<String, String> getTaskInputMappings(String deploymentId,String processId, String taskName) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId) || StringUtils.isEmpty(taskName)) {
-			 throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessIdAndTaskName(deploymentId, processId, taskName);
+		
         if (definitionCache.containsKey(deploymentId)) {
 	        
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
@@ -283,9 +443,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 
 	@Override
 	public Map<String, String> getTaskOutputMappings(String deploymentId, String processId, String taskName) {
-		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId) || StringUtils.isEmpty(taskName)) {
-			throw new IllegalStateException("The Process id cannot be Empty!");
-        }
+        validateNonEmptyDeploymentIdAndProcessIdAndTaskName(deploymentId, processId, taskName);
         
         if (definitionCache.containsKey(deploymentId)) {
 	        
@@ -322,4 +480,36 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	public void onDeactivate(DeploymentEvent event) {
 		// no op
 	}
+
+    @Override
+    public Set<String> getJavaClasses( String deploymentId, String processId ) {
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
+        
+        if (definitionCache.containsKey(deploymentId)) {
+            ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
+            if (helper == null) {
+                throw new IllegalStateException("No process available with given id : " + processId);
+            }
+            
+            return Collections.unmodifiableSet(helper.getReferencedClasses());
+        }
+        
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getRuleSets( String deploymentId, String processId ) {
+        validateNonEmptyDeploymentIdAndProcessId(deploymentId, processId);
+
+        if (definitionCache.containsKey(deploymentId)) {
+            ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
+            if (helper == null) {
+                throw new IllegalStateException("No process available with given id : " + processId);
+            }
+            
+            return Collections.unmodifiableSet(helper.getReferencedRules());
+        }
+        
+        return Collections.emptySet();
+    }
 }

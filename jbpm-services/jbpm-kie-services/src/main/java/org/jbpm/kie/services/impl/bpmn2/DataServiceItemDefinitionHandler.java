@@ -25,11 +25,9 @@ import org.xml.sax.SAXException;
 public class DataServiceItemDefinitionHandler extends ItemDefinitionHandler {
 
     private BPMN2DataServiceSemanticModule module;
-    private ProcessDescriptionRepository repository;
     
     public DataServiceItemDefinitionHandler(BPMN2DataServiceSemanticModule module) {
 		this.module = module;
-		this.repository = module.getRepo();
 	}
 
 	@Override
@@ -42,14 +40,11 @@ public class DataServiceItemDefinitionHandler extends ItemDefinitionHandler {
         String itemDefinitionId = module.getRepoHelper().getGlobalItemDefinitions().get(id);
         if(itemDefinitionId == null){
         	module.getRepoHelper().getGlobalItemDefinitions().put(id, structureRef);
+        	module.getRepoHelper().getReferencedClasses().add(structureRef);
         }
         
         return item;
 
-    }
-
-    public void setRepository(ProcessDescriptionRepository repository) {
-        this.repository = repository;
     }
 
 }

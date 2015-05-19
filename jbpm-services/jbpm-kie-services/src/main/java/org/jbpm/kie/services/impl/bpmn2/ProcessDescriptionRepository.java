@@ -20,7 +20,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class ProcessDescriptionRepository {
+/**
+ * This is a package-level class that is used to manage {@link ProcessDescRepoHelper} instances. 
+ */
+class ProcessDescriptionRepository {
 
     private Map<String, ProcessDescRepoHelper> processRepoHelper = new ConcurrentHashMap<String, ProcessDescRepoHelper>();
     
