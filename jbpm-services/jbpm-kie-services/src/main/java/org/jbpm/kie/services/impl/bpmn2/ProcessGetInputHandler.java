@@ -22,15 +22,16 @@ import org.jbpm.process.core.context.variable.Variable;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-
+/**
+ * This handler collects information about item definitions (which are basically process variable type declarations).
+ */
 public class ProcessGetInputHandler extends PropertyHandler implements Handler {
 
     private BPMN2DataServiceSemanticModule module;
     private ProcessDescriptionRepository repository;
     
     public ProcessGetInputHandler() {
-            super();
-            
+        super();
     }
     
     public ProcessGetInputHandler(BPMN2DataServiceSemanticModule module) {
@@ -47,12 +48,14 @@ public class ProcessGetInputHandler extends PropertyHandler implements Handler {
         Object result = super.start(uri, localName, attrs, parser);
         if(result instanceof Variable){
             String metaData = (String)((Variable)result).getMetaData("ItemSubjectRef");
-            if(metaData != null){
-            String structureRef = module.getRepoHelper().getGlobalItemDefinitions().get(metaData);
-                if(structureRef != null){
-                    repository.getProcessDesc(mainProcessId).getInputs().put(((Variable)result).getName(), structureRef);
-                }else{
-                    repository.getProcessDesc(mainProcessId).getInputs().put(((Variable)result).getName(), ((Variable)result).getType().getStringType());
+            if(metaData != null) {
+                String structureRef = module.getRepoHelper().getGlobalItemDefinitions().get(metaData);
+                ProcessDescRepoHelper helper = repository.getProcessDesc(mainProcessId);
+                if(structureRef != null) {
+                    helper.getInputs().put(((Variable)result).getName(), structureRef);
+                    helper.getReferencedClasses().add(structureRef);
+                } else {
+                    helper.getInputs().put(((Variable)result).getName(), ((Variable)result).getType().getStringType());
                 }
             }
         }
@@ -63,6 +66,4 @@ public class ProcessGetInputHandler extends PropertyHandler implements Handler {
     public void setRepository(ProcessDescriptionRepository repository) {
         this.repository = repository;
     }
-    
-    
 }

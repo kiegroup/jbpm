@@ -2,18 +2,17 @@ package org.jbpm.kie.services.test;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.drools.core.util.IoUtils;
-import org.jbpm.kie.test.util.AbstractBaseTest;
+import org.jbpm.kie.test.util.AbstractKieServicesBaseTest;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BPMN2DataServiceImplMultiThreadTest extends AbstractBaseTest {
+public class BPMN2DataServiceImplMultiThreadTest extends AbstractKieServicesBaseTest {
 
 	@Before
 	public void prepare() {
@@ -37,12 +36,12 @@ public class BPMN2DataServiceImplMultiThreadTest extends AbstractBaseTest {
 
 		final String process1Content = new String(process1, "UTF-8");
 		final String process2Content = new String(process2, "UTF-8");
-		
+	
 		Thread t1 = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
-				ProcessDefinition def = bpmn2Service.buildProcessDefinition("test", process1Content, this.getClass().getClassLoader(), true);
+				ProcessDefinition def = bpmn2Service.buildProcessDefinition("test", process1Content, null, true);
 				defs.add(def);
 			}
 		});
@@ -51,7 +50,7 @@ public class BPMN2DataServiceImplMultiThreadTest extends AbstractBaseTest {
 			
 			@Override
 			public void run() {
-				ProcessDefinition def = bpmn2Service.buildProcessDefinition("test", process2Content, this.getClass().getClassLoader(), true);
+				ProcessDefinition def = bpmn2Service.buildProcessDefinition("test", process2Content, null, true);
 				defs.add(def);
 			}
 		});
