@@ -50,15 +50,12 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.kie.api.KieBase;
 import org.kie.api.KieServices;
 import org.kie.api.builder.ReleaseId;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.api.runtime.process.WorkflowProcessInstance;
-import org.kie.api.runtime.rule.FactHandle;
 import org.kie.scanner.MavenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,6 +235,12 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         ProcessDefinition procDef = bpmn2Service.getProcessDefinition(deploymentId, processId);
         assertNotNull(procDef);
         
+        Collection<String> refProcesses = procDef.getReusableSubProcesses();
+        assertNotNull( "Null set of referenced processes", refProcesses );
+        assertFalse( "Empty set of referenced processes", refProcesses.isEmpty() );
+        assertEquals( "Number referenced processes", 1, refProcesses.size() );
+        assertEquals( "Imported class in processes", PROC_ID_ACTIVITY_CALLED, refProcesses.iterator().next() );
+        
         // run process (to verify that it works)
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", "oldValue");
@@ -259,7 +262,7 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
         assertTrue( "Parent process did not call sub process", foundY);
        
         // check information about process 
-        Collection<String> refProcesses = bpmn2Service.getReusableSubProcesses(deploymentId, processId);
+        refProcesses = bpmn2Service.getReusableSubProcesses(deploymentId, processId);
         assertNotNull( "Null set of referenced processes", refProcesses );
         assertFalse( "Empty set of referenced processes", refProcesses.isEmpty() );
         assertEquals( "Number referenced processes", 1, refProcesses.size() );

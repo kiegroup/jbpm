@@ -39,7 +39,6 @@ import org.drools.core.common.ProjectClassLoader;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.core.util.StringUtils;
-import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.audit.event.AuditEventBuilder;
 import org.jbpm.runtime.manager.impl.KModuleRegisterableItemsFactory;
@@ -150,6 +149,13 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
             }
             if (module.getJarDependencies() != null && !module.getJarDependencies().isEmpty()) {
             	processClassloader(kieContainer, deployedUnit);
+            }
+            
+            for (DeployedAsset pDesc : deployedUnit.getDeployedAssets()) {
+                if (pDesc instanceof ProcessAssetDesc) {
+                    ((ProcessAssetDesc) pDesc).setReusableSubProcesses(
+                            bpmn2Service.getReusableSubProcesses(((ProcessAssetDesc) pDesc).getDeploymentId(), pDesc.getId()));
+                }
             }
                    
             AuditEventBuilder auditLoggerBuilder = setupAuditLogger(identityProvider, unit.getIdentifier());
@@ -300,7 +306,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                 ProcessAssetDesc process;
                 try {
                     String processString = new String(module.getBytes(fileName), "UTF-8");
-                    process = (ProcessAssetDesc) bpmn2Service.buildProcessDefinition(unit.getIdentifier(), processString, kieContainer, true);
+                    process = (ProcessAssetDesc) bpmn2Service.buildProcessDefinition(unit.getIdentifier(), processString, kieContainer.getClassLoader(), true);
                     if (process == null) {
                     	throw new IllegalArgumentException("Unable to read process " + fileName);
                     }

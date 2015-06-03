@@ -42,14 +42,14 @@ public interface DefinitionService {
 	 * @param deploymentId identifier of deployment this process belongs to, 
 	 * 			might be null if built definition does not need to be stored
 	 * @param bpmn2Content actual BPMN xml content as string to be parsed and processed
-	 * @param kieContainer the {@link KieContainer} instance that contains the deployment project: this should be used when 
+	 * @param classLoader the {@link KieContainer} instance that contains the deployment project: this should be used when 
 	 *          parsing the BPMN2 in case custom classes or other project resources (processes, rules) are referenced
 	 * @param cache indicates if the definition service should cache this <code>ProcessDefinition</code>
 	 * @return fully populated <code>ProcessDefinition</code>
 	 * @throws IllegalArgumentException in case build operation cannot be completed
 	 */
 	ProcessDefinition buildProcessDefinition(String deploymentId, String bpmn2Content,
-			KieContainer kieContainer, boolean cache) throws IllegalArgumentException;
+			ClassLoader classLoader, boolean cache) throws IllegalArgumentException;
 
 	/**
 	 * Returns previously built <code>ProcessDefinition</code>. 
