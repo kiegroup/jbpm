@@ -183,6 +183,9 @@ public class KModuleDeploymentUnit implements DeploymentUnit, AttributesAware, S
 
 	@Override
 	public Map<String, String> getAttributes() {
+	    if (this.attributes == null){
+	        return Collections.EMPTY_MAP;
+	    }
 		return Collections.unmodifiableMap(this.attributes);
 	}
 
