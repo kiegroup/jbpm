@@ -16,10 +16,11 @@
 
 package org.jbpm.services.task.audit.test;
 
-import java.util.HashMap;
-import java.util.List;
+import java.sql.Timestamp;
+import java.util.*;
 import javax.inject.Inject;
 
+import org.assertj.core.api.Assertions;
 import org.jbpm.services.task.HumanTaskServicesBaseTest;
 import org.jbpm.services.task.audit.commands.DeleteAuditEventsCommand;
 import org.jbpm.services.task.audit.commands.DeleteBAMTaskSummariesCommand;
@@ -27,8 +28,11 @@ import org.jbpm.services.task.audit.commands.GetAuditEventsCommand;
 import org.jbpm.services.task.audit.commands.GetBAMTaskSummariesCommand;
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
 import org.jbpm.services.task.audit.service.TaskAuditService;
+import org.jbpm.services.task.impl.model.I18NTextImpl;
 import org.jbpm.services.task.utils.TaskFluent;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
@@ -232,6 +236,223 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
         allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("salaboy", null, null, null);
         assertEquals(0, allGroupAuditTasks.size());
+    }
+
+    private void testDescriptionUpdate(String oldDescription, String newDescription, boolean changeExpected) {
+        Task task = new TaskFluent()
+                .setDescription(oldDescription)
+                .setAdminUser("Administrator")
+                .getTask();
+        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = task.getId();
+
+        List<I18NText> descriptions = new ArrayList<I18NText>();
+        descriptions.add(new I18NTextImpl("", newDescription));
+        taskService.setDescriptions(taskId, descriptions);
+
+        task = taskService.getTaskById(taskId);
+        Assertions.assertThat(task.getDescription()).isEqualTo(newDescription);
+
+        List<AuditTask> auditTasks = taskAuditService.getAllAuditTasks(new QueryFilter());
+        Assertions.assertThat(auditTasks).hasSize(1);
+        Assertions.assertThat(auditTasks.get(0).getDescription()).isEqualTo(newDescription);
+
+        List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
+        if (changeExpected) {
+            Assertions.assertThat(taskEvents).hasSize(2);
+            Assertions.assertThat(taskEvents.get(1).getMessage()).contains(String.valueOf(oldDescription),
+                    String.valueOf(newDescription));
+        } else {
+            Assertions.assertThat(taskEvents).hasSize(1);
+        }
+    }
+
+    @Test
+    public void testDescriptionUpdateSame() {
+        testDescriptionUpdate("description", "description", false);
+    }
+
+    @Test
+    public void testDescriptionUpdateDifferent() {
+        testDescriptionUpdate("old description", "new description", true);
+    }
+
+    @Ignore
+    @Test
+    public void testDescriptionUpdateToNull() {
+        testDescriptionUpdate("old description", null, true);
+    }
+
+    @Test
+    public void testDescriptionUpdateToEmpty() {
+        testDescriptionUpdate("old description", "", true);
+    }
+
+    @Test
+    public void testDescriptionUpdateFromNull() {
+        testDescriptionUpdate(null, "new description", true);
+    }
+
+    @Test
+    public void testDescriptionUpdateFromEmpty() {
+        testDescriptionUpdate("", "new description", true);
+    }
+
+    private void testNameUpdate(String oldName, String newName, boolean changeExpected) {
+        Task task = new TaskFluent()
+                .setName(oldName)
+                .setAdminUser("Administrator")
+                .getTask();
+        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = task.getId();
+
+        List<I18NText> taskNames = new ArrayList<I18NText>();
+        taskNames.add(new I18NTextImpl("", newName));
+        taskService.setTaskNames(taskId, taskNames);
+
+        task = taskService.getTaskById(taskId);
+        Assertions.assertThat(task.getName()).isEqualTo(newName);
+
+        List<AuditTask> auditTasks = taskAuditService.getAllAuditTasks(new QueryFilter());
+        Assertions.assertThat(auditTasks).hasSize(1);
+        Assertions.assertThat(auditTasks.get(0).getName()).isEqualTo(newName);
+
+        List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
+        if (changeExpected) {
+            Assertions.assertThat(taskEvents).hasSize(2);
+            Assertions.assertThat(taskEvents.get(1).getMessage()).contains(String.valueOf(oldName),
+                    String.valueOf(newName));
+        } else {
+            Assertions.assertThat(taskEvents).hasSize(1);
+        }
+    }
+
+    @Test
+    public void testNameUpdateSame() {
+        testNameUpdate("name", "name", false);
+    }
+
+    @Test
+    public void testNameUpdateDifferent() {
+        testNameUpdate("old name", "new name", true);
+    }
+
+    @Ignore
+    @Test
+    public void testNameUpdateToNull() {
+        testNameUpdate("old name", null, true);
+    }
+
+    @Test
+    public void testNameUpdateToEmpty() {
+        testNameUpdate("old name", "", true);
+    }
+
+    @Test
+    public void testNameUpdateFromNull() {
+        testNameUpdate(null, "new name", true);
+    }
+
+    @Test
+    public void testNameUpdateFromEmpty() {
+        testNameUpdate("", "new name", true);
+    }
+
+    private void testPriorityUpdate(int oldPriority, int newPriority, boolean changeExpected) {
+        Task task = new TaskFluent()
+                .setPriority(oldPriority)
+                .setAdminUser("Administrator")
+                .getTask();
+        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = task.getId();
+
+        taskService.setPriority(taskId, newPriority);
+
+        task = taskService.getTaskById(taskId);
+        Assertions.assertThat(task.getPriority()).isEqualTo(newPriority);
+
+        List<AuditTask> auditTasks = taskAuditService.getAllAuditTasks(new QueryFilter());
+        Assertions.assertThat(auditTasks).hasSize(1);
+        Assertions.assertThat(auditTasks.get(0).getPriority()).isEqualTo(newPriority);
+
+        List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
+        if (changeExpected) {
+            Assertions.assertThat(taskEvents).hasSize(2);
+            Assertions.assertThat(taskEvents.get(1).getMessage()).contains(String.valueOf(oldPriority),
+                    String.valueOf(newPriority));
+        } else {
+            Assertions.assertThat(taskEvents).hasSize(1);
+        }
+    }
+
+    @Test
+    public void testPriorityUpdateSame() {
+        testPriorityUpdate(0, 0, false);
+    }
+
+    @Test
+    public void testPriorityUpdateDifferent() {
+        testPriorityUpdate(0, 10, true);
+    }
+
+    private void testDueDateUpdate(Date oldDate, Date newDate, boolean changeExpected) {
+        Task task = new TaskFluent()
+                .setDueDate(oldDate)
+                .setAdminUser("Administrator")
+                .getTask();
+        taskService.addTask(task, new HashMap<String, Object>());
+        long taskId = task.getId();
+
+        taskService.setExpirationDate(taskId, newDate);
+
+        task = taskService.getTaskById(taskId);
+        Assertions.assertThat(task.getTaskData().getExpirationTime()).isEqualTo(newDate);
+
+        List<AuditTask> auditTasks = taskAuditService.getAllAuditTasks(new QueryFilter());
+        Assertions.assertThat(auditTasks).hasSize(1);
+        Assertions.assertThat(auditTasks.get(0).getDueDate()).isEqualTo(newDate);
+
+        List<TaskEvent> taskEvents = taskAuditService.getAllTaskEvents(taskId, new QueryFilter());
+        if (changeExpected) {
+            Assertions.assertThat(taskEvents).hasSize(2);
+            Assertions.assertThat(taskEvents.get(1).getMessage()).contains(String.valueOf(oldDate),
+                    String.valueOf(newDate));
+        } else {
+            Assertions.assertThat(taskEvents).hasSize(1);
+        }
+    }
+
+    private Timestamp getToday() {
+        return new Timestamp(new Date().getTime());
+    }
+
+    private Timestamp getTomorrow() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(getToday());
+        c.add(Calendar.DATE, 1);
+        return new Timestamp(c.getTimeInMillis());
+    }
+
+    @Test
+    public void testDueDateUpdateSame() {
+        testDueDateUpdate(getToday(), getToday(), false);
+    }
+
+    @Test
+    public void testDueDateUpdateDifferent() {
+        testDueDateUpdate(getToday(), getTomorrow(), true);
+    }
+
+    @Ignore
+    @Test
+    public void testDueDateUpdateFromNull() {
+        testDueDateUpdate(null, getTomorrow(), true);
+    }
+
+    @Ignore
+    @Test
+    public void testDueDateUpdateToNull() {
+        testDueDateUpdate(getToday(), null, true);
     }
 
 }
