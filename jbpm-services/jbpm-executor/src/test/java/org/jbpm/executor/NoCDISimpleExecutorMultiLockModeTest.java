@@ -25,7 +25,7 @@ import org.junit.Before;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 
-public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
+public class NoCDISimpleExecutorMultiLockModeTest extends BasicExecutorBaseTest{
     
 	private PoolingDataSource pds;
 	
@@ -34,7 +34,7 @@ public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
     public void setUp() {
         pds = TestUtil.setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
-
+        System.setProperty("org.kie.executor.single.lock", "false");
         executorService = ExecutorServiceFactory.newExecutorService(emf);
         
         executorService.init();
@@ -43,6 +43,7 @@ public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
     
     @After
     public void tearDown() {
+        System.clearProperty("org.kie.executor.single.lock");
         super.tearDown();
         executorService.destroy();
         if (emf != null) {

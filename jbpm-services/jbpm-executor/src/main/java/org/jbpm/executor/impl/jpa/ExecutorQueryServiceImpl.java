@@ -16,6 +16,7 @@
 
 package org.jbpm.executor.impl.jpa;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,8 @@ import org.kie.internal.executor.api.ExecutorQueryService;
 import org.kie.internal.executor.api.ExecutorService;
 import org.kie.internal.executor.api.RequestInfo;
 import org.kie.internal.executor.api.STATUS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -40,8 +43,9 @@ import org.kie.internal.executor.api.STATUS;
  */
 public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
-
+    private static final Logger logger = LoggerFactory.getLogger(ExecutorQueryServiceImpl.class);
     
+    private boolean useSingleRequestQueryAndLock = Boolean.parseBoolean(System.getProperty("org.kie.executor.single.lock", "true"));
     private CommandService commandService;
    
     public ExecutorQueryServiceImpl(boolean active) {
@@ -49,6 +53,10 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 
     public void setCommandService(CommandService commandService) {
         this.commandService = commandService;
+    }
+    
+    public void setUseSingleRequestQueryAndLock(boolean useSingleRequestQueryAndLock) {
+        this.useSingleRequestQueryAndLock = useSingleRequestQueryAndLock;
     }
 
     /**
@@ -195,8 +203,14 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
     public RequestInfo getRequestForProcessing() {
         
         // need to do the lock here to avoid many executor services fetch the same element
-    	RequestInfo request = commandService.execute(new LockAndUpdateRequestInfoCommand());
-        
+    	RequestInfo request = null;
+    	if (useSingleRequestQueryAndLock) {
+    	    logger.debug("Using single row query and lock for fetching requests for processing");
+    	    request = commandService.execute(new LockAndUpdateRequestInfoCommand());
+    	} else {
+    	    logger.debug("Using multiple row query and lock for fetching requests for processing");
+    	    request = commandService.execute(new LockAndUpdateRequestsInfoCommand());
+    	}
         return request;
     }
 
@@ -207,7 +221,7 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 		@Override
 		public RequestInfo execute(Context context) {
 			Map<String, Object> params = new HashMap<String, Object>();
-	    	params.put("now", new Date());
+	    	params.put("now", new Timestamp(System.currentTimeMillis()));
 	    	params.put("firstResult", 0);
 	    	params.put("maxResults", 1);
 	    	params.put("owner", ExecutorService.EXECUTOR_ID);
@@ -228,6 +242,38 @@ public class ExecutorQueryServiceImpl implements ExecutorQueryService {
 			return request;
 		}
     	
+    }
+    
+    private class LockAndUpdateRequestsInfoCommand implements GenericCommand<RequestInfo> {
+
+        private static final long serialVersionUID = 8670412133363766161L;
+
+        @Override
+        public RequestInfo execute(Context context) {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("now", new Timestamp(System.currentTimeMillis()));
+            params.put("owner", ExecutorService.EXECUTOR_ID);
+            RequestInfo request = null;
+            List<RequestInfo> requests = null;
+            try {
+                
+                org.jbpm.shared.services.impl.JpaPersistenceContext ctx = (org.jbpm.shared.services.impl.JpaPersistenceContext) context;
+                requests = ctx.queryAndLockWithParametersInTransaction("PendingRequestsForProcessing",params, false, List.class);
+                
+                if (requests != null && !requests.isEmpty()) {
+                    request = requests.get(0);
+                    
+                    request.setStatus(STATUS.RUNNING);
+                    // update date on when it was started to be executed
+                    ((org.jbpm.executor.entities.RequestInfo)request).setTime(new Date());
+                    ctx.merge(request);
+                }
+            } catch (NoResultException e) {
+                
+            }
+            return request;
+        }
+        
     }
 
 }

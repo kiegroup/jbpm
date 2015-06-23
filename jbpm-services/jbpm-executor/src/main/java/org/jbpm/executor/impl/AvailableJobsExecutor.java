@@ -78,7 +78,7 @@ public class AvailableJobsExecutor {
     @SuppressWarnings("unchecked")
      
     public void executeJob() {
-        logger.debug("Executor Thread {} Waking Up!!!", this.toString());
+        logger.debug("Executor Thread {} waking up", Thread.currentThread().getName());
         try {
             RequestInfo request = (RequestInfo) queryService.getRequestForProcessing();
             if (request != null) {
@@ -145,7 +145,7 @@ public class AvailableJobsExecutor {
                     Thread.currentThread().interrupt();
                 } catch (Throwable e) {
                 	callbacks = classCacheManager.buildCommandCallback(ctx, cl);  
-                    logger.warn("Error during command {} execution {}", request.getCommandName(), e.getMessage());
+                    logger.warn("Error during command {} execution {}", request.getCommandName(), e.getMessage(), e);
     
                     ErrorInfo errorInfo = new ErrorInfo(e.getMessage(), ExceptionUtils.getStackTrace(e.fillInStackTrace()));
                     errorInfo.setRequestInfo(request);
