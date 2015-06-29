@@ -270,11 +270,14 @@ public class AdminAPIsWithListenerTest extends JbpmJUnitBaseTestCase {
     @Test
     public void automaticCleanUpForSubProcessWithSingletonStrategy() throws Exception {
 
+        TaskCleanUpProcessEventListener taskCleanUpProcessEventListener = new TaskCleanUpProcessEventListener(null);
+        this.addProcessEventListener(taskCleanUpProcessEventListener);
+
         RuntimeManager manager = createRuntimeManager("subprocess-test/ht-main.bpmn", "subprocess-test/ht-sub.bpmn");
         RuntimeEngine runtime = getRuntimeEngine(ProcessInstanceIdContext.get());
+        taskCleanUpProcessEventListener.setTaskService((InternalTaskService) runtime.getTaskService());
         KieSession ksession = runtime.getKieSession();
-        ksession.addEventListener(new TaskCleanUpProcessEventListener(runtime.getTaskService()));
-        
+
         // start a new process instance
         Map<String, Object> params = new HashMap<String, Object>();
         ProcessInstance pi = ksession.startProcess("com.mycompany.sample", params);
@@ -331,8 +334,8 @@ public class AdminAPIsWithListenerTest extends JbpmJUnitBaseTestCase {
 
     @Test
     public void automaticCleanUpForSubProcessWithPerProcessInstanceStrategy() throws Exception {
-        TaskCleanUpProcessEventListener taskCleanUpProcessEventListener = new TaskCleanUpProcessEventListener(null);
 
+        TaskCleanUpProcessEventListener taskCleanUpProcessEventListener = new TaskCleanUpProcessEventListener(null);
         this.addProcessEventListener(taskCleanUpProcessEventListener);
 
         RuntimeManager manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, "com.mycompany.sample", "subprocess-test/ht-main.bpmn", "subprocess-test/ht-sub.bpmn");
