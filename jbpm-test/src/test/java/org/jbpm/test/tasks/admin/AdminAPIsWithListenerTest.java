@@ -24,16 +24,23 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import bitronix.tm.resource.jdbc.PoolingDataSource;
+import org.jbpm.runtime.manager.impl.RuntimeEnvironmentBuilder;
 import org.jbpm.services.task.admin.listener.TaskCleanUpProcessEventListener;
 import org.jbpm.services.task.identity.DefaultUserInfo;
+import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.api.event.process.ProcessEventListener;
+import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeEnvironment;
 import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.manager.audit.AuditService;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -41,9 +48,11 @@ import org.kie.api.task.TaskLifeCycleEventListener;
 import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.event.KnowledgeRuntimeEventManager;
+import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.logger.KnowledgeRuntimeLoggerFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.EventService;
+import org.kie.internal.task.api.UserGroupCallback;
 import org.kie.internal.task.api.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -268,7 +277,7 @@ public class AdminAPIsWithListenerTest extends JbpmJUnitBaseTestCase {
     }
     
     @Test
-    public void humanTaskTest() throws Exception {
+    public void automaticCleanUpForSubProcessWithSingletonStrategy() throws Exception {
 
         RuntimeManager manager = createRuntimeManager("subprocess-test/ht-main.bpmn", "subprocess-test/ht-sub.bpmn");
         RuntimeEngine runtime = getRuntimeEngine(ProcessInstanceIdContext.get());
@@ -302,7 +311,7 @@ public class AdminAPIsWithListenerTest extends JbpmJUnitBaseTestCase {
         
         
         AuditService logService = runtime.getAuditService();
-        
+
         List<? extends ProcessInstanceLog> logs = logService.findProcessInstances("com.mycompany.sample");
         assertNotNull(logs);
         assertEquals(1, logs.size());
@@ -316,6 +325,68 @@ public class AdminAPIsWithListenerTest extends JbpmJUnitBaseTestCase {
         assertEquals(ProcessInstance.STATE_ABORTED, logs.get(0).getStatus().intValue());
         manager.close();
         
+        final EntityManager em = emfTasks.createEntityManager();
+
+        Assert.assertEquals(0, em.createQuery("select t from TaskImpl t").getResultList().size());
+        Assert.assertEquals(0, em.createQuery("select i from I18NTextImpl i").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_BAs").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_ExclOwners").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_PotOwners").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_Recipients").getResultList().size());
+        Assert.assertEquals(0, em.createNativeQuery("select * from PeopleAssignments_Stakeholders").getResultList().size());
+        Assert.assertEquals(0, em.createQuery("select c from ContentImpl c").getResultList().size());
+        em.close();
+    }
+
+    @Test
+    public void automaticCleanUpForSubProcessWithPerProcessInstanceStrategy() throws Exception {
+
+        RuntimeManager manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, "com.mycompany.sample", "subprocess-test/ht-main.bpmn", "subprocess-test/ht-sub.bpmn");
+        RuntimeEngine runtime = getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+        ksession.addEventListener(new TaskCleanUpProcessEventListener(runtime.getTaskService()));
+
+        // start a new process instance
+        Map<String, Object> params = new HashMap<String, Object>();
+        ProcessInstance pi = ksession.startProcess("com.mycompany.sample", params);
+
+        // obtain the task service
+        TaskService taskService = runtime.getTaskService();
+
+        List<TaskSummary> tasks1 = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+        assertFalse(tasks1.isEmpty());
+        TaskSummary task1 = tasks1.get(0);
+        System.out.println("Sales-rep executing task " + task1.getName() + "(" + task1.getId() + ": " + task1.getDescription() + ")");
+        taskService.start(task1.getId(), "john");
+        Map<String, Object> results = new HashMap<String, Object>();
+        results.put("comment", "Agreed, existing laptop needs replacing");
+        results.put("outcome", "Accept");
+
+        // complete the human task of the main process
+        taskService.complete(task1.getId(), "john", results);
+
+        // abort the process instance
+        ksession.abortProcessInstance(pi.getId());
+
+        // main process instance shall be aborted
+        assertProcessInstanceAborted(pi.getId());
+
+
+        AuditService logService = runtime.getAuditService();
+
+        List<? extends ProcessInstanceLog> logs = logService.findProcessInstances("com.mycompany.sample");
+        assertNotNull(logs);
+        assertEquals(1, logs.size());
+
+        assertEquals(ProcessInstance.STATE_ABORTED, logs.get(0).getStatus().intValue());
+
+        logs = logService.findProcessInstances("com.mycompany.sample.subprocess");
+        assertNotNull(logs);
+        assertEquals(1, logs.size());
+
+        assertEquals(ProcessInstance.STATE_ABORTED, logs.get(0).getStatus().intValue());
+        manager.close();
+
         final EntityManager em = emfTasks.createEntityManager();
 
         Assert.assertEquals(0, em.createQuery("select t from TaskImpl t").getResultList().size());
