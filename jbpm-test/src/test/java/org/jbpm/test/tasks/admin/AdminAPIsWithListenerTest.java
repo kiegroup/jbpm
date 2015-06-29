@@ -21,7 +21,6 @@ import org.jbpm.test.JbpmJUnitBaseTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -36,6 +35,7 @@ import org.kie.internal.event.KnowledgeRuntimeEventManager;
 import org.kie.internal.logger.KnowledgeRuntimeLoggerFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import org.kie.internal.task.api.EventService;
+import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,14 +329,16 @@ public class AdminAPIsWithListenerTest extends JbpmJUnitBaseTestCase {
         em.close();
     }
 
-    @Ignore
     @Test
     public void automaticCleanUpForSubProcessWithPerProcessInstanceStrategy() throws Exception {
+        TaskCleanUpProcessEventListener taskCleanUpProcessEventListener = new TaskCleanUpProcessEventListener(null);
+
+        this.addProcessEventListener(taskCleanUpProcessEventListener);
 
         RuntimeManager manager = createRuntimeManager(Strategy.PROCESS_INSTANCE, "com.mycompany.sample", "subprocess-test/ht-main.bpmn", "subprocess-test/ht-sub.bpmn");
         RuntimeEngine runtime = getRuntimeEngine(ProcessInstanceIdContext.get());
+        taskCleanUpProcessEventListener.setTaskService((InternalTaskService) runtime.getTaskService());
         KieSession ksession = runtime.getKieSession();
-        ksession.addEventListener(new TaskCleanUpProcessEventListener(runtime.getTaskService()));
 
         // start a new process instance
         Map<String, Object> params = new HashMap<String, Object>();
