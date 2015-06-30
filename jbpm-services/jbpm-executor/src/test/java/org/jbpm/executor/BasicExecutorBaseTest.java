@@ -370,6 +370,9 @@ public abstract class BasicExecutorBaseTest {
         queuedRequests = executorService.getQueuedRequests();
         assertEquals(0, queuedRequests.size());
         executedRequests = executorService.getCompletedRequests();
+        
+        logger.info("########## " + executedRequests);
+        
         assertEquals(1, executedRequests.size());
     }
 
