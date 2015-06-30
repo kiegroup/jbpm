@@ -783,15 +783,16 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
                     + "${task.taskData.parentId}";
         handler.executeWorkItem(prepareWorkItemWithTaskVariables(taskDescriptionParam), manager);
 
+
         final List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
-        final TaskSummary task = tasks.get(0);
+        final Task task = taskService.getTaskById(tasks.get(0).getId());
         testTaskWithExpectedDescription(task,
                 "Comment for task "
                         + task.getId() + " "
-                        + task.getProcessSessionId() + " "
-                        + task.getActualOwner().getId() + " "
-                        + task.getParentId());
+                        + task.getTaskData().getProcessSessionId() + " "
+                        + task.getTaskData().getActualOwner().getId() + " "
+                        + task.getTaskData().getParentId());
 
         taskService.start(task.getId(), "Darth Vader");
         taskService.complete(task.getId(), "Darth Vader", null);
@@ -812,7 +813,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
 
         final List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
-        final TaskSummary task = tasks.get(0);
+        final Task task = taskService.getTaskById(tasks.get(0).getId());
         testTaskWithExpectedDescription(task, task.getDescription());
 
         taskService.start(task.getId(), "Darth Vader");
@@ -836,13 +837,13 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         return workItem;
     }
 
-    private void testTaskWithExpectedDescription(final TaskSummary task, final String expectedDescription) {
-        assertEquals("TaskName " + task.getProcessInstanceId(), task.getName());
-        assertEquals(10, task.getPriority().intValue());
+    private void testTaskWithExpectedDescription(final Task task, final String expectedDescription) {
+        assertEquals("TaskName " + task.getTaskData().getProcessInstanceId(), task.getName());
+        assertEquals(10, task.getPriority());
         assertEquals(expectedDescription, task.getDescription());
-        assertEquals(Status.Reserved, task.getStatus());
-        assertEquals("Darth Vader", task.getActualOwner().getId());
-        assertEquals(10, task.getProcessInstanceId().intValue());
+        assertEquals(Status.Reserved, task.getTaskData().getStatus());
+        assertEquals("Darth Vader", task.getTaskData().getActualOwner().getId());
+        assertEquals(10L, task.getTaskData().getProcessInstanceId());
     }
 
     public void setHandler(WorkItemHandler handler) {
