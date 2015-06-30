@@ -50,9 +50,14 @@ public class TaskSummaryImpl implements InternalTaskSummary {
     private String deploymentId;
     private SubTasksStrategy subTaskStrategy;
     private long parentId;
-    private List<String> potentialOwners;
+    
     private boolean quickTaskSummary;
 
+    // JPQL does not accept collections in constructor arguments
+    // In short, this means that this field will never be filled
+    @Deprecated
+    private List<String> potentialOwners;
+    
     public TaskSummaryImpl(long id,
             String name,
             String subject,
@@ -99,6 +104,48 @@ public class TaskSummaryImpl implements InternalTaskSummary {
         this.quickTaskSummary = false;
     }
 
+    // Constructor for the TaskQueryService Query API
+    public TaskSummaryImpl(long id,
+            String name,
+            String subject,
+            String description,
+            Status status,
+            int priority,
+            boolean skippable,
+            String actualOwner,
+            String createdBy,
+            Date createdOn,
+            Date activationTime,
+            Date expirationTime,
+            String processId,
+            long processInstanceId,
+            long processSessionId,
+            long parentId,
+            String deploymentId) { 
+        this.id = id;
+        this.name = name;
+        this.subject = name;
+        this.description = description;
+        this.status = status;
+        if (status != null) {
+            this.statusId = status.name();
+        }
+        this.priority = priority;
+        this.skipable = skippable;
+        this.actualOwnerId = actualOwner;
+        this.createdById = createdBy;
+        this.createdOn = createdOn;
+        this.activationTime = activationTime;
+        this.expirationTime = expirationTime;
+        this.processId = processId;
+        this.processInstanceId = processInstanceId;
+        this.processSessionId = processInstanceId;
+        this.parentId = parentId;
+        this.deploymentId = deploymentId;
+        
+        this.quickTaskSummary = false;
+    }
+    
     /*
      * Construct a QuickTaskSummary
      */
@@ -465,10 +512,12 @@ public class TaskSummaryImpl implements InternalTaskSummary {
         this.parentId = parentId;
     }
 
+    @Deprecated
     public List<String> getPotentialOwners() {
         return potentialOwners;
     }
 
+    @Deprecated
     public void setPotentialOwners(List<String> potentialOwners) {
         this.potentialOwners = potentialOwners;
     }

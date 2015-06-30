@@ -651,15 +651,16 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         addCriteria(TASK_ID_LIST, "t.id", Long.class);
         addCriteria(DEPLOYMENT_ID_LIST, "t.taskData.deploymentId.id", String.class);
         addCriteria(TASK_STATUS_LIST, "t.taskData.status", Status.class);
-        
-        addCriteria(CREATED_BY_LIST, "t.taskData.createdBy.id", String.class);
-        addCriteria(STAKEHOLDER_ID_LIST, "stakeHolders.id", String.class, 
-                "stakeHolders in elements ( t.peopleAssignments.taskStakeholders )");
-        addCriteria(POTENTIAL_OWNER_ID_LIST, "potentialOwners.id", String.class, 
-                "potentialOwners in elements ( t.peopleAssignments.potentialOwners )");
         addCriteria(ACTUAL_OWNER_ID_LIST, "t.taskData.actualOwner.id", String.class);
-        addCriteria(BUSINESS_ADMIN_ID_LIST, "businessAdministrators.id", String.class, 
-                "businessAdministrators in elements ( t.peopleAssignments.businessAdministrators )");
+        addCriteria(CREATED_BY_LIST, "t.taskData.createdBy.id", String.class);
+        
+        addCriteria(POTENTIAL_OWNER_ID_LIST, "pot.id", String.class,
+                "t.peopleAssignments.potentialOwners pot");
+        
+        addCriteria(STAKEHOLDER_ID_LIST, "sta.id", String.class, 
+                "t.peopleAssignments.taskStakeholders sta");
+        addCriteria(BUSINESS_ADMIN_ID_LIST, "bus.id", String.class, 
+                "t.peopleAssignments.businessAdministrators bus");
     }
    
     private static void addCriteria( String listId, String fieldName, Class type ) { 
@@ -684,9 +685,11 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 "SELECT distinct new org.jbpm.services.task.query.TaskSummaryImpl(\n" +
                 "       t.id,\n" +
                 "       t.name,\n" +
+                "       t.subject,\n" +
                 "       t.description,\n" +
                 "       t.taskData.status,\n" +
                 "       t.priority,\n" +
+                "       t.taskData.skipable,\n" +
                 "       t.taskData.actualOwner.id,\n" +
                 "       t.taskData.createdBy.id,\n" +
                 "       t.taskData.createdOn,\n" +
@@ -694,14 +697,12 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 "       t.taskData.expirationTime,\n" +
                 "       t.taskData.processId,\n" +
                 "       t.taskData.processInstanceId,\n" +
+                "       t.taskData.processSessionId,\n" +
                 "       t.taskData.parentId,\n" +
                 "       t.taskData.deploymentId )\n";
 
     public static String TASKSUMMARY_FROM = 
-                "FROM TaskImpl t,\n"
-              + "     OrganizationalEntityImpl stakeHolders,\n"
-              + "     OrganizationalEntityImpl potentialOwners,\n"
-              + "     OrganizationalEntityImpl businessAdministrators\n";
+                "FROM TaskImpl t\n";
     
     public static String TASKSUMMARY_WHERE = 
                 "WHERE t.archived = 0\n";
@@ -710,22 +711,27 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     public List<TaskSummary> query( String userId, QueryData queryData ) {
         // 1a. setup query
         StringBuilder queryBuilder = new StringBuilder(TASKSUMMARY_SELECT).append(TASKSUMMARY_FROM);
+       
+        // 2. check to see if we can results if possible by manipulating existing parameters
+        GroupIdsCache groupIds = new GroupIdsCache(userId);
+        boolean existingParametersUsedToLimitToAllowedResults = useExistingUserGroupIdToLimitResults(userId, queryBuilder, queryData, groupIds);
+     
+        // 2b. Add join tables for limiting later, if needed
+        // if ! existing parameters to limit
+        //    then add join tables for limiting later
+        addJoinTables(queryBuilder, queryData, ! existingParametersUsedToLimitToAllowedResults );
         
-        // 1b. add other tables (used in kie-remote-services to cross-query on variables, etc.. )
+        // 1c. add other tables (used in kie-remote-services to cross-query on variables, etc.. )
         ServiceLoader<QueryModificationService> queryModServiceLdr = ServiceLoader.load(QueryModificationService.class);
         for( QueryModificationService queryModService : queryModServiceLdr ) { 
            queryModService.addTablesToQuery(queryBuilder, queryData);
         }
-       
-        // 1c. finish setup
+        
+        // 1d. finish setup
         queryBuilder.append(TASKSUMMARY_WHERE);
         
         Map<String, Object> params = new HashMap<String, Object>();
         QueryAndParameterAppender queryAppender = new QueryAndParameterAppender(queryBuilder, params);
-       
-        // 2. check to see if we can results if possible by manipulating existing parameters
-        GroupIdsCache groupIds = new GroupIdsCache(userId);
-        boolean existingParametersUsedToLimitToAllowedResults = useExistingUserGroupIdToLimitResults(userId, queryData, groupIds);
         
         // 3a. add extended criteria 
         for( QueryModificationService queryModService : queryModServiceLdr ) { 
@@ -740,8 +746,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 assert criteriaFieldClass != null : listId + ": criteria field class not found";
                 String jpqlField = criteriaFields.get(listId);
                 assert jpqlField != null : listId + ": criteria field not found";
-                String joinClause = criteriaFieldJoinClauses.get(listId);
-                queryAppender.addQueryParameters( paramsEntry.getValue(), listId, criteriaFieldClass, jpqlField, joinClause, true);
+                queryAppender.addQueryParameters( paramsEntry.getValue(), listId, criteriaFieldClass, jpqlField, true);
             }
         }
         if( ! queryData.intersectParametersAreEmpty() ) { 
@@ -751,8 +756,7 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                 assert criteriaFieldClass != null : listId + ": criteria field class not found";
                 String jpqlField = criteriaFields.get(listId);
                 assert jpqlField != null : listId + ": criteria field not found";
-                String joinClause = criteriaFieldJoinClauses.get(listId);
-                queryAppender.addQueryParameters(paramsEntry.getValue(), listId, criteriaFieldClass, jpqlField, joinClause, false);
+                queryAppender.addQueryParameters(paramsEntry.getValue(), listId, criteriaFieldClass, jpqlField, false);
             }
         }
         // 3b. apply range query parameters
@@ -897,13 +901,13 @@ public class TaskQueryServiceImpl implements TaskQueryService {
      * @param groupIds A {@link GroupIdsCache} instance, which provides the groupids for the user id
      * @return whether or not a limiting query clause should be added to the end of the query
      */
-    private boolean useExistingUserGroupIdToLimitResults(String userId, QueryData queryData, GroupIdsCache groupIds) { 
+    private boolean useExistingUserGroupIdToLimitResults(String userId, StringBuilder queryBuilder, QueryData queryData, GroupIdsCache groupIds) { 
         // for the GetTasksByVariousFields method, which is actually broken and needs to be gotten rid of ASAP
         if( userId == null ) { 
             return true;
         }
         
-        // if there are now intersect parameters used, we can not fortune tell (with only union parameters)
+        // if there are no intersect parameters used, we can not fortune tell (with only union parameters)
         if( queryData.intersectParametersAreEmpty() ) { 
             return false;
         }
@@ -924,7 +928,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
             // check if groupIds are used as parameters
             usedExistingParameters = useExistingUserGroupIdAsParameter(groupParameterIds, queryData, userIdsArr );
         }
-       
+      
+
+        
         return usedExistingParameters;
     }
    
@@ -938,8 +944,9 @@ public class TaskQueryServiceImpl implements TaskQueryService {
      * @param userGroupIds user and group ids from the user who called the query operation
      * @return true if we don't need to add another clause, false if we do
      */
-    private boolean useExistingUserGroupIdAsParameter(String [] userGroupParamListIds, QueryData queryData, String... userGroupIds) { 
+    private static boolean useExistingUserGroupIdAsParameter(String [] userGroupParamListIds, QueryData queryData, String... userGroupIds) { 
         for( String listId : userGroupParamListIds ) { 
+            // normal intersect parameters
             List<String> intersectListUserIds = (List<String>) queryData.getIntersectParameters().get(listId);
             if( intersectListUserIds != null ) { 
                 for( String groupId : userGroupIds ) { 
@@ -949,10 +956,105 @@ public class TaskQueryServiceImpl implements TaskQueryService {
                     }
                 }
             }
+            // regex intersect parameters
+            List<String> intersectListRegexes = (List<String>) queryData.getIntersectRegexParameters().get(listId);
+            if( intersectListRegexes != null ) { 
+                for( String regex : intersectListRegexes ) { 
+                    for( String userGroupId : userGroupIds ) { 
+                       String javaRegex = regex.replace("*", ".*");
+                       if( userGroupId.matches(javaRegex) ) { 
+                           // yes! the userGroupId string is matched by a regex passed in the parameters
+                           return true;
+                       }
+                    }
+                    
+                }
+            }
+            
         }
         return false;
     }
    
+    /**
+     * Adds the join table clauses ("JOIN" for intersecting parameters and "LEFT JOIN" for union parameters)
+     * to the query.
+     *   
+     * @param queryBuilder The string representation of the query
+     * @param queryData The object containint the parameters to process
+     */
+    public static void addJoinTables(StringBuilder queryBuilder, QueryData queryData, boolean addLeftJoinTablesForAllRoles) { 
+       
+        List<String> joinClauseTableListIds = Arrays.asList(groupParameterIds);
+      
+        StringBuilder tableJoinClause =  new StringBuilder();
+        
+        List<String> addedJoinTableListIds = new ArrayList<String>();
+        // apply normal query parameters
+        if( ! queryData.unionParametersAreEmpty() ) { 
+            for( Entry<String, List<? extends Object>> paramsEntry : queryData.getUnionParameters().entrySet() ) { 
+                String listId = paramsEntry.getKey();
+                String joinClause = criteriaFieldJoinClauses.get(listId);
+                if( joinClause != null ) { 
+                    tableJoinClause.append("LEFT JOIN " + joinClause + "\n"); 
+                    addedJoinTableListIds.add(listId);
+                }
+            }
+        }
+        if( ! queryData.intersectParametersAreEmpty() ) { 
+            for( Entry<String, List<? extends Object>> paramsEntry : queryData.getIntersectParameters().entrySet() ) { 
+                String listId = paramsEntry.getKey();
+                if( joinClauseTableListIds.contains(listId) ) { 
+                    String joinClause = criteriaFieldJoinClauses.get(listId);
+                    if( joinClause != null ) { 
+                        tableJoinClause.append("JOIN " + joinClause + "\n"); 
+                        addedJoinTableListIds.add(listId);
+                    }
+                }
+            }
+        }
+        // apply regex query parameters
+        if( ! queryData.unionRegexParametersAreEmpty() ) { 
+            for( Entry<String, List<String>> paramsEntry : queryData.getUnionRegexParameters().entrySet() ) { 
+                String listId = paramsEntry.getKey();
+                String joinClause = criteriaFieldJoinClauses.get(listId);
+                if( joinClause != null ) { 
+                   tableJoinClause.append("LEFT JOIN " + joinClause + "\n"); 
+                   addedJoinTableListIds.add(listId);
+                }
+            }
+        }
+        if( ! queryData.intersectRegexParametersAreEmpty() ) { 
+            for( Entry<String, List<String>> paramsEntry : queryData.getIntersectRegexParameters().entrySet() ) { 
+                String listId = paramsEntry.getKey();
+                String joinClause = criteriaFieldJoinClauses.get(listId);
+                if( joinClause != null ) { 
+                   tableJoinClause.append("JOIN " + joinClause + "\n"); 
+                   addedJoinTableListIds.add(listId);
+                }
+            }
+        }
+       
+        // Add join classes 
+        Set<String> toAddJoinClauseListIds = new HashSet<String>(criteriaFieldJoinClauses.keySet());
+        if( addLeftJoinTablesForAllRoles ) { 
+            toAddJoinClauseListIds.removeAll(addedJoinTableListIds);
+            for( String listId : toAddJoinClauseListIds )  { 
+                String joinClause = criteriaFieldJoinClauses.get(listId);
+                tableJoinClause.append("LEFT JOIN " + joinClause + "\n");
+            }
+        }
+      
+        String taskImplTableName = "TaskImpl t\n";
+        int start = queryBuilder.indexOf(taskImplTableName);
+        queryBuilder.replace(
+                start, 
+                start + taskImplTableName.length(),
+                taskImplTableName.substring(0, taskImplTableName.length()-1)
+                + "\n" 
+                + tableJoinClause);
+        queryBuilder.length();
+    }
+
     /**
      * Add a query clause to the end of the query limiting the result to the tasks that the user is allowed to see
      * @param userId the user id
@@ -965,7 +1067,6 @@ public class TaskQueryServiceImpl implements TaskQueryService {
             QueryAndParameterAppender queryAppender) { 
        
         // start phrase
-        StringBuilder rolesQueryPhraseBuilder = new StringBuilder( "( " );
        
         // add criteria for catching tasks that refer to the user
         String userIdParamName = queryAppender.generateParamName();
@@ -976,18 +1077,13 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         userAndGroupIds.addAll(groupIdsCache.getGroupIds());
         params.put(groupIdsParamName, userAndGroupIds);
         
-        rolesQueryPhraseBuilder.append("( ")
-            .append("t.taskData.createdBy.id = :").append(userIdParamName).append("\n OR ")
-            .append("( stakeHolders.id in :").append(groupIdsParamName).append(" and\n")
-            .append("  stakeHolders in elements ( t.peopleAssignments.taskStakeholders ) )").append("\n OR " )
-            .append("( potentialOwners.id in :").append(groupIdsParamName).append(" and\n")
-            .append("  potentialOwners in elements ( t.peopleAssignments.potentialOwners ) )").append("\n OR " )
-            .append("t.taskData.actualOwner.id = :").append(userIdParamName).append("\n OR ")
-            .append("( businessAdministrators.id in :").append(groupIdsParamName).append(" and\n")
-            .append("  businessAdministrators in elements ( t.peopleAssignments.businessAdministrators ) )")
-            .append(" )\n");
-        
-        rolesQueryPhraseBuilder.append(") ");
+        StringBuilder rolesQueryPhraseBuilder = new StringBuilder( "(\n" )
+            .append("t.taskData.createdBy.id = :").append(userIdParamName).append("\n")
+            .append(" OR t.taskData.actualOwner.id = :").append(userIdParamName).append("\n")
+            .append(" OR sta.id in (:").append(groupIdsParamName).append(")\n")
+            .append(" OR pot.id in (:").append(groupIdsParamName).append(")\n")
+            .append(" OR bus.id in (:").append(groupIdsParamName).append(")\n")
+            .append(")\n");
             
         queryBuilder.append("\nAND ").append(rolesQueryPhraseBuilder);
     }

@@ -379,7 +379,47 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
         assertNotNull(results);
         assertEquals(1, results.size());
     }
-  
+ 
+    @Test
+    public void testTaskQueryBuilderPotentialOwner() {
+        String user = "john";
+        String potOwner = "Crusaders";
+       
+        // query potential owner without the rights to do so 
+        TaskQueryBuilder queryBuilder = taskService.taskQuery("Administrators")
+                .intersect()
+                .potentialOwner(potOwner);
+        List<TaskSummary> results = queryBuilder.buildQuery().getResultList();
+        
+        // query potential owner 
+        queryBuilder = taskService.taskQuery(user)
+                .intersect()
+                .potentialOwner(potOwner);
+        results = queryBuilder.buildQuery().getResultList();
+        int origNumPotOwner = results.size();
+       
+        // create new task with pot owner
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { "
+                + "businessAdministrators = [new Group('Administrators')],"
+                + "taskStakeholders = [new User('" + stakeHolder + "')],"
+                + "potentialOwners = [new Group('" + potOwner + "')]"
+                + " }),";
+        str += "name = 'This is my task name' })";
+        Task task = TaskFactory.evalTask(new StringReader(str));
+        ((InternalTaskData) task.getTaskData()).setWorkItemId(1);
+        ((InternalTaskData) task.getTaskData()).setProcessInstanceId(1);
+        taskService.addTask(task, new HashMap<String, Object>());
+        
+        // query potential owner 
+        queryBuilder = taskService.taskQuery(user)
+                .intersect()
+                .potentialOwner(potOwner);
+        results = queryBuilder.buildQuery().getResultList();
+        assertNotNull(results);
+        assertEquals("List of tasks with pot owner " + potOwner, 1 + origNumPotOwner, results.size());
+    }
+    
     @Test
     public void testTaskQueryBuilder() {
         Task [] tasks = new Task[12];
@@ -621,7 +661,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         String whereClause = captureWhereClause(spyPrintStream);
         int parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 3, parensCount ); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 2, parensCount ); 
         
         // 2. stake holder 
         queryBuilder.clear().intersect().stakeHolder(stakeHolder);
@@ -630,7 +670,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 4, parensCount ); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 2, parensCount ); 
         
         // 3. potential owner
         queryBuilder.clear().intersect().potentialOwner(stakeHolder);
@@ -639,7 +679,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 4, parensCount ); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 2, parensCount ); 
         
         // 4. actual owner
         queryBuilder.clear().intersect().taskOwner(stakeHolder);
@@ -648,7 +688,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 3, parensCount ); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 2, parensCount ); 
         
         // 5. business admin
         queryBuilder.clear().intersect().businessAdmin(stakeHolder);
@@ -657,7 +697,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 4, parensCount ); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 2, parensCount ); 
         
         // union with full query
         queryBuilder.clear().union().businessAdmin(stakeHolder).workItemId(workItemId);
@@ -666,7 +706,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertTrue( "Expected parentheses in where clause", parensCount > 10); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 7,  parensCount ); 
         
         // union with full query (full query group works)
         String groupId = "Player";
@@ -676,7 +716,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertTrue( "Expected parentheses in where clause", parensCount > 10); 
+        assertEquals( "Expected parentheses in where clause: [" + whereClause + "]", 6,  parensCount ); 
       
         // 2. stake holder 
         queryBuilder.clear().intersect().stakeHolder(groupId);
@@ -685,7 +725,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 4, parensCount ); 
+        assertEquals( "Expected parentheses in where clause", 2, parensCount ); 
         
         // 3. potential owner
         queryBuilder.clear().intersect().potentialOwner(groupId);
@@ -694,7 +734,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 4, parensCount ); 
+        assertEquals( "Expected parentheses in where clause", 2, parensCount ); 
         
         // 5. business admin
         queryBuilder.clear().intersect().businessAdmin(groupId);
@@ -703,7 +743,7 @@ public class TaskQueryBuilderLocalTest extends HumanTaskServicesBaseTest {
 
         whereClause = captureWhereClause(spyPrintStream);
         parensCount = count(whereClause, "(");
-        assertEquals( "Expected parentheses in where clause", 4, parensCount ); 
+        assertEquals( "Expected parentheses in where clause", 2, parensCount ); 
         
         System.setOut(originalOut);
         ((Logger) JPATaskPersistenceContext.logger).setLevel(origLevel);
