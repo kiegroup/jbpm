@@ -102,7 +102,7 @@ public class WorkflowProcessInstanceUpgrader {
 
             if (processTo instanceof WorkflowProcess) {
                 to = Long.valueOf(getNodeId(((WorkflowProcess) processTo).getNodes(), entry.getValue(), false));
-            } else if (processTo instanceof RuleFlowProcess) {
+            } else if (processTo instanceof RuleFlowProcessInstance) {
                 to = Long.valueOf(getNodeId(((RuleFlowProcessInstance) processTo).getWorkflowProcess().getNodes(), entry.getValue(), false));
             } else if (processTo != null) {
                 throw new IllegalArgumentException("Suported processes are WorkflowProcess and RuleFlowProcess, it was:" + processTo.getClass());
