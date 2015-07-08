@@ -8,12 +8,9 @@ import org.drools.compiler.lang.descr.ProcessDescr;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.definitions.InternalKnowledgePackage;
 import org.drools.core.definitions.impl.KnowledgePackageImpl;
-import org.jbpm.process.builder.dialect.javascript.JavaScriptProcessDialect;
 import org.jbpm.process.builder.dialect.javascript.JavaScriptReturnValueEvaluatorBuilder;
 import org.jbpm.process.instance.impl.ReturnValueConstraintEvaluator;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
-import org.jbpm.workflow.core.Constraint;
-import org.jbpm.workflow.core.impl.ConstraintImpl;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.instance.node.SplitInstance;
 import org.junit.Test;
@@ -43,7 +40,7 @@ public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
         process.setPackageName("pkg1");
 
         ReturnValueDescr descr = new ReturnValueDescr();
-        descr.setText("function validate() {return true;} validate();");
+        descr.setText("function validate() {return value;} validate();");
 
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
