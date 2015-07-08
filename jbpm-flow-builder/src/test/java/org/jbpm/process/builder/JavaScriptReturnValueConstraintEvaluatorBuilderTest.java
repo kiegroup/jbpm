@@ -55,7 +55,7 @@ public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
                 dialectRegistry,
                 null );
 
-        pkgBuilder.addPackageFromDrl(new StringReader("package pkg1;\n global Boolean value;\n global Integer count;"));
+        pkgBuilder.addPackageFromDrl(new StringReader("package pkg1;\n global Boolean value;\n"));
 
         ReturnValueConstraintEvaluator node = new ReturnValueConstraintEvaluator();
 
@@ -79,7 +79,6 @@ public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
         splitInstance.setProcessInstance(processInstance);
 
         ksession.setGlobal("value", false);
-        ksession.setGlobal("count", 101);
 
         assertTrue(node.evaluate(splitInstance,
                         null,
