@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
@@ -80,25 +81,24 @@ public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
         ksession.setGlobal("value", false);
         ksession.setGlobal("count", 101);
 
-
-        Constraint constraint = new ConstraintImpl();
-        constraint.setDialect("JavaScript");
-        constraint.setConstraint("value === false && count > 100");
-        node.setConstraint(constraint.getConstraint());
-
         assertTrue(node.evaluate(splitInstance,
                         null,
-                        constraint)
+                        null)
         );
 
-        // Set global values to break constraints
-        ksession.setGlobal("value", true);
-        ksession.setGlobal("count", 99);
+        // Build second time with reutrn value evaulator returning false
+        ReturnValueDescr descr2 = new ReturnValueDescr();
+        descr.setText("function invalidate() {return false;} invalidate();");
 
-        // Returns true because constraint argument is ignored -> intended?
-        assertTrue(node.evaluate(splitInstance,
+        final JavaScriptReturnValueEvaluatorBuilder builder2 = new JavaScriptReturnValueEvaluatorBuilder();
+        builder2.build(context,
+                node,
+                descr,
+                null);
+
+        assertFalse(node.evaluate(splitInstance,
                         null,
-                        constraint)
+                        null)
         );
     }
 

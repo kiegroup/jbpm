@@ -9,18 +9,16 @@ import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.definitions.InternalKnowledgePackage;
 import org.drools.core.definitions.impl.KnowledgePackageImpl;
 import org.drools.core.spi.ProcessContext;
-import org.jbpm.marshalling.impl.JBPMMessages;
 import org.jbpm.process.builder.dialect.ProcessDialect;
 import org.jbpm.process.builder.dialect.ProcessDialectRegistry;
 import org.jbpm.process.builder.dialect.javascript.JavaScriptActionBuilder;
-import org.jbpm.process.instance.impl.JavaScriptAction;
+import org.jbpm.process.instance.impl.Action;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.junit.Test;
-import org.kie.api.runtime.process.NodeInstance;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
@@ -38,7 +36,7 @@ public class JavaScriptActionBuilderTest extends AbstractBaseTest {
         final InternalKnowledgePackage pkg = new KnowledgePackageImpl("pkg1");
 
         ActionDescr actionDescr = new ActionDescr();
-        actionDescr.setText( "var testString; testString = \"mega-vagon\";" );
+        actionDescr.setText( "var testString; print('Hello')" );
 
         KnowledgeBuilderImpl pkgBuilder = new KnowledgeBuilderImpl( pkg );
         DialectCompiletimeRegistry dialectRegistry = pkgBuilder.getPackageRegistry( pkg.getName() ).getDialectCompiletimeRegistry();
@@ -78,7 +76,7 @@ public class JavaScriptActionBuilderTest extends AbstractBaseTest {
         wm.setGlobal("testField", "vagon");
 
         ProcessContext processContext = new ProcessContext( ((InternalWorkingMemory) wm).getKnowledgeRuntime() );
-        ((JavaScriptAction) actionNode.getAction().getMetaData("Action")).execute(processContext);
+        ((Action) actionNode.getAction().getMetaData("Action")).execute(processContext);
 
         assertEquals("vagon", wm.getGlobal("testField").toString());
     }
