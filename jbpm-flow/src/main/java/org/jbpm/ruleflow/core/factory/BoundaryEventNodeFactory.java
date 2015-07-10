@@ -81,13 +81,27 @@ public class BoundaryEventNodeFactory extends NodeFactory {
     }
 
     public BoundaryEventNodeFactory timeCycle(String timeCycle) {
-        if (attachedToUniqueId == null) {
-            throw new IllegalStateException("attachedTo() must be called before");
-        }
-        getBoundaryEventNode().setMetaData("TimeCycle", timeCycle);
-        EventTypeFilter filter = new EventTypeFilter();
-        filter.setType("Timer-" + attachedToUniqueId + "-" + timeCycle);
-        return eventFilter(filter);
+        eventType("Timer", timeCycle);
+        setMetaData("TimeCycle", timeCycle);
+        return this;
+    }
+
+    public BoundaryEventNodeFactory timeCycle(String timeCycle, String language) {
+        eventType("Timer", timeCycle);
+        setMetaData("TimeCycle", timeCycle);
+        setMetaData("Language", language);
+        return this;
+    }
+
+    public BoundaryEventNodeFactory timeDuration(String timeDuration) {
+        eventType("Timer", timeDuration);
+        setMetaData("TimeDuration", timeDuration);
+        return this;
+    }
+
+    public BoundaryEventNodeFactory cancelActivity(boolean cancelActivity) {
+        setMetaData("CancelActivity", cancelActivity);
+        return this;
     }
 
     public BoundaryEventNodeFactory eventTransformer(EventTransformer transformer) {

@@ -92,7 +92,7 @@ public class ProcessFactoryTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    public void testBoundaryTimer() throws Exception {
+    public void testBoundaryTimerTimeCycle() throws Exception {
         RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
         factory
             // header
@@ -101,7 +101,46 @@ public class ProcessFactoryTest extends JbpmBpmn2TestCase {
             .startNode(1).name("Start").done()
             .humanTaskNode(2).name("Task").actorId("john").taskName("MyTask").done()
             .endNode(3).name("End1").terminate(false).done()
-            .boundaryEventNode(4).name("TimerEvent").attachedTo(2).timeCycle("1s###5s").setMetaData("CancelActivity", false).done()
+            .boundaryEventNode(4).name("BoundaryTimerEvent").attachedTo(2).timeCycle("1s###5s").cancelActivity(false).done()
+            .endNode(5).name("End2").terminate(false).done()
+            // connections
+            .connection(1, 2)
+            .connection(2, 3)
+            .connection(4, 5);
+        RuleFlowProcess process = factory.validate().getProcess();
+
+        Resource res = ResourceFactory.newByteArrayResource(XmlBPMNProcessDumper.INSTANCE.dump(process).getBytes());
+        res.setSourcePath("/tmp/processFactory.bpmn2"); // source path or target path must be set to be added into kbase
+        KieBase kbase = createKnowledgeBaseFromResources(res);
+        StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler testHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", testHandler);
+
+        ProcessInstance pi = ksession.startProcess("org.jbpm.process");
+        assertProcessInstanceActive(pi);
+
+        Thread.sleep(2000); // wait for boundary timer firing
+
+        assertNodeTriggered(pi.getId(), "End2");
+        assertProcessInstanceActive(pi); // still active because CancelActivity = false
+
+        ksession.getWorkItemManager().completeWorkItem(testHandler.getWorkItem().getId(), null);
+        assertProcessInstanceCompleted(pi);
+
+        ksession.dispose();
+    }
+
+    @Test
+    public void testBoundaryTimerTimeDuration() throws Exception {
+        RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
+        factory
+            // header
+            .name("My process").packageName("org.jbpm")
+            // nodes
+            .startNode(1).name("Start").done()
+            .humanTaskNode(2).name("Task").actorId("john").taskName("MyTask").done()
+            .endNode(3).name("End1").terminate(false).done()
+            .boundaryEventNode(4).name("BoundaryTimerEvent").attachedTo(2).timeDuration("1s").cancelActivity(false).done()
             .endNode(5).name("End2").terminate(false).done()
             // connections
             .connection(1, 2)
