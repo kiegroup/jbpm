@@ -136,8 +136,14 @@ public class JPAAuditLogService implements AuditLogService {
     
     public JPAAuditLogService(Environment env) {
         EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
-        if( emf != null ) { 
-            persistenceStrategy = new StandaloneJtaStrategy(emf);
+        if( emf != null ) {
+            PersistenceStrategyType persistenceStrategyType
+                    = (PersistenceStrategyType)env.get(PersistenceStrategy.PERSISTENCE_STRATEGY_TYPE_NAME);
+            if (persistenceStrategyType != null) {
+                persistenceStrategy = PersistenceStrategyType.getPersistenceStrategy(persistenceStrategyType, env);
+            } else {
+                persistenceStrategy = new StandaloneJtaStrategy(emf);
+            }
         } else { 
             persistenceStrategy = new StandaloneJtaStrategy(Persistence.createEntityManagerFactory(persistenceUnitName));
         } 
