@@ -16,6 +16,8 @@
 
 package org.jbpm.test.functional.event;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,8 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.jbpm.test.JbpmTestCase;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.audit.ProcessInstanceLog;
@@ -30,6 +34,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
+@RunWith(Parameterized.class)
 public class SignalEventTest extends JbpmTestCase {
 
     private static final String END_THROW_DEFAULT = "org/jbpm/test/functional/event/Signal-endThrow-default.bpmn2";
@@ -69,17 +74,39 @@ public class SignalEventTest extends JbpmTestCase {
         DEFAULT, PROCESS_INSTANCE, PROJECT
     }
 
-    private KieSession getKieSession(Strategy strategy) {
+    private final Strategy strategy;
+    private final Scope scope;
+
+    public SignalEventTest(Strategy strategy, Scope scope) {
+        this.strategy = strategy;
+        this.scope = scope;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> parameters() {
+        Object[][] combinations = new Object[][]{
+                {Strategy.SINGLETON, Scope.DEFAULT},
+                {Strategy.SINGLETON, Scope.PROJECT},
+                {Strategy.SINGLETON, Scope.PROCESS_INSTANCE},
+                {Strategy.PROCESS_INSTANCE, Scope.DEFAULT},
+                {Strategy.PROCESS_INSTANCE, Scope.PROJECT},
+                {Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE}
+        };
+        return Arrays.asList(combinations);
+    }
+
+    private KieSession getKieSession() {
         Context<?> context = strategy == Strategy.PROCESS_INSTANCE ? ProcessInstanceIdContext.get() : EmptyContext.get();
         return getRuntimeEngine(context).getKieSession();
     }
 
-    private void testSignal(Strategy strategy, Scope scope) {
+    @Test
+    public void testSignalManually() {
         createRuntimeManager(strategy, (String) null, INTERMEDIATE_CATCH);
 
-        KieSession ksession = getKieSession(strategy);
+        KieSession ksession = getKieSession();
         ProcessInstance pi1 = ksession.startProcess(INTERMEDIATE_CATCH_ID);
-        getKieSession(strategy).startProcess(INTERMEDIATE_CATCH_ID);
+        getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
 
         switch (scope) {
             case DEFAULT:
@@ -112,36 +139,7 @@ public class SignalEventTest extends JbpmTestCase {
     }
 
     @Test
-    public void testSignalSessionSingletonStrategy() {
-        testSignal(Strategy.SINGLETON, Scope.DEFAULT);
-    }
-
-    @Test
-    public void testSignalProcessInstanceSingletonStrategy() {
-        testSignal(Strategy.SINGLETON, Scope.PROCESS_INSTANCE);
-    }
-
-    @Test
-    public void testSignalRuntimeManagerSingletonStrategy() {
-        testSignal(Strategy.SINGLETON, Scope.PROJECT);
-    }
-
-    @Test
-    public void testSignalSessionPerProcessInstanceStrategy() {
-        testSignal(Strategy.PROCESS_INSTANCE, Scope.DEFAULT);
-    }
-
-    @Test
-    public void testSignalProcessInstancePerProcessInstanceStrategy() {
-        testSignal(Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE);
-    }
-
-    @Test
-    public void testSignalRuntimeManagerPerProcessInstanceStrategy() {
-        testSignal(Strategy.PROCESS_INSTANCE, Scope.PROJECT);
-    }
-
-    private void testSignalEndThrowIntermediateCatch(Strategy strategy, Scope scope) {
+    public void testSignalEndThrowIntermediateCatch() {
         String throwingProcessFile;
         String throwingProcessId;
         switch (scope) {
@@ -163,8 +161,8 @@ public class SignalEventTest extends JbpmTestCase {
 
         createRuntimeManager(strategy, null, throwingProcessFile, INTERMEDIATE_CATCH);
 
-        getKieSession(strategy).startProcess(INTERMEDIATE_CATCH_ID);
-        getKieSession(strategy).startProcess(throwingProcessId);
+        getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
+        getKieSession().startProcess(throwingProcessId);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(2);
@@ -184,36 +182,7 @@ public class SignalEventTest extends JbpmTestCase {
     }
 
     @Test
-    public void testSignalEndThrowIntermediateCatchSingletonStrategyKieSessionScope() {
-        testSignalEndThrowIntermediateCatch(Strategy.SINGLETON, Scope.DEFAULT);
-    }
-
-    @Test
-    public void testSignalEndThrowIntermediateCatchSingletonStrategyRuntimeManagerScope() {
-        testSignalEndThrowIntermediateCatch(Strategy.SINGLETON, Scope.PROJECT);
-    }
-
-    @Test
-    public void testSignalEndThrowIntermediateCatchSingletonStrategyProcessInstanceScope() {
-        testSignalEndThrowIntermediateCatch(Strategy.SINGLETON, Scope.PROCESS_INSTANCE);
-    }
-
-    @Test
-    public void testSignalEndThrowIntermediateCatchPerProcessInstanceStrategyKieSessionScope() {
-        testSignalEndThrowIntermediateCatch(Strategy.PROCESS_INSTANCE, Scope.DEFAULT);
-    }
-
-    @Test
-    public void testSignalEndThrowIntermediateCatchPerProcessInstanceStrategyRuntimeManagerScope() {
-        testSignalEndThrowIntermediateCatch(Strategy.PROCESS_INSTANCE, Scope.PROJECT);
-    }
-
-    @Test
-    public void testSignalEndThrowIntermediateCatchPerProcessInstanceStrategyProcessInstanceScope() {
-        testSignalEndThrowIntermediateCatch(Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE);
-    }
-
-    private void testSignalIntermediateThrowStartCatch(Strategy strategy, Scope scope, boolean run) {
+    public void testSignalIntermediateThrowStartCatch() {
         String throwingProcessFile;
         String throwingProcessId;
         switch (scope) {
@@ -235,7 +204,10 @@ public class SignalEventTest extends JbpmTestCase {
 
         createRuntimeManager(strategy, null, throwingProcessFile, START_CATCH);
 
-        getKieSession(strategy).startProcess(throwingProcessId);
+        getKieSession().startProcess(throwingProcessId);
+
+        boolean run = (strategy == Strategy.SINGLETON && scope != Scope.PROCESS_INSTANCE) ||
+                (strategy == Strategy.PROCESS_INSTANCE && scope == Scope.PROJECT);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(run ? 2 : 1);
@@ -250,36 +222,7 @@ public class SignalEventTest extends JbpmTestCase {
     }
 
     @Test
-    public void testSignalIntermediateThrowStartCatchSingletonStrategyKieSessionScope() {
-        testSignalIntermediateThrowStartCatch(Strategy.SINGLETON, Scope.DEFAULT, true);
-    }
-
-    @Test
-    public void testSignalIntermediateThrowStartCatchSingletonStrategyRuntimeManagerScope() {
-        testSignalIntermediateThrowStartCatch(Strategy.SINGLETON, Scope.PROJECT, true);
-    }
-
-    @Test
-    public void testSignalIntermediateThrowStartCatchSingletonStrategyProcessInstanceScope() {
-        testSignalIntermediateThrowStartCatch(Strategy.SINGLETON, Scope.PROCESS_INSTANCE, false);
-    }
-
-    @Test
-    public void testSignalIntermediateThrowStartCatchPerProcessInstanceStrategyKieSessionScope() {
-        testSignalIntermediateThrowStartCatch(Strategy.PROCESS_INSTANCE, Scope.DEFAULT, false);
-    }
-
-    @Test
-    public void testSignalIntermediateThrowStartCatchPerProcessInstanceStrategyRuntimeManagerScope() {
-        testSignalIntermediateThrowStartCatch(Strategy.PROCESS_INSTANCE, Scope.PROJECT, true);
-    }
-
-    @Test
-    public void testSignalIntermediateThrowStartCatchPerProcessInstanceStrategyProcessInstanceScope() {
-        testSignalIntermediateThrowStartCatch(Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE, false);
-    }
-
-    private void testSignalSubProcess(Strategy strategy, Scope scope) {
+    public void testSignalSubProcess() {
         String throwingProcessFile;
         String throwingProcessId;
         switch (scope) {
@@ -301,11 +244,11 @@ public class SignalEventTest extends JbpmTestCase {
 
         createRuntimeManager(strategy, null, SUBPROCESS_CATCH, throwingProcessFile, INTERMEDIATE_CATCH);
 
-        getKieSession(strategy).startProcess(INTERMEDIATE_CATCH_ID);
+        getKieSession().startProcess(INTERMEDIATE_CATCH_ID);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("subprocess", throwingProcessId);
-        getKieSession(strategy).startProcess(SUBPROCESS_CATCH_ID, parameters);
+        getKieSession().startProcess(SUBPROCESS_CATCH_ID, parameters);
 
         List<? extends ProcessInstanceLog> instances = getRuntimeEngine().getAuditService().findProcessInstances();
         Assertions.assertThat(instances).hasSize(3);
@@ -326,36 +269,6 @@ public class SignalEventTest extends JbpmTestCase {
                     ProcessInstance.STATE_COMPLETED : ProcessInstance.STATE_ACTIVE);
         }
         Assertions.assertThat(instances.get(2).getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
-    }
-
-    @Test
-    public void testSignalSubProcessSingletonStrategyKieSessionScope() {
-        testSignalSubProcess(Strategy.SINGLETON, Scope.DEFAULT);
-    }
-
-    @Test
-    public void testSignalSubProcessSingletonStrategyRuntimeManagerScope() {
-        testSignalSubProcess(Strategy.SINGLETON, Scope.PROJECT);
-    }
-
-    @Test
-    public void testSignalSubProcessSingletonStrategyProcessInstanceScope() {
-        testSignalSubProcess(Strategy.SINGLETON, Scope.PROCESS_INSTANCE);
-    }
-
-    @Test
-    public void testSignalSubProcessPerProcessInstanceStrategyKieSessionScope() {
-        testSignalSubProcess(Strategy.PROCESS_INSTANCE, Scope.DEFAULT);
-    }
-
-    @Test
-    public void testSignalSubProcessPerProcessInstanceStrategyRuntimeManagerScope() {
-        testSignalSubProcess(Strategy.PROCESS_INSTANCE, Scope.PROJECT);
-    }
-
-    @Test
-    public void testSignalSubProcessPerProcessInstanceStrategyProcessInstanceScope() {
-        testSignalSubProcess(Strategy.PROCESS_INSTANCE, Scope.PROCESS_INSTANCE);
     }
 
 }
