@@ -82,7 +82,7 @@ public class SignalEventTest extends JbpmTestCase {
         this.scope = scope;
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "{0} strategy, {1} scope")
     public static Collection<Object[]> parameters() {
         Object[][] combinations = new Object[][]{
                 {Strategy.SINGLETON, Scope.DEFAULT},
