@@ -16,10 +16,9 @@
 
 package org.jbpm.process.audit;
 
-import static org.kie.internal.query.QueryParameterIdentifiers.ASCENDING_VALUE;
+import static org.jbpm.query.jpa.impl.QueryCriteriaUtil.convertListToInterfaceList;
 import static org.kie.internal.query.QueryParameterIdentifiers.CORRELATION_KEY_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.DATE_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.DESCENDING_VALUE;
 import static org.kie.internal.query.QueryParameterIdentifiers.DURATION_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.END_DATE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.EXTERNAL_ID_LIST;
@@ -32,7 +31,6 @@ import static org.kie.internal.query.QueryParameterIdentifiers.MAX_RESULTS;
 import static org.kie.internal.query.QueryParameterIdentifiers.NODE_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.NODE_INSTANCE_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.NODE_NAME_LIST;
-import static org.kie.internal.query.QueryParameterIdentifiers.NODE_TYPE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.OLD_VALUE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_BY;
 import static org.kie.internal.query.QueryParameterIdentifiers.ORDER_TYPE;
@@ -43,6 +41,7 @@ import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_INSTANCE_
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_NAME_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.PROCESS_VERSION_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.START_DATE_LIST;
+import static org.kie.internal.query.QueryParameterIdentifiers.TYPE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.VALUE_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_ID_LIST;
 import static org.kie.internal.query.QueryParameterIdentifiers.VARIABLE_INSTANCE_ID_LIST;
@@ -54,17 +53,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.ServiceLoader;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
 import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
@@ -78,8 +77,12 @@ import org.jbpm.process.audit.query.VarInstanceLogDeleteBuilderImpl;
 import org.jbpm.process.audit.strategy.PersistenceStrategy;
 import org.jbpm.process.audit.strategy.PersistenceStrategyType;
 import org.jbpm.process.audit.strategy.StandaloneJtaStrategy;
+import org.jbpm.query.jpa.data.QueryCriteria;
+import org.jbpm.query.jpa.data.QueryWhere;
+import org.jbpm.query.jpa.data.QueryWhere.QueryCriteriaType;
 import org.jbpm.query.jpa.impl.QueryAndParameterAppender;
 import org.jbpm.query.jpa.service.QueryModificationService;
+import org.jbpm.query.jpa.impl.QueryCriteriaUtil;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.EnvironmentName;
 import org.kie.internal.query.data.QueryData;
@@ -363,15 +366,15 @@ public class JPAAuditLogService implements AuditLogService {
         persistenceStrategy.dispose();
     }
 
-    private EntityManager getEntityManager() {
+    protected EntityManager getEntityManager() {
         return persistenceStrategy.getEntityManager();
     }
 
-    private Object joinTransaction(EntityManager em) {
+    protected Object joinTransaction(EntityManager em) {
         return persistenceStrategy.joinTransaction(em);
     }
 
-    private void closeEntityManager(EntityManager em, Object transaction) {
+    protected void closeEntityManager(EntityManager em, Object transaction) {
        persistenceStrategy.leaveTransaction(em, transaction);
     }
 
@@ -421,43 +424,26 @@ public class JPAAuditLogService implements AuditLogService {
     // internal query methods/logic
    
     @Override
-    public List<org.kie.api.runtime.manager.audit.NodeInstanceLog> queryNodeInstanceLogs(QueryData queryData) {
-        List<NodeInstanceLog> results = doQuery(queryData, NodeInstanceLog.class);
-        return convertListToInterfaceList(results, org.kie.api.runtime.manager.audit.NodeInstanceLog.class);
+    public <T,R> List<R> queryLogs(QueryWhere queryData, Class<T> queryClass, Class<R> resultClass ) {
+        List<T> results = doQuery(queryData, queryClass);
+        return convertListToInterfaceList(results, resultClass);
     }
 
-    @Override
-    public List<org.kie.api.runtime.manager.audit.VariableInstanceLog> queryVariableInstanceLogs(QueryData queryData) { 
-        List<VariableInstanceLog> results =  doQuery(queryData, VariableInstanceLog.class);
-        return convertListToInterfaceList(results, org.kie.api.runtime.manager.audit.VariableInstanceLog.class);
+    private final AuditQueryCriteriaUtil queryUtil = new AuditQueryCriteriaUtil(this);
+   
+    protected QueryCriteriaUtil getQueryCriteriaUtil(Class queryType) { 
+        return queryUtil;
     }
-
-    @Override
-    public List<org.kie.api.runtime.manager.audit.ProcessInstanceLog> queryProcessInstanceLogs(QueryData queryData) {
-        List<ProcessInstanceLog> results = doQuery(queryData, ProcessInstanceLog.class);
-        return convertListToInterfaceList(results, org.kie.api.runtime.manager.audit.ProcessInstanceLog.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <C,I> List<I> convertListToInterfaceList( List<C>internalResult, Class<I> interfaceType ) {
-        List<I> result = new ArrayList<I>(internalResult.size());
-        for( C element : internalResult ) { 
-           result.add((I) element);
-        }
-        return result;
-    }
-
-    public static String NODE_INSTANCE_LOG_QUERY = 
-                    "SELECT l "
-                    + "FROM NodeInstanceLog l\n";
     
-    public static String VARIABLE_INSTANCE_LOG_QUERY = 
-                    "SELECT l "
-                    + "FROM VariableInstanceLog l\n";
-    
-    public static String PROCESS_INSTANCE_LOG_QUERY = 
-                    "SELECT l "
-                    + "FROM ProcessInstanceLog l\n";
+    /**
+     * 
+     * @param queryWhere
+     * @param queryType
+     * @return The result of the query, a list of type T
+     */
+    private <T> List<T> doQuery(QueryWhere queryWhere, Class<T> queryType) { 
+       return getQueryCriteriaUtil(queryType).doCriteriaQuery(queryWhere, queryType);
+    }
     
     public static String NODE_INSTANCE_LOG_DELETE = 
             "DELETE "
@@ -496,7 +482,7 @@ public class JPAAuditLogService implements AuditLogService {
         addCriteria(NODE_ID_LIST, "l.nodeId", String.class);
         addCriteria(NODE_INSTANCE_ID_LIST, "l.nodeInstanceId", String.class);
         addCriteria(NODE_NAME_LIST, "l.nodeName", String.class);
-        addCriteria(NODE_TYPE_LIST, "l.nodeType", String.class);
+        addCriteria(TYPE_LIST, "l.nodeType", String.class);
         
         // variable instance log
         addCriteria(DATE_LIST, "l.date", Date.class);

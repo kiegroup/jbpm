@@ -15,13 +15,14 @@
 
 package org.jbpm.query.jpa.service;
 
-import org.jbpm.query.jpa.impl.QueryAndParameterAppender;
-import org.kie.internal.query.data.QueryData;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+
+import org.jbpm.query.jpa.data.QueryWhere;
 
 public interface QueryModificationService {
 
-    public void addTablesToQuery(StringBuilder queryBuilder, QueryData queryData);
+    public <T> void addTablesToQuery(QueryWhere queryData, CriteriaQuery<T> query, Class<T> resultType );
     
-    public void addCriteriaToQuery(QueryData queryData, QueryAndParameterAppender existingQueryClauseAppender);
-
+    public <R,T> void addCriteriaToQuery(QueryWhere queryData, CriteriaQuery<R> query, CriteriaBuilder criteriaBuilder, Class<T> resultType );
 }

@@ -73,11 +73,13 @@ public class TaskSummaryImpl implements InternalTaskSummary {
             long parentId) {
         super();
         this.id = id;
-        this.processInstanceId = processInstanceId;
         this.name = name;
         this.subject = subject;
         this.description = description;
         this.status = status;
+        if (status != null) {
+            this.statusId = status.name();
+        }
         this.priority = priority;
         this.skipable = skipable;
         this.actualOwner = actualOwner;
@@ -91,11 +93,13 @@ public class TaskSummaryImpl implements InternalTaskSummary {
         this.createdOn = createdOn;
         this.activationTime = activationTime;
         this.expirationTime = expirationTime;
+        this.processInstanceId = processInstanceId;
         this.processId = processId;
         this.processSessionId = processSessionId;
+        this.deploymentId = deploymentId;
         this.subTaskStrategy = subTaskStrategy;
         this.parentId = parentId;
-        this.deploymentId = deploymentId;
+        
         this.quickTaskSummary = false;
     }
 
@@ -139,6 +143,7 @@ public class TaskSummaryImpl implements InternalTaskSummary {
     }
 
     public TaskSummaryImpl() {
+        // JAXB constructor
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
