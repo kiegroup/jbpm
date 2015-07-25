@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.services.task.audit.test;
+package org.jbpm.services.task.audit.service;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
