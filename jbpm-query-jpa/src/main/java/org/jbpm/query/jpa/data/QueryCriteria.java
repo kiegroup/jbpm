@@ -181,7 +181,7 @@ public class QueryCriteria {
 
     @JsonIgnore
     public boolean isGroupCriteria() { 
-        return ( this.criteria != null && ! this.criteria.isEmpty() );
+        return this.type.equals(QueryCriteriaType.GROUP);
     }
     
     @JsonIgnore
@@ -212,6 +212,7 @@ public class QueryCriteria {
 
     /**
      * This method returns a list that should only be read
+     * @return 
      */
     public List<Object> getParameters() {
         List<Object> parameters = new ArrayList<Object>(getValues());
@@ -232,6 +233,7 @@ public class QueryCriteria {
         }
     }
 
+    @SuppressWarnings("unchecked")
     void setParameter( int index, Object value, int listSize ) { 
         List addValues;
         if( value instanceof Date ) { 
@@ -248,7 +250,7 @@ public class QueryCriteria {
         }
     }
 
-    void addCriteria( QueryCriteria criteria ) { 
+    public void addCriteria( QueryCriteria criteria ) { 
        getCriteria().add(criteria);
     }
 

@@ -440,7 +440,7 @@ public class JPAAuditLogService implements AuditLogService {
      * @param queryType
      * @return The result of the query, a list of type T
      */
-    private <T> List<T> doQuery(QueryWhere queryWhere, Class<T> queryType) { 
+    public <T> List<T> doQuery(QueryWhere queryWhere, Class<T> queryType) { 
        return getQueryCriteriaUtil(queryType).doCriteriaQuery(queryWhere, queryType);
     }
    
