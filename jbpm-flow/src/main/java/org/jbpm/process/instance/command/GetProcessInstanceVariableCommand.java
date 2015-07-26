@@ -68,9 +68,10 @@ public class GetProcessInstanceVariableCommand implements GenericCommand<Object>
         }
         if ( processInstance instanceof WorkflowProcessInstance ) { 
         	return ((WorkflowProcessInstance) processInstance).getVariable(variableId);
+        } else { 
+            throw new IllegalStateException("Could not retrieve variable " + variableId 
+                    + " because process instance " + processInstanceId + " was inaccessible!");
         }
-        
-        return null;
     }
 
     public String toString() {
