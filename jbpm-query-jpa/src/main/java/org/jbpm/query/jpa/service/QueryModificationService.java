@@ -22,7 +22,7 @@ import org.jbpm.query.jpa.data.QueryWhere;
 
 public interface QueryModificationService {
 
-    public <T> void addTablesToQuery(QueryWhere queryData, CriteriaQuery<T> query, Class<T> resultType );
+    public <T> void addTablesToQuery(QueryWhere queryData, CriteriaQuery<T> query, Class<T> queryType );
     
-    public <R,T> void addCriteriaToQuery(QueryWhere queryData, CriteriaQuery<R> query, CriteriaBuilder criteriaBuilder, Class<T> resultType );
+    public <R,T> void addCriteriaToQuery(QueryWhere queryData, CriteriaQuery<R> query, CriteriaBuilder criteriaBuilder, Class<T> queryType );
 }
