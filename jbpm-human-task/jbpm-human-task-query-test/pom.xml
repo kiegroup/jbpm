@@ -25,52 +25,28 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-core</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>hibernate-jpa-2.0-api</artifactId>
-          <groupId>org.hibernate.javax.persistence</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-core</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>hibernate-jpa-2.0-api</artifactId>
-          <groupId>org.hibernate.javax.persistence</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-jpa</artifactId>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>hibernate-jpa-2.0-api</artifactId>
-          <groupId>org.hibernate.javax.persistence</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
       <type>test-jar</type>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>hibernate-jpa-2.0-api</artifactId>
-          <groupId>org.hibernate.javax.persistence</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <!-- Hibernate -->
     <dependency>
-       <artifactId>hibernate-jpa-2.1-api</artifactId>
+       <artifactId>hibernate-jpa-2.0-api</artifactId>
        <groupId>org.hibernate.javax.persistence</groupId> 
        <scope>test</scope>
     </dependency>
@@ -108,25 +84,14 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
-        <version>4.3.9.Final</version>
+        <version>4.2.19.Final</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-core</artifactId>
-        <version>4.3.9.Final</version>
+        <version>4.2.19.Final</version>
         <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.common</groupId>
-        <artifactId>hibernate-commons-annotations</artifactId>
-        <version>4.0.5.Final</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.javax.persistence</groupId>
-        <artifactId>hibernate-jpa-2.1-api</artifactId>
-        <version>1.0.0.Final</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
