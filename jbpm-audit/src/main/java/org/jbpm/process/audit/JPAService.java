@@ -95,9 +95,6 @@ public class JPAService {
         persistenceStrategy = PersistenceStrategyType.getPersistenceStrategy(type, emf);
     }
     
-    /* (non-Javadoc)
-     * @see org.jbpm.process.audit.AuditLogService#setPersistenceUnitName(java.lang.String)
-     */
     public void setPersistenceUnitName(String persistenceUnitName) {
         persistenceStrategy = new StandaloneJtaStrategy(Persistence.createEntityManagerFactory(persistenceUnitName));
         this.persistenceUnitName = persistenceUnitName;

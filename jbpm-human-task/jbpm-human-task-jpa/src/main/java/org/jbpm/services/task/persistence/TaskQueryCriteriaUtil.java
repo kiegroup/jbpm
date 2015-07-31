@@ -131,8 +131,15 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
         return true;
     }
    
-    // Implementation specific logic ----------------------------------------------------------------------------------------------
-    
+    private static final Set<String> taskUserRoleLimitingListIds = new HashSet<String>();
+    static { 
+        taskUserRoleLimitingListIds.add(ACTUAL_OWNER_ID_LIST);
+        taskUserRoleLimitingListIds.add(CREATED_BY_LIST);
+        taskUserRoleLimitingListIds.add(BUSINESS_ADMIN_ID_LIST);
+        taskUserRoleLimitingListIds.add(POTENTIAL_OWNER_ID_LIST);
+        taskUserRoleLimitingListIds.add(STAKEHOLDER_ID_LIST);
+    }
+
     private JPATaskPersistenceContext taskQueryService;
     
     public TaskQueryCriteriaUtil(JPATaskPersistenceContext persistenceContext) { 
@@ -209,7 +216,101 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
 
         return result;
     } 
-  
+ 
+    /**
+     * This method checks whether or not the query *already* contains a limiting criteria (in short, a criteria that limits results
+     * of the query) that refers to the user or (the user's groups).  If there is no user/group limiting criteria, then a 
+     * {@link QueryCriteria} with the user and group ids is added to the {@link QueryWhere} instance
+     * </p>
+     * If this method returns true, then there is no need to add additional criteria to the query to limit the query results
+     * to tasks that the user may see -- there is already query present in the query that takes care of this.
+     * 
+     * @param queryWhere The {@link QueryWhere} instance containing the query criteria
+     * @param userId The string user id of the user calling the query
+     * @param userGroupCallback A {@link UserGroupCallback} instance in order to retrieve the groups of the given user
+     */
+    private void checkExistingCriteriaForUserBasedLimit(QueryWhere queryWhere, String userId, UserGroupCallback userGroupCallback) { 
+        List<String> groupIds = userGroupCallback.getGroupsForUser(userId, null, null);
+        Set<String> userAndGroupIds = new HashSet<String>();
+        if( groupIds != null ) { 
+            userAndGroupIds.addAll(groupIds);
+        }
+        userAndGroupIds.add(userId);
+        if( ! criteriaListForcesUserLimitation(userAndGroupIds, queryWhere.getCriteria()) ) { 
+            addUserRolesLimitCriteria(queryWhere, userId, groupIds);
+        }
+    }
+
+    /**
+     * This method calls itself recursively to determine whether or not the given {@link List}<{@link QueryCriteria}> contains a 
+     * user/group limiting criteria.
+     * 
+     * @param userAndGroupIds A set containing the user id and all group ids
+     * @param criteriaList The {@link List} of {@link QueryCriteria} to search
+     * @return Whether or not the {@link QueryCriteria} list contains a user/group limiting criteria
+     */
+    private static boolean criteriaListForcesUserLimitation(Set<String> userAndGroupIds, List<QueryCriteria> criteriaList) { 
+        boolean userLimitiationIntersection = false;
+        if( criteriaList.isEmpty() ) { 
+            return false;
+        }
+        for( QueryCriteria criteria : criteriaList ) { 
+          if( criteria.isUnion() ) { 
+              return false;
+          }
+          if( criteria.isGroupCriteria() ) { 
+              if( criteriaListForcesUserLimitation(userAndGroupIds, criteria.getCriteria()) ) { 
+                  return true;
+              }
+              continue;
+          }
+          // intersection criteria
+          if( taskUserRoleLimitingListIds.contains(criteria.getListId()) ) { 
+              for( Object param : criteria.getParameters() ) { 
+                  if( userAndGroupIds.contains(param) )  { 
+                      return true;
+                  }
+              }
+          }
+        }
+        return userLimitiationIntersection;
+    }
+
+    /**
+     * Adds an (intersecting) {@link QueryCriteria} that limits the results to results that the user is allowed to see
+     * 
+     * @param queryWhere The {@link QueryWhere} instance that defines the query criteria
+     * @param userId The user id
+     * @param groupIds The user's group ids
+     */
+    private void addUserRolesLimitCriteria( QueryWhere queryWhere, String userId, List<String> groupIds ) {
+        List<QueryCriteria> newBaseCriteriaList = new ArrayList<QueryCriteria>(2);
+        
+        // user role limiting criteria
+        QueryCriteria userRolesLimitingCriteria = new QueryCriteria(
+                QueryParameterIdentifiers.TASK_USER_ROLES_LIMIT_LIST, 
+                false, 
+                QueryCriteriaType.NORMAL, 
+                2);
+        userRolesLimitingCriteria.setFirst(true);
+        userRolesLimitingCriteria.getValues().add(userId);
+        userRolesLimitingCriteria.getValues().add(groupIds);
+        newBaseCriteriaList.add(userRolesLimitingCriteria);
+        
+        // original criteria list in a new group
+        if( ! queryWhere.getCriteria().isEmpty() ) { 
+            QueryCriteria originalBaseCriteriaGroup = new QueryCriteria(false);
+            originalBaseCriteriaGroup.setCriteria(queryWhere.getCriteria());
+            newBaseCriteriaList.add(originalBaseCriteriaGroup);
+        }
+        
+        queryWhere.setCriteria(newBaseCriteriaList);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.jbpm.query.jpa.impl.QueryCriteriaUtil#getEntityField(javax.persistence.criteria.CriteriaQuery, java.lang.Class, java.lang.String)
+     */
     @SuppressWarnings("unchecked")
     @Override
     protected <T> Expression getEntityField(CriteriaQuery<T> query, Class queryType, String listId) { 
@@ -281,24 +382,37 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
         
         return entityField;  
     }
-   
-    private <F,T> Expression getJoinedEntityField(From<?, F> origJoin, Attribute<?, T> fieldParentAttr, SingularAttribute fieldAttr) { 
+  
+    /**
+     * This retrieves the correct field ({@link Expression}) that should be used when building the {@link Predicate}.
+     * </p>
+     * This field is necessary because of the amount of joins and the complexity in the human-task schema.
+     * 
+     * @param grandparentJoin This is the parent join, 
+     *                        for example the join between TaskDataImpl -> PeopleAssignments
+     * @param parentJoinAttr This is the {@link Attribute} with the information over the join (from the parent) that we need to create, 
+     *                       for example the {@link SingularAttribute}<{@link PeopleAssignmentsImpl}, {@link OrganizationalEntityImpl}> {@link Attribute}.
+     * @param fieldAttr This is the {@link Attribute} with the actual attribute that we create an {@link Expression} to build a {@link Predicate} for, 
+     *                  for example the {@link OrganizationalEntityImpl_#id} field.
+     * @return an {@link Expression} that can be used in a predicate with the values/parameters from a {@link QueryCriteria} instance
+     */
+    private <F,T> Expression getJoinedEntityField(From<?, F> grandparentJoin, Attribute<?, T> parentJoinAttr, SingularAttribute fieldAttr) { 
         // task -> * -> origJoin -> (fieldParentAttr field in) tojoinType ->  fieldAttr  
         
         Join<F, T> fieldParentJoin = null; 
-        for( Join<F, ?> join : origJoin.getJoins() ) { 
+        for( Join<F, ?> join : grandparentJoin.getJoins() ) { 
             Class toAttrJoinType;
-            if( fieldParentAttr instanceof SingularAttribute ) { 
-                toAttrJoinType = fieldParentAttr.getJavaType();
-            } else if( fieldParentAttr instanceof PluralAttribute ) { 
-                toAttrJoinType = ((PluralAttribute) fieldParentAttr).getElementType().getJavaType();
+            if( parentJoinAttr instanceof SingularAttribute ) { 
+                toAttrJoinType = parentJoinAttr.getJavaType();
+            } else if( parentJoinAttr instanceof PluralAttribute ) { 
+                toAttrJoinType = ((PluralAttribute) parentJoinAttr).getElementType().getJavaType();
             } else { 
-                String joinName = fieldParentAttr.getDeclaringType().getJavaType().getSimpleName() + "." + fieldParentAttr.getName();
+                String joinName = parentJoinAttr.getDeclaringType().getJavaType().getSimpleName() + "." + parentJoinAttr.getName();
                 throw new IllegalStateException("Unknown attribute type encountered when trying to join " + joinName );
             }
             
            if( join.getJavaType().equals(toAttrJoinType) ) { 
-              if( join.getAttribute().equals(fieldParentAttr) )  { 
+              if( join.getAttribute().equals(parentJoinAttr) )  { 
                   fieldParentJoin = (Join<F, T>) join;
                   if( ! JoinType.INNER.equals(fieldParentJoin.getJoinType()) ) { 
                       // This a criteria set by the user (as opposed to the user-limiting criteria) -- it MUST be followed
@@ -310,108 +424,21 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
            }
         }
         if( fieldParentJoin == null ) { 
-            if( fieldParentAttr instanceof SingularAttribute) { 
-                fieldParentJoin = origJoin.join((SingularAttribute) fieldParentAttr);
-            } else if( fieldParentAttr instanceof CollectionAttribute) { 
-                fieldParentJoin = origJoin.join((CollectionAttribute) fieldParentAttr);
-            } else if( fieldParentAttr instanceof ListAttribute) { 
-                fieldParentJoin = origJoin.join((ListAttribute) fieldParentAttr);
-            } else if( fieldParentAttr instanceof SetAttribute) { 
-                fieldParentJoin = origJoin.join((SetAttribute) fieldParentAttr);
+            if( parentJoinAttr instanceof SingularAttribute) { 
+                fieldParentJoin = grandparentJoin.join((SingularAttribute) parentJoinAttr);
+            } else if( parentJoinAttr instanceof CollectionAttribute) { 
+                fieldParentJoin = grandparentJoin.join((CollectionAttribute) parentJoinAttr);
+            } else if( parentJoinAttr instanceof ListAttribute) { 
+                fieldParentJoin = grandparentJoin.join((ListAttribute) parentJoinAttr);
+            } else if( parentJoinAttr instanceof SetAttribute) { 
+                fieldParentJoin = grandparentJoin.join((SetAttribute) parentJoinAttr);
             } else { 
-                throw new IllegalStateException("Unknown attribute type encountered when trying to join" + fieldParentAttr.getName() );
+                throw new IllegalStateException("Unknown attribute type encountered when trying to join" + parentJoinAttr.getName() );
             }
         }
         return fieldParentJoin.get(fieldAttr);
     }
     
-    private void checkExistingCriteriaForUserBasedLimit(QueryWhere queryWhere, String userId, UserGroupCallback userGroupCallback) { 
-        List<String> groupIds = userGroupCallback.getGroupsForUser(userId, null, null);
-        Set<String> userAndGroupIds = new HashSet<String>();
-        if( groupIds != null ) { 
-            userAndGroupIds.addAll(groupIds);
-        }
-        userAndGroupIds.add(userId);
-        if( ! criteriaListForcesUserLimitation(userAndGroupIds, queryWhere.getCriteria()) ) { 
-            addUserRolesLimitCriteria(queryWhere, userId, groupIds);
-        }
-    }
- 
-    private static Set<String> taskUserRoleLimitingListIds = new HashSet<String>();
-    static { 
-        taskUserRoleLimitingListIds.add(ACTUAL_OWNER_ID_LIST);
-        taskUserRoleLimitingListIds.add(BUSINESS_ADMIN_ID_LIST);
-        taskUserRoleLimitingListIds.add(CREATED_BY_LIST);
-        taskUserRoleLimitingListIds.add(POTENTIAL_OWNER_ID_LIST);
-        taskUserRoleLimitingListIds.add(STAKEHOLDER_ID_LIST);
-    }
-    
-    private static boolean criteriaListForcesUserLimitation(Set<String> userAndGroupIds, List<QueryCriteria> criteriaList) { 
-        boolean userLimitiationIntersection = false;
-        if( criteriaList.isEmpty() ) { 
-            return false;
-        }
-        for( QueryCriteria criteria : criteriaList ) { 
-          if( criteria.isUnion() ) { 
-              return false;
-          }
-          if( criteria.isGroupCriteria() ) { 
-              if( criteriaListForcesUserLimitation(userAndGroupIds, criteria.getCriteria()) ) { 
-                  return true;
-              }
-              continue;
-          }
-          // intersection criteria
-          if( taskUserRoleLimitingListIds.contains(criteria.getListId()) ) { 
-              for( Object param : criteria.getParameters() ) { 
-                  if( userAndGroupIds.contains(param) )  { 
-                      return true;
-                  }
-              }
-          }
-        }
-        return userLimitiationIntersection;
-    }
-    
-    private void addUserRolesLimitCriteria( QueryWhere queryWhere, String userId, List<String> groupIds ) {
-        List<QueryCriteria> newBaseCriteriaList = new ArrayList<QueryCriteria>(2);
-        
-        // user role limiting criteria
-        QueryCriteria userRolesLimitingCriteria = new QueryCriteria(
-                QueryParameterIdentifiers.TASK_USER_ROLES_LIMIT_LIST, 
-                false, 
-                QueryCriteriaType.NORMAL, 
-                2);
-        userRolesLimitingCriteria.setFirst(true);
-        userRolesLimitingCriteria.getValues().add(userId);
-        userRolesLimitingCriteria.getValues().add(groupIds);
-        newBaseCriteriaList.add(userRolesLimitingCriteria);
-        
-        // original criteria list in a new group
-        if( ! queryWhere.getCriteria().isEmpty() ) { 
-            QueryCriteria originalBaseCriteriaGroup = new QueryCriteria(false);
-            originalBaseCriteriaGroup.setCriteria(queryWhere.getCriteria());
-            newBaseCriteriaList.add(originalBaseCriteriaGroup);
-        }
-        
-        queryWhere.setCriteria(newBaseCriteriaList);
-    }
-
-    protected <T> List<T> createQueryAndApplyMetaCriteriaAndGetResult(QueryWhere queryWhere, CriteriaQuery<T> criteriaQuery, Class<T> resultType) { 
-        EntityManager em = getEntityManager();
-        joinTransaction();
-        Query query = em.createQuery(criteriaQuery);
-    
-        applyMetaCriteriaToQuery(query, queryWhere);
-        
-        // execute query
-        List<T> result = query.getResultList();
-
-        // close em and end tx? This is done *outside* of this class 
-        
-        return result;
-    }
-
     @Override
     protected <R,T> Predicate implSpecificCreatePredicateFromSingleCriteria( 
             CriteriaQuery<R> criteriaQuery, 
@@ -502,6 +529,21 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
         Predicate taskStakePred = builder.or( userGroupIdPath.in(groupIds), builder.equal(userGroupIdPath, userId));
        
         return builder.or(createdByPred, actualOwnPred, busAdminPred, potOwnerPred, taskStakePred);
+    }
+
+    protected <T> List<T> createQueryAndApplyMetaCriteriaAndGetResult(QueryWhere queryWhere, CriteriaQuery<T> criteriaQuery, Class<T> resultType) { 
+        EntityManager em = getEntityManager();
+        joinTransaction();
+        Query query = em.createQuery(criteriaQuery);
+    
+        applyMetaCriteriaToQuery(query, queryWhere);
+        
+        // execute query
+        List<T> result = query.getResultList();
+    
+        // close em and end tx? This is done *outside* of this class 
+        
+        return result;
     }
 
     @Override

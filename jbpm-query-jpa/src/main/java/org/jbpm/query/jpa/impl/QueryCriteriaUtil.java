@@ -159,26 +159,26 @@ public abstract class QueryCriteriaUtil {
      * <li>The results are retrieved and returned</li>
      * </ol>
      * @param queryWhere a {@link QueryWhere} instance containing the query criteria
-     * @param resultType The type ({@link Class}) of the result 
+     * @param queryType The type ({@link Class}) of the result 
      * @return The result of the query, a {@link List}.
      */
-    public <T> List<T> doCriteriaQuery( QueryWhere queryWhere, Class<T> resultType ) {
+    public <T> List<T> doCriteriaQuery( QueryWhere queryWhere, Class<T> queryType ) {
         // 1. create builder and query instances
         CriteriaBuilder builder = getCriteriaBuilder();
-        CriteriaQuery<T> criteriaQuery = builder.createQuery(resultType);
+        CriteriaQuery<T> criteriaQuery = builder.createQuery(queryType);
         
         // query base;
-        criteriaQuery.select(criteriaQuery.from(resultType));
+        criteriaQuery.select(criteriaQuery.from(queryType));
      
         // 1. add other tables (used in kie-remote-services to cross-query on variables, etc.. )
         ServiceLoader<QueryModificationService> queryModServiceLdr = ServiceLoader.load(QueryModificationService.class);
         for( QueryModificationService queryModService : queryModServiceLdr ) {
-            queryModService.addTablesToQuery(queryWhere, criteriaQuery, resultType);
+            queryModService.addTablesToQuery(queryWhere, criteriaQuery, queryType);
         }
         
-        fillCriteriaQuery(criteriaQuery, queryWhere, builder, resultType);
+        fillCriteriaQuery(criteriaQuery, queryWhere, builder, queryType);
 
-        List<T> result = createQueryAndApplyMetaCriteriaAndGetResult(queryWhere, criteriaQuery, resultType);
+        List<T> result = createQueryAndApplyMetaCriteriaAndGetResult(queryWhere, criteriaQuery, queryType);
 
         return result;
     }
