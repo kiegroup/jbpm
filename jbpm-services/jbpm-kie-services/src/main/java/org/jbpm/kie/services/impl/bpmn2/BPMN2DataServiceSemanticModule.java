@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 JBoss Inc 
+ * Copyright 2011 JBoss Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,36 @@ package org.jbpm.kie.services.impl.bpmn2;
 import org.jbpm.bpmn2.xml.BPMNSemanticModule;
 
 public class BPMN2DataServiceSemanticModule extends BPMNSemanticModule {
-	
-	private static ThreadLocal<ProcessDescRepoHelper> helper = new ThreadLocal<ProcessDescRepoHelper>();
+
+	static ThreadLocal<ProcessDescRepoHelper> helper = new ThreadLocal<ProcessDescRepoHelper>() {
+        @Override
+        public ProcessDescRepoHelper get() {
+            ProcessDescRepoHelper localHelper = super.get();
+            if( localHelper == null ) {
+                localHelper = new ProcessDescRepoHelper();
+                super.set(localHelper);
+            }
+            return localHelper;
+        }
+	};
 
 //	private ProcessDescRepoHelper repoHelper = new ProcessDescRepoHelper();
 	private ProcessDescriptionRepository repo = new ProcessDescriptionRepository();
-    
-    private HumanTaskGetInformationHandler taskHandler = null;    
-    private ProcessGetInformationHandler processHandler = null;    
-    private ProcessGetInputHandler processInputHandler = null;    
-    private GetReusableSubProcessesHandler reusableSubprocessHandler = null;    
-    private DataServiceItemDefinitionHandler itemDefinitionHandler = null;    
+
+    private HumanTaskGetInformationHandler taskHandler = null;
+    private ProcessGetInformationHandler processHandler = null;
+    private ProcessGetInputHandler processInputHandler = null;
+    private GetReusableSubProcessesHandler reusableSubprocessHandler = null;
+    private DataServiceItemDefinitionHandler itemDefinitionHandler = null;
     private AbstractTaskGetInformationHandler abstractTaskHandler = null;
-    
+
     public BPMN2DataServiceSemanticModule() {
         super();
         taskHandler = new HumanTaskGetInformationHandler(this);
-        processHandler = new ProcessGetInformationHandler(this);    
-        processInputHandler = new ProcessGetInputHandler(this);    
-        reusableSubprocessHandler = new GetReusableSubProcessesHandler(this);    
-        itemDefinitionHandler = new DataServiceItemDefinitionHandler(this);    
+        processHandler = new ProcessGetInformationHandler(this);
+        processInputHandler = new ProcessGetInputHandler(this);
+        reusableSubprocessHandler = new GetReusableSubProcessesHandler(this);
+        itemDefinitionHandler = new DataServiceItemDefinitionHandler(this);
         abstractTaskHandler = new AbstractTaskGetInformationHandler(this);
         init();
     }
@@ -64,9 +74,9 @@ public class BPMN2DataServiceSemanticModule extends BPMNSemanticModule {
     public void setAbstractTaskHandler(AbstractTaskGetInformationHandler abstractTaskHandler) {
         this.abstractTaskHandler = abstractTaskHandler;
     }
-    
-    public void init(){       
-        
+
+    public void init(){
+
         addHandler("userTask", taskHandler);
         addHandler("process", processHandler);
         addHandler("property", processInputHandler);
@@ -75,13 +85,9 @@ public class BPMN2DataServiceSemanticModule extends BPMNSemanticModule {
         addHandler("task", abstractTaskHandler);
     }
 
-	public ProcessDescRepoHelper getRepoHelper() {
-		return helper.get();
-	}
-
-	public static void setRepoHelper(ProcessDescRepoHelper repoHelper) {
-		helper.set(repoHelper);
-	}
+    public static ProcessDescRepoHelper getRepoHelper() {
+        return helper.get();
+    }
 
 	public ProcessDescriptionRepository getRepo() {
 		return repo;
@@ -89,10 +95,10 @@ public class BPMN2DataServiceSemanticModule extends BPMNSemanticModule {
 
 	public void setRepo(ProcessDescriptionRepository repo) {
 		this.repo = repo;
-	}  
-	
-	public static void dispose() {
-		helper.set(null);		
 	}
-    
+
+	public static void dispose() {
+		helper.set(null);
+	}
+
 }

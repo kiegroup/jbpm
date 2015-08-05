@@ -45,23 +45,23 @@ import org.slf4j.LoggerFactory;
 
 
 public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventListener {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(BPMN2DataServiceImpl.class);
     private static final BPMN2DataServiceSemanticModule MODULE = new BPMN2DataServiceSemanticModule();
-    
-    private ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>> definitionCache = 
+
+    private ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>> definitionCache =
     		new ConcurrentHashMap<String, Map<String, ProcessDescRepoHelper>>();
-    
+
 
 
     public BPMN2DataServiceImpl() {
     }
-        
+
     public BPMN2ProcessProvider getProvider(final BPMN2DataServiceSemanticModule module) {
          return new BPMN2ProcessProvider() {
             @Override
             public void configurePackageBuilder(KnowledgeBuilder packageBuilder) {
-                KnowledgeBuilderConfigurationImpl conf 
+                KnowledgeBuilderConfigurationImpl conf
                     = (KnowledgeBuilderConfigurationImpl) ((KnowledgeBuilderImpl) packageBuilder).getBuilderConfiguration();
                 if (conf.getSemanticModules().getSemanticModule("http://www.jboss.org/bpmn2-data-services") == null) {
                     conf.addSemanticModule(module);
@@ -71,21 +71,22 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
             }
         };
     }
-    
+
 	@Override
 	public ProcessDefinition buildProcessDefinition(String deploymentId,String bpmn2Content, ClassLoader classLoader, boolean cache)
 			throws IllegalArgumentException {
 		if (StringUtils.isEmpty(bpmn2Content)) {
             return null;
         }
-		
+
         BPMN2ProcessProvider provider = getProvider(MODULE);
         BPMN2ProcessProvider originalProvider = BPMN2ProcessFactory.getBPMN2ProcessProvider();
         if (originalProvider != provider) {
             BPMN2ProcessFactory.setBPMN2ProcessProvider(provider);
         }
         try {
-	        BPMN2DataServiceSemanticModule.setRepoHelper(new ProcessDescRepoHelper());
+            noopForTesting(); // needed for testing
+
 	        KnowledgeBuilder kbuilder = null;
 	        if (classLoader != null) {
 	            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(classLoader);
@@ -103,17 +104,17 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	        }
 
 	        KnowledgePackage pckg = kbuilder.getKnowledgePackages().iterator().next();
-	        
+
 	        org.kie.api.definition.process.Process process = pckg.getProcesses().iterator().next();
-	        
+
 	        ProcessDescRepoHelper helper = MODULE.getRepo().removeProcessDescription(process.getId());
 	        ProcessAssetDesc definition = helper.getProcess();
-	        
+
 	        definition.setAssociatedEntities(helper.getTaskAssignments());
 	        definition.setProcessVariables(helper.getInputs());
 	        definition.setReusableSubProcesses(helper.getReusableSubProcesses());
 	        definition.setServiceTasks(helper.getServiceTasks());
-	        
+
 	        // cache the data if requested
 	        if (cache) {
 	        	Map<String, ProcessDescRepoHelper> definitions = null;
@@ -126,8 +127,8 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	        		definitions.put(process.getId(), helper);
 				}
 	        }
-	        
-	        
+
+
 	        return definition;
         } finally {
         	BPMN2ProcessFactory.setBPMN2ProcessProvider(originalProvider);
@@ -135,21 +136,25 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
         }
 	}
 
+	private void noopForTesting() {
+	    // no-op method for byteman tests
+	}
+
 	@Override
 	public Map<String, String> getServiceTasks(String deploymentId, String processId) {
         if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
             throw new IllegalStateException("The Deployment id and Process id cannot be Empty!");
         }
-        
+
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
 	        }
 	        return Collections.unmodifiableMap(helper.getServiceTasks());
         }
-        
+
         return Collections.emptyMap();
     }
 
@@ -158,16 +163,16 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
             throw new IllegalStateException("The Process id cannot be Empty!");
         }
-        
+
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
 	        }
 	        return helper.getProcess();
         }
-        
+
         return null;
 	}
 
@@ -179,17 +184,17 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
             throw new IllegalStateException("The Process id cannot be Empty!");
         }
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
 	        }
-	        
+
 	        if (helper.getReusableSubProcesses() != null) {
 	        	return new ArrayList<String>(helper.getReusableSubProcesses());
 	        }
         }
-        
+
         return Collections.emptyList();
 	}
 
@@ -201,7 +206,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 			throw new IllegalStateException("The Process id cannot be Empty!");
         }
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
@@ -210,29 +215,29 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	        	return Collections.unmodifiableMap(helper.getInputs());
 	        }
         }
-        
+
         return Collections.emptyMap();
 	}
 
-	
+
 	@Override
 	public Map<String, Collection<String>> getAssociatedEntities(String deploymentId, String processId) {
 		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
 		     throw new IllegalStateException("The Process id cannot be Empty!");
         }
-        
+
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
 	        }
-	        
+
 	        if (helper.getTaskAssignments() != null) {
 	        	return Collections.unmodifiableMap(helper.getTaskAssignments());
 	        }
         }
-        
+
         return Collections.emptyMap();
 	}
 
@@ -243,9 +248,9 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId)) {
 			 throw new IllegalStateException("The Process id cannot be Empty!");
         }
-    
+
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
@@ -254,7 +259,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	        	return new ArrayList<UserTaskDefinition>(helper.getTasks().values());
 	        }
         }
-        
+
         return Collections.emptyList();
 	}
 
@@ -266,7 +271,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 			 throw new IllegalStateException("The Process id cannot be Empty!");
         }
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
@@ -275,7 +280,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	        	return Collections.unmodifiableMap(helper.getTaskInputMappings().get(taskName));
 	        }
         }
-        
+
         return Collections.emptyMap();
 	}
 
@@ -286,19 +291,19 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 		if (StringUtils.isEmpty(deploymentId) || StringUtils.isEmpty(processId) || StringUtils.isEmpty(taskName)) {
 			throw new IllegalStateException("The Process id cannot be Empty!");
         }
-        
+
         if (definitionCache.containsKey(deploymentId)) {
-	        
+
 	        ProcessDescRepoHelper helper = definitionCache.get(deploymentId).get(processId);
 	        if (helper == null) {
 	            throw new IllegalStateException("No process available with given id : " + processId);
 	        }
-	        
+
 	        if (helper.getTaskOutputMappings().containsKey(taskName)) {
 	        	return Collections.unmodifiableMap(helper.getTaskOutputMappings().get(taskName));
 	        }
         }
-        
+
         return Collections.emptyMap();
 	}
 
