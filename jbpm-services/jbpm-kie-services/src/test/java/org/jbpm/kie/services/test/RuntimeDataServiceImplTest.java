@@ -1214,41 +1214,39 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         
     }
 
-	@Test
-	public void testGetAuditTaskByStatus() throws Exception {
-		processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
-		assertNotNull(processInstanceId);
+    @Test
+    public void testGetAuditTaskByStatus() throws Exception {
+	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument");
+	assertNotNull(processInstanceId);
+	ProcessInstance instance = processService.getProcessInstance(processInstanceId);
+	assertNotNull(instance);
 
-		ProcessInstance instance = processService.getProcessInstance(processInstanceId);
-		assertNotNull(instance);
+	Collection<NodeInstance> activeNodes = ((WorkflowProcessInstanceImpl) instance).getNodeInstances();
+	assertNotNull(activeNodes);
+	assertEquals(1, activeNodes.size());
 
-		Collection<NodeInstance> activeNodes = ((WorkflowProcessInstanceImpl) instance).getNodeInstances();
-		assertNotNull(activeNodes);
-		assertEquals(1, activeNodes.size());
+	NodeInstance node = activeNodes.iterator().next();
+	assertNotNull(node);
+	assertTrue(node instanceof WorkItemNodeInstance);
 
-		NodeInstance node = activeNodes.iterator().next();
-		assertNotNull(node);
-		assertTrue(node instanceof WorkItemNodeInstance);
+	Long workItemId = ((WorkItemNodeInstance) node).getWorkItemId();
+	assertNotNull(workItemId);
 
-		Long workItemId = ((WorkItemNodeInstance) node).getWorkItemId();
-		assertNotNull(workItemId);
+	List<String> statuses = new ArrayList();
+	statuses.add(Status.Reserved.toString());
 
-		List<String> statuses = new ArrayList();
-		statuses.add(Status.Reserved.toString());
+	Map<String, Object> params = new HashMap<String, Object>();
+	params.put("statuses", statuses);
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("statuses", statuses);
+	QueryFilter queryFilter = new QueryFilter();
+	queryFilter.setParams(params);
+	List<AuditTask> auditTasks = runtimeDataService.getAllAuditTaskByStatus("salaboy", queryFilter);
+	assertNotNull(auditTasks);
+	assertEquals(1, auditTasks.size());
+	assertEquals("Write a Document", auditTasks.get(0).getName());
 
-		QueryFilter queryFilter = new QueryFilter();
-		queryFilter.setParams(params);
-
-		List<AuditTask> auditTasks = runtimeDataService.getAllAuditTaskByStatus("salaboy", queryFilter);
-		assertNotNull(auditTasks);
-		assertEquals(1, auditTasks.size());
-		assertEquals("Write a Document", auditTasks.get(0).getName());
-
-		processService.abortProcessInstance(processInstanceId);
-		processInstanceId = null;
-
-	}
+	processService.abortProcessInstance(processInstanceId);
+	processInstanceId = null;
+    	
+    }
 }
