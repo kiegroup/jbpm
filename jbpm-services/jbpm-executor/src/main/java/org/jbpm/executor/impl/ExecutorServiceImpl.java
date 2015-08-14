@@ -30,6 +30,7 @@ import org.kie.internal.executor.api.ExecutorQueryService;
 import org.kie.internal.executor.api.ExecutorService;
 import org.kie.internal.executor.api.RequestInfo;
 import org.kie.internal.executor.api.STATUS;
+import org.kie.internal.query.QueryContext;
 
 /**
  * Entry point of the executor component. Application should always talk
@@ -74,6 +75,71 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
 
     public void setAdminService(ExecutorAdminService adminService) {
         this.adminService = adminService;
+    }
+    
+    @Override
+    public List<RequestInfo> getRequestsByBusinessKey(String businessKey, QueryContext queryContext) {
+        return queryService.getRequestByBusinessKey(businessKey, queryContext);
+    }
+    
+    @Override
+    public List<RequestInfo> getRequestsByCommand(String command, QueryContext queryContext) {
+        return queryService.getRequestByCommand(command, queryContext);
+    }
+    
+    @Override
+    public List<RequestInfo> getQueuedRequests(QueryContext queryContext) {
+        
+        return queryService.getQueuedRequests(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getCompletedRequests(QueryContext queryContext) {
+
+        return queryService.getCompletedRequests(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getInErrorRequests(QueryContext queryContext) {
+
+        return queryService.getInErrorRequests(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getCancelledRequests(QueryContext queryContext) {
+        
+        return queryService.getCancelledRequests(queryContext);
+    }
+
+    @Override
+    public List<ErrorInfo> getAllErrors(QueryContext queryContext) {
+        
+        return queryService.getAllErrors(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getAllRequests(QueryContext queryContext) {
+        return queryService.getAllRequests(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getRequestsByStatus(List<STATUS> statuses, QueryContext queryContext) {
+        return queryService.getRequestsByStatus(statuses, queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getPendingRequests(QueryContext queryContext) {
+        return queryService.getPendingRequests(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getRunningRequests(QueryContext queryContext) {
+        return queryService.getRunningRequests(queryContext);
+    }
+
+    @Override
+    public List<RequestInfo> getFutureQueuedRequests(QueryContext queryContext) {
+        return queryService.getFutureQueuedRequests(queryContext);
     }
     
     public List<RequestInfo> getFutureQueuedRequests() {
