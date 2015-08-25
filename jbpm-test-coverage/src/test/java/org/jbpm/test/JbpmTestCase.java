@@ -42,6 +42,8 @@ import qa.tools.ikeeper.test.IKeeperJUnitConnector;
 public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+    
+    protected static final String EMPTY_CASE = "EmptyCase.bpmn2";
 
     protected static final String EMPTY_CASE = "EmptyCase.bpmn2";
 
