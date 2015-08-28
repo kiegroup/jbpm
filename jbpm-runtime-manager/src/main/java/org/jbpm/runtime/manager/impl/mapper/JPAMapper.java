@@ -121,7 +121,7 @@ public class JPAMapper implements Mapper {
     public Context getProcessInstanceByCorrelationKey(CorrelationKey correlationKey, EntityManager em) {
         Query processInstancesForEvent = em.createNamedQuery( "GetProcessInstanceIdByCorrelation" );
         
-        processInstancesForEvent.setParameter( "elem_count", correlationKey.getProperties().size() );
+        processInstancesForEvent.setParameter( "elem_count", new Long(correlationKey.getProperties().size()) );
         List<Object> properties = new ArrayList<Object>();
         for (CorrelationProperty<?> property : correlationKey.getProperties()) {
             properties.add(property.getValue());
