@@ -29,13 +29,12 @@ import org.kie.api.builder.model.KieModuleModel;
 import org.kie.api.builder.model.KieSessionModel;
 import org.kie.api.builder.model.ListenerModel;
 import org.kie.api.event.process.DefaultProcessEventListener;
+import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.runtime.Environment;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.StatelessKieSession;
 import org.kie.internal.io.ResourceFactory;
-import qa.tools.ikeeper.annotation.BZ;
 
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,7 +49,6 @@ public class ListenersTest extends JbpmTestCase {
 
     private KieServices ks = KieServices.Factory.get();
     private KieSession kieSession;
-    private StatelessKieSession statelessKieSession;
 
     public ListenersTest() {
         super(false);
@@ -62,7 +60,6 @@ public class ListenersTest extends JbpmTestCase {
 
         final KieContainer kieContainer = ks.newKieContainer(kieModuleId);
         this.kieSession = kieContainer.newKieSession((Environment) null, null);
-        this.statelessKieSession = kieContainer.newStatelessKieSession(ks.newKieSessionConfiguration());
     }
 
     @After
@@ -70,23 +67,13 @@ public class ListenersTest extends JbpmTestCase {
         if (this.kieSession != null) {
             this.kieSession.dispose();
         }
-        this.statelessKieSession = null;
     }
 
     @Test
     public void testRegisterProcessEventListenerStateful() throws Exception {
         kieSession.startProcess("testProcess");
-        checkThatListenerFired(kieSession.getProcessEventListeners());
-    }
 
-    @BZ("1233197")
-    @Test
-    public void testRegisterProcessEventListenerStateless() throws Exception {
-        statelessKieSession.execute(KieServices.Factory.get().getCommands().newStartProcess("testProcess"));
-        checkThatListenerFired(statelessKieSession.getProcessEventListeners());
-    }
-
-    private void checkThatListenerFired(Collection listeners) {
+        final Collection<ProcessEventListener> listeners = kieSession.getProcessEventListeners();
         assertTrue("Listener not registered.", listeners.size() >= 1);
         MarkingProcessEventListener listener = getMarkingListener(listeners);
         assertTrue("Expected listener to fire.", listener.hasFired());
@@ -120,11 +107,6 @@ public class ListenersTest extends JbpmTestCase {
         sessionModel.setDefault(true);
         sessionModel.setType(KieSessionModel.KieSessionType.STATEFUL);
         sessionModel.newListenerModel(MarkingProcessEventListener.class.getName(), ListenerModel.Kind.PROCESS_EVENT_LISTENER);
-
-        KieSessionModel statelessSessionModel = baseModel.newKieSessionModel("defaultStatelessKSession");
-        statelessSessionModel.setDefault(true);
-        statelessSessionModel.setType(KieSessionModel.KieSessionType.STATELESS);
-        statelessSessionModel.newListenerModel(MarkingProcessEventListener.class.getName(), ListenerModel.Kind.PROCESS_EVENT_LISTENER);
 
         KieFileSystem kfs = ks.newKieFileSystem();
         kfs.writeKModuleXML(module.toXML());
