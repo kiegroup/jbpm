@@ -566,7 +566,7 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
 
     @Override
     protected <T> List<T> createQueryAndCallApplyMetaCriteriaAndGetResult(QueryWhere queryWhere, CriteriaQuery<T> criteriaQuery, CriteriaBuilder builder) {
-        groupTaskIdWhenLefOuterJoinsPresent(criteriaQuery);
+        useDistinctWhenLefOuterJoinsPresent(criteriaQuery);
 
         EntityManager em = getEntityManager();
         joinTransaction();
@@ -584,23 +584,31 @@ public class TaskQueryCriteriaUtil extends QueryCriteriaUtil {
         return result;
     }
 
-    private <T> void groupTaskIdWhenLefOuterJoinsPresent(CriteriaQuery<T> criteriaQuery) {
-        boolean groupByNecessaryBecauseOfLeftOuterJoin = false;
+    private <T> void useDistinctWhenLefOuterJoinsPresent(CriteriaQuery<T> criteriaQuery) {
+        boolean useDistinct = false;
         Root<TaskImpl> taskRoot = null;
-        for( Root root : criteriaQuery.getRoots() ) {
+        ROOTS_FOR: for( Root root : criteriaQuery.getRoots() ) {
            if( TaskImpl.class.equals(root.getJavaType()) ) {
                taskRoot = (Root<TaskImpl>) root;
-               for( Join<TaskImpl, ?> join : taskRoot.getJoins() ) {
-                  if( PeopleAssignmentsImpl.class.equals(join.getJavaType()) )  {
-                      Join<TaskImpl, PeopleAssignmentsImpl> peopAssignJoin = (Join<TaskImpl, PeopleAssignmentsImpl>) join;
-                      groupByNecessaryBecauseOfLeftOuterJoin = ! peopAssignJoin.getJoins().isEmpty();
-                      break;
+               for( Join<TaskImpl, ?> taskJoin : taskRoot.getJoins() ) {
+                  if( PeopleAssignmentsImpl.class.equals(taskJoin.getJavaType()) )  {
+                      Join<TaskImpl, PeopleAssignmentsImpl> peopleAssignJoin = (Join<TaskImpl, PeopleAssignmentsImpl>) taskJoin;
+                      if( JoinType.LEFT.equals(peopleAssignJoin.getJoinType()) ) {
+                          useDistinct = true;
+                          break ROOTS_FOR;
+                      }
+                      for( Join peopleAssignJoinJoin : peopleAssignJoin.getJoins() ) {
+                          if( JoinType.LEFT.equals(peopleAssignJoinJoin.getJoinType()) ) {
+                             useDistinct = true;
+                             break ROOTS_FOR;
+                          }
+                      }
                   }
                }
             }
         }
-        if( groupByNecessaryBecauseOfLeftOuterJoin ) {
-            criteriaQuery.groupBy(taskRoot.get(TaskImpl_.id));
+        if( useDistinct ) {
+            criteriaQuery.distinct(true);
         }
     }
 
