@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.drools.core.util.StringUtils;
 import org.jbpm.kie.services.impl.model.ProcessAssetDesc;
 import org.jbpm.process.instance.StartProcessHelper;
 import org.jbpm.services.api.model.UserTaskDefinition;
@@ -57,7 +58,13 @@ public class ProcessDescRepoHelper {
     
     private Queue<String> unresolvedReusableSubProcessNames = new ArrayDeque<String>();
     
+    private BPMN2DataServiceImpl definitionService;
+    
     public ProcessDescRepoHelper() {
+    }
+    
+    protected void setDefinitionService(BPMN2DataServiceImpl definitionService) {
+        this.definitionService = definitionService;
     }
 
     public void setProcess(ProcessAssetDesc process) {
@@ -88,6 +95,25 @@ public class ProcessDescRepoHelper {
             while( iter.hasNext() ) { 
                 String processName  = iter.next();
                 Process deploymentProcess = processNameProcessIdMap.get(processName);
+                if( deploymentProcess == null ) { 
+                    logger.error("Unable to resolve process name '{}' called in process '{}'", processName, getProcess().getId());
+                } else { 
+                    String processIdForProcessName = deploymentProcess.getId();
+                    reusableSubProcesses.add(processIdForProcessName);
+                    iter.remove();
+                }
+            }
+        } 
+    }
+    
+    public void resolveReusableSubProcessNames( Map<String, ProcessAssetDesc> processNameProcessIdMap ) {
+        
+        // resolve process names called in process
+        synchronized(unresolvedReusableSubProcessNames) { 
+            Iterator<String> iter = unresolvedReusableSubProcessNames.iterator();
+            while( iter.hasNext() ) { 
+                String processName  = iter.next();
+                ProcessAssetDesc deploymentProcess = processNameProcessIdMap.get(processName);
                 if( deploymentProcess == null ) { 
                     logger.error("Unable to resolve process name '{}' called in process '{}'", processName, getProcess().getId());
                 } else { 
@@ -137,6 +163,10 @@ public class ProcessDescRepoHelper {
     }
 
     public Collection<String> getReusableSubProcesses() {
+        if (hasUnresolvedReusableSubProcessNames()) {
+            Map<String, ProcessAssetDesc> processNameProcessIdMap = collectProcessNameToIdMapping(getProcess().getDeploymentId());
+            resolveReusableSubProcessNames(processNameProcessIdMap);
+        }
         return reusableSubProcesses;
     }
 
@@ -198,4 +228,56 @@ public class ProcessDescRepoHelper {
         }
     }
 
+    protected Map<String, ProcessAssetDesc> collectProcessNameToIdMapping(String deploymentId) {
+        
+        Collection<ProcessDescRepoHelper> deploymentProcesses = definitionService.getProcessDefinitions(deploymentId);
+        
+        Map<String, ProcessAssetDesc> processNameProcessIdMap = new HashMap<String, ProcessAssetDesc>(deploymentProcesses.size());
+        for( ProcessDescRepoHelper process : deploymentProcesses ) { 
+           String processName = process.getProcess().getName();
+           ProcessAssetDesc previousProcess = processNameProcessIdMap.put(processName, process.getProcess());
+           if( previousProcess != null ) { 
+               Comparator<ProcessAssetDesc> processComparator = new NameAndVersionComparator(processName);
+               if( processComparator.compare(previousProcess, process.getProcess()) > 0 ) { 
+                  processNameProcessIdMap.put(processName, previousProcess);
+               }
+           }
+        }
+        
+        return processNameProcessIdMap;
+    }
+    
+    class NameAndVersionComparator implements Comparator<ProcessAssetDesc> {
+        
+        private String processName;
+        
+        private NameAndVersionComparator(String processName) {
+            this.processName = processName;
+        }
+        
+        public int compare(ProcessAssetDesc o1, ProcessAssetDesc o2) {
+            // first match by process name
+            if (o1.getName().equals(processName) && o2.getName().equals(processName)) {
+                // then match on version
+                try {
+                    if( !StringUtils.isEmpty(o1.getVersion()) && !StringUtils.isEmpty(o2.getVersion()) ) { 
+                        if ((Double.valueOf(o1.getVersion()) > Double.valueOf(o2.getVersion()))) {
+                            return 1;
+                        } else {
+                            return -1;
+                        }
+                    } else if( o1.getVersion() != null ) { 
+                        return 1;
+                    } else { 
+                        return o1.getId().compareTo(o2.getId());
+                    }
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Could not parse version: " + o1.getVersion() + " " + o2.getVersion(), e);
+                }
+            } else if (o1.getName().equals(processName)) {
+                return 1;
+            }
+            return -1;
+        }
+    }
 }

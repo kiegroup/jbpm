@@ -48,7 +48,6 @@ import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.UserTaskDefinition;
 import org.kie.api.definition.process.Process;
 import org.kie.api.io.ResourceType;
-import org.kie.api.runtime.KieContainer;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderError;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
@@ -133,7 +132,7 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
     }
    
 	@Override
-	public ProcessDefinition buildProcessDefinition(String deploymentId,String bpmn2Content, KieContainer kieContainer, boolean cache)
+	public ProcessDefinition buildProcessDefinition(String deploymentId,String bpmn2Content, ClassLoader classLoader, boolean cache)
 			throws IllegalArgumentException {
 		if (StringUtils.isEmpty(bpmn2Content)) {
             return null;
@@ -152,8 +151,8 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	      
 	        KnowledgeBuilder kbuilder = null;
 	        
-	        if (kieContainer != null && kieContainer.getClassLoader() != null ) { 
-	            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(kieContainer.getClassLoader());
+	        if (classLoader != null ) { 
+	            KnowledgeBuilderConfigurationImpl pconf = new KnowledgeBuilderConfigurationImpl(classLoader);
 	            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder(pconf);
 	        } else {
 	            kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -172,16 +171,12 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	        Process process = pckg.getProcesses().iterator().next();
 	        
 	        ProcessDescRepoHelper helper = MODULE.getRepo().removeProcessDescription(process.getId());
+	        helper.setDefinitionService(this);
 	        ProcessAssetDesc definition = helper.getProcess();
 	        
 	        definition.setAssociatedEntities(helper.getTaskAssignments());
 	        definition.setProcessVariables(helper.getInputs());
 	        definition.setServiceTasks(helper.getServiceTasks());
-	      
-	        if( kieContainer != null && helper.hasUnresolvedReusableSubProcessNames() ) { 
-	           helper.resolveReusableSubProcessNames(kieContainer.getKieBase().getProcesses());
-	        }
-	        definition.setReusableSubProcesses(helper.getReusableSubProcesses());
 	        
 	        // cache the data if requested
 	        if (cache) {
@@ -210,7 +205,8 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	 * This method is used to set the process {@link ProcessDescRepoHelper} instance. 
 	 * @param processHelper
 	 */
-	static void useDataServiceExpressionBuilders(ProcessDescRepoHelper processHelper) { 
+	@SuppressWarnings("rawtypes")
+    static void useDataServiceExpressionBuilders(ProcessDescRepoHelper processHelper) { 
 	    for( int i = 0; i < SCRIPT_DIALECT_NAMES.length; ++i ) { 
 	        ProcessDialect dialect = ProcessDialectRegistry.getDialect(SCRIPT_DIALECT_NAMES[i]);
 
@@ -258,7 +254,8 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
 	    }
 	}
 
-	static void resetDialectExpressionBuilders() { 
+	@SuppressWarnings("rawtypes")
+    static void resetDialectExpressionBuilders() { 
 	    for( int i = 0; i < SCRIPT_DIALECT_NAMES.length; ++i ) { 
 	        ProcessDialect dialect = ProcessDialectRegistry.getDialect(SCRIPT_DIALECT_NAMES[i]);
 
@@ -509,4 +506,20 @@ public class BPMN2DataServiceImpl implements DefinitionService, DeploymentEventL
         
         return Collections.emptySet();
     }
+    
+    public Collection<ProcessDescRepoHelper> getProcessDefinitions(String deploymentId) {
+        
+
+        if (deploymentId != null && definitionCache.containsKey(deploymentId)) {
+
+            Map<String, ProcessDescRepoHelper> processes = definitionCache.get(deploymentId);
+            if (processes == null) {
+                throw new IllegalStateException("No processes available for given deployment id : " + deploymentId);
+            }
+            return processes.values();
+        }
+
+        return Collections.emptyList();
+    }
+    
 }
