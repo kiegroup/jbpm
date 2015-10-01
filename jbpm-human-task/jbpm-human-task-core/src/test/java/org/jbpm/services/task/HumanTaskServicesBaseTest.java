@@ -37,6 +37,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import bitronix.tm.TransactionManagerServices;
 import org.jbpm.persistence.util.PersistenceUtil;
 import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.services.task.impl.model.xml.JaxbContent;
@@ -57,6 +58,12 @@ public abstract class HumanTaskServicesBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(HumanTaskServicesBaseTest.class);
     
     protected InternalTaskService taskService;
+
+    static {
+        if (!TransactionManagerServices.isTransactionManagerRunning()) {
+            TransactionManagerServices.getConfiguration().setJournal("null");
+        }
+    }
 
     @BeforeClass
     public static void configure() { 
