@@ -36,9 +36,9 @@ import org.slf4j.LoggerFactory;
  * This is a package level class that is used by different BPMN2 handlers ( in this package) to store information
  * about a BPMN2 process.
  */
-public class ProcessDescRepoHelper {
+public class ProcessDescriptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(ProcessDescRepoHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProcessDescriptor.class);
             
     private ProcessAssetDesc process;
     private Map<String, UserTaskDefinition> tasks = new HashMap<String, UserTaskDefinition>();
@@ -57,7 +57,7 @@ public class ProcessDescRepoHelper {
     
     private Queue<String> unresolvedReusableSubProcessNames = new ArrayDeque<String>();
     
-    public ProcessDescRepoHelper() {
+    public ProcessDescriptor() {
     }
 
     public void setProcess(ProcessAssetDesc process) {
