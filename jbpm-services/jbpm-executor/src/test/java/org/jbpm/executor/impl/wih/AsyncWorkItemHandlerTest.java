@@ -33,10 +33,12 @@ import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.runtime.manager.impl.DefaultRegisterableItemsFactory;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.util.AbstractExecutorBaseTest;
+import org.jbpm.test.util.CountDownProcessEventListener;
 import org.jbpm.test.util.ExecutorTestUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.executor.ExecutorService;
 import org.kie.api.executor.RequestInfo;
 import org.kie.api.executor.STATUS;
@@ -88,9 +90,9 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         pds.close();
     }
 
-    @Test
+    @Test(timeout=10000)
     public void testRunProcessWithAsyncHandler() throws Exception {
-
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Hello", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
@@ -104,6 +106,12 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         return handlers;
                     }
 
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners( RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(countDownListener);
+                        return listeners;
+                    }
                 })
                 .get();
 
@@ -123,9 +131,9 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         assertNull(processInstance);
     }
 
-    @Test
+    @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerWithAbort() throws Exception {
-
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
@@ -139,6 +147,12 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         return handlers;
                     }
 
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners( RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(countDownListener);
+                        return listeners;
+                    }
                 })
                 .get();
 
@@ -155,15 +169,15 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
 
         runtime.getKieSession().abortProcessInstance(processInstance.getId());
 
-        Thread.sleep(3000);
+        countDownListener.waitTillCompleted();
 
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
 
-    @Test
+    @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerDuplicatedRegister() throws Exception {
-
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
@@ -176,7 +190,12 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         handlers.put("async", new AsyncWorkItemHandler(executorService, "org.jbpm.executor.commands.PrintOutCommand"));
                         return handlers;
                     }
-
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners( RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(countDownListener);
+                        return listeners;
+                    }
                 })
                 .get();
 
@@ -190,7 +209,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
 
-        Thread.sleep(3000);
+        countDownListener.waitTillCompleted();
 
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
@@ -201,9 +220,9 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
 
     }
 
-    @Test
+    @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerDelayed() throws Exception {
-
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTaskWithParams.bpmn2"), ResourceType.BPMN2)
@@ -217,6 +236,12 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         return handlers;
                     }
 
+                    @Override
+                    public List<ProcessEventListener> getProcessEventListeners( RuntimeEngine runtime) {
+                        List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                        listeners.add(countDownListener);
+                        return listeners;
+                    }
                 })
                 .get();
 
@@ -233,12 +258,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         ProcessInstance processInstance = ksession.startProcess("ScriptTask", params);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
 
-        Thread.sleep(3000);
-
-        processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
-        assertNotNull(processInstance);
-
-        Thread.sleep(3000);
+        countDownListener.waitTillCompleted();
 
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
@@ -335,7 +355,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         assertEquals(businessKey, jobRequest.get(0).getKey());
         assertEquals(STATUS.CANCELLED, jobRequest.get(0).getStatus());
     }
-    
+
     private ExecutorService buildExecutorService() {
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 

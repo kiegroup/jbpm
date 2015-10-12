@@ -55,30 +55,30 @@ public class MultipleInstancesSubprocessTest extends JbpmTestCase {
     @Test
     @BZ("958390")
     public void testTimerEvent() {
-        KieSession ksession = createKSession(TIMER_EVENT_PARENT, TIMER_EVENT_SUBPROCESS1, TIMER_EVENT_SUBPROCESS2);
-        TrackingProcessEventListener processEvents = new TrackingProcessEventListener();
-        ksession.addEventListener(processEvents);
+      KieSession ksession = createKSession(TIMER_EVENT_PARENT, TIMER_EVENT_SUBPROCESS1, TIMER_EVENT_SUBPROCESS2);
+      TrackingProcessEventListener processEvents = new TrackingProcessEventListener();
+      ksession.addEventListener(processEvents);
 
-        Map<String, Object> params = new HashMap<String, Object>();
-        List<String> clients = new ArrayList<String>();
-        clients.add("A");
-        clients.add("B");
-        params.put("clients", clients);
+      Map<String, Object> params = new HashMap<String, Object>();
+      List<String> clients = new ArrayList<String>();
+      clients.add("A");
+      clients.add("B");
+      params.put("clients", clients);
 
-        List<Command<?>> commands = new ArrayList<Command<?>>();
-        commands.add(getCommands().newStartProcess(TIMER_EVENT_PARENT_ID, params));
-        ksession.execute(getCommands().newBatchExecution(commands, null));
-        try {
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+      List<Command<?>> commands = new ArrayList<Command<?>>();
+      commands.add(getCommands().newStartProcess(TIMER_EVENT_PARENT_ID, params));
+      ksession.execute(getCommands().newBatchExecution(commands, null));
+      try {
+         Thread.sleep(3000);
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
 
-        Assertions.assertThat(processEvents.wasNodeTriggered("main-script1")).isTrue();
-        Assertions.assertThat(processEvents.wasNodeTriggered("main-multiinstance1")).isTrue();
-        Assertions.assertThat(processEvents.wasNodeTriggered("main-script2")).isTrue();
-        Assertions.assertThat(processEvents.wasNodeTriggered("main-multiinstance2")).isTrue();
-        Assertions.assertThat(processEvents.wasNodeTriggered("main-end")).isTrue();
+      Assertions.assertThat(processEvents.wasNodeTriggered("main-script1")).isTrue();
+      Assertions.assertThat(processEvents.wasNodeTriggered("main-multiinstance1")).isTrue();
+      Assertions.assertThat(processEvents.wasNodeTriggered("main-script2")).isTrue();
+      Assertions.assertThat(processEvents.wasNodeTriggered("main-multiinstance2")).isTrue();
+      Assertions.assertThat(processEvents.wasNodeTriggered("main-end")).isTrue();
     }
 
     @Test
