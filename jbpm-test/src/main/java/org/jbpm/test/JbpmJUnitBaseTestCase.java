@@ -936,7 +936,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     	customEnvironmentEntries.put(name, value);
     }
 
-    public void addPersistenceProperty(String name, Object value) {
+    public void setPersistenceProperty(String name, Object value) {
         persistenceProperties.put(name, value);
     }
 

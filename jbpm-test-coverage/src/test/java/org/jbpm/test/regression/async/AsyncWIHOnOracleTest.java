@@ -21,13 +21,14 @@ import org.jbpm.executor.impl.wih.AsyncWorkItemHandler;
 import org.jbpm.persistence.jpa.hibernate.DisabledFollowOnLockOracle10gDialect;
 import org.jbpm.persistence.util.PersistenceUtil;
 import org.jbpm.test.JbpmAsyncJobTestCase;
+import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.After;
 import org.junit.Test;
 import org.kie.api.executor.Command;
 import org.kie.api.executor.CommandContext;
 import org.kie.api.executor.ExecutionResults;
 import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.api.runtime.process.WorkItemHandler;
 import qa.tools.ikeeper.annotation.BZ;
 
 public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
@@ -48,7 +49,7 @@ public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
         String driverClassName = PersistenceUtil.getDatasourceProperties().getProperty("driverClassName");
         if (driverClassName != null && driverClassName.contains("Oracle")) {
             String hibernateDialect = DisabledFollowOnLockOracle10gDialect.class.getName();
-            addPersistenceProperty("hibernate.dialect", hibernateDialect);
+            setPersistenceProperty("hibernate.dialect", hibernateDialect);
             logger.info("Using hibernate.dialect=" + hibernateDialect);
         }
         super.setUp();
@@ -56,14 +57,19 @@ public class AsyncWIHOnOracleTest extends JbpmAsyncJobTestCase {
 
     @Test
     @BZ("1234592")
-    public void testAsyncWIHExecutedMoreThanOnceOnOracle() throws InterruptedException {
+    public void testAsyncWIHExecutedMoreThanOnceOnOracle() throws Exception {
         KieSession ksession = createKSession(PROCESS);
-        WorkItemManager wim = ksession.getWorkItemManager();
-        wim.registerWorkItemHandler("async", new AsyncWorkItemHandler(getExecutorService(), CounterCommand.class.getName()));
+
+        TrackingProcessEventListener tpel = new TrackingProcessEventListener();
+        ksession.addEventListener(tpel);
+
+        WorkItemHandler wih = new AsyncWorkItemHandler(getExecutorService(), CounterCommand.class.getName());
+        ksession.getWorkItemManager().registerWorkItemHandler("async", wih);
 
         ksession.startProcess(PROCESS_ID);
 
-        Thread.sleep(10000);
+        boolean completed = tpel.waitForProcessToComplete(10000);
+        Assertions.assertThat(completed).as("The process should have finished in 10s").isTrue();
 
         Assertions.assertThat(CounterCommand.getCounter()).as("The job has not been executed").isNotEqualTo(0);
         Assertions.assertThat(CounterCommand.getCounter()).as("The job has been executed multiple times").isEqualTo(1);
