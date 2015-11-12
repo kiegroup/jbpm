@@ -569,7 +569,15 @@ public class StartEventTest extends JbpmBpmn2TestCase {
         assertProcessVarValue(list.get(0), "report", "NotAvailableGoodsReport{type:test}");
 
     }
-
+    
+    @Test
+    public void testSignalEventSubProcessStart() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-SignalEventSubProcess.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        long processInstanceId =  ksession.startProcess("SignalEventSubProcess").getId();
+        assertNodeTriggered(processInstanceId, "Signal Event SubProcess Script Task");
+    
+    }
     
     private static class StartCountingListener extends DefaultProcessEventListener {
         private Map<String, Integer> map = new HashMap<String, Integer>();

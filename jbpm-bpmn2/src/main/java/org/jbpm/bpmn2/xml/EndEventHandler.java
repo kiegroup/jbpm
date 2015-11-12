@@ -16,7 +16,8 @@
 
 package org.jbpm.bpmn2.xml;
 
-import static org.jbpm.bpmn2.xml.ProcessHandler.*;
+import static org.jbpm.bpmn2.xml.ProcessHandler.RUNTIME_SIGNAL_EVENT;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.drools.core.xml.ExtensibleXmlParser;
 import org.jbpm.bpmn2.core.Error;
 import org.jbpm.bpmn2.core.Escalation;
 import org.jbpm.bpmn2.core.Message;
+import org.jbpm.bpmn2.core.Signal;
 import org.jbpm.compiler.xml.ProcessBuildData;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.Node;
@@ -132,6 +134,17 @@ public class EndEventHandler extends AbstractNodeHandler {
             } else if ("signalEventDefinition".equals(nodeName)) {
                 String signalName = ((Element) xmlNode).getAttribute("signalRef");
                 String variable = (String) endNode.getMetaData("MappingVariable");
+                
+                Map<String, Signal> signals = (Map<String, Signal>) ((ProcessBuildData) parser.getData()).getMetaData("Signals");
+                
+                if (signals != null && signals.containsKey(signalName)) {
+                    Signal signal = signals.get(signalName);                      
+                    signalName = signal.getName();
+                    if (signalName == null) {
+                        throw new IllegalArgumentException("Signal definition must have a name attribute");
+                    }
+                }
+                
                 List<DroolsAction> actions = new ArrayList<DroolsAction>();
                 actions.add(new DroolsConsequenceAction("mvel",
                     RUNTIME_SIGNAL_EVENT
