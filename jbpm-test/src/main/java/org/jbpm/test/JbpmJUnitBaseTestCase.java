@@ -152,8 +152,6 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     protected List<TaskLifeCycleEventListener> customTaskListeners = new ArrayList<TaskLifeCycleEventListener>();
     protected Map<String, Object> customEnvironmentEntries = new HashMap<String, Object>();
 
-    private final Map<String, Object> persistenceProperties = new HashMap<String, Object>();
-
     /**
      * The most simple test case configuration:
      * <ul>
@@ -211,7 +209,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
         if (setupDataSource) {
             ds = setupPoolingDataSource();
             logger.debug("Data source configured with unique id {}", ds.getUniqueName());
-            emf = Persistence.createEntityManagerFactory(persistenceUnitName, persistenceProperties);
+            emf = Persistence.createEntityManagerFactory(persistenceUnitName);
         }
         cleanupSingletonSessionId();
 
@@ -244,7 +242,6 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
                     ds.close();
                     ds = null;
                 }
-                persistenceProperties.clear();
             }
         }
     }
@@ -934,10 +931,6 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     
     public void addEnvironmentEntry(String name, Object value) {
     	customEnvironmentEntries.put(name, value);
-    }
-
-    public void setPersistenceProperty(String name, Object value) {
-        persistenceProperties.put(name, value);
     }
 
     protected static class TestWorkItemHandler implements WorkItemHandler {
