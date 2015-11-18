@@ -39,6 +39,7 @@ import org.jbpm.services.ejb.api.RuntimeDataServiceEJBRemote;
 import org.jbpm.services.ejb.impl.identity.EJBContextIdentityProvider;
 import org.jbpm.services.ejb.impl.security.DeploymentRolesManagerEJBImpl;
 import org.jbpm.services.ejb.impl.tx.AuditTransactionalCommandServiceEJBImpl;
+import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.kie.api.task.TaskService;
 import org.kie.internal.identity.IdentityProvider;
@@ -50,11 +51,11 @@ public class RuntimeDataServiceEJBImpl extends RuntimeDataServiceImpl implements
 
 	@Inject
 	private Instance<IdentityProvider> identityProvider;
-	
+
 	@Resource
 	private EJBContext context;
 	// inject resources
-	
+
 	@PostConstruct
 	public void configure() {
 		if (identityProvider.isUnsatisfied()) {
@@ -62,8 +63,8 @@ public class RuntimeDataServiceEJBImpl extends RuntimeDataServiceImpl implements
 		} else {
 			setIdentityProvider(identityProvider.get());
 		}
-	}	
-	
+	}
+
 	@EJB(beanInterface=AuditTransactionalCommandServiceEJBImpl.class)
 	@Override
 	public void setCommandService(TransactionalCommandService commandService) {
@@ -75,6 +76,8 @@ public class RuntimeDataServiceEJBImpl extends RuntimeDataServiceImpl implements
 	@Override
 	public void setTaskService(TaskService taskService) {
 		super.setTaskService(taskService);
+
+		setTaskAuditService(TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService());
 	}
 
 	@EJB(beanInterface=DeploymentRolesManagerEJBImpl.class)
