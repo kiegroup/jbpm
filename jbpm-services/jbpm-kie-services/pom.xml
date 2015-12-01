@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.jbpm</groupId>
@@ -48,7 +49,7 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-core</artifactId>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-audit</artifactId>
     </dependency>
@@ -64,7 +65,7 @@
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-human-task-workitems</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-services-api</artifactId>
@@ -78,12 +79,12 @@
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>kie-internal</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.kie</groupId>
       <artifactId>kie-ci</artifactId>
-    </dependency>  
-  
+    </dependency>
+
     <dependency>
       <groupId>org.hibernate.javax.persistence</groupId>
       <artifactId>hibernate-jpa-2.0-api</artifactId>
@@ -122,7 +123,7 @@
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
@@ -139,12 +140,17 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
     </dependency>
-    
+
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -241,8 +247,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <!-- we need to fork always as we have mixture of both arquillian tests and regular
-             and to avoid clashing between them as both need to setup data source and bound it to JNDI -->
+        <!-- we need to fork always as we have mixture of both arquillian tests and 
+          regular and to avoid clashing between them as both need to setup data source and 
+          bound it to JNDI -->
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>always</forkMode>
@@ -251,9 +258,9 @@
               ${project.build.testOutputDirectory}/jbpm-kie-services-tests-custom-settings.xml
             </kie.maven.settings.custom>
           </systemProperties>
-        </configuration>        
+        </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
@@ -271,7 +278,7 @@
           </instructions>
         </configuration>
       </plugin>
-      
+
     </plugins>
   </build>
 </project>
