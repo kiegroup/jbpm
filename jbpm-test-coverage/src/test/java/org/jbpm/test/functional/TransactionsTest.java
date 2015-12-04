@@ -126,7 +126,7 @@ public class TransactionsTest extends JbpmTestCase {
 
     @Test(timeout = 60000)
     public void testScript() throws Exception {
-        TrackingProcessEventListener process = new TrackingProcessEventListener();
+        TrackingProcessEventListener process = new TrackingProcessEventListener(false);
         ksession.addEventListener(process);
 
         long processId = startProcess(ksession);
@@ -161,7 +161,7 @@ public class TransactionsTest extends JbpmTestCase {
 
     @Test(timeout = 60000)
     public void testRuleflowGroup() throws Exception {
-        TrackingProcessEventListener process = new TrackingProcessEventListener();
+        TrackingProcessEventListener process = new TrackingProcessEventListener(false);
         TrackingAgendaEventListener agenda = new TrackingAgendaEventListener();
         ksession.addEventListener(process);
         ksession.addEventListener(agenda);
@@ -281,7 +281,7 @@ public class TransactionsTest extends JbpmTestCase {
 
     @Test(timeout = 60000)
     public void testForLoop() throws Exception {
-        TrackingProcessEventListener process = new TrackingProcessEventListener();
+        TrackingProcessEventListener process = new TrackingProcessEventListener(false);
         ksession.addEventListener(process);
 
         Map<String, Object> params = new HashMap<String, Object>();
@@ -318,7 +318,7 @@ public class TransactionsTest extends JbpmTestCase {
 
     @Test(timeout = 60000)
     public void testEmbedded() throws Exception {
-        TrackingProcessEventListener process = new TrackingProcessEventListener();
+        TrackingProcessEventListener process = new TrackingProcessEventListener(false);
         ksession.addEventListener(process);
 
         long processId = startProcess(ksession);
