@@ -62,7 +62,7 @@ public class HumanTaskTest extends JbpmTestCase {
 
     @Test
     @BZ("958397")
-    public void testBoundaryTimer() throws InterruptedException {
+    public void testBoundaryTimer() throws Exception {
         createRuntimeManager(BOUNDARY_TIMER);
         KieSession ksession = getRuntimeEngine().getKieSession();
         TaskService taskService = getRuntimeEngine().getTaskService();
@@ -72,7 +72,8 @@ public class HumanTaskTest extends JbpmTestCase {
         ProcessInstance pi = ksession.startProcess(BOUNDARY_TIMER_ID);
 
         // wait for timer
-        Thread.sleep(2000);
+        String endNodeName = "End1";
+        assertTrue( "Node '" + endNodeName + "' was not triggered on time!", tpel.waitForNodeTobeTriggered(endNodeName, 2000));
 
         assertTriggeredAndLeft(tpel, "Script1");
         assertTriggered(tpel, "End1");

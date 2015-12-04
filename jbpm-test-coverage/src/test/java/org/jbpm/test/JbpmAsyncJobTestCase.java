@@ -38,7 +38,7 @@ public class JbpmAsyncJobTestCase extends JbpmTestCase {
     private int executorRetries;
     private int executorInterval;
 
-    private ExecutorService executorService;
+    protected ExecutorService executorService;
 
     public JbpmAsyncJobTestCase() {
         this(EXECUTOR_THREADS, EXECUTOR_INTERVAL);
@@ -73,7 +73,7 @@ public class JbpmAsyncJobTestCase extends JbpmTestCase {
         try {
             executorService.clearAllRequests();
             executorService.clearAllErrors();
-            executorService.destroy();
+            executorService.destroy();            
         } finally {
             super.tearDown();
         }

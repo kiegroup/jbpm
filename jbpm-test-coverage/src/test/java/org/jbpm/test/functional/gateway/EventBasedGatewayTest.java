@@ -127,7 +127,7 @@ public class EventBasedGatewayTest extends JbpmTestCase {
      * No branch is selected, timer is triggered after 1 sec
      */
     @Test(timeout = 30000)
-    public void testTimer() throws InterruptedException {
+    public void testTimer() throws Exception {
         Assume.assumeFalse(ksession.getSessionClock() instanceof SessionPseudoClock);
         TrackingProcessEventListener tpel = new TrackingProcessEventListener();
         ksession.addEventListener(tpel);
@@ -140,10 +140,15 @@ public class EventBasedGatewayTest extends JbpmTestCase {
         TrackingListenerAssert.assertTriggered(tpel, "cond");
         TrackingListenerAssert.assertTriggered(tpel, "msg");
         TrackingListenerAssert.assertTriggered(tpel, "sig");
-        TrackingListenerAssert.assertTriggered(tpel, "timer");
-        Thread.sleep(1500);
-        TrackingListenerAssert.assertLeft(tpel, "timer");
 
+        String timerNodeName = "timer";
+        TrackingListenerAssert.assertTriggered(tpel, timerNodeName);
+        assertTrue( "Node '" + timerNodeName + "' was not triggered on time!",
+                tpel.waitForNodeToBeLeft(timerNodeName, 2000));
+        TrackingListenerAssert.assertLeft(tpel, timerNodeName);
+
+        assertTrue( "Process was not completed on time!", tpel.waitForProcessToComplete(2000));
+        
         TrackingListenerAssert.assertTriggeredAndLeft(tpel, "join");
         TrackingListenerAssert.assertTriggered(tpel, "end");
         TrackingListenerAssert.assertProcessCompleted(tpel, EVENT_BASED_GATEWAY_ID);
