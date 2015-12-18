@@ -17,12 +17,10 @@ package org.jbpm.test.functional.timer;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.assertj.core.api.Assertions;
 import org.jbpm.process.instance.command.UpdateTimerCommand;
 import org.jbpm.test.JbpmTestCase;
 import org.jbpm.test.listener.CountDownProcessEventListener;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -82,21 +80,21 @@ public class TimerUpdateTest extends JbpmTestCase {
             }
         });
 
-        assertEquals(0, list.size());
+        Assertions.assertThat(list).isEmpty();
         long id = kieSession.startProcess(PROCESS_NAME).getId();
         long startTime = System.currentTimeMillis();
-        assertEquals(1, list.size());
+        Assertions.assertThat(list).isNotEmpty();
         //set delay to 8s
         kieSession.execute(new UpdateTimerCommand(id, TIMER_NAME, 8));
 
         countDownListener.waitTillCompleted();
-        assertTrue("The timer has not fired!", timerHasFired());
+        Assertions.assertThat(timerHasFired()).isTrue();
         long firedTime = timerFiredTime();
         long timeDifference = Math.abs(firedTime - startTime - 8000);
         logger.info("Start time: " + startTime + ", fired time: " + firedTime + ", difference: " + (firedTime-startTime));
-        assertTrue("Timer is fired in wrong time", timeDifference < 500);
+        Assertions.assertThat(timeDifference).isLessThan(500);
 
-        assertNull("Process is not ended.", kieSession.getProcessInstance(id));
+        Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
     }
 
     @Test(timeout = 30000)
@@ -114,21 +112,21 @@ public class TimerUpdateTest extends JbpmTestCase {
             }
         });
 
-        assertEquals(0, list.size());
+        Assertions.assertThat(list).isEmpty();
         long id = kieSession.startProcess(PROCESS_NAME).getId();
         long startTime = System.currentTimeMillis();
-        assertEquals(1, list.size());
+        Assertions.assertThat(list).isNotEmpty();
         //set delay to 3s
         kieSession.execute(new UpdateTimerCommand(id, TIMER_NAME, 3));
 
         countDownListener.waitTillCompleted();
-        assertTrue("The timer has not fired!", timerHasFired());
+        Assertions.assertThat(timerHasFired()).isTrue();
         long firedTime = timerFiredTime();
         long timeDifference = Math.abs(firedTime - startTime - 3000);
         logger.info("Start time: " + startTime + ", fired time: " + firedTime + ", difference: " + (firedTime-startTime));
-        assertTrue("Timer is fired in wrong time", timeDifference < 500);
+        Assertions.assertThat(timeDifference).isLessThan(500);
 
-        assertNull("Process is not ended.", kieSession.getProcessInstance(id));
+        Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
     }
 
     @Test(timeout = 30000)
@@ -146,21 +144,21 @@ public class TimerUpdateTest extends JbpmTestCase {
             }
         });
 
-        assertEquals(0, list.size());
+        Assertions.assertThat(list).isEmpty();
         long id = kieSession.startProcess(PROCESS_NAME).getId();
         long startTime = System.currentTimeMillis();
-        assertEquals(1, list.size());
+        Assertions.assertThat(list).isNotEmpty();
         //set delay on time that passed -> expected that timer fired immediately
         kieSession.execute(new UpdateTimerCommand(id, TIMER_NAME, -5));
 
         countDownListener.waitTillCompleted();
-        assertTrue("The timer has not fired!", timerHasFired());
+        Assertions.assertThat(timerHasFired()).isTrue();
         long firedTime = timerFiredTime();
         long timeDifference = Math.abs(firedTime - startTime);
         logger.info("Start time: " + startTime + ", fired time: " + firedTime + ", difference: " + (firedTime-startTime));
-        assertTrue("Timer is fired in wrong time", timeDifference < 500);
+        Assertions.assertThat(timeDifference).isLessThan(500);
 
-        assertNull("Process is not ended.", kieSession.getProcessInstance(id));
+        Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
     }
 
     /*
@@ -184,17 +182,17 @@ public class TimerUpdateTest extends JbpmTestCase {
                 list.add(event.getProcessInstance().getId());
             }
         });
-        assertEquals(0, list.size());
+        Assertions.assertThat(list).isEmpty();
         //set period to 2s and repeat limit on 3
         kieSession.execute(new UpdateTimerCommand(pi.getId(), START_TIMER_NAME, 2, 3));
         countDownListener.waitTillCompleted();
 
-        assertTrue("Wrong count of fired timers", timerFiredCount() == 3);
+        Assertions.assertThat(timerFiredCount()).isEqualTo(3);
         long firedTime = timerFiredTime();
         //expected time is 4s
         long timeDifference = Math.abs(firedTime - startTime - 4000);
         logger.info("Start time: " + startTime + ", fired time: " + firedTime + ", difference: " + (firedTime-startTime));
-        assertTrue("Timers are fired in wrong time", timeDifference < 1000); //1s tolerance
+        Assertions.assertThat(timeDifference).isLessThan(1000);
     }
 
     /*
@@ -220,11 +218,11 @@ public class TimerUpdateTest extends JbpmTestCase {
             }
         });
 
-        assertEquals(0, list.size());
+        Assertions.assertThat(list).isEmpty();
         beforeUpdateCountDownListener.waitTillCompleted();
-        assertEquals(2, list.size());
+        Assertions.assertThat(list.size()).isEqualTo(2);
         long halfTime = timerFiredTime();
-        assertTrue("Wrong count of fired timers", timerFiredCount() == 2);
+        Assertions.assertThat(timerFiredCount()).isEqualTo(2);
         logger.info("Start time: " + startTime + ", half time: " + halfTime + ", difference: " + (halfTime-startTime));
 
         kieSession.removeEventListener(beforeUpdateCountDownListener);
@@ -234,13 +232,13 @@ public class TimerUpdateTest extends JbpmTestCase {
 
         afterUpdateCountDownListener.waitTillCompleted();
         long finalTime = timerFiredTime();
-        assertEquals(5, list.size());
-        assertTrue("Wrong count of fired timers", timerFiredCount() == 5);
+        Assertions.assertThat(list.size()).isEqualTo(5);
+        Assertions.assertThat(timerFiredCount()).isEqualTo(5);
         logger.info("Half time: " + halfTime + ", final time: " + finalTime + ", difference: " + (finalTime-halfTime));
         logger.info("Start time: " + startTime + ", final time: " + finalTime + ", difference: " + (finalTime-startTime));
         //expected time is 5s + 6s (before update + after update)
         long timeDifference = Math.abs(finalTime-startTime-5000-6000);
-        assertTrue("Timers are fired in wrong time", timeDifference < 1000); //1s tolerance
+        Assertions.assertThat(timeDifference).isLessThan(1000);
     }
 
     /*
@@ -261,28 +259,28 @@ public class TimerUpdateTest extends JbpmTestCase {
             }
         });
 
-        assertEquals(0, list.size());
+        Assertions.assertThat(list).isEmpty();
         long id = kieSession.startProcess(BOUNDARY_PROCESS_NAME).getId();
         long startTime = System.currentTimeMillis();
-        assertEquals(1, list.size());
+        Assertions.assertThat(list).isNotEmpty();
         //set timer delay to 3s
         kieSession.execute(new UpdateTimerCommand(id, BOUNDARY_TIMER_NAME, 3));
 
         countDownListener.waitTillCompleted();
-        assertTrue("The timer has not fired!", timerHasFired());
+        Assertions.assertThat(timerHasFired()).isTrue();
         long firedTime = timerFiredTime();
         long timeDifference = Math.abs(firedTime - startTime - 3000);
         logger.info("Start time: " + startTime + ", fired time: " + firedTime + ", difference: " + (firedTime-startTime));
-        assertTrue("Timer is fired in wrong time", timeDifference < 1000);
+        Assertions.assertThat(timeDifference).isLessThan(1000);
 
-        assertNull("Process is not ended.", kieSession.getProcessInstance(id));
+        Assertions.assertThat(kieSession.getProcessInstance(id)).isNull();
     }
 
     private void setProcessScenario(String file) {
         createRuntimeManager(file);
         runtimeEngine = getRuntimeEngine();
         kieSession = runtimeEngine.getKieSession();
-        assertTrue("Ksession is not loaded", kieSession != null);
+        Assertions.assertThat(kieSession).isNotNull();
     }
 
     private boolean timerHasFired() {
