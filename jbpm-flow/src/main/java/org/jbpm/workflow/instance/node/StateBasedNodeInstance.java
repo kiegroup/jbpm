@@ -55,7 +55,7 @@ import org.kie.internal.runtime.KnowledgeRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl implements EventBasedNodeInstanceInterface, EventListener {
+public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl implements EventBasedNodeInstanceInterface, EventListener, EventNodeInstanceInterface {
 
 	private static final long serialVersionUID = 510l;
     protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
@@ -68,6 +68,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         return (StateBasedNode) getNode();
     }
 
+  @Override
 	public void internalTrigger(NodeInstance from, String type) {
 		super.internalTrigger(from, type);
 		// if node instance was cancelled, abort
@@ -316,6 +317,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     	return new String[] { "timerTriggered", getActivationType()};
     }
 
+    @Override
     public void triggerCompleted() {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }

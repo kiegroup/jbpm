@@ -19,9 +19,11 @@ package org.jbpm.workflow.instance.node;
 import static org.jbpm.workflow.instance.impl.DummyEventListener.EMPTY_EVENT_LISTENER;
 
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +51,6 @@ import org.kie.api.definition.process.NodeContainer;
 /**
  * Runtime counterpart of a composite node.
  *
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class CompositeNodeInstance extends StateBasedNodeInstance implements NodeInstanceContainer, EventNodeInstanceInterface, EventBasedNodeInstanceInterface {
 
@@ -110,6 +111,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return getCompositeNode();
     }
 
+    @Override
     public void internalTrigger(final org.kie.api.runtime.process.NodeInstance from, String type) {
     	super.internalTrigger(from, type);
     	// if node instance was cancelled, abort
@@ -118,14 +120,24 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 		}
         CompositeNode.NodeAndType nodeAndType = getCompositeNode().internalGetLinkedIncomingNode(type);
         if (nodeAndType != null) {
-	        List<Connection> connections = nodeAndType.getNode().getIncomingConnections(nodeAndType.getType());
-	        for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext(); ) {
+	        Deque<Connection> connections = new ArrayDeque<Connection>(nodeAndType.getNode().getIncomingConnections(nodeAndType.getType()));
+	        Iterator<Connection> iterator;
+	        if( isStackless()) {
+	            iterator = connections.descendingIterator();
+	        } else {
+	            iterator = connections.iterator();
+	        }
+	        while( iterator.hasNext() ) {
 	            Connection connection = iterator.next();
 	            if ((connection.getFrom() instanceof CompositeNode.CompositeNodeStart) &&
 	            		(from == null ||
 	    				((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
-	                NodeInstance nodeInstance = getNodeInstance(connection.getFrom());
-	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
+	                NodeInstance nodeInstance = createNodeInstance(connection.getFrom());
+	                if( isStackless() ) {
+	                    addNodeInstanceTrigger(nodeInstance, null, nodeAndType.getType());
+	                } else {
+	                    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
+	                }
 	                return;
 	            }
 	        }
@@ -136,9 +148,12 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         		if (node instanceof StartNode) {
         			StartNode startNode = (StartNode) node;
         			if (startNode.getTriggers() == null || startNode.getTriggers().isEmpty()) {
-    	                NodeInstance nodeInstance = getNodeInstance(startNode);
-    	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-    	                	.trigger(null, null);
+    	                NodeInstance nodeInstance = createNodeInstance(startNode);
+    	                if( isStackless() ) {
+    	                    addNodeInstanceTrigger(nodeInstance, null, null);
+    	                } else {
+    	                    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, null);
+    	                }
     	                found = true;
         			}
         		}
@@ -167,6 +182,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         triggerCompleted(outType, cancelRemainingInstances);
         if (cancelRemainingInstances) {
 	        while (!nodeInstances.isEmpty()) {
+	            // REFACTOR: CompositeNodeInstance cancelling of container nodeinstances
 	            NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
 	            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
 	        }
@@ -202,8 +218,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
             for (Iterator<NodeInstance> iterator = nodeInstances.iterator(); iterator.hasNext(); ) {
                 NodeInstance nodeInstance = iterator.next();
                 if (nodeInstance instanceof NodeInstanceContainer) {
-                    result.addAll(((NodeInstanceContainer)
-                		nodeInstance).getNodeInstances(true));
+                    result.addAll(((NodeInstanceContainer) nodeInstance).getNodeInstances(true));
                 }
             }
         }
@@ -219,8 +234,9 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 		return null;
 	}
 
-	public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
-		for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
+	@Override
+	public NodeInstance getNodeInstanceRecursively(long nodeInstanceId) {
+		for (NodeInstance nodeInstance: getNodeInstances(true)) {
 			if (nodeInstance.getId() == nodeInstanceId) {
 				return nodeInstance;
 			}
@@ -238,7 +254,8 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return null;
     }
 
-    public NodeInstance getNodeInstance(final Node node) {
+    @Override
+    public NodeInstance createNodeInstance(final Node node) {
         // TODO do this cleaner for start / end of composite?
         if (node instanceof CompositeNode.CompositeNodeStart) {
             CompositeNodeStartInstance nodeInstance = new CompositeNodeStartInstance();
@@ -272,25 +289,24 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         return nodeInstance;
     }
 
-    @Override
-	public void signalEvent(String type, Object event) {
+  @Override
+  public void signalEvent(String type, Object event) {
 		List<NodeInstance> currentView = new ArrayList<NodeInstance>(this.nodeInstances);
 		super.signalEvent(type, event);
 		for (Node node: getCompositeNode().internalGetNodes()) {
 			if (node instanceof EventNodeInterface) {
 				if (((EventNodeInterface) node).acceptsEvent(type, event)) {
 					if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
-						EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
+						EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) createNodeInstance(node);
 						eventNodeInstance.signalEvent(type, event);
 					} else if( node instanceof EventSubProcessNode ) {
-					    EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
+					    EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) createNodeInstance(node);
 					    eventNodeInstance.signalEvent(type, event);
 					} else {
 						List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
 						if (nodeInstances != null && !nodeInstances.isEmpty()) {
 							for (NodeInstance nodeInstance : nodeInstances) {
-								((EventNodeInstanceInterface) nodeInstance)
-										.signalEvent(type, event);
+								((EventNodeInstanceInterface) nodeInstance).signalEvent(type, event);
 							}
 						}
 					}
@@ -313,8 +329,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 
 	public List<NodeInstance> getNodeInstances(final long nodeId, List<NodeInstance> currentView) {
 		List<NodeInstance> result = new ArrayList<NodeInstance>();
-		for (final Iterator<NodeInstance> iterator = currentView
-				.iterator(); iterator.hasNext();) {
+		for (final Iterator<NodeInstance> iterator = currentView.iterator(); iterator.hasNext();) {
 			final NodeInstance nodeInstance = iterator.next();
 			if (nodeInstance.getNodeId() == nodeId) {
 				result.add(nodeInstance);
@@ -354,8 +369,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         }
 
         public void triggerCompleted() {
-            CompositeNodeInstance.this.triggerCompleted(
-                getCompositeNodeEnd().getOutType());
+            CompositeNodeInstance.this.triggerCompleted(getCompositeNodeEnd().getOutType());
         }
 
     }

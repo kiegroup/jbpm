@@ -33,18 +33,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runtime counterpart of a fault node.
- * 
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class FaultNodeInstance extends NodeInstanceImpl {
 
     private static final long serialVersionUID = 510l;
     private static final Logger logger = LoggerFactory.getLogger(FaultNodeInstance.class);
-    
+
     protected FaultNode getFaultNode() {
         return (FaultNode) getNode();
     }
-    
+
+    @Override
+    // OCRAM FaultNodeInstance: internal stacks in scopes?
     public void internalTrigger(final NodeInstance from, String type) {
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
@@ -59,7 +59,8 @@ public class FaultNodeInstance extends NodeInstanceImpl {
             // handle exception before canceling nodes to allow boundary event to catch the events
             if (exceptionScopeInstance != null) {
                 exceptionHandled = true;
-                handleException(faultName, exceptionScopeInstance);                
+                // OCRAM scope instances?
+                handleException(faultName, exceptionScopeInstance);
             }
             if (nodeInstanceContainer instanceof CompositeNodeInstance) {
 
@@ -81,16 +82,16 @@ public class FaultNodeInstance extends NodeInstanceImpl {
 
         }
     }
-    
+
     protected ExceptionScopeInstance getExceptionScopeInstance(String faultName) {
     	return (ExceptionScopeInstance)
     		resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
     }
-    
+
     protected String getFaultName() {
     	return getFaultNode().getFaultName();
     }
-    
+
     protected Object getFaultData() {
     	Object value = null;
     	String faultVariable = getFaultNode().getFaultVariable();
@@ -107,7 +108,7 @@ public class FaultNodeInstance extends NodeInstanceImpl {
     	}
     	return value;
     }
-    
+
     protected void handleException(String faultName, ExceptionScopeInstance exceptionScopeInstance) {
         exceptionScopeInstance.handleException(faultName, getFaultData());
     }

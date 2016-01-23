@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,6 +21,7 @@ import org.drools.core.common.EndOperationListener;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.common.WorkingMemoryAction;
 import org.drools.core.impl.AbstractRuntime;
+import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.time.TimerService;
 import org.drools.core.time.TimerServiceFactory;
 import org.jbpm.process.instance.InternalProcessRuntime;
@@ -68,16 +69,18 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 	protected Queue<WorkingMemoryAction> actionQueue;
 	private Long id;
 	private MapGlobalResolver globals = new MapGlobalResolver();
-	
+
 	public StatefulProcessSession(KnowledgeBase kbase, KieSessionConfiguration sessionConfiguration, Environment environment) {
 		this.kbase = kbase;
-		this.sessionConfiguration = sessionConfiguration;
-		this.environment = environment;
+		this.sessionConfiguration
+		    = ( sessionConfiguration == null ? SessionConfiguration.getDefaultInstance() : sessionConfiguration );
+		this.environment
+		    = ( environment == null ? EnvironmentFactory.newEnvironment() : environment );
 		timerService = TimerServiceFactory.getTimerService((SessionConfiguration) sessionConfiguration);
 		processRuntime = new ProcessRuntimeImpl(this);
 		actionQueue = new LinkedList<WorkingMemoryAction>();
 	}
-	
+
 	public void abortProcessInstance(long processInstanceId) {
 		processRuntime.abortProcessInstance(processInstanceId);
 	}
@@ -150,11 +153,11 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 	public Environment getEnvironment() {
 		return environment;
 	}
-	
+
 	public InternalProcessRuntime getProcessRuntime() {
 		return processRuntime;
 	}
-	
+
 	public KieSessionConfiguration getSessionConfiguration() {
 		return sessionConfiguration;
 	}
@@ -195,13 +198,13 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 	public void queueWorkingMemoryAction(WorkingMemoryAction action) {
 		actionQueue.add(action);
 	}
-	
+
 	public void dispose() {
 		if (timerService != null) {
 			timerService.shutdown();
 		}
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -209,9 +212,9 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 	public int getId() {
 		return id.intValue();
 	}
-	
+
 	public void setEndOperationListener(EndOperationListener listener) {
-		
+
 	}
 
 	public int fireAllRules() {
@@ -393,7 +396,7 @@ public class StatefulProcessSession extends AbstractRuntime implements StatefulK
 
         return processRuntime.getProcessInstance(correlationKey);
     }
-    
+
     public void destroy() {
         dispose();
     }

@@ -98,7 +98,7 @@ public class CompensationScopeInstance extends ExceptionScopeInstance  {
             try {
                 Node handlerNode = compensationHandler.getnode();
                 if (handlerNode instanceof BoundaryEventNode ) {
-                    NodeInstance compensationHandlerNodeInstance = nodeInstanceContainer.getNodeInstance(handlerNode);
+                    NodeInstance compensationHandlerNodeInstance = nodeInstanceContainer.createNodeInstance(handlerNode);
                     compensationInstances.add(compensationHandlerNodeInstance); 
                     // The BoundaryEventNodeInstance.signalEvent() contains the necessary logic 
                     // to check whether or not compensation may proceed (? : (not-active + completed))
@@ -109,10 +109,10 @@ public class CompensationScopeInstance extends ExceptionScopeInstance  {
                     List<String> completedIds = processInstance.getCompletedNodeIds();
                     if( completedIds.contains(((NodeImpl) handlerNode.getNodeContainer()).getMetaData("UniqueId")) ) { 
                         NodeInstance subProcessNodeInstance 
-                            = ((NodeInstanceContainer) nodeInstanceContainer).getNodeInstance((Node) handlerNode.getNodeContainer());
+                            = ((NodeInstanceContainer) nodeInstanceContainer).createNodeInstance((Node) handlerNode.getNodeContainer());
                         compensationInstances.add(subProcessNodeInstance);
                         NodeInstance compensationHandlerNodeInstance 
-                            = ((NodeInstanceContainer) subProcessNodeInstance).getNodeInstance(handlerNode);
+                            = ((NodeInstanceContainer) subProcessNodeInstance).createNodeInstance(handlerNode);
                         compensationInstances.add(compensationHandlerNodeInstance); 
                         EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) compensationHandlerNodeInstance;
                         eventNodeInstance.signalEvent("Compensation", compensationActivityRef);

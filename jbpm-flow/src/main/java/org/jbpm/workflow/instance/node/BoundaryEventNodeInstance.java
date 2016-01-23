@@ -29,18 +29,18 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
     @Override
     public void signalEvent(String type, Object event) {
         BoundaryEventNode boundaryNode = (BoundaryEventNode) getEventNode();
-        
+
         String attachedTo = boundaryNode.getAttachedToNodeId();
         Collection<NodeInstance> nodeInstances = ((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstances();
-        if( type != null && type.startsWith("Compensation") ) { 
+        if( type != null && type.startsWith("Compensation") ) {
             // if not active && completed, signal
             if( ! isAttachedToNodeActive(nodeInstances, attachedTo, type, event) && isAttachedToNodeCompleted(attachedTo)) {
                 super.signalEvent(type, event);
-            } 
+            }
             else {
                 cancel();
             }
-        } else { 
+        } else {
             if (isAttachedToNodeActive(nodeInstances, attachedTo, type, event)) {
                 super.signalEvent(type, event);
             } else {
@@ -74,11 +74,11 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
         }
         return false;
     }
-    
+
     private boolean isAttachedToNodeCompleted(String attachedTo) {
         WorkflowProcessInstanceImpl processInstance = (WorkflowProcessInstanceImpl) getProcessInstance();
         return processInstance.getCompletedNodeIds().contains(attachedTo);
     }
-    
+
 
 }

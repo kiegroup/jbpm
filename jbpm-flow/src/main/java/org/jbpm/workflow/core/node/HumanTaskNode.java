@@ -41,12 +41,7 @@ public class HumanTaskNode extends WorkItemNode {
         parameterDefinitions.add(new ParameterDefinitionImpl("Comment", new StringDataType()));
         parameterDefinitions.add(new ParameterDefinitionImpl("Skippable", new StringDataType()));
         parameterDefinitions.add(new ParameterDefinitionImpl("Content", new StringDataType()));
-        // TODO: initiator
-        // TODO: attachments
-        // TODO: deadlines
-        // TODO: delegates
-        // TODO: recipients
-        // TODO: ...
+        // TODO: initiator, attachments, deadlines, delegates, recipients, ...
         work.setParameterDefinitions(parameterDefinitions);
         setWork(work);
     }
