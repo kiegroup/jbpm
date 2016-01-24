@@ -16,11 +16,16 @@
   <logger name="org.jbpm" level="info" />
   <logger name="bitronix.tm" level="error" />
   <logger name="org.hibernate" level="warn" />
+  <logger name="org.drools.persistence" level="warn" />
 
   <logger name="org.jbpm.workflow.instance.stack" level="trace" />
   <logger name="org.jbpm" level="debug" />
   <logger name="org.jbpm.process.test" level="trace" />
 
+  <logger name="org.drools.core.common.DefaultAgenda" level="info" />
+  <logger name="org.drools.compiler.kie.builder" level="warn" />
+  <logger name="org.drools.core.impl" level="info" />
+  
   <root level="trace">
     <appender-ref ref="consoleAppender" />
   </root>
