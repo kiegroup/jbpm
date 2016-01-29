@@ -31,6 +31,8 @@ import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstance;
+import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
 /**
  * Runtime counterpart of an event node.

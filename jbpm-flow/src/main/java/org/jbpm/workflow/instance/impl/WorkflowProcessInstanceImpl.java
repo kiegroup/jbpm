@@ -89,6 +89,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 	private boolean signalCompletion = true;
 
+	public static final EventListener EMPTY_EVENT_LISTENER = new EventListener() {
+        @Override
+        public void signalEvent( String type, Object event ) { }
+        @Override
+        public String[] getEventTypes() { return null; }
+    };
+
     public NodeContainer getNodeContainer() {
 		return getWorkflowProcess();
 	}
