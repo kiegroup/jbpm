@@ -16,10 +16,13 @@
 
 package org.jbpm.workflow.instance.node;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,19 +46,18 @@ import org.mvel2.integration.impl.SimpleValueResolver;
 /**
  * Runtime counterpart of a for each node.
  * 
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class ForEachNodeInstance extends CompositeContextNodeInstance {
 
     private static final long serialVersionUID = 510l;
-   
+
     private static final String TEMP_OUTPUT_VAR = "foreach_output";
-    
+
     public ForEachNode getForEachNode() {
         return (ForEachNode) getNode();
     }
 
-    public NodeInstance getNodeInstance(final Node node) {
+    public NodeInstance createNodeInstance(final Node node) {
         // TODO do this cleaner for split / join of for each?
         if (node instanceof ForEachSplitNode) {
             ForEachSplitNodeInstance nodeInstance = new ForEachSplitNodeInstance();
@@ -88,14 +90,14 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             }
             return nodeInstance;
         }
-        return super.getNodeInstance(node);
+        return super.createNodeInstance(node);
     }
-    
+
     @Override
     public ContextContainer getContextContainer() {
         return (ContextContainer) getForEachNode().getCompositeNode();
     }
-    
+
     private Collection<?> evaluateCollectionExpression(String collectionExpression) {
         // TODO: should evaluate this expression using MVEL
         Object collection = null;
@@ -110,7 +112,7 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                 throw new IllegalArgumentException(
                     "Could not find collection " + collectionExpression);
             }
-            
+
         }
         if (collection == null) {
             return Collections.EMPTY_LIST;
@@ -128,13 +130,13 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
         throw new IllegalArgumentException(
             "Unexpected collection type: " + collection.getClass());
     }
-    
 
-    
+
+
     public class ForEachSplitNodeInstance extends NodeInstanceImpl {
 
         private static final long serialVersionUID = 510l;
-        
+
         public ForEachSplitNode getForEachSplitNode() {
             return (ForEachSplitNode) getNode();
         }
@@ -144,51 +146,65 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             Collection<?> collection = evaluateCollectionExpression(collectionExpression);
             ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
             if (collection.isEmpty()) {
-            	ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
+                ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
             } else {
-            	List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();
+            	Deque<NodeInstance> nodeInstances = new ArrayDeque<NodeInstance>(collection.size());
             	for (Object o: collection) {
             		String variableName = getForEachNode().getVariableName();
             		NodeInstance nodeInstance = (NodeInstance)
-            		((NodeInstanceContainer) getNodeInstanceContainer()).getNodeInstance(getForEachSplitNode().getTo().getTo());
+            		((NodeInstanceContainer) getNodeInstanceContainer()).createNodeInstance(getForEachSplitNode().getTo().getTo());
             		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
             			nodeInstance.resolveContextInstance(VariableScope.VARIABLE_SCOPE, variableName);
             		variableScopeInstance.setVariable(variableName, o);
             		nodeInstances.add(nodeInstance);
             	}
-            	for (NodeInstance nodeInstance: nodeInstances) {
-            	    logger.debug( "Triggering [{}] in multi-instance loop.", ((NodeInstanceImpl) nodeInstance).getNodeId() );
-            		((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(this, getForEachSplitNode().getTo().getToType());
+            	Iterator<NodeInstance> iter;
+            	if( isStackless()) {
+            	    iter = nodeInstances.descendingIterator();
+            	} else {
+            	    iter = nodeInstances.iterator();
+            	}
+            	while( iter.hasNext() ) {
+            	    NodeInstance nodeInstance = iter.next();
+            	    String toType = getForEachSplitNode().getTo().getToType();
+            	    if( isStackless() ) {
+            	        addNodeInstanceTrigger(nodeInstance, this, toType);
+            	    } else {
+            	        logger.debug( "Triggering [{}] in multi-instance loop.", ((NodeInstanceImpl) nodeInstance).getNodeId() );
+            	        ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(this, toType);
+            	    }
             	}
 	            if (!getForEachNode().isWaitForCompletion()) {
+	                // OCRAM: this should happen AFTER all node instances above have been triggered
 	            	ForEachNodeInstance.this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, false);
 	            }
             }
         }
 
-
     }
-    
+
     public class ForEachJoinNodeInstance extends NodeInstanceImpl {
 
         private static final long serialVersionUID = 510l;
-        
+
         public ForEachJoinNode getForEachJoinNode() {
             return (ForEachJoinNode) getNode();
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
+        @Override
         public void internalTrigger(org.kie.api.runtime.process.NodeInstance from, String type) {
         	Map<String, Object> tempVariables = new HashMap<String, Object>();
             VariableScopeInstance subprocessVariableScopeInstance = null;
             if (getForEachNode().getOutputVariableName() != null) {
                 subprocessVariableScopeInstance = (VariableScopeInstance) getContextInstance(VariableScope.VARIABLE_SCOPE);
-                
+
                 Collection<Object> outputCollection = (Collection<Object>) subprocessVariableScopeInstance.getVariable(TEMP_OUTPUT_VAR);
                 if (outputCollection == null) {
                     outputCollection = new ArrayList<Object>();
                 }
-            
+
+                // OCRAM: internalTrigger( from <= used )
                 VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
                 ((NodeInstanceImpl)from).resolveContextInstance(VariableScope.VARIABLE_SCOPE, getForEachNode().getOutputVariableName());
                 Object outputVariable = null;
@@ -196,7 +212,7 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                     outputVariable = variableScopeInstance.getVariable(getForEachNode().getOutputVariableName());
                 }
                 outputCollection.add(outputVariable);
-                
+
                 subprocessVariableScopeInstance.setVariable(TEMP_OUTPUT_VAR, outputCollection);
                 // add temp collection under actual mi output name for completion condition evaluation
                 tempVariables.put(getForEachNode().getOutputVariableName(), outputVariable);
@@ -220,12 +236,9 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                 }
             	((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
                 if (getForEachNode().isWaitForCompletion()) {
-                	
                 	if (!"true".equals(System.getProperty("jbpm.enable.multi.con"))) {
-                		
                 		triggerConnection(getForEachJoinNode().getTo());
                 	} else {
-                	
 	                    List<Connection> connections = getForEachJoinNode().getOutgoingConnections(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
 	                	for (Connection connection : connections) {
 	                	    triggerConnection(connection);
@@ -234,7 +247,7 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                 }
             }
         }
-        
+
         private boolean evaluateCompletionCondition(String expression, Map<String, Object> tempVariables) {
         	if (expression == null || expression.isEmpty()) {
         		return false;
@@ -242,17 +255,17 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
         	try {
                 Object result = MVELSafeHelper.getEvaluator().eval(expression, new ForEachNodeInstanceResolverFactory(this, tempVariables));
                 if ( !(result instanceof Boolean) ) {
-                    throw new RuntimeException( "Completion condition expression must return boolean values: " + result 
+                    throw new RuntimeException( "Completion condition expression must return boolean values: " + result
                     		+ " for expression " + expression);
                 }
                 return ((Boolean) result).booleanValue();
-                
+
             } catch (Throwable t) {
             	t.printStackTrace();
                 throw new IllegalArgumentException("Could not evaluate completion condition  " + expression);
             }
         }
-        
+
     }
 
     @Override
@@ -262,7 +275,7 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
             contextInstance = resolveContextInstance(contextId, TEMP_OUTPUT_VAR);
             setContextInstance(contextId, contextInstance);
         }
-        
+
         return contextInstance;
     }
 
@@ -270,8 +283,8 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
     public int getLevelForNode(String uniqueID) {
         // always 1 for for each
         return 1;
-    }  
-    
+    }
+
     private class ForEachNodeInstanceResolverFactory extends NodeInstanceResolverFactory {
 
 		private static final long serialVersionUID = -8856846610671009685L;
@@ -296,6 +309,6 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
 			}
 			return super.getVariableResolver(name);
 		}
-    	
+
     }
 }

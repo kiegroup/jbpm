@@ -36,6 +36,7 @@ public class ActionNodeInstance extends NodeInstanceImpl {
         return (ActionNode) getNode();
     }
 
+	@Override
     public void internalTrigger(final NodeInstance from, String type) {
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(

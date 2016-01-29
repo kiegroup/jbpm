@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,8 +15,8 @@
 
 package org.jbpm.workflow.instance.node;
 
-import org.kie.api.runtime.process.NodeInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.kie.api.runtime.process.NodeInstance;
 
 public class CatchLinkNodeInstance extends NodeInstanceImpl {
 
@@ -24,13 +24,7 @@ public class CatchLinkNodeInstance extends NodeInstanceImpl {
 
 	@Override
 	public void internalTrigger(NodeInstance from, String type) {
-		this.triggerCompleted();
-
-	}
-
-	public void triggerCompleted() {
-		this.triggerCompleted(
-				org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
+		this.triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
 	}
 
 }

@@ -53,20 +53,20 @@ import org.kie.api.runtime.process.WorkflowProcessInstance;
 
 /**
  * Default implementation of a process instance marshaller.
- * 
+ *
  */
 public abstract class AbstractProcessInstanceMarshaller implements
         ProcessInstanceMarshaller {
 
     // Output methods
     public Object writeProcessInstance(MarshallerWriteContext context,
-            ProcessInstance processInstance) throws IOException {        
+            ProcessInstance processInstance) throws IOException {
         WorkflowProcessInstanceImpl workFlow = (WorkflowProcessInstanceImpl) processInstance;
         ObjectOutputStream stream = context.stream;
         stream.writeLong(workFlow.getId());
         stream.writeUTF(workFlow.getProcessId());
         stream.writeInt(workFlow.getState());
-        stream.writeLong(workFlow.getNodeInstanceCounter());        
+        stream.writeLong(workFlow.getNodeInstanceCounter());
 
         SwimlaneContextInstance swimlaneContextInstance = (SwimlaneContextInstance) workFlow.getContextInstance(SwimlaneContext.SWIMLANE_SCOPE);
         if (swimlaneContextInstance != null) {
@@ -79,7 +79,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
         } else {
             stream.writeInt(0);
         }
-        
+
         List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>(workFlow.getNodeInstances());
         Collections.sort(nodeInstances,
                 new Comparator<NodeInstance>() {
@@ -94,8 +94,8 @@ public abstract class AbstractProcessInstanceMarshaller implements
             writeNodeInstance(context,
                     nodeInstance);
         }
-        stream.writeShort(PersisterEnums.END);              
-        
+        stream.writeShort(PersisterEnums.END);
+
         List<ContextInstance> exclusiveGroupInstances =
         	workFlow.getContextInstances(ExclusiveGroup.EXCLUSIVE_GROUP);
         if (exclusiveGroupInstances == null) {
@@ -115,7 +115,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
         Map<String, Object> variables = variableScopeInstance.getVariables();
         List<String> keys = new ArrayList<String>(variables.keySet());
         Collection<Object> values = variables.values();
-        
+
         Collections.sort(keys,
                 new Comparator<String>() {
 
@@ -130,17 +130,17 @@ public abstract class AbstractProcessInstanceMarshaller implements
                     // - Variable Key
                     // - Marshalling Strategy Index
                     // - Marshalled Object
-        
+
         Collection<Object> notNullValues = new ArrayList<Object>();
         for(Object value: values){
             if(value != null){
                 notNullValues.add(value);
             }
         }
-                
+
         stream.writeInt(notNullValues.size());
         for (String key : keys) {
-            Object object = variables.get(key); 
+            Object object = variables.get(key);
             if(object != null){
                 stream.writeUTF(key);
                 // New marshalling algorithm when using strategies
@@ -151,8 +151,11 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 stream.writeUTF(strategy.getClass().getName());
                 strategy.write(stream, object);
             }
-            
-        }    
+
+        }
+
+        stream.writeBoolean(workFlow.isStackless());
+
         return null;
 
     }
@@ -425,19 +428,19 @@ public abstract class AbstractProcessInstanceMarshaller implements
 			        if ( index >= 0 ) {
 			            strategy = context.resolverStrategyFactory.getStrategy( index );
 			        }
-			        // This is the new way 
-			        else if( index == -2 ) { 
+			        // This is the new way
+			        else if( index == -2 ) {
 			            String strategyClassName = context.stream.readUTF();
-			            if ( ! StringUtils.isEmpty(strategyClassName) ) { 
+			            if ( ! StringUtils.isEmpty(strategyClassName) ) {
 			                strategy = context.resolverStrategyFactory.getStrategyObject(strategyClassName);
-			                if( strategy == null ) { 
+			                if( strategy == null ) {
 			                    throw new IllegalStateException( "No strategy of type " + strategyClassName + " available." );
 			                }
 			            }
 			        }
 			        // If either way retrieves a strategy, use it
 			        Object value = null;
-			        if( strategy != null ) { 
+			        if( strategy != null ) {
 			            value = strategy.read( stream );
 			        }
 					variableScopeInstance.internalSetVariable(name, value);
@@ -448,6 +451,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
 			}
 		}
         processInstance.internalSetNodeInstanceCounter(nodeInstanceCounter);
+        processInstance.setStackless(stream.readBoolean());
         if (wm != null) {
             processInstance.reconnect();
         }
@@ -494,7 +498,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
                             (CompositeContextNodeInstance) nodeInstance,
                             processInstance);
                 }
-                
+
                 int exclusiveGroupInstances = stream.readInt();
             	for (int i = 0; i < exclusiveGroupInstances; i++) {
                     ExclusiveGroupInstance exclusiveGroupInstance = new ExclusiveGroupInstance();

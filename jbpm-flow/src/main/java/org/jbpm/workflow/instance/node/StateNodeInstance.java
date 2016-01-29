@@ -36,13 +36,13 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
     protected StateNode getStateNode() {
         return (StateNode) getNode();
     }
-    
+
 	public void internalTrigger(NodeInstance from, String type) {
 		super.internalTrigger(from, type);
 		// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
-		}        
+		}
 		// TODO: composite states trigger
         StateNode stateNode = getStateNode();
         Connection selected = null;
@@ -50,9 +50,9 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
         for (Connection connection: stateNode.getOutgoingConnections(NodeImpl.CONNECTION_DEFAULT_TYPE)) {
             Constraint constraint = stateNode.getConstraint(connection);
             if (constraint != null && constraint.getPriority() < priority) {
-	            String rule = "RuleFlowStateNode-" + getProcessInstance().getProcessId() + "-" + 
-	            	getStateNode().getUniqueId() + "-" + 
-	            	connection.getTo().getId() + "-" + 
+	            String rule = "RuleFlowStateNode-" + getProcessInstance().getProcessId() + "-" +
+	            	getStateNode().getUniqueId() + "-" +
+	            	connection.getTo().getId() + "-" +
 	            	connection.getToType();
 		        boolean isActive = ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
 		            .isRuleActiveInRuleFlowGroup("DROOLS_SYSTEM", rule, getProcessInstance().getId());
@@ -70,11 +70,11 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
             addActivationListener();
         }
 	}
-	
+
     protected boolean isLinkedIncomingNodeRequired() {
     	return false;
     }
-    
+
 	public void signalEvent(String type, Object event) {
 		if ("signal".equals(type)) {
 			if (event instanceof String) {
@@ -106,7 +106,7 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
 			super.signalEvent(type, event);
 		}
 	}
-	
+
 	private void addTriggerListener() {
 		getProcessInstance().addEventListener("signal", this, false);
 	}
@@ -120,7 +120,7 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
         addTriggerListener();
         addActivationListener();
     }
-    
+
     public void removeEventListeners() {
         super.removeEventListeners();
         getProcessInstance().removeEventListener("signal", this, false);
@@ -130,12 +130,12 @@ public class StateNodeInstance extends CompositeContextNodeInstance implements E
     public String[] getEventTypes() {
     	return new String[] { "signal", getActivationEventType() };
     }
-    
+
     private String getActivationEventType() {
     	return "RuleFlowStateNode-" + getProcessInstance().getProcessId()
     		+ "-" + getStateNode().getUniqueId();
     }
-    
+
     public void activationCreated(MatchCreatedEvent event) {
         Connection selected = null;
         for (Connection connection: getNode().getOutgoingConnections(NodeImpl.CONNECTION_DEFAULT_TYPE)) {

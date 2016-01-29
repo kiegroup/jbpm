@@ -64,7 +64,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Runtime counterpart of a work item node.
  *
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class WorkItemNodeInstance extends StateBasedNodeInstance implements EventListener, ContextInstanceContainer {
 
@@ -110,6 +109,7 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         return false;
     }
 
+    @Override
     public void internalTrigger(final NodeInstance from, String type) {
         super.internalTrigger(from, type);
         // if node instance was cancelled, abort
@@ -154,8 +154,11 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             }
         }
         if (!workItemNode.isWaitForCompletion()) {
+            // NEXT WorkItemNodeInstance
             triggerCompleted();
+
         }
+        // NEXT (if stackless then stack end.. ?
         this.workItemId = workItem.getId();
     }
 
@@ -320,7 +323,11 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
             KnowledgeRuntime kruntime = ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime();
             kruntime.update(kruntime.getFactHandle(this), this);
         } else {
-            triggerCompleted();
+            if( isStackless() ) {
+                getProcessInstance().triggerCompletedAndExecute(this);
+            } else {
+                triggerCompleted();
+            }
         }
     }
 
