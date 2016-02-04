@@ -20,6 +20,8 @@ import static org.jbpm.process.test.NodeCreator.connect;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.drools.core.process.core.Work;
@@ -29,7 +31,7 @@ import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.instance.impl.Action;
 import org.jbpm.process.test.NodeCreator;
-import org.jbpm.process.test.TestProcessEventListener;
+import org.jbpm.process.test.TestFlowProcessEventListener;
 import org.jbpm.process.test.TestWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.test.util.AbstractBaseTest;
@@ -41,19 +43,48 @@ import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class EventSubProcessTest extends AbstractBaseTest  {
-    
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-    String [] nestedEventOrder = { 
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> useStack() {
+        Object[][] execModelType = new Object[][] {
+                { OLD_RECURSIVE_STACK },
+                { QUEUE_BASED_EXECUTION }
+                };
+        return Arrays.asList(execModelType);
+    };
+
+    public EventSubProcessTest(String execModel) {
+        this.stacklessExecution = QUEUE_BASED_EXECUTION.equals(execModel);
+    }
+
+    @Before
+    public void og() {
+        //DBG
+        System.out.println("> " + ( stacklessExecution ? "STACKLESS" : "RECURSIVE" ) + ": " + testName.getMethodName());
+    }
+
+    String [] nestedEventOrder = {
             "bps",
             "bnt-0", "bnl-0",
             "bnt-1",
@@ -89,7 +120,7 @@ public class EventSubProcessTest extends AbstractBaseTest  {
             "anl-1:4:11", "ant-1:4:11",
             "anl-1:4:6"
     };
-    
+
 	@Test
     public void testNestedEventSubProcess() throws Exception {
         RuleFlowProcess process = new RuleFlowProcess();
@@ -97,7 +128,7 @@ public class EventSubProcessTest extends AbstractBaseTest  {
         String processId = "org.jbpm.process.event.subprocess";
         process.setId(processId);
         process.setName("Event SubProcess Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("event");
@@ -110,20 +141,20 @@ public class EventSubProcessTest extends AbstractBaseTest  {
         NodeCreator<StartNode> startNodeCreator = new NodeCreator<StartNode>(process, StartNode.class);
         NodeCreator<EndNode> endNodeCreator = new NodeCreator<EndNode>(process, EndNode.class);
         NodeCreator<CompositeNode> compNodeCreator = new NodeCreator<CompositeNode>(process, CompositeNode.class);
-        
+
         // outer process
         StartNode startNode = startNodeCreator.createNode("start0");
         CompositeNode compositeNode = compNodeCreator.createNode("comp0");
         connect( startNode, compositeNode );
-        
+
         EndNode endNode = endNodeCreator.createNode("end0");
         connect( compositeNode, endNode );
-            
+
         // 1rst level nested subprocess
         startNodeCreator.setNodeContainer(compositeNode);
         endNodeCreator.setNodeContainer(compositeNode);
         compNodeCreator.setNodeContainer(compositeNode);
-        
+
         startNode = startNodeCreator.createNode("start1");
 
         compositeNode = compNodeCreator.createNode("comp1");
@@ -131,7 +162,7 @@ public class EventSubProcessTest extends AbstractBaseTest  {
 
         endNode = endNodeCreator.createNode("end1");
         connect( compositeNode, endNode );
-       
+
         // 2nd level subprocess
         startNodeCreator.setNodeContainer(compositeNode);
         endNodeCreator.setNodeContainer(compositeNode);
@@ -155,11 +186,11 @@ public class EventSubProcessTest extends AbstractBaseTest  {
         String EVENT_NAME = "subEvent";
         eventFilter.setType(EVENT_NAME);
         espNode.addEvent(eventFilter);
-        
+
         startNodeCreator.setNodeContainer(espNode);
         endNodeCreator.setNodeContainer(espNode);
         NodeCreator<ActionNode> actionNodeCreator = new NodeCreator<ActionNode>(espNode, ActionNode.class);
-       
+
         startNode = startNodeCreator.createNode("start3*");
         ActionNode actionNode = actionNodeCreator.createNode("print3*");
         actionNode.setName("Print");
@@ -172,26 +203,27 @@ public class EventSubProcessTest extends AbstractBaseTest  {
         });
         actionNode.setAction(action);
         connect( startNode, actionNode );
-        
+
         endNode = endNodeCreator.createNode("end3*");
         connect( actionNode, endNode );
-        
+
         // run process
-        KieSession ksession = createKieSession(process);    
-        TestProcessEventListener procEventListener = new TestProcessEventListener();
+        KieSession ksession = createKieSession(process);
+        TestFlowProcessEventListener procEventListener = new TestFlowProcessEventListener();
+        procEventListener.useNodeInstanceUniqueId();
         ksession.addEventListener(procEventListener);
-       
+
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler(workItemName, workItemHandler);
         ProcessInstance processInstance = ksession.startProcess(processId);
-        
+
         processInstance.signalEvent(EVENT_NAME, null);
         assertEquals("Event " + EVENT_NAME + " did not fire!", 1, eventList.size());
-        
+
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-       
+
         verifyEventHistory(nestedEventOrder, procEventListener.getEventHistory());
     }
-    
+
 }

@@ -21,10 +21,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.drools.core.process.core.Work;
 import org.drools.core.process.core.impl.WorkImpl;
 import org.jbpm.process.instance.impl.Action;
-import org.jbpm.process.test.TestProcessEventListener;
+import org.jbpm.process.test.TestFlowProcessEventListener;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.core.DroolsAction;
@@ -37,7 +40,12 @@ import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.SubProcessNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.api.runtime.process.WorkItem;
@@ -45,50 +53,69 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class SubProcessTest extends AbstractBaseTest  {
-    
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
+
 	private boolean executed = false;
 	private WorkItem workItem;
-	
+
 	@Before
 	public void setUp() {
 		executed = false;
 		workItem = null;
+		// DBG
+		System.out.println("> " + ( stacklessExecution ? "STACKLESS" : "RECURSIVE" ) + ": " + testName.getMethodName());
 	}
-  
-	String [] syncEventorder = { 
+
+	@Rule
+	public TestName testName = new TestName();
+
+	@Parameters(name="{0}")
+	public static Collection<Object[]> useStack() {
+	    Object[][] execModelType = new Object[][] {
+	        { OLD_RECURSIVE_STACK },
+	        { QUEUE_BASED_EXECUTION }
+	    };
+	    return Arrays.asList(execModelType);
+	};
+
+	public SubProcessTest(String execModel) {
+	    this.stacklessExecution = QUEUE_BASED_EXECUTION.equals(execModel);
+	}
+
+	String [] syncEventorder = {
 	        "bps",
-	        "bnt-0", "bnl-0",
-	        "bnt-1",
-	        "bps",
-	        "bnt-0", "bnl-0",
 	        "bnt-1", "bnl-1",
+	        "bnt-3",
+	        "bps",
+	        "bnt-1", "bnl-1",
+	        "bnt-3", "bnl-3",
 	        "bnt-2", "bnl-2",
 	        "bpc", "apc",
 	        "anl-2", "ant-2",
+	        "anl-3", "ant-3",
 	        "anl-1", "ant-1",
-	        "anl-0", "ant-0",
 	        "aps",
-	        "bnl-1",
+	        "bnl-3",
 	        "bnt-2", "bnl-2",
 	        "bpc",
 	        "apc",
 	        "anl-2", "ant-2",
+	        "anl-3", "ant-3",
 	        "anl-1", "ant-1",
-	        "anl-0", "ant-0",
 	        "aps"
 	};
-	
+
 	@Test
     public void testSynchronousSubProcess() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.process");
         process.setName("Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -110,11 +137,11 @@ public class SubProcessTest extends AbstractBaseTest  {
             subProcessNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         RuleFlowProcess subprocess = new RuleFlowProcess();
         subprocess.setId("org.drools.core.process.subprocess");
         subprocess.setName("SubProcess");
-        
+
         startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -143,37 +170,37 @@ public class SubProcessTest extends AbstractBaseTest  {
     		actionNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process, subprocess); 
-        TestProcessEventListener procEventListener = new TestProcessEventListener();
-        ksession.addEventListener(procEventListener); 
-        
+
+        KieSession ksession = createKieSession(process, subprocess);
+        TestFlowProcessEventListener procEventListener = new TestFlowProcessEventListener();
+        ksession.addEventListener(procEventListener);
+
         ksession.startProcess("org.drools.core.process.process");
         assertTrue(executed);
         assertEquals(0, ksession.getProcessInstances().size());
-        
+
         verifyEventHistory(syncEventorder, procEventListener.getEventHistory());
     }
 
-	String [] asyncEventOrder = { 
-	        "bnl-1",
+	String [] asyncEventOrder = {
+	        "bnl-4",
 	        "bnt-2", "bnl-2",
 	        "bpc", "apc",
-	        "bnl-1",
+	        "bnl-3",
 	        "bnt-2", "bnl-2",
 	        "bpc", "apc",
 	        "anl-2", "ant-2",
-	        "anl-1",
+	        "anl-3",
 	        "anl-2", "ant-2",
-	        "anl-1",
+	        "anl-4",
 	};
-	
+
 	@Test
     public void testAsynchronousSubProcess() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.process");
         process.setName("Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -195,11 +222,11 @@ public class SubProcessTest extends AbstractBaseTest  {
             subProcessNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         RuleFlowProcess subProcess = new RuleFlowProcess();
         subProcess.setId("org.drools.core.process.subprocess");
         subProcess.setName("SubProcess");
-        
+
         startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -223,10 +250,10 @@ public class SubProcessTest extends AbstractBaseTest  {
     		workItemNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        
+
+
         KieSession ksession = createKieSession(process, subProcess);
-        
+
         ksession.getWorkItemManager().registerWorkItemHandler("MyWork", new WorkItemHandler() {
 			public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
 			    logger.info("Executing work item");
@@ -236,18 +263,28 @@ public class SubProcessTest extends AbstractBaseTest  {
 			}
         });
         ksession.startProcess("org.drools.core.process.process");
-        TestProcessEventListener procEventListener = new TestProcessEventListener();
-        ksession.addEventListener(procEventListener); 
-        
+        TestFlowProcessEventListener procEventListener = new TestFlowProcessEventListener();
+        ksession.addEventListener(procEventListener);
+
         assertNotNull(workItem);
         assertEquals(2, ksession.getProcessInstances().size());
-        
+
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertEquals(0, ksession.getProcessInstances().size());
-        
+
         verifyEventHistory(asyncEventOrder, procEventListener.getEventHistory());
     }
-    
+
+	String [] nonExistentOrder = {
+	        "bps",
+	        "bnt-1",
+	        "bnl-1",
+	        "bnt-2",
+	        "bpc",
+	        "cnl-2",
+	        "apc",
+	};
+
 	@Test
     public void testNonExistentSubProcess() {
 	    String nonExistentSubProcessName = "nonexistent.process";
@@ -264,24 +301,28 @@ public class SubProcessTest extends AbstractBaseTest  {
         EndNode endNode = new EndNode();
         endNode.setName("End");
         endNode.setId(3);
-        
+
         connect(startNode, subProcessNode);
         connect(subProcessNode, endNode);
-        
+
         process.addNode( startNode );
         process.addNode( subProcessNode );
         process.addNode( endNode );
 
         KieSession ksession = createKieSession(process);
-        
+        TestFlowProcessEventListener procEventListener = new TestFlowProcessEventListener();
+        ksession.addEventListener(procEventListener);
+
         try{
             ksession.startProcess("org.drools.core.process.process");
             fail("should throw exception");
         } catch (RuntimeException re){
             assertTrue(re.getMessage().contains( nonExistentSubProcessName ));
         }
+
+        verifyEventHistory(nonExistentOrder, procEventListener.getEventHistory(), false);
     }
-    
+
 	private void connect(Node sourceNode, Node targetNode) {
 		new ConnectionImpl(sourceNode, Node.CONNECTION_DEFAULT_TYPE,
 				           targetNode, Node.CONNECTION_DEFAULT_TYPE);

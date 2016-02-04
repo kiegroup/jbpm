@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -16,6 +16,8 @@
 package org.jbpm.process;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +35,7 @@ import org.drools.core.process.core.impl.WorkImpl;
 import org.jbpm.process.core.context.variable.Variable;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.test.Person;
+import org.jbpm.process.test.TestFlowProcessEventListener;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.core.Node;
@@ -41,24 +44,53 @@ import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class WorkItemTest extends AbstractBaseTest {
 
-    public void addLogger() { 
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> useStack() {
+        Object[][] execModelType = new Object[][] {
+                { OLD_RECURSIVE_STACK },
+                { QUEUE_BASED_EXECUTION }
+                };
+        return Arrays.asList(execModelType);
+    };
+
+    public WorkItemTest(String execModel) {
+        this.stacklessExecution = QUEUE_BASED_EXECUTION.equals(execModel);
+    }
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        // DBG
+       System.out.println( " " + testName.getMethodName() );
+    }
+
 	@Test
     public void testReachNonRegisteredWorkItemHandler() {
         String processId = "org.drools.actions";
         String workName = "Unnexistent Task";
         RuleFlowProcess process = getWorkItemProcess( processId,
                                                       workName );
-        KieSession ksession = createKieSession(process); 
+        KieSession ksession = createKieSession(process);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put( "UserName",
@@ -83,8 +115,10 @@ public class WorkItemTest extends AbstractBaseTest {
         String workName = "Unnexistent Task";
         RuleFlowProcess process = getWorkItemProcess( processId,
                                                       workName );
-        KieSession ksession = createKieSession(process); 
-        
+        KieSession ksession = createKieSession(process);
+        TestFlowProcessEventListener procEventListener = new TestFlowProcessEventListener();
+        ksession.addEventListener(procEventListener);
+
         ksession.getWorkItemManager().registerWorkItemHandler( workName,
                                                                new DoNothingWorkItemHandler() );
 

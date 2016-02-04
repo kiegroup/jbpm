@@ -1,12 +1,12 @@
 /**
  * Copyright 2010 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -36,6 +37,7 @@ import org.jbpm.process.core.event.EventTypeFilter;
 import org.jbpm.process.core.event.NonAcceptingEventTypeFilter;
 import org.jbpm.process.instance.impl.Action;
 import org.jbpm.process.test.NodeCreator;
+import org.jbpm.process.test.TestFlowProcessEventListener;
 import org.jbpm.process.test.TestWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.test.util.AbstractBaseTest;
@@ -51,29 +53,60 @@ import org.jbpm.workflow.core.node.EventSubProcessNode;
 import org.jbpm.workflow.core.node.StartNode;
 import org.jbpm.workflow.core.node.WorkItemNode;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.definition.process.NodeContainer;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessContext;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class CompensationTest extends AbstractBaseTest {
 
-    public void addLogger() { 
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-    private KieSession ksession; 
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> useStack() {
+        Object[][] execModelType = new Object[][] {
+                { OLD_RECURSIVE_STACK },
+                { QUEUE_BASED_EXECUTION }
+                };
+        return Arrays.asList(execModelType);
+    };
+
+    public CompensationTest(String execModel) {
+        this.stacklessExecution = QUEUE_BASED_EXECUTION.equals(execModel);
+    }
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        // DBG
+       System.out.println( " " + testName.getMethodName() );
+    }
+
+    private KieSession ksession;
+    private TestFlowProcessEventListener procEventListener = new TestFlowProcessEventListener();
+
     @After
-    public void cleanUp() { 
-        if( ksession != null ) { 
+    public void cleanUp() {
+        if( ksession != null ) {
             ksession.dispose();
             ksession = null;
         }
+        procEventListener = new TestFlowProcessEventListener();
     }
-    
+
     /*
      * General HELPER methods
      */
@@ -101,28 +134,28 @@ public class CompensationTest extends AbstractBaseTest {
         CompensationHandler handler = new CompensationHandler();
         handler.setNode(node);
         scope.setExceptionHandler(compensationHandlerId, handler);
-        
+
         node.setMetaData("isForCompensation", Boolean.TRUE);
     }
 
-    private Node findNode(RuleFlowProcess process, String nodeName) { 
+    private Node findNode(RuleFlowProcess process, String nodeName) {
         Node found = null;
         Queue<org.kie.api.definition.process.Node> nodes = new LinkedList<org.kie.api.definition.process.Node>();
         nodes.addAll(Arrays.asList(process.getNodes()));
-        while( ! nodes.isEmpty() ) { 
+        while( ! nodes.isEmpty() ) {
             org.kie.api.definition.process.Node node = nodes.poll();
             if (node.getName().equals(nodeName) ) {
                 found = (Node) node;
             }
-            if( node instanceof NodeContainer ) { 
+            if( node instanceof NodeContainer ) {
                 nodes.addAll(Arrays.asList(((NodeContainer) node).getNodes()));
             }
         }
         assertNotNull("Could not find node (" + nodeName + ").", found);
-        
+
         return found;
     }
-    
+
     /*
      * TESTS
      */
@@ -136,21 +169,22 @@ public class CompensationTest extends AbstractBaseTest {
 
         // run process
         ksession = createKieSession(process);
+        ksession.addEventListener(procEventListener);
 
         Node compensatedNode = findNode(process, "work1");
         String compensationEvent = (String) compensatedNode.getMetaData().get("UniqueId");
-        
+
         runCompensationBoundaryEventSpecificTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
 
-    public static void runCompensationBoundaryEventSpecificTest(KieSession ksession, RuleFlowProcess process, String processId, 
-            String [] workItemNames, List<String> eventList, String compensationEvent) { 
+    public static void runCompensationBoundaryEventSpecificTest(KieSession ksession, RuleFlowProcess process, String processId,
+            String [] workItemNames, List<String> eventList, String compensationEvent) {
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         for (String workItem : workItemNames) {
             ksession.getWorkItemManager().registerWorkItemHandler(workItem, workItemHandler);
         }
         ProcessInstance processInstance = ksession.startProcess(processId);
-        
+
         // call compensation on the uncompleted work 1 (which should not fire)
 
         ksession.signalEvent("Compensation", compensationEvent, processInstance.getId());
@@ -169,7 +203,7 @@ public class CompensationTest extends AbstractBaseTest {
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-        
+
     @Test
     public void testCompensationBoundaryEventGeneral() throws Exception {
         String processId = "org.jbpm.process.compensation.boundary";
@@ -179,14 +213,15 @@ public class CompensationTest extends AbstractBaseTest {
 
         // run process
         ksession = createKieSession(process);
-        
+        ksession.addEventListener(procEventListener);
+
         String compensationEvent = CompensationScope.IMPLICIT_COMPENSATION_PREFIX + processId;
 
         runCompensationBoundaryEventGeneralTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
-    
-    public static void runCompensationBoundaryEventGeneralTest(KieSession ksession, RuleFlowProcess process, String processId, 
-            String [] workItemNames, List<String> eventList, String compensationEvent) { 
+
+    public static void runCompensationBoundaryEventGeneralTest(KieSession ksession, RuleFlowProcess process, String processId,
+            String [] workItemNames, List<String> eventList, String compensationEvent) {
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         for (String workItem : workItemNames) {
             ksession.getWorkItemManager().registerWorkItemHandler(workItem, workItemHandler);
@@ -266,40 +301,41 @@ public class CompensationTest extends AbstractBaseTest {
 
         Node toCompensateNode = findNode(process, "sub0");
         String compensationEvent = (String) toCompensateNode.getMetaData().get("UniqueId");
-        
+
         // run process
         ksession = createKieSession(process);
+        ksession.addEventListener(procEventListener);
 
-        runCompensationEventSubProcessSpecificTest(ksession, process, processId, workItemNames, eventList, compensationEvent); 
+        runCompensationEventSubProcessSpecificTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
 
-    public static void runCompensationEventSubProcessSpecificTest(KieSession ksession, RuleFlowProcess process, String processId, 
-            String [] workItemNames, List<String> eventList, String compensationEvent) { 
+    public static void runCompensationEventSubProcessSpecificTest(KieSession ksession, RuleFlowProcess process, String processId,
+            String [] workItemNames, List<String> eventList, String compensationEvent) {
         // run process
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         for (String workItem : workItemNames) {
             ksession.getWorkItemManager().registerWorkItemHandler(workItem, workItemHandler);
         }
         ProcessInstance processInstance = ksession.startProcess(processId);
-    
+
         // call compensation on the uncompleted work 1 (which should not fire)
         ksession.signalEvent("Compensation", compensationEvent, processInstance.getId());
         assertEquals("Compensation should not have fired yet.", 0, eventList.size());
-        
+
         // pre work item
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
-    
+
         // sub-process is active, but not complete
         ksession.signalEvent("Compensation", compensationEvent, processInstance.getId());
         assertEquals("Compensation should not have fired yet.", 0, eventList.size());
-        
+
         // sub process work item
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
-        
-        // sub-process has completed 
+
+        // sub-process has completed
         ksession.signalEvent("Compensation", compensationEvent, processInstance.getId());
         assertEquals("Compensation should have fired once.", 1, eventList.size());
-        
+
         // post work item
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
@@ -312,16 +348,16 @@ public class CompensationTest extends AbstractBaseTest {
         List<String> eventList = new ArrayList<String>();
         RuleFlowProcess process = createCompensationEventSubProcessProcess(processId, workItemNames, eventList);
 
-        String compensationEvent = CompensationScope.IMPLICIT_COMPENSATION_PREFIX + process.getId(); 
-        
+        String compensationEvent = CompensationScope.IMPLICIT_COMPENSATION_PREFIX + process.getId();
+
         // run process
         ksession = createKieSession(process);
 
         runCompensationEventSubProcessGeneralTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
-    
-    public static void runCompensationEventSubProcessGeneralTest(KieSession ksession, RuleFlowProcess process, String processId, 
-            String [] workItemNames, List<String> eventList, String compensationEvent) { 
+
+    public static void runCompensationEventSubProcessGeneralTest(KieSession ksession, RuleFlowProcess process, String processId,
+            String [] workItemNames, List<String> eventList, String compensationEvent) {
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         for (String workItem : workItemNames) {
             ksession.getWorkItemManager().registerWorkItemHandler(workItem, workItemHandler);
@@ -331,25 +367,25 @@ public class CompensationTest extends AbstractBaseTest {
         // pre and sub process work item
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
-        
-        // Call general compensation 
+
+        // Call general compensation
 
         ksession.signalEvent("Compensation", compensationEvent, processInstance.getId());
         assertEquals("Compensation should have fired once.", 1, eventList.size());
-        
+
         // post work item
         ksession.getWorkItemManager().completeWorkItem(workItemHandler.getWorkItems().removeLast().getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
 
-    private RuleFlowProcess createCompensationEventSubProcessProcess(String processId, String[] workItemNames, 
+    private RuleFlowProcess createCompensationEventSubProcessProcess(String processId, String[] workItemNames,
             final List<String> eventList) throws Exception {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setAutoComplete(true);
         process.setId(processId);
         process.setName("CESP Process");
         process.setMetaData("Compensation", true);
-        
+
         NodeCreator<StartNode> startNodeCreator = new NodeCreator<StartNode>(process, StartNode.class);
         NodeCreator<WorkItemNode> workItemNodeCreator = new NodeCreator<WorkItemNode>(process, WorkItemNode.class);
         NodeCreator<CompositeContextNode> compNodeCreator = new NodeCreator<CompositeContextNode>(process, CompositeContextNode.class);
@@ -360,18 +396,18 @@ public class CompensationTest extends AbstractBaseTest {
         WorkItemNode workItemNode = workItemNodeCreator.createNode("work0-pre");
         workItemNode.getWork().setName(workItemNames[0]);
         connect( startNode, workItemNode );
-        
+
         CompositeNode compositeNode = compNodeCreator.createNode("sub0");
         connect( workItemNode, compositeNode );
 
         workItemNode = workItemNodeCreator.createNode("work0-post");
         workItemNode.getWork().setName(workItemNames[2]);
         connect( compositeNode, workItemNode );
-        
+
         EndNode endNode = endNodeCreator.createNode("end0");
         connect( workItemNode, endNode );
 
-        // 1rst level nested subprocess 
+        // 1rst level nested subprocess
         startNodeCreator.setNodeContainer(compositeNode);
         workItemNodeCreator.setNodeContainer(compositeNode);
         endNodeCreator.setNodeContainer(compositeNode);
@@ -392,7 +428,7 @@ public class CompensationTest extends AbstractBaseTest {
         espNode.addEvent(eventFilter);
 
         addCompensationScope(espNode, process, (String) compositeNode.getMetaData("UniqueId"));
-        
+
         startNodeCreator.setNodeContainer(espNode);
         endNodeCreator.setNodeContainer(espNode);
         NodeCreator<ActionNode> actionNodeCreator = new NodeCreator<ActionNode>(espNode, ActionNode.class);
@@ -414,22 +450,22 @@ public class CompensationTest extends AbstractBaseTest {
 
         return process;
     }
-    
+
     @Test
     public void testNestedCompensationEventSubProcessSpecific() throws Exception {
         String processId = "org.jbpm.process.compensation.event.nested.subprocess";
         String[] workItemNames = { "kwik", "kwek", "kwak" };
         List<String> eventList = new ArrayList<String>();
         RuleFlowProcess process = createNestedCompensationEventSubProcessProcess(processId, workItemNames, eventList);
-        
+
         Node toCompensateNode = findNode(process, "sub1");
         String compensationEvent = (String) toCompensateNode.getMetaData().get("UniqueId");
-        
+
         ksession = createKieSession(process);
-        
+
         runCompensationEventSubProcessSpecificTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
-    
+
     @Test
     public void testNestedCompensationEventSubProcessGeneral() throws Exception {
         String processId = "org.jbpm.process.compensation.event.subprocess.general";
@@ -441,23 +477,23 @@ public class CompensationTest extends AbstractBaseTest {
         String compensationEvent = CompensationScope.IMPLICIT_COMPENSATION_PREFIX + toCompensateNode.getMetaData().get("UniqueId");
 
         ksession = createKieSession(process);
-        
+
         runCompensationEventSubProcessGeneralTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
 
-    private RuleFlowProcess createNestedCompensationEventSubProcessProcess(String processId, String[] workItemNames, 
+    private RuleFlowProcess createNestedCompensationEventSubProcessProcess(String processId, String[] workItemNames,
             final List<String> eventList) throws Exception {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setAutoComplete(true);
         process.setId(processId);
         process.setName("CESP Process");
         process.setMetaData("Compensation", true);
-        
+
         NodeCreator<StartNode> startNodeCreator = new NodeCreator<StartNode>(process, StartNode.class);
         NodeCreator<WorkItemNode> workItemNodeCreator = new NodeCreator<WorkItemNode>(process, WorkItemNode.class);
         NodeCreator<CompositeContextNode> compNodeCreator = new NodeCreator<CompositeContextNode>(process, CompositeContextNode.class);
         NodeCreator<EndNode> endNodeCreator = new NodeCreator<EndNode>(process, EndNode.class);
-    
+
         // outer process
         CompositeContextNode compositeNode = compNodeCreator.createNode("sub0");
         {
@@ -471,7 +507,7 @@ public class CompensationTest extends AbstractBaseTest {
             EndNode endNode = endNodeCreator.createNode("end0");
             connect( compositeNode, endNode );
         }
-        
+
         // 1rst level nested subprocess (contains compensation visibility scope)
         CompositeContextNode compensationScopeContainerNode = compositeNode;
         {
@@ -490,11 +526,11 @@ public class CompensationTest extends AbstractBaseTest {
 
             EndNode endNode = endNodeCreator.createNode("end1");
             connect( workItemNode, endNode );
-            
+
             compositeNode = subCompNode;
         }
-        
-        // 2nd level nested subprocess 
+
+        // 2nd level nested subprocess
         {
             startNodeCreator.setNodeContainer(compositeNode);
             workItemNodeCreator.setNodeContainer(compositeNode);
@@ -513,17 +549,17 @@ public class CompensationTest extends AbstractBaseTest {
         {
             NodeCreator<EventSubProcessNode> espNodeCreator = new NodeCreator<EventSubProcessNode>(compositeNode, EventSubProcessNode.class);
             EventSubProcessNode espNode = espNodeCreator.createNode("eventSub2");
-            
+
             startNodeCreator.setNodeContainer(espNode);
             endNodeCreator.setNodeContainer(espNode);
             NodeCreator<ActionNode> actionNodeCreator = new NodeCreator<ActionNode>(espNode, ActionNode.class);
-            
+
             EventTypeFilter eventFilter = new NonAcceptingEventTypeFilter();
             eventFilter.setType("Compensation");
             espNode.addEvent(eventFilter);
 
             addCompensationScope(espNode, compensationScopeContainerNode, (String) compositeNode.getMetaData("UniqueId"));
-    
+
             StartNode startNode = startNodeCreator.createNode("start3*");
             ActionNode actionNode = actionNodeCreator.createNode("action3*");
             actionNode.setName("Execute");
@@ -539,10 +575,10 @@ public class CompensationTest extends AbstractBaseTest {
             EndNode endNode = endNodeCreator.createNode("end3*");
             connect( actionNode, endNode );
         }
-    
+
         return process;
     }
-    
+
     @Test
     public void testNestedCompensationBoundaryEventSpecific() throws Exception {
         String processId = "org.jbpm.process.compensation.boundary.nested";
@@ -555,10 +591,10 @@ public class CompensationTest extends AbstractBaseTest {
 
         Node compensatedNode = findNode(process, "work-comp-1");
         String compensationEvent = (String) compensatedNode.getMetaData().get("UniqueId");
-        
+
         runCompensationBoundaryEventSpecificTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
-    
+
     @Test
     public void testNestedCompensationBoundaryEventGeneral() throws Exception {
         String processId = "org.jbpm.process.compensation.boundary.general.nested";
@@ -568,14 +604,14 @@ public class CompensationTest extends AbstractBaseTest {
 
         // run process
         ksession = createKieSession(process);
-        
+
         Node toCompensateNode = findNode(process, "sub2");
-        String compensationEvent = CompensationScope.IMPLICIT_COMPENSATION_PREFIX 
+        String compensationEvent = CompensationScope.IMPLICIT_COMPENSATION_PREFIX
                 + (String) toCompensateNode.getMetaData().get("UniqueId");
 
         runCompensationBoundaryEventGeneralTest(ksession, process, processId, workItemNames, eventList, compensationEvent);
     }
-    
+
     private RuleFlowProcess createNestedCompensationBoundaryEventProcess(String processId, String[] workItemNames,
             final List<String> eventList) throws Exception {
         RuleFlowProcess process = new RuleFlowProcess();
@@ -606,7 +642,7 @@ public class CompensationTest extends AbstractBaseTest {
             EndNode endNode = endNodeCreator.createNode("end0");
             connect( compositeNode, endNode );
         }
-        
+
         // 1rst level nested subprocess (contains compensation visibility scope)
         {
             startNodeCreator.setNodeContainer(compositeNode);
@@ -619,10 +655,10 @@ public class CompensationTest extends AbstractBaseTest {
 
             EndNode endNode = endNodeCreator.createNode("end1");
             connect( subCompNode, endNode );
-            
+
             compositeNode = subCompNode;
         }
-        
+
         // 2nd level nested subprocess (contains compensation visibility scope)
         NodeCreator<WorkItemNode> workItemNodeCreator = new NodeCreator<WorkItemNode>(compositeNode, WorkItemNode.class);
         {
@@ -637,21 +673,21 @@ public class CompensationTest extends AbstractBaseTest {
             WorkItemNode workItemNode = workItemNodeCreator.createNode("work2");
             workItemNode.getWork().setName(workItemNames[2]);
             connect( subCompNode, workItemNode );
-            
+
             EndNode endNode = endNodeCreator.createNode("end2");
             connect( workItemNode, endNode );
 
             createBoundaryEventCompensationHandler(compositeNode, workItemNode, eventList, "2");
-            
+
             compositeNode = subCompNode;
         }
-        
+
         // Fill 3rd level with process with compensation
         {
             startNodeCreator.setNodeContainer(compositeNode);
             workItemNodeCreator.setNodeContainer(compositeNode);
             endNodeCreator.setNodeContainer(compositeNode);
-            
+
             StartNode startNode = startNodeCreator.createNode("start");
             Node lastNode = startNode;
             WorkItemNode[] workItemNodes = new WorkItemNode[3];
@@ -672,10 +708,10 @@ public class CompensationTest extends AbstractBaseTest {
         }
         return process;
     }
-    
-    private void createBoundaryEventCompensationHandler(org.jbpm.workflow.core.NodeContainer nodeContainer, 
-            Node attachedToNode, final List<String> eventList, final String id) throws Exception { 
-        
+
+    private void createBoundaryEventCompensationHandler(org.jbpm.workflow.core.NodeContainer nodeContainer,
+            Node attachedToNode, final List<String> eventList, final String id) throws Exception {
+
         NodeCreator<BoundaryEventNode> boundaryNodeCreator = new NodeCreator<BoundaryEventNode>(nodeContainer, BoundaryEventNode.class);
         BoundaryEventNode boundaryNode = boundaryNodeCreator.createNode("boundary" + id);
         String attachedTo = (String) attachedToNode.getMetaData().get("UniqueId");

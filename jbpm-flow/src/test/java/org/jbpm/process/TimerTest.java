@@ -19,6 +19,9 @@ package org.jbpm.process;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.drools.core.common.InternalWorkingMemory;
 import org.drools.core.runtime.process.ProcessRuntimeFactory;
 import org.jbpm.process.instance.InternalProcessRuntime;
@@ -27,27 +30,51 @@ import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
+import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class TimerTest extends AbstractBaseTest  {
 
-    public void addLogger() { 
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
+
 	private int counter = 0;
-	   
-    static {
-        ProcessRuntimeFactory.setProcessRuntimeFactoryService(new ProcessRuntimeFactoryServiceImpl());
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> useStack() {
+        Object[][] execModelType = new Object[][] {
+                { OLD_RECURSIVE_STACK },
+                { QUEUE_BASED_EXECUTION }
+                };
+        return Arrays.asList(execModelType);
+    };
+
+    public TimerTest(String execModel) {
+        this.stacklessExecution = QUEUE_BASED_EXECUTION.equals(execModel);
     }
-    
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        // DBG
+       System.out.println( " " + testName.getMethodName() );
+    }
+
     @Test
-    @Ignore
 	public void testTimer() {
 //        AbstractRuleBase ruleBase = (AbstractRuleBase) RuleBaseFactory.newRuleBase();
 //        ExecutorService executorService = new DefaultExecutorService();
@@ -73,7 +100,7 @@ public class TimerTest extends AbstractBaseTest  {
 
         new Thread(new Runnable() {
 			public void run() {
-	        	workingMemory.fireUntilHalt();       	
+	        	workingMemory.fireUntilHalt();
 			}
         }).start();
 
@@ -86,7 +113,7 @@ public class TimerTest extends AbstractBaseTest  {
         	// do nothing
         }
         assertEquals(1, counter);
-        
+
         counter = 0;
         timer = new TimerInstance();
         timer.setDelay(500);
@@ -98,7 +125,7 @@ public class TimerTest extends AbstractBaseTest  {
         	// do nothing
         }
         assertEquals(1, counter);
-        
+
         counter = 0;
         timer = new TimerInstance();
         timer.setDelay(500);
@@ -111,7 +138,7 @@ public class TimerTest extends AbstractBaseTest  {
         	// do nothing
         }
         assertEquals(1, counter);
-        
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -119,15 +146,15 @@ public class TimerTest extends AbstractBaseTest  {
         }
         // we can't know exactly how many times this will fire as timers are not precise, but should be atleast 4
         assertTrue( counter >= 4 );
-        
+
         timerManager.cancelTimer(timer.getId());
         int lastCount = counter;
-        try {            
+        try {
         	Thread.sleep(1000);
         } catch (InterruptedException e) {
         	// do nothing
         }
         assertEquals(lastCount, counter);
 	}
-	
+
 }
