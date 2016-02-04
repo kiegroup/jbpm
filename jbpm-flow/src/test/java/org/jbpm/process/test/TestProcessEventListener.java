@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,21 +19,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.EndNodeInstance;
+import org.jbpm.workflow.instance.node.EventNodeInstance;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
 import org.kie.api.event.process.ProcessNodeTriggeredEvent;
 import org.kie.api.event.process.ProcessStartedEvent;
 import org.kie.api.event.process.ProcessVariableChangedEvent;
+import org.kie.api.runtime.process.NodeInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestProcessEventListener implements ProcessEventListener {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
+    private boolean useNodeId = true;
+
+    public void useNodeInstanceUniqueId() {
+        this.useNodeId = false;
+    }
+
     private List<String> eventHistory = new ArrayList<String>();
-    
+
     @Override
     public void beforeProcessStarted(ProcessStartedEvent event) {
         logAndAdd("bps");
@@ -56,22 +65,27 @@ public class TestProcessEventListener implements ProcessEventListener {
 
     @Override
     public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
-        logAndAdd("bnt-" + ((NodeInstanceImpl) event.getNodeInstance()).getUniqueId());
+        logAndAdd("bnt-", event.getNodeInstance());
     }
 
     @Override
     public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
-        logAndAdd("ant-" + ((NodeInstanceImpl) event.getNodeInstance()).getUniqueId());
+        logAndAdd("ant-", event.getNodeInstance());
     }
 
     @Override
     public void beforeNodeLeft(ProcessNodeLeftEvent event) {
-        logAndAdd("bnl-" + ((NodeInstanceImpl) event.getNodeInstance()).getUniqueId());
+        logAndAdd("bnl-", event.getNodeInstance());
     }
 
     @Override
     public void afterNodeLeft(ProcessNodeLeftEvent event) {
-        logAndAdd("anl-" + ((NodeInstanceImpl) event.getNodeInstance()).getUniqueId());
+        String prefix = "anl-";
+        StackTraceElement [] stackTrace = Thread.currentThread().getStackTrace();
+        if( stackTrace[3].getMethodName().equals("cancel") ) {
+            prefix = "cnl-";
+        }
+        logAndAdd(prefix, event.getNodeInstance());
     }
 
     @Override
@@ -84,13 +98,19 @@ public class TestProcessEventListener implements ProcessEventListener {
         logAndAdd("avc-" + event.getVariableId());
     }
 
-    public List<String> getEventHistory() { 
+    public List<String> getEventHistory() {
         return eventHistory;
     }
-    
-    private void logAndAdd(String event) { 
-        logger.trace(event);
-        logger.trace(event, new Throwable("Stack:"));
+
+    private void logAndAdd(String event, NodeInstance...instances ) {
+        if( instances.length > 0 ) {
+            if( useNodeId ) {
+                event += instances[0].getNode().getId();
+            } else {
+                event += ((NodeInstanceImpl) instances[0]).getUniqueId();
+            }
+        }
+        System.out.println( "> " + event );
         eventHistory.add(event);
     }
 }

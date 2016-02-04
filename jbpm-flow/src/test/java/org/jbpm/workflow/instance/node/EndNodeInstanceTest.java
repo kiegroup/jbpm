@@ -66,7 +66,7 @@ public class EndNodeInstanceTest extends AbstractBaseTest {
         processInstance.setProcess( process );
         processInstance.setKnowledgeRuntime( (InternalKnowledgeRuntime) ksession );
         
-        MockNodeInstance mockNodeInstance = ( MockNodeInstance ) processInstance.getNodeInstance( mockNode );
+        MockNodeInstance mockNodeInstance = ( MockNodeInstance ) processInstance.createNodeInstance( mockNode );
         
         mockNodeInstance.triggerCompleted();
         assertEquals( ProcessInstance.STATE_COMPLETED, processInstance.getState() );                               
