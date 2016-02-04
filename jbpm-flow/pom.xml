@@ -135,5 +135,17 @@
       <artifactId>quartz</artifactId>
       <scope>provided</scope>
     </dependency>
+    
+    <!-- test -->
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-test-util</artifactId>
+      <scope>tests</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>

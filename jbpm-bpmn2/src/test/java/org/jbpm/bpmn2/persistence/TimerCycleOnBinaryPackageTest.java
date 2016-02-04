@@ -15,6 +15,7 @@
 
 package org.jbpm.bpmn2.persistence;
 
+import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 

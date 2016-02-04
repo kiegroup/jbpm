@@ -88,11 +88,15 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
     @Override
 	public void signalEvent(String type, Object event) {
 		super.signalEvent(type, event);
+		// OCRAM: reverse order for stackless
 		for (Node node: getCompositeNode().getNodes()) {
 			if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
-    			NodeInstance nodeInstance = getNodeInstance(node);
-                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-                	.trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			NodeInstance nodeInstance = createNodeInstance(node);
+    			if( isStackless() ) {
+    			    addNodeInstanceTrigger((org.jbpm.workflow.instance.NodeInstance) nodeInstance, null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			} else {
+    			    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			}
     		}
 		}
 	}

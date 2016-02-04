@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.process.instance.WorkItem;
 import org.drools.core.util.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
@@ -41,12 +40,10 @@ import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.process.instance.impl.ContextInstanceFactoryRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.process.instance.impl.util.VariableUtil;
-import org.jbpm.workflow.core.node.CompositeContextNode;
+import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.workflow.core.node.DataAssociation;
-import org.jbpm.workflow.core.node.ForEachNode;
 import org.jbpm.workflow.core.node.SubProcessNode;
 import org.jbpm.workflow.core.node.Transformation;
-import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.jbpm.workflow.instance.impl.VariableScopeResolverFactory;
 import org.kie.api.KieBase;
@@ -65,7 +62,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Runtime counterpart of a SubFlow node.
  *
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class SubProcessNodeInstance extends StateBasedNodeInstance implements EventListener, ContextInstanceContainer {
 
@@ -82,6 +78,7 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         return (SubProcessNode) getNode();
     }
 
+    @Override
     public void internalTrigger(final NodeInstance from, String type) {
     	super.internalTrigger(from, type);
     	// if node instance was cancelled, abort
@@ -202,7 +199,11 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
 	    	kruntime.startProcessInstance(processInstance.getId());
 	    	if (!getSubProcessNode().isWaitForCompletion()) {
-	    		triggerCompleted();
+	            if( isStackless() ) {
+	                getProcessInstance().triggerCompletedAndExecute(this);
+	            } else {
+	                triggerCompleted();
+	            }
 	    	} else if (processInstance.getState() == ProcessInstance.STATE_COMPLETED
 	    	        || processInstance.getState() == ProcessInstance.STATE_ABORTED) {
 	    	    processInstanceCompleted(processInstance);
@@ -288,8 +289,11 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
         }
         // if there were no exception proceed normally
-        triggerCompleted();
-
+        if( isStackless() ) {
+            ((RuleFlowProcessInstance) getProcessInstance()).triggerCompletedAndExecute(this);
+        } else {
+            triggerCompleted();
+        }
     }
 
     private void handleOutMappings(ProcessInstance processInstance) {

@@ -34,6 +34,7 @@ import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
+import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.CountDownProcessEventListener;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
@@ -41,6 +42,7 @@ import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance;
 import org.jbpm.workflow.instance.node.ForEachNodeInstance.ForEachJoinNodeInstance;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +74,12 @@ public class FlowTest extends JbpmBpmn2TestCase {
 
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
+        Object[][] data = new Object[][] {
+            { false, false },
+            { false, true },
+            { true, false },
+            { true, true }
+            };
         return Arrays.asList(data);
     };
 
@@ -80,10 +87,10 @@ public class FlowTest extends JbpmBpmn2TestCase {
 
     private KieSession ksession;
 
-    public FlowTest(boolean persistence) {
-        super(persistence);
+    public FlowTest(boolean persistence, boolean stackless) {
+        super(persistence, false, stackless);
     }
-    
+
     @BeforeClass
     public static void setup() throws Exception {
         setUpDataSource();
@@ -97,12 +104,12 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ksession = null;
         }
     }
-    
+
     @After
     public void clearProperties() {
         System.clearProperty("jbpm.enable.multi.con");
     }
-    
+
     @Test
     public void testExclusiveSplitWithNoConditions() throws Exception {
         try {
@@ -113,7 +120,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         }
 
     }
-    
+
     @Test
     public void testExclusiveSplit() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ExclusiveSplit.bpmn2");
@@ -265,7 +272,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertProcessInstanceCompleted(processInstance);
 
     }
-    
+
     @Test
     public void testInclusiveSplitDefaultConnection() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-InclusiveGatewayWithDefault.bpmn2");
@@ -481,8 +488,14 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(1, activeWorkItems.size());
         ksession.getWorkItemManager().completeWorkItem(
                 activeWorkItems.get(0).getId(), null);
-        
+
         countDownListener.waitTillCompleted();
+
+        if( stacklessExecution ) {
+            // because stackless is faster than the old recursive model..
+            Thread.sleep(100);
+        }
+
         assertProcessInstanceActive(processInstance);
 
         activeWorkItems = workItemHandler.getWorkItems();
@@ -539,7 +552,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertProcessInstanceCompleted(processInstance);
 
     }
-    
+
     @Test
     public void testInclusiveParallelExclusiveSplitNoLoop() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
@@ -555,30 +568,30 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 results.put("output1", x);
                 manager.completeWorkItem(workItem.getId(), results);
             }
-            
+
         });
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {   
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 logger.info(event.getNodeInstance().getNodeName());
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
 
-            
+
         });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", 0);
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         assertEquals(12, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
@@ -592,8 +605,8 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(2, (int)nodeInstanceExecutionCounter.get("ANDGateway-converging"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
-    }    
-    
+    }
+
     @Test
     public void testInclusiveParallelExclusiveSplitLoop() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
@@ -609,28 +622,28 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 results.put("output1", x);
                 manager.completeWorkItem(workItem.getId(), results);
             }
-            
+
         });
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
-            
+
         });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", -1);
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
         assertProcessInstanceCompleted(processInstance);
-        
+
         assertEquals(12, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
         assertEquals(2, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
@@ -645,7 +658,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
     }
-    
+
     @Test
     public void testInclusiveParallelExclusiveSplitNoLoopAsync() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
@@ -662,29 +675,29 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 results.put("output1", x);
                 manager.completeWorkItem(workItem.getId(), results);
             }
-            
+
         });
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                  
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
 
-            
+
         });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", 0);
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
         assertProcessInstanceActive(processInstance);
-        
+
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
@@ -693,7 +706,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         }
         assertProcessInstanceActive(processInstance);
-        
+
         workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(1, workItems.size());
@@ -702,7 +715,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         }
         assertProcessInstanceCompleted(processInstance);
-        
+
         assertEquals(12, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
@@ -716,8 +729,8 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(2, (int)nodeInstanceExecutionCounter.get("ANDGateway-converging"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
-    } 
-    
+    }
+
     @Test
     public void testInclusiveParallelExclusiveSplitLoopAsync() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveNestedInParallelNestedInExclusive.bpmn2");
@@ -734,29 +747,29 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 results.put("output1", x);
                 manager.completeWorkItem(workItem.getId(), results);
             }
-            
+
         });
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) { 
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
 
-            
+
         });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", -1);
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
         assertProcessInstanceActive(processInstance);
-        
+
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
@@ -765,7 +778,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         }
         assertProcessInstanceActive(processInstance);
-        
+
         workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
@@ -774,7 +787,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         }
         assertProcessInstanceActive(processInstance);
-        
+
         workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(1, workItems.size());
@@ -783,7 +796,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         }
         assertProcessInstanceCompleted(processInstance);
-        
+
         assertEquals(12, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
         assertEquals(2, (int)nodeInstanceExecutionCounter.get("XORGateway-converging"));
@@ -798,7 +811,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("testWI6"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
     }
-    
+
     @Test
     public void testInclusiveSplitNested() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayNested.bpmn2");
@@ -810,47 +823,47 @@ public class FlowTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().registerWorkItemHandler("testWI2", handler2);
         Map<String, Object> params = new HashMap<String, Object>();
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
         ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
-        
+
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
-        
+
         for (WorkItem wi : workItems) {
             assertProcessInstanceActive(processInstance);
             ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
         }
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
     }
-    
+
     @Test
     public void testInclusiveSplitWithLoopInside() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayWithLoopInside.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                 
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 logger.info("{} {}", event.getNodeInstance().getNodeName(), ((NodeInstanceImpl) event.getNodeInstance()).getLevel());
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
 
-            
+
         });
         TestWorkItemHandler handler = new TestWorkItemHandler();
         TestWorkItemHandler handler2 = new TestWorkItemHandler();
@@ -859,26 +872,26 @@ public class FlowTest extends JbpmBpmn2TestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", -1);
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
-        
+
         assertProcessInstanceActive(processInstance);
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
-        
+
         for (WorkItem wi : workItems) {
             assertProcessInstanceActive(processInstance);
             ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
         }
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
         assertEquals(10, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
@@ -892,27 +905,27 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(2, (int)nodeInstanceExecutionCounter.get("XOR converging"));
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("End"));
     }
-    
+
     @Test
     public void testInclusiveSplitWithLoopInsideSubprocess() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayWithLoopInsideSubprocess.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                 
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 logger.info("{} {}", event.getNodeInstance().getNodeName(), ((NodeInstanceImpl) event.getNodeInstance()).getLevel());
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
 
-            
+
         });
         TestWorkItemHandler handler = new TestWorkItemHandler();
         TestWorkItemHandler handler2 = new TestWorkItemHandler();
@@ -921,26 +934,26 @@ public class FlowTest extends JbpmBpmn2TestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", -1);
         ProcessInstance processInstance = ksession.startProcess("Process_1", params);
-        
+
         assertProcessInstanceActive(processInstance);
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
-        
+
         for (WorkItem wi : workItems) {
             assertProcessInstanceActive(processInstance);
             ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
         }
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler2.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
         assertEquals(13, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
@@ -1043,45 +1056,61 @@ public class FlowTest extends JbpmBpmn2TestCase {
         }
 
     }
-    
+
+    @Test
+    public void stacklessPersistence() throws Exception {
+        Assume.assumeTrue(stacklessExecution);
+
+        KieBase kbase = createKnowledgeBase("BPMN2-Lane.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+
+        ProcessInstance processInstance = ksession.startProcess("UserTask");
+        assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
+        assertTrue("Process instance should be stackless", ((RuleFlowProcessInstance) processInstance).isStackless());
+
+        ksession = restoreSession(ksession, true);
+        processInstance = ksession.getProcessInstance(processInstance.getId());
+        assertTrue("Restored process instance should be stackless", ((RuleFlowProcessInstance) processInstance).isStackless());
+    }
+
     @Test
     public void testInclusiveJoinWithLoopAndHumanTasks() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-InclusiveGatewayWithHumanTasksProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>(); 
+        final Map<String, Integer> nodeInstanceExecutionCounter = new HashMap<String, Integer>();
         ksession.addEventListener(new DefaultProcessEventListener(){
 
             @Override
-            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {                 
+            public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 logger.info("{} {}", event.getNodeInstance().getNodeName(), ((NodeInstanceImpl) event.getNodeInstance()).getLevel());
                 Integer value = nodeInstanceExecutionCounter.get(event.getNodeInstance().getNodeName());
                 if (value == null) {
                     value = new Integer(0);
                 }
-                
+
                 value++;
                 nodeInstanceExecutionCounter.put(event.getNodeInstance().getNodeName(), value);
             }
 
-            
+
         });
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("firstXor", true);   
-        params.put("secondXor", true); 
+        params.put("firstXor", true);
+        params.put("secondXor", true);
         params.put("thirdXor", true);
         ProcessInstance processInstance = ksession.startProcess("InclusiveWithAdvancedLoop", params);
         // simulate completion of first task
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
-        
+
         WorkItem remainingWork = null;
         for (WorkItem wi : workItems) {
             assertProcessInstanceActive(processInstance);
@@ -1092,13 +1121,13 @@ public class FlowTest extends JbpmBpmn2TestCase {
             	remainingWork = wi;
             }
         }
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(remainingWork.getId(), null);
-        
+
         assertProcessInstanceActive(processInstance);
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
         assertEquals(13, nodeInstanceExecutionCounter.size());
         assertEquals(1, (int)nodeInstanceExecutionCounter.get("Start"));
@@ -1129,13 +1158,13 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 "MultiInstanceLoopCharacteristicsProcess", params);
         assertProcessInstanceCompleted(processInstance);
     }
-    
+
     @Test
     public void testMultiInstanceLoopNumberTest() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-MultiInstanceLoop-Numbering.bpmn2");
         ksession = createKnowledgeSession(kbase);
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         final Map<String, String> nodeIdNodeNameMap = new HashMap<String, String>();
         ksession.addEventListener(new DefaultProcessEventListener() {
 
@@ -1144,25 +1173,25 @@ public class FlowTest extends JbpmBpmn2TestCase {
                 NodeInstance nodeInstance = event.getNodeInstance();
                 String uniqId = ((NodeInstanceImpl) nodeInstance).getUniqueId();
                 String nodeName = ((NodeInstanceImpl) nodeInstance).getNode().getName();
-                
+
                 String prevNodeName = nodeIdNodeNameMap.put( uniqId, nodeName );
-                if( prevNodeName != null ) { 
+                if( prevNodeName != null ) {
                     assertEquals(uniqId + " is used for more than one node instance: ", prevNodeName, nodeName);
                 }
             }
 
         });
-        
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         ProcessInstance processInstance = ksession.startProcess("Test.MultipleInstancesBug", params);
-       
+
         List<WorkItem> workItems = handler.getWorkItems();
         logger.debug( "COMPLETING TASKS.");
         ksession.getWorkItemManager().completeWorkItem(workItems.remove(0).getId(), null);
         ksession.getWorkItemManager().completeWorkItem(workItems.remove(0).getId(), null);
-        
+
         assertProcessInstanceCompleted(processInstance);
 
     }
@@ -1179,23 +1208,23 @@ public class FlowTest extends JbpmBpmn2TestCase {
         myList.add("John");
         myList.add("Mary");
         params.put("miinput", myList);
-        
+
         ProcessInstance processInstance = ksession.startProcess("miprocess", params);
         List<WorkItem> workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());
-        
+
         myOutList = (List<String>) ksession.execute(new GetProcessVariableCommand(processInstance.getId(), "mioutput"));
         assertNull(myOutList);
-        
-        
+
+
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("reply", "Hello John");
         ksession.getWorkItemManager().completeWorkItem(workItems.get(0).getId(), results);
-        
+
         myOutList = (List<String>) ksession.execute(new GetProcessVariableCommand(processInstance.getId(), "mioutput"));
         assertNull(myOutList);
-        
+
         results = new HashMap<String, Object>();
         results.put("reply", "Hello Mary");
         ksession.getWorkItemManager().completeWorkItem(workItems.get(1).getId(), results);
@@ -1205,9 +1234,9 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(2, myOutList.size());
         assertTrue(myOutList.contains("Hello John"));
         assertTrue(myOutList.contains("Hello Mary"));
-        
+
         ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), null);
-        
+
         assertProcessInstanceFinished(processInstance, ksession);
 
     }
@@ -1231,7 +1260,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(2, myListOut.size());
 
     }
-    
+
     @Test
     public void testMultiInstanceLoopCharacteristicsProcessWithOutputCompletionCondition()
             throws Exception {
@@ -1251,7 +1280,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(1, myListOut.size());
 
     }
-    
+
     @Test
     public void testMultiInstanceLoopCharacteristicsProcessWithOutputAndScripts()
             throws Exception {
@@ -1295,7 +1324,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(2, myListOut.size());
 
     }
-    
+
     @Test
     public void testMultiInstanceLoopCharacteristicsTaskWithOutputCompletionCondition()
             throws Exception {
@@ -1317,7 +1346,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertEquals(1, myListOut.size());
 
     }
-    
+
     @Test
     public void testMultiInstanceLoopCharacteristicsTaskWithOutputCompletionCondition2()
             throws Exception {
@@ -1384,19 +1413,19 @@ public class FlowTest extends JbpmBpmn2TestCase {
         System.clearProperty("jbpm.enable.multi.con");
 
     }
-    
+
     @Test
     public void testMultipleIncomingFlowToEndNode() throws Exception {
         System.setProperty("jbpm.enable.multi.con", "true");
 
         KieBase kbase = createKnowledgeBase("BPMN2-MultipleFlowEndNode.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        
+
         ProcessInstance processInstance = ksession.startProcess("MultipleFlowEndNode");
         assertProcessInstanceCompleted(processInstance);
         System.clearProperty("jbpm.enable.multi.con");
     }
-    
+
     @Test
     public void testMultipleEnabledOnSingleConditionalSequenceFlow() throws Exception {
         System.setProperty("jbpm.enable.multi.con", "true");
@@ -1480,7 +1509,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testExclusiveSplitDefaultNoCondition() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-ExclusiveSplitDefaultNoCondition.bpmn2");
@@ -1488,7 +1517,7 @@ public class FlowTest extends JbpmBpmn2TestCase {
         ProcessInstance processInstance = ksession.startProcess("com.sample.test");
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test
     public void testMultipleGatewaysProcess() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultipleGatewaysProcess.bpmn2");
@@ -1497,10 +1526,16 @@ public class FlowTest extends JbpmBpmn2TestCase {
             ProcessInstance pi;
 
             @Override
-            public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {                
-                if(event.getNodeInstance().getNodeName().equals("CreateAgent")){
-                    pi.signalEvent("Signal_1", null);                    
-                }                
+            public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
+                if( ((org.jbpm.workflow.instance.WorkflowProcessInstance) event.getProcessInstance()).isStackless() ) {
+                    if(event.getNodeInstance().getNodeName().equals("CreateAgentError")){
+                        pi.signalEvent("Signal_1", null);
+                    }
+                } else {
+                    if(event.getNodeInstance().getNodeName().equals("CreateAgent")){
+                        pi.signalEvent("Signal_1", null);
+                    }
+                }
             }
 
             @Override
@@ -1511,26 +1546,26 @@ public class FlowTest extends JbpmBpmn2TestCase {
             @Override
             public void beforeProcessStarted(ProcessStartedEvent event) {
                 pi=event.getProcessInstance();
-                
+
             }
         });
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("action", "CreateAgent");
         ProcessInstance processInstance = ksession.startProcess("multiplegateways", params);
-        
+
         assertProcessInstanceCompleted(processInstance);
     }
-    
-    @Test
+
+    @Test(timeout=10000)
     public void testTimerAndGateway() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 1);
         KieBase kbase = createKnowledgeBase("timer/BPMN2-ParallelSplitWithTimerProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.addEventListener(countDownListener);
-        
+
         TestWorkItemHandler handler1 = new TestWorkItemHandler();
         TestWorkItemHandler handler2 = new TestWorkItemHandler();
-        
+
         ksession.getWorkItemManager().registerWorkItemHandler("task1", handler1);
         ksession.getWorkItemManager().registerWorkItemHandler("task2", handler2);
 
@@ -1541,8 +1576,8 @@ public class FlowTest extends JbpmBpmn2TestCase {
         assertNotNull(workItem1);
         assertNull(handler1.getWorkItem());
         //first safe state: task1 completed
-        ksession.getWorkItemManager().completeWorkItem(workItem1.getId(), null);        
-        
+        ksession.getWorkItemManager().completeWorkItem(workItem1.getId(), null);
+
         ksession = restoreSession(ksession, true);
         ksession.addEventListener(countDownListener);
         ksession.getWorkItemManager().registerWorkItemHandler("task1", handler1);
@@ -1550,15 +1585,20 @@ public class FlowTest extends JbpmBpmn2TestCase {
         //second safe state: timer completed, waiting on task2
         countDownListener.waitTillCompleted();
 
+        if( stacklessExecution ) {
+            // because stackless is faster than the old recursive model..
+            Thread.sleep(100);
+        }
+
         WorkItem workItem2 = handler2.getWorkItem();
                 //Both sides of the join are completed. But on the process instance, there are two
                 //JoinInstance for the same Join, and since it is an AND join, it never reaches task2
                 //It fails after the next assertion
         assertNotNull(workItem2);
         assertNull(handler2.getWorkItem());
-        
+
         ksession.getWorkItemManager().completeWorkItem(workItem2.getId(), null);
-        
+
         assertProcessInstanceCompleted(instance);
     }
 
@@ -1566,8 +1606,8 @@ public class FlowTest extends JbpmBpmn2TestCase {
 
         private long processInstanceId;
         private String variableName;
-        
-        
+
+
         public GetProcessVariableCommand(long processInstanceId, String variableName) {
             this.processInstanceId = processInstanceId;
             this.variableName = variableName;
@@ -1577,16 +1617,16 @@ public class FlowTest extends JbpmBpmn2TestCase {
         public Object execute(Context context) {
             KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
 
-            org.jbpm.process.instance.ProcessInstance processInstance = 
+            org.jbpm.process.instance.ProcessInstance processInstance =
                     (org.jbpm.process.instance.ProcessInstance) ksession.getProcessInstance(processInstanceId);
 
-            VariableScopeInstance variableScope = 
+            VariableScopeInstance variableScope =
                     (VariableScopeInstance) processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
 
             Object variable = variableScope.getVariable(variableName);
 
             return variable;
         }
-        
+
     }
 }

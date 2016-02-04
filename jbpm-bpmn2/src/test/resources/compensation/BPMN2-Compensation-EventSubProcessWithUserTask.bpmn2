@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions id="Definition"
+             targetNamespace="http://www.example.org/MinimalExample"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_xItem" structureRef="String" />
+  
+  <process id="CompensationEventSubProcess" name="Default Process">
+  
+    <!-- process variables -->
+    <property id="x" itemSubjectRef="_xItem"/>
+    
+    <startEvent id="_1" name="Start" />
+    <sequenceFlow id="_1-_2" sourceRef="_1" targetRef="_2"/>
+    
+    <subProcess id="_2" name="Sub-Process">
+    
+      <startEvent id="_2-1" name="start-sub" />
+      <sequenceFlow id="_2-1-_2-2" name="" sourceRef="_2-1" targetRef="_2-2"/>
+      
+      <userTask id="_2-2" name="task-sub" />
+      <sequenceFlow id="_2-2-_2-3" sourceRef="_2-2" targetRef="_2-3"/>
+      
+      <endEvent id="_2-3" name="end-sub" />
+      
+      <subProcess id="_X" name="Compensation Sub Process" triggeredByEvent="true">
+        <startEvent id="_X-1" name="start-comp-sub">
+          <compensateEventDefinition id="CompensateEventDefinition_2" />
+        </startEvent>
+        <sequenceFlow id="_X-1-_X-2" sourceRef="_X-1" targetRef="_X-2"/>
+        
+        <scriptTask id="_X-2" name="script-comp-sub">
+          <script>kcontext.setVariable("x", Integer.toString(Integer.parseInt(kcontext.getVariable("x").toString()) + 1));</script>
+        </scriptTask>
+        <sequenceFlow id="_X-2-_X-3" sourceRef="_X-2" targetRef="_X-3"/>
+        
+        <endEvent id="_X-3" name="end-comp-sub" />
+      </subProcess>
+      
+    </subProcess>
+    <sequenceFlow id="_2-_3" sourceRef="_2" targetRef="_3"/>
+    
+    <endEvent id="_3" name="End Event 3">
+      <compensateEventDefinition id="CompensateEventDefinition_1" activityRef="_2"/>
+    </endEvent>
+    
+  </process>
+  
+</definitions>

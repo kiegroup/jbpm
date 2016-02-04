@@ -15,8 +15,8 @@
 
 package org.jbpm.workflow.instance.node;
 
-import org.kie.api.runtime.process.NodeInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.kie.api.runtime.process.NodeInstance;
 
 public class ThrowLinkNodeInstance extends NodeInstanceImpl {
 

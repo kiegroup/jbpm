@@ -174,6 +174,7 @@ public class DynamicUtils {
 	    		ksession.startProcess(processId, parameters);
     		eventSupport.fireAfterNodeTriggered(subProcessNodeInstance, ksession);
     		if (subProcessInstance.getState() == ProcessInstance.STATE_COMPLETED) {
+                // NEXT DynamicUtils?!?
 	    		subProcessNodeInstance.triggerCompleted();
 	    	} else {
 	    		subProcessNodeInstance.internalSetProcessInstanceId(subProcessInstance.getId());

@@ -26,16 +26,20 @@ import java.util.regex.Pattern;
 
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.event.EventTransformer;
+import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.core.node.EventNode;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
+import org.kie.api.runtime.process.EventListener;
+import org.kie.api.runtime.process.NodeInstance;
+import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
+import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of an event node.
  *
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class EventNodeInstance extends ExtendedNodeInstanceImpl implements EventNodeInstanceInterface, EventBasedNodeInstanceInterface {
 
@@ -43,6 +47,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
 
     private static final long serialVersionUID = 510l;
 
+    @Override
     public void signalEvent(String type, Object event) {
     	String variableName = getEventNode().getVariableName();
     	if (variableName != null) {
@@ -58,9 +63,18 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
     		}
     		variableScopeInstance.setVariable(variableName, event);
     	}
-    	triggerCompleted();
+    	signalTriggerCompleted();
     }
 
+    protected void signalTriggerCompleted() {
+    	if( isStackless() ) {
+    	    getProcessInstance().triggerCompletedAndExecute(this);
+    	} else {
+    	    triggerCompleted();
+    	}
+    }
+
+    @Override
     public void internalTrigger(final NodeInstance from, String type) {
     	if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
@@ -74,8 +88,9 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         return (EventNode) getNode();
     }
 
+    @Override
     public void triggerCompleted() {
-    	getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
+        getProcessInstance().removeEventListener(getEventType(), getEventListener(), true);
         ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }
@@ -86,7 +101,7 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
 		super.cancel();
 	}
 
-   private class VariableExternalEventListener implements EventListener, Serializable {
+   private class VariableExternalEventListener implements EventListener, ProcessImplementationPart, Serializable {
         private static final long serialVersionUID = 5L;
 
         private String eventType;
@@ -100,6 +115,9 @@ public class EventNodeInstance extends ExtendedNodeInstanceImpl implements Event
         }
         public void signalEvent(String type, Object event) {
             callSignal(type, event);
+        }
+        public boolean isStackless() {
+            return getProcessInstance().isStackless();
         }
     }
 

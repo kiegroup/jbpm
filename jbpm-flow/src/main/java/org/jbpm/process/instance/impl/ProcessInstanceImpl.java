@@ -28,11 +28,13 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.util.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
+import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.impl.XmlProcessDumper;
 import org.jbpm.process.core.impl.XmlProcessDumperFactory;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.ProcessInstanceResolverFactory;
 import org.kie.api.definition.process.Process;
@@ -43,14 +45,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Default implementation of a process instance.
  * 
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public abstract class ProcessInstanceImpl implements ProcessInstance, Serializable {
-	
+
 	protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
-	private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceImpl.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ProcessInstanceImpl.class);
 	private static final long serialVersionUID = 510l;
-	
+
 	private long id;
     private String processId;
     private transient Process process;
@@ -76,17 +77,17 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         this.processId = process.getId();
         this.process = ( Process ) process;
     }
-    
+
     public void updateProcess(final Process process) {
     	setProcess(process);
     	XmlProcessDumper dumper = XmlProcessDumperFactory.newXmlProcessDumperFactory();
     	this.processXml = dumper.dumpProcess(process);
     }
-    
+
     public String getProcessXml() {
     	return processXml;
     }
-    
+
     public void setProcessXml(String processXml) {
     	if (processXml != null && processXml.trim().length() > 0) {
     		this.processXml = processXml;
@@ -107,15 +108,15 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         }
         return this.process;
     }
-    
+
     public void setProcessId(String processId) {
     	this.processId = processId;
     }
-    
+
     public String getProcessId() {
         return processId;
     }
-    
+
     public String getProcessName() {
     	return getProcess().getName();
     }
@@ -123,12 +124,12 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public void setState(final int state) {
         internalSetState(state);
     }
-    
+
     public void setState(final int state, String outcome) {
         this.outcome = outcome;
         internalSetState(state);
     }
-    
+
     public void internalSetState(final int state) {
     	this.state = state;
     }
@@ -136,7 +137,7 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public int getState() {
         return this.state;
     }
-    
+
     public void setKnowledgeRuntime(final InternalKnowledgeRuntime kruntime) {
         if ( this.kruntime != null ) {
             throw new IllegalArgumentException( "Runtime can only be set once." );
@@ -147,7 +148,7 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public InternalKnowledgeRuntime getKnowledgeRuntime() {
         return this.kruntime;
     }
-    
+
 	public Agenda getAgenda() {
 		if (getKnowledgeRuntime() == null) {
 			return null;
@@ -158,11 +159,11 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public ContextContainer getContextContainer() {
         return ( ContextContainer ) getProcess();
     }
-    
+
     public void setContextInstance(String contextId, ContextInstance contextInstance) {
         this.contextInstances.put(contextId, contextInstance);
     }
-    
+
     public ContextInstance getContextInstance(String contextId) {
         ContextInstance contextInstance = this.contextInstances.get(contextId);
         if (contextInstance != null) {
@@ -175,11 +176,11 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         }
         return null;
     }
-    
+
     public List<ContextInstance> getContextInstances(String contextId) {
         return this.subContextInstances.get(contextId);
     }
-    
+
     public void addContextInstance(String contextId, ContextInstance contextInstance) {
         List<ContextInstance> list = this.subContextInstances.get(contextId);
         if (list == null) {
@@ -219,14 +220,14 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         }
         return contextInstance;
     }
-    
+
     public void signalEvent(String type, Object event) {
     }
 
     public void start() {
     	start(null);
     }
-    
+
     public void start(String trigger) {
     	synchronized (this) {
             if ( getState() != ProcessInstanceImpl.STATE_PENDING ) {
@@ -236,15 +237,15 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
             internalStart(trigger);
 		}
     }
-    
+
     protected abstract void internalStart(String trigger);
-    
+
     public void disconnect() {
         ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalRemoveProcessInstance(this);
         process = null;
         kruntime = null;
     }
-    
+
     public void reconnect() {
     	((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalAddProcessInstance(this);
     }
@@ -252,7 +253,7 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public String[] getEventTypes() {
     	return null;
     }
-    
+
     public String toString() {
         final StringBuilder b = new StringBuilder( "ProcessInstance " );
         b.append( getId() );
@@ -287,10 +288,10 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public void setParentProcessInstanceId(long parentProcessInstanceId) {
         this.parentProcessInstanceId = parentProcessInstanceId;
     }
-    
+
     public String getDescription() {
 		if (description == null) {
-			description = process.getName();			
+			description = process.getName();
 			if (process != null) {
 				Object metaData = process.getMetaData().get("customDescription");
 				if (metaData instanceof String) {
@@ -313,16 +314,35 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
 					for (Map.Entry<String, String> replacement : replacements.entrySet()) {
 						customDescription = customDescription.replace("#{" + replacement.getKey() + "}", replacement.getValue());
 					}
-					
+
 					description = customDescription;
 				}
 			}
 		}
-    	
+
     	return description;
     }
-    
+
     public void setDescription(String description) {
     	this.description = description;
     }
+
+    @Override
+    public void initializeVariableScope(Map<String, Object> parameters) {
+        VariableScope variableScope = (VariableScope) ((ContextContainer) process).getDefaultContext( VariableScope.VARIABLE_SCOPE );
+        VariableScopeInstance variableScopeInstance = (VariableScopeInstance) this.getContextInstance( VariableScope.VARIABLE_SCOPE );
+        // set input parameters
+        if ( parameters != null ) {
+            if ( variableScope != null ) {
+                for ( Map.Entry<String, Object> entry : parameters.entrySet() ) {
+
+                    variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue());
+                    variableScopeInstance.setVariable( entry.getKey(), entry.getValue() );
+                }
+            } else {
+                throw new IllegalArgumentException( "This process does not support parameters!" );
+            }
+        }
+    }
+
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -16,10 +16,16 @@
 package org.jbpm.test.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.drools.core.impl.EnvironmentFactory;
 import org.drools.core.impl.KnowledgeBaseImpl;
 import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.process.test.TestProcessEventListener;
@@ -28,9 +34,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.kie.api.KieBase;
 import org.kie.api.definition.process.Process;
+import org.kie.api.runtime.Environment;
+import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
-import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.slf4j.Logger;
 
@@ -38,49 +46,92 @@ public abstract class AbstractBaseTest {
 
     protected Logger logger;
 
+    protected static final String OLD_RECURSIVE_STACK = "recursive";
+    protected static final String QUEUE_BASED_EXECUTION =  "stackless";
+
+    protected boolean stacklessExecution = false;
+
     @Rule
     public TestName name = new TestName();
-    
-    @Before 
-    public void before() { 
+
+    @Before
+    public void before() {
         addLogger();
         logger.debug( "> " + name.getMethodName() );
     }
-   
+
     public abstract void addLogger();
-    
+
     protected static AtomicInteger uniqueIdGen = new AtomicInteger(0);
 
-    public KieSession createKieSession(Process... process) {
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
+    protected KieSession createKieSession(Process... process) {
+        KieBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         for (Process processToAdd : process) {
             ((KnowledgeBaseImpl) kbase).addProcess(processToAdd);
         }
-        return kbase.newStatefulKnowledgeSession();
+        Environment env = EnvironmentFactory.newEnvironment();
+        env.set(EnvironmentName.USE_STACKLESS_EXECUTION, stacklessExecution);
+        return kbase.newKieSession(null, env);
     }
 
-    public void showEventHistory(KieSession ksession) {
+    protected void showEventHistory(KieSession ksession) {
         TestProcessEventListener procEventListener = (TestProcessEventListener) ksession.getProcessEventListeners().iterator().next();
         for (String event : procEventListener.getEventHistory()) {
             System.out.println("\"" + event + "\",");
         }
     }
 
-    public void verifyEventHistory(String[] eventOrder, List<String> eventHistory) {
-        int max = eventOrder.length > eventHistory.size() ? eventOrder.length : eventHistory.size();
-        logger.debug("{} | {}", "EXPECTED", "TEST" );
-        for (int i = 0; i < max; ++i) {
-            String expected = "", real = "";
-            if (i < eventOrder.length) {
-                expected = eventOrder[i];
+
+    protected void verifyEventHistory(String[] expectedRecursiveEventOrder, List<String> eventHistory) {
+        verifyEventHistory(expectedRecursiveEventOrder, eventHistory, true);
+    }
+
+    protected void verifyEventHistory(String[] expectedRecursiveEventOrder, List<String> eventHistory, boolean checkStackless) {
+        if( ! stacklessExecution ) {
+            assertEquals("Mismatch in number of events expected.", expectedRecursiveEventOrder.length, eventHistory.size());
+            int max = expectedRecursiveEventOrder.length > eventHistory.size() ? expectedRecursiveEventOrder.length : eventHistory.size();
+            logger.debug("{} | {}", "EXPECTED", "TEST" );
+            for (int i = 0; i < max; ++i) {
+                String expected = "", real = "";
+                if (i < expectedRecursiveEventOrder.length) {
+                    expected = expectedRecursiveEventOrder[i];
+                }
+                if (i < eventHistory.size()) {
+                    real = eventHistory.get(i);
+                }
+                logger.debug("{} | {}", expected, real);
+                assertEquals("Mismatch in expected event", expected, real);
             }
-            if (i < eventHistory.size()) {
-                real = eventHistory.get(i);
+        } else if( checkStackless ) {
+            assertEquals("Mismatch in number of events expected.", expectedRecursiveEventOrder.length, eventHistory.size());
+            Map<String, Integer> actualHistory = new HashMap<String, Integer>();
+            Map<String, Integer> expectedHistory = new HashMap<String, Integer>();
+            for( String processEvent : expectedRecursiveEventOrder ) {
+                Integer numTimes = expectedHistory.get(processEvent);
+                if( numTimes == null ) {
+                    numTimes = 0;
+                }
+                expectedHistory.put(processEvent, numTimes.intValue() + 1);
             }
-            logger.debug("{} | {}", expected, real);
-            assertEquals("Mismatch in expected event", expected, real);
+            String lastEvent = null;
+            for( String processEvent : eventHistory ) {
+                Integer numTimes = actualHistory.get(processEvent);
+                if( numTimes == null ) {
+                   numTimes = 0;
+                }
+                actualHistory.put(processEvent, numTimes.intValue() + 1);
+                assertTrue( "Event " + processEvent + " did not happen during recursive execution!", expectedHistory.containsKey(processEvent) );
+                if( processEvent.startsWith("anl") ) {
+                    String beforeNodeLeft = "bnl-" + processEvent.substring(4);
+                    assertEquals( beforeNodeLeft, lastEvent);
+                }
+                lastEvent = processEvent;
+            }
+            for( Entry<String, Integer> eventTotal : expectedHistory.entrySet() ) {
+                String processEvent = eventTotal.getKey();
+                assertEquals( "Actual history for " + processEvent, eventTotal.getValue(), actualHistory.get(processEvent) );
+            }
         }
-        assertEquals("Mismatch in number of events expected.", eventOrder.length, eventHistory.size());
     }
 
     @BeforeClass
