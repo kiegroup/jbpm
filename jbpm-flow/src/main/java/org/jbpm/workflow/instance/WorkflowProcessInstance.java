@@ -16,13 +16,21 @@
 
 package org.jbpm.workflow.instance;
 
-import org.kie.api.runtime.process.EventListener;
+import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.workflow.instance.node.EventNodeInstanceInterface;
+import org.kie.api.runtime.process.EventListener;
 
-public interface WorkflowProcessInstance extends ProcessInstance, org.kie.api.runtime.process.WorkflowProcessInstance {
+public interface WorkflowProcessInstance extends ProcessInstance, org.kie.api.runtime.process.WorkflowProcessInstance, ProcessImplementationPart {
 
     void addEventListener(String type, EventListener eventListener, boolean external);
-    
+
     void removeEventListener(String type, EventListener eventListener, boolean external);
+
+    void addNodeInstanceTrigger( NodeInstance nodeInstance, NodeInstance from, String type );
+    void removeNodeInstanceTrigger( NodeInstance nodeInstance );
+
+    void triggerCompletedAndExecute( EventNodeInstanceInterface eventNodeInstance );
+    void signalEventAndExecute( EventListener eventListener, String type, Object event );
 
 }

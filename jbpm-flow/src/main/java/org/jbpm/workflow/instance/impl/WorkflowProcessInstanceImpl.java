@@ -29,11 +29,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
+import org.drools.core.impl.StatefulKnowledgeSessionImpl;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.timer.Timer;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
@@ -65,7 +67,6 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 /**
  * Default implementation of a RuleFlow process instance.
  *
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		implements WorkflowProcessInstance,
@@ -88,6 +89,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	private Object faultData;
 
 	private boolean signalCompletion = true;
+	private boolean stacklessExecution = false;
 
     public NodeContainer getNodeContainer() {
 		return getWorkflowProcess();
@@ -148,6 +150,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		return Collections.unmodifiableCollection(result);
 	}
 
+	@Override
 	public NodeInstance getNodeInstance(long nodeInstanceId) {
 		for (NodeInstance nodeInstance: nodeInstances) {
 			if (nodeInstance.getId() == nodeInstanceId) {
@@ -157,8 +160,9 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		return null;
 	}
 
-	public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
-		for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
+	@Override
+	public NodeInstance getNodeInstanceRecursively(long nodeInstanceId) {
+		for (NodeInstance nodeInstance: getNodeInstances(true)) {
 			if (nodeInstance.getId() == nodeInstanceId) {
 				return nodeInstance;
 			}
@@ -215,7 +219,8 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 		return result;
 	}
 
-	public NodeInstance getNodeInstance(final Node node) {
+	@Override
+	public NodeInstance createNodeInstance(final Node node) {
 	    Node actualNode = node;
 	    // async continuation handling
 	    if (node instanceof AsyncEventNode) {
@@ -224,17 +229,13 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
             actualNode = new AsyncEventNode(node);
         }
 
-
 		NodeInstanceFactory conf = NodeInstanceFactoryRegistry.getInstance(getKnowledgeRuntime().getEnvironment()).getProcessNodeInstanceFactory(actualNode);
 		if (conf == null) {
-			throw new IllegalArgumentException("Illegal node type: "
-					+ node.getClass());
+			throw new IllegalArgumentException("Illegal node type: " + node.getClass());
 		}
 		NodeInstanceImpl nodeInstance  = (NodeInstanceImpl) conf.getNodeInstance(actualNode, this, this);
-
 		if (nodeInstance == null) {
-			throw new IllegalArgumentException("Illegal node type: "
-					+ node.getClass());
+			throw new IllegalArgumentException("Illegal node type: " + node.getClass());
 		}
 		if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
 			getKnowledgeRuntime().insert(nodeInstance);
@@ -409,12 +410,17 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			registerExternalEventNodeListeners();
 			// activate timer event sub processes
 	        Node[] nodes = getNodeContainer().getNodes();
+	        // OCRAM: reverse order for stackless
 	        for (Node node : nodes) {
 	            if (node instanceof EventSubProcessNode) {
 	                Map<Timer, DroolsAction> timers = ((EventSubProcessNode) node).getTimers();
 	                if (timers != null && !timers.isEmpty()) {
-	                    EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) getNodeInstance(node);
-	                    eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+	                    EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) createNodeInstance(node);
+	                    if( isStackless() ) {
+	                        addNodeInstanceTrigger(eventSubprocess, null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+	                    } else {
+	                        eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
+	                    }
 	                }
 	            }
 	        }
@@ -462,23 +468,31 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 				List<EventListener> listeners = eventListeners.get(type);
 				if (listeners != null) {
 					for (EventListener listener : listeners) {
-						listener.signalEvent(type, event);
+					    if( isStackless() ) {
+					        signalEventAndExecute(listener, type, event);
+					    } else {
+					        listener.signalEvent(type, event);
+					    }
 					}
 				}
 				listeners = externalEventListeners.get(type);
 				if (listeners != null) {
 					for (EventListener listener : listeners) {
-						listener.signalEvent(type, event);
+					    if( isStackless() ) {
+					        signalEventAndExecute(listener, type, event);
+					    } else {
+					        listener.signalEvent(type, event);
+					    }
 					}
 				}
 				for (Node node : getWorkflowProcess().getNodes()) {
 			        if (node instanceof EventNodeInterface) {
 			            if (((EventNodeInterface) node).acceptsEvent(type, event)) {
 			                if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
-			                    EventNodeInstance eventNodeInstance = (EventNodeInstance) getNodeInstance(node);
+			                    EventNodeInstance eventNodeInstance = (EventNodeInstance) createNodeInstance(node);
 			                    eventNodeInstance.signalEvent(type, event);
 			                } else if (node instanceof EventSubProcessNode ) {
-			                    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) getNodeInstance(node);
+			                    EventSubProcessNodeInstance eventNodeInstance = (EventSubProcessNodeInstance) createNodeInstance(node);
 			                    eventNodeInstance.signalEvent(type, event);
 			                }  else {
 								List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
@@ -492,11 +506,16 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			        }
 				}
 				if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
-					for (Node node : getWorkflowProcess().getNodes()) {
+				    Node [] nodes = getWorkflowProcess().getNodes();
+				    // OCRAM: UGLY
+				    boolean stackless = isStackless();
+				    int limit = stackless ? 0 : nodes.length;
+				    int increment = stackless ? -1 : 1;
+					for(int i = ( stackless ? nodes.length-1 : 0 ); i != limit; i += increment ) {
+					    Node node = nodes[i];
 						if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
-			    			NodeInstance nodeInstance = getNodeInstance(node);
-			                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-			                	.trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+			    			NodeInstance nodeInstance = createNodeInstance(node);
+			                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
 			    		}
 					}
 				}
@@ -646,6 +665,15 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
     public void setSignalCompletion(boolean signalCompletion) {
         this.signalCompletion = signalCompletion;
+    }
+
+    public boolean isStackless() {
+//        new Throwable("** stackless?").printStackTrace();
+        return this.stacklessExecution;
+    }
+
+    public void setStackless(boolean stacklessExecution) {
+        this.stacklessExecution = stacklessExecution;
     }
 
 }

@@ -16,27 +16,26 @@
 
 package org.jbpm.workflow.instance;
 
-import org.kie.api.definition.process.Node;
 import org.jbpm.process.instance.ContextInstance;
+import org.jbpm.process.instance.ProcessImplementationPart;
+import org.kie.api.definition.process.Node;
 
 /**
  * Represents a node instance in a RuleFlow. This is the runtime counterpart
  * of a node, containing all runtime state.  Node instance classes also
  * contain the logic on what to do when it is being triggered (start
  * executing) or completed (end of execution).
- * 
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
-public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
+public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance, ProcessImplementationPart {
 
     void trigger(org.kie.api.runtime.process.NodeInstance from, String type);
 
     void cancel();
-    
+
     Node getNode();
-    
+
     ContextInstance resolveContextInstance(String contextId, Object param);
-    
+
     int getLevel();
-    
+
 }
