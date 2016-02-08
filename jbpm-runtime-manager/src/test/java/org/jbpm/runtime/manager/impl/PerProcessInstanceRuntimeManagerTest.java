@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +71,7 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.process.CorrelationAwareProcessRuntime;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationKeyFactory;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.runtime.manager.TaskServiceFactory;
 import org.kie.internal.runtime.manager.context.CorrelationKeyContext;
 import org.kie.internal.runtime.manager.context.EmptyContext;
@@ -1250,6 +1252,41 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         manager.disposeRuntimeEngine(runtime2);
         
         // close manager which will close session maintained by the manager
+        manager.close();
+    }
+    
+    
+    @Test
+    public void testSignalStartMultipleProcesses() {
+        // independent = true
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-SignalMultipleProcessesMain.bpmn2"), ResourceType.BPMN2)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-SignalMultipleProcessesOne.bpmn2"), ResourceType.BPMN2)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-SignalMultipleProcessesTwo.bpmn2"), ResourceType.BPMN2)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+        assertNotNull(manager);
+        // since there is no process instance yet we need to get new session
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+
+        assertNotNull(ksession);
+        long ksession1Id = ksession.getIdentifier();
+        assertTrue(ksession1Id == 2);
+
+        Map<String, Object> inputParams = new HashMap<>(); 
+        inputParams.put("processInput", "MyCoolParam");
+        
+        ksession.startProcess("main-process", inputParams);
+
+        AuditService auditService = runtime.getAuditService();
+        
+        List<? extends ProcessInstanceLog> processInstanceLogs = auditService.findProcessInstances();
+        assertEquals(3, processInstanceLogs.size());
+        
         manager.close();
     }
 }
