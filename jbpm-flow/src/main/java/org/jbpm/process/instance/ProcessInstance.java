@@ -19,15 +19,19 @@ package org.jbpm.process.instance;
 import java.util.Map;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
+import org.jbpm.workflow.instance.ProcessInstanceActionQueueExecutor;
 import org.kie.api.definition.process.Process;
 
 /**
  * A process instance is the representation of a process during its execution.
  * It contains all the runtime status information about the running process.
  * A process can have multiple instances.
- * 
+ *
  */
-public interface ProcessInstance extends org.kie.api.runtime.process.ProcessInstance, ContextInstanceContainer, ContextableInstance {
+public interface ProcessInstance
+    extends org.kie.api.runtime.process.ProcessInstance,
+    ContextInstanceContainer, ContextableInstance,
+    ProcessImplementationPart, ProcessInstanceActionQueueExecutor {
 
     void setId(long id);
 

@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runtime counterpart of a work item node.
- * 
+ *
  */
 public class WorkItemNodeInstance extends StateBasedNodeInstance implements EventListener, ContextInstanceContainer {
 
@@ -109,17 +109,16 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         return false;
     }
 
-    public void internalTrigger(final NodeInstance from, String type) {
-        super.internalTrigger(from, type);
+    @Override
+    public void afterEntryActions(NodeInstance from, String type) {
+        super.afterEntryActions(from, type);
         // if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
 		}
-        // TODO this should be included for ruleflow only, not for BPEL
-//        if (!Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
-//            throw new IllegalArgumentException(
-//                "A WorkItemNode only accepts default incoming connections!");
-//        }
+        if (! org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
+            throw new IllegalArgumentException("A WorkItemNode only accepts default incoming connections!");
+        }
         WorkItemNode workItemNode = getWorkItemNode();
         createWorkItem(workItemNode);
         if (workItemNode.isWaitForCompletion()) {
@@ -129,6 +128,8 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
         ((WorkItem) workItem).setDeploymentId(deploymentId);
         ((WorkItem) workItem).setNodeInstanceId(this.getId());
         ((WorkItem) workItem).setNodeId(getNodeId());
+        boolean triggerCompletedExecuted = false;
+        boolean isWaitForCompletion = workItemNode.isWaitForCompletion();
         if (isInversionOfControl()) {
             ((ProcessInstance) getProcessInstance()).getKnowledgeRuntime()
                 .update(((ProcessInstance) getProcessInstance()).getKnowledgeRuntime().getFactHandle(this), this);
@@ -149,13 +150,22 @@ public class WorkItemNodeInstance extends StateBasedNodeInstance implements Even
                 }
                 // workItemId must be set otherwise cancel activity will not find the right work item
                 this.workItemId = workItem.getId();
+                if( isStackless() && ! isWaitForCompletion ) {
+                    getProcessInstance().addAfterInternalTriggerAction(this);
+                    triggerCompletedExecuted = true;
+                }
                 exceptionScopeInstance.handleException(exceptionName, e);
             }
         }
-        if (!workItemNode.isWaitForCompletion()) {
+        if ( ! isWaitForCompletion && ! triggerCompletedExecuted ) {
             triggerCompleted();
         }
         this.workItemId = workItem.getId();
+    }
+
+    @Override
+    public void afterInternalTrigger() {
+        triggerCompleted();
     }
 
     protected WorkItem createWorkItem(WorkItemNode workItemNode) {

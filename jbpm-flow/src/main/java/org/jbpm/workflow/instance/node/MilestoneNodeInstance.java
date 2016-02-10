@@ -34,7 +34,7 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of a milestone node.
- * 
+ *
  */
 public class MilestoneNodeInstance extends StateBasedNodeInstance implements AgendaEventListener {
 
@@ -44,8 +44,9 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
         return (MilestoneNode) getNode();
     }
 
-    public void internalTrigger(final NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
+    @Override
+    public void afterEntryActions(NodeInstance from, String type) {
+    	super.afterEntryActions(from, type);
     	// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
@@ -64,12 +65,12 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
             addActivationListener();
         }
     }
-    
+
     public void addEventListeners() {
         super.addEventListeners();
         addActivationListener();
     }
-    
+
     private void addActivationListener() {
     	getProcessInstance().getKnowledgeRuntime().addEventListener(this);
     }
@@ -91,6 +92,7 @@ public class MilestoneNodeInstance extends StateBasedNodeInstance implements Age
                 ((InternalKnowledgeRuntime) getProcessInstance().getKnowledgeRuntime()).executeQueuedActions();
             	synchronized(getProcessInstance()) {
 	                removeEventListeners();
+	                // NEXT MilestoneNodeInstance
 	                triggerCompleted();
             	}
             }

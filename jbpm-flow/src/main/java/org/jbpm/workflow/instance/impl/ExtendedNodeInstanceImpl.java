@@ -18,38 +18,50 @@ package org.jbpm.workflow.instance.impl;
 
 import java.util.List;
 
-import org.kie.api.runtime.process.NodeInstance;
 import org.jbpm.process.instance.impl.Action;
 import org.jbpm.workflow.core.DroolsAction;
 import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
+import org.jbpm.workflow.instance.impl.queue.AfterExitActionsAction;
+import org.jbpm.workflow.instance.impl.queue.ProcessInstanceAction;
 
 public abstract class ExtendedNodeInstanceImpl extends NodeInstanceImpl {
 
 	private static final long serialVersionUID = 510l;
-	
+
 	public ExtendedNodeImpl getExtendedNode() {
 		return (ExtendedNodeImpl) getNode();
 	}
-	
-	public void internalTrigger(NodeInstance from, String type) {
-		triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
-	}
-	
+
     public void triggerCompleted(boolean remove) {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, remove);
     }
-    
+
 	protected void triggerCompleted(String type, boolean remove) {
-		triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
+		if( isStackless() ) {
+		    triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT,
+		            new AfterExitActionsAction(this, type, remove) );
+		} else {
+		    triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT, null);
+		    afterExitActions(type, remove);
+		}
+	}
+
+
+    public void afterExitActions(String type, boolean remove) {
 		super.triggerCompleted(type, remove);
 	}
-	
-	protected void triggerEvent(String type) {
+
+	protected void triggerEvent(String type, ProcessInstanceAction afterExceptionHandledAction) {
 		ExtendedNodeImpl extendedNode = getExtendedNode();
 		if (extendedNode == null) {
 			return;
 		}
 		List<DroolsAction> actions = extendedNode.getActions(type);
+
+		if( isStackless() ) {
+		    getProcessInstance().addProcessInstanceAction(afterExceptionHandledAction);
+		}
+
 		if (actions != null) {
 			for (DroolsAction droolsAction: actions) {
 			    Action action = (Action) droolsAction.getMetaData("Action");
@@ -58,6 +70,4 @@ public abstract class ExtendedNodeInstanceImpl extends NodeInstanceImpl {
 		}
 	}
 
-
-	
 }

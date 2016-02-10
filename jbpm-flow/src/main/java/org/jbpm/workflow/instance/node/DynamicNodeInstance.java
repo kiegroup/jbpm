@@ -18,7 +18,6 @@ package org.jbpm.workflow.instance.node;
 
 import org.drools.core.common.InternalAgenda;
 import org.drools.core.util.MVELSafeHelper;
-import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.DynamicNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
@@ -37,8 +36,8 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
 		return (DynamicNode) getNode();
 	}
 
-    public void internalTrigger(NodeInstance from, String type) {
-    	triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
+	@Override
+	public void afterEntryActions(NodeInstance from, String type) {
     	// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
@@ -91,9 +90,12 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
 		super.signalEvent(type, event);
 		for (Node node: getCompositeNode().getNodes()) {
 			if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
-    			NodeInstance nodeInstance = getNodeInstance(node);
-                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-                	.trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			NodeInstance nodeInstance = createNodeInstance(node);
+    			if( isStackless() ) {
+    			    addNodeInstanceTrigger((org.jbpm.workflow.instance.NodeInstance) nodeInstance, null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			} else {
+    			    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			}
     		}
 		}
 	}

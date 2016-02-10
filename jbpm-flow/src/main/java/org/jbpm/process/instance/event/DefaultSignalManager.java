@@ -24,6 +24,7 @@ import org.drools.core.marshalling.impl.MarshallerWriteContext;
 import org.drools.core.marshalling.impl.ProtobufMessages.ActionQueue.Action;
 import org.drools.core.phreak.PropagationEntry;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.ProcessInstance;
 
@@ -36,14 +37,14 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DefaultSignalManager implements SignalManager {
-	
+
 	private Map<String, List<EventListener>> processEventListeners;
 	private InternalKnowledgeRuntime kruntime;
-	
+
 	public DefaultSignalManager(InternalKnowledgeRuntime kruntime) {
 		this.kruntime = kruntime;
 	}
-	
+
 	public InternalKnowledgeRuntime getKnowledgeRuntime() {
 		return kruntime;
 	}
@@ -59,7 +60,7 @@ public class DefaultSignalManager implements SignalManager {
 		}
 		eventListeners.add(eventListener);
 	}
-	
+
 	public void removeEventListener(String type, EventListener eventListener) {
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
@@ -68,13 +69,16 @@ public class DefaultSignalManager implements SignalManager {
 			}
 		}
 	}
-	
+
 	public void signalEvent(String type, Object event) {
 		kruntime.queueWorkingMemoryAction(new SignalAction(type, event));
 		kruntime.executeQueuedActions();
 	}
-	
+
 	public void internalSignalEvent(String type, Object event) {
+
+	    // OCRAM: this needs to be synchronized around the process instance!!!
+
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {
@@ -91,20 +95,20 @@ public class DefaultSignalManager implements SignalManager {
 			kruntime.executeQueuedActions();
 		}
 	}
-	
+
 	public static class SignalProcessInstanceAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
 
 		private long processInstanceId;
 		private String type;
 		private Object event;
-		
+
 		public SignalProcessInstanceAction(long processInstanceId, String type, Object event) {
 			this.processInstanceId = processInstanceId;
 			this.type = type;
 			this.event = event;
-			
+
 		}
-		
+
 		public SignalProcessInstanceAction(MarshallerReaderContext context) throws IOException, ClassNotFoundException {
 			processInstanceId = context.readLong();
 			type = context.readUTF();
@@ -112,18 +116,15 @@ public class DefaultSignalManager implements SignalManager {
 				event = context.readObject();
 			}
 		}
-		
+
 		public void execute(InternalWorkingMemory workingMemory) {
-			ProcessInstance processInstance = workingMemory.getProcessInstance(processInstanceId);
-			if (processInstance != null) {
-				processInstance.signalEvent(type, event);
-			}
+		    execute(workingMemory.getKnowledgeRuntime());
 		}
 
 		public void execute(InternalKnowledgeRuntime kruntime) {
 			ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
 			if (processInstance != null) {
-				processInstance.signalEvent(type, event);
+			    processInstance.signalEvent(type, event);
 			}
 		}
 
@@ -155,30 +156,29 @@ public class DefaultSignalManager implements SignalManager {
 		}
 
         public Action serialize(MarshallerWriteContext context) throws IOException {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException("This has not yet been implemented.");
         }
 	}
-	
+
 	public static class SignalAction extends PropagationEntry.AbstractPropagationEntry implements WorkingMemoryAction {
 
 		private String type;
 		private Object event;
-		
+
 		public SignalAction(String type, Object event) {
 			this.type = type;
 			this.event = event;
 		}
-		
+
 		public SignalAction(MarshallerReaderContext context) throws IOException, ClassNotFoundException {
 			type = context.readUTF();
 			if (context.readBoolean()) {
 				event = context.readObject();
 			}
 		}
-		
+
 		public void execute(InternalWorkingMemory workingMemory) {
-			((DefaultSignalManager) ((InternalProcessRuntime) workingMemory.getProcessRuntime()).getSignalManager()).internalSignalEvent(type, event);
+		    execute(workingMemory.getKnowledgeRuntime());
 		}
 
         public void execute(InternalKnowledgeRuntime kruntime) {
@@ -209,10 +209,9 @@ public class DefaultSignalManager implements SignalManager {
 		}
 
         public Action serialize(MarshallerWriteContext context) throws IOException {
-            // TODO Auto-generated method stub
-            return null;
+            throw new UnsupportedOperationException("This has not yet been implemented.");
         }
-		
+
 	}
-	
+
 }

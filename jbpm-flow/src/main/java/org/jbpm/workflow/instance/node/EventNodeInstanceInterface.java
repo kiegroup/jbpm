@@ -16,8 +16,10 @@
 
 package org.jbpm.workflow.instance.node;
 
-public interface EventNodeInstanceInterface {
+import org.kie.api.runtime.process.EventSignallable;
 
-	void signalEvent(String type, Object event);
-	
+public interface EventNodeInstanceInterface extends EventSignallable {
+
+	void triggerCompleted();
+
 }

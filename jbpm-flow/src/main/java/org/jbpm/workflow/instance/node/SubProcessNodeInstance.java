@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
-import org.drools.core.process.instance.WorkItem;
 import org.drools.core.util.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
@@ -41,12 +40,10 @@ import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.process.instance.impl.ContextInstanceFactoryRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.process.instance.impl.util.VariableUtil;
-import org.jbpm.workflow.core.node.CompositeContextNode;
+import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.workflow.core.node.DataAssociation;
-import org.jbpm.workflow.core.node.ForEachNode;
 import org.jbpm.workflow.core.node.SubProcessNode;
 import org.jbpm.workflow.core.node.Transformation;
-import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.jbpm.workflow.instance.impl.VariableScopeResolverFactory;
 import org.kie.api.KieBase;
@@ -64,7 +61,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runtime counterpart of a SubFlow node.
- * 
+ *
  */
 public class SubProcessNodeInstance extends StateBasedNodeInstance implements EventListener, ContextInstanceContainer {
 
@@ -81,8 +78,9 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         return (SubProcessNode) getNode();
     }
 
-    public void internalTrigger(final NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
+    @Override
+    public void afterEntryActions(NodeInstance from, String type) {
+    	super.afterEntryActions(from, type);
     	// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
@@ -201,7 +199,12 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
 	    	kruntime.startProcessInstance(processInstance.getId());
 	    	if (!getSubProcessNode().isWaitForCompletion()) {
-	    		triggerCompleted();
+	            if( isStackless() ) {
+	                // OCRAM: let triggerCompleted() execute no matter what and executeQueue() if stackless?
+	                getProcessInstance().triggerCompletedAndExecute(this);
+	            } else {
+	                triggerCompleted();
+	            }
 	    	} else if (processInstance.getState() == ProcessInstance.STATE_COMPLETED
 	    	        || processInstance.getState() == ProcessInstance.STATE_ABORTED) {
 	    	    processInstanceCompleted(processInstance);
@@ -276,9 +279,14 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
             ExceptionScopeInstance exceptionScopeInstance = (ExceptionScopeInstance)
                     resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
             if (exceptionScopeInstance != null) {
-
+                boolean stackless = isStackless();
+                if( stackless ) {
+                    getProcessInstance().addAfterInternalTriggerAction(this);
+                }
                 exceptionScopeInstance.handleException(faultName, processInstance.getFaultData());
-                cancel();
+                if( ! stackless ) {
+                    cancel();
+                }
                 return;
             } else if (!getSubProcessNode().isIndependent()){
                 ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
@@ -287,8 +295,17 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
         }
         // if there were no exception proceed normally
-        triggerCompleted();
+        if( isStackless() ) {
+            // OCRAM: let triggerCompleted() execute no matter what and executeQueue() if stackless?
+            ((RuleFlowProcessInstance) getProcessInstance()).triggerCompletedAndExecute(this);
+        } else {
+            triggerCompleted();
+        }
+    }
 
+    @Override
+    public void afterInternalTrigger() {
+        cancel();
     }
 
     private void handleOutMappings(ProcessInstance processInstance) {

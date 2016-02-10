@@ -21,6 +21,7 @@ import org.jbpm.process.core.context.exception.ActionExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.instance.ContextInstanceContainer;
+import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.impl.Action;
 import org.jbpm.workflow.instance.NodeInstance;
@@ -33,8 +34,13 @@ public class DefaultExceptionScopeInstance extends ExceptionScopeInstance {
         return ExceptionScope.EXCEPTION_SCOPE;
     }
 
+    @Override
+    public boolean isStackless() {
+        return ((ProcessImplementationPart) getProcessInstance()).isStackless();
+    }
+
 	public void handleException(ExceptionHandler handler, String exception, Object params) {
-		
+
 		if (handler instanceof ActionExceptionHandler) {
 		    ActionExceptionHandler exceptionHandler = (ActionExceptionHandler) handler;
 			Action action = (Action) exceptionHandler.getAction().getMetaData("Action");

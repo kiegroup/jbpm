@@ -43,11 +43,14 @@ import org.jbpm.process.instance.impl.Action;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.workflow.core.DroolsAction;
+import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.node.StateBasedNode;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.impl.queue.AfterEntryActionsAction;
+import org.jbpm.workflow.instance.impl.queue.ProcessInstanceAction;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.process.EventListener;
 import org.kie.api.runtime.process.NodeInstance;
@@ -55,7 +58,9 @@ import org.kie.internal.runtime.KnowledgeRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl implements EventBasedNodeInstanceInterface, EventListener {
+public abstract class StateBasedNodeInstance
+    extends ExtendedNodeInstanceImpl
+    implements EventBasedNodeInstanceInterface, EventListener, EventNodeInstanceInterface, EntryActionExceptionHandlingNodeInstance {
 
 	private static final long serialVersionUID = 510l;
     protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
@@ -68,8 +73,25 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
         return (StateBasedNode) getNode();
     }
 
+	/**
+	 * Queue-Based: this method should only be overridden
+	 * when the entry actions should NOT be triggered by the
+	 * {@link #internalTrigger(NodeInstance, String)} method.
+	 *
+	 */
+	@Override
 	public void internalTrigger(NodeInstance from, String type) {
-		super.internalTrigger(from, type);
+	    if( isStackless() ) {
+	        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER,
+	                new AfterEntryActionsAction(this, from, type) );
+	    } else {
+	        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER, null);
+	        afterEntryActions(from, type);
+	    }
+	}
+
+	@Override
+	public void afterEntryActions(NodeInstance from, String type) {
 		// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
@@ -103,6 +125,8 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
 		}
 		((WorkflowProcessInstanceImpl) getProcessInstance()).addActivatingNodeId((String) getNode().getMetaData().get("UniqueId"));
 	}
+
+
 
     protected TimerInstance createTimerInstance(Timer timer) {
     	TimerInstance timerInstance = new TimerInstance();
@@ -316,6 +340,7 @@ public abstract class StateBasedNodeInstance extends ExtendedNodeInstanceImpl im
     	return new String[] { "timerTriggered", getActivationType()};
     }
 
+    @Override
     public void triggerCompleted() {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }

@@ -33,17 +33,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runtime counterpart of a fault node.
- * 
+ *
  */
 public class FaultNodeInstance extends NodeInstanceImpl {
 
     private static final long serialVersionUID = 510l;
     private static final Logger logger = LoggerFactory.getLogger(FaultNodeInstance.class);
-    
+
     protected FaultNode getFaultNode() {
         return (FaultNode) getNode();
     }
-    
+
+    @Override
+    // OCRAM FaultNodeInstance: internal stacks in scopes?
     public void internalTrigger(final NodeInstance from, String type) {
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
@@ -54,14 +56,31 @@ public class FaultNodeInstance extends NodeInstanceImpl {
         NodeInstanceContainer nodeInstanceContainer =  (NodeInstanceContainer) getNodeInstanceContainer();
         nodeInstanceContainer.removeNodeInstance(this);
         boolean exceptionHandled = false;
-        if (getFaultNode().isTerminateParent()) {
+        boolean terminateParent = getFaultNode().isTerminateParent();
+        if( isStackless() ) {
+            getProcessInstance().addAfterInternalTriggerAction(this);
+        }
+        if (terminateParent) {
             // handle exception before canceling nodes to allow boundary event to catch the events
             if (exceptionScopeInstance != null) {
                 exceptionHandled = true;
-                handleException(faultName, exceptionScopeInstance);                
+                handleException(faultName, exceptionScopeInstance);
             }
-            if (nodeInstanceContainer instanceof CompositeNodeInstance) {
+        }
+        if (exceptionScopeInstance != null && !exceptionHandled ) {
+            handleException(faultName, exceptionScopeInstance);
+        }
 
+        if( ! isStackless() ) {
+            afterInternalTrigger();
+        }
+    }
+
+    public void afterInternalTrigger() {
+        NodeInstanceContainer nodeInstanceContainer =  (NodeInstanceContainer) getNodeInstanceContainer();
+        boolean terminateParent = getFaultNode().isTerminateParent();
+        if( terminateParent ) {
+            if (nodeInstanceContainer instanceof CompositeNodeInstance) {
                 ((CompositeNodeInstance) nodeInstanceContainer).cancel();
             } else if (nodeInstanceContainer instanceof WorkflowProcessInstance) {
                 Collection<NodeInstance> nodeInstances = ((WorkflowProcessInstance) nodeInstanceContainer).getNodeInstances();
@@ -70,26 +89,21 @@ public class FaultNodeInstance extends NodeInstanceImpl {
                 }
             }
         }
-        if (exceptionScopeInstance != null) {
-            if (!exceptionHandled) {
-                handleException(faultName, exceptionScopeInstance);
-            }
-        } else {
-
-        	((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName, getFaultData());
-
+        String faultName = getFaultName();
+        ExceptionScopeInstance exceptionScopeInstance = getExceptionScopeInstance(faultName);
+        if( exceptionScopeInstance == null ) {
+            ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName, getFaultData());
         }
     }
-    
+
     protected ExceptionScopeInstance getExceptionScopeInstance(String faultName) {
-    	return (ExceptionScopeInstance)
-    		resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
+    	return (ExceptionScopeInstance) resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
     }
-    
+
     protected String getFaultName() {
     	return getFaultNode().getFaultName();
     }
-    
+
     protected Object getFaultData() {
     	Object value = null;
     	String faultVariable = getFaultNode().getFaultVariable();
@@ -106,7 +120,7 @@ public class FaultNodeInstance extends NodeInstanceImpl {
     	}
     	return value;
     }
-    
+
     protected void handleException(String faultName, ExceptionScopeInstance exceptionScopeInstance) {
         exceptionScopeInstance.handleException(faultName, getFaultData());
     }
