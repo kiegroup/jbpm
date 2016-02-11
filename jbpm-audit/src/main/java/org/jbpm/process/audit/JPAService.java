@@ -58,110 +58,110 @@ import org.slf4j.LoggerFactory;
  */
 public class JPAService {
 
-	private static final Logger logger = LoggerFactory.getLogger(JPAService.class);
+    private static final Logger logger = LoggerFactory.getLogger(JPAService.class);
 
-	protected PersistenceStrategy persistenceStrategy;
+    protected PersistenceStrategy persistenceStrategy;
 
-	protected String persistenceUnitName;
+    protected String persistenceUnitName;
 
-	public JPAService(String persistenceUnitName) {
-		this.persistenceUnitName = persistenceUnitName;
-		EntityManagerFactory emf = null;
-		try {
-			emf = Persistence.createEntityManagerFactory(persistenceUnitName);
-		} catch (Exception e) {
-			logger.info("The '" + persistenceUnitName
-					+ "' peristence unit is not available, no persistence strategy set for "
-					+ this.getClass().getSimpleName());
-		}
-		if (emf != null) {
-			persistenceStrategy = new StandaloneJtaStrategy(emf);
-		}
-	}
+    public JPAService(String persistenceUnitName) {
+        this.persistenceUnitName = persistenceUnitName;
+        EntityManagerFactory emf = null;
+        try {
+            emf = Persistence.createEntityManagerFactory(persistenceUnitName);
+        } catch (Exception e) {
+            logger.info("The '" + persistenceUnitName
+                    + "' peristence unit is not available, no persistence strategy set for "
+                    + this.getClass().getSimpleName());
+        }
+        if (emf != null) {
+            persistenceStrategy = new StandaloneJtaStrategy(emf);
+        }
+    }
 
-	public JPAService(Environment env, PersistenceStrategyType type) {
-		persistenceStrategy = PersistenceStrategyType.getPersistenceStrategy(type, env);
-	}
+    public JPAService(Environment env, PersistenceStrategyType type) {
+        persistenceStrategy = PersistenceStrategyType.getPersistenceStrategy(type, env);
+    }
 
-	public JPAService(Environment env, String peristenceUnitName) {
-		EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
-		String localTransactions = (String) env.get(EnvironmentName.USE_LOCAL_TRANSACTIONS);
+    public JPAService(Environment env, String peristenceUnitName) {
+        EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
+        String localTransactions = (String) env.get(EnvironmentName.USE_LOCAL_TRANSACTIONS);
 
-		if (emf != null) {
+        if (emf != null) {
 
-			if (localTransactions != null) {
-				if (localTransactions.equals("true")) {
-					persistenceStrategy = new StandaloneLocalStrategy(emf);
-				}
-			} else {
-				persistenceStrategy = new StandaloneJtaStrategy(emf);
-			}
-		} else {
+            if (localTransactions != null) {
+                if (localTransactions.equals("true")) {
+                    persistenceStrategy = new StandaloneLocalStrategy(emf);
+                }
+            } else {
+                persistenceStrategy = new StandaloneJtaStrategy(emf);
+            }
+        } else {
 
-			if (localTransactions != null) {
-				if (localTransactions.equals("true")) {
-					persistenceStrategy = new StandaloneLocalStrategy(
-							Persistence.createEntityManagerFactory(persistenceUnitName));
-				}
-			} else {
-				persistenceStrategy = new StandaloneJtaStrategy(
-						Persistence.createEntityManagerFactory(persistenceUnitName));
-			}
+            if (localTransactions != null) {
+                if (localTransactions.equals("true")) {
+                    persistenceStrategy = new StandaloneLocalStrategy(
+                            Persistence.createEntityManagerFactory(persistenceUnitName));
+                }
+            } else {
+                persistenceStrategy = new StandaloneJtaStrategy(
+                        Persistence.createEntityManagerFactory(persistenceUnitName));
+            }
 
-		}
-	}
+        }
+    }
 
-	public JPAService(EntityManagerFactory emf) {
-		persistenceStrategy = new StandaloneJtaStrategy(emf);
-	}
+    public JPAService(EntityManagerFactory emf) {
+        persistenceStrategy = new StandaloneJtaStrategy(emf);
+    }
 
-	public JPAService(EntityManagerFactory emf, PersistenceStrategyType type) {
-		persistenceStrategy = PersistenceStrategyType.getPersistenceStrategy(type, emf);
-	}
+    public JPAService(EntityManagerFactory emf, PersistenceStrategyType type) {
+        persistenceStrategy = PersistenceStrategyType.getPersistenceStrategy(type, emf);
+    }
 
-	public void setPersistenceUnitName(String persistenceUnitName) {
-		persistenceStrategy = new StandaloneJtaStrategy(Persistence.createEntityManagerFactory(persistenceUnitName));
-		this.persistenceUnitName = persistenceUnitName;
-	}
+    public void setPersistenceUnitName(String persistenceUnitName) {
+        persistenceStrategy = new StandaloneJtaStrategy(Persistence.createEntityManagerFactory(persistenceUnitName));
+        this.persistenceUnitName = persistenceUnitName;
+    }
 
-	public String getPersistenceUnitName() {
-		return persistenceUnitName;
-	}
+    public String getPersistenceUnitName() {
+        return persistenceUnitName;
+    }
 
-	public void dispose() {
-		persistenceStrategy.dispose();
-	}
+    public void dispose() {
+        persistenceStrategy.dispose();
+    }
 
-	// DO NOT MAKE THIS METHOD PUBLIC!
-	// This is an internal method, and we do NOT want to expose the entity
-	// manager to users or other logic!
-	protected EntityManager getEntityManager() {
-		return persistenceStrategy.getEntityManager();
-	}
+    // DO NOT MAKE THIS METHOD PUBLIC!
+    // This is an internal method, and we do NOT want to expose the entity
+    // manager to users or other logic!
+    protected EntityManager getEntityManager() {
+        return persistenceStrategy.getEntityManager();
+    }
 
-	// DO NOT MAKE THIS METHOD PUBLIC!
-	// This is an internal method, and we do NOT want to expose the entity
-	// manager to users or other logic!
-	protected Object joinTransaction(EntityManager em) {
-		return persistenceStrategy.joinTransaction(em);
-	}
+    // DO NOT MAKE THIS METHOD PUBLIC!
+    // This is an internal method, and we do NOT want to expose the entity
+    // manager to users or other logic!
+    protected Object joinTransaction(EntityManager em) {
+        return persistenceStrategy.joinTransaction(em);
+    }
 
-	// DO NOT MAKE THIS METHOD PUBLIC!
-	// This is an internal method, and we do NOT want to expose the entity
-	// manager to users or other logic!
-	protected void closeEntityManager(EntityManager em, Object transaction) {
-		persistenceStrategy.leaveTransaction(em, transaction);
-	}
+    // DO NOT MAKE THIS METHOD PUBLIC!
+    // This is an internal method, and we do NOT want to expose the entity
+    // manager to users or other logic!
+    protected void closeEntityManager(EntityManager em, Object transaction) {
+        persistenceStrategy.leaveTransaction(em, transaction);
+    }
 
-	public <T> List<T> executeQuery(Query query, EntityManager em, Class<T> type) {
-		Object newTx = joinTransaction(em);
-		List<T> result;
-		try {
-			result = query.getResultList();
-		} finally {
-			closeEntityManager(em, newTx);
-		}
-		return result;
-	}
+    public <T> List<T> executeQuery(Query query, EntityManager em, Class<T> type) {
+        Object newTx = joinTransaction(em);
+        List<T> result;
+        try {
+            result = query.getResultList();
+        } finally {
+            closeEntityManager(em, newTx);
+        }
+        return result;
+    }
 
 }
