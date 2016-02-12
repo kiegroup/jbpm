@@ -124,7 +124,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
 		resources.put("src/main/resources/simple.drl", SIMPLE_DRL);
 
 		InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
-		deployKjar(releaseId, kJar1);
+		installKjar(releaseId, kJar1);
 
 		KieContainer kieContainer = ks.newKieContainer(releaseId);
 		assertNotNull(kieContainer);
@@ -167,7 +167,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
 				descriptor.toXml());
 
 		InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
-		deployKjar(releaseId, kJar1);
+		installKjar(releaseId, kJar1);
 
 		KieContainer kieContainer = ks.newKieContainer(releaseId);
 		assertNotNull(kieContainer);
@@ -230,8 +230,8 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
 				descriptorDep.toXml());
 
 		InternalKieModule kJarDep = createKieJar(ks, releaseIdDep, resourcesDep);
-		deployKjar(releaseIdDep, kJarDep);
-		
+		installKjar(releaseIdDep, kJarDep);
+
 		// create first kjar that will have dependency to another
 		ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
 
@@ -245,7 +245,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
 				descriptor.toXml());
 
 		InternalKieModule kJar1 = createKieJar(ks, releaseId, resources, releaseIdDep);
-		deployKjar(releaseId, kJar1);
+		installKjar(releaseId, kJar1);
 
 		KieContainer kieContainer = ks.newKieContainer(releaseId);
 		assertNotNull(kieContainer);
@@ -324,8 +324,8 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
 				descriptorDep.toXml());
 
 		InternalKieModule kJarDep = createKieJar(ks, releaseIdDep, resourcesDep);
-		deployKjar(releaseIdDep, kJarDep);
-		
+		installKjar(releaseIdDep, kJarDep);
+
 		// create first kjar that will have dependency to another
 		ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
 
@@ -339,7 +339,7 @@ public class DeploymentDescriptorManagerTest extends AbstractDeploymentDescripto
 				descriptor.toXml());
 
 		InternalKieModule kJar1 = createKieJar(ks, releaseId, resources, releaseIdDep);
-		deployKjar(releaseId, kJar1);
+		installKjar(releaseId, kJar1);
 
 		KieContainer kieContainer = ks.newKieContainer(releaseId);
 		assertNotNull(kieContainer);
