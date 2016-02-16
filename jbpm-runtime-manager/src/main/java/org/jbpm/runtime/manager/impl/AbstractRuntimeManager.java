@@ -51,6 +51,7 @@ import org.kie.internal.runtime.manager.InternalRegisterableItemsFactory;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.RuntimeManagerRegistry;
 import org.kie.internal.runtime.manager.SecurityManager;
+import org.kie.internal.runtime.manager.SessionNotFoundException;
 import org.kie.internal.task.api.EventService;
 import org.kie.internal.task.api.InternalTaskService;
 
@@ -61,11 +62,11 @@ import org.kie.internal.task.api.InternalTaskService;
  *  <li>keeps track of all active managers by their identifier and prevents multiple managers from having the same id</li>
  *  <li>provides a common close operation</li>
  *  <li>injects the RuntimeManager into the ksession's environment for further reference</li>
- *  <li>registers dispose callbacks (via transaction synchronization) 
+ *  <li>registers dispose callbacks (via transaction synchronization)
  *  to dispose of the runtime engine automatically on transaction completion</li>
  *  <li>registers all defined items (work item handlers, event listeners)</li>
  * </ul>
- * Additionally, this provides a abstract <code>init</code> method that will be called on RuntimeManager instantiation. 
+ * Additionally, this provides a abstract <code>init</code> method that will be called on RuntimeManager instantiation.
  */
 public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 
@@ -73,17 +74,17 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     protected RuntimeEnvironment environment;
     protected DeploymentDescriptor deploymentDescriptor;
     protected KieContainer kieContainer;
-    
+
 	protected CacheManager cacheManager = new CacheManagerImpl();
-    
+
     protected boolean engineInitEager = Boolean.parseBoolean(System.getProperty("org.jbpm.rm.engine.eager", "false"));
 
 	protected String identifier;
-    
+
     protected boolean closed = false;
-    
+
     protected SecurityManager securityManager = null;
-    
+
     public AbstractRuntimeManager(RuntimeEnvironment environment, String identifier) {
         this.environment = environment;
         this.identifier = identifier;
@@ -98,20 +99,20 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         	engineInitEager = Boolean.parseBoolean(eagerInit);
         }
     }
-    
+
     private void internalSetDeploymentDescriptor() {
     	this.deploymentDescriptor = (DeploymentDescriptor) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get("KieDeploymentDescriptor");
     	if (this.deploymentDescriptor == null) {
     		this.deploymentDescriptor = new DeploymentDescriptorManager().getDefaultDescriptor();
     	}
 	}
-    
+
     private void internalSetKieContainer() {
     	this.kieContainer = (KieContainer) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate().get("KieContainer");
 	}
 
 	public abstract void init();
-    
+
 	protected void registerItems(RuntimeEngine runtime) {
         RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
         // process handlers
@@ -119,37 +120,37 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
         for (Entry<String, WorkItemHandler> entry : handlers.entrySet()) {
             runtime.getKieSession().getWorkItemManager().registerWorkItemHandler(entry.getKey(), entry.getValue());
         }
-        
+
         // register globals
         Map<String, Object> globals = factory.getGlobals(runtime);
         for (Entry<String, Object> entry : globals.entrySet()) {
             runtime.getKieSession().setGlobal(entry.getKey(), entry.getValue());
         }
-        
+
         // process listeners
         List<ProcessEventListener> processListeners = factory.getProcessEventListeners(runtime);
         for (ProcessEventListener listener : processListeners) {
             runtime.getKieSession().addEventListener(listener);
         }
-        
+
         // agenda listeners
         List<AgendaEventListener> agendaListeners = factory.getAgendaEventListeners(runtime);
         for (AgendaEventListener listener : agendaListeners) {
             runtime.getKieSession().addEventListener(listener);
         }
-        
+
         // working memory listeners
         List<RuleRuntimeEventListener> wmListeners = factory.getRuleRuntimeEventListeners(runtime);
         for (RuleRuntimeEventListener listener : wmListeners) {
             runtime.getKieSession().addEventListener(listener);
-        }       
+        }
     }
-    
+
     protected void registerDisposeCallback(RuntimeEngine runtime, TransactionSynchronization sync) {
     	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
     		return;
     	}
-        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT       
+        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT
         TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
         if (tm.getStatus() != JtaTransactionManager.STATUS_NO_TRANSACTION
                 && tm.getStatus() != JtaTransactionManager.STATUS_ROLLEDBACK
@@ -157,27 +158,37 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             TransactionManagerHelper.registerTransactionSyncInContainer(tm, (OrderedTransactionSynchronization) sync);
         }
     }
-    
+
     protected boolean canDispose(RuntimeEngine runtime) {
-        if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
-            return true;
-        }
-        // register it if there is an active transaction as we assume then to be running in a managed environment e.g CMT       
-        TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
-        if (tm.getStatus() != JtaTransactionManager.STATUS_NO_TRANSACTION
-                && tm.getStatus() != JtaTransactionManager.STATUS_ROLLEDBACK
-                && tm.getStatus() != JtaTransactionManager.STATUS_COMMITTED) {
+        // avoid duplicated dispose
+        if (((RuntimeEngineImpl)runtime).isDisposed()) {
             return false;
         }
-        
+        // if this method was called as part of afterCompletion or is no JTA at all, allow to dispose
+        if (((RuntimeEngineImpl)runtime).isAfterCompletion() || hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
+            return true;
+        }
+
+        try {
+            // check tx status to disallow dispose when within active transaction
+            TransactionManager tm = getTransactionManager(runtime.getKieSession().getEnvironment());
+            if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
+                    && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
+                    && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
+                return false;
+            }
+        } catch (SessionNotFoundException e) {
+            // ignore it as it might be thrown for per process instance
+        }
+
         return true;
     }
-    
+
     protected void attachManager(RuntimeEngine runtime) {
         runtime.getKieSession().getEnvironment().set("RuntimeManager", this);
         runtime.getKieSession().getEnvironment().set("deploymentId", this.getIdentifier());
     }
-    
+
     @Override
     public boolean isClosed() {
     	return this.closed;
@@ -187,7 +198,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     public void close() {
         close(false);
     }
-    
+
     public void close(boolean removeJobs) {
     	cacheManager.dispose();
         environment.close();
@@ -198,7 +209,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
                 ((GlobalTimerService) timerService).destroy();
             }
             timerService.shutdown();
-            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();  
+            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();
             if (schedulerService != null) {
                 schedulerService.shutdown();
             }
@@ -221,26 +232,26 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void configureRuntimeOnTaskService(InternalTaskService internalTaskService, RuntimeEngine engine) {
-    	
+
         if (internalTaskService != null) {
-            
+
             ExternalTaskEventListener listener = new ExternalTaskEventListener();
             if (internalTaskService instanceof EventService) {
                 ((EventService)internalTaskService).registerTaskEventListener(listener);
             }
-            
-          	// register task listeners if any  
+
+          	// register task listeners if any
             RegisterableItemsFactory factory = environment.getRegisterableItemsFactory();
         	for (TaskLifeCycleEventListener taskListener : factory.getTaskListeners()) {
         		((EventService<TaskLifeCycleEventListener>)internalTaskService).registerTaskEventListener(taskListener);
         	}
-            
+
             if (engine != null && engine instanceof Disposable) {
                 ((Disposable)engine).addDisposeListener(new DisposeListener() {
-                    
+
                     @Override
                     public void onDispose(RuntimeEngine runtime) {
                         if (runtime.getTaskService() instanceof EventService) {
@@ -251,11 +262,18 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
             }
         }
     }
-    
+
     protected void removeRuntimeFromTaskService() {
     	TaskContentRegistry.get().removeMarshallerContext(getIdentifier());
     }
-    
+    /**
+     * Soft dispose means it will be invoked as sort of preparation step before actual dispose.
+     * Mainly used with transaction synchronization to be invoked as part of beforeCompletion
+     * to clean up any thread state - like thread local settings as afterCompletion can be invoked from another thread
+     */
+    public void softDispose(RuntimeEngine runtimeEngine) {
+
+    }
 
     protected boolean canDestroy(RuntimeEngine runtime) {
     	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false) || ((RuntimeEngineImpl) runtime).isAfterCompletion()) {
@@ -276,7 +294,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	}
     	return value.equals(envEntry);
     }
-    
+
     protected TransactionManager getTransactionManager(Environment env) {
     	if (env == null) {
     		env = environment.getEnvironment();
@@ -285,10 +303,10 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
     	if (txm != null && txm instanceof TransactionManager) {
     		return (TransactionManager) txm;
     	}
-    	
+
     	return new JtaTransactionManager(null, null, null);
     }
-    
+
     @Override
     public DeploymentDescriptor getDeploymentDescriptor() {
 		return deploymentDescriptor;
@@ -298,15 +316,15 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 	public void setDeploymentDescriptor(DeploymentDescriptor deploymentDescriptor) {
 		this.deploymentDescriptor = deploymentDescriptor;
 	}
-    
+
     @Override
     public void setSecurityManager(SecurityManager securityManager) {
     	if (this.securityManager != null) {
     		throw new IllegalStateException("Security Manager for " + this.identifier + " manager is already set");
     	}
-    	this.securityManager = securityManager;    
+    	this.securityManager = securityManager;
     }
-    
+
     protected void checkPermission() {
     	if (this.securityManager != null) {
     		this.securityManager.checkPermission();
@@ -324,7 +342,7 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 	public CacheManager getCacheManager() {
 		return cacheManager;
 	}
-	
+
 	@Override
     public KieContainer getKieContainer() {
 		return kieContainer;
@@ -333,6 +351,6 @@ public abstract class AbstractRuntimeManager implements InternalRuntimeManager {
 	@Override
 	public void setKieContainer(KieContainer kieContainer) {
 		this.kieContainer = kieContainer;
-	}    
-    
+	}
+
 }
