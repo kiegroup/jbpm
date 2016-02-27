@@ -16,12 +16,8 @@
 
 package org.jbpm.workflow.instance;
 
-import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.ProcessInstance;
-import org.jbpm.workflow.instance.impl.queue.ProcessInstanceAction;
-import org.jbpm.workflow.instance.node.EventNodeInstanceInterface;
 import org.kie.api.runtime.process.EventListener;
-import org.kie.api.runtime.process.EventSignallable;
 
 public interface WorkflowProcessInstance
     extends ProcessInstance,
