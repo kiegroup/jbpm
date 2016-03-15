@@ -208,6 +208,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 
     public void removeNodeInstance(final NodeInstance nodeInstance) {
         this.nodeInstances.remove(nodeInstance);
+        System.out.println( "-" + nodeInstance.getNode().getId() );
     }
 
     public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {

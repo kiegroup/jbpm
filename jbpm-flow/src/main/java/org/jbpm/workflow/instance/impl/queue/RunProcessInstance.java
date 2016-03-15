@@ -36,16 +36,6 @@ public class RunProcessInstance extends AbstractPropagationEntry {
             executing = true;
             internalExecute();
             executing = false;
-        } else {
-//            log( "X" );
-            int i = 0;
-            System.out.println("X Already Executing:");
-            for( StackTraceElement ste : new Throwable("already executing").getStackTrace() ) {
-               System.out.println("  at " + ste);
-               if( ++i > 10 ) {
-                  break;
-               }
-            }
         }
     }
 
@@ -102,9 +92,11 @@ public class RunProcessInstance extends AbstractPropagationEntry {
     }
 
     public void addNewQueue() {
-        newQueueAddedToStack = true;
-        processActionQueueStack.add(new LinkedList<>());
-        log( "(" + processActionQueueStack.size() );
+        if( ! newQueueAddedToStack ) {
+            processActionQueueStack.add(new LinkedList<>());
+            newQueueAddedToStack = true;
+            log( "(" + processActionQueueStack.size() );
+        }
     }
 
     public void removeNodeInstanceTrigger( NodeInstance nodeInstance ) {

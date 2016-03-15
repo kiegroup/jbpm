@@ -1,11 +1,13 @@
 package org.jbpm.process.instance.impl;
 
+import org.drools.core.WorkItemHandlerNotFoundException;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.process.instance.WorkItem;
 import org.drools.core.process.instance.impl.DefaultWorkItemManager;
 import org.jbpm.workflow.instance.ProcessInstanceActionQueueExecutor;
 import org.jbpm.workflow.instance.impl.queue.RemoveWorkItemAction;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.runtime.process.WorkItemHandler;
 
 /**
  * This class is a jBPM-specific work item manager that should be used whenever
@@ -31,6 +33,26 @@ public class ProcessInstanceWorkItemManager extends DefaultWorkItemManager imple
             }
         } else {
             removeWorkItem(workItem.getId());
+        }
+    }
+
+    @Override
+    protected void internalAbortAndRemoveWorkItem( WorkItemHandler handler, WorkItem workItem ) {
+        ProcessInstance processInstance = kruntime.getProcessInstance(workItem.getProcessInstanceId());
+        if( processInstance == null || ! ((org.jbpm.process.instance.ProcessInstance) processInstance).isStackless() ) {
+            if (handler != null) {
+                handler.abortWorkItem(workItem, this);
+            }
+            removeWorkItem(workItem.getId());
+        } else {
+            ((ProcessInstanceActionQueueExecutor) processInstance).addProcessInstanceAction(new RemoveWorkItemAction(this, workItem.getId()));
+            if (handler != null) {
+                handler.abortWorkItem(workItem, this);
+            }
+        }
+        if( handler == null ) {
+            throw new WorkItemHandlerNotFoundException( "Could not find work item handler for " + workItem.getName(),
+                    workItem.getName() );
         }
     }
 

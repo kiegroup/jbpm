@@ -126,6 +126,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 					getKnowledgeRuntime().getFactHandle(nodeInstance));
 		}
 		this.nodeInstances.remove(nodeInstance);
+		System.out.println( "<-" + nodeInstance.getNode().getId() + ">");
 	}
 
 	public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {

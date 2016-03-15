@@ -1,6 +1,7 @@
 package org.jbpm.workflow.instance.impl.queue;
 
 import org.jbpm.process.instance.impl.WorkItemRemover;
+import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 
 public class RemoveWorkItemAction implements ProcessInstanceAction {
 
@@ -31,6 +32,13 @@ public class RemoveWorkItemAction implements ProcessInstanceAction {
     public String getUniqueInstanceId() {
         // DBG Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return workItemManager.getClass().getSimpleName() + ".removeWorkItem("
+                + (workItemInfo == null ? "" : workItemInfo.getClass().getSimpleName() + ", ")
+                + workItemId + ")";
     }
 
 }
