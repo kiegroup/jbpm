@@ -62,7 +62,7 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 @RunWith(Parameterized.class)
 public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
-    
+
     private int managerType;
     
     @Parameters
@@ -329,24 +329,29 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("test", "john");
         ProcessInstance processInstance = ksession.startProcess("PROCESS_1", params);
-       
+
+        Connection connection = null;
+        Statement stmt = null;
         try {
-            Connection connection = ((DataSource)InitialContext.doLookup("jdbc/jbpm-ds")).getConnection();
-            Statement stmt = connection.createStatement();
+            connection = ((DataSource)InitialContext.doLookup("jdbc/jbpm-ds")).getConnection();
+            stmt = connection.createStatement();
 
             ResultSet resultSet = stmt.executeQuery("select REQUESTS_RECOVERY from QRTZ_JOB_DETAILS");
             while(resultSet.next()) {
                 boolean requestsRecovery = resultSet.getBoolean(1);
                 assertEquals("Requests recovery must be set to true", true, requestsRecovery);
             }
-            
-            stmt.close();
-            connection.close();
         } catch (Exception e) {
-            
+            logger.error("Error during test.", e);
+        } finally {
+            if(stmt != null) {
+                stmt.close();
+            }
+            if(connection != null) {
+                connection.close();
+            }
         }
         ksession.abortProcessInstance(processInstance.getId());
         manager.disposeRuntimeEngine(runtime);
-        
     }
 }
