@@ -341,8 +341,6 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
                 boolean requestsRecovery = resultSet.getBoolean(1);
                 assertEquals("Requests recovery must be set to true", true, requestsRecovery);
             }
-        } catch (Exception e) {
-            logger.error("Error during test.", e);
         } finally {
             if(stmt != null) {
                 stmt.close();
