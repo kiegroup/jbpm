@@ -597,7 +597,7 @@
     </exec>
   	<chmod perm="a+x" file="./generate.mac.eclipse.preferences.sh" />
     <exec executable="./generate.mac.eclipse.preferences.sh" osfamily="mac"/>
-    <exec executable="${eclipse.home}/Eclipse.app/Contents/MacOS/eclipse" spawn="yes" osfamily="mac">
+    <exec executable="./Eclipse.app/Contents/MacOS/eclipse" spawn="yes" osfamily="mac">
       <arg value="-data" />
       <arg value="../../../../${eclipse.workspace.dir}" />
       <arg value="-plugincustomization" />
