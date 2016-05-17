@@ -126,7 +126,7 @@
       </or>
     </and>
   </condition>	
-  <condition property="download.type" value="macosx-cocoa">
+  <condition property="download.type" value="macosx-cocoa-x86_64">
     <and>
       <os family="mac" />
       <os family="unix" />
