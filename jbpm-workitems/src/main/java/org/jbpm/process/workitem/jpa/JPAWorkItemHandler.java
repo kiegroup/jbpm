@@ -17,6 +17,24 @@ import org.kie.internal.runtime.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * A WorkItemHandler to perform JPA operations. <br />
+ * An <b>Action</b> must be provided as an input parameter. The supported value for the Action parameters:
+ * <ul>
+ * <li>Create: Persist the object and return the attached entity. TO persist an object you must provide the object using the WIH parameter <b>Entity</b></li>
+ * <li>Update: Update an attached entity and returns the updated entity. You must provide the attached entity using the <b>Entity</b> WIH parameter.</li>
+ * <li>Delete: Delete an attached entity. You must provide the attached entity using the <b>Entity</b> WIH parameter.</li>
+ * <li>Get: Get an entity by ID. You must provide the return type using the <b>Type</b> parameter with the FQN of the target class and the ID using the <b>Id</b> parameter.</li>
+ * <li>Query: Executes a named query and return the list of results (if any). The query must be provided using the <b>Query</b> input parameter and you may provide query parameters in the form of a Map with key String and value Object using the 
+ * <b>QueryParameters</b> WIH input parameter. The result of the query is put on the output parameter <b>QueryResults</b>.
+ * </li>
+ * </ul>
+ * When registering the WIH in the deployment descriptor, you must provide the classloader where your mapped entities are and the name of the persistence unit you configured in <em>persistence.xml</em>.
+ * 
+ * @author wsiqueir
+ *
+ */
 public class JPAWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implements Cacheable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(JPAWorkItemHandler.class);
