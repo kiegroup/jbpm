@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+	xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<persistence-unit name="org.jbpm.test.jpaWIH"
+		transaction-type="JTA">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>jpaWIH</jta-data-source>
+
+		<class>org.jbpm.process.workitem.jpa.Product</class>
+
+		<properties>
+			<property name="hibernate.max_fetch_depth" value="3" />
+			<property name="hibernate.hbm2ddl.auto" value="update" />
+			<property name="hibernate.show_sql" value="true" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+
+			<!-- BZ 841786: AS7/EAP 6/Hib 4 uses new (sequence) generators which seem 
+				to cause problems -->
+			<property name="hibernate.id.new_generator_mappings" value="false" />
+			<property name="hibernate.transaction.jta.platform"
+				value="org.hibernate.service.jta.platform.internal.BitronixJtaPlatform" />
+		</properties>
+	</persistence-unit>
+
+
+</persistence>    

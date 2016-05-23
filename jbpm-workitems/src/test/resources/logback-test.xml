@@ -14,7 +14,7 @@
   <logger name="org.apache.cxf" level="error"/>
   <logger name="org.hibernate" level="warn"/>
   
-  <root level="info">
+  <root level="trace">
     <appender-ref ref="consoleAppender" />
   </root>
 
