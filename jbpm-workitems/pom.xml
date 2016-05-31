@@ -242,14 +242,19 @@
 	<dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-persistence-jpa</artifactId>
+      <scope>test</scope>
     </dependency>
+	
 	<dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-persistence-jpa</artifactId>
+      <scope>test</scope>
     </dependency> 
-    	<dependency>
+    
+    <dependency>
       <groupId>org.jbpm</groupId>
       <artifactId>jbpm-runtime-manager</artifactId>
+      <scope>test</scope>
     </dependency>       
   </dependencies>
 </project>

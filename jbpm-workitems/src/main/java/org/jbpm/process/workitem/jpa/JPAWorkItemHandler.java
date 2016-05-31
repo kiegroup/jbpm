@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package org.jbpm.process.workitem.jpa;
 
 import java.util.Collections;
@@ -44,7 +59,7 @@ public class JPAWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implem
 	public static final String P_ID = "Id";
 	public static final String P_ENTITY = "Entity";
 	public static final String P_ACTION = "Action";
-	public static final String p_QUERY = "Query";
+	public static final String P_QUERY = "Query";
 	public static final String P_QUERY_PARAMS = "QueryParameters";
 	public static final String P_QUERY_RESULTS = "QueryResults";
 	
@@ -78,7 +93,7 @@ public class JPAWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implem
 		Object entity = wi.getParameter(P_ENTITY);
 		Object id = wi.getParameter(P_ID);
 		Object type = wi.getParameter(P_TYPE);
-		Object queryName = wi.getParameter(p_QUERY);
+		Object queryName = wi.getParameter(P_QUERY);
 		Object queryParams = wi.getParameter(P_QUERY_PARAMS);
 		Map<String, Object> params = new HashMap<String, Object>();
 		List<Object> queryResults = Collections.emptyList();
@@ -113,7 +128,7 @@ public class JPAWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implem
 			break;
 		case QUERY_ACTION:
 			if(queryName == null) {
-				throw new IllegalArgumentException("You must provide a '" + p_QUERY + "' parameter to run named queries.");
+				throw new IllegalArgumentException("You must provide a '" + P_QUERY + "' parameter to run named queries.");
 			}
 			queryResults = doQuery(String.valueOf(queryName), queryParams);
 			break;

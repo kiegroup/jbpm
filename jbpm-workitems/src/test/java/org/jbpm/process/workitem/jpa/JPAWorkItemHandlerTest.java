@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package org.jbpm.process.workitem.jpa;
 
 import static org.junit.Assert.assertEquals;
@@ -126,7 +141,7 @@ public class JPAWorkItemHandlerTest {
 				JPAWorkItemHandler.QUERY_ACTION);
 		Map<String, Object> params = new HashMap<>();
 		params.put("desc", DESC);
-		workItem.setParameter(JPAWorkItemHandler.p_QUERY,
+		workItem.setParameter(JPAWorkItemHandler.P_QUERY,
 				"SELECT p FROM Product p where p.description = :desc");
 		workItem.setParameter(JPAWorkItemHandler.P_QUERY_PARAMS, params);
 		UserTransaction ut = getUserTransaction();
@@ -170,7 +185,7 @@ public class JPAWorkItemHandlerTest {
 		WorkItemImpl workItem = new WorkItemImpl();
 		workItem.setParameter(JPAWorkItemHandler.P_ACTION,
 				JPAWorkItemHandler.QUERY_ACTION);
-		workItem.setParameter(JPAWorkItemHandler.p_QUERY,
+		workItem.setParameter(JPAWorkItemHandler.P_QUERY,
 				"SELECT p FROM Product p");
 		UserTransaction ut = getUserTransaction();
 		ut.begin();
@@ -242,13 +257,12 @@ public class JPAWorkItemHandlerTest {
 	    params.put("action", action);
 	    params.put("obj", prod);
 	    kSession.startProcess("org.jbpm.JPA_WIH", params);
-	    kSession.dispose();
 	    manager.disposeRuntimeEngine(engine);
 	    manager.close();
 	}
 
 	private UserTransaction getUserTransaction() throws NamingException {
-		return (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
+		return (UserTransaction) InitialContext.doLookup("java:comp/UserTransaction");
 	}
 
 	private class TestWorkItemManager implements WorkItemManager {
