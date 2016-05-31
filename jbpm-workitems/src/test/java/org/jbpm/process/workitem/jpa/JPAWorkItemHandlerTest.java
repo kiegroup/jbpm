@@ -10,31 +10,60 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
 import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.Server;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.kie.api.KieBase;
+import org.kie.api.KieServices;
+import org.kie.api.builder.KieBuilder;
+import org.kie.api.builder.KieFileSystem;
+import org.kie.api.builder.Results;
+import org.kie.api.io.Resource;
+import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.Environment;
+import org.kie.api.runtime.EnvironmentName;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.manager.RuntimeEnvironment;
+import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
+import org.kie.api.runtime.manager.RuntimeManager;
+import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
+import org.kie.internal.KnowledgeBaseFactory;
+import org.kie.internal.io.ResourceFactory;
+import org.kie.internal.persistence.jpa.JPAKnowledgeService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.kie.internal.runtime.manager.context.EmptyContext;
 
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class JPAWorkItemHandlerTest {
 	
+	private static final String DESCRIPTION = "Ball";
 	private static final String P_UNIT = "org.jbpm.test.jpaWIH";
-
-	static WorkItemHandler handler;
+	private static EntityManagerFactory emf;
+	private static WorkItemHandler handler;
 
 	private static TestH2Server h2Server;
 
+
 	@BeforeClass
-	public static void setDS() throws InterruptedException {
+	public static void configure() throws InterruptedException {
 		setupPoolingDataSource();
 		ClassLoader classLoader = JPAWorkItemHandler.class.getClassLoader();
 		handler = new JPAWorkItemHandler(P_UNIT, classLoader);
+		emf = Persistence.createEntityManagerFactory(P_UNIT);
 	}
 
 	@Test
@@ -126,6 +155,20 @@ public class JPAWorkItemHandlerTest {
 		products = getAllProducts();
 		assertEquals(0, products.size());
 	}
+	
+	@Test
+	public void createOnProcessTest() throws Exception {
+		Product p = new Product(DESCRIPTION, 10f);
+		startJPAWIHProcess(JPAWorkItemHandler.CREATE_ACTION, p);
+		EntityManager em = emf.createEntityManager();
+		// WIP
+		TypedQuery<Product> products = em.createQuery("select p from Product p where p.description = :desc", Product.class);
+		products.setParameter("desc", DESCRIPTION);
+		Product result = products.getResultList().iterator().next();
+		assertEquals(DESCRIPTION, result.getDescription());
+		em.remove(result);
+		em.close();
+	}
 
 	private List<Product> getAllProducts() throws Exception {
 		WorkItemImpl workItem = new WorkItemImpl();
@@ -179,6 +222,27 @@ public class JPAWorkItemHandlerTest {
 		TransactionManagerServices.getTransactionManager().begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
 		TransactionManagerServices.getTransactionManager().commit();
+	}
+	
+	private void startJPAWIHProcess(String action, Product prod) {
+		
+		KieServices ks = KieServices.Factory.get();
+		KieFileSystem kfs = ks.newKieFileSystem();
+		kfs.write(ks.getResources().newClassPathResource("JPAWIH.bpmn2"));
+		// throw exception
+		ks.newKieBuilder(kfs).buildAll();
+		KieContainer kieContainer = ks.newKieContainer(ks.getRepository().getDefaultReleaseId());
+		KieBase kbase = kieContainer.getKieBase();
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory( "org.jbpm.persistence.jpa" );
+		Environment env = KnowledgeBaseFactory.newEnvironment();
+		
+		env.set( EnvironmentName.ENTITY_MANAGER_FACTORY, emf );
+		StatefulKnowledgeSession kSession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
+	    HashMap<String, Object> params = new HashMap<>();
+	    params.put("action", action);
+	    params.put("obj", prod);
+	    kSession.startProcess("org.jbpm.JPA_WIH", params);
+		kSession.dispose();
 	}
 
 	private class TestWorkItemManager implements WorkItemManager {
