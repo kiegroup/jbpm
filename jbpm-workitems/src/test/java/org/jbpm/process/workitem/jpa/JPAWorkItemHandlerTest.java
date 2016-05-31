@@ -36,7 +36,6 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.EmptyContext;
 
-import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class JPAWorkItemHandlerTest {
@@ -94,9 +93,10 @@ public class JPAWorkItemHandlerTest {
 		workItem.setParameter(JPAWorkItemHandler.P_ACTION,
 				JPAWorkItemHandler.UPDATE_ACTION);
 		workItem.setParameter(JPAWorkItemHandler.P_ENTITY, product);
-		TransactionManagerServices.getTransactionManager().begin();
+		UserTransaction ut = getUserTransaction();
+		ut.begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		TransactionManagerServices.getTransactionManager().commit();
+		ut.commit();
 		product = getProduct(id);
 		assertEquals(newDescription, product.getDescription());
 	}
@@ -129,9 +129,10 @@ public class JPAWorkItemHandlerTest {
 		workItem.setParameter(JPAWorkItemHandler.p_QUERY,
 				"SELECT p FROM Product p where p.description = :desc");
 		workItem.setParameter(JPAWorkItemHandler.P_QUERY_PARAMS, params);
-		TransactionManagerServices.getTransactionManager().begin();
+		UserTransaction ut = getUserTransaction();
+		ut.begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		TransactionManagerServices.getTransactionManager().commit();
+		ut.commit();
 		@SuppressWarnings("unchecked")
 		List<Product> products = (List<Product>) workItem
 				.getResult(JPAWorkItemHandler.P_QUERY_RESULTS);
@@ -171,9 +172,10 @@ public class JPAWorkItemHandlerTest {
 				JPAWorkItemHandler.QUERY_ACTION);
 		workItem.setParameter(JPAWorkItemHandler.p_QUERY,
 				"SELECT p FROM Product p");
-		TransactionManagerServices.getTransactionManager().begin();
+		UserTransaction ut = getUserTransaction();
+		ut.begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		TransactionManagerServices.getTransactionManager().commit();
+		ut.commit();
 		@SuppressWarnings("unchecked")
 		List<Product> products = (List<Product>) workItem
 		.getResult(JPAWorkItemHandler.P_QUERY_RESULTS);
@@ -187,9 +189,10 @@ public class JPAWorkItemHandlerTest {
 		workItem.setParameter(JPAWorkItemHandler.P_TYPE,
 				"org.jbpm.process.workitem.jpa.Product");
 		workItem.setParameter(JPAWorkItemHandler.P_ID, id);
-		TransactionManagerServices.getTransactionManager().begin();
+		UserTransaction ut = getUserTransaction();
+		ut.begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		TransactionManagerServices.getTransactionManager().commit();
+		ut.commit();
 		Product product = (Product) workItem
 				.getResult(JPAWorkItemHandler.P_RESULT);
 		return product;
@@ -201,9 +204,10 @@ public class JPAWorkItemHandlerTest {
 		workItem.setParameter(JPAWorkItemHandler.P_ACTION,
 				JPAWorkItemHandler.CREATE_ACTION);
 		workItem.setParameter(JPAWorkItemHandler.P_ENTITY, product);
-		TransactionManagerServices.getTransactionManager().begin();
+		UserTransaction ut = getUserTransaction();
+		ut.begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		TransactionManagerServices.getTransactionManager().commit();
+		ut.commit();
 		Product result = (Product) workItem
 				.getResult(JPAWorkItemHandler.P_RESULT);
 		return result;
@@ -214,9 +218,10 @@ public class JPAWorkItemHandlerTest {
 		workItem.setParameter(JPAWorkItemHandler.P_ACTION,
 				JPAWorkItemHandler.DELETE_ACTION);
 		workItem.setParameter(JPAWorkItemHandler.P_ENTITY, product);
-		TransactionManagerServices.getTransactionManager().begin();
+		UserTransaction ut = getUserTransaction();
+		ut.begin();
 		handler.executeWorkItem(workItem, new TestWorkItemManager(workItem));
-		TransactionManagerServices.getTransactionManager().commit();
+		ut.commit();
 	}
 	
 	private void startJPAWIHProcess(String action, Product prod) throws Exception {
