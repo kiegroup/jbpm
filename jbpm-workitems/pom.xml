@@ -238,6 +238,18 @@
 	    <artifactId>jboss-transaction-api_1.1_spec</artifactId>
 	    <scope>provided</scope>
 	</dependency>
-    
+	
+	<dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-jpa</artifactId>
+    </dependency>
+	<dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-persistence-jpa</artifactId>
+    </dependency> 
+    	<dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-runtime-manager</artifactId>
+    </dependency>       
   </dependencies>
 </project>
