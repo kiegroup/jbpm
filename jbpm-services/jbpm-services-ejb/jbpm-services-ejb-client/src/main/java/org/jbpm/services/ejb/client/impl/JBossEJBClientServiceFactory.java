@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.jbpm.services.ejb.api.DeploymentServiceEJBRemote;
 import org.jbpm.services.ejb.api.ProcessServiceEJBRemote;
 import org.jbpm.services.ejb.api.RuntimeDataServiceEJBRemote;
 import org.jbpm.services.ejb.api.UserTaskServiceEJBRemote;
+import org.jbpm.services.ejb.api.query.QueryServiceEJBRemote;
 import org.jbpm.services.ejb.client.ClientServiceFactory;
 
 /**
@@ -48,6 +49,7 @@ public class JBossEJBClientServiceFactory implements ClientServiceFactory {
 		beansMappedNames.put(DefinitionServiceEJBRemote.class, "DefinitionServiceEJBImpl!org.jbpm.services.ejb.api.DefinitionServiceEJBRemote");
 		beansMappedNames.put(RuntimeDataServiceEJBRemote.class, "RuntimeDataServiceEJBImpl!org.jbpm.services.ejb.api.RuntimeDataServiceEJBRemote");
 		beansMappedNames.put(UserTaskServiceEJBRemote.class, "UserTaskServiceEJBImpl!org.jbpm.services.ejb.api.UserTaskServiceEJBRemote");
+		beansMappedNames.put(QueryServiceEJBRemote.class, "QueryServiceEJBImpl!org.jbpm.services.ejb.api.query.QueryServiceEJBRemote");
 	}
 
 	@SuppressWarnings("unchecked")

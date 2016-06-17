@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1250,6 +1250,41 @@ public class PerProcessInstanceRuntimeManagerTest extends AbstractBaseTest {
         manager.disposeRuntimeEngine(runtime2);
         
         // close manager which will close session maintained by the manager
+        manager.close();
+    }
+    
+    
+    @Test
+    public void testSignalStartMultipleProcesses() {
+        // independent = true
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .userGroupCallback(userGroupCallback)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-SignalMultipleProcessesMain.bpmn2"), ResourceType.BPMN2)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-SignalMultipleProcessesOne.bpmn2"), ResourceType.BPMN2)
+                .addAsset(ResourceFactory.newClassPathResource("BPMN2-SignalMultipleProcessesTwo.bpmn2"), ResourceType.BPMN2)
+                .get();
+
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+        assertNotNull(manager);
+        // since there is no process instance yet we need to get new session
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+
+        assertNotNull(ksession);
+        long ksession1Id = ksession.getIdentifier();
+        assertTrue(ksession1Id == 2);
+
+        Map<String, Object> inputParams = new HashMap<String, Object>(); 
+        inputParams.put("processInput", "MyCoolParam");
+        
+        ksession.startProcess("main-process", inputParams);
+
+        AuditService auditService = runtime.getAuditService();
+        
+        List<? extends ProcessInstanceLog> processInstanceLogs = auditService.findProcessInstances();
+        assertEquals(3, processInstanceLogs.size());
+        
         manager.close();
     }
 }

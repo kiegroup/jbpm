@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,13 @@ import org.jbpm.shared.services.impl.TransactionalCommandService;
 import org.jbpm.shared.services.impl.commands.UpdateStringCommand;
 import org.junit.After;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Arquillian.class)
 public class RuntimeDataServiceCDIImplTest extends RuntimeDataServiceImplTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(RuntimeDataServiceCDIImplTest.class);
 	
 	@Deployment()
     public static Archive<?> createDeployment() {
@@ -87,6 +91,10 @@ public class RuntimeDataServiceCDIImplTest extends RuntimeDataServiceImplTest {
                 .addPackage("org.jbpm.kie.services.impl.audit")
                 .addPackage("org.jbpm.kie.services.impl.form")
                 .addPackage("org.jbpm.kie.services.impl.form.provider")
+                .addPackage("org.jbpm.kie.services.impl.query")  
+                .addPackage("org.jbpm.kie.services.impl.query.mapper")  
+                .addPackage("org.jbpm.kie.services.impl.query.persistence")  
+                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")  
                 
                 .addPackage("org.jbpm.services.cdi")
                 .addPackage("org.jbpm.services.cdi.impl")
@@ -94,6 +102,7 @@ public class RuntimeDataServiceCDIImplTest extends RuntimeDataServiceImplTest {
                 .addPackage("org.jbpm.services.cdi.impl.manager")
                 .addPackage("org.jbpm.services.cdi.producer")
                 .addPackage("org.jbpm.services.cdi.impl.security")
+                .addPackage("org.jbpm.services.cdi.impl.query")
                 
                 .addPackage("org.jbpm.test.util")
                 .addPackage("org.jbpm.kie.services.test")
@@ -164,6 +173,6 @@ public class RuntimeDataServiceCDIImplTest extends RuntimeDataServiceImplTest {
         deleted += commandService.execute(new UpdateStringCommand("delete from  AuditTaskImpl at"));
         deleted += commandService.execute(new UpdateStringCommand("delete from  TaskEventImpl te"));
         deleted += commandService.execute(new UpdateStringCommand("delete from  TaskVariableImpl te"));
-        System.out.println("Deleted " + deleted);
+        logger.debug("Deleted " + deleted);
 	}
 }

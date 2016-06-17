@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 JBoss by Red Hat.
+ * Copyright 2012 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -700,6 +700,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 		Map<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
         params.put("status", allActiveStatus);
+        params.put("groupIds", identityProvider.getRoles());
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         return (List<TaskSummary>) commandService.execute(

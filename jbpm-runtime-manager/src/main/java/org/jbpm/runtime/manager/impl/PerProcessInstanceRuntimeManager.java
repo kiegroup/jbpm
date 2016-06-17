@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss Inc
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,17 +155,17 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
         // first signal with new context in case there are start event with signal
         RuntimeEngine runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get());        
         runtimeEngine.getKieSession().signalEvent(type, event);  
-        if (canDispose(runtimeEngine)) {
-            disposeRuntimeEngine(runtimeEngine);
-        }
+        
+        disposeRuntimeEngine(runtimeEngine);
+    
         // next find out all instances waiting for given event type
         List<String> processInstances = ((InternalMapper) mapper).findContextIdForEvent(type, getIdentifier());
         for (String piId : processInstances) {
             runtimeEngine = getRuntimeEngine(ProcessInstanceIdContext.get(Long.parseLong(piId)));        
             runtimeEngine.getKieSession().signalEvent(type, event);        
-            if (canDispose(runtimeEngine)) {
-                disposeRuntimeEngine(runtimeEngine);
-            }
+            
+            disposeRuntimeEngine(runtimeEngine);
+            
         }
         
         // process currently active runtime engines
@@ -212,15 +212,23 @@ public class PerProcessInstanceRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-    	removeLocalRuntime(runtime);
-    	if (runtime instanceof Disposable) {
-        	// special handling for in memory to not allow to dispose if there is any context in the mapper
-        	if (mapper instanceof InMemoryMapper && ((InMemoryMapper)mapper).hasContext(runtime.getKieSession().getIdentifier())){
-        		return;
-        	}
-            ((Disposable) runtime).dispose();
-        }
-        
+    	
+    	if (canDispose(runtime)) {
+        	removeLocalRuntime(runtime);
+        	if (runtime instanceof Disposable) {
+            	// special handling for in memory to not allow to dispose if there is any context in the mapper
+            	if (mapper instanceof InMemoryMapper && ((InMemoryMapper)mapper).hasContext(runtime.getKieSession().getIdentifier())){
+            		return;
+            	}
+                ((Disposable) runtime).dispose();
+            }
+    	}
+    }
+    
+    @Override
+    public void softDispose(RuntimeEngine runtimeEngine) {        
+        super.softDispose(runtimeEngine);
+        removeLocalRuntime(runtimeEngine);
     }
 
     @Override

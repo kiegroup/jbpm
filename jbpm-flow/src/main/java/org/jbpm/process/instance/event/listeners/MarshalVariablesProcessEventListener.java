@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package org.jbpm.process.instance.event.listeners;
 
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.Map;
 
+import org.drools.core.marshalling.impl.ProcessMarshallerWriteContext;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
@@ -62,7 +62,11 @@ public class MarshalVariablesProcessEventListener extends DefaultProcessEventLis
 			    if (strategy.accept(variable.getValue())) {
 			        logger.debug("Strategy of type {} found to handle variable '{}'", strategy, variable.getKey());
 					try {
-						strategy.marshal(null, new ObjectOutputStream(new ByteArrayOutputStream()), variable.getValue());
+					    ProcessMarshallerWriteContext context = new ProcessMarshallerWriteContext(new ByteArrayOutputStream(), null, null, null, null, event.getKieRuntime().getEnvironment());
+					    context.setProcessInstanceId(event.getProcessInstance().getId());
+			            context.setState(ProcessMarshallerWriteContext.STATE_COMPLETED);
+			            
+						strategy.marshal(null, context, variable.getValue());
 						logger.debug("Variable '{}' successfully persisted by strategy {}", variable.getKey(), strategy);
 						break;
 					} catch (Exception e) {

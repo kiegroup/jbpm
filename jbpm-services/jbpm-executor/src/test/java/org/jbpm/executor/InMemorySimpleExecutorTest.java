@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss by Red Hat.
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +71,18 @@ public class InMemorySimpleExecutorTest extends BasicExecutorBaseTest{
     @Ignore("It's only for JPA based as it in memory does not care about delays")
     public void testCustomIncrementingRequestRetrySpecialValues() throws InterruptedException {        
         super.testCustomIncrementingRequestRetrySpecialValues();
+    }
+
+    @Test
+    @Ignore("It's only for JPA based as it in memory does not care about priorities")
+    public void testPrioritizedJobsExecution() throws InterruptedException {
+        super.testPrioritizedJobsExecution();
+    }
+
+    @Test
+    @Ignore("It's only for JPA based as it in memory does not care about priorities")
+    public void testPrioritizedJobsExecutionInvalidProrities() throws InterruptedException {
+        super.testPrioritizedJobsExecutionInvalidProrities();
     }
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss by Red Hat.
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -49,18 +50,10 @@ import org.kie.api.runtime.query.QueryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bitronix.tm.TransactionManagerServices;
-
 public abstract class BasicExecutorBaseTest {
     
     private static final Logger logger = LoggerFactory.getLogger(BasicExecutorBaseTest.class);
 
-    static {
-        if (!TransactionManagerServices.isTransactionManagerRunning()) {
-            TransactionManagerServices.getConfiguration().setJournal("null");
-        }
-    }
-    
     protected ExecutorService executorService;
     public static final Map<String, Object> cachedEntities = new HashMap<String, Object>();
     
@@ -613,6 +606,92 @@ public abstract class BasicExecutorBaseTest {
         assertEquals(1, executedRequests.size());
 
 
+    }
+    
+    @Test
+    public void testPrioritizedJobsExecution() throws InterruptedException {
+        CountDownAsyncJobListener countDownListener = configureListener(1);        
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", "low priority");
+        ctxCMD.setData("priority", 2);
+
+        executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
+        
+        CommandContext ctxCMD2 = new CommandContext();
+        ctxCMD2.setData("businessKey", "high priority");
+        ctxCMD2.setData("priority", 8);
+
+        executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD2);
+
+        countDownListener.waitTillCompleted();
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(1, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(1, executedRequests.size());
+        
+        RequestInfo executed = executedRequests.get(0);
+        assertNotNull(executed);
+        assertEquals("high priority", executed.getKey());
+        
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+        
+        inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(0, queuedRequests.size());
+        executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(2, executedRequests.size());
+
+        executed = executedRequests.get(0);
+        assertNotNull(executed);
+        assertEquals("low priority", executed.getKey());
+    }
+    
+    @Test
+    public void testPrioritizedJobsExecutionInvalidProrities() throws InterruptedException {
+        CountDownAsyncJobListener countDownListener = configureListener(1);
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", "low priority");
+        ctxCMD.setData("priority", -1);
+
+        executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
+        
+        CommandContext ctxCMD2 = new CommandContext();
+        ctxCMD2.setData("businessKey", "high priority");
+        ctxCMD2.setData("priority", 10);
+
+        executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD2);
+
+        countDownListener.waitTillCompleted();
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(1, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(1, executedRequests.size());
+        
+        RequestInfo executed = executedRequests.get(0);
+        assertNotNull(executed);
+        assertEquals("high priority", executed.getKey());
+        
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+        
+        inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(0, queuedRequests.size());
+        executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(2, executedRequests.size());
+
+        executed = executedRequests.get(0);
+        assertNotNull(executed);
+        assertEquals("low priority", executed.getKey());
     }
 
     private void compareRequestsAreNotSame(RequestInfo firstRequest, RequestInfo secondRequest) {

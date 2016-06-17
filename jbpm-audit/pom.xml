@@ -7,13 +7,19 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>6.4.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-audit</artifactId>
   <packaging>bundle</packaging>
 
   <name>jBPM :: Audit</name>
+
+  <properties>
+    <osgi.Bundle-SymbolicName>org.jbpm.process.audit</osgi.Bundle-SymbolicName>
+
+    <maven.jdbc.url>jdbc:h2:mem:bamTest;MVCC=TRUE</maven.jdbc.url>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -189,14 +195,13 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Bundle-SymbolicName>org.jbpm.process.audit</Bundle-SymbolicName>
             <Import-Package>
               !org.jbpm.process.audit,
               javassist.util.proxy;resolution:=optional,
               org.hibernate.proxy;resolution:=optional,
               *
             </Import-Package>
-            <Private-Package></Private-Package>
+            <Private-Package/>
             <Export-Package>
               org.jbpm.process.audit*
             </Export-Package>
@@ -207,11 +212,9 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <compilerArgs>
-            <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
-          </compilerArgs>
+          <annotationProcessors>
+            <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
+          </annotationProcessors>
         </configuration>
       </plugin>
       
@@ -235,11 +238,5 @@
       </plugin>
     </plugins>
   </build>
-
-  
-
-  <properties>
-    <maven.jdbc.url>jdbc:h2:mem:bamTest;MVCC=TRUE</maven.jdbc.url>
-  </properties>
 
 </project>

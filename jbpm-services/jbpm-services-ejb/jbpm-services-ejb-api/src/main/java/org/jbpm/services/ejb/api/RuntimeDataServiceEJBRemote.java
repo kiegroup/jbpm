@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,14 @@ import javax.ejb.Remote;
 
 import org.jbpm.services.api.DeploymentEventListener;
 import org.jbpm.services.api.RuntimeDataService;
+import org.kie.internal.task.query.TaskSummaryQueryBuilder;
 
 @Remote
 public interface RuntimeDataServiceEJBRemote extends RuntimeDataService, DeploymentEventListener {
 
+    /**
+     * This method is not supported in EJB remote api as <code>TaskSummaryQueryBuilder<code> is not remote capable object
+     */    
+    @Override    
+    TaskSummaryQueryBuilder taskSummaryQuery(String userId);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss by Red Hat.
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -296,7 +296,8 @@ public class CallActivitiesWithUserTasksProcessTest extends JbpmTestCase {
         taskService.complete(taskId, "john", null);
 
         if( userManagedTx ) {
-            assertProcessInstanceActive(processInstance.getId());
+            // since we are checking in same transaction it will already see it as completed 
+            assertProcessInstanceCompleted(processInstance.getId());
             ut.commit();
         }
 

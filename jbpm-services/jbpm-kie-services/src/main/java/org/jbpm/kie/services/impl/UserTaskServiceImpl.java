@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.kie.api.task.model.Comment;
 import org.kie.api.task.model.Content;
 import org.kie.api.task.model.I18NText;
 import org.kie.api.task.model.OrganizationalEntity;
+import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
@@ -166,31 +167,64 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 
 	}
 
-	@Override
-	public void complete(Long taskId, String userId, Map<String, Object> params) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
+    @Override
+    public void complete(Long taskId, String userId, Map<String, Object> params) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
 
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		if (manager instanceof InternalRuntimeManager) {
-			params = process(params, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.complete(taskId, userId, params);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        if (manager instanceof InternalRuntimeManager) {
+            params = process(params, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.complete(taskId, userId, params);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
 
-	}
+    }
+
+    @Override
+    public void completeAutoProgress(Long taskId, String userId, Map<String, Object> params) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        if (manager instanceof InternalRuntimeManager) {
+            params = process(params, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // auto progress if needed
+            if (task.getStatus().equals(Status.Ready.name())) {
+                taskService.claim(taskId.longValue(), userId);
+                taskService.start(taskId.longValue(), userId);
+            } else if (task.getStatus().equals(Status.Reserved.name())) {
+                taskService.start(taskId.longValue(), userId);
+            }
+            // perform actual operation
+            taskService.complete(taskId, userId, params);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+
+    }
 
 	@Override
 	public void delegate(Long taskId, String userId, String targetUserId) {
@@ -799,7 +833,7 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 	        
 	        ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
 	        
-	        ((InternalContent)content).setContent(ContentMarshallerHelper.marshallContent(attachment, ctx.getEnvironment()));
+	        ((InternalContent)content).setContent(ContentMarshallerHelper.marshallContent(taskService.getTaskById(taskId), attachment, ctx.getEnvironment()));
 	        att.setSize(content.getContent().length);
 			return ((InternalTaskService)taskService).addAttachment(taskId, att, content);
 		} finally {

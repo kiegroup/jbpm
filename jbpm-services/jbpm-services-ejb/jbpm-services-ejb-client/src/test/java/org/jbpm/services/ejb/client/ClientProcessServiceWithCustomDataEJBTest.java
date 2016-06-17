@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class ClientProcessServiceWithCustomDataEJBTest extends AbstractKieServic
         File kjar = new File("src/test/resources/kjar/custom-data-project-1.0.jar");
         File pom = new File("src/test/resources/kjar/pom.xml");
         MavenRepository repository = getMavenRepository();
-        repository.deployArtifact(releaseId, kjar, pom);
+        repository.installArtifact(releaseId, kjar, pom);
         
         URL[] urls = new URL[]{kjar.toURI().toURL()};
         customClassLoader = new URLClassLoader(urls, this.getClass().getClassLoader());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.listener.CountDownProcessEventListener;
 import org.jbpm.test.wih.FirstErrorWorkItemHandler;
 import org.junit.After;
 import org.junit.Before;
@@ -125,17 +126,22 @@ public class AsyncThreadContinuationTest extends JbpmTestCase {
 
     @Test(timeout = 10000)
     public void testRepeatIntermediateTimerAfterException() {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("MySignal", 1, true);
+        
         KieSession ksession = createKSession(BPMN_IT);
+        ksession.addEventListener(countDownListener);
         ProcessInstance pi = ksession.startProcess(PROCESS_IT);
         long pid = pi.getId();
-        synchronized (LOCK_IT) {
-            try {
-                LOCK_IT.wait();
-            } catch (InterruptedException e) {
-            }
-        }
+        
+        countDownListener.waitTillCompleted();
+        
+        pi = ksession.getProcessInstance(pid);
+        Assertions.assertThat(pi).isNotNull();
+        
+        ksession.abortProcessInstance(pid);
         pi = ksession.getProcessInstance(pid);
         Assertions.assertThat(pi).isNull();
+        
         ProcessInstanceLog log = getLogService().findProcessInstance(pid);
         Assertions.assertThat(log.getStatus()).isEqualTo(ProcessInstance.STATE_ABORTED);
     }

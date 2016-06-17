@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,6 @@ package org.jbpm.test;
 import java.util.Map;
 import java.util.Properties;
 
-import bitronix.tm.TransactionManagerServices;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
-
 import org.assertj.core.api.Assertions;
 import org.jbpm.persistence.util.PersistenceUtil;
 import org.junit.Rule;
@@ -38,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import qa.tools.ikeeper.client.BugzillaClient;
 import qa.tools.ikeeper.client.JiraClient;
 import qa.tools.ikeeper.test.IKeeperJUnitConnector;
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
 
@@ -45,12 +43,6 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
     
     protected static final String EMPTY_CASE = "EmptyCase.bpmn2";
     
-    static {
-        if (!TransactionManagerServices.isTransactionManagerRunning()) {
-            TransactionManagerServices.getConfiguration().setJournal("null");
-        }
-    }
-
     public JbpmTestCase() {
         this(true);
     }

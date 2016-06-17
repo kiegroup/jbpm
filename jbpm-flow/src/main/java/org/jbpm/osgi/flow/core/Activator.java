@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 JBoss Inc
+ * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.drools.core.runtime.process.ProcessRuntimeFactoryService;
 import org.jbpm.marshalling.impl.ProcessMarshallerFactoryServiceImpl;
 import org.jbpm.process.instance.ProcessRuntimeFactoryServiceImpl;
 import org.kie.api.Service;
+import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -42,7 +43,8 @@ public class Activator
         this.processRuntimeReg2 = bc.registerService( new String[]{ ProcessMarshallerFactoryService.class.getName(), Service.class.getName()},
                                                                    new ProcessMarshallerFactoryServiceImpl(),
                                                                    new Hashtable() );
-        ProcessRuntimeFactory.resetInitialization();
+        RuntimeManagerFactory.Factory.reset();
+        ProcessRuntimeFactory.reInitializeProvider();
     }
 
     public void stop(BundleContext bc) throws Exception {

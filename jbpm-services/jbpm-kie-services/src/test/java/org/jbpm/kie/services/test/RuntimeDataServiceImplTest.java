@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,7 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         processes.add("repo/processes/general/humanTask.bpmn");
         processes.add("repo/processes/general/BPMN2-UserTask.bpmn2");
         processes.add("repo/processes/general/SimpleHTProcess.bpmn2");
+        processes.add("repo/processes/general/AdHocSubProcess.bpmn2");
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
@@ -142,12 +143,13 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<ProcessDefinition> definitions = runtimeDataService.getProcessesByDeploymentId(deploymentUnit.getIdentifier(), new QueryContext());
     	assertNotNull(definitions);
 
-    	assertEquals(4, definitions.size());
+    	assertEquals(5, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
     	expectedProcessIds.add("org.jbpm.writedocument.empty");
     	expectedProcessIds.add("org.jbpm.writedocument");
     	expectedProcessIds.add("UserTask");
     	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
+    	expectedProcessIds.add("AdHocSubProcess");
 
     	for (ProcessDefinition def : definitions) {
     		assertTrue(expectedProcessIds.contains(def.getId()));
@@ -192,12 +194,13 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<ProcessDefinition> definitions = runtimeDataService.getProcesses(new QueryContext());
     	assertNotNull(definitions);
 
-    	assertEquals(4, definitions.size());
+    	assertEquals(5, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
     	expectedProcessIds.add("org.jbpm.writedocument.empty");
     	expectedProcessIds.add("org.jbpm.writedocument");
     	expectedProcessIds.add("UserTask");
     	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
+    	expectedProcessIds.add("AdHocSubProcess");
 
     	for (ProcessDefinition def : definitions) {
     		assertTrue(expectedProcessIds.contains(def.getId()));
@@ -209,12 +212,13 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<String> definitions = runtimeDataService.getProcessIds(deploymentUnit.getIdentifier(), new QueryContext());
     	assertNotNull(definitions);
 
-    	assertEquals(4, definitions.size());
+    	assertEquals(5, definitions.size());
 
     	assertTrue(definitions.contains("org.jbpm.writedocument.empty"));
     	assertTrue(definitions.contains("org.jbpm.writedocument"));
     	assertTrue(definitions.contains("UserTask"));
     	assertTrue(definitions.contains("org.jboss.qa.bpms.HumanTask"));
+    	assertTrue(definitions.contains("AdHocSubProcess"));
     }
 
     @Test
@@ -222,13 +226,14 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<ProcessDefinition> definitions = runtimeDataService.getProcesses(new QueryContext("ProcessName", true));
     	assertNotNull(definitions);
 
-    	assertEquals(4, definitions.size());
+    	assertEquals(5, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
 
+    	expectedProcessIds.add("AdHoc SubProcess");
     	expectedProcessIds.add("HumanTask");
     	expectedProcessIds.add("User Task");
     	expectedProcessIds.add("humanTaskSample");
-    	expectedProcessIds.add("humanTaskSample");
+    	expectedProcessIds.add("humanTaskSample");    	
 
     	int index = 0;
     	for (ProcessDefinition def : definitions) {
@@ -243,12 +248,13 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	Collection<ProcessDefinition> definitions = runtimeDataService.getProcesses(new QueryContext("ProcessVersion", true));
     	assertNotNull(definitions);
 
-    	assertEquals(4, definitions.size());
+    	assertEquals(5, definitions.size());
     	List<String> expectedProcessIds = new ArrayList<String>();
     	expectedProcessIds.add("UserTask");
     	expectedProcessIds.add("org.jboss.qa.bpms.HumanTask");
+    	expectedProcessIds.add("AdHocSubProcess");
     	expectedProcessIds.add("org.jbpm.writedocument.empty");
-    	expectedProcessIds.add("org.jbpm.writedocument");
+    	expectedProcessIds.add("org.jbpm.writedocument");    	
 
     	int index = 0;
     	for (ProcessDefinition def : definitions) {
@@ -814,6 +820,40 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     	assertNotNull(instances);
     	assertEquals(1, instances.size());
     }
+    
+    @Test
+    public void testGetProcessInstanceHistoryAdHocSubprocess() {
+
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "AdHocSubProcess");
+        assertNotNull(processInstanceId);
+        
+        processService.signalProcessInstance(processInstanceId, "Hello1", null);
+
+        // get active nodes as history view
+        Collection<NodeInstanceDesc> instances = runtimeDataService.getProcessInstanceHistoryActive(processInstanceId, new QueryContext());
+        assertNotNull(instances);
+        assertEquals(2, instances.size());
+
+        // get completed nodes as history view
+        instances = runtimeDataService.getProcessInstanceHistoryCompleted(processInstanceId, new QueryContext());
+        assertNotNull(instances);
+        assertEquals(1, instances.size());
+
+        // get both active and completed nodes as history view
+        instances = runtimeDataService.getProcessInstanceFullHistory(processInstanceId, new QueryContext());
+        assertNotNull(instances);
+        assertEquals(4, instances.size());
+
+        // get nodes filtered by type - start
+        instances = runtimeDataService.getProcessInstanceFullHistoryByType(processInstanceId, EntryType.START, new QueryContext());
+        assertNotNull(instances);
+        assertEquals(3, instances.size());
+
+        // get nodes filtered by type - end
+        instances = runtimeDataService.getProcessInstanceFullHistoryByType(processInstanceId, EntryType.END, new QueryContext());
+        assertNotNull(instances);
+        assertEquals(1, instances.size());
+    }
 
     @Test
     public void testGetNodeInstanceForWorkItem() {
@@ -1275,30 +1315,87 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
     }
 
     @Test
+    public void testGetTasksByVariableWithTaskQueryBuilder() {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("approval_document", "initial content");
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
+        assertNotNull(processInstanceId);
+
+        List<Status> statuses = new ArrayList<Status>();
+        statuses.add(Status.Ready);
+        statuses.add(Status.Reserved);
+        
+        String userId = "salaboy";
+        String varName = "Comment";
+        List<TaskSummary> tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
+                .variableName(varName).build().getResultList();
+        assertNotNull(tasksByVariable);
+        assertEquals(1, tasksByVariable.size());
+        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariable(userId, varName, statuses, new QueryContext()));
+
+        processService.abortProcessInstance(processInstanceId);
+        processInstanceId = null;
+    }
+
+    @Test
+    public void testGetTasksByVariableAndValueWithTaskQueryBuilder() {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("approval_document", "initial content");
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
+        assertNotNull(processInstanceId);
+
+        List<Status> statuses = new ArrayList<Status>();
+        statuses.add(Status.Ready);
+        statuses.add(Status.Reserved);
+        
+        String userId = "salaboy";
+        String varName = "Comment";
+        String varValue = "Write a Document";
+        List<TaskSummary> tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
+                .variableName(varName).and().variableValue(varValue).build().getResultList();
+        assertNotNull(tasksByVariable);
+        assertEquals(1, tasksByVariable.size());
+        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, statuses, new QueryContext()));
+
+        varValue = "Write";
+        tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
+                .variableName(varName).and().variableValue(varValue).build().getResultList();
+        assertNotNull(tasksByVariable);
+        assertEquals(0, tasksByVariable.size());
+        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, statuses, new QueryContext()));
+
+        processService.abortProcessInstance(processInstanceId);
+        processInstanceId = null;
+
+    }
+    
+
+    @Test
     public void testGetTasksByVariable() {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("approval_document", "initial content");
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        List<Status> statuses = new ArrayList<Status>();
+        statuses.add(Status.Ready);
+        statuses.add(Status.Reserved);
+        
+        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, new QueryFilter());
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
 
         String userId = "salaboy";
-        String varName = "TaskName";
-        List<TaskSummary> tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).build().getResultList();
+        String varName = "Comment";
+        List<TaskSummary> tasksByVariable = runtimeDataService.getTasksByVariable(userId, varName, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(1, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariable(userId, varName, null, new QueryContext()));
+        
 
         varName = "ReviewComment";
-        tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).build().getResultList();
+        tasksByVariable = runtimeDataService.getTasksByVariable(userId, varName, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(0, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariable(userId, varName, null, new QueryContext()));
 
 
         long taskId = tasks.get(0).getId();
@@ -1307,11 +1404,9 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         output.put("ReviewComment", "document reviewed");
         userTaskService.saveContent(taskId, output);
 
-        tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).build().getResultList();
+        tasksByVariable = runtimeDataService.getTasksByVariable(userId, varName, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(1, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariable(userId, varName, null, new QueryContext()));
 
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;
@@ -1324,25 +1419,25 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
         processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "org.jbpm.writedocument", params);
         assertNotNull(processInstanceId);
 
-        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwner("salaboy", new QueryFilter());
+        List<Status> statuses = new ArrayList<Status>();
+        statuses.add(Status.Ready);
+        statuses.add(Status.Reserved);
+        
+        List<TaskSummary> tasks = runtimeDataService.getTasksAssignedAsPotentialOwnerByStatus("salaboy", statuses, new QueryFilter());
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
 
         String userId = "salaboy";
-        String varName = "TaskName";
+        String varName = "Comment";
         String varValue = "Write a Document";
-        List<TaskSummary> tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).and().variableValue(varValue).build().getResultList();
+        List<TaskSummary> tasksByVariable = runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(1, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, null, new QueryContext()));
 
         varValue = "Write";
-        tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).and().variableValue(varValue).build().getResultList();
+        tasksByVariable = runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(0, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, null, new QueryContext()));
 
 
         long taskId = tasks.get(0).getId();
@@ -1353,18 +1448,15 @@ private static final Logger logger = LoggerFactory.getLogger(KModuleDeploymentSe
 
         varName = "ReviewComment";
         varValue = "document reviewed";
-        tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).and().variableValue(varValue).build().getResultList();
+        tasksByVariable = runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(1, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, null, new QueryContext()));
+        
 
         varValue = "document*";
-        tasksByVariable = runtimeDataService.taskSummaryQuery(userId)
-                .variableName(varName).and().regex().variableValue(varValue).build().getResultList();
+        tasksByVariable = runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, statuses, new QueryContext());
         assertNotNull(tasksByVariable);
         assertEquals(1, tasksByVariable.size());
-        compareTaskSummaryLists(tasksByVariable, runtimeDataService.getTasksByVariableAndValue(userId, varName, varValue, null, new QueryContext()));
 
         processService.abortProcessInstance(processInstanceId);
         processInstanceId = null;

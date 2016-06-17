@@ -1,5 +1,5 @@
 /*
-Copyright 2013 JBoss Inc
+Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.jbpm.bpmn2.test.RequirePersistence;
 import org.jbpm.persistence.ProcessPersistenceContext;
 import org.jbpm.persistence.ProcessPersistenceContextManager;
 import org.jbpm.process.instance.InternalProcessRuntime;
+import org.jbpm.process.instance.command.UpdateTimerCommand;
 import org.jbpm.process.instance.event.listeners.RuleAwareProcessEventLister;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
@@ -2236,8 +2237,8 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance);
         assertProcessInstanceActive(processInstance2);
         
-        ksession.execute(new AssertNodeActiveCommand(processInstance.getId(), "Complete work", "Wait"));
-        ksession.execute(new AssertNodeActiveCommand(processInstance2.getId(), "Complete work", "Wait"));
+        assertNodeActive(processInstance.getId(), ksession, "Complete work", "Wait");
+        assertNodeActive(processInstance2.getId(), ksession, "Complete work", "Wait");
         
         List<WorkItem> items = handler.getWorkItems();
         
@@ -2250,7 +2251,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         
         assertProcessInstanceCompleted(processInstance);
         assertProcessInstanceActive(processInstance2);
-        ksession.execute(new AssertNodeActiveCommand(processInstance2.getId(), "Complete work", "Wait"));
+        assertNodeActive(processInstance2.getId(), ksession, "Complete work", "Wait");
         
         wi = items.get(1);
         ksession.getWorkItemManager().completeWorkItem(wi.getId(), result);
@@ -2274,8 +2275,8 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance);
         assertProcessInstanceActive(processInstance2);
         
-        ksession.execute(new AssertNodeActiveCommand(processInstance.getId(), "Complete work", "Wait"));
-        ksession.execute(new AssertNodeActiveCommand(processInstance2.getId(), "Complete work", "Wait"));
+        assertNodeActive(processInstance.getId(), ksession, "Complete work", "Wait");
+        assertNodeActive(processInstance2.getId(), ksession, "Complete work", "Wait");
         
         List<WorkItem> items = handler.getWorkItems();
         
@@ -2288,7 +2289,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         
         assertProcessInstanceCompleted(processInstance);
         assertProcessInstanceActive(processInstance2);
-        ksession.execute(new AssertNodeActiveCommand(processInstance2.getId(), "Complete work", "Wait"));
+        assertNodeActive(processInstance2.getId(), ksession, "Complete work", "Wait");
         
         wi = items.get(1);
         ksession.getWorkItemManager().completeWorkItem(wi.getId(), result);
@@ -2328,7 +2329,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
                 
         assertProcessInstanceActive(processInstance);
         
-        ksession.execute(new AssertNodeActiveCommand(processInstance.getId(), "Complete work", "Wait"));
+        assertNodeActive(processInstance.getId(), ksession, "Complete work", "Wait");
         
         List<WorkItem> items = handler.getWorkItems();
         assertEquals(1, items.size());
@@ -2505,22 +2506,99 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertEquals(0, processInstances.size());
     }
     
-    class AssertNodeActiveCommand implements GenericCommand<Void> {
-
-        private long piId;
-        private String[] nodes;
-        public AssertNodeActiveCommand(long piId, String... nodes) {
-            this.piId = piId;
-            this.nodes = nodes;
-        }
+    @Test(timeout=10000)
+    @RequirePersistence
+    public void testIntermediateCatchEventTimerDurationWithError()
+            throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 1);
         
-        @Override
-        public Void execute(Context context) {
-            
-            KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
-            assertNodeActive(piId, ksession, nodes);
-            
-            return null;
-        }
+        KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventTimerDurationWithError.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
+        ksession.addEventListener(countDownListener);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("x", 0);
+        ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent", params);
+        
+        long waitTime = 2;
+        assertProcessInstanceActive(processInstance);
+        // now wait for 1 second for timer to trigger
+        countDownListener.waitTillCompleted(waitTime * 1000);
+        assertProcessInstanceActive(processInstance);
+
+        processInstance = ksession.getProcessInstance(processInstance.getId());
+
+        // reschedule it to allow to move on
+        ksession.setGlobal("TestOK", Boolean.TRUE);
+     
+        ksession.execute(new UpdateTimerCommand(processInstance.getId(), "timer", waitTime + 1));
+        countDownListener.reset(1);
+        countDownListener.waitTillCompleted();
+                
+        assertProcessInstanceFinished(processInstance, ksession);
+
+    }
+    
+    @Test(timeout=10000)
+    public void testTimerBoundaryEventCronCycleVariable() throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 3);
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryTimerCycleCronVariable.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+        
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("cronStr", "0/1 * * * * ?");
+        
+        ProcessInstance processInstance = ksession.startProcess("boundaryTimerCycleCron", parameters);
+        assertProcessInstanceActive(processInstance);
+
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(1, workItems.size());
+
+        countDownListener.waitTillCompleted();
+        assertProcessInstanceActive(processInstance);
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(3, workItems.size());
+
+        ksession.abortProcessInstance(processInstance.getId());
+
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+    
+    @Test(timeout=10000)
+    public void testMultipleTimerBoundaryEventCronCycleVariable() throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 2);
+        KieBase kbase = createKnowledgeBase("BPMN2-MultipleBoundaryTimerCycleCronVariable.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+        
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("cronStr", "0/1 * * * * ?");
+        
+        ProcessInstance processInstance = ksession.startProcess("boundaryTimerCycleCron", parameters);
+        assertProcessInstanceActive(processInstance);
+
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(1, workItems.size());
+
+        countDownListener.waitTillCompleted();
+        assertProcessInstanceActive(processInstance);
+        
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+
+        ksession.abortProcessInstance(processInstance.getId());
+
+        assertProcessInstanceFinished(processInstance, ksession);
     }
 }

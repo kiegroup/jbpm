@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 JBoss Inc
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -141,8 +141,8 @@ public class TaskQueryServiceImpl implements TaskQueryService {
         this.userGroupCallback = userGroupCallback;
     }
     
-    public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId) {
-        return getTasksAssignedAsBusinessAdministratorByStatus(userId,allActiveStatus);
+    public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, List<String> groupIds) {
+        return getTasksAssignedAsBusinessAdministratorByStatus(userId, groupIds, allActiveStatus);
     }
 
     public List<TaskSummary> getTasksAssignedAsExcludedOwner(String userId) {
@@ -619,10 +619,11 @@ public class TaskQueryServiceImpl implements TaskQueryService {
     }
 
     @Override
-    public List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, List<Status> status) { 
+    public List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, List<String> groupIds, List<Status> status) { 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
         params.put("status", status);
+        params.put("groupIds", adoptList(groupIds, Collections.singletonList("")));
         return (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksAssignedAsBusinessAdministratorByStatus",params,
                  ClassUtil.<List<TaskSummary>>castClass(List.class));
     }

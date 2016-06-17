@@ -3,13 +3,17 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-human-task</artifactId>
-    <version>6.4.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>jbpm-human-task-jpa</artifactId>
   <packaging>bundle</packaging>
 
   <name>jBPM :: JPA Human Task Persistence</name>
   <description>jBPM JPA Human Task Persistence</description>
+
+  <properties>
+    <osgi.Bundle-SymbolicName>org.jbpm.services.task.jpa</osgi.Bundle-SymbolicName>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -115,7 +119,6 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Bundle-SymbolicName>org.jbpm.services.task.jpa</Bundle-SymbolicName>
             <Import-Package>
               javassist.util.proxy;resolution:=optional,
               javax.transaction.*;resolution:=optional,
@@ -140,11 +143,9 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <compilerArgs>
-            <processor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</processor>
-          </compilerArgs>
+          <annotationProcessors>
+            <annotationProcessor>org.hibernate.jpamodelgen.JPAMetaModelEntityProcessor</annotationProcessor>
+          </annotationProcessors>
         </configuration>
       </plugin>
 

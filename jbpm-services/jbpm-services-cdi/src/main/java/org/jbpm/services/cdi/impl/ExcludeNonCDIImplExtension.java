@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ public class ExcludeNonCDIImplExtension implements Extension {
 		excluded.add("org.jbpm.services.task.events.DefaultTaskEventListener");
 		excluded.add("org.jbpm.kie.services.impl.store.DeploymentSynchronizer");
 		excluded.add("org.jbpm.kie.services.impl.security.DeploymentRolesManager");
+		excluded.add("org.jbpm.kie.services.impl.query.QueryServiceImpl");
+		excluded.add("org.jbpm.kie.services.test.TestIdentityProvider");
 	}
 
 

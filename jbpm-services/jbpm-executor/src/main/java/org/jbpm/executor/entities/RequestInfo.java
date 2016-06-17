@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss by Red Hat.
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
     private String deploymentId;
     // owning component of this request, meaning when set only same component can execute it 
     private String owner;
+    private int priority = 0;
     
     @Lob
     @Column(length=2147483647)
@@ -183,9 +184,16 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
+	
+    public int getPriority() {
+        return priority;
+    }
+    
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
-
-	@Override
+    @Override
     public String toString() {
         return "RequestInfo{" + "id=" + id + ", time=" + time 
         		+ ", status=" + status + ", commandName=" + commandName + ", message=" + message + ", owner=" + owner

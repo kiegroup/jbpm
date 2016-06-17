@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,15 +50,26 @@ public interface UserTaskService {
 	void claim(Long taskId, String userId);
 
 
-	/**
-	 * Complete a task with the given data
-	 * 
-	 * @param taskId
-	 * @param userId
-	 * @param data
-	 * @throws TaskNotFoundException in case task with given id was not found
-	 */
-	void complete(Long taskId, String userId, Map<String, Object> params);
+    /**
+     * Complete a task with the given data
+     * 
+     * @param taskId
+     * @param userId
+     * @param data
+     * @throws TaskNotFoundException in case task with given id was not found
+     */
+    void complete(Long taskId, String userId, Map<String, Object> params);
+
+
+    /**
+     * Complete a task with the given data. If needed, the task is automatically claimed and/or started.
+     * 
+     * @param taskId
+     * @param userId
+     * @param data
+     * @throws TaskNotFoundException in case task with given id was not found
+     */
+    void completeAutoProgress(Long taskId, String userId, Map<String, Object> params);
 	
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,13 +70,13 @@ public class KModuleWithDependenciesDeploymentServiceTest extends AbstractKieSer
         File kjar = new File("src/test/resources/kjar-with-deps/jbpm-module.jar");
         File pom = new File("src/test/resources/kjar-with-deps/pom.xml");
         MavenRepository repository = getMavenRepository();
-        repository.deployArtifact(releaseId, kjar, pom);
+        repository.installArtifact(releaseId, kjar, pom);
         
         ReleaseId dataReleaseId = ks.newReleaseId(DATA_GROUP_ID, DATA_ARTIFACT_ID, DATA_VERSION);
         File datajar = new File("src/test/resources/kjar-with-deps/custom-data.jar");
         File datapom = new File("src/test/resources/kjar-with-deps/data-pom.xml");
         
-        repository.deployArtifact(dataReleaseId, datajar, datapom);
+        repository.installArtifact(dataReleaseId, datajar, datapom);
     }
     
     @After

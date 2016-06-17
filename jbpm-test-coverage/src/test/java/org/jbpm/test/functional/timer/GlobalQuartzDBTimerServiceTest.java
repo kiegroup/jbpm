@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,27 @@
 
 package org.jbpm.test.functional.timer;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.Properties;
 
+import javax.naming.InitialContext;
 import javax.persistence.Persistence;
+import javax.sql.DataSource;
 
 import org.drools.core.time.TimerService;
 import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.process.core.timer.impl.GlobalTimerService;
 import org.jbpm.process.core.timer.impl.QuartzSchedulerService;
 import org.jbpm.runtime.manager.impl.AbstractRuntimeManager;
+import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.test.listener.CountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
@@ -49,12 +56,13 @@ import org.kie.api.runtime.manager.RuntimeEnvironmentBuilder;
 import org.kie.api.runtime.manager.RuntimeManager;
 import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.api.task.UserGroupCallback;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 @RunWith(Parameterized.class)
 public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
-    
+
     private int managerType;
     
     @Parameters
@@ -113,7 +121,7 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
     }
 
     
-    @Test
+    @Test(timeout=20000)
     public void testTimerStartManagerClose() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("StartProcess", 3);
         QuartzSchedulerService additionalCopy = new QuartzSchedulerService();
@@ -247,11 +255,10 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         
     }
 
-    @Test
+    @Test(timeout=20000)
     public void testContinueTimer() throws Exception {
         // JBPM-4443
-        int badNumTimers = 3;
-        final CountDownLatch timerCompleted = new CountDownLatch(badNumTimers);
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 2);
         // prepare listener to assert results
         final List<Long> timerExporations = new ArrayList<Long>();
         ProcessEventListener listener = new DefaultProcessEventListener(){
@@ -259,7 +266,6 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
                 if (event.getNodeInstance().getNodeName().equals("timer")) {
                     timerExporations.add(event.getProcessInstance().getId());
-                    timerCompleted.countDown();
                 }
             }
         };
@@ -269,7 +275,7 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
                 .newDefaultBuilder()
                 .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycle4.bpmn2"), ResourceType.BPMN2)
-                .registerableItemsFactory(new TestRegisterableItemsFactory(listener))
+                .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
                 .get();
         manager = getManager(environment, true);
 
@@ -278,17 +284,12 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
 
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
 
-        boolean didNotWait = timerCompleted.await(5, TimeUnit.SECONDS);
-        assertTrue("Too many timers elapsed: " + (badNumTimers - timerCompleted.getCount()), ! didNotWait );
-
-        assertEquals(1, timerExporations.size());
+        countDownListener.waitTillCompleted();
 
         manager.disposeRuntimeEngine(runtime);
         manager.close();
 
-        didNotWait = timerCompleted.await(5, TimeUnit.SECONDS);
-        assertTrue("Too many timers elapsed: " + (badNumTimers - timerCompleted.getCount()), ! didNotWait );
-
+        countDownListener.reset(1);
         // ---- restart ----
 
         environment = RuntimeEnvironmentBuilder.Factory.get()
@@ -299,12 +300,56 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
                 .get();
         manager = getManager(environment, true);
 
-        didNotWait = timerCompleted.await(2, TimeUnit.SECONDS);
-        assertTrue("Too many timers elapsed: " + (badNumTimers - timerCompleted.getCount()), ! didNotWait );
-
+        countDownListener.waitTillCompleted(3000);
         assertEquals(2, timerExporations.size());
 
         manager.disposeRuntimeEngine(runtime);
         manager.close();
+    }
+    
+    @Test(timeout=20000)
+    public void testTimerRequiresRecoveryFlagSet() throws Exception {
+        Properties properties= new Properties();
+        properties.setProperty("mary", "HR");
+        properties.setProperty("john", "HR");
+        UserGroupCallback userGroupCallback = new JBossUserGroupCallbackImpl(properties);
+        environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
+                .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/HumanTaskWithBoundaryTimer.bpmn"), ResourceType.BPMN2)
+                .schedulerService(globalScheduler)
+                .userGroupCallback(userGroupCallback)
+                .get();
+
+        manager = getManager(environment, true);
+
+        RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
+        KieSession ksession = runtime.getKieSession();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("test", "john");
+        ProcessInstance processInstance = ksession.startProcess("PROCESS_1", params);
+
+        Connection connection = null;
+        Statement stmt = null;
+        try {
+            connection = ((DataSource)InitialContext.doLookup("jdbc/jbpm-ds")).getConnection();
+            stmt = connection.createStatement();
+
+            ResultSet resultSet = stmt.executeQuery("select REQUESTS_RECOVERY from QRTZ_JOB_DETAILS");
+            while(resultSet.next()) {
+                boolean requestsRecovery = resultSet.getBoolean(1);
+                assertEquals("Requests recovery must be set to true", true, requestsRecovery);
+            }
+        } finally {
+            if(stmt != null) {
+                stmt.close();
+            }
+            if(connection != null) {
+                connection.close();
+            }
+        }
+        ksession.abortProcessInstance(processInstance.getId());
+        manager.disposeRuntimeEngine(runtime);
     }
 }

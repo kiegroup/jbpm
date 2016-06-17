@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 JBoss by Red Hat.
+ * Copyright 2012 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,7 +228,7 @@ public class LifeCycleLocalWithRuleServiceTest extends HumanTaskServicesBaseTest
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("manager", "John");
         
-        ContentData data = ContentMarshallerHelper.marshal(params, null);
+        ContentData data = ContentMarshallerHelper.marshal(task, params, null);
         try {
             taskService.addTask(task, data);
             

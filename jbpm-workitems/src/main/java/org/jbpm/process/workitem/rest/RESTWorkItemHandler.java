@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 JBoss Inc
+ * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -357,11 +357,11 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
     
     protected Object transformResult(Class<?> clazz, String contentType, String content) throws Exception {
         
-        if (contentType.equals("application/json")) {
+        if (contentType.toLowerCase().contains("application/json")) {
             ObjectMapper mapper = new ObjectMapper();
             
             return mapper.readValue(content, clazz);
-        } else if (contentType.equals("application/xml")) {
+        } else if (contentType.toLowerCase().contains("application/xml")) {
             StringReader result = new StringReader(content);
             JAXBContext jaxbContext = JAXBContext.newInstance(new Class[]{clazz});
             

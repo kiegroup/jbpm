@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,9 +141,14 @@ public class PatientVariablePersistenceStrategyTest extends JbpmTestCase {
         taskMedicalRecord.setDescription("Initial Description of the Medical Record - Updated");
         
         UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
-        ut.begin();
-        em.merge(taskMedicalRecord);
-        ut.commit();
+        try {
+            ut.begin();
+            em.merge(taskMedicalRecord);
+            ut.commit();
+        } catch (Exception ex) {
+            ut.rollback();
+            throw ex;
+        }
         
         taskMedicalRecord = getTaskContent(runtimeEngine, doctorTasks.get(0));
         

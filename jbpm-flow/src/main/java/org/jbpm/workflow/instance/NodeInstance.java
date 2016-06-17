@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 JBoss Inc
+ * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.jbpm.process.instance.ContextInstance;
  * contain the logic on what to do when it is being triggered (start
  * executing) or completed (end of execution).
  * 
- * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
 

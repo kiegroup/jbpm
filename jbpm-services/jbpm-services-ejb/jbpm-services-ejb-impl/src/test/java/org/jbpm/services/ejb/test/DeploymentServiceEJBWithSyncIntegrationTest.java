@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
             
         }
         MavenRepository repository = getMavenRepository();
-        repository.deployArtifact(releaseId, kJar1, pom);
+        repository.installArtifact(releaseId, kJar1, pom);
         
         ReleaseId releaseIdSupport = ks.newReleaseId(GROUP_ID, "support", VERSION);
         List<String> processesSupport = new ArrayList<String>();
@@ -124,7 +124,7 @@ public class DeploymentServiceEJBWithSyncIntegrationTest extends AbstractTestSup
             
         }
 
-        repository.deployArtifact(releaseIdSupport, kJar2, pom2);
+        repository.installArtifact(releaseIdSupport, kJar2, pom2);
 	}
 	
     protected CoundDownDeploymentListener configureListener(int threads) {

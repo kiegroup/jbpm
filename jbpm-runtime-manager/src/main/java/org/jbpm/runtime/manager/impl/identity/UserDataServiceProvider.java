@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class UserDataServiceProvider {
 			userInfo = new DBUserInfoImpl(true);
 		} else if ("props".equalsIgnoreCase(USER_INFO_IMPL)) {
 			userInfo = new PropertyUserInfoImpl(true);
-		} else if ("custom".equalsIgnoreCase(USER_CALLBACK_IMPL)) {
+		} else if ("custom".equalsIgnoreCase(USER_INFO_IMPL)) {
 			try {
 				userInfo = (UserInfo) Class.forName(CUSTOM_USER_INFO_IMPL).newInstance();
 			} catch (Exception e) {

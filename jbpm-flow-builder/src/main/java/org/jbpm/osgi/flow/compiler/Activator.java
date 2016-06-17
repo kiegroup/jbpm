@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import org.drools.compiler.compiler.ProcessBuilderFactory;
 import org.drools.compiler.compiler.ProcessBuilderFactoryService;
 import org.jbpm.process.builder.ProcessBuilderFactoryServiceImpl;
 import org.kie.api.Service;
+import org.kie.api.runtime.manager.RuntimeManagerFactory;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -35,7 +36,8 @@ public class Activator
         this.processBuilderReg = bc.registerService( new String[]{ ProcessBuilderFactoryService.class.getName(), Service.class.getName()},
                                                                    new ProcessBuilderFactoryServiceImpl(),
                                                                    new Hashtable() );
-        ProcessBuilderFactory.resetInitialization();
+        RuntimeManagerFactory.Factory.reset();
+        ProcessBuilderFactory.reInitializeProvider();        
     }
 
     public void stop(BundleContext bc) throws Exception {

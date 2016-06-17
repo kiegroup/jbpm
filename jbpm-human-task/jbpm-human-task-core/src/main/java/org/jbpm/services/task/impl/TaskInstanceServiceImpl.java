@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     	if (params != null) {
     	    resolveTaskDetails(params, task);
     	    
-    	    ContentData contentData = ContentMarshallerHelper.marshal(params, TaskContentRegistry.get().getMarshallerContext(task).getEnvironment());
+    	    ContentData contentData = ContentMarshallerHelper.marshal(task, params, TaskContentRegistry.get().getMarshallerContext(task).getEnvironment());
 			Content content = TaskModelProvider.getFactory().newContent();
 			((InternalContent) content).setContent(contentData.getContent());
 			persistenceContext.persistContent(content);
@@ -258,7 +258,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     public void setOutput(long taskId, String userId, Object outputContentData) {
     	Task task = persistenceContext.findTask(taskId);
     	
-    	ContentData contentData = ContentMarshallerHelper.marshal(outputContentData, environment);
+    	ContentData contentData = ContentMarshallerHelper.marshal(task, outputContentData, environment);
 		Content content = TaskModelProvider.getFactory().newContent();
 		((InternalContent) content).setContent(contentData.getContent());
 		persistenceContext.persistContent(content);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss Inc
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ public class CacheManagerImpl implements CacheManager {
 	@Override
 	public void dispose() {
 		for (Map.Entry<String, Object> entry : cache.entrySet()) {
-			if (entry instanceof Cacheable) {
-				((Cacheable) entry).close();
+			if (entry.getValue() instanceof Cacheable) {
+				((Cacheable) entry.getValue()).close();
 			}
 		}
 		cache.clear();

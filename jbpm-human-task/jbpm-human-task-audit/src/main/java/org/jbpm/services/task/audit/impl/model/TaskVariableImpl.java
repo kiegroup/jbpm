@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss by Red Hat.
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,32 @@ package org.jbpm.services.task.audit.impl.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
-import org.jbpm.services.task.impl.model.TaskImpl;
 import org.kie.internal.task.api.TaskVariable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Entity
 @SequenceGenerator(name = "taskVarIdSeq", sequenceName = "TASK_VAR_ID_SEQ", allocationSize = 1)
 public class TaskVariableImpl implements TaskVariable, Serializable {
 
     private static final long serialVersionUID = 5388016330549830048L;
+    private static final Logger logger = LoggerFactory.getLogger(TaskVariableImpl.class);
+    
+    @Transient
+    private final int VARIABLE_LOG_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.task.var.log.length", "4000"));
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "taskVarIdSeq")
@@ -52,6 +58,7 @@ public class TaskVariableImpl implements TaskVariable, Serializable {
 
     private String name;
 
+    @Column(length=4000)
     private String value;
 
     @Enumerated(EnumType.ORDINAL)
@@ -115,6 +122,10 @@ public class TaskVariableImpl implements TaskVariable, Serializable {
     }
 
     public void setValue(String value) {
+        if (value != null && value.length() > VARIABLE_LOG_LENGTH) {
+            value = value.substring(0, VARIABLE_LOG_LENGTH);
+            logger.warn("Task variable '{}' content was trimmed as it was too long (more than {} characters)", name, VARIABLE_LOG_LENGTH);
+        }
         this.value = value;
     }
 

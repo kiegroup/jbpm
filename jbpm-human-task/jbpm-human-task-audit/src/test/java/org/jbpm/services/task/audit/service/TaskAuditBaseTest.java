@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 JBoss Inc
+ * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -50,7 +50,6 @@ import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.TaskVariable;
 import org.kie.internal.task.api.TaskVariable.VariableType;
 import org.kie.internal.task.api.model.TaskEvent;
-import org.kie.internal.task.query.TaskVariableQueryBuilder;
 
 public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
 
@@ -849,6 +848,159 @@ public abstract class TaskAuditBaseTest extends HumanTaskServicesBaseTest {
                 .regex().variableName(varName).and().variableValue("updated content").build().getResultList();
         assertNotNull(tasksByVariable);
         assertEquals(0, tasksByVariable.size());
+    }
+    
+    @Test
+    public void testVariableIndexInputAndOutputWitlLongText() {
+        Task task = new TaskFluent().setName("This is my task name")
+                .addPotentialGroup("Knights Templer")
+                .setAdminUser("Administrator")
+                .getTask();
+
+        Map<String, Object> inputVariables = new HashMap<String, Object>();
+        inputVariables.put("firstVariable", "string content");
+        inputVariables.put("number", 1234);
+
+        taskService.addTask(task, inputVariables);
+        long taskId = task.getId();
+
+        List<TaskSummary> allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("salaboy", null, null, null);
+        assertEquals(1, allGroupAuditTasks.size());
+        assertTrue(allGroupAuditTasks.get(0).getStatusId().equals("Ready"));
+
+        List<TaskVariable> inputVars = taskAuditService.taskVariableQuery()
+                .taskId(taskId).intersect().type(VariableType.INPUT).build().getResultList();
+        assertNotNull(inputVars);
+        assertEquals(2, inputVars.size());
+
+        Map<String, String> vars = collectVariableNameAndValue(inputVars);
+
+        assertTrue(vars.containsKey("firstVariable"));
+        assertTrue(vars.containsKey("number"));
+
+        assertEquals("string content", vars.get("firstVariable"));
+        assertEquals("1234", vars.get("number"));
+
+        taskService.claim(taskId, "Darth Vader");
+
+        allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("salaboy", null, null, null);
+        assertEquals(0, allGroupAuditTasks.size());
+
+        allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", null, null, null);
+        assertEquals(1, allGroupAuditTasks.size());
+        assertTrue(allGroupAuditTasks.get(0).getStatusId().equals("Reserved"));
+
+        taskService.start(taskId, "Darth Vader");
+
+        Task task1 = taskService.getTaskById(taskId);
+        assertEquals(Status.InProgress, task1.getTaskData().getStatus());
+        assertEquals("Darth Vader", task1.getTaskData().getActualOwner().getId());
+        
+        String reply = "Just a short part of the reply";
+        String veryLongReply = reply;
+        
+        for (int i = 0; i < 15; i++) {
+            veryLongReply += reply;
+        }
+
+        Map<String, Object> outputVariables = new HashMap<String, Object>();
+        outputVariables.put("reply", veryLongReply);
+        outputVariables.put("age", 25);
+
+        // Check is Complete
+        taskService.complete(taskId, "Darth Vader", outputVariables);
+
+        List<TaskVariable> outputVars = taskAuditService.taskVariableQuery()
+                .taskId(taskId).intersect().type(VariableType.OUTPUT).build().getResultList();
+        assertNotNull(outputVars);
+        assertEquals(2, outputVars.size());
+
+        Map<String, String> outvars = collectVariableNameAndValue(outputVars);
+
+        assertTrue(outvars.containsKey("reply"));
+        assertTrue(outvars.containsKey("age"));
+
+        assertEquals(veryLongReply, outvars.get("reply"));
+        assertEquals("25", outvars.get("age"));
+    }
+    
+    @Test
+    public void testVariableIndexInputAndOutputWitlLongTextTrimmed() {
+        System.setProperty("org.jbpm.task.var.log.length", "10");
+        try {
+            Task task = new TaskFluent().setName("This is my task name")
+                    .addPotentialGroup("Knights Templer")
+                    .setAdminUser("Administrator")
+                    .getTask();
+    
+            Map<String, Object> inputVariables = new HashMap<String, Object>();
+            inputVariables.put("firstVariable", "string content");
+            inputVariables.put("number", 1234);
+    
+            taskService.addTask(task, inputVariables);
+            long taskId = task.getId();
+    
+            List<TaskSummary> allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("salaboy", null, null, null);
+            assertEquals(1, allGroupAuditTasks.size());
+            assertTrue(allGroupAuditTasks.get(0).getStatusId().equals("Ready"));
+    
+            List<TaskVariable> inputVars = taskAuditService.taskVariableQuery()
+                    .taskId(taskId).intersect().type(VariableType.INPUT).build().getResultList();
+            assertNotNull(inputVars);
+            assertEquals(2, inputVars.size());
+    
+            Map<String, String> vars = collectVariableNameAndValue(inputVars);
+    
+            assertTrue(vars.containsKey("firstVariable"));
+            assertTrue(vars.containsKey("number"));
+            // the variable was longer that 10 so it had to be trimmed
+            assertEquals("string con", vars.get("firstVariable"));
+            assertEquals("1234", vars.get("number"));
+    
+            taskService.claim(taskId, "Darth Vader");
+    
+            allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("salaboy", null, null, null);
+            assertEquals(0, allGroupAuditTasks.size());
+    
+            allGroupAuditTasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", null, null, null);
+            assertEquals(1, allGroupAuditTasks.size());
+            assertTrue(allGroupAuditTasks.get(0).getStatusId().equals("Reserved"));
+    
+            taskService.start(taskId, "Darth Vader");
+    
+            Task task1 = taskService.getTaskById(taskId);
+            assertEquals(Status.InProgress, task1.getTaskData().getStatus());
+            assertEquals("Darth Vader", task1.getTaskData().getActualOwner().getId());
+            
+            String reply = "Just a short part of the reply";
+            String veryLongReply = reply;
+            
+            for (int i = 0; i < 15; i++) {
+                veryLongReply += reply;
+            }
+    
+            Map<String, Object> outputVariables = new HashMap<String, Object>();
+            outputVariables.put("reply", veryLongReply);
+            outputVariables.put("age", 25);
+    
+            // Check is Complete
+            taskService.complete(taskId, "Darth Vader", outputVariables);
+    
+            List<TaskVariable> outputVars = taskAuditService.taskVariableQuery()
+                    .taskId(taskId).intersect().type(VariableType.OUTPUT).build().getResultList();
+            assertNotNull(outputVars);
+            assertEquals(2, outputVars.size());
+    
+            Map<String, String> outvars = collectVariableNameAndValue(outputVars);
+    
+            assertTrue(outvars.containsKey("reply"));
+            assertTrue(outvars.containsKey("age"));
+    
+            assertEquals("Just a sho", outvars.get("reply"));
+            assertEquals("25", outvars.get("age"));
+        } finally {
+            System.clearProperty("org.jbpm.task.var.log.length");
+        }
     }
 
     protected Map<String, String> collectVariableNameAndValue(List<TaskVariable> variables) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,23 @@ public class TestRESTResource {
     @Path("/json")
     @Produces("application/json")
     public String getJson() {
+
+        return "{\"name\":\"Person Json\"}";
+    }
+    
+    @GET
+    @Path("/xml-charset")
+    @Produces("application/xml; charset=utf-8")
+    public Person getXmlWithCharset() {
+        Person person = new Person();
+        person.setName("Person Xml");
+        return person;
+    }
+    
+    @GET
+    @Path("/json-charset")
+    @Produces("application/json; charset=utf-8")
+    public String getJsonWithCharset() {
 
         return "{\"name\":\"Person Json\"}";
     }

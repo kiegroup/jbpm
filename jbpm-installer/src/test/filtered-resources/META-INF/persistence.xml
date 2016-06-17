@@ -32,7 +32,7 @@
       <property name="hibernate.max_fetch_depth" value="3"/>
       <!-- No value for hbm2ddl.auto, because tests manage DDL themselves. -->
       <property name="hibernate.hbm2ddl.auto" value=""/>
-      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.show_sql" value="false"/>
 
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}"/>
 
@@ -59,20 +59,17 @@
     <class>org.drools.persistence.info.WorkItemInfo</class>
     <!-- jbpm-persistence-api -->
     <class>org.jbpm.persistence.processinstance.ProcessInstanceInfo</class>
-    <!-- Unknown entity.. some deprecated thing? -->
-    <!--<class>org.jbpm.persistence.processinstance.ProcessInstanceEventInfo</class>-->
     <class>org.jbpm.persistence.correlation.CorrelationKeyInfo</class>
     <class>org.jbpm.persistence.correlation.CorrelationPropertyInfo</class>
     <!-- jbpm-runtime-manager -->
     <class>org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo</class>
     <!-- jbpm-kie-services -->
     <class>org.jbpm.kie.services.impl.store.DeploymentStoreEntry</class>
+    <class>org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity</class>
     <!-- jbpm-human-task-jpa -->
     <class>org.jbpm.services.task.impl.model.AttachmentImpl</class>
     <class>org.jbpm.services.task.impl.model.BooleanExpressionImpl</class>
     <class>org.jbpm.services.task.impl.model.CommentImpl</class>
-    <!-- Unknown entity.. some deprecated thing? -->
-    <!--<class>org.jbpm.services.task.impl.model.CompletionBehaviorImpl</class>-->
     <class>org.jbpm.services.task.impl.model.ContentImpl</class>
     <class>org.jbpm.services.task.impl.model.DeadlineImpl</class>
     <class>org.jbpm.services.task.impl.model.EmailNotificationHeaderImpl</class>
@@ -104,7 +101,7 @@
     <properties>
       <property name="hibernate.max_fetch_depth" value="3"/>
       <property name="hibernate.hbm2ddl.auto" value="validate"/>
-      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.show_sql" value="false"/>
 
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}"/>
 
@@ -138,12 +135,11 @@
     <class>org.jbpm.runtime.manager.impl.jpa.ContextMappingInfo</class>
     <!-- jbpm-kie-services -->
     <class>org.jbpm.kie.services.impl.store.DeploymentStoreEntry</class>
+    <class>org.jbpm.kie.services.impl.query.persistence.QueryDefinitionEntity</class>
     <!-- jbpm-human-task-jpa -->
     <class>org.jbpm.services.task.impl.model.AttachmentImpl</class>
     <class>org.jbpm.services.task.impl.model.BooleanExpressionImpl</class>
     <class>org.jbpm.services.task.impl.model.CommentImpl</class>
-    <!-- Unknown entity.. some deprecated thing? -->
-    <!--<class>org.jbpm.services.task.impl.model.CompletionBehaviorImpl</class>-->
     <class>org.jbpm.services.task.impl.model.ContentImpl</class>
     <class>org.jbpm.services.task.impl.model.DeadlineImpl</class>
     <class>org.jbpm.services.task.impl.model.EmailNotificationHeaderImpl</class>
@@ -189,7 +185,7 @@
       <property name="hibernate.max_fetch_depth" value="3"/>
       <!-- No value for hbm2ddl.auto, because tests manage DDL themselves. -->
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.show_sql" value="false"/>
 
       <property name="hibernate.dialect" value="${maven.hibernate.dialect}"/>
 

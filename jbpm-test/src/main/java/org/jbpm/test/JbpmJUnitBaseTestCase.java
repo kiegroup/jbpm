@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss Inc
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -679,7 +679,24 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
         }
         ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
         if (processInstance instanceof WorkflowProcessInstance) {
-            assertNodeActive((WorkflowProcessInstance) processInstance, names);
+            if (sessionPersistence) {
+                List<? extends NodeInstanceLog> logs = logService.findNodeInstances(processInstanceId); // ENTER -> EXIT is correctly ordered
+                if (logs != null) {
+                    List<String> activeNodes = new ArrayList<String>();
+                    for (NodeInstanceLog l : logs) {
+                        String nodeName = l.getNodeName();
+                        if (l.getType() == NodeInstanceLog.TYPE_ENTER && names.contains(nodeName)) {
+                            activeNodes.add(nodeName);
+                        }
+                        if (l.getType() == NodeInstanceLog.TYPE_EXIT && names.contains(nodeName)) {
+                            activeNodes.remove(nodeName);
+                        }
+                    }
+                    names.removeAll(activeNodes);
+                }
+            } else {
+                assertNodeActive((WorkflowProcessInstance) processInstance, names);
+            }
         }
         if (!names.isEmpty()) {
             String s = names.get(0);

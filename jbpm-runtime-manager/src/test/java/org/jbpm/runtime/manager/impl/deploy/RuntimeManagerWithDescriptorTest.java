@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,7 +122,7 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         resources.put("src/main/resources/BPMN2-ScriptTask.bpmn2", processString);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
-        deployKjar(releaseId, kJar1);
+        installKjar(releaseId, kJar1);
 
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder(releaseId)
@@ -172,7 +172,7 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         resources.put("src/main/resources/simple.drl", drl);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
-        deployKjar(releaseId, kJar1);
+        installKjar(releaseId, kJar1);
 
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder(releaseId)
@@ -262,7 +262,7 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId("org.jbpm.test.dd", "-kjar-with-dd", "1.0.0");
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
-        deployKjar(releaseId, kJar1);
+        installKjar(releaseId, kJar1);
 
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder(releaseId)

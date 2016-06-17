@@ -3,12 +3,16 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-services</artifactId>
-    <version>6.4.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>jbpm-services-api</artifactId>
   <packaging>bundle</packaging>
   <name>jBPM :: Services API</name>
-  
+
+  <properties>
+    <osgi.Bundle-SymbolicName>org.jbpm.services.api;singleton:=true</osgi.Bundle-SymbolicName>
+  </properties>
+
   <dependencies>
     <!-- kie -->
     <dependency>
@@ -19,6 +23,10 @@
       <groupId>org.kie</groupId>
       <artifactId>kie-internal</artifactId>
     </dependency> 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
   </dependencies>
   
    <build>
@@ -28,7 +36,6 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Bundle-SymbolicName>org.jbpm.services.api;singleton:=true</Bundle-SymbolicName>
             <Import-Package>
               javax.transaction.*;resolution:=optional,
               *

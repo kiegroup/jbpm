@@ -1,5 +1,5 @@
 /*
-Copyright 2013 JBoss Inc
+Copyright 2013 Red Hat, Inc. and/or its affiliates.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.drools.core.command.impl.KnowledgeCommandContext;
 import org.jbpm.bpmn2.handler.ReceiveTaskHandler;
 import org.jbpm.bpmn2.handler.SendTaskHandler;
 import org.jbpm.bpmn2.handler.ServiceTaskHandler;
+import org.jbpm.bpmn2.objects.Address;
 import org.jbpm.bpmn2.objects.HelloService;
 import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
@@ -1383,9 +1384,10 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         assertTrue(list.size() == 1);
     }
 
+    @RequirePersistence
     @Test(timeout=10000)
     public void testNullVariableInScriptTaskProcess() throws Exception {
-        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("After Timer", 1);
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Timer", 1, true);
         KieBase kbase = createKnowledgeBase("BPMN2-NullVariableInScriptTaskProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.addEventListener(countDownListener);
@@ -1396,7 +1398,10 @@ public class ActivityTest extends JbpmBpmn2TestCase {
 
         countDownListener.waitTillCompleted();
         ProcessInstance pi = ksession.getProcessInstance(processInstance.getId());
-        assertNull(pi);
+        assertNotNull(pi);
+        
+        assertProcessInstanceActive(processInstance);
+        ksession.abortProcessInstance(processInstance.getId());
 
         assertProcessInstanceFinished(processInstance, ksession);
     }
@@ -1761,5 +1766,73 @@ public class ActivityTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertProcessInstanceFinished(processInstance, ksession);
         ksession.dispose();
+    }
+    
+    @Test
+    public void testMultipleBusinessRuleTaskWithDataInputsWithPersistence()
+            throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper(
+                "BPMN2-MultipleRuleTasksWithDataInput.bpmn2",
+                "BPMN2-MultipleRuleTasks.drl");
+        ksession = createKnowledgeSession(kbase);
+        
+        ksession.addEventListener(new TriggerRulesEventListener(ksession));
+        
+        List<String> listPerson = new ArrayList<String>();
+        List<String> listAddress = new ArrayList<String>();
+        
+        ksession.setGlobal("listPerson", listPerson);
+        ksession.setGlobal("listAddress", listAddress);
+
+        Person person = new Person();
+        person.setName("john");
+        
+        Address address = new Address();
+        address.setStreet("5th avenue");
+        
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("person", person);
+        params.put("address", address);
+        ProcessInstance processInstance = ksession.startProcess("multiple-rule-tasks", params);
+
+        assertEquals(1, listPerson.size());
+        assertEquals(1, listAddress.size());
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+    
+    @Test
+    public void testAdHocSubProcessWithTerminateEndEvent() throws Exception {
+        KieBase kbase = createKnowledgeBaseWithoutDumper(
+                "BPMN2-AdHocTerminateEndEvent.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+        
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("complete", false);
+        
+        ProcessInstance processInstance = ksession.startProcess("AdHocWithTerminateEnd", parameters);
+        assertProcessInstanceActive(processInstance);
+        
+        WorkItem workItem = workItemHandler.getWorkItem();
+        assertNull(workItem);
+        ksession = restoreSession(ksession, true);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
+        
+        // signal human task with none end event
+        ksession.signalEvent("First task", null, processInstance.getId());
+        
+        workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);       
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceActive(processInstance);
+        
+        // signal human task that leads to terminate end event that should complete ad hoc task
+        ksession.signalEvent("Terminate", null, processInstance.getId());
+        workItem = workItemHandler.getWorkItem();
+        assertNotNull(workItem);       
+        ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        
+        assertProcessInstanceFinished(processInstance, ksession);
     }
 }

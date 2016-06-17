@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm-human-task</artifactId>
-    <version>6.4.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
   <artifactId>jbpm-human-task-core</artifactId>
   <packaging>bundle</packaging>
@@ -13,6 +13,8 @@
   <name>jBPM :: Human Task Core</name>
 
   <properties>
+    <osgi.Bundle-SymbolicName>org.jbpm.services.task</osgi.Bundle-SymbolicName>
+
     <!--  Oracle test properties
     <maven.datasource.classname>oracle.jdbc.xa.client.OracleXADataSource</maven.datasource.classname>
     <maven.hibernate.dialect>org.hibernate.dialect.Oracle10gDialect</maven.hibernate.dialect>
@@ -179,6 +181,11 @@
       <artifactId>reflections</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-test-util</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <!-- LDAP tests -->
     <dependency>
@@ -211,7 +218,6 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Bundle-SymbolicName>org.jbpm.services.task</Bundle-SymbolicName>
             <Import-Package>
               !org.jbpm.services.task.admin,
               !org.jbpm.services.task.commands,

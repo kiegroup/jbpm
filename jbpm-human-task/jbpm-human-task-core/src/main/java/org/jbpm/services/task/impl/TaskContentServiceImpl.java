@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 JBoss by Red Hat.
+ * Copyright 2012 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class TaskContentServiceImpl implements TaskContentService {
         long contentId = -1;
         if (outputContent == null) { 
             ContentMarshallerContext context = getMarshallerContext(task);
-            ContentData outputContentData = ContentMarshallerHelper.marshal(params, context.getEnvironment());
+            ContentData outputContentData = ContentMarshallerHelper.marshal(task, params, context.getEnvironment());
             Content content = TaskModelProvider.getFactory().newContent();
             ((InternalContent) content).setContent(outputContentData.getContent());
             persistenceContext.persistContent(content);
@@ -81,7 +81,7 @@ public class TaskContentServiceImpl implements TaskContentService {
             if(unmarshalledObject != null && unmarshalledObject instanceof Map){
                 ((Map<String, Object>)unmarshalledObject).putAll(params);
             }
-            ContentData outputContentData = ContentMarshallerHelper.marshal(unmarshalledObject, context.getEnvironment());
+            ContentData outputContentData = ContentMarshallerHelper.marshal(task, unmarshalledObject, context.getEnvironment());
             ((InternalContent)outputContent).setContent(outputContentData.getContent());
             persistenceContext.persistContent(outputContent);
             contentId = outputContentId;

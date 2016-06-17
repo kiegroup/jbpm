@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss by Red Hat.
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class TaskIndexerManager {
     
     private static ServiceLoader<TaskVariableIndexer> taskVariableIndexers = ServiceLoader.load(TaskVariableIndexer.class);
     
-    private static TaskIndexerManager INSTANCE;
+    private static TaskIndexerManager INSTANCE = new TaskIndexerManager();
     
     private List<TaskVariableIndexer> indexers = new ArrayList<TaskVariableIndexer>();
     
@@ -76,10 +76,6 @@ public class TaskIndexerManager {
     }
     
     public static TaskIndexerManager get() {
-        if (INSTANCE == null) {
-            INSTANCE = new TaskIndexerManager();
-        }
-        
         return INSTANCE;
     }
 }

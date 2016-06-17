@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 JBoss Inc
+ * Copyright 2015 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ import javax.persistence.Persistence;
 import javax.transaction.UserTransaction;
 
 import org.hornetq.jms.server.embedded.EmbeddedJMS;
+import org.jbpm.executor.AsynchronousJobEvent;
+import org.jbpm.executor.AsynchronousJobListener;
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.executor.impl.ClassCacheManager;
 import org.jbpm.executor.impl.ExecutorImpl;
@@ -51,20 +53,13 @@ import org.kie.api.runtime.query.QueryContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 import bitronix.tm.resource.jms.PoolingConnectionFactory;
 
 public class JmsAvaiableJobExecutorTest  {
 
     private static final Logger logger = LoggerFactory.getLogger(JmsAvaiableJobExecutorTest.class);
-    
-    static {
-        if (!TransactionManagerServices.isTransactionManagerRunning()) {
-            TransactionManagerServices.getConfiguration().setJournal("null");
-        }
-    }
-    
+
     private ConnectionFactory factory;
     private Queue queue;
     
@@ -136,7 +131,66 @@ public class JmsAvaiableJobExecutorTest  {
  
     }
     
-   
+    @Test
+    public void testAsyncAuditProducerPrioritizedJobs() throws Exception {
+        
+        CountDownAsyncJobListener countDownListener = configureListener(2);
+        final List<String> executedJobs = new ArrayList<String>();
+        ((ExecutorServiceImpl) executorService).addAsyncJobListener(new AsynchronousJobListener() {
+            
+            @Override
+            public void beforeJobScheduled(AsynchronousJobEvent event) {
+            }
+            
+            @Override
+            public void beforeJobExecuted(AsynchronousJobEvent event) {                
+            }
+            
+            @Override
+            public void beforeJobCancelled(AsynchronousJobEvent event) {                
+            }
+            
+            @Override
+            public void afterJobScheduled(AsynchronousJobEvent event) {                
+            }
+            
+            @Override
+            public void afterJobExecuted(AsynchronousJobEvent event) {
+                executedJobs.add(event.getJob().getKey());
+            }
+            
+            @Override
+            public void afterJobCancelled(AsynchronousJobEvent event) {                
+            }
+        });
+        CommandContext ctxCMD = new CommandContext();
+        ctxCMD.setData("businessKey", "low priority");
+        ctxCMD.setData("priority", 2);
+        
+        CommandContext ctxCMD2 = new CommandContext();
+        ctxCMD2.setData("businessKey", "high priority");
+        ctxCMD2.setData("priority", 8);
+        
+        UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
+        ut.begin();
+        executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD);
+        executorService.scheduleRequest("org.jbpm.executor.commands.PrintOutCommand", ctxCMD2);
+        ut.commit();
+        MessageReceiver receiver = new MessageReceiver();
+        receiver.receiveAndProcess(queue, countDownListener);
+
+        List<RequestInfo> inErrorRequests = executorService.getInErrorRequests(new QueryContext());
+        assertEquals(0, inErrorRequests.size());
+        List<RequestInfo> queuedRequests = executorService.getQueuedRequests(new QueryContext());
+        assertEquals(0, queuedRequests.size());
+        List<RequestInfo> executedRequests = executorService.getCompletedRequests(new QueryContext());
+        assertEquals(2, executedRequests.size());
+        
+        assertEquals(2,  executedJobs.size());
+        assertEquals("high priority",  executedJobs.get(0));
+        assertEquals("low priority",  executedJobs.get(1));
+ 
+    }
     
     private void startHornetQServer() throws Exception {
         jmsServer = new EmbeddedJMS();

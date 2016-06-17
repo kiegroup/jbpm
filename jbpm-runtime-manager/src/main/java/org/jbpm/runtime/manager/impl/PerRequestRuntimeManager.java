@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 JBoss Inc
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,21 +119,29 @@ public class PerRequestRuntimeManager extends AbstractRuntimeManager {
     	if (isClosed()) {
     		throw new IllegalStateException("Runtime manager " + identifier + " is already closed");
     	}
-        local.set(null);
-        try {
-            if (canDestroy(runtime)) {
-                runtime.getKieSession().destroy();
-            } else {
+    	if (canDispose(runtime)) {
+            local.set(null);
+            try {
+                if (canDestroy(runtime)) {
+                    runtime.getKieSession().destroy();
+                } else {
+                    if (runtime instanceof Disposable) {
+                        ((Disposable) runtime).dispose();
+                    }
+                }
+            } catch (Exception e) {
+                // do nothing
                 if (runtime instanceof Disposable) {
                     ((Disposable) runtime).dispose();
                 }
             }
-        } catch (Exception e) {
-            // do nothing
-            if (runtime instanceof Disposable) {
-                ((Disposable) runtime).dispose();
-            }
-        }
+    	}
+    }
+
+    @Override
+    public void softDispose(RuntimeEngine runtimeEngine) {        
+        super.softDispose(runtimeEngine);
+        local.set(null);
     }
 
     @Override

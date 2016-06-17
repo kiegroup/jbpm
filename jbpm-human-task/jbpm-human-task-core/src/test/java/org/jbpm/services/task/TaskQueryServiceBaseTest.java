@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 JBoss Inc
+ * Copyright 2013 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -32,7 +32,6 @@ import javax.transaction.UserTransaction;
 
 import org.jbpm.services.task.impl.factories.TaskFactory;
 import org.jbpm.services.task.impl.model.TaskDataImpl;
-import org.jbpm.services.task.impl.model.TaskImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.kie.api.task.model.I18NText;
@@ -77,6 +76,31 @@ public abstract class TaskQueryServiceBaseTest extends HumanTaskServicesBaseTest
         taskService.addTask(task, new HashMap<String, Object>());
         List<TaskSummary> tasks = taskService.getTasksAssignedAsBusinessAdministrator("Bobba Fet", "en-UK");
         assertEquals(1, tasks.size());
+    }
+    
+    
+    @Test
+    public void testGetTasksAssignedAsBusinessAdministratorWithUserOfGroupLangOneTask() {
+        // JBPM-4862
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [new Group('Crusaders')], }),";
+        str += "name = 'This is my task name' })";
+        Task task = TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsBusinessAdministrator("Bobba Fet", "en-UK");
+        assertEquals(1, tasks.size());
+    }
+    
+    @Test
+    public void testGetTasksAssignedAsBusinessAdministratorWithUserOfWrongGroupLangOneTask() {
+        // JBPM-4862
+        String str = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
+        str += "peopleAssignments = (with ( new PeopleAssignments() ) { businessAdministrators = [new Group('Crusaders')], }),";
+        str += "name = 'This is my task name' })";
+        Task task = TaskFactory.evalTask(new StringReader(str));
+        taskService.addTask(task, new HashMap<String, Object>());
+        List<TaskSummary> tasks = taskService.getTasksAssignedAsBusinessAdministrator("nocrusadaer", "en-UK");
+        assertEquals(0, tasks.size());
     }
     
     

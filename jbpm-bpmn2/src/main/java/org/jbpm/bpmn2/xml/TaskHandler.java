@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 JBoss Inc
+ * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,8 @@ public class TaskHandler extends AbstractNodeHandler {
     	super.handleNode(node, element, uri, localName, parser);
     	
     	itemDefinitions = (Map<String, ItemDefinition>)((ProcessBuildData) parser.getData()).getMetaData("ItemDefinitions");
+    	dataTypeInputs.clear();
+    	dataTypeOutputs.clear();
     	
     	WorkItemNode workItemNode = (WorkItemNode) node;
         String name = getTaskName(element);

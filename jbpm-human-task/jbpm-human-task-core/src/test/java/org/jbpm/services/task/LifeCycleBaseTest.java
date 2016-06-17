@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 JBoss Inc
+ * Copyright 2010 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -146,7 +146,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         str += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Bobba Fet') ],businessAdministrators = [ new User('Administrator') ], }),";
         str += "name =  'This is my task name' })";
 
-        ContentData data = ContentMarshallerHelper.marshal("content", null);
+        ContentData data = ContentMarshallerHelper.marshal(null, "content", null);
 
         Task task = TaskFactory.evalTask(new StringReader(str));
         taskService.addTask(task, data);
@@ -178,7 +178,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         variablesMap.put("key1", "value1");
         variablesMap.put("key2", null);
         variablesMap.put("key3", "value3");
-        ContentData data = ContentMarshallerHelper.marshal(variablesMap, null);
+        ContentData data = ContentMarshallerHelper.marshal(null, variablesMap, null);
         
         Task task = TaskFactory.evalTask( new StringReader( str ));
         taskService.addTask( task, data );
@@ -229,7 +229,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
         variablesMap.put("key1", "value1");
         variablesMap.put("key2", null);
         variablesMap.put("key3", "value3");
-        ContentData data = ContentMarshallerHelper.marshal(variablesMap, null);
+        ContentData data = ContentMarshallerHelper.marshal(null, variablesMap, null);
         
         Task task = TaskFactory.evalTask( new StringReader( str ));
         taskService.addTask( task, data );
@@ -311,7 +311,7 @@ public abstract class LifeCycleBaseTest extends HumanTaskServicesBaseTest {
             largeContent += i + "xxxxxxxxx";
         }
 
-        ContentData data = ContentMarshallerHelper.marshal(largeContent, null);
+        ContentData data = ContentMarshallerHelper.marshal(null, largeContent, null);
 
         Task task = TaskFactory.evalTask(new StringReader(str));
         taskService.addTask(task, data);

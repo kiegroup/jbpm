@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jbpm</groupId>
     <artifactId>jbpm</artifactId>
-    <version>6.4.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>jbpm-bpmn2</artifactId>
@@ -17,8 +17,9 @@
   <name>jBPM :: BPMN2</name>
   <description>jBPM BPMN2</description>
   
-  <properties>    
-    <maven.jdbc.url>jdbc:h2:tcp://localhost/target/jbpm-bpmn-db</maven.jdbc.url>
+  <properties>
+    <osgi.Bundle-SymbolicName>org.jbpm.bpmn2</osgi.Bundle-SymbolicName>
+    <maven.jdbc.url>jdbc:h2:tcp://localhost/target/jbpm-bpmn-db;MVCC=TRUE</maven.jdbc.url>
   </properties>
 
   <dependencies>
@@ -168,7 +169,6 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <configuration>
           <instructions>
-            <Bundle-SymbolicName>org.jbpm.bpmn2</Bundle-SymbolicName>
             <Bundle-Activator>org.jbpm.osgi.bpmn2.Activator</Bundle-Activator>
             <Import-Package>
               !org.jbpm.compiler

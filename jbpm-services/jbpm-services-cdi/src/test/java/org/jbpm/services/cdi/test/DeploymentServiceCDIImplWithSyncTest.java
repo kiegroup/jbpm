@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 JBoss by Red Hat.
+ * Copyright 2014 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithSyncTest {
-	
+   
 	@Deployment()
     public static Archive<?> createDeployment() {
         return ShrinkWrap.create(JavaArchive.class, "domain-services.jar")                
@@ -89,14 +89,19 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
                 .addPackage("org.jbpm.kie.services.impl.form")
                 .addPackage("org.jbpm.kie.services.impl.store")
                 .addPackage("org.jbpm.kie.services.impl.form.provider")
+                .addPackage("org.jbpm.kie.services.impl.query")  
+                .addPackage("org.jbpm.kie.services.impl.query.mapper")  
+                .addPackage("org.jbpm.kie.services.impl.query.persistence")  
+                .addPackage("org.jbpm.kie.services.impl.query.preprocessor")  
                 
                 .addPackage("org.jbpm.services.cdi")
                 .addPackage("org.jbpm.services.cdi.impl")
                 .addPackage("org.jbpm.services.cdi.impl.form")
                 .addPackage("org.jbpm.services.cdi.impl.manager")
-                .addPackage("org.jbpm.services.cdi.impl.store")
                 .addPackage("org.jbpm.services.cdi.producer")
                 .addPackage("org.jbpm.services.cdi.impl.security")
+                .addPackage("org.jbpm.services.cdi.impl.store")
+                .addPackage("org.jbpm.services.cdi.impl.query")
                 
                 .addPackage("org.jbpm.test.util")
                 .addPackage("org.jbpm.kie.services.test")
@@ -121,8 +126,12 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
 	}
 
 	@Override
-    protected CoundDownDeploymentListener configureListener(int threads) {
+    protected CoundDownDeploymentListener configureListener(int threads, boolean deploy, boolean undeploy, boolean activate, boolean deactivate) {
         countDownListner.reset(threads);
+        countDownListner.setDeploy(deploy);
+        countDownListner.setUndeploy(undeploy);
+        countDownListner.setActivate(activate);
+        countDownListner.setDeactivate(deactivate);
 	    
         return countDownListner;
     }
@@ -178,6 +187,5 @@ public class DeploymentServiceCDIImplWithSyncTest extends DeploymentServiceWithS
 	public void setCommandService(TransactionalCommandService commandService) {
 		super.setCommandService(commandService);
 	}
-
 	
 }
