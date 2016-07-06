@@ -22,11 +22,9 @@
 
   <profiles>
     <profile>
-      <id>protobufProfile</id>
+      <id>protobuf-generation</id>
       <activation>
-        <property>
-          <name>proto</name>
-        </property>
+        <activeByDefault>true</activeByDefault>
       </activation>
       <build>
         <plugins>
@@ -38,6 +36,7 @@
                 <goals>
                   <goal>exec</goal>
                 </goals>
+                <phase>generate-sources</phase>
               </execution>
             </executions>
             <configuration>
