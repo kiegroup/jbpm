@@ -24,10 +24,12 @@ public class JPAProcessInstanceWorkItemManager extends JPAWorkItemManager implem
         super(kruntime);
     }
 
+    @Override
     protected void signalEventAndRemoveWorkItem(ProcessInstance processInstance, String event, WorkItem workItem, WorkItemInfo workItemInfo) {
         // process instance may have finished already
         if (processInstance != null) {
             if( ((org.jbpm.process.instance.ProcessInstance) processInstance).isStackless() ) {
+                ((ProcessInstanceActionQueueExecutor) processInstance).addNewExecutionQueueToStack( true );
                 ((ProcessInstanceActionQueueExecutor) processInstance).addProcessInstanceAction(new RemoveWorkItemAction(this, workItem.getId(), workItemInfo));
                 processInstance.signalEvent(event, workItem);
             } else {

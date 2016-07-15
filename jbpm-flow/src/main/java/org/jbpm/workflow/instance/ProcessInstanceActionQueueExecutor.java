@@ -34,6 +34,6 @@ public interface ProcessInstanceActionQueueExecutor {
     void triggerCompletedAndExecute( EventNodeInstanceInterface eventNodeInstance );
     void executeQueue();
 
-    public void addNewExecutionQueueToStack();
+    public void addNewExecutionQueueToStack(boolean forceNewQueue);
 
 }

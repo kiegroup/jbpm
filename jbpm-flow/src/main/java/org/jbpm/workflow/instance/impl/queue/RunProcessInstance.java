@@ -61,7 +61,7 @@ public class RunProcessInstance extends AbstractPropagationEntry {
 
     public void addProcessActionAtBegin( NodeInstanceTriggerAction action ) {
         log("+ adding as first: " + action.toString());
-        this.processActionQueueStack.peek().add(action);
+        internalAddAction(action);
     }
 
     public void addNodeInstanceTrigger( NodeInstance nodeInstance, NodeInstance from, String type ) {
@@ -88,11 +88,15 @@ public class RunProcessInstance extends AbstractPropagationEntry {
 
         // DBG
         assert action != null : "Added null process action to queue?1?";
+        internalAddAction(action);
+    }
+
+    private void internalAddAction( ProcessInstanceAction action ) {
         processActionQueueStack.peek().addFirst(action);
     }
 
-    public void addNewQueue() {
-        if( ! newQueueAddedToStack ) {
+    public void addNewQueue(boolean forceNewQueue) {
+        if( ! newQueueAddedToStack || forceNewQueue ) {
             processActionQueueStack.add(new LinkedList<>());
             newQueueAddedToStack = true;
             log( "(" + processActionQueueStack.size() );

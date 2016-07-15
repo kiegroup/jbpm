@@ -126,7 +126,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 					getKnowledgeRuntime().getFactHandle(nodeInstance));
 		}
 		this.nodeInstances.remove(nodeInstance);
-		System.out.println( "<-" + nodeInstance.getNode().getId() + ">");
+		System.out.println( "<-" + nodeInstance.getNodeId() + ">");
 	}
 
 	public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {
@@ -412,7 +412,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			registerExternalEventNodeListeners();
 
 			if( isStackless() ) {
-			    addNewExecutionQueueToStack();
+			    addNewExecutionQueueToStack(false);
 			}
 
 			// activate timer event sub processes
@@ -471,7 +471,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 
 			boolean stackless = isStackless();
 			if( stackless ) {
-			    addNewExecutionQueueToStack();
+			    addNewExecutionQueueToStack(false);
 			}
 			try {
 				this.activatingNodeIds = new ArrayList<String>();

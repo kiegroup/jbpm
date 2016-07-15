@@ -40,7 +40,7 @@ public abstract class ExceptionScopeInstance extends AbstractContextInstance imp
             throw new IllegalArgumentException("Could not find ExceptionHandler for " + exception);
         }
         if( isStackless() ) {
-            getProcessInstance().addNewExecutionQueueToStack();
+            getProcessInstance().addNewExecutionQueueToStack(false);
         }
         handleException(handler, exception, params);
     }

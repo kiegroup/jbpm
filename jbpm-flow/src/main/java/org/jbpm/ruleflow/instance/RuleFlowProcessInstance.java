@@ -91,8 +91,8 @@ public class RuleFlowProcessInstance extends WorkflowProcessInstanceImpl {
     // TRIGGER EXECUTION
 
     @Override
-    public void addNewExecutionQueueToStack() {
-        runProcessInstance.addNewQueue();
+    public void addNewExecutionQueueToStack(boolean forceNewQueue) {
+        runProcessInstance.addNewQueue( forceNewQueue );
     }
 
     @Override

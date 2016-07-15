@@ -26,6 +26,7 @@ public class ProcessInstanceWorkItemManager extends DefaultWorkItemManager imple
         if( processInstance != null ) {
             if( ((org.jbpm.process.instance.ProcessInstance) processInstance).isStackless() ) {
                 ((ProcessInstanceActionQueueExecutor) processInstance).addProcessInstanceAction(new RemoveWorkItemAction(this, workItem.getId()));
+//                ((ProcessInstanceActionQueueExecutor) processInstance).addNewExecutionQueueToStack(true);
                 processInstance.signalEvent(event, workItem);
             } else {
                 processInstance.signalEvent(event, workItem);
@@ -45,6 +46,7 @@ public class ProcessInstanceWorkItemManager extends DefaultWorkItemManager imple
             }
             removeWorkItem(workItem.getId());
         } else {
+            // queue-based logic demans that the work item is removed via the queue and NOT immediately
             ((ProcessInstanceActionQueueExecutor) processInstance).addProcessInstanceAction(new RemoveWorkItemAction(this, workItem.getId()));
             if (handler != null) {
                 handler.abortWorkItem(workItem, this);
