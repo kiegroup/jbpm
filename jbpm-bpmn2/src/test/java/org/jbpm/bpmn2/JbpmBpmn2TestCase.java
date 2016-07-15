@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -138,9 +137,9 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             "PREPARING", "COMMITTING", "ROLLING_BACK" };
     // @formatter:on
 
-    public static final boolean PERSISTENCE = Boolean.valueOf(System.getProperty("org.jbpm.test.persistence", "true"));
-    public static final boolean LOCKING = Boolean.valueOf(System.getProperty("org.jbpm.test.locking", "false"));
-    public static final boolean STACKLESS = Boolean.valueOf(System.getProperty("org.jbpm.test.stackless", "true"));
+    public static final boolean PERSISTENCE_PROPERTY = Boolean.valueOf(System.getProperty("org.jbpm.test.persistence", "true"));
+    public static final boolean LOCKING_PROPERTY = Boolean.valueOf(System.getProperty("org.jbpm.test.locking", "false"));
+    public static final boolean STACKLESS_PROPERTY = Boolean.valueOf(System.getProperty("org.jbpm.test.stackless", "true"));
 
     private static boolean setupDataSource = false;
 
@@ -161,51 +160,65 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         return getTestOptions(TestOption.EVERYTHING);
     }
 
+    private static final Object [] RECURSIVE =
+                { false, false, false, "RECURSIVE" }; // plain recurisve
+    private static final Object [] RECURSIVE_PERSISTENCE =
+                { true, false, false, "RECURSIVE PERSISTENCE" }; // persistence + old exec model (recursive)
+    private static final Object [] RECURSIVE_PERSISTENCE_LOCKING =
+                { true, true, false, "RECURSIVE PERSISTENCE LOCKING"}; // persistence locking
+    private static final Object [] STACKLESS =
+                { false, false, true, "STACKLESS"}; // stackless w/o persistence
+    private static final Object [] STACKLESS_PERSISTENCE =
+                { true, false, true, "STACKLESS PERSISTENCE" }; // stackless w/ persistence
+    private static final Object [] STACKLESS_PERSISTENCE_LOCKING =
+                { true, true, true, "STACKLESS PERSISTENCE LOCKING"}; // stackless w/ persistence + locking
+
+
     public static List<Object[]> getTestOptions(TestOption option) {
         Object[][] data;
         switch( option) {
         case EVERYTHING:
             data = new Object[][] {
-                { false, false, false }, // plain
-                { true, false, false }, // persistence + old exec model (recursive)
-                { true, true, false }, // persistence locking
-                { false, false, true }, // stackless w/o persistence
-                { true, false, true }, // stackless w/ persistence
-                { true, true, true } // stackless w/ persistence + locking
+                RECURSIVE,
+                RECURSIVE_PERSISTENCE,
+                RECURSIVE_PERSISTENCE_LOCKING,
+                STACKLESS,
+                STACKLESS_PERSISTENCE,
+                STACKLESS_PERSISTENCE_LOCKING
             };
             break;
         case EXCEPT_FOR_LOCKING:
             data = new Object[][] {
-                { false, false, false }, // plain
-                { true, false, false }, // persistence + old exec model (recursive)
-                { false, false, true }, // stackless w/o persistence
-                { true, false, true } // stackless w/ persistence
+                RECURSIVE,
+                RECURSIVE_PERSISTENCE,
+                STACKLESS,
+                STACKLESS_PERSISTENCE
             };
             break;
         case NO_PERSISTENCE:
             data = new Object[][] {
-                { false, false, false }, // plain
-                { false, false, true }, // stackless w/o persistence
+               RECURSIVE,
+               STACKLESS
             };
             break;
         case ONLY_NORMAL_PERSISTENCE:
             data = new Object[][] {
-                { true, false, false }, // persistence + old exec model (recursive)
-                { true, false, true }, // stackless w/ persistence
+                RECURSIVE_PERSISTENCE,
+               STACKLESS_PERSISTENCE
             };
             break;
         case RECURSIVE_EXECUTION:
             data = new Object[][] {
-                { false, false, false }, // plain
-                { true, false, false }, // persistence + old exec model (recursive)
-                { true, true, false }, // persistence locking
+                RECURSIVE,
+                RECURSIVE_PERSISTENCE,
+                RECURSIVE_PERSISTENCE_LOCKING
             };
             break;
         case STACKLESS_EXECUTION:
             data = new Object[][] {
-                { false, false, true }, // stackless w/o persistence
-                { true, false, true }, // stackless w/ persistence
-                { true, true, true } // stackless w/ persistence + locking
+                STACKLESS,
+                STACKLESS_PERSISTENCE,
+                STACKLESS_PERSISTENCE_LOCKING
             };
             break;
         default:
@@ -253,14 +266,19 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     };
 
     public JbpmBpmn2TestCase() {
-        this(PERSISTENCE, LOCKING, STACKLESS);
+        this(PERSISTENCE_PROPERTY, LOCKING_PROPERTY, STACKLESS_PROPERTY, "PROPERTY BASED");
     }
 
     public JbpmBpmn2TestCase(boolean sessionPersistence) {
-        this(sessionPersistence, LOCKING, STACKLESS);
+        this(sessionPersistence, LOCKING_PROPERTY, STACKLESS_PROPERTY, "PERSISTENCE: " + sessionPersistence);
     }
 
     public JbpmBpmn2TestCase(boolean sessionPersistance, boolean locking, boolean stackless) {
+        this(sessionPersistance, locking, stackless, "");
+    }
+
+
+    public JbpmBpmn2TestCase(boolean sessionPersistance, boolean locking, boolean stackless, String name) {
         System.setProperty("jbpm.user.group.mapping", "classpath:/usergroups.properties");
         System.setProperty("jbpm.usergroup.callback", "org.jbpm.task.identity.DefaultUserGroupCallbackImpl");
         this.sessionPersistence = sessionPersistance;

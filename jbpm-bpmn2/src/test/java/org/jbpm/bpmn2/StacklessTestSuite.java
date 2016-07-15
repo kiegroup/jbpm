@@ -16,11 +16,11 @@ import org.junit.runners.Suite.SuiteClasses;
     ErrorEventTest.class,
     EndEventTest.class,
     DataTest.class,
-    ActivityTest.class,
     StructureRefTest.class,
+    MultiInstanceTest.class,
 
     // Broken
-    MultiInstanceTest.class,
+    ActivityTest.class, // ad hoc
     CompensationTest.class
 })
 public class StacklessTestSuite {

@@ -83,7 +83,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
-    @Parameters
+    @Parameters(name="{3}")
     public static Collection<Object[]> persistence() {
         return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
@@ -94,8 +94,8 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
     private KieSession ksession;
 
-    public IntermediateEventTest(boolean persistence, boolean locking, boolean stackless) {
-        super(persistence, locking, stackless);
+    public IntermediateEventTest(boolean persistence, boolean locking, boolean stackless, String name) {
+        super(persistence, locking, stackless, name);
     }
 
     @BeforeClass
@@ -2472,13 +2472,13 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertNotNull(processInstances);
         assertEquals(0, processInstances.size());
     }
-    
+
     @Test(timeout=10000)
-    @RequirePersistence
+    @RequiresPersistence
     public void testIntermediateCatchEventTimerDurationWithError()
             throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 1);
-        
+
         KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventTimerDurationWithError.bpmn2");
         ksession = createKnowledgeSession(kbase);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
@@ -2486,7 +2486,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", 0);
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent", params);
-        
+
         long waitTime = 2;
         assertProcessInstanceActive(processInstance);
         // now wait for 1 second for timer to trigger
@@ -2497,15 +2497,15 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
         // reschedule it to allow to move on
         ksession.setGlobal("TestOK", Boolean.TRUE);
-     
+
         ksession.execute(new UpdateTimerCommand(processInstance.getId(), "timer", waitTime + 1));
         countDownListener.reset(1);
         countDownListener.waitTillCompleted();
-                
+
         assertProcessInstanceFinished(processInstance, ksession);
 
     }
-    
+
     @Test(timeout=10000)
     public void testTimerBoundaryEventCronCycleVariable() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 3);
@@ -2515,10 +2515,10 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         TestWorkItemHandler handler = new TestWorkItemHandler();
 
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("cronStr", "0/1 * * * * ?");
-        
+
         ProcessInstance processInstance = ksession.startProcess("boundaryTimerCycleCron", parameters);
         assertProcessInstanceActive(processInstance);
 
@@ -2536,7 +2536,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test(timeout=10000)
     public void testMultipleTimerBoundaryEventCronCycleVariable() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 2);
@@ -2546,10 +2546,10 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         TestWorkItemHandler handler = new TestWorkItemHandler();
 
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("cronStr", "0/1 * * * * ?");
-        
+
         ProcessInstance processInstance = ksession.startProcess("boundaryTimerCycleCron", parameters);
         assertProcessInstanceActive(processInstance);
 
@@ -2559,7 +2559,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
         countDownListener.waitTillCompleted();
         assertProcessInstanceActive(processInstance);
-        
+
         workItems = handler.getWorkItems();
         assertNotNull(workItems);
         assertEquals(2, workItems.size());

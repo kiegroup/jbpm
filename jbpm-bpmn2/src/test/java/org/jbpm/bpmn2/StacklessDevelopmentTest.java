@@ -2,13 +2,16 @@ package org.jbpm.bpmn2;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jbpm.bpmn2.handler.ServiceTaskHandler;
 import org.jbpm.bpmn2.objects.MyError;
 import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
@@ -61,26 +64,26 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     public static Collection<Object[]> persistence() {
         List<Object[]> params = new ArrayList<Object[]>();
         params.add( new Object [] {
-                false, // recursive
                 false, // persistence
+                false, // recursive
                 false, // fixed
                 "RECURSIVE"
         });
         params.add( new Object [] {
-                false, // recursive
                 true,  // persistence
+                false, // recursive
                 false, // fixed
                 "RECURSIVE W/ PERSISTENCE"
         });
         params.add( new Object [] {
-                true, // stackless
                 true, // persistence
+                true, // stackless
                 false, // fixed
                 "STACKLESS FIXED"
         });
         params.add( new Object [] {
-                true, // stackless
                 false, // persistence
+                true, // stackless
                 true, //  broken
                 "STACKLESS BROKEN"
         });
@@ -91,7 +94,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     private TestBpmn2ProcessEventListener procEventListener;
     private final boolean broken;
 
-    public StacklessDevelopmentTest(boolean stackless, boolean persistence, boolean broken, String name) {
+    public StacklessDevelopmentTest(boolean persistence, boolean stackless, boolean broken, String name) {
         super(persistence, false, stackless);
         this.broken = broken;
     }
@@ -172,10 +175,12 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
                 new MethodAnnotationsScanner(),
                 new FieldAnnotationsScanner(), new SubTypesScanner());
 
-        Set<String> brokenTests = new HashSet<>();
+        Map<String, Method> brokenTests = new HashMap<>();
         for( Method brokenTest : reflections.getMethodsAnnotatedWith(Broken.class) ) {
-            System.out.println( brokenTest.getDeclaringClass().getSimpleName() + "." + brokenTest.getName() );
-            brokenTests.add(brokenTest.getName());
+            if( brokenTest.getDeclaringClass().equals(StacklessIssueDevelopmentTest.class) ) {
+                continue;
+            }
+            brokenTests.put(brokenTest.getName(), brokenTest);
         }
 
         Set<String> fixedTests = new HashSet<>();
@@ -199,9 +204,11 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
            }
         }
 
-        for( String brokenTest : brokenTests ) {
-            assertTrue( this.getClass().getSimpleName() + " does not contain " + brokenTest + "!",
-                      stacklessTests.contains(brokenTest) );
+        for( Entry<String,Method> brokenTest : brokenTests.entrySet() ) {
+            Method testMethod = brokenTest.getValue();
+            String testName = testMethod.getDeclaringClass() + "." + testMethod.getName();
+            assertTrue( this.getClass().getSimpleName() + " does not contain " + testName + "!",
+                      stacklessTests.contains(brokenTest.getKey()) );
         }
 
         for( String fixedTest : fixedTests ) {
@@ -213,7 +220,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     protected void _ESCALATIONS_AND_EVENTS() { }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void testThrowEndSignalWithScope() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-EndThrowEventScope.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -279,7 +286,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void testCallActivityWithBoundaryErrorEventWithWaitState() throws Exception {
         KieBase kbase = createKnowledgeBase(
                 "BPMN2-CallActivityProcessBoundaryError.bpmn2",
@@ -342,7 +349,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void testErrorBoundaryEventOnExit() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-BoundaryErrorEventCatchingOnExitException.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -359,7 +366,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testCatchErrorBoundaryEventOnTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ErrorBoundaryEventOnTask.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -384,8 +391,23 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
                 .startProcess("BPMN2-ErrorBoundaryEventOnTask");
 
         assertProcessInstanceActive(processInstance);
-        assertNodeTriggered(processInstance.getId(), "start", "split", "User Task", "User task error attached",
-                "Script Task", "error2", "error1");
+
+        List<String> nodesTriggered = new ArrayList<String>(Arrays.asList(new String [] {
+                "start", "split", "task", "error-task",
+                "script", "script-end"
+
+        }));
+
+        if( ! stacklessExecution ) {
+            // 1. Error boundary events are *always* interrupting
+            // 2. An interrupting boundary event, mean the activity that the even is attached to
+            //    is *terminated immediately* upon occurence of the trigger signal.
+            //    The process does *not* exit on the normal flow but continues immediately on the exception flow
+
+            // in other words, this is actually wrong! But it's the old/recursive default behavior
+           nodesTriggered.add("task-end");
+        }
+        assertNodeTriggered(processInstance.getId(), nodesTriggered.toArray(new String[nodesTriggered.size()]));
 
     }
 
@@ -405,10 +427,54 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
         ksession.abortProcessInstance(processInstance.getId());
     }
 
+    @Test
+    @Broken
+    @RequiresPersistence
+    public void testEventSubprocessErrorThrowOnTask() throws Exception {
+        KieBase kbase = createKnowledgeBase("BPMN2-EventSubprocessError.bpmn2");
+        final List<Long> executednodes = new ArrayList<Long>();
+        ProcessEventListener listener = new DefaultProcessEventListener() {
+
+            @Override
+            public void afterNodeLeft(ProcessNodeLeftEvent event) {
+                if (event.getNodeInstance().getNodeName()
+                        .equals("Script Task 1")) {
+                    executednodes.add(event.getNodeInstance().getId());
+                }
+            }
+
+        };
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(listener);
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new TestWorkItemHandler(){
+
+            @Override
+            public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+                throw new MyError();
+
+            }
+
+            @Override
+            public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+                manager.abortWorkItem(workItem.getId());
+            }
+
+
+        });
+        ProcessInstance processInstance = ksession
+                .startProcess("BPMN2-EventSubprocessError");
+
+        assertProcessInstanceFinished(processInstance, ksession);
+        assertProcessInstanceAborted(processInstance);
+        assertNodeTriggered(processInstance.getId(), "start", "User Task 1",
+                "Sub Process 1", "start-sub", "Script Task 1", "end-sub");
+        assertEquals(1, executednodes.size());
+
+    }
     protected void _SUB_PROCESSES() { }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void testEventSubprocessTimer() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Script Task 1", 1);
 
@@ -435,7 +501,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void testEventSubprocessError() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-EventSubprocessError.bpmn2");
         final List<Long> executednodes = new ArrayList<Long>();
@@ -531,7 +597,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void testSubProcessTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-SubProcessUserTask.bpmn2");
         KieSession ksession = createKnowledgeSession(kbase);
@@ -577,7 +643,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testAdHocProcess() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-AdHocProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -597,7 +663,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testAdHocProcessDynamicTask() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-AdHocProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -626,7 +692,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testAdHocSubProcessAutoCompleteDynamicTask() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper(
                 "BPMN2-AdHocSubProcessAutoComplete.bpmn2",
@@ -665,7 +731,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Broken //????
     public void testAdHocSubProcessAutoCompleteDynamicSubProcess()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper(
@@ -699,7 +765,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testAdHocSubProcessAutoCompleteDynamicSubProcess2()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper(
@@ -735,8 +801,8 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     protected void  _MULTI_INSTANCE() { }
 
     @Test
-    @Broken
-    public void testCallActivityMI() throws Exception {
+    @Fixed
+    public void testCallActivityMultiInstance() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-CallActivityMI.bpmn2",
                 "BPMN2-CallActivitySubProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
@@ -776,7 +842,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
 
 
     @Test
-    @Broken
+    @Fixed
     public void testMultiInstanceLoopCharacteristicsProcessWithOutput()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopCharacteristicsProcessWithOutput.bpmn2");
@@ -797,7 +863,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testMultiInstanceLoopCharacteristicsProcessWithOutputCompletionCondition()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopCharacteristicsProcessWithOutputCmpCond.bpmn2");
@@ -818,7 +884,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testMultiInstanceLoopCharacteristicsProcessWithOutputAndScripts()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopCharacteristicsProcessWithOutputAndScripts.bpmn2");
@@ -881,7 +947,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Fixed(times=1)
+    @Fixed(times=2) // workitem
     public void compensationViaEventSubProcess() throws Exception {
         KieSession ksession = createKnowledgeSession("compensation/BPMN2-Compensation-EventSubProcess.bpmn2");
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
@@ -1060,4 +1126,30 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
 
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
+
+    protected void _NEW() { }
+
+    @RequiresPersistence
+    @Test(timeout=10000)
+    @Broken
+    public void testNullVariableInScriptTaskProcess() throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Timer", 1, true);
+        KieBase kbase = createKnowledgeBase("BPMN2-NullVariableInScriptTaskProcess.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        ProcessInstance processInstance = ksession
+                .startProcess("nullVariableInScriptAfterTimer");
+
+        assertProcessInstanceActive(processInstance);
+
+        countDownListener.waitTillCompleted();
+        ProcessInstance pi = ksession.getProcessInstance(processInstance.getId());
+        assertNotNull(pi);
+
+        assertProcessInstanceActive(processInstance);
+        ksession.abortProcessInstance(processInstance.getId());
+
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+
 }

@@ -75,7 +75,7 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 
     @BeforeClass
     public static void setup() throws Exception {
-        if (PERSISTENCE) {
+        if (PERSISTENCE_PROPERTY) {
             setUpDataSource();
         }
     }

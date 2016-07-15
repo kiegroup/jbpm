@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
-import org.jbpm.workflow.instance.node.EndNodeInstance;
-import org.jbpm.workflow.instance.node.EventNodeInstance;
+import org.kie.api.definition.process.Node;
 import org.kie.api.event.process.ProcessCompletedEvent;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.process.ProcessNodeLeftEvent;
@@ -35,10 +34,22 @@ public class TestBpmn2ProcessEventListener implements ProcessEventListener {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private boolean useNodeId = true;
+    private static enum Mode {
+       NODE_ID, NODE_NAME, NODE_UNIQUE_ID;
+    }
+
+    private Mode mode = Mode.NODE_ID;
 
     public void useNodeInstanceUniqueId() {
-        this.useNodeId = false;
+        this.mode = Mode.NODE_UNIQUE_ID;
+    }
+
+    public void useNodeName() {
+        this.mode = Mode.NODE_NAME;
+    }
+
+    public void useNodeId() {
+        this.mode = Mode.NODE_ID;
     }
 
     private List<String> eventHistory = new ArrayList<String>();
@@ -98,16 +109,32 @@ public class TestBpmn2ProcessEventListener implements ProcessEventListener {
         logAndAdd("avc-" + event.getVariableId());
     }
 
+    @Override
+    public void beforeNodeRemoved(ProcessNodeTriggeredEvent event) {
+        logAndAdd("rem-", event.getNodeInstance());
+    }
+
     public List<String> getEventHistory() {
         return eventHistory;
     }
 
     private void logAndAdd(String event, NodeInstance...instances ) {
         if( instances.length > 0 ) {
-            if( useNodeId ) {
-                event += instances[0].getNode().getId();
-            } else {
-                event += ((NodeInstanceImpl) instances[0]).getUniqueId();
+            Node node = instances[0].getNode();
+            switch(mode) {
+                case NODE_ID:
+                    String id = ( node == null ? "?" : String.valueOf(node.getId()) );
+                    event += id;
+                    break;
+                case NODE_UNIQUE_ID:
+                    event += ((NodeInstanceImpl) instances[0]).getUniqueId();
+                    break;
+                case NODE_NAME:
+                    String name = ( node == null ? "?" : node.getName() );
+                    event += name;
+                    break;
+                default:
+                        throw new IllegalArgumentException("Unknown mode: " + mode.toString());
             }
         }
         System.out.println( "> " + event );

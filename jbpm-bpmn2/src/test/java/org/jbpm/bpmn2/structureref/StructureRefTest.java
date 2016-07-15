@@ -24,6 +24,7 @@ import org.jbpm.bpmn2.JbpmBpmn2TestCase;
 import org.jbpm.bpmn2.StartEventTest;
 import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
+import org.jbpm.bpmn2.test.Broken;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -277,6 +278,7 @@ public class StructureRefTest extends JbpmBpmn2TestCase {
     }
 
     @Test
+    @Broken
     public void testNotExistingBooleanStructureRefOnWIComplete() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-IntegerStructureRef.bpmn2");
         KieSession ksession = createKnowledgeSession(kbase);

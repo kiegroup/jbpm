@@ -43,21 +43,15 @@ import org.kie.api.runtime.process.WorkItem;
 @RunWith(Parameterized.class)
 public class CompensationTest extends JbpmBpmn2TestCase {
 
-    @Parameters(name="{2}")
-    public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] {
-            { false, false, "recursive" },
-            { false, true, "stackless" },
-            { true, false, "recursive w/ persistence" },
-            { true, true, "stackless w/ persistence" }
-            };
-        return Arrays.asList(data);
+    @Parameters(name="{3}")
+    public static Collection<Object[]> parameters() {
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
     private KieSession ksession;
 
-    public CompensationTest(boolean persistence, boolean stacklessExecution, String name) {
-        super(persistence, false, stacklessExecution);
+    public CompensationTest(boolean persistence, boolean locking, boolean stacklessExecution, String name) {
+        super(persistence, locking, stacklessExecution, name);
     }
 
     @BeforeClass

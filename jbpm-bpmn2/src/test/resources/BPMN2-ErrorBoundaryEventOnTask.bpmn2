@@ -19,14 +19,14 @@
 
   <bpmn:process id="BPMN2-ErrorBoundaryEventOnTask" tns:version="1" tns:packageName="defaultPackage" tns:adHoc="false" name="Default Process" isExecutable="true">
 
-    <bpmn:startEvent id="StartEvent_1" name="start">
-      <bpmn:outgoing>SequenceFlow_4</bpmn:outgoing>
-    </bpmn:startEvent>
+    <bpmn:startEvent id="StartEvent_1" name="start" />
     <bpmn:sequenceFlow id="SequenceFlow_4" tns:priority="1" name="" sourceRef="StartEvent_1" targetRef="ParallelGateway_1"/>
 
-    <bpmn:userTask id="UserTask_1" name="User Task">
-      <bpmn:incoming>SequenceFlow_2</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_6</bpmn:outgoing>
+    <bpmn:parallelGateway id="ParallelGateway_1" name="split" gatewayDirection="Diverging" />
+    <bpmn:sequenceFlow id="SequenceFlow_2" tns:priority="1" sourceRef="ParallelGateway_1" targetRef="UserTask_1"/>
+    <bpmn:sequenceFlow id="SequenceFlow_3" tns:priority="1" sourceRef="ParallelGateway_1" targetRef="UserTask_2"/>
+
+    <bpmn:userTask id="UserTask_1" name="task">
       <bpmn:ioSpecification id="_InputOutputSpecification_6">
         <bpmn:dataInput id="_DataInput_26" name="TaskName"/>
         <bpmn:dataInput id="_DataInput_27" name="Priority"/>
@@ -69,9 +69,11 @@
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_6" tns:priority="1" sourceRef="UserTask_1" targetRef="EndEvent_2"/>
 
-    <bpmn:userTask id="UserTask_2" name="User task error attached">
-      <bpmn:incoming>SequenceFlow_3</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_5</bpmn:outgoing>
+    <bpmn:endEvent id="EndEvent_2" name="error-end">
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1" errorRef="Error_1"/>
+    </bpmn:endEvent>
+    
+    <bpmn:userTask id="UserTask_2" name="error-task">
       <bpmn:ioSpecification id="_InputOutputSpecification_7">
         <bpmn:dataInput id="_DataInput_32" name="TaskName"/>
         <bpmn:dataInput id="_DataInput_33" name="Priority"/>
@@ -114,39 +116,19 @@
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_5" tns:priority="1" name="" sourceRef="UserTask_2" targetRef="EndEvent_1"/>
 
-    <bpmn:parallelGateway id="ParallelGateway_1" name="split" gatewayDirection="Diverging">
-      <bpmn:incoming>SequenceFlow_4</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_2</bpmn:outgoing>
-      <bpmn:outgoing>SequenceFlow_3</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:sequenceFlow id="SequenceFlow_2" tns:priority="1" sourceRef="ParallelGateway_1" targetRef="UserTask_1"/>
-    <bpmn:sequenceFlow id="SequenceFlow_3" tns:priority="1" sourceRef="ParallelGateway_1" targetRef="UserTask_2"/>
+    <bpmn:endEvent id="EndEvent_1" name="task-end" />
 
-    <bpmn:endEvent id="EndEvent_1" name="error1">
-      <bpmn:incoming>SequenceFlow_5</bpmn:incoming>
-    </bpmn:endEvent>
-
-    <bpmn:endEvent id="EndEvent_2" name="error end event">
-      <bpmn:incoming>SequenceFlow_6</bpmn:incoming>
-      <bpmn:errorEventDefinition id="ErrorEventDefinition_1" errorRef="Error_1"/>
-    </bpmn:endEvent>
-
-    <bpmn:boundaryEvent id="BoundaryEvent_1" name="Boundary event" attachedToRef="UserTask_2">
-      <bpmn:outgoing>SequenceFlow_7</bpmn:outgoing>
+    <bpmn:boundaryEvent id="BoundaryEvent_1" name="boundary" attachedToRef="UserTask_2">
       <bpmn:errorEventDefinition id="ErrorEventDefinition_2" errorRef="Error_1"/>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_7" tns:priority="1" name="" sourceRef="BoundaryEvent_1" targetRef="ScriptTask_1"/>
 
-    <bpmn:scriptTask id="ScriptTask_1" name="Script Task" scriptFormat="http://www.java.com/java">
-      <bpmn:incoming>SequenceFlow_7</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_8</bpmn:outgoing>
+    <bpmn:scriptTask id="ScriptTask_1" name="script" scriptFormat="http://www.java.com/java">
       <bpmn:script>System.out.println(&quot;Error handled&quot;);</bpmn:script>
     </bpmn:scriptTask>
     <bpmn:sequenceFlow id="SequenceFlow_8" tns:priority="1" name="" sourceRef="ScriptTask_1" targetRef="EndEvent_3"/>
 
-    <bpmn:endEvent id="EndEvent_3" name="error2">
-      <bpmn:incoming>SequenceFlow_8</bpmn:incoming>
-    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_3" name="script-end" />
 
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1" name="Default Process Diagram">

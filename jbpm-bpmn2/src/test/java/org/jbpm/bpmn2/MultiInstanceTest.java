@@ -12,6 +12,7 @@ import org.drools.core.command.impl.GenericCommand;
 import org.drools.core.command.impl.KnowledgeCommandContext;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.bpmn2.test.Broken;
+import org.jbpm.bpmn2.test.Fixed;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
@@ -326,7 +327,7 @@ public class MultiInstanceTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testMultiInstanceLoopCharacteristicsProcessWithOutput()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopCharacteristicsProcessWithOutput.bpmn2");
@@ -347,7 +348,7 @@ public class MultiInstanceTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testMultiInstanceLoopCharacteristicsProcessWithOutputCompletionCondition()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopCharacteristicsProcessWithOutputCmpCond.bpmn2");
@@ -368,7 +369,7 @@ public class MultiInstanceTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Fixed
     public void testMultiInstanceLoopCharacteristicsProcessWithOutputAndScripts()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-MultiInstanceLoopCharacteristicsProcessWithOutputAndScripts.bpmn2");
