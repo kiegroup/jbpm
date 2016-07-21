@@ -62,6 +62,15 @@ public class TestRESTResource {
         return person;
     }
     
+    @PUT
+    @Path("/xml-charset")
+    @Consumes("application/xml")
+    @Produces("application/xml; charset=UTF-8")
+    public Person putXmlWithCharset(Person person) {
+        person.setName("Put " + person.getName());
+        return person;
+    }
+    
     @DELETE
     @Path("/xml/{name}")    
     @Produces("application/xml")
@@ -85,6 +94,23 @@ public class TestRESTResource {
     @Path("/json")
     @Produces("application/json")
     public String getJson() {
+
+        return "{\"name\":\"Person Json\"}";
+    }
+    
+    @GET
+    @Path("/xml-charset")
+    @Produces("application/xml; charset=utf-8")
+    public Person getXmlWithCharset() {
+        Person person = new Person();
+        person.setName("Person Xml");
+        return person;
+    }
+    
+    @GET
+    @Path("/json-charset")
+    @Produces("application/json; charset=utf-8")
+    public String getJsonWithCharset() {
 
         return "{\"name\":\"Person Json\"}";
     }
