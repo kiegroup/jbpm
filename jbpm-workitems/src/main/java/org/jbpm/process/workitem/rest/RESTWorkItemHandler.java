@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -296,10 +297,9 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
                     
                     content = transformRequest(content, contentType);
                 }
-                StringEntity entity = new StringEntity((String)content);                
-                entity.setContentType(contentType);
+                StringEntity entity = new StringEntity((String)content, ContentType.parse(contentType));                
                 builder.setEntity(entity);
-            } catch (UnsupportedEncodingException e) {
+            } catch (UnsupportedCharsetException e) {
                 throw new RuntimeException("Cannot set body for REST request [" + builder.getMethod() + "] " + builder.getUri(), e);
             }
         }
@@ -313,7 +313,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
                 content = transformRequest(content, (String)params.get("ContentType"));
             }
             ((HttpEntityEnclosingRequestBase)theMethod).setEntity(new StringEntity((String) content, 
-                    ContentType.create((String)params.get("ContentType"))));
+                    ContentType.parse((String)params.get("ContentType"))));
         }
 	}
 
@@ -336,11 +336,11 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
     
     protected String transformRequest(Object data, String contentType) {
         try {
-            if (contentType.equals("application/json")) {
+            if (contentType.toLowerCase().contains("application/json")) {
                 ObjectMapper mapper = new ObjectMapper();
                 
                 return mapper.writeValueAsString(data);
-            } else if (contentType.equals("application/xml")) {
+            } else if (contentType.toLowerCase().contains("application/xml")) {
                 StringWriter stringRep = new StringWriter();
                 JAXBContext jaxbContext = JAXBContext.newInstance(new Class[]{data.getClass()});
                 
@@ -357,11 +357,11 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
     
     protected Object transformResult(Class<?> clazz, String contentType, String content) throws Exception {
         
-        if (contentType.equals("application/json")) {
+        if (contentType.toLowerCase().contains("application/json")) {
             ObjectMapper mapper = new ObjectMapper();
             
             return mapper.readValue(content, clazz);
-        } else if (contentType.equals("application/xml")) {
+        } else if (contentType.toLowerCase().contains("application/xml")) {
             StringReader result = new StringReader(content);
             JAXBContext jaxbContext = JAXBContext.newInstance(new Class[]{clazz});
             
