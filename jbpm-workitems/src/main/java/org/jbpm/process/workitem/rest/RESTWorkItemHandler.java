@@ -313,7 +313,7 @@ public class RESTWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
                 content = transformRequest(content, (String)params.get("ContentType"));
             }
             ((HttpEntityEnclosingRequestBase)theMethod).setEntity(new StringEntity((String) content, 
-                    ContentType.create((String)params.get("ContentType"))));
+                    ContentType.parse((String)params.get("ContentType"))));
         }
 	}
 
