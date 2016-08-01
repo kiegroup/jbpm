@@ -24,6 +24,11 @@
         <configuration>
           <instructions>
             <Bundle-SymbolicName>org.jbpm.flow.builder</Bundle-SymbolicName>
+            <Import-Package>
+                com.fasterxml.jackson.annotation;resolution:=optional,
+                com.fasterxml.jackson.databind;resolution:=optional,
+                *
+            </Import-Package>
             <Bundle-Activator>org.jbpm.osgi.flow.compiler.Activator</Bundle-Activator>
           </instructions>
         </configuration>
