@@ -46,14 +46,8 @@ import org.slf4j.LoggerFactory;
 public class EscalationEventTest extends JbpmBpmn2TestCase {
 
     @Parameters
-    public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] {
-            { false, false },
-            { false, true },
-            { true, false },
-            { true, true }
-            };
-        return Arrays.asList(data);
+    public static Collection<Object[]> parameters() {
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
     private Logger logger = LoggerFactory
@@ -61,8 +55,8 @@ public class EscalationEventTest extends JbpmBpmn2TestCase {
 
     private KieSession ksession;
 
-    public EscalationEventTest(boolean persistence, boolean stackless) {
-        super(persistence, false, stackless);
+    public EscalationEventTest(boolean persistence, boolean locking, boolean stackless, String name) {
+        super(persistence, locking, stackless, name);
     }
 
     @BeforeClass

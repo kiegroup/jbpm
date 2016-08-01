@@ -82,10 +82,22 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
                 "STACKLESS FIXED"
         });
         params.add( new Object [] {
+                true, // persistence
+                true, // stackless
+                false, //  broken
+                "STACKLESS FIXED W/ PERSISTENCE"
+        });
+        params.add( new Object [] {
                 false, // persistence
                 true, // stackless
                 true, //  broken
                 "STACKLESS BROKEN"
+        });
+        params.add( new Object [] {
+                true, // persistence
+                true, // stackless
+                true, //  broken
+                "STACKLESS BROKEN W/ PERSISTENCE"
         });
         return params;
     };
@@ -169,6 +181,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     @Test
     @RequiresQueueBased
     @Fixed
+    @RequiresPersistence(false)
     public void brokenTestsAreAlsoHere() {
         Reflections reflections = new Reflections(
                 ClasspathHelper.forPackage("org.jbpm"),
@@ -616,7 +629,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     protected void _AD_HOC() { }
 
     @Test
-    @Broken
+    @Broken // persistence
     public void testAdHocProcessDynamicSubProcess() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-AdHocProcess.bpmn2",
                 "BPMN2-MinimalProcess.bpmn2");
@@ -731,7 +744,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken //????
+    @Broken
     public void testAdHocSubProcessAutoCompleteDynamicSubProcess()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper(
@@ -1131,7 +1144,7 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
 
     @RequiresPersistence
     @Test(timeout=10000)
-    @Broken
+    @Fixed
     public void testNullVariableInScriptTaskProcess() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Timer", 1, true);
         KieBase kbase = createKnowledgeBase("BPMN2-NullVariableInScriptTaskProcess.bpmn2");
@@ -1147,6 +1160,71 @@ public class StacklessDevelopmentTest extends JbpmBpmn2TestCase {
         assertNotNull(pi);
 
         assertProcessInstanceActive(processInstance);
+        ksession.abortProcessInstance(processInstance.getId());
+
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+
+    @Test(timeout=10000)
+    @Broken
+    public void testTimerBoundaryEventCronCycleVariable() throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 3);
+        KieBase kbase = createKnowledgeBase("BPMN2-BoundaryTimerCycleCronVariable.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("cronStr", "0/1 * * * * ?");
+
+        ProcessInstance processInstance = ksession.startProcess("boundaryTimerCycleCron", parameters);
+        assertProcessInstanceActive(processInstance);
+
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(1, workItems.size());
+
+        countDownListener.waitTillCompleted();
+        assertProcessInstanceActive(processInstance);
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(3, workItems.size());
+
+        ksession.abortProcessInstance(processInstance.getId());
+
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+
+    @Test(timeout=10000)
+    @Broken
+    public void testMultipleTimerBoundaryEventCronCycleVariable() throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 2);
+        KieBase kbase = createKnowledgeBase("BPMN2-MultipleBoundaryTimerCycleCronVariable.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        TestWorkItemHandler handler = new TestWorkItemHandler();
+
+        ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("cronStr", "0/1 * * * * ?");
+
+        ProcessInstance processInstance = ksession.startProcess("boundaryTimerCycleCron", parameters);
+        assertProcessInstanceActive(processInstance);
+
+        List<WorkItem> workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(1, workItems.size());
+
+        countDownListener.waitTillCompleted();
+        assertProcessInstanceActive(processInstance);
+
+        workItems = handler.getWorkItems();
+        assertNotNull(workItems);
+        assertEquals(2, workItems.size());
+
         ksession.abortProcessInstance(processInstance.getId());
 
         assertProcessInstanceFinished(processInstance, ksession);

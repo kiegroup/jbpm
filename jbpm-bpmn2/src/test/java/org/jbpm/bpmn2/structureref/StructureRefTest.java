@@ -39,19 +39,15 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class StructureRefTest extends JbpmBpmn2TestCase {
 
-    @Parameters
+    @Parameters(name="{3}")
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] {
-            { false, false },
-            { false, true },
-            };
-        return Arrays.asList(data);
+        return getTestOptions(TestOption.NO_PERSISTENCE);
     };
 
     private static final Logger logger = LoggerFactory.getLogger(StartEventTest.class);
 
-    public StructureRefTest(boolean persistence, boolean stackless) {
-        super(persistence, false, stackless);
+    public StructureRefTest(boolean persistence, boolean locking, boolean stackless, String name) {
+        super(persistence, locking, stackless, name);
     }
 
     @Test
@@ -278,7 +274,6 @@ public class StructureRefTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
     public void testNotExistingBooleanStructureRefOnWIComplete() throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper("BPMN2-IntegerStructureRef.bpmn2");
         KieSession ksession = createKnowledgeSession(kbase);

@@ -2507,6 +2507,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     }
 
     @Test(timeout=10000)
+    @Broken
     public void testTimerBoundaryEventCronCycleVariable() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 3);
         KieBase kbase = createKnowledgeBase("BPMN2-BoundaryTimerCycleCronVariable.bpmn2");
@@ -2538,6 +2539,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     }
 
     @Test(timeout=10000)
+    @Broken
     public void testMultipleTimerBoundaryEventCronCycleVariable() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Send Update Timer", 2);
         KieBase kbase = createKnowledgeBase("BPMN2-MultipleBoundaryTimerCycleCronVariable.bpmn2");

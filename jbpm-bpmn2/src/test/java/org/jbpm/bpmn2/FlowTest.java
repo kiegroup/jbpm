@@ -73,23 +73,17 @@ import org.w3c.dom.Element;
 @RunWith(Parameterized.class)
 public class FlowTest extends JbpmBpmn2TestCase {
 
-    @Parameters
+    @Parameters(name="{3}")
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] {
-            { false, false },
-            { false, true },
-            { true, false },
-            { true, true }
-            };
-        return Arrays.asList(data);
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
     private static final Logger logger = LoggerFactory.getLogger(FlowTest.class);
 
     private KieSession ksession;
 
-    public FlowTest(boolean persistence, boolean stackless) {
-        super(persistence, false, stackless);
+    public FlowTest(boolean persistence, boolean locking, boolean stackless, String name) {
+        super(persistence, locking, stackless, name);
     }
 
     @BeforeClass

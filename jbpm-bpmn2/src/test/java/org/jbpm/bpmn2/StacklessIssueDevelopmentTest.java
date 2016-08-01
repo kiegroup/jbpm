@@ -10,7 +10,9 @@ import org.jbpm.bpmn2.objects.Person;
 import org.jbpm.bpmn2.objects.TestWorkItemHandler;
 import org.jbpm.bpmn2.test.Broken;
 import org.jbpm.bpmn2.test.Fixed;
+import org.jbpm.bpmn2.test.RequiresPersistence;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
+import org.jbpm.test.util.CountDownProcessEventListener;
 import org.jbpm.test.util.TestBpmn2ProcessEventListener;
 import org.jbpm.workflow.instance.node.DynamicNodeInstance;
 import org.jbpm.workflow.instance.node.DynamicUtils;
@@ -69,14 +71,12 @@ public class StacklessIssueDevelopmentTest extends JbpmBpmn2TestCase {
                 true, //  broken
                 "STACKLESS BROKEN"
         });
-        if( persistence ) {
-            params.add( new Object [] {
-                    true, // stackless
-                    true, // persistence
-                    true, //  broken
-                    "STACKLESS BROKEN PERSISTENCE"
-            });
-        }
+        params.add( new Object [] {
+                true, // stackless
+                true, // persistence
+                true, //  broken
+                "STACKLESS BROKEN PERSISTENCE"
+        });
         return params;
     };
 
@@ -185,7 +185,7 @@ public class StacklessIssueDevelopmentTest extends JbpmBpmn2TestCase {
 
 
     @Test
-    @Broken
+    @Fixed
     public void testAdHocProcessDynamicSubProcess() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-AdHocProcess.bpmn2",
                 "BPMN2-MinimalProcess.bpmn2");
@@ -353,6 +353,29 @@ public class StacklessIssueDevelopmentTest extends JbpmBpmn2TestCase {
 
         workItem = workItemHandler2.getWorkItem();
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
+        assertProcessInstanceFinished(processInstance, ksession);
+    }
+
+    @RequiresPersistence
+    @Test(timeout=10000)
+    @Broken
+    public void testNullVariableInScriptTaskProcess() throws Exception {
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Timer", 1, true);
+        KieBase kbase = createKnowledgeBase("BPMN2-NullVariableInScriptTaskProcess.bpmn2");
+        ksession = createKnowledgeSession(kbase);
+        ksession.addEventListener(countDownListener);
+        ProcessInstance processInstance = ksession
+                .startProcess("nullVariableInScriptAfterTimer");
+
+        assertProcessInstanceActive(processInstance);
+
+        countDownListener.waitTillCompleted();
+        ProcessInstance pi = ksession.getProcessInstance(processInstance.getId());
+        assertNotNull(pi);
+
+        assertProcessInstanceActive(processInstance);
+        ksession.abortProcessInstance(processInstance.getId());
+
         assertProcessInstanceFinished(processInstance, ksession);
     }
 

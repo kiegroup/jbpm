@@ -1002,7 +1002,7 @@ public class ActivityTest extends JbpmBpmn2TestCase {
     }
 
     @Test
-    @Broken
+    @Broken // persistence
     public void testAdHocSubProcessAutoCompleteDynamicSubProcess()
             throws Exception {
         KieBase kbase = createKnowledgeBaseWithoutDumper(
