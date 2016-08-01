@@ -6,6 +6,7 @@ import org.drools.core.process.instance.WorkItem;
 import org.drools.core.process.instance.impl.DefaultWorkItemManager;
 import org.jbpm.workflow.instance.ProcessInstanceActionQueueExecutor;
 import org.jbpm.workflow.instance.impl.queue.RemoveWorkItemAction;
+import org.jbpm.workflow.instance.impl.queue.SignalEventAction;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItemHandler;
 
@@ -24,9 +25,16 @@ public class ProcessInstanceWorkItemManager extends DefaultWorkItemManager imple
     protected void signalEventAndRemoveWorkItem(ProcessInstance processInstance, String event, WorkItem workItem) {
         // process instance may have finished already
         if( processInstance != null ) {
-            if( ((org.jbpm.process.instance.ProcessInstance) processInstance).isStackless() ) {
+            org.jbpm.process.instance.ProcessInstance internalProcessInstance = (org.jbpm.process.instance.ProcessInstance) processInstance;
+            if( internalProcessInstance.isStackless() ) {
+                // only add a new queue if there isn't one present
+                // for example, if this is being called by WorkItemManager.completeWorkItem, and *not* as a result of a running execution
+                internalProcessInstance.addNewExecutionQueueToStack(false);
                 ((ProcessInstanceActionQueueExecutor) processInstance).addProcessInstanceAction(new RemoveWorkItemAction(this, workItem.getId()));
 //                ((ProcessInstanceActionQueueExecutor) processInstance).addNewExecutionQueueToStack(true);
+
+                // ADD SIGNAL EVENT ACTION!
+//                ((ProcessInstanceActionQueueExecutor) processInstance).addProcessInstanceAction(new SignalEventAction(processInstance, event, workItem));
                 processInstance.signalEvent(event, workItem);
             } else {
                 processInstance.signalEvent(event, workItem);

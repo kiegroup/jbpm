@@ -38,10 +38,10 @@ public abstract class ExtendedNodeInstanceImpl extends NodeInstanceImpl {
 
 	protected void triggerCompleted(String type, boolean remove) {
 		if( isStackless() ) {
-		    triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT,
-		            new AfterExitActionsAction(this, type, remove) );
+		    getProcessInstance().addProcessInstanceAction(new AfterExitActionsAction(this, type, remove) );
+		    triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
 		} else {
-		    triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT, null);
+		    triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
 		    afterExitActions(type, remove);
 		}
 	}
@@ -51,17 +51,13 @@ public abstract class ExtendedNodeInstanceImpl extends NodeInstanceImpl {
 		super.triggerCompleted(type, remove);
 	}
 
-	protected void triggerEvent(String type, ProcessInstanceAction afterExceptionHandledAction) {
+	protected void triggerEvent(String type) {
 		ExtendedNodeImpl extendedNode = getExtendedNode();
 		if (extendedNode == null) {
 			return;
 		}
+
 		List<DroolsAction> actions = extendedNode.getActions(type);
-
-		if( isStackless() ) {
-		    getProcessInstance().addProcessInstanceAction(afterExceptionHandledAction);
-		}
-
 		if (actions != null) {
 			for (DroolsAction droolsAction: actions) {
 			    Action action = (Action) droolsAction.getMetaData("Action");

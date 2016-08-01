@@ -24,6 +24,7 @@ import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.queue.AfterEntryActionsAction;
+import org.jbpm.workflow.instance.impl.queue.AfterExitActionsAction;
 import org.kie.api.runtime.process.NodeInstance;
 
 /**
@@ -43,10 +44,10 @@ public class EndNodeInstance
     @Override
     public void internalTrigger( NodeInstance from, String type ) {
         if( isStackless() ) {
-            triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER,
-                    new AfterEntryActionsAction(this, from, type) );
+            getProcessInstance().addProcessInstanceAction(new AfterEntryActionsAction(this, from, type) );
+            triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
         } else {
-            triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER, null);
+            triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
             afterEntryActions(from, type);
         }
     }

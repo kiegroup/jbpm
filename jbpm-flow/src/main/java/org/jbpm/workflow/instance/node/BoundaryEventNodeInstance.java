@@ -42,6 +42,7 @@ public class BoundaryEventNodeInstance extends EventNodeInstance {
             }
         } else {
             if (isAttachedToNodeActive(nodeInstances, attachedTo, type, event)) {
+                // isStackless -> add event action??
                 super.signalEvent(type, event);
             } else {
                 cancel();

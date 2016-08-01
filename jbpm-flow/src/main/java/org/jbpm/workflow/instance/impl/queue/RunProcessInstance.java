@@ -92,7 +92,8 @@ public class RunProcessInstance extends AbstractPropagationEntry {
     }
 
     private void internalAddAction( ProcessInstanceAction action ) {
-        processActionQueueStack.peek().addFirst(action);
+        Deque<ProcessInstanceAction> processInstActionQueue = processActionQueueStack.peek();
+        processInstActionQueue.addFirst(action);
     }
 
     public void addNewQueue(boolean forceNewQueue) {

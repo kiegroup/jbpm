@@ -30,6 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.drools.core.common.InternalKnowledgeRuntime;
+import org.drools.core.event.ProcessEventSupport;
 import org.jbpm.process.core.ContextContainer;
 import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.timer.Timer;
@@ -121,12 +122,16 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
     }
 
 	public void removeNodeInstance(final NodeInstance nodeInstance) {
+        InternalKnowledgeRuntime kruntime = getKnowledgeRuntime();
+        ProcessEventSupport processEventSupport = ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessEventSupport();
+        processEventSupport.fireBeforeNodeRemoved(nodeInstance, kruntime);
+
 		if (((NodeInstanceImpl) nodeInstance).isInversionOfControl()) {
 			getKnowledgeRuntime().delete(
 					getKnowledgeRuntime().getFactHandle(nodeInstance));
 		}
 		this.nodeInstances.remove(nodeInstance);
-		System.out.println( "<-" + nodeInstance.getNodeId() + ">");
+//		System.out.println( "<-" + nodeInstance.getNodeId() + ">");
 	}
 
 	public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {
@@ -358,7 +363,14 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	                    }
 	                } else {
 	                    // OCRAM: execute this event before the process is set to complete?!?
-	                    processRuntime.getSignalManager().signalEvent("processInstanceCompleted:" + getId(), this);
+	                    String signal = "processInstanceCompleted:" + getId();
+	                    Object event = this;
+	                    if( isStackless() ) {
+	                        addNewExecutionQueueToStack(false);
+	                        addSignalEventAction(processRuntime.getSignalManager(), signal, event);
+	                    } else {
+	                        processRuntime.getSignalManager().signalEvent(signal, event);
+	                    }
 	                }
 	            }
 	        }
@@ -423,6 +435,7 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 	                if (timers != null && !timers.isEmpty()) {
 	                    EventSubProcessNodeInstance eventSubprocess = (EventSubProcessNodeInstance) createNodeInstance(node);
 	                    if( isStackless() ) {
+	                        // OCRAM?
 	                        addNodeInstanceTrigger(eventSubprocess, null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
 	                    } else {
 	                        eventSubprocess.trigger(null, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
@@ -534,13 +547,21 @@ public abstract class WorkflowProcessInstanceImpl extends ProcessInstanceImpl
 			        }
 				}
 				if( stackless ) {
+				    // results in queue execution ONLY if there is no process running yet (i.e. no queue execution)
 				    executeQueue();
+				    addNewExecutionQueueToStack(false);
 				}
 				if (((org.jbpm.workflow.core.WorkflowProcess) getWorkflowProcess()).isDynamic()) {
 					for( Node node : getWorkflowProcess().getNodes() ) {
 						if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
 			    			NodeInstance nodeInstance = createNodeInstance(node);
-			                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+			    			String connectionType = NodeImpl.CONNECTION_DEFAULT_TYPE;
+			    			NodeInstance fromNode = null;
+			    			if( isStackless() ) {
+			    			    addNodeInstanceTrigger(nodeInstance, fromNode, connectionType);
+			    			} else {
+			    			    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(fromNode, connectionType);
+			    			}
 			    		}
 					}
 					if( isStackless() ) {

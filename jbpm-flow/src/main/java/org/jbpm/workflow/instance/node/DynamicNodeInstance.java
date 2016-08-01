@@ -44,6 +44,8 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
 		}
     	InternalAgenda agenda =  (InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda();
     	agenda.getRuleFlowGroup(getRuleFlowGroupName()).setAutoDeactivate(false);
+
+    	// OCRAM: add to queue
     	agenda.activateRuleFlowGroup(
 			getRuleFlowGroupName(), getProcessInstance().getId(), getUniqueId());
 //    	if (getDynamicNode().isAutoComplete() && getNodeInstances(false).isEmpty()) {
@@ -91,10 +93,11 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
 		for (Node node: getCompositeNode().getNodes()) {
 			if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
     			NodeInstance nodeInstance = createNodeInstance(node);
+    			String connectionType = NodeImpl.CONNECTION_DEFAULT_TYPE;
     			if( isStackless() ) {
-    			    addNodeInstanceTrigger((org.jbpm.workflow.instance.NodeInstance) nodeInstance, null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			    addNodeInstanceTrigger((org.jbpm.workflow.instance.NodeInstance) nodeInstance, null, connectionType);
     			} else {
-    			    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+    			    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, connectionType);
     			}
     		}
 		}
@@ -102,10 +105,10 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance {
 
     protected boolean isTerminated(NodeInstance from) {
         if (from instanceof EndNodeInstance) {
-            
+
             return ((EndNodeInstance) from).getEndNode().isTerminate();
         }
-        
+
         return false;
     }
 }

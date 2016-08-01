@@ -42,24 +42,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DynamicUtils {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DynamicUtils.class);
-	
+
 	public static void addDynamicWorkItem(
 			final DynamicNodeInstance dynamicContext, KieRuntime ksession,
 			String workItemName, Map<String, Object> parameters) {
 		final WorkflowProcessInstance processInstance = dynamicContext.getProcessInstance();
 		internalAddDynamicWorkItem(processInstance, dynamicContext, ksession, workItemName, parameters);
 	}
-	
+
 	public static void addDynamicWorkItem(
 			final org.kie.api.runtime.process.ProcessInstance dynamicProcessInstance, KieRuntime ksession,
 			String workItemName, Map<String, Object> parameters) {
 		internalAddDynamicWorkItem((WorkflowProcessInstance) dynamicProcessInstance, null, ksession, workItemName, parameters);
 	}
-	
+
 	private static void internalAddDynamicWorkItem(
-			final WorkflowProcessInstance processInstance, final DynamicNodeInstance dynamicContext, 
+			final WorkflowProcessInstance processInstance, final DynamicNodeInstance dynamicContext,
 			KieRuntime ksession, String workItemName, Map<String, Object> parameters) {
 		final WorkItemImpl workItem = new WorkItemImpl();
 		workItem.setState(WorkItem.ACTIVE);
@@ -97,7 +97,7 @@ public class DynamicUtils {
     		throw new IllegalArgumentException("Unsupported ksession: " + ksession == null ? "null" : ksession.getClass().getName());
     	}
 	}
-	
+
 	private static void executeWorkItem(StatefulKnowledgeSessionImpl ksession, WorkItemImpl workItem, WorkItemNodeInstance workItemNodeInstance) {
 		ProcessEventSupport eventSupport = ((InternalProcessRuntime)
 			ksession.getProcessRuntime()).getProcessEventSupport();
@@ -106,7 +106,7 @@ public class DynamicUtils {
 		workItemNodeInstance.internalSetWorkItemId(workItem.getId());
 		eventSupport.fireAfterNodeTriggered(workItemNodeInstance, ksession);
 	}
-	
+
 	private static DynamicNodeInstance findDynamicContext(WorkflowProcessInstance processInstance, String uniqueId) {
 		for (NodeInstance nodeInstance: ((WorkflowProcessInstanceImpl) processInstance).getNodeInstances(true)) {
 			if (uniqueId.equals(((NodeInstanceImpl) nodeInstance).getUniqueId())) {
@@ -122,13 +122,13 @@ public class DynamicUtils {
 		final WorkflowProcessInstance processInstance = dynamicContext.getProcessInstance();
 		internalAddDynamicSubProcess(processInstance, dynamicContext, ksession, processId, parameters);
 	}
-	
+
 	public static void addDynamicSubProcess(
 			final org.kie.api.runtime.process.ProcessInstance processInstance, KieRuntime ksession,
 			final String processId, final Map<String, Object> parameters) {
 		internalAddDynamicSubProcess((WorkflowProcessInstance) processInstance, null, ksession, processId, parameters);
 	}
-	
+
 	public static void internalAddDynamicSubProcess(
 			final WorkflowProcessInstance processInstance, final DynamicNodeInstance dynamicContext,
 			KieRuntime ksession, final String processId, final Map<String, Object> parameters) {
@@ -159,7 +159,7 @@ public class DynamicUtils {
     		throw new IllegalArgumentException("Unsupported ksession: " + ksession == null ? "null" : ksession.getClass().getName());
     	}
 	}
-	
+
 	private static void executeSubProcess(StatefulKnowledgeSessionImpl ksession, String processId, Map<String, Object> parameters, ProcessInstance processInstance, SubProcessNodeInstance subProcessNodeInstance) {
 		Process process = ksession.getKieBase().getProcess(processId);
         if (process == null) {
@@ -170,10 +170,16 @@ public class DynamicUtils {
         	ProcessEventSupport eventSupport = ((InternalProcessRuntime)
     			((InternalKnowledgeRuntime) ksession).getProcessRuntime()).getProcessEventSupport();
     		eventSupport.fireBeforeNodeTriggered(subProcessNodeInstance, ksession);
-    		ProcessInstance subProcessInstance = (ProcessInstance)
-	    		ksession.startProcess(processId, parameters);
+
+    		ProcessInstance subProcessInstance = (ProcessInstance) ksession.startProcess(processId, parameters);
+
     		eventSupport.fireAfterNodeTriggered(subProcessNodeInstance, ksession);
+
     		if (subProcessInstance.getState() == ProcessInstance.STATE_COMPLETED) {
+    		    ProcessInstance ownerProcessInstance = subProcessNodeInstance.getProcessInstance();
+    		    if( ownerProcessInstance.isStackless() ) {
+    		        ownerProcessInstance.addNewExecutionQueueToStack(false);
+    		    }
                 // NEXT DynamicUtils?!?
 	    		subProcessNodeInstance.triggerCompleted();
 	    	} else {

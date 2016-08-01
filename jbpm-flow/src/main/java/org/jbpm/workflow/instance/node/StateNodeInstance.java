@@ -24,6 +24,7 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.StateNode;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
+import org.jbpm.workflow.instance.impl.queue.AfterExitActionsAction;
 import org.jbpm.workflow.instance.impl.queue.AfterExitActionsTriggerAction;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.event.rule.MatchCreatedEvent;
@@ -94,10 +95,10 @@ public class StateNodeInstance extends CompositeContextNodeInstance
 					if (selected) {
 					    org.jbpm.workflow.instance.NodeInstance nodeInstance = followConnection(connection);
 					    if( isStackless() ) {
-					        triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT,
-					                new AfterExitActionsTriggerAction(this, nodeInstance, type) );
+					        getProcessInstance().addProcessInstanceAction(new AfterExitActionsTriggerAction(this, nodeInstance, type));
+					        triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
 					    } else {
-					        triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT, null);
+					        triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
 						    afterExitActions(nodeInstance, type);
 						}
 						return;

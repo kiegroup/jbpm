@@ -50,6 +50,7 @@ import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 import org.jbpm.workflow.instance.impl.queue.AfterEntryActionsAction;
+import org.jbpm.workflow.instance.impl.queue.AfterExitActionsAction;
 import org.jbpm.workflow.instance.impl.queue.ProcessInstanceAction;
 import org.kie.api.event.rule.MatchCreatedEvent;
 import org.kie.api.runtime.process.EventListener;
@@ -82,10 +83,10 @@ public abstract class StateBasedNodeInstance
 	@Override
 	public void internalTrigger(NodeInstance from, String type) {
 	    if( isStackless() ) {
-	        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER,
-	                new AfterEntryActionsAction(this, from, type) );
+	        getProcessInstance().addProcessInstanceAction(new AfterEntryActionsAction(this, from, type) );
+	        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
 	    } else {
-	        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER, null);
+	        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
 	        afterEntryActions(from, type);
 	    }
 	}
@@ -214,7 +215,7 @@ public abstract class StateBasedNodeInstance
 	                try {
 	                    repeatValues = DateTimeUtils.parseRepeatableDateTime(timer.getDelay());
 	                } catch (RuntimeException e) {
-	                    // cannot parse delay, trying to interpret it	                   
+	                    // cannot parse delay, trying to interpret it
 	                    repeatValues = DateTimeUtils.parseRepeatableDateTime(resolvedDelay);
 	                }
 	                if (repeatValues.length == 3) {

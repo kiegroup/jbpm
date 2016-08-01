@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.drools.core.command.runtime.GetKnowledgeBaseCommand;
+import org.drools.core.common.InternalKnowledgeRuntime;
+import org.drools.core.event.ProcessEventSupport;
+import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.workflow.core.node.AsyncEventNode;
 import org.jbpm.workflow.core.node.CompositeNode;
@@ -48,6 +52,7 @@ import org.kie.api.definition.process.Connection;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 import org.kie.api.runtime.process.EventSignallable;
+import org.kie.internal.runtime.KnowledgeRuntime;
 
 /**
  * Runtime counterpart of a composite node.
@@ -134,7 +139,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 	    				((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
 	                NodeInstance nodeInstance = createNodeInstance(connection.getFrom());
 	                if( isStackless() ) {
-	                    addNodeInstanceTrigger(nodeInstance, null, nodeAndType.getType());
+	                    getProcessInstance().addNodeInstanceTrigger(nodeInstance, null, nodeAndType.getType());
 	                } else {
 	                    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
 	                }
@@ -207,10 +212,11 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     public void removeNodeInstance(final NodeInstance nodeInstance) {
-        this.nodeInstances.remove(nodeInstance);
+        InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+        ProcessEventSupport processEventSupport = ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessEventSupport();
+        processEventSupport.fireBeforeNodeRemoved(nodeInstance, kruntime);
 
-        // DBG
-        System.out.println( "-" + nodeInstance.getNodeId() );
+        this.nodeInstances.remove(nodeInstance);
     }
 
     public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {

@@ -77,8 +77,6 @@ public class DefaultSignalManager implements SignalManager {
 
 	public void internalSignalEvent(String type, Object event) {
 
-	    // OCRAM: this needs to be synchronized around the process instance!!!
-
 		if (processEventListeners != null) {
 			List<EventListener> eventListeners = processEventListeners.get(type);
 			if (eventListeners != null) {
@@ -88,6 +86,7 @@ public class DefaultSignalManager implements SignalManager {
 			}
 		}
 	}
+
 	public void signalEvent(long processInstanceId, String type, Object event) {
 		ProcessInstance processInstance = kruntime.getProcessInstance(processInstanceId);
 		if (processInstance != null) {

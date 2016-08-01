@@ -45,7 +45,7 @@ import org.mvel2.integration.impl.SimpleValueResolver;
 
 /**
  * Runtime counterpart of a for each node.
- * 
+ *
  */
 public class ForEachNodeInstance extends CompositeContextNodeInstance {
 
@@ -161,6 +161,8 @@ public class ForEachNodeInstance extends CompositeContextNodeInstance {
                 for (NodeInstance nodeInstance: nodeInstances) {
             	    String toType = getForEachSplitNode().getTo().getToType();
             	    if( isStackless() ) {
+            	        // OCRAM: THIS IS WHERE WE NEED TO BUBBLE!
+            	        getProcessInstance().addNewExecutionQueueToStack(true);
             	        addNodeInstanceTrigger(nodeInstance, this, toType);
             	    } else {
             	        logger.debug( "Triggering [{}] in multi-instance loop.", ((NodeInstanceImpl) nodeInstance).getNodeId() );
