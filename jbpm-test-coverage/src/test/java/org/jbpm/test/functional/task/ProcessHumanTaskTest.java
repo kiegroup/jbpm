@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to test a process.
  */
-public class ProcessHumanTaskTest extends JbpmTestCase {
+public class ProcessHumanTaskTest extends JbpmCoverageTestCase {
     
     private static final Logger logger = LoggerFactory.getLogger(ProcessHumanTaskTest.class);
 	

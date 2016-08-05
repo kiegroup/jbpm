@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,7 +15,10 @@
 
 package org.jbpm.integrationtests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -30,7 +33,11 @@ import org.jbpm.integrationtests.handler.TestWorkItemHandler;
 import org.jbpm.integrationtests.test.Message;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.ObjectFilter;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
@@ -38,10 +45,19 @@ import org.kie.api.runtime.rule.FactHandle;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
+@RunWith(Parameterized.class)
 public class ProcessActionTest  extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessActionTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
     public void testOnEntryExit() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -78,8 +94,8 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "        </parameter>\n" +
             "      </work>\n" +
             "      <onEntry>\n" +
-            "        <action type=\"expression\" name=\"Print\" dialect=\"mvel\" >list.add(\"Executing on entry action\");</action>\n" + 
-            "      </onEntry>\n" + 
+            "        <action type=\"expression\" name=\"Print\" dialect=\"mvel\" >list.add(\"Executing on entry action\");</action>\n" +
+            "      </onEntry>\n" +
             "      <onExit>\n" +
             "        <action type=\"expression\" name=\"Print\" dialect=\"java\" >list.add(\"Executing on exit action1\");</action>\n" +
             "        <action type=\"expression\" name=\"Print\" dialect=\"java\" >list.add(\"Executing on exit action2\");</action>\n" +
@@ -96,7 +112,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "</process>");
         kbuilder.add(new ReaderResource(source), ResourceType.DRF);
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         List<String> list = new ArrayList<String>();
@@ -111,7 +127,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
         assertEquals(3, list.size());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testActionContextJava() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -147,7 +163,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
 			"list.add(nodeName);\n" +
 			"insert( new Message() );\n" +
 			"</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -159,7 +175,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "</process>");
         kbuilder.add(new ReaderResource(source), ResourceType.DRF);
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance =
@@ -175,7 +191,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
         assertFalse(factHandles.isEmpty());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
 	public void testActionContextMVEL() {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -212,7 +228,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
 			"list.add(nodeName);\n" +
 			"insert( new Message() );\n" +
 			"</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -227,7 +243,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             fail( kbuilder.getErrors().toString() );
         }
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance =
@@ -274,7 +290,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
 			"      <action type=\"expression\" dialect=\"java\" >System.out.println(\"Triggered\");\n" +
 			"list.add(person.getName());\n" +
 			"</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -286,7 +302,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "</process>");
         kbuilder.add(new ReaderResource(source), ResourceType.DRF);
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         TestVariable person = new TestVariable("John Doe");
@@ -298,7 +314,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
         assertEquals("John Doe", list.get(0));
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-	
+
     @Test
 	public void testActionVariableMVEL() {
 		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -329,7 +345,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
 			"      <action type=\"expression\" dialect=\"mvel\" >System.out.println(\"Triggered\");\n" +
 			"list.add(person.name);\n" +
 			"</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -341,7 +357,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "</process>");
         kbuilder.add(new ReaderResource(source), ResourceType.DRF);
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         TestVariable person = new TestVariable("John Doe");
@@ -353,7 +369,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
         assertEquals("John Doe", list.get(0));
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-	
+
     @Test
     public void testActionNameConflict() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -374,7 +390,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "    <start id=\"1\" name=\"Start\" />\n" +
 			"    <actionNode id=\"2\" name=\"MyActionNode\" >\n" +
 			"      <action type=\"expression\" dialect=\"java\" >list.add(\"Action1\");</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -402,7 +418,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "    <start id=\"1\" name=\"Start\" />\n" +
 			"    <actionNode id=\"2\" name=\"MyActionNode\" >\n" +
 			"      <action type=\"expression\" dialect=\"java\" >list.add(\"Action2\");</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
             "    <end id=\"3\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -414,7 +430,7 @@ public class ProcessActionTest  extends AbstractBaseTest {
             "</process>");
         kbuilder.add(new ReaderResource(source), ResourceType.DRF);
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance =

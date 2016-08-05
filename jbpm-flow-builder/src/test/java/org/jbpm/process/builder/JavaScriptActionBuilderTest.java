@@ -1,6 +1,12 @@
 package org.jbpm.process.builder;
 
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.lang.descr.ActionDescr;
@@ -19,15 +25,9 @@ import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collection;
-
-import static org.junit.Assert.assertEquals;
 
 public class JavaScriptActionBuilderTest extends AbstractBaseTest {
 
@@ -71,7 +71,7 @@ public class JavaScriptActionBuilderTest extends AbstractBaseTest {
 
         final KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages((Collection) Arrays.asList(pkgBuilder.getPackage()));
-        final StatefulKnowledgeSession wm = kbase.newStatefulKnowledgeSession();
+        final KieSession wm = kbase.newStatefulKnowledgeSession();
 
         wm.setGlobal("testField", "vagon");
 

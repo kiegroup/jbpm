@@ -119,6 +119,12 @@
     <!-- test other -->
     <dependency>
       <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-flow</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jbpm</groupId>
       <artifactId>jbpm-audit</artifactId>
       <scope>test</scope>
     </dependency>
@@ -136,6 +142,17 @@
       <groupId>org.drools</groupId>
       <artifactId>drools-core</artifactId>
       <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-test-util</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

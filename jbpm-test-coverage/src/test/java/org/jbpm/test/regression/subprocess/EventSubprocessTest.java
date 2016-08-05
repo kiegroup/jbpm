@@ -19,7 +19,7 @@ package org.jbpm.test.regression.subprocess;
 import org.assertj.core.api.Assertions;
 import org.jbpm.bpmn2.handler.SignallingTaskHandlerDecorator;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.Test;
@@ -30,7 +30,7 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class EventSubprocessTest extends JbpmTestCase {
+public class EventSubprocessTest extends JbpmCoverageTestCase {
 
     private static final String ERROR_CODE_EXCEPTION =
             "org/jbpm/test/regression/subprocess/EventSubprocess-errorCodeException.bpmn2";

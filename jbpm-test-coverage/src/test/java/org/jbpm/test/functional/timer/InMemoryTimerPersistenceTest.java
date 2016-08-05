@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.drools.core.process.instance.WorkItemHandler;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * See JBPM-3170/JBPM-3391
  */
-public class InMemoryTimerPersistenceTest extends JbpmTestCase {
+public class InMemoryTimerPersistenceTest extends JbpmCoverageTestCase {
 
     // General setup
     private static final Logger logger = LoggerFactory.getLogger(InMemoryTimerPersistenceTest.class);

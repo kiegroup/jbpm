@@ -22,7 +22,7 @@ import javax.persistence.EntityManager;
 
 import org.jbpm.services.task.audit.impl.model.BAMTaskSummaryImpl;
 import org.jbpm.services.task.lifecycle.listeners.BAMTaskEventListener;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to test a process.
  */
-public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmTestCase {
+public class ProcessPersistenceHumanTaskOnLaneTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessPersistenceHumanTaskOnLaneTest.class);
 

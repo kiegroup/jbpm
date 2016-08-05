@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,23 +15,39 @@
 
 package org.jbpm.integrationtests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.drools.compiler.compiler.DroolsError;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ProcessMultiThreadTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessMultiThreadTest.class);
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessMultiThreadTest(String execModel) {
+        super(execModel);
+    }
 
     @Test
     public void testMultiThreadProcessInstanceSignalling() {
@@ -39,7 +55,7 @@ public class ProcessMultiThreadTest extends AbstractBaseTest {
         try {
             boolean success = true;
             final Thread[] t = new Thread[THREAD_COUNT];
-            
+
             builder.addProcessFromXml(new InputStreamReader( getClass().getResourceAsStream( "test_ProcessMultithreadEvent.rf" ) ) );
             if (builder.getErrors().getErrors().length > 0) {
             	for (DroolsError error: builder.getErrors().getErrors()) {
@@ -48,8 +64,8 @@ public class ProcessMultiThreadTest extends AbstractBaseTest {
             	fail("Could not parse process");
             }
 
-            StatefulKnowledgeSession session = createKieSession(true, builder.getPackage());
-            
+            KieSession session = createKieSession(true, builder.getPackage());
+
             session = JbpmSerializationHelper.getSerialisedStatefulKnowledgeSession(session);
             List<String> list = new ArrayList<String>();
             session.setGlobal("list", list);
@@ -77,21 +93,21 @@ public class ProcessMultiThreadTest extends AbstractBaseTest {
             fail( "Should not raise any exception: " + e.getMessage() );
         }
 	}
-	
+
     public static class ProcessInstanceSignalRunner implements Runnable {
 
 	    private ProcessInstance processInstance;
 	    private String type;
         private Status status;
         private int id;
-	
+
 	    public ProcessInstanceSignalRunner(int id, ProcessInstance processInstance, String type) {
 	        this.id = id;
 	    	this.processInstance = processInstance;
 	    	this.type = type;
 	        this.status = Status.SUCCESS;
 	    }
-	
+
 	    public void run() {
 	        try {
 	        	processInstance.signalEvent(type, null);
@@ -100,19 +116,19 @@ public class ProcessMultiThreadTest extends AbstractBaseTest {
 	            logger.warn("{} failed: {}",Thread.currentThread().getName(), e.getMessage());
 	        }
 	    }
-	
+
 	    public static enum Status {
 	        SUCCESS, FAIL
 	    }
-	
+
 	    public int getId() {
 	        return id;
 	    }
-	
+
 	    public Status getStatus() {
 	        return status;
 	    }
-	
+
 	}
-    
+
 }

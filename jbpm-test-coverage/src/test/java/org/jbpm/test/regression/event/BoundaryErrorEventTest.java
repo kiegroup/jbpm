@@ -19,7 +19,7 @@ package org.jbpm.test.regression.event;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.junit.After;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import qa.tools.ikeeper.annotation.BZ;
 
 @BZ("1175689")
 @RunWith(Parameterized.class)
-public class BoundaryErrorEventTest extends JbpmTestCase {
+public class BoundaryErrorEventTest extends JbpmCoverageTestCase {
 
     private static final String PROCESS_PREFIX = "org/jbpm/test/regression/event/BoundaryErrorEvent-";
     private static final String PROCESS_ID = "org.jbpm.test.regression.event.BoundaryErrorEvent";

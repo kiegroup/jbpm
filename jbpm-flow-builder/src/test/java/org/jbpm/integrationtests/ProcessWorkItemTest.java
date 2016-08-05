@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,7 +28,11 @@ import org.jbpm.integrationtests.handler.TestWorkItemHandler;
 import org.jbpm.integrationtests.test.Person;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkItem;
 import org.kie.api.runtime.process.WorkItemHandler;
@@ -40,10 +44,19 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
+@RunWith(Parameterized.class)
 public class ProcessWorkItemTest extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessWorkItemTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
     public void testWorkItem() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -114,9 +127,9 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );        
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-    	
+        kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -134,7 +147,7 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         assertEquals("John Doe", workItem.getParameter("Comment"));
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
         parameters = new HashMap<String, Object>();
         parameters.put("UserName", "Jane Doe");
         parameters.put("MyObject", "SomeString");
@@ -157,7 +170,7 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         assertEquals("SomeOtherString", processInstance.getVariable("MyObject"));
         assertEquals(15, processInstance.getVariable("Number"));
     }
-    
+
     @Test
     public void testWorkItemImmediateCompletion() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -227,12 +240,12 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
             "\n" +
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
-        
+
         Collection<KnowledgePackage> kpkgs = kbuilder.getKnowledgePackages();
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        kbase.addKnowledgePackages( kpkgs );        
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-    	
+        kbase.addKnowledgePackages( kpkgs );
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
+
         ImmediateTestWorkItemHandler handler = new ImmediateTestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
@@ -245,7 +258,7 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         	ksession.startProcess("org.drools.actions", parameters);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     private static class ImmediateTestWorkItemHandler implements WorkItemHandler {
         public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
             manager.completeWorkItem(workItem.getId(), null);

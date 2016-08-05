@@ -17,17 +17,17 @@
     <bpmn2:sequenceFlow id="_2-_3" sourceRef="_2" targetRef="_3"/>
     <bpmn2:sequenceFlow id="_2-_4" sourceRef="_2" targetRef="_4"/>
     <bpmn2:sequenceFlow id="_2-_5" sourceRef="_2" targetRef="_5"/>
-    <bpmn2:userTask id="_3" name="One">
+    <bpmn2:userTask id="_3" name="taskOne">
       <bpmn2:incoming>_2-_3</bpmn2:incoming>
       <bpmn2:outgoing>_3-_6</bpmn2:outgoing>
     </bpmn2:userTask>
     <bpmn2:sequenceFlow id="_3-_6" sourceRef="_3" targetRef="_6"/>
-    <bpmn2:userTask id="_4" name="Two">
+    <bpmn2:userTask id="_4" name="taskTwo">
       <bpmn2:incoming>_2-_4</bpmn2:incoming>
       <bpmn2:outgoing>_4-_6</bpmn2:outgoing>
     </bpmn2:userTask>
     <bpmn2:sequenceFlow id="_4-_6" sourceRef="_4" targetRef="_6"/>
-    <bpmn2:userTask id="_5" name="Thr">
+    <bpmn2:userTask id="_5" name="taskThr">
       <bpmn2:incoming>_2-_5</bpmn2:incoming>
       <bpmn2:outgoing>_5-_6</bpmn2:outgoing>
     </bpmn2:userTask>
@@ -39,10 +39,10 @@
       <bpmn2:outgoing>_6-_171</bpmn2:outgoing>
     </bpmn2:parallelGateway>
     <bpmn2:sequenceFlow id="_6-_171" sourceRef="_6" targetRef="_171"/>
-    <bpmn2:scriptTask id="_171" name="Fou">
+    <bpmn2:scriptTask id="_171" name="fou">
       <bpmn2:incoming>_6-_171</bpmn2:incoming>
       <bpmn2:outgoing>_171-_8</bpmn2:outgoing>
-      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getMetaData().get("UniqueId") + ":");</bpmn2:script>
+      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getName() + ":");</bpmn2:script>
     </bpmn2:scriptTask>
     <bpmn2:sequenceFlow id="_171-_8" sourceRef="_171" targetRef="_8"/>
     <bpmn2:intermediateThrowEvent id="_8" name="CompensateEvent">
@@ -57,20 +57,20 @@
     <bpmn2:boundaryEvent id="_13" name="CompensateEvent" attachedToRef="_3">
       <bpmn2:compensateEventDefinition id="CompensateEventDefinition_2" waitForCompletion="true"/>
     </bpmn2:boundaryEvent>
-    <bpmn2:scriptTask id="_131" name="Compensate" isForCompensation="true">
-      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getMetaData().get("UniqueId") + ":");</bpmn2:script>
+    <bpmn2:scriptTask id="_131" name="one" isForCompensation="true">
+      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getName() + ":");</bpmn2:script>
     </bpmn2:scriptTask>
     <bpmn2:boundaryEvent id="_14" name="CompensateEvent" attachedToRef="_4">
       <bpmn2:compensateEventDefinition id="CompensateEventDefinition_3" waitForCompletion="true"/>
     </bpmn2:boundaryEvent>
-    <bpmn2:scriptTask id="_141" name="Compensate" isForCompensation="true">
-      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getMetaData().get("UniqueId") + ":");</bpmn2:script>
+    <bpmn2:scriptTask id="_141" name="two" isForCompensation="true">
+      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getName() + ":");</bpmn2:script>
     </bpmn2:scriptTask>
     <bpmn2:boundaryEvent id="_15" name="CompensateEvent" attachedToRef="_5">
       <bpmn2:compensateEventDefinition id="CompensateEventDefinition_4" waitForCompletion="true"/>
     </bpmn2:boundaryEvent>
-    <bpmn2:scriptTask id="_151" name="Compensate" isForCompensation="true">
-      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getMetaData().get("UniqueId") + ":");</bpmn2:script>
+    <bpmn2:scriptTask id="_151" name="thr" isForCompensation="true">
+      <bpmn2:script>kcontext.setVariable("x", kcontext.getVariable("x").toString() + kcontext.getNodeInstance().getNode().getName() + ":");</bpmn2:script>
     </bpmn2:scriptTask>
     <bpmn2:association id="_13-_131" sourceRef="_13" targetRef="_131"/>
     <bpmn2:association id="_14-_141" sourceRef="_14" targetRef="_141"/>

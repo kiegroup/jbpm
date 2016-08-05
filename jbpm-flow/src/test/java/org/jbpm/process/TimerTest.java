@@ -18,43 +18,69 @@ package org.jbpm.process;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import org.drools.core.common.InternalWorkingMemory;
-import org.drools.core.runtime.process.ProcessRuntimeFactory;
 import org.jbpm.process.instance.InternalProcessRuntime;
-import org.jbpm.process.instance.ProcessRuntimeFactoryServiceImpl;
 import org.jbpm.process.instance.timer.TimerInstance;
 import org.jbpm.process.instance.timer.TimerManager;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
-import org.junit.Ignore;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class TimerTest extends AbstractBaseTest  {
 
-    public void addLogger() { 
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-	private int counter = 0;
-	   
-    static {
-        ProcessRuntimeFactory.setProcessRuntimeFactoryService(new ProcessRuntimeFactoryServiceImpl());
+
+	private Semaphore counter = new Semaphore(10, true);
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> useStack() {
+        Object[][] execModelType = new Object[][] {
+                { OLD_RECURSIVE_STACK },
+                { QUEUE_BASED_EXECUTION }
+                };
+        return Arrays.asList(execModelType);
+    };
+
+    public TimerTest(String execModel) {
+        this.queueBasedExecution = QUEUE_BASED_EXECUTION.equals(execModel);
     }
-    
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void printTestName() {
+        // DBG
+       System.out.println( " " + testName.getMethodName() );
+    }
+
     @Test
-    @Ignore
 	public void testTimer() {
-//        AbstractRuleBase ruleBase = (AbstractRuleBase) RuleBaseFactory.newRuleBase();
-//        ExecutorService executorService = new DefaultExecutorService();
-//        final StatefulSession workingMemory = new ReteooStatefulSession(1, ruleBase, executorService);
-//        executorService.setCommandExecutor( new CommandExecutor( workingMemory ) );
-        KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        final StatefulKnowledgeSession workingMemory = kbase.newStatefulKnowledgeSession();
+        // set num available permits = 0;
+        counter.drainPermits();
+
+        final KieSession workingMemory = KnowledgeBaseFactory.newKnowledgeBase().newKieSession();
 
         RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance() {
 			private static final long serialVersionUID = 510l;
@@ -62,7 +88,7 @@ public class TimerTest extends AbstractBaseTest  {
         		if ("timerTriggered".equals(type)) {
         			TimerInstance timer = (TimerInstance) event;
         			logger.info("Timer {} triggered", timer.getId());
-            		counter++;
+            		counter.release();
         		}
         	}
         };
@@ -73,7 +99,7 @@ public class TimerTest extends AbstractBaseTest  {
 
         new Thread(new Runnable() {
 			public void run() {
-	        	workingMemory.fireUntilHalt();       	
+	        	workingMemory.fireUntilHalt();
 			}
         }).start();
 
@@ -81,53 +107,55 @@ public class TimerTest extends AbstractBaseTest  {
         TimerInstance timer = new TimerInstance();
         timerManager.registerTimer(timer, processInstance);
         try {
-        	Thread.sleep(1000);
+        	counter.tryAcquire(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-        	// do nothing
+            fail("Timer did not release permit: " + e.getClass().getSimpleName());
         }
-        assertEquals(1, counter);
-        
-        counter = 0;
+        assertEquals(0, counter.availablePermits());
+
+        counter.drainPermits();
         timer = new TimerInstance();
         timer.setDelay(500);
         timerManager.registerTimer(timer, processInstance);
-        assertEquals(0, counter);
+        assertEquals(0, counter.availablePermits());
         try {
-        	Thread.sleep(1000);
+            counter.tryAcquire(1, TimeUnit.SECONDS);;
         } catch (InterruptedException e) {
-        	// do nothing
+            fail("Timer did not release permit: " + e.getClass().getSimpleName());
         }
-        assertEquals(1, counter);
-        
-        counter = 0;
+        assertEquals(0, counter.availablePermits());
+
+        counter.drainPermits();
         timer = new TimerInstance();
         timer.setDelay(500);
         timer.setPeriod(300);
         timerManager.registerTimer(timer, processInstance);
-        assertEquals(0, counter);
+        assertEquals(0, counter.availablePermits());
         try {
-        	Thread.sleep(700);
+            counter.tryAcquire(700, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            fail("Timer did not release permit: " + e.getClass().getSimpleName());
         	// do nothing
         }
-        assertEquals(1, counter);
-        
+        assertEquals(0, counter.availablePermits());
+
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             // do nothing
         }
-        // we can't know exactly how many times this will fire as timers are not precise, but should be atleast 4
-        assertTrue( counter >= 4 );
-        
+        // we can't know exactly how many times this will fire as timers are not precise, but should be at least 3 more
+        // ((700 + 1000 [time waited])-500 [delay])/300 [period] = 4 - 1 (1rst fire) = 3
+        assertTrue( "Num permits/timer runs: " + counter.availablePermits(), counter.availablePermits() >= 3 );
+
         timerManager.cancelTimer(timer.getId());
-        int lastCount = counter;
-        try {            
+        int lastCount = counter.availablePermits();
+        try {
         	Thread.sleep(1000);
         } catch (InterruptedException e) {
         	// do nothing
         }
-        assertEquals(lastCount, counter);
+        assertEquals(lastCount, counter.availablePermits());
 	}
-	
+
 }

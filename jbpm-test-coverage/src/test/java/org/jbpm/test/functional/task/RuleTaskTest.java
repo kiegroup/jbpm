@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
@@ -37,7 +37,7 @@ import static org.jbpm.test.tools.IterableListenerAssert.*;
 /**
  * Business rules task test. testing execution of rules with specified rule-flow group.
  */
-public class RuleTaskTest extends JbpmTestCase {
+public class RuleTaskTest extends JbpmCoverageTestCase {
 
     private static final String RULE_TASK =
             "org/jbpm/test/functional/task/RuleTask.bpmn";

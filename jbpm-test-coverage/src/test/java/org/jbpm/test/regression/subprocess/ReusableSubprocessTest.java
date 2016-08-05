@@ -19,7 +19,7 @@ package org.jbpm.test.regression.subprocess;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -30,7 +30,7 @@ import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class ReusableSubprocessTest extends JbpmTestCase {
+public class ReusableSubprocessTest extends JbpmCoverageTestCase {
 
     private static final String WAIT_FOR_COMPLETION_FALSE_PARENT =
             "org/jbpm/test/regression/subprocess/ReusableSubprocess-waitForCompletionFalse-parent.bpmn2";

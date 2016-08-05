@@ -16,27 +16,27 @@
 
 package org.jbpm.test.util;
 
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.kie.test.util.logging.LoggingPrintStream;
 
 public abstract class AbstractExecutorBaseTest {
-    
+
 
     @After
     public void cleanup() {
     	EntityManagerFactoryManager.get().clear();
     }
-    
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+    public static void reset() {
+        LoggingPrintStream.restoreSysOutAndSysErr();
     }
 }

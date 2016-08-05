@@ -16,7 +16,6 @@ limitations under the License.*/
 package org.jbpm.bpmn2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -45,18 +44,17 @@ import org.slf4j.LoggerFactory;
 public class EscalationEventTest extends JbpmBpmn2TestCase {
 
     @Parameters
-    public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { false }, { true } };
-        return Arrays.asList(data);
+    public static Collection<Object[]> parameters() {
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
     };
 
     private Logger logger = LoggerFactory
             .getLogger(EscalationEventTest.class);
 
     private KieSession ksession;
-    
-    public EscalationEventTest(boolean persistence) {
-        super(persistence);
+
+    public EscalationEventTest(boolean persistence, boolean locking, boolean queueBased, String name) {
+        super(persistence, locking, queueBased, name);
     }
 
     @BeforeClass
@@ -152,7 +150,7 @@ public class EscalationEventTest extends JbpmBpmn2TestCase {
     
     @Test
     @Ignore( "Escalation does not cancel work items yet.")
-    // TODO: make escalation interrupt tasks -- or look more closely at the spec to make sure that's the case? 
+    // TODO: make escalation interrupt tasks -- or look more closely at the spec to make sure that's the case?
     public void testEscalationBoundaryEventInterruptsTask() throws Exception {
         KieBase kbase = createKnowledgeBase("escalation/BPMN2-EscalationBoundaryEventInterrupting.bpmn2");
         ksession = createKnowledgeSession(kbase);

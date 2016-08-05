@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.task.model.Status;
@@ -30,7 +30,7 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class HumanTaskAssignmentTest extends JbpmTestCase {
+public class HumanTaskAssignmentTest extends JbpmCoverageTestCase {
 
     private static final String GET_TASKS_OWNER_GROUP =
             "org/jbpm/test/regression/task/HumanTaskAssignment-getTasksOwnerGroup.bpmn2";

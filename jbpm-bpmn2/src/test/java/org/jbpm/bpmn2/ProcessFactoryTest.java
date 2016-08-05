@@ -16,22 +16,38 @@
 
 package org.jbpm.bpmn2;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.jbpm.bpmn2.xml.XmlBPMNProcessDumper;
 import org.jbpm.persistence.session.objects.TestWorkItemHandler;
 import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.core.RuleFlowProcessFactory;
 import org.jbpm.test.util.CountDownProcessEventListener;
 import org.junit.Test;
-import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
 import org.kie.api.io.Resource;
 import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.internal.io.ResourceFactory;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
 
+@RunWith(Parameterized.class)
 public class ProcessFactoryTest extends JbpmBpmn2TestCase {
-    
-    public ProcessFactoryTest() {
-        super(false);
+
+    @Parameters
+    public static Collection<Object[]> persistence() {
+        Object[][] data = new Object[][] {
+            { false },
+            { true }
+            };
+        return Arrays.asList(data);
+    };
+
+    public ProcessFactoryTest(boolean queueBased) {
+        super(false, false, queueBased);
     }
 
     @Test
@@ -94,7 +110,6 @@ public class ProcessFactoryTest extends JbpmBpmn2TestCase {
 
     @Test(timeout=10000)
     public void testBoundaryTimerTimeCycle() throws Exception {
-        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("BoundaryTimerEvent", 1);
         RuleFlowProcessFactory factory = RuleFlowProcessFactory.createProcess("org.jbpm.process");
         factory
             // header
@@ -117,12 +132,15 @@ public class ProcessFactoryTest extends JbpmBpmn2TestCase {
         StatefulKnowledgeSession ksession = createKnowledgeSession(kbase);
         TestWorkItemHandler testHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", testHandler);
+        CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("BoundaryTimerEvent", 1);
         ksession.addEventListener(countDownListener);
 
         ProcessInstance pi = ksession.startProcess("org.jbpm.process");
         assertProcessInstanceActive(pi);
 
         countDownListener.waitTillCompleted(); // wait for boundary timer firing
+
+        Thread.currentThread().sleep(100);
 
         assertNodeTriggered(pi.getId(), "End2");
         assertProcessInstanceActive(pi); // still active because CancelActivity = false

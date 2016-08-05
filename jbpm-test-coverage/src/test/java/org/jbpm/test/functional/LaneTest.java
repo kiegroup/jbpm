@@ -20,7 +20,7 @@
  */
 package org.jbpm.test.functional;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
@@ -31,7 +31,7 @@ import static org.jbpm.test.tools.TrackingListenerAssert.*;
 /**
  * Simple testing of lanes - there is nothing special to test.
  */
-public class LaneTest extends JbpmTestCase {
+public class LaneTest extends JbpmCoverageTestCase {
 
     public static final String PROCESS = "org/jbpm/test/functional/Lane.bpmn";
     public static final String PROCESS_ID = "org.jbpm.test.functional.Lane";

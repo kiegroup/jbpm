@@ -16,7 +16,7 @@
 
 package org.jbpm.test.functional.subprocess;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
@@ -24,7 +24,7 @@ import org.kie.api.runtime.KieSession;
 
 import static org.jbpm.test.tools.IterableListenerAssert.*;
 
-public class ReusableSubProcessTest extends JbpmTestCase {
+public class ReusableSubProcessTest extends JbpmCoverageTestCase {
 
     private static final String CALL_ACTIVITY_PARENT =
             "org/jbpm/test/functional/subprocess/ReusableSubProcess-parent.bpmn";

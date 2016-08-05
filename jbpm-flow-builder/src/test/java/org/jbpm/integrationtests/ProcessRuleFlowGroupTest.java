@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,16 +19,30 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 
 import org.jbpm.integrationtests.test.Person;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 
+@RunWith(Parameterized.class)
 public class ProcessRuleFlowGroupTest extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessRuleFlowGroupTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
     public void testRuleSetProcessContext() throws Exception {
         Reader source = new StringReader(
@@ -69,8 +83,8 @@ public class ProcessRuleFlowGroupTest extends AbstractBaseTest {
         builder.addRuleFlow(source);
         builder.addPackageFromDrl(source2);
 
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         Person person = new Person();
         person.setAge(30);
         workingMemory.insert(person);

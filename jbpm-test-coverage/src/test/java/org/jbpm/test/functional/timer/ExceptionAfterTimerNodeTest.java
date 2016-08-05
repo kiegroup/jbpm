@@ -18,7 +18,7 @@ package org.jbpm.test.functional.timer;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.CountDownProcessEventListener;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +31,7 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.api.runtime.process.ProcessInstance;
 
 @RunWith(Parameterized.class)
-public class ExceptionAfterTimerNodeTest extends JbpmTestCase {
+public class ExceptionAfterTimerNodeTest extends JbpmCoverageTestCase {
 
 	private final boolean useQuartz;
 	

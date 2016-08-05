@@ -16,7 +16,7 @@
 
 package org.jbpm.test.functional.gateway;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.tools.TrackingListenerAssert;
 import org.junit.Before;
@@ -27,7 +27,7 @@ import org.kie.api.runtime.KieSession;
 /**
  * Parallel gateway execution test. 2x parallel fork, 1x join
  */
-public class ParallelGatewayTest extends JbpmTestCase {
+public class ParallelGatewayTest extends JbpmCoverageTestCase {
 
     private static final String PARALLEL_GATEWAY = "org/jbpm/test/functional/gateway/ParallelGateway.bpmn";
     private static final String PARALLEL_GATEWAY_ID = "org.jbpm.test.functional.gateway.ParallelGateway";

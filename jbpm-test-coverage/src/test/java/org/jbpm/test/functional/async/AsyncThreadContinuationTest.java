@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.ExecutorServiceFactory;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.CountDownProcessEventListener;
 import org.jbpm.test.wih.FirstErrorWorkItemHandler;
 import org.junit.After;
@@ -38,7 +38,7 @@ import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 
 
-public class AsyncThreadContinuationTest extends JbpmTestCase {
+public class AsyncThreadContinuationTest extends JbpmCoverageTestCase {
 
     private static Object LOCK_ATC = new Object();
     private static Object LOCK_IT = new Object();

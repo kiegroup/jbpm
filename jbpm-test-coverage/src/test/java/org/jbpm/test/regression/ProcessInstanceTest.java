@@ -25,7 +25,7 @@ import org.assertj.core.api.Assertions;
 import org.drools.core.marshalling.impl.ClassObjectMarshallingStrategyAcceptor;
 import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.entity.DocumentVariable;
 import org.junit.Test;
 import org.kie.api.io.ResourceType;
@@ -40,7 +40,7 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class ProcessInstanceTest extends JbpmTestCase {
+public class ProcessInstanceTest extends JbpmCoverageTestCase {
 
     private static final String EQUALS = "org/jbpm/test/regression/ProcessInstance-equals.bpmn";
     private static final String EQUALS_ID = "org.jbpm.test.regression.ProcessInstance-equals";

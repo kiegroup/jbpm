@@ -24,7 +24,7 @@ import org.jbpm.services.task.exception.PermissionDeniedException;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
 import org.jbpm.services.task.wih.util.LocalHTWorkItemHandlerUtil;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ import org.kie.api.task.model.TaskSummary;
 import org.kie.internal.event.KnowledgeRuntimeEventManager;
 import org.kie.internal.logger.KnowledgeRuntimeLoggerFactory;
 
-public class LocalTaskServiceTest extends JbpmTestCase {
+public class LocalTaskServiceTest extends JbpmCoverageTestCase {
 
     private static final String HUMAN_TASK = "org/jbpm/test/functional/common/HumanTask.bpmn2";
     private static final String HUMAN_TASK_ID = "org.jbpm.test.functional.common.HumanTask";

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,10 +15,14 @@
 
 package org.jbpm.integrationtests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,11 +30,24 @@ import org.jbpm.integrationtests.handler.TestWorkItemHandler;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.WorkItem;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
+@RunWith(Parameterized.class)
 public class ProcessHumanTaskTest extends AbstractBaseTest {
-   
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessHumanTaskTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
     public void testHumanTask() {
         Reader source = new StringReader(
@@ -73,9 +90,9 @@ public class ProcessHumanTaskTest extends AbstractBaseTest {
             "\n" +
             "</process>");
         builder.addRuleFlow(source);
-        
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         workingMemory.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         ProcessInstance processInstance = ( ProcessInstance )
@@ -86,7 +103,7 @@ public class ProcessHumanTaskTest extends AbstractBaseTest {
         workingMemory.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testSwimlane() {
         Reader source = new StringReader(
@@ -152,9 +169,9 @@ public class ProcessHumanTaskTest extends AbstractBaseTest {
             "\n" +
             "</process>");
         builder.addRuleFlow(source);
-        
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         workingMemory.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         ProcessInstance processInstance = ( ProcessInstance )
@@ -217,9 +234,9 @@ public class ProcessHumanTaskTest extends AbstractBaseTest {
             "\n" +
             "</process>");
         builder.addRuleFlow(source);
-        
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         workingMemory.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         ProcessInstance processInstance = ( ProcessInstance )
@@ -230,7 +247,7 @@ public class ProcessHumanTaskTest extends AbstractBaseTest {
         processInstance.setState(ProcessInstance.STATE_ABORTED);
         assertTrue(handler.isAborted());
     }
-    
+
     @Test
     public void testHumanTaskCancel2() {
         Reader source = new StringReader(
@@ -276,9 +293,9 @@ public class ProcessHumanTaskTest extends AbstractBaseTest {
             "\n" +
             "</process>");
         builder.addRuleFlow(source);
-        
-        StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
+        KieSession workingMemory = createKieSession(builder.getPackage());
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         workingMemory.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         ProcessInstance processInstance = ( ProcessInstance )

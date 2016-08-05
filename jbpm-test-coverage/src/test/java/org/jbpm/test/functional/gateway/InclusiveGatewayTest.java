@@ -16,17 +16,28 @@
 
 package org.jbpm.test.functional.gateway;
 
+import static org.jbpm.test.tools.IterableListenerAssert.assertChangedVariable;
+import static org.jbpm.test.tools.IterableListenerAssert.assertLeft;
+import static org.jbpm.test.tools.IterableListenerAssert.assertNextNode;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessCompleted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertProcessStarted;
+import static org.jbpm.test.tools.IterableListenerAssert.assertTriggered;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.drools.core.command.runtime.process.StartProcessCommand;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
+import org.jbpm.test.ParameterizedPlusQueueBased.ExecutionType;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.runtime.KieSession;
-
-import static org.jbpm.test.tools.IterableListenerAssert.*;
 
 /**
  * Inclusive gateway tests. combination of diverging OR gateway with converging XOR gateway
@@ -35,7 +46,8 @@ import static org.jbpm.test.tools.IterableListenerAssert.*;
  *
  * Converging XOR does not behave according to documentation: bz803692
  */
-public class InclusiveGatewayTest extends JbpmTestCase {
+@RunWith(Parameterized.class)
+public class InclusiveGatewayTest extends JbpmCoverageTestCase {
 
     private static final String INCLUSIVE_GATEWAY = "org/jbpm/test/functional/gateway/InclusiveGateway.bpmn";
     private static final String INCLUSIVE_GATEWAY_ID = "org.jbpm.test.functional.gateway.InclusiveGateway";
@@ -43,8 +55,18 @@ public class InclusiveGatewayTest extends JbpmTestCase {
     private KieSession kieSession;
     private IterableProcessEventListener iterableListener;
 
-    public InclusiveGatewayTest() {
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return new ArrayList<Object[]>() { {
+                add(new Object[] { ExecutionType.RECURSIVE });
+                add(new Object[] { ExecutionType.QUEUE_BASED });
+            }
+        };
+    };
+
+    public InclusiveGatewayTest(ExecutionType executionType) {
         super(false);
+        this.queueBasedExecution = executionType.equals(ExecutionType.QUEUE_BASED);
     }
 
     @Override
@@ -71,20 +93,49 @@ public class InclusiveGatewayTest extends JbpmTestCase {
         spc.setParameters(params);
         kieSession.execute(spc);
 
-        assertChangedVariable(iterableListener, "x", null, 15);
-        assertProcessStarted(iterableListener, INCLUSIVE_GATEWAY_ID);
-        assertNextNode(iterableListener, "start");
-        assertNextNode(iterableListener, "fork");
-        assertNextNode(iterableListener, "script1");
-        assertNextNode(iterableListener, "join");
-        assertNextNode(iterableListener, "finalScript");
-        assertNextNode(iterableListener, "end");
-        assertLeft(iterableListener, "fork");
-        assertNextNode(iterableListener, "script2");
-        assertNextNode(iterableListener, "join");
-        assertNextNode(iterableListener, "finalScript");
-        assertNextNode(iterableListener, "end");
-        assertProcessCompleted(iterableListener, INCLUSIVE_GATEWAY_ID);
+        if( ! queueBasedExecution ) {
+            assertChangedVariable(iterableListener, "x", null, 15);
+            assertProcessStarted(iterableListener, INCLUSIVE_GATEWAY_ID);
+
+            assertNextNode(iterableListener, "start");
+            assertNextNode(iterableListener, "fork");
+
+            assertNextNode(iterableListener, "script1");
+            assertNextNode(iterableListener, "join");
+            assertNextNode(iterableListener, "finalScript");
+            assertNextNode(iterableListener, "end");
+
+            assertLeft(iterableListener, "fork");
+            assertNextNode(iterableListener, "script2");
+            assertNextNode(iterableListener, "join");
+            assertNextNode(iterableListener, "finalScript");
+            assertNextNode(iterableListener, "end");
+
+            assertProcessCompleted(iterableListener, INCLUSIVE_GATEWAY_ID);
+        } else {
+            assertChangedVariable(iterableListener, "x", null, 15);
+            assertProcessStarted(iterableListener, INCLUSIVE_GATEWAY_ID);
+
+            assertNextNode(iterableListener, "start");
+            assertTriggered(iterableListener, "fork");
+            for( int i = 0; i < 2; ++i ) {
+                // 2 branches
+                assertLeft(iterableListener, "fork");
+            }
+            // 1rst branch
+            assertNextNode(iterableListener, "script1");
+            assertNextNode(iterableListener, "join");
+            assertNextNode(iterableListener, "finalScript");
+            assertNextNode(iterableListener, "end");
+
+            // 2nd branch
+            assertNextNode(iterableListener, "script2");
+            assertNextNode(iterableListener, "join");
+            assertNextNode(iterableListener, "finalScript");
+            assertNextNode(iterableListener, "end");
+
+            assertProcessCompleted(iterableListener, INCLUSIVE_GATEWAY_ID);
+        }
     }
 
 }

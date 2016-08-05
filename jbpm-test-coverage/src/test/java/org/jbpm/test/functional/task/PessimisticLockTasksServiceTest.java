@@ -30,7 +30,7 @@ import javax.transaction.UserTransaction;
 import org.jbpm.services.task.HumanTaskConfigurator;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.wih.ExternalTaskEventListener;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,7 +50,7 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PessimisticLockTasksServiceTest extends JbpmTestCase {
+public class PessimisticLockTasksServiceTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(PessimisticLockTasksServiceTest.class);
     protected Map<String, User> users;

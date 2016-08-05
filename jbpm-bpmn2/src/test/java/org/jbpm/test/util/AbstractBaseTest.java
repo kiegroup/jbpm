@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -15,21 +15,26 @@
 
 package org.jbpm.test.util;
 
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.kie.test.util.logging.LoggingPrintStream;
 
 public abstract class AbstractBaseTest extends Assert {
-    
+
+    protected static boolean showOutput = true;
 
     @BeforeClass
-    public static void configure() { 
-        LoggingPrintStream.interceptSysOutSysErr();
+    public static void configure() {
+        if( ! showOutput ) {
+            LoggingPrintStream.interceptSysOutSysErr();
+        }
     }
-    
+
     @AfterClass
-    public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+    public static void reset() {
+        if( ! showOutput ) {
+            LoggingPrintStream.restoreSysOutAndSysErr();
+        }
     }
 }

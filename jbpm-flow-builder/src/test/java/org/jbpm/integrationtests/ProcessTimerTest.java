@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,6 +14,19 @@
 */
 
 package org.jbpm.integrationtests;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.drools.compiler.compiler.DroolsError;
 import org.drools.core.ClockType;
@@ -27,29 +40,29 @@ import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.impl.demo.DoNothingWorkItemHandler;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
+@RunWith(Parameterized.class)
 public class ProcessTimerTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessTimerTest.class);
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessTimerTest(String execModel) {
+        super(execModel);
+    }
 
     @Test
 	public void testSimpleProcess() throws Exception {
@@ -78,7 +91,7 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"myList.add( new Message() );\n" +
 			"insert( new Message() );\n" +
 			"</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
 			"    <milestone id=\"5\" name=\"Wait\" >\n" +
 			"      <constraint type=\"rule\" dialect=\"mvel\" >Number( intValue &gt;= 5 ) from accumulate ( m: Message( ), count( m ) )</constraint>\n" +
 			"    </milestone>\n" +
@@ -99,12 +112,12 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			}
 			fail("Could not build process");
 		}
-		
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<Message> myList = new ArrayList<Message>();
 		session.setGlobal("myList", myList);
-		
+
         ProcessInstance processInstance = ( ProcessInstance )
         	session.startProcess("org.drools.timer");
         assertEquals(0, myList.size());
@@ -118,7 +131,7 @@ public class ProcessTimerTest extends AbstractBaseTest {
             // do nothing
         }
         assertEquals(0, myList.size());
-        
+
         // test that the period works
         try {
         	Thread.sleep(1300);
@@ -132,10 +145,10 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			// do nothing
 		}
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
         session.dispose();
 	}
-	
+
     @Test
 	public void testVariableSimpleProcess() throws Exception {
 		Reader source = new StringReader(
@@ -171,7 +184,7 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"myList.add( new Message() );\n" +
 			"insert( new Message() );\n" +
 			"</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
 			"    <milestone id=\"5\" name=\"Wait\" >\n" +
 			"      <constraint type=\"rule\" dialect=\"mvel\" >Number( intValue &gt;= 5 ) from accumulate ( m: Message( ), count( m ) )</constraint>\n" +
 			"    </milestone>\n" +
@@ -193,11 +206,11 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			fail("Could not build process");
 		}
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<Message> myList = new ArrayList<Message>();
 		session.setGlobal("myList", myList);
-		
+
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("x", 800);
 		params.put("y", 200);
@@ -214,7 +227,7 @@ public class ProcessTimerTest extends AbstractBaseTest {
             // do nothing
         }
         assertEquals(0, myList.size());
-        
+
         // test that the period works
         try {
         	Thread.sleep(1300);
@@ -228,10 +241,10 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			// do nothing
 		}
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
         session.dispose();
 	}
-	
+
     @Test
 	public void testIncorrectTimerNode() throws Exception {
 		Reader source = new StringReader(
@@ -299,24 +312,24 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"</process>");
 		builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<String> myList = new ArrayList<String>();
 		session.setGlobal("myList", myList);
-		
+
         ProcessInstance processInstance = ( ProcessInstance )
         	session.startProcess("org.drools.timer");
         assertEquals(0, myList.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         assertEquals(1, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
-        
+
         try {
             Thread.sleep(400);
         } catch (InterruptedException e) {
             // do nothing
         }
         assertEquals(1, myList.size());
-        
+
         session.dispose();
 	}
 
@@ -361,17 +374,17 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"</process>");
 		builder.addRuleFlow(source);
 
-        final StatefulKnowledgeSession session = createKieSession(builder.getPackage());
+        final KieSession session = createKieSession(builder.getPackage());
 
 		List<String> myList = new ArrayList<String>();
 		session.setGlobal("myList", myList);
-		
+
 		new Thread(new Runnable() {
 			public void run() {
-	        	session.fireUntilHalt();       	
+	        	session.fireUntilHalt();
 			}
         }).start();
-		
+
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("x", 300);
         ProcessInstance processInstance = ( ProcessInstance )
@@ -379,14 +392,14 @@ public class ProcessTimerTest extends AbstractBaseTest {
         assertEquals(0, myList.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         assertEquals(1, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
-        
+
         try {
             Thread.sleep(400);
         } catch (InterruptedException e) {
             // do nothing
         }
         assertEquals(1, myList.size());
-        
+
         session.dispose();
 	}
 
@@ -427,25 +440,25 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"</process>");
 		builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<String> myList = new ArrayList<String>();
 		session.setGlobal("myList", myList);
 		session.getWorkItemManager().registerWorkItemHandler("Human Task", new DoNothingWorkItemHandler());
-		
+
         ProcessInstance processInstance = ( ProcessInstance )
         	session.startProcess("org.drools.timer");
         assertEquals(0, myList.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         assertEquals(1, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
-        
+
         try {
             Thread.sleep(400);
         } catch (InterruptedException e) {
             // do nothing
         }
         assertEquals(1, myList.size());
-        
+
         session.dispose();
 	}
 
@@ -484,7 +497,7 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"\n" +
 			"</process>");
 		builder.addRuleFlow(source);
-		
+
 		assertEquals(2, builder.getErrors().size());
 		for (DroolsError error: builder.getErrors().getErrors()) {
 		    logger.error(error.toString());
@@ -527,28 +540,28 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"</process>");
 		builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<String> myList = new ArrayList<String>();
 		session.setGlobal("myList", myList);
-		
+
         ProcessInstance processInstance = ( ProcessInstance )
         	session.startProcess("org.drools.timer");
         assertEquals(0, myList.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         assertEquals(1, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
         session.halt();
-        
+
         try {
             Thread.sleep(600);
         } catch (InterruptedException e) {
             // do nothing
         }
         assertEquals(2, myList.size());
-        
+
         session.dispose();
 	}
-	
+
     @Test
 	public void testMultipleTimers() throws Exception {
 		Reader source = new StringReader(
@@ -587,45 +600,45 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"\n" +
 			"</process>");
 		builder.addRuleFlow(source);
-	
-        
-		final StatefulKnowledgeSession session;
-		{ 
+
+
+		final KieSession session;
+		{
 		    InternalKnowledgePackage pkg = builder.getPackage();
 		    KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
 		    kbase.addKnowledgePackages((Collection) Arrays.asList(builder.getPackages()));
-		    
+
 		    SessionConfiguration conf = SessionConfiguration.newInstance();
-		    conf.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );  
-        
-		    session = kbase.newStatefulKnowledgeSession(conf, null);
+		    conf.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() ) );
+
+		    session = kbase.newKieSession(conf, null);
 		}
-		
+
         SessionPseudoClock clock = ( SessionPseudoClock) session.getSessionClock();
         clock.advanceTime( 300,
-                           TimeUnit.MILLISECONDS ); 
-        
+                           TimeUnit.MILLISECONDS );
+
 		List<String> myList = new ArrayList<String>();
 		session.setGlobal("myList", myList);
-		
+
         ProcessInstance processInstance = ( ProcessInstance ) session.startProcess("org.drools.timer");
         assertEquals(0, myList.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        assertEquals(2, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());        
-        
+        assertEquals(2, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
+
         clock = ( SessionPseudoClock) session.getSessionClock();
         clock.advanceTime( 500,
-                           TimeUnit.MILLISECONDS );  
+                           TimeUnit.MILLISECONDS );
         assertEquals(1, myList.size());
         assertEquals("Executing timer2", myList.get(0));
 
         clock.advanceTime( 500,
-                           TimeUnit.MILLISECONDS ); 
+                           TimeUnit.MILLISECONDS );
         assertEquals(2, myList.size());
-        
+
         session.dispose();
 	}
-	
+
     @Test
 	public void testOnEntryTimerCancelled() throws Exception {
 		Reader source = new StringReader(
@@ -662,23 +675,23 @@ public class ProcessTimerTest extends AbstractBaseTest {
 			"</process>");
 		builder.addRuleFlow(source);
 
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<String> myList = new ArrayList<String>();
 		session.setGlobal("myList", myList);
-		
+
         ProcessInstance processInstance = ( ProcessInstance )
         	session.startProcess("org.drools.timer");
         assertEquals(0, myList.size());
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         assertEquals(1, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
-		
+
         session.insert(new Message());
         session.fireAllRules();
         assertEquals(0, myList.size());
         assertEquals(0, ((InternalProcessRuntime) ((InternalWorkingMemory) session).getProcessRuntime()).getTimerManager().getTimers().size());
-        
+
         session.dispose();
 	}
-	
+
 }

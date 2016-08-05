@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import javax.naming.InitialContext;
 import javax.persistence.EntityManagerFactory;
@@ -54,6 +55,7 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.event.rule.AgendaEventListener;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.EnvironmentName;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.Context;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -130,6 +132,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     protected boolean setupDataSource = false;
     protected boolean sessionPersistence = false;
     private String persistenceUnitName;
+    protected boolean queueBasedExecution = false;
 
     private EntityManagerFactory emf;
     private PoolingDataSource ds;
@@ -163,7 +166,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
      * This is usually used for in memory process management, without human task interaction.
      */
     public JbpmJUnitBaseTestCase() {
-        this(false, false, "org.jbpm.persistence.jpa");
+        this(false, false, "org.jbpm.persistence.jpa", false);
     }
 
     /**
@@ -184,7 +187,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
      * @param sessionPersistence - configures RuntimeEngine to be with JPA persistence enabled
      */
     public JbpmJUnitBaseTestCase(boolean setupDataSource, boolean sessionPersistence) {
-        this(setupDataSource, sessionPersistence, "org.jbpm.persistence.jpa");
+        this(setupDataSource, sessionPersistence, "org.jbpm.persistence.jpa", false);
     }
 
     /**
@@ -194,9 +197,21 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
      * @param persistenceUnitName - custom persistence unit name
      */
     public JbpmJUnitBaseTestCase(boolean setupDataSource, boolean sessionPersistence, String persistenceUnitName) {
+       this(setupDataSource, sessionPersistence, persistenceUnitName, false);
+    }
+
+    /**
+     * Same as {@link #JbpmJUnitBaseTestCase(boolean, boolean)} but allows to use another persistence unit name.
+     * @param setupDataSource - true to configure data source under JNDI name: jdbc/jbpm-ds
+     * @param sessionPersistence - configures RuntimeEngine to be with JPA persistence enabled
+     * @param persistenceUnitName - custom persistence unit name
+     * @param queueBasedExecution - configures the process engine to used the new queue-based execution model
+     */
+    public JbpmJUnitBaseTestCase(boolean setupDataSource, boolean sessionPersistence, String persistenceUnitName, boolean queueBasedExecution) {
         this.setupDataSource = setupDataSource;
         this.sessionPersistence = sessionPersistence;
         this.persistenceUnitName = persistenceUnitName;
+        this.queueBasedExecution = queueBasedExecution;
         if (!this.setupDataSource && this.sessionPersistence) {
             throw new IllegalArgumentException("Unsupported configuration, cannot enable sessionPersistence when setupDataSource is disabled");
         }
@@ -332,41 +347,57 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
             throw new IllegalStateException("There is already one RuntimeManager active");
         }
 
+        UnaryOperator<Map<String, WorkItemHandler>> workItemHandlerFunction =
+                (handlers) -> {
+                    handlers.putAll(customHandlers);
+                    return handlers;
+                };
+
+        UnaryOperator<List<ProcessEventListener>> procEventListenersFunction =
+                (listeners) -> {
+                    listeners.addAll(customProcessListeners);
+                    return listeners;
+                };
+
+        UnaryOperator<List<AgendaEventListener>> agendaEventListenersFunction =
+                (listeners) -> {
+                    listeners.addAll(customAgendaListeners);
+                    return listeners;
+                };
+
+        UnaryOperator<List<TaskLifeCycleEventListener>> taskListenersFunction =
+                (listeners) -> {
+                    listeners.addAll(customTaskListeners);
+                    return listeners;
+                };
+
         RuntimeEnvironmentBuilder builder = null;
         if (!setupDataSource){
             builder = RuntimeEnvironmentBuilder.Factory.get()
         			.newEmptyBuilder()
             .addConfiguration("drools.processSignalManagerFactory", DefaultSignalManagerFactory.class.getName())
-            .addConfiguration("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName())            
+            .addConfiguration("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName())
+            .addEnvironmentEntry(EnvironmentName.USE_QUEUE_BASED_EXECUTION, queueBasedExecution)
             .registerableItemsFactory(new SimpleRegisterableItemsFactory() {
 
 				@Override
 				public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-					Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-					handlers.putAll(super.getWorkItemHandlers(runtime));
-					handlers.putAll(customHandlers);
-					return handlers;
+					return workItemHandlerFunction.apply(super.getWorkItemHandlers(runtime));
 				}
 
 				@Override
 				public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-					List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
-					listeners.addAll(customProcessListeners);
-					return listeners;
+				    return procEventListenersFunction.apply(super.getProcessEventListeners(runtime));
 				}
 
 				@Override
 				public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
-					List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-					listeners.addAll(customAgendaListeners);
-					return listeners;
+					return agendaEventListenersFunction.apply(super.getAgendaEventListeners(runtime));
 				}
 
 				@Override
 				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
-					listeners.addAll(customTaskListeners);
-					return listeners;
+					return taskListenersFunction.apply(super.getTaskListeners());
 				}
 
 	        });
@@ -375,77 +406,60 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
             builder = RuntimeEnvironmentBuilder.Factory.get()
         			.newDefaultBuilder()
             .entityManagerFactory(emf)
+            .addEnvironmentEntry(EnvironmentName.USE_QUEUE_BASED_EXECUTION, queueBasedExecution)
             .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
 
 				@Override
 				public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-					Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-					handlers.putAll(super.getWorkItemHandlers(runtime));
-					handlers.putAll(customHandlers);
-					return handlers;
+					return workItemHandlerFunction.apply(super.getWorkItemHandlers(runtime));
 				}
 
 				@Override
 				public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-					List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
-					listeners.addAll(customProcessListeners);
-					return listeners;
+				    return procEventListenersFunction.apply(super.getProcessEventListeners(runtime));
 				}
 
 				@Override
 				public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
-					List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-					listeners.addAll(customAgendaListeners);
-					return listeners;
+					return agendaEventListenersFunction.apply(super.getAgendaEventListeners(runtime));
 				}
 
 				@Override
 				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
-					listeners.addAll(customTaskListeners);
-					return listeners;
+					return taskListenersFunction.apply(super.getTaskListeners());
 				}
-
 	        });
         } else {
             builder = RuntimeEnvironmentBuilder.Factory.get()
         			.newDefaultInMemoryBuilder()
         			.entityManagerFactory(emf)
+                    .addEnvironmentEntry(EnvironmentName.USE_QUEUE_BASED_EXECUTION, queueBasedExecution)
         			.registerableItemsFactory(new DefaultRegisterableItemsFactory() {
 
 				@Override
 				public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-					Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-					handlers.putAll(super.getWorkItemHandlers(runtime));
-					handlers.putAll(customHandlers);
-					return handlers;
+					return workItemHandlerFunction.apply(super.getWorkItemHandlers(runtime));
 				}
 
 				@Override
 				public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-					List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
-					listeners.addAll(customProcessListeners);
-					return listeners;
+				    return procEventListenersFunction.apply(super.getProcessEventListeners(runtime));
 				}
 
 				@Override
 				public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
-					List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-					listeners.addAll(customAgendaListeners);
-					return listeners;
+					return agendaEventListenersFunction.apply(super.getAgendaEventListeners(runtime));
 				}
 
 				@Override
 				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
-					listeners.addAll(customTaskListeners);
-					return listeners;
+					return taskListenersFunction.apply(super.getTaskListeners());
 				}
 
 	        });
         }
         builder.userGroupCallback(userGroupCallback);
-        
+
         for (Entry<String, Object> envEntry : customEnvironmentEntries.entrySet()) {
         	builder.addEnvironmentEntry(envEntry.getKey(), envEntry.getValue());
         }
@@ -503,7 +517,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
                 }
                 break;
             }
-    
+
             return manager;
         } catch (Exception e) {
             if (e instanceof BitronixSystemException || e instanceof ClosedChannelException) {
@@ -892,7 +906,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
             pds.getDriverProperties().put("password", "");
             pds.getDriverProperties().put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
             pds.getDriverProperties().put("driverClassName", "org.h2.Driver");
-            pds.init();         
+            pds.init();
             logger.debug("DBPOOL_MGR:Pool created after cleanup of leftover resources");
         }
         return pds;
@@ -948,7 +962,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     public void addWorkItemHandler(String name, WorkItemHandler handler) {
     	customHandlers.put(name, handler);
     }
-    
+
     public void addEnvironmentEntry(String name, Object value) {
     	customEnvironmentEntries.put(name, value);
     }

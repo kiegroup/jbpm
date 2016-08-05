@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.audit.AuditService;
@@ -36,7 +36,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Task;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class TimerEventTest extends JbpmTestCase {
+public class TimerEventTest extends JbpmCoverageTestCase {
 
     private static final String EXCEPTION_AFTER_TIMER = "org/jbpm/test/regression/event/TimerEvent-exceptionAfter.bpmn2";
     private static final String EXCEPTION_AFTER_TIMER_ID = "org.jbpm.test.regression.event.TimerEvent-exceptionAfter";

@@ -15,6 +15,10 @@
 
 package org.jbpm.integrationtests;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.drools.compiler.integrationtests.SerializationHelper;
 import org.drools.core.SessionConfiguration;
 import org.drools.core.impl.EnvironmentFactory;
@@ -27,10 +31,6 @@ import org.kie.internal.marshalling.MarshallerFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * Marshalling helper class to perform serialize/de-serialize a given object

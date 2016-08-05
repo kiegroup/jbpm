@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
@@ -30,7 +30,7 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 import qa.tools.ikeeper.annotation.BZ;
 
 @BZ("852738")
-public class SessionIsolationTest extends JbpmTestCase {
+public class SessionIsolationTest extends JbpmCoverageTestCase {
 
     private static final String SIGNAL = "org/jbpm/test/regression/SessionIsolation-signal.bpmn";
     private static final String SIGNAL_ID = "org.jbpm.test.regression.SessionIsolation-signal";

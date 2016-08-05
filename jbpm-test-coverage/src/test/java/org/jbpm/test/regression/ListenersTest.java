@@ -18,7 +18,7 @@ package org.jbpm.test.regression;
 
 import org.jbpm.process.instance.event.DefaultSignalManagerFactory;
 import org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Tests stateful/stateless KieSession ProcessEventListener registration - DROOLS-818.
  */
-public class ListenersTest extends JbpmTestCase {
+public class ListenersTest extends JbpmCoverageTestCase {
 
     private static final ReleaseId RELEASE_ID = KieServices.Factory.get()
             .newReleaseId("org.jbpm.test", "listeners-test", "1.0.0");

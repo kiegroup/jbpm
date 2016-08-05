@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
@@ -31,7 +31,7 @@ import org.kie.internal.process.CorrelationAwareProcessRuntime;
 import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.process.CorrelationKeyFactory;
 
-public class CorrelationKeyTest extends JbpmTestCase {
+public class CorrelationKeyTest extends JbpmCoverageTestCase {
 
     private static final String PROCESS = "org.jbpm.test.functional.CorrelationKey";
     private static final String VARIABLE_ID = "procVar";

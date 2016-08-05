@@ -26,7 +26,7 @@ import javax.persistence.Persistence;
 
 import org.jbpm.services.task.admin.listener.TaskCleanUpProcessEventListener;
 import org.jbpm.services.task.identity.DefaultUserInfo;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +49,7 @@ import org.kie.internal.task.api.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AdminAPIsWithListenerTest extends JbpmTestCase {
+public class AdminAPIsWithListenerTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminAPIsWithListenerTest.class);
 

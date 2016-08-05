@@ -41,9 +41,9 @@ import org.jbpm.workflow.core.impl.DroolsConsequenceAction;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class JavaActionBuilderTest extends AbstractBaseTest {
 
@@ -84,7 +84,7 @@ public class JavaActionBuilderTest extends AbstractBaseTest {
 
         final KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages( (Collection) Arrays.asList(pkgBuilder.getPackage()) );
-        final StatefulKnowledgeSession wm = kbase.newStatefulKnowledgeSession();
+        final KieSession wm = kbase.newStatefulKnowledgeSession();
 
         List<String> list = new ArrayList<String>();
         wm.setGlobal( "list", list );        

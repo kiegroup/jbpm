@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.drools.core.command.runtime.process.StartProcessCommand;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.domain.Person;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
@@ -38,7 +38,7 @@ import static org.jbpm.test.tools.IterableListenerAssert.*;
 /**
  * Testing data object and association.
  */
-public class DataObjectTest extends JbpmTestCase {
+public class DataObjectTest extends JbpmCoverageTestCase {
 
     public static final String PROCESS = "org/jbpm/test/functional/DataObject.bpmn";
     public static final String PROCESS_ID = "org.jbpm.test.functional.DataObject";

@@ -2,18 +2,25 @@
 <configuration>
 
   <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
       <!-- %l lowers performance -->
-      <!--<pattern>%d [%t] %-5p %l%n  %m%n</pattern>-->
+      <!--<pattern>%d [%t] %-5p %l%n %m%n</pattern> -->
+    <layout class="org.kie.test.util.logging.FilteredPatternLayout">
       <pattern>%d [%t|%C] %-5p %m%n</pattern>
-    </encoder>
+      <param name="ConversionPattern" value="%-5p  %c %F(%M:%L) %d{dd.MM.yyyy HH:mm:ss}  %m%n" />
+      <param name="Filter" value="sun.reflect" />
+      <param name="Filter" value="org.junit" />
+      <param name="Filter" value="org.eclipse.jdt.internal" />
+    </layout>
   </appender>
 
-  <logger name="org.jbpm" level="info"/>
-  <logger name="bitronix.tm" level="error"/>
-  <logger name="org.hibernate" level="warn"/>
- 
   <logger name="org.jbpm" level="info" />
+  <logger name="bitronix.tm" level="error" />
+  <logger name="org.hibernate" level="warn" />
+
+  <logger name="org.jbpm" level="debug" />
+  <logger name="org.jbpm.process.test" level="trace" />
+
+  <logger name="org.jbpm.workflow.instance.impl.queue" level="trace" />
   
   <root level="info">
     <appender-ref ref="consoleAppender" />

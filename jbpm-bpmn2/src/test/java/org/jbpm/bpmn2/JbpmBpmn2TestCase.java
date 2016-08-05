@@ -19,6 +19,7 @@ import static org.kie.api.runtime.EnvironmentName.ENTITY_MANAGER_FACTORY;
 import static org.kie.api.runtime.EnvironmentName.OBJECT_MARSHALLING_STRATEGIES;
 import static org.kie.api.runtime.EnvironmentName.TRANSACTION_MANAGER;
 import static org.kie.api.runtime.EnvironmentName.USE_PESSIMISTIC_LOCKING;
+import static org.kie.api.runtime.EnvironmentName.USE_QUEUE_BASED_EXECUTION;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,9 +31,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -50,8 +55,9 @@ import org.drools.core.util.DroolsStreamUtils;
 import org.drools.core.util.MVELSafeHelper;
 import org.h2.tools.DeleteDbFiles;
 import org.h2.tools.Server;
-import org.jbpm.bpmn2.test.RequireLocking;
-import org.jbpm.bpmn2.test.RequirePersistence;
+import org.jbpm.bpmn2.test.RequiresLocking;
+import org.jbpm.bpmn2.test.RequiresPersistence;
+import org.jbpm.bpmn2.test.RequiresQueueBased;
 import org.jbpm.bpmn2.xml.BPMNDISemanticModule;
 import org.jbpm.bpmn2.xml.BPMNExtensionsSemanticModule;
 import org.jbpm.bpmn2.xml.BPMNSemanticModule;
@@ -119,28 +125,121 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
  * Base test case for the jbpm-bpmn2 module.
  */
 public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
-    private static final Logger log = LoggerFactory.getLogger(JbpmBpmn2TestCase.class);
 
-    public static String[] txStateName = { "ACTIVE", "MARKED_ROLLBACK",
-            "PREPARED", "COMMITTED", "ROLLEDBACK", "UNKNOWN", "NO_TRANSACTION",
+    protected static final Logger log = LoggerFactory.getLogger(JbpmBpmn2TestCase.class);
+
+    // @formatter:off
+    public static String[] txStateName = {
+            "ACTIVE",
+            "MARKED_ROLLBACK",
+            "PREPARED", "COMMITTED", "ROLLEDBACK",
+            "UNKNOWN", "NO_TRANSACTION",
             "PREPARING", "COMMITTING", "ROLLING_BACK" };
+    // @formatter:on
 
-    public static final boolean PERSISTENCE = Boolean.valueOf(System.getProperty("org.jbpm.test.persistence", "true"));
-    public static final boolean LOCKING = Boolean.valueOf(System.getProperty("org.jbpm.test.locking", "false"));
+    public static final boolean PERSISTENCE_PROPERTY = Boolean.valueOf(System.getProperty("org.jbpm.test.persistence", "true"));
+    public static final boolean LOCKING_PROPERTY = Boolean.valueOf(System.getProperty("org.jbpm.test.locking", "false"));
+    public static final boolean queueBased_PROPERTY = Boolean.valueOf(System.getProperty("org.jbpm.test.queueBased", "true"));
 
     private static boolean setupDataSource = false;
+
     private boolean sessionPersistence = false;
     private boolean pessimisticLocking = false;
+    protected boolean queueBasedExecution = false;
+
+    public static enum TestOption {
+        NO_PERSISTENCE,
+        ONLY_NORMAL_PERSISTENCE,
+        RECURSIVE_EXECUTION,
+        queueBased_EXECUTION,
+        EXCEPT_FOR_LOCKING,
+        EVERYTHING;
+     }
+
+    public static List<Object[]> getAllTestOptions() {
+        return getTestOptions(TestOption.EVERYTHING);
+    }
+
+    protected static final Object [] RECURSIVE =
+                { false, false, false, "RECURSIVE" }; // plain recurisve
+    protected static final Object [] RECURSIVE_PERSISTENCE =
+                { true, false, false, "RECURSIVE PERSISTENCE" }; // persistence + old exec model (recursive)
+    protected static final Object [] RECURSIVE_PERSISTENCE_LOCKING =
+                { true, true, false, "RECURSIVE PERSISTENCE LOCKING"}; // persistence locking
+    protected static final Object [] queueBased =
+                { false, false, true, "queueBased"}; // queueBased w/o persistence
+    protected static final Object [] queueBased_PERSISTENCE =
+                { true, false, true, "queueBased PERSISTENCE" }; // queueBased w/ persistence
+    protected static final Object [] queueBased_PERSISTENCE_LOCKING =
+                { true, true, true, "queueBased PERSISTENCE LOCKING"}; // queueBased w/ persistence + locking
+
+
+    public static List<Object[]> getTestOptions(TestOption option) {
+        Object[][] data;
+        switch( option) {
+        case EVERYTHING:
+            data = new Object[][] {
+                RECURSIVE,
+                RECURSIVE_PERSISTENCE,
+                RECURSIVE_PERSISTENCE_LOCKING,
+                queueBased,
+                queueBased_PERSISTENCE,
+                queueBased_PERSISTENCE_LOCKING
+            };
+            break;
+        case EXCEPT_FOR_LOCKING:
+            data = new Object[][] {
+                RECURSIVE,
+                RECURSIVE_PERSISTENCE,
+                queueBased,
+                queueBased_PERSISTENCE
+            };
+            break;
+        case NO_PERSISTENCE:
+            data = new Object[][] {
+               RECURSIVE,
+               queueBased
+            };
+            break;
+        case ONLY_NORMAL_PERSISTENCE:
+            data = new Object[][] {
+                RECURSIVE_PERSISTENCE,
+               queueBased_PERSISTENCE
+            };
+            break;
+        case RECURSIVE_EXECUTION:
+            data = new Object[][] {
+                RECURSIVE,
+                RECURSIVE_PERSISTENCE,
+                RECURSIVE_PERSISTENCE_LOCKING
+            };
+            break;
+        case queueBased_EXECUTION:
+            data = new Object[][] {
+                queueBased,
+                queueBased_PERSISTENCE,
+                queueBased_PERSISTENCE_LOCKING
+            };
+            break;
+        default:
+            throw new IllegalStateException("Unknown test option: " + option.toString());
+        }
+
+        return Arrays.asList(data);
+    }
+
     private static H2Server server = new H2Server();
-    
+
     private WorkingMemoryInMemoryLogger logger;
     protected AuditLogService logService;
 
     protected static EntityManagerFactory emf;
     private static PoolingDataSource ds;
 
-    private RequireLocking testReqLocking;
-    private RequirePersistence testReqPersistence;
+    private RequiresLocking testReqLocking;
+    private RequiresPersistence testReqPersistence;
+    private RequiresQueueBased testReqQueueBased;
+
     @Rule
     public TestRule watcher = new TestWatcher() {
         protected void starting(Description description) {
@@ -153,8 +252,9 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
                     methodName = methodName.substring(0, i);
                 }
                 Method method = description.getTestClass().getMethod(methodName);
-                testReqPersistence = method.getAnnotation(RequirePersistence.class);
-                testReqLocking = method.getAnnotation(RequireLocking.class);
+                testReqPersistence = method.getAnnotation(RequiresPersistence.class);
+                testReqLocking = method.getAnnotation(RequiresLocking.class);
+                testReqQueueBased = method.getAnnotation(RequiresQueueBased.class);
             } catch (Exception ex) {
                 // ignore
             }
@@ -166,18 +266,24 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
     };
 
     public JbpmBpmn2TestCase() {
-        this(PERSISTENCE, LOCKING);
+        this(PERSISTENCE_PROPERTY, LOCKING_PROPERTY, queueBased_PROPERTY, "PROPERTY BASED");
     }
 
     public JbpmBpmn2TestCase(boolean sessionPersistence) {
-        this(sessionPersistence, LOCKING);
+        this(sessionPersistence, LOCKING_PROPERTY, queueBased_PROPERTY, "PERSISTENCE: " + sessionPersistence);
     }
 
-    public JbpmBpmn2TestCase(boolean sessionPersistance, boolean locking) {
+    public JbpmBpmn2TestCase(boolean sessionPersistance, boolean locking, boolean queueBased) {
+        this(sessionPersistance, locking, queueBased, "");
+    }
+
+
+    public JbpmBpmn2TestCase(boolean sessionPersistance, boolean locking, boolean queueBased, String name) {
         System.setProperty("jbpm.user.group.mapping", "classpath:/usergroups.properties");
         System.setProperty("jbpm.usergroup.callback", "org.jbpm.task.identity.DefaultUserGroupCallbackImpl");
         this.sessionPersistence = sessionPersistance;
         this.pessimisticLocking = locking;
+        this.queueBasedExecution = queueBased;
     }
 
     public static PoolingDataSource setupPoolingDataSource() {
@@ -187,7 +293,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
         // Setup the datasource
         PoolingDataSource ds1 = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/testDS1", false);
-        if( driverClass.startsWith("org.h2") ) { 
+        if( driverClass.startsWith("org.h2") ) {
             ds1.getDriverProperties().setProperty("url", jdbcUrl);
         }
         ds1.init();
@@ -212,7 +318,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
     /**
      * Can be called manually in method annotated with @BeforeClass.
-     * 
+     *
      * @throws Exception
      */
     public static void setUpDataSource() throws Exception {
@@ -227,21 +333,33 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         if (testReqPersistence != null && testReqPersistence.value() != sessionPersistence) {
             log.info("Skipped - test is run only {} persistence", (testReqPersistence.value() ? "with" : "without"));
             String comment = testReqPersistence.comment();
-            if( comment.length() > 0 ) { 
+            if( comment.length() > 0 ) {
                 log.info(comment);
             }
-            Assume.assumeTrue(false);
+            Assume.assumeTrue("This test requires persistence", false);
         }
         if (testReqLocking != null && testReqLocking.value() != pessimisticLocking) {
             log.info("Skipped - test is run only {} pessimistic locking", (testReqLocking.value() ? "with" : "without"));
             String comment = testReqPersistence.comment();
-            if( comment.length() > 0 ) { 
+            if( comment.length() > 0 ) {
                 log.info(comment);
             }
-            Assume.assumeTrue(false);
+            Assume.assumeTrue("This test requires persistence locking", false);
         }
+        if (testReqQueueBased != null && testReqQueueBased.value() != queueBasedExecution) {
+            log.info("Skipped - test is run only {} queue based execution", (testReqQueueBased.value() ? "with" : "without"));
+            String comment = testReqQueueBased.comment();
+            if( comment.length() > 0 ) {
+                log.info(comment);
+            }
+            Assume.assumeTrue("This test requires queue based execution", false);
+        }
+
+        // because when running the test in Eclipse,
+        // it won't always pickup the surefire settings in the pom.xml
+        System.setProperty("org.jbpm.variable.strict", "true");
     }
-   
+
     @After
     public void clear() {
         clearHistory();
@@ -315,18 +433,18 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
         return createKnowledgeBaseFromResources(resources);
     }
-    
+
     // Important to test this since persistence relies on this
-    protected List<Resource> buildAndDumpBPMN2Process(String process) throws SAXException, IOException { 
+    protected List<Resource> buildAndDumpBPMN2Process(String process) throws SAXException, IOException {
         KnowledgeBuilderConfiguration conf = KnowledgeBuilderFactory.newKnowledgeBuilderConfiguration();
         ((KnowledgeBuilderConfigurationImpl) conf).initSemanticModules();
         ((KnowledgeBuilderConfigurationImpl) conf).addSemanticModule(new BPMNSemanticModule());
         ((KnowledgeBuilderConfigurationImpl) conf).addSemanticModule(new BPMNDISemanticModule());
         ((KnowledgeBuilderConfigurationImpl) conf).addSemanticModule(new BPMNExtensionsSemanticModule());
-        
+
         Resource classpathResource = ResourceFactory.newClassPathResource(process);
         // Dump and reread
-        XmlProcessReader processReader 
+        XmlProcessReader processReader
             = new XmlProcessReader(((KnowledgeBuilderConfigurationImpl) conf).getSemanticModules(), getClass().getClassLoader());
         List<Process> processes = processReader.read(this.getClass().getResourceAsStream("/" + process));
         List<Resource> resources = new ArrayList<Resource>();
@@ -340,7 +458,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
         return resources;
     }
-    
+
     protected KieBase createKnowledgeBaseFromResources(Resource... process)
             throws Exception {
 
@@ -367,12 +485,12 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         KieContainer kContainer = ks.newKieContainer(kr.getDefaultReleaseId());
         return kContainer.getKieBase();
     }
-    
+
     protected KieBase createKnowledgeBaseFromDisc(String process) throws Exception {
         KieServices ks = KieServices.Factory.get();
         KieRepository kr = ks.getRepository();
         KieFileSystem kfs = ks.newKieFileSystem();
-            
+
         Resource res = ResourceFactory.newClassPathResource(process);
         kfs.write(res);
 
@@ -388,7 +506,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
 
         KieContainer kContainer = ks.newKieContainer(kr.getDefaultReleaseId());
         KieBase kbase =  kContainer.getKieBase();
-        
+
         File packageFile = null;
         for (KiePackage pkg : kbase.getKiePackages() ) {
             packageFile = new File(System.getProperty("java.io.tmpdir") + File.separator + pkg.getName()+".pkg");
@@ -399,11 +517,11 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             } finally {
                 out.close();
             }
-            
+
             // store first package only
             break;
         }
-        
+
         kfs.delete(res.getSourcePath());
         kfs.write(ResourceFactory.newFileResource(packageFile));
 
@@ -415,12 +533,12 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             throw new RuntimeException("Build Errors:\n"
                     + kb.getResults().toString());
         }
-        
+
         kContainer = ks.newKieContainer(kr.getDefaultReleaseId());
         kbase =  kContainer.getKieBase();
-        
+
         return kbase;
-        
+
     }
 
     protected StatefulKnowledgeSession createKnowledgeSession(KieBase kbase)
@@ -439,7 +557,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         if (conf == null) {
             conf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
         }
-        
+
         // Do NOT use the Pseudo clock yet..
         // conf.setOption( ClockTypeOption.get( ClockType.PSEUDO_CLOCK.getId() )
         // );
@@ -448,27 +566,30 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             if (env == null) {
                 env = createEnvironment(emf);
             }
-            if( pessimisticLocking ) { 
+            if( pessimisticLocking ) {
                 env.set(USE_PESSIMISTIC_LOCKING, true);
             }
+            env.set(USE_QUEUE_BASED_EXECUTION, queueBasedExecution);
+
             conf.setOption(ForceEagerActivationOption.YES);
-            result = JPAKnowledgeService.newStatefulKnowledgeSession(kbase,
-                    conf, env);
+            result = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, conf, env);
             AuditLoggerFactory.newInstance(Type.JPA, result, null);
+
             logService = new JPAAuditLogService(env);
         } else {
             if (env == null) {
                 env = EnvironmentFactory.newEnvironment();
             }
+            env.set(USE_QUEUE_BASED_EXECUTION, queueBasedExecution);
 
             Properties defaultProps = new Properties();
-            defaultProps.setProperty("drools.processSignalManagerFactory",
-                    DefaultSignalManagerFactory.class.getName());
-            defaultProps.setProperty("drools.processInstanceManagerFactory",
-                    DefaultProcessInstanceManagerFactory.class.getName());
+            defaultProps.setProperty("drools.processSignalManagerFactory", DefaultSignalManagerFactory.class.getName());
+            defaultProps.setProperty("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName());
             conf = SessionConfiguration.newInstance(defaultProps);
             conf.setOption(ForceEagerActivationOption.YES);
+
             result = (StatefulKnowledgeSession) kbase.newKieSession(conf, env);
+
             logger = new WorkingMemoryInMemoryLogger(result);
         }
         return result;
@@ -479,7 +600,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         KieBase kbase = createKnowledgeBase(process);
         return createKnowledgeSession(kbase);
     }
-    
+
     protected KieSession restoreSession(KieSession ksession, boolean noCache) {
         if (sessionPersistence) {
             long id = ksession.getIdentifier();
@@ -490,7 +611,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             } else {
                 env = ksession.getEnvironment();
             }
-            if( pessimisticLocking ) { 
+            if( pessimisticLocking ) {
                 env.set(USE_PESSIMISTIC_LOCKING, true);
             }
             KieSessionConfiguration config = ksession.getSessionConfiguration();
@@ -518,11 +639,11 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         env.set(TRANSACTION_MANAGER,
                 TransactionManagerServices.getTransactionManager());
         if (sessionPersistence) {
-            ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) env.get(OBJECT_MARSHALLING_STRATEGIES);        
-            
+            ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) env.get(OBJECT_MARSHALLING_STRATEGIES);
+
             List<ObjectMarshallingStrategy> listStrategies =new ArrayList<ObjectMarshallingStrategy>(Arrays.asList(strategies));
             listStrategies.add(0, new ProcessInstanceResolverStrategy());
-            strategies = new ObjectMarshallingStrategy[listStrategies.size()];  
+            strategies = new ObjectMarshallingStrategy[listStrategies.size()];
             env.set(OBJECT_MARSHALLING_STRATEGIES, listStrategies.toArray(strategies));
         }
         return env;
@@ -612,7 +733,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         List<String> names = getNotTriggeredNodes(processInstanceId, nodeNames);
         assertTrue(Arrays.equals(names.toArray(), nodeNames));
     }
-    
+
     public int getNumberOfNodeTriggered(long processInstanceId,
             String node) {
         int counter = 0;
@@ -621,7 +742,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             if (logs != null) {
                 for (NodeInstanceLog l : logs) {
                     String nodeName = l.getNodeName();
-                    if ((l.getType() == NodeInstanceLog.TYPE_ENTER 
+                    if ((l.getType() == NodeInstanceLog.TYPE_ENTER
                             || l.getType() == NodeInstanceLog.TYPE_EXIT)
                             && node.equals(nodeName)) {
                         counter++;
@@ -640,7 +761,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
         return counter;
     }
-    
+
     public int getNumberOfProcessInstances(String processId) {
         int counter = 0;
         if (sessionPersistence) {
@@ -650,17 +771,17 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             }
         } else {
             LogEvent [] events = logger.getLogEvents().toArray(new LogEvent[0]);
-            for (LogEvent event : events ) { 
+            for (LogEvent event : events ) {
                 if (event.getType() == LogEvent.BEFORE_RULEFLOW_CREATED) {
                     if(((RuleFlowLogEvent) event).getProcessId().equals(processId)) {
-                        counter++;                    
+                        counter++;
                     }
                 }
             }
         }
         return counter;
     }
-    
+
     protected boolean assertProcessInstanceState(int state, ProcessInstance processInstance) {
         if (sessionPersistence) {
             ProcessInstanceLog log = logService.findProcessInstance(processInstance.getId());
@@ -669,8 +790,8 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             }
         } else {
             return processInstance.getState() == state;
-        } 
-        
+        }
+
         return false;
     }
 
@@ -706,8 +827,8 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
         return names;
     }
-    
-    protected List<String> getCompletedNodes(long processInstanceId) { 
+
+    protected List<String> getCompletedNodes(long processInstanceId) {
         List<String> names = new ArrayList<String>();
         if (sessionPersistence) {
             AuditLogService auditLogService = new JPAAuditLogService(emf);
@@ -720,7 +841,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         } else {
             for (LogEvent event : logger.getLogEvents()) {
                 if (event instanceof RuleFlowNodeLogEvent) {
-                    if( event.getType() == 27 ) { 
+                    if( event.getType() == 27 ) {
                         names.add(((RuleFlowNodeLogEvent) event).getNodeId());
                     }
                 }
@@ -734,7 +855,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
             try {
                 logService.clear();
             } catch(Exception e) {
-                
+
             }
         } else {
             if (logger != null) {
@@ -766,7 +887,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
 
     }
-    
+
     public String getProcessVarValue(ProcessInstance processInstance, String varName) {
         String actualValue = null;
         if (sessionPersistence) {
@@ -782,10 +903,10 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         }
         return actualValue;
     }
-    
+
     public void assertProcessVarValue(ProcessInstance processInstance, String varName, Object varValue) {
         String actualValue = getProcessVarValue(processInstance, varName);
-        assertEquals("Variable " + varName + " value misatch!",  varValue, actualValue );
+        assertEquals("Variable " + varName + " value mismatch!",  varValue, actualValue );
     }
 
     public void assertNodeExists(ProcessInstance process, String... nodeNames) {
@@ -897,7 +1018,7 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
         return MVELSafeHelper.getEvaluator().executeExpression(MVEL.compileExpression(str, context),
                 vars);
     }
-    
+
     protected void assertProcessInstanceCompleted(long processInstanceId, KieSession ksession) {
         ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
         assertNull("Process instance has not completed.", processInstance);
@@ -939,6 +1060,72 @@ public abstract class JbpmBpmn2TestCase extends AbstractBaseTest {
                 DeleteDbFiles.execute("~", "jbpm-db", true);
                 server = null;
             }
+        }
+    }
+
+    protected void verifyEventHistory(String[] expectedRecursiveEventOrder, List<String> eventHistory) {
+        verifyEventHistory(expectedRecursiveEventOrder, eventHistory, true);
+    }
+
+    protected void verifyEventHistory(String[] expectedRecursiveEventOrder, List<String> actualHistory, boolean checkqueueBased) {
+        verifyEventHistory(expectedRecursiveEventOrder, actualHistory, checkqueueBased, new String[0], new String[0]);
+    }
+
+    protected void verifyEventHistory(String[] expectedRecursiveEventOrder, List<String> actualHistory, boolean checkqueueBased, String [] excludedNodes, String [] onlyOnceNodes ) {
+        if( ! queueBasedExecution ) {
+            assertEquals("Mismatch in number of events expected.", expectedRecursiveEventOrder.length, actualHistory.size());
+            int max = expectedRecursiveEventOrder.length > actualHistory.size() ? expectedRecursiveEventOrder.length : actualHistory.size();
+            log.debug("{} | {}", "EXPECTED", "TEST" );
+            for (int i = 0; i < max; ++i) {
+                String expected = "", real = "";
+                if (i < expectedRecursiveEventOrder.length) {
+                    expected = expectedRecursiveEventOrder[i];
+                }
+                if (i < actualHistory.size()) {
+                    real = actualHistory.get(i);
+                }
+                log.debug("{} | {}", expected, real);
+                assertEquals("Mismatch in expected event", expected, real);
+            }
+        } else if( checkqueueBased ) {
+            Set<String> excluded = new HashSet<String>(Arrays.asList(excludedNodes));
+            Set<String> onlyOnce = new HashSet<String>(Arrays.asList(onlyOnceNodes));
+
+            Map<String, Integer> actualHistoryMap = new HashMap<String, Integer>();
+            Map<String, Integer> expectedHistoryMap = new HashMap<String, Integer>();
+            for( String processEvent : expectedRecursiveEventOrder ) {
+                Integer numTimes = expectedHistoryMap.get(processEvent);
+                if( numTimes == null ) {
+                    numTimes = 0;
+                }
+                expectedHistoryMap.put(processEvent, numTimes.intValue() + 1);
+            }
+            String lastEvent = null;
+            for( String processEvent : actualHistory ) {
+                Integer numTimes = actualHistoryMap.get(processEvent);
+                if( numTimes == null ) {
+                   numTimes = 0;
+                }
+                actualHistoryMap.put(processEvent, numTimes.intValue() + 1);
+                assertTrue( "Event " + processEvent + " did not happen during recursive execution!", expectedHistoryMap.containsKey(processEvent) );
+                if( processEvent.startsWith("anl") ) {
+                    String beforeNodeLeft = "bnl-" + processEvent.substring(4);
+                    assertEquals( beforeNodeLeft, lastEvent);
+                }
+                lastEvent = processEvent;
+            }
+            int numEvents = expectedRecursiveEventOrder.length-excludedNodes.length;
+            for( Entry<String, Integer> eventTotal : expectedHistoryMap.entrySet() ) {
+                String processEvent = eventTotal.getKey();
+                if( ! excluded.contains(processEvent) ) {
+                    if( onlyOnce.contains(processEvent) ) {
+                        numEvents -= eventTotal.getValue()-1;
+                    } else {
+                        assertEquals( "Actual history for " + processEvent, eventTotal.getValue(), actualHistoryMap.get(processEvent) );
+                    }
+                }
+            }
+            assertEquals("Mismatch in number of events expected.", numEvents, actualHistory.size());
         }
     }
 

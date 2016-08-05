@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
@@ -38,7 +38,7 @@ import qa.tools.ikeeper.annotation.BZ;
 import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggered;
 import static org.jbpm.test.tools.TrackingListenerAssert.assertTriggeredAndLeft;
 
-public class HumanTaskTest extends JbpmTestCase {
+public class HumanTaskTest extends JbpmCoverageTestCase {
 
     private static final String BOUNDARY_TIMER = "org/jbpm/test/regression/task/HumanTask-boundaryTimer.bpmn2";
     private static final String BOUNDARY_TIMER_ID = "org.jbpm.test.regression.task.HumanTask-boundaryTimer";

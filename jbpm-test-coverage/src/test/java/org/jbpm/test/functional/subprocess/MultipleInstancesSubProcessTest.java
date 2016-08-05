@@ -17,29 +17,45 @@
 package org.jbpm.test.functional.subprocess;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
+import org.jbpm.test.ParameterizedPlusQueueBased.ExecutionType;
 import org.jbpm.test.listener.DebugProcessEventListener;
 import org.jbpm.test.listener.IterableProcessEventListener;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.kie.api.command.Command;
 import org.kie.api.runtime.KieSession;
 import qa.tools.ikeeper.annotation.BZ;
 
 import static org.jbpm.test.tools.IterableListenerAssert.*;
 
-public class MultipleInstancesSubProcessTest extends JbpmTestCase {
+@RunWith(Parameterized.class)
+public class MultipleInstancesSubProcessTest extends JbpmCoverageTestCase {
 
     private static final String MULTIPLE_INSTANCES =
             "org/jbpm/test/functional/subprocess/MultipleInstancesSubProcess.bpmn";
     private static final String MULTIPLE_INSTANCES_ID =
             "org.jbpm.test.functional.subprocess.MultipleInstancesSubProcess";
 
-    public MultipleInstancesSubProcessTest() {
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> parameters() {
+        Object[][] combinations = new Object[][]{
+                {ExecutionType.RECURSIVE},
+                {ExecutionType.QUEUE_BASED}
+        };
+        return Arrays.asList(combinations);
+    }
+
+    public MultipleInstancesSubProcessTest(ExecutionType executionType) {
         super(false);
+        this.queueBasedExecution = (executionType.equals(ExecutionType.QUEUE_BASED));
     }
 
     @BZ("802721")

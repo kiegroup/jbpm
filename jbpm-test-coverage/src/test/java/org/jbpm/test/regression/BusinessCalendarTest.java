@@ -26,7 +26,7 @@ import java.util.Properties;
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.core.timer.BusinessCalendar;
 import org.jbpm.process.core.timer.BusinessCalendarImpl;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
@@ -36,7 +36,7 @@ import org.kie.api.task.model.Task;
 import qa.tools.ikeeper.annotation.BZ;
 
 @BZ("958384")
-public class BusinessCalendarTest extends JbpmTestCase {
+public class BusinessCalendarTest extends JbpmCoverageTestCase {
 
     private static final String TIMER = "org/jbpm/test/regression/BusinessCalendar-timer.bpmn2";
     private static final String TIMER_ID = "org.jbpm.test.regression.BusinessCalendar-timer";

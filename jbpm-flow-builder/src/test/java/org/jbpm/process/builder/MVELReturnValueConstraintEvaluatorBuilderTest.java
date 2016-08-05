@@ -38,10 +38,10 @@ import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.instance.node.SplitInstance;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.definition.KnowledgePackage;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class MVELReturnValueConstraintEvaluatorBuilderTest extends AbstractBaseTest {
 
@@ -78,7 +78,7 @@ public class MVELReturnValueConstraintEvaluatorBuilderTest extends AbstractBaseT
         List<KnowledgePackage> packages = new ArrayList<KnowledgePackage>();
         packages.add( pkgBuilder.getPackage() );
         kbase.addKnowledgePackages( packages );
-        final StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        final KieSession ksession = kbase.newStatefulKnowledgeSession();
 
         ksession.setGlobal( "value", true );        
 

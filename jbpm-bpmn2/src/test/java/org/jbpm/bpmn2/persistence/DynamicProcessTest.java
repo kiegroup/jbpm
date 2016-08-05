@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,6 +14,8 @@
 */
 
 package org.jbpm.bpmn2.persistence;
+
+import java.util.Collection;
 
 import org.drools.core.command.impl.CommandBasedStatefulKnowledgeSession;
 import org.drools.core.command.impl.GenericCommand;
@@ -29,6 +31,9 @@ import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.HumanTaskNode;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.KieBase;
 import org.kie.api.definition.process.Connection;
 import org.kie.api.event.process.ProcessCompletedEvent;
@@ -47,13 +52,23 @@ import org.slf4j.LoggerFactory;
 /**
  * This is a sample file to launch a process.
  */
+@RunWith(Parameterized.class)
 public class DynamicProcessTest extends JbpmBpmn2TestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamicProcessTest.class);
-    
+
+    @Parameters
+    public static Collection<Object[]> parameters() {
+        return getTestOptions(TestOption.EXCEPT_FOR_LOCKING);
+    }
+
+    public DynamicProcessTest(boolean persistence, boolean locking, boolean queueBased, String name) {
+        super(persistence, locking, queueBased, name);
+    }
+
     @BeforeClass
     public static void setup() throws Exception {
-        if (PERSISTENCE) {
+        if (PERSISTENCE_PROPERTY) {
             setUpDataSource();
         }
     }
@@ -116,8 +131,8 @@ public class DynamicProcessTest extends JbpmBpmn2TestCase {
 		node.setName("Task2");
 		node.setId(4);
 		insertNodeInBetween(process, 2, 3, node);
-		
-		((CommandBasedStatefulKnowledgeSession) ksession).getCommandService().execute(new GenericCommand<Void>() {
+
+		ksession.execute(new GenericCommand<Void>() {
 			public Void execute(Context context) {
 				StatefulKnowledgeSession ksession = (StatefulKnowledgeSession) ((KnowledgeCommandContext) context).getKieSession();
 				((ProcessInstanceImpl) ksession.getProcessInstance(processInstance.getId())).updateProcess(process);

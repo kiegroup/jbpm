@@ -32,30 +32,30 @@ import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import bitronix.tm.resource.jdbc.PoolingDataSource;
 import qa.tools.ikeeper.client.BugzillaClient;
 import qa.tools.ikeeper.client.JiraClient;
 import qa.tools.ikeeper.test.IKeeperJUnitConnector;
-import bitronix.tm.resource.jdbc.PoolingDataSource;
 
-public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
+public abstract class JbpmCoverageTestCase extends JbpmJUnitBaseTestCase {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     protected static final String EMPTY_CASE = "EmptyCase.bpmn2";
-    
-    public JbpmTestCase() {
+
+    public JbpmCoverageTestCase() {
         this(true);
     }
 
-    public JbpmTestCase(boolean persistence) {
+    public JbpmCoverageTestCase(boolean persistence) {
         this(persistence, persistence);
     }
 
-    public JbpmTestCase(boolean setupDataSource, boolean sessionPersistence) {
+    public JbpmCoverageTestCase(boolean setupDataSource, boolean sessionPersistence) {
         this(setupDataSource, sessionPersistence, "org.jbpm.test.persistence");
     }
 
-    public JbpmTestCase(boolean setupDataSource, boolean sessionPersistence, String persistenceUnit) {
+    public JbpmCoverageTestCase(boolean setupDataSource, boolean sessionPersistence, String persistenceUnit) {
         super(setupDataSource, sessionPersistence, persistenceUnit);
     }
 
@@ -81,8 +81,8 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
     );
 
     @Override
-    protected PoolingDataSource setupPoolingDataSource() {        
-        
+    protected PoolingDataSource setupPoolingDataSource() {
+
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
         String jdbcUrl = dsProps.getProperty("url");
         String driverClass = dsProps.getProperty("driverClassName");

@@ -37,7 +37,6 @@ import org.jbpm.kie.services.impl.UserTaskServiceImpl;
 import org.jbpm.kie.services.impl.bpmn2.BPMN2DataServiceImpl;
 import org.jbpm.kie.services.impl.query.QueryServiceImpl;
 import org.jbpm.kie.services.test.TestIdentityProvider;
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl;
 import org.jbpm.runtime.manager.impl.jpa.EntityManagerFactoryManager;
 import org.jbpm.services.api.DefinitionService;
@@ -64,6 +63,7 @@ import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.runtime.conf.ClockTypeOption;
 import org.kie.api.task.TaskService;
 import org.kie.internal.io.ResourceFactory;
+import org.kie.test.util.logging.LoggingPrintStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +97,7 @@ public abstract class AbstractKieServicesBaseTest {
 
     @AfterClass
     public static void reset() {
-    	LoggingPrintStream.resetInterceptSysOutSysErr();
+    	LoggingPrintStream.restoreSysOutAndSysErr();
 
     }
 

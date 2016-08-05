@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.junit.Test;
 import org.kie.api.command.Command;
@@ -32,7 +32,7 @@ import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class EmbeddedSubprocessTest extends JbpmTestCase {
+public class EmbeddedSubprocessTest extends JbpmCoverageTestCase {
 
     private static final String INVALID_SUBPROCESS =
             "org/jbpm/test/regression/subprocess/EmbeddedSubprocess-invalidSubprocess.bpmn2";

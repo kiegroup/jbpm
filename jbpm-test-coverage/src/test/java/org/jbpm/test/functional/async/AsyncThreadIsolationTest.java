@@ -24,7 +24,7 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.jbpm.executor.ExecutorServiceFactory;
 import org.jbpm.process.workitem.bpmn2.ServiceTaskHandler;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.kie.api.runtime.manager.audit.VariableInstanceLog;
 import org.kie.api.runtime.process.ProcessInstance;
 
 
-public class AsyncThreadIsolationTest extends JbpmTestCase {
+public class AsyncThreadIsolationTest extends JbpmCoverageTestCase {
 
     private static Object LOCK = new Object();
 

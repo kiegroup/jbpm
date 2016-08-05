@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.drools.compiler.compiler.DroolsError;
@@ -29,14 +30,27 @@ import org.jbpm.integrationtests.test.Message;
 import org.jbpm.integrationtests.test.Person;
 import org.jbpm.test.util.AbstractBaseTest;
 import org.junit.Test;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ProcessStartTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessStartTest.class);
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessStartTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
 	public void testStartConstraintTrigger() throws Exception {
 		Reader source = new StringReader(
@@ -76,7 +90,7 @@ public class ProcessStartTest extends AbstractBaseTest {
 			"    <actionNode id=\"2\" name=\"Action\" >\n" +
 			"      <action type=\"expression\" dialect=\"java\" >myList.add(context.getVariable(\"SomeVar\"));\n" +
 			"myList.add(context.getVariable(\"SomeOtherVar\"));</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
 			"    <end id=\"3\" name=\"End\" />\n" +
 			"  </nodes>\n" +
 			"\n" +
@@ -93,14 +107,14 @@ public class ProcessStartTest extends AbstractBaseTest {
 			}
 			fail("Could not build process");
 		}
-		
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<Message> myList = new ArrayList<Message>();
 		session.setGlobal("myList", myList);
 
 		assertEquals(0, myList.size());
-        
+
 		Person jack = new Person();
         jack.setName("Jack");
         session.insert(jack);
@@ -109,7 +123,7 @@ public class ProcessStartTest extends AbstractBaseTest {
         assertEquals("Jack", myList.get(0));
         assertEquals("SomeString", myList.get(1));
 	}
-	
+
     @Test
 	public void testStartEventTrigger() throws Exception {
 		Reader source = new StringReader(
@@ -148,7 +162,7 @@ public class ProcessStartTest extends AbstractBaseTest {
 			"    <actionNode id=\"2\" name=\"Action\" >\n" +
 			"      <action type=\"expression\" dialect=\"java\" >myList.add(context.getVariable(\"SomeVar\"));\n" +
 			"myList.add(context.getVariable(\"SomeOtherVar\"));</action>\n" +
-			"    </actionNode>\n" + 
+			"    </actionNode>\n" +
 			"    <end id=\"3\" name=\"End\" />\n" +
 			"  </nodes>\n" +
 			"\n" +
@@ -165,19 +179,19 @@ public class ProcessStartTest extends AbstractBaseTest {
 			}
 			fail("Could not build process");
 		}
-		
-        StatefulKnowledgeSession session = createKieSession(builder.getPackage());
-        
+
+        KieSession session = createKieSession(builder.getPackage());
+
 		List<Message> myList = new ArrayList<Message>();
 		session.setGlobal("myList", myList);
 
 		assertEquals(0, myList.size());
-        
+
 		((InternalWorkingMemory) session).getProcessRuntime().signalEvent("myEvent", "Jack");
         session.fireAllRules();
         assertEquals(2, myList.size());
         assertEquals("Jack", myList.get(0));
         assertEquals("SomeString", myList.get(1));
 	}
-	
+
 }

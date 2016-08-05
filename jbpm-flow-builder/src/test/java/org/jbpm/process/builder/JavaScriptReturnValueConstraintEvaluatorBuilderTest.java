@@ -1,6 +1,13 @@
 package org.jbpm.process.builder;
 
 
+import static junit.framework.TestCase.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DialectCompiletimeRegistry;
 import org.drools.compiler.compiler.ReturnValueDescr;
@@ -14,17 +21,10 @@ import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.workflow.core.impl.WorkflowProcessImpl;
 import org.jbpm.workflow.instance.node.SplitInstance;
 import org.junit.Test;
+import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 import org.kie.internal.KnowledgeBaseFactory;
 import org.kie.internal.definition.KnowledgePackage;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
     @Test
@@ -66,7 +66,7 @@ public class JavaScriptReturnValueConstraintEvaluatorBuilderTest {
         List<KnowledgePackage> packages = new ArrayList<KnowledgePackage>();
         packages.add( pkgBuilder.getPackage() );
         kbase.addKnowledgePackages(packages);
-        final StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        final KieSession ksession = kbase.newStatefulKnowledgeSession();
 
 
         RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance();

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Assertions;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.listener.TrackingAgendaEventListener;
 import org.jbpm.test.listener.TrackingProcessEventListener;
 import org.jbpm.test.listener.TrackingRuleRuntimeEventListener;
@@ -32,7 +32,7 @@ import org.kie.api.io.ResourceType;
 import org.kie.api.runtime.KieSession;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class RuleTest extends JbpmTestCase {
+public class RuleTest extends JbpmCoverageTestCase {
 
     private static final String ON_ENTRY_EVENT = "org/jbpm/test/regression/Rule-onEntryEvent.bpmn2";
     private static final String ON_ENTRY_EVENT_ID = "org.jbpm.test.regression.BusinessCalendar-timer";

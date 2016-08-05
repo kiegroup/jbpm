@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.jbpm.runtime.manager.impl.task.SynchronizedTaskService;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
@@ -31,7 +31,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 
-public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
+public class TaskSubjectAndDescriptionTest extends JbpmCoverageTestCase {
     
     private static final String EXPECTED_SUBJECT = "Bake a cake";
 

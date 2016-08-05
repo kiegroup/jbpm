@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.jbpm.services.task.admin.listener.TaskCleanUpProcessEventListener;
 import org.jbpm.test.JbpmJUnitBaseTestCase;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -29,7 +29,7 @@ import org.kie.api.task.TaskService;
 import org.kie.api.task.model.TaskSummary;
 import qa.tools.ikeeper.annotation.BZ;
 
-public class HumanTaskCleanUpEarlyFlushTest extends JbpmTestCase {
+public class HumanTaskCleanUpEarlyFlushTest extends JbpmCoverageTestCase {
 
     private static final String SUBPROCESS_PARENT =
             "org/jbpm/test/regression/task/HumanTaskCleanUpEarlyFlush-subprocess-parent.bpmn2";

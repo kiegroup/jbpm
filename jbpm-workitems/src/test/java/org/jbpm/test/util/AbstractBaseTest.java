@@ -15,9 +15,9 @@
 
 package org.jbpm.test.util;
 
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.kie.test.util.logging.LoggingPrintStream;
 
 public abstract class AbstractBaseTest {
     
@@ -28,6 +28,6 @@ public abstract class AbstractBaseTest {
     
     @AfterClass
     public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+        LoggingPrintStream.restoreSysOutAndSysErr();
     }
 }

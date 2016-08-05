@@ -29,7 +29,7 @@ import org.jbpm.process.core.timer.TimerServiceRegistry;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.identity.JBossUserGroupCallbackImpl;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +56,7 @@ import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.TaskModelProvider;
 import org.kie.internal.task.api.UserGroupCallback;
 
-public class ConcurrentHumanTaskTest extends JbpmTestCase {
+public class ConcurrentHumanTaskTest extends JbpmCoverageTestCase {
 
 	public ConcurrentHumanTaskTest() {
 		super(true, true);

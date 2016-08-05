@@ -34,7 +34,7 @@ import org.drools.core.marshalling.impl.SerializablePlaceholderResolverStrategy;
 import org.drools.persistence.jpa.marshaller.JPAPlaceholderResolverStrategy;
 import org.jbpm.marshalling.impl.ProcessInstanceResolverStrategy;
 import org.jbpm.services.task.utils.ContentMarshallerHelper;
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.jbpm.test.entity.MedicalRecord;
 import org.jbpm.test.entity.Patient;
 import org.jbpm.test.entity.RecordRow;
@@ -53,7 +53,7 @@ import org.kie.api.task.model.TaskSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PatientVariablePersistenceStrategyTest extends JbpmTestCase {
+public class PatientVariablePersistenceStrategyTest extends JbpmCoverageTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(PatientVariablePersistenceStrategyTest.class);
 

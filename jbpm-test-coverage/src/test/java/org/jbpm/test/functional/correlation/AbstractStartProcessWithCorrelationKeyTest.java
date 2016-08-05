@@ -18,7 +18,7 @@ package org.jbpm.test.functional.correlation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jbpm.test.JbpmTestCase;
+import org.jbpm.test.JbpmCoverageTestCase;
 import org.junit.Test;
 import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.manager.RuntimeEngine;
@@ -32,7 +32,7 @@ import org.kie.internal.process.CorrelationKeyFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractStartProcessWithCorrelationKeyTest extends JbpmTestCase {
+public abstract class AbstractStartProcessWithCorrelationKeyTest extends JbpmCoverageTestCase {
     
     private static final Logger logger = LoggerFactory.getLogger(AbstractStartProcessWithCorrelationKeyTest.class);
     

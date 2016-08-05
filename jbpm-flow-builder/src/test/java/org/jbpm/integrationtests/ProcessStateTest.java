@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -29,7 +29,11 @@ import org.jbpm.test.util.AbstractBaseTest;
 import org.jbpm.workflow.instance.node.StateNodeInstance;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.kie.api.io.ResourceType;
+import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.process.NodeInstance;
 import org.kie.api.runtime.process.ProcessInstance;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
@@ -37,10 +41,19 @@ import org.kie.internal.KnowledgeBase;
 import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderFactory;
 import org.kie.internal.io.ResourceFactory;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
 
+@RunWith(Parameterized.class)
 public class ProcessStateTest extends AbstractBaseTest {
-    
+
+    @Parameters(name="{0}")
+    public static Collection<Object[]> parameters() {
+        return getQueueBasedTestOptions();
+    };
+
+    public ProcessStateTest(String execModel) {
+        super(execModel);
+    }
+
     @Test
     public void testManualSignalState() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -78,7 +91,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         // start process
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
             ksession.startProcess("org.drools.state");
@@ -170,7 +183,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -178,7 +191,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     public void testImmediateStateConstraintPriorities1() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -228,7 +241,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -236,7 +249,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     public void testImmediateStateConstraintPriorities2() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -286,7 +299,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -294,7 +307,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("2", list.get(0));
     }
-    
+
     @Test
     public void testDelayedStateConstraint() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -347,7 +360,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -360,7 +373,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     public void testDelayedStateConstraint2() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -413,7 +426,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -426,7 +439,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("2", list.get(0));
     }
-    
+
     @Test
     @Ignore
     public void FIXMEtestDelayedStateConstraintPriorities1() {
@@ -480,7 +493,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource(source), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -492,7 +505,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     @Ignore
     public void FIXMEtestDelayedStateConstraintPriorities2() {
@@ -546,7 +559,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         ProcessInstance processInstance = ksession.startProcess("org.drools.state");
@@ -558,7 +571,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("2", list.get(0));
     }
-    
+
     @Test
     public void testActionState() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -604,7 +617,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         // start process
@@ -627,7 +640,7 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertTrue(list.contains("Action3a"));
         assertTrue(list.contains("Action4a"));
     }
-    
+
     @Test
     public void testTimerState() {
     	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -673,7 +686,7 @@ public class ProcessStateTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
-        final StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+        final KieSession ksession = kbase.newStatefulKnowledgeSession();
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         new Thread(new Runnable() {
@@ -710,5 +723,5 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(4, list.size());
         ksession.halt();
     }
-    
+
 }

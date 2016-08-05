@@ -30,13 +30,11 @@ import java.util.Random;
 import javax.persistence.EntityManagerFactory;
 
 import org.jbpm.process.audit.strategy.StandaloneJtaStrategy;
-import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.jbpm.services.task.HumanTaskServiceFactory;
 import org.jbpm.services.task.audit.JPATaskLifeCycleEventListener;
 import org.jbpm.services.task.lifecycle.listeners.BAMTaskEventListener;
 import org.jbpm.services.task.utils.TaskFluent;
 import org.junit.After;
-//import org.jbpm.process.instance.impl.util.LoggingPrintStream;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -46,6 +44,7 @@ import org.kie.internal.task.api.AuditTask;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.query.AuditTaskDeleteBuilder;
 import org.kie.internal.task.query.AuditTaskQueryBuilder;
+import org.kie.test.util.logging.LoggingPrintStream;
 
 public class AuditTaskDeleteTest extends TaskJPAAuditService {
     
@@ -62,7 +61,7 @@ public class AuditTaskDeleteTest extends TaskJPAAuditService {
     
     @AfterClass
     public static void reset() { 
-        LoggingPrintStream.resetInterceptSysOutSysErr();
+        LoggingPrintStream.restoreSysOutAndSysErr();
         
     }
 
