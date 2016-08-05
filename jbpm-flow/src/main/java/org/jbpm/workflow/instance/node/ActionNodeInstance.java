@@ -21,13 +21,14 @@ import org.jbpm.process.instance.impl.Action;
 import org.jbpm.workflow.core.node.ActionNode;
 import org.jbpm.workflow.instance.WorkflowRuntimeException;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
+import org.jbpm.workflow.instance.node.queue.ComplexInternalTriggerNodeInstance;
 import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of an action node.
- * 
+ *
  */
-public class ActionNodeInstance extends NodeInstanceImpl {
+public class ActionNodeInstance extends NodeInstanceImpl implements ComplexInternalTriggerNodeInstance {
 
     private static final long serialVersionUID = 510l;
 
@@ -35,26 +36,63 @@ public class ActionNodeInstance extends NodeInstanceImpl {
         return (ActionNode) getNode();
     }
 
+	@Override
     public void internalTrigger(final NodeInstance from, String type) {
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "An ActionNode only accepts default incoming connections!");
         }
 		Action action = (Action) getActionNode().getAction().getMetaData("Action");
+
+		boolean queueBased = isQueueBased();
+		if( queueBased ) {
+		    // because an action is often a signal event,
+		    //  which means a new action queue in the queue-stack
+		    getProcessInstance().addAfterInternalTriggerAction(this);
+		}
 		try {
 		    ProcessContext context = new ProcessContext(getProcessInstance().getKnowledgeRuntime());
 		    context.setNodeInstance(this);
+
+		    /**
+		     * JBPM-4936
+		     * Add action to process instance
+		     */
 	        executeAction(action);
-		} catch( WorkflowRuntimeException wre) { 
+		} catch( WorkflowRuntimeException wre) {
 		    throw wre;
 		} catch (Exception e) {
 		    // for the case that one of the following throws an exception
-		    // - the ProcessContext() constructor 
-		    // - or context.setNodeInstance(this) 
+		    // - the ProcessContext() constructor
+		    // - or context.setNodeInstance(this)
 		    throw new WorkflowRuntimeException(this, getProcessInstance(), "Unable to execute Action: " + e.getMessage(), e);
-		} 
-    	triggerCompleted();
+
+		   /**
+		    * JBPM-4936
+		    * FOR ALL exceptions (including WorkflowRuntimeExceptions's)_
+
+            String exceptionName = e.getClass().getName();
+            ExceptionScopeInstance exceptionScopeInstance
+                = (ExceptionScopeInstance) resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, exceptionName);
+            if (exceptionScopeInstance == null) {
+                throw new WorkflowRuntimeException(this, getProcessInstance(), "Unable to execute Action: " + e.getMessage(), e);
+            }
+            if( isQueueBased() ! afterExceptionHandledAdded ) {
+                getProcessInstance().addAfterExceptionHandledAction(this);
+            }
+            exceptionScopeInstance.handleException(exceptionName, e);
+
+		    */
+		}
+		if( ! queueBased ) {
+		    afterInternalTrigger();
+		}
     }
+
+	@Override
+	public void afterInternalTrigger() {
+	   triggerCompleted();
+	}
 
     public void triggerCompleted() {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);

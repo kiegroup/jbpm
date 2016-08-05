@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -52,8 +52,14 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         	log.setCorrelationKey(correlationKey.toExternalForm());
         }
         try {
-            long parentProcessInstanceId = (Long) pi.getMetaData().get("ParentProcessInstanceId");
-            log.setParentProcessInstanceId(parentProcessInstanceId);
+            // Not checking for an NPE decreases performance...
+            Object parentProcInstIdObj = pi.getMetaData().get("ParentProcessInstanceId");
+            if( parentProcInstIdObj instanceof Long ) {
+                long parentProcessInstanceId = (Long) parentProcInstIdObj;
+                log.setParentProcessInstanceId(parentProcessInstanceId);
+            } else {
+                log.setParentProcessInstanceId(-1);
+            }
         } catch (Exception e) {
             //in case of problems with getting hold of parentProcessInstanceId don't break the operation
             log.setParentProcessInstanceId(-1L);

@@ -40,12 +40,14 @@ import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.process.instance.impl.ContextInstanceFactoryRegistry;
 import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.jbpm.process.instance.impl.util.VariableUtil;
+import org.jbpm.ruleflow.instance.RuleFlowProcessInstance;
 import org.jbpm.workflow.core.node.DataAssociation;
 import org.jbpm.workflow.core.node.SubProcessNode;
 import org.jbpm.workflow.core.node.Transformation;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
 import org.jbpm.workflow.instance.impl.VariableScopeResolverFactory;
 import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
+import org.jbpm.workflow.instance.node.queue.ComplexInternalTriggerNodeInstance;
 import org.kie.api.KieBase;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.Process;
@@ -67,9 +69,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runtime counterpart of a SubFlow node.
- * 
+ *
  */
-public class SubProcessNodeInstance extends StateBasedNodeInstance implements EventListener, ContextInstanceContainer {
+public class SubProcessNodeInstance extends StateBasedNodeInstance
+    implements EventListener, ContextInstanceContainer, ComplexInternalTriggerNodeInstance {
 
     private static final long serialVersionUID = 510l;
     private static final Logger logger = LoggerFactory.getLogger(SubProcessNodeInstance.class);
@@ -84,8 +87,9 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         return (SubProcessNode) getNode();
     }
 
-    public void internalTrigger(final NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
+    @Override
+    public void afterEntryActions(NodeInstance from, String type) {
+    	super.afterEntryActions(from, type);
     	// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
@@ -224,7 +228,10 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
 
 	    	kruntime.startProcessInstance(processInstance.getId());
 	    	if (!getSubProcessNode().isWaitForCompletion()) {
-	    		triggerCompleted();
+	    	    triggerCompleted();
+	            if( isQueueBased() ) {
+	                getProcessInstance().executeQueue();
+	            }
 	    	} else if (processInstance.getState() == ProcessInstance.STATE_COMPLETED
 	    	        || processInstance.getState() == ProcessInstance.STATE_ABORTED) {
 	    	    processInstanceCompleted(processInstance);
@@ -306,9 +313,14 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
             ExceptionScopeInstance exceptionScopeInstance = (ExceptionScopeInstance)
                     resolveContextInstance(ExceptionScope.EXCEPTION_SCOPE, faultName);
             if (exceptionScopeInstance != null) {
-
+                boolean queueBased = isQueueBased();
+                if( queueBased ) {
+                    getProcessInstance().addAfterInternalTriggerAction(this);
+                }
                 exceptionScopeInstance.handleException(faultName, processInstance.getFaultData());
-                cancel();
+                if( ! queueBased ) {
+                    afterInternalTrigger();
+                }
                 return;
             } else if (!getSubProcessNode().isIndependent()){
                 ((ProcessInstance) getProcessInstance()).setState(ProcessInstance.STATE_ABORTED, faultName);
@@ -318,7 +330,14 @@ public class SubProcessNodeInstance extends StateBasedNodeInstance implements Ev
         }
         // if there were no exception proceed normally
         triggerCompleted();
+        if( isQueueBased() ) {
+            ((RuleFlowProcessInstance) getProcessInstance()).executeQueue();
+        }
+    }
 
+    @Override
+    public void afterInternalTrigger() {
+        cancel();
     }
 
     private void handleOutMappings(ProcessInstance processInstance) {

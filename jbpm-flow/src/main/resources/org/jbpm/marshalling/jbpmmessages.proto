@@ -45,6 +45,7 @@ message ProcessInstance {
     optional bool signal_completion = 16 [default = true];
     optional string deploymentId = 17;
     optional string correlation_key = 18;
+    optional bool queue_based = 19;
 
     repeated SwimlaneContextInstance swimlane_context = 6;
     repeated NodeInstance node_instance = 7;

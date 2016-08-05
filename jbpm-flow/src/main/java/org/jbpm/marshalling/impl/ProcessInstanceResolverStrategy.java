@@ -73,17 +73,8 @@ public class ProcessInstanceResolverStrategy
     public Object read(ObjectInputStream is) throws IOException,
                                             ClassNotFoundException {
         long processInstanceId = is.readLong();
-        ProcessInstanceManager pim = retrieveProcessInstanceManager( is );
-        ProcessInstance processInstance = pim.getProcessInstance( processInstanceId );
-        if (processInstance == null) {
-        	RuleFlowProcessInstance result = new RuleFlowProcessInstance();
-        	result.setId( processInstanceId );
-        	result.internalSetState(ProcessInstance.STATE_COMPLETED);
-        	return result;
-        } else {
-        	connectProcessInstanceToRuntimeAndProcess( processInstance, is );
-            return processInstance;
-        }
+        ProcessInstance processInstance = reconstituteProcessInstance(is, processInstanceId, false);
+        return processInstance;
     }
 
     /**
@@ -115,7 +106,7 @@ public class ProcessInstanceResolverStrategy
      * @param processInstance
      * @param streamContext
      */
-    private void connectProcessInstanceToRuntimeAndProcess(ProcessInstance processInstance,
+    private static void connectProcessInstanceToRuntimeAndProcess(ProcessInstance processInstance,
                                                            Object streamContext) {
         ProcessInstanceImpl processInstanceImpl = (ProcessInstanceImpl) processInstance;
         InternalKnowledgeRuntime kruntime = processInstanceImpl.getKnowledgeRuntime();
@@ -178,17 +169,23 @@ public class ProcessInstanceResolverStrategy
                             ClassLoader classloader) throws IOException,
                                                     ClassNotFoundException {
         long processInstanceId = PersisterHelper.byteArrayToLong( object );
-        ProcessInstanceManager pim = retrieveProcessInstanceManager( is );
         // load it as read only to avoid any updates to the data base
+        ProcessInstance processInstance = reconstituteProcessInstance(is, processInstanceId, true);
+        return processInstance;
+    }
+
+    private static ProcessInstance reconstituteProcessInstance(ObjectInputStream is, long processInstanceId, boolean readOnly) {
+        ProcessInstanceManager pim = retrieveProcessInstanceManager( is );
+        // if needed, load it as read only to avoid any updates to the data base
         ProcessInstance processInstance = pim.getProcessInstance( processInstanceId, true );
         if (processInstance == null) {
-        	RuleFlowProcessInstance result = new RuleFlowProcessInstance();
-        	result.setId( processInstanceId );
-        	result.internalSetState(ProcessInstance.STATE_COMPLETED);
-        	return result;
+            RuleFlowProcessInstance result = new RuleFlowProcessInstance();
+            result.setId( processInstanceId );
+            result.internalSetState(ProcessInstance.STATE_COMPLETED);
+            return result;
         } else {
-        	connectProcessInstanceToRuntimeAndProcess( processInstance, is );
-        	return processInstance;
+            connectProcessInstanceToRuntimeAndProcess( processInstance, is );
+            return processInstance;
         }
     }
 

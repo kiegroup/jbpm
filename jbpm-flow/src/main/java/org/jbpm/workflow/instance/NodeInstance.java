@@ -16,11 +16,11 @@
 
 package org.jbpm.workflow.instance;
 
-import org.kie.api.definition.process.Node;
-
 import java.util.Map;
 
 import org.jbpm.process.instance.ContextInstance;
+import org.jbpm.process.instance.ProcessImplementationPart;
+import org.kie.api.definition.process.Node;
 
 /**
  * Represents a node instance in a RuleFlow. This is the runtime counterpart
@@ -29,7 +29,7 @@ import org.jbpm.process.instance.ContextInstance;
  * executing) or completed (end of execution).
  * 
  */
-public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
+public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance, ProcessImplementationPart {
 
     void trigger(org.kie.api.runtime.process.NodeInstance from, String type);
 
@@ -43,4 +43,12 @@ public interface NodeInstance extends org.kie.api.runtime.process.NodeInstance {
     
     void setDynamicParameters(Map<String, Object> dynamicParameters);
     
+    /**
+     * {@link NodeInstance} id's are only unique per {@link NodeInstanceContainer}: this method uses
+     * the {@link NodeInstanceContainer}  id to generate a completely unique id for the {@link NodeInstance}.
+     *
+     * @return
+     */
+    String getUniqueId();
+
 }

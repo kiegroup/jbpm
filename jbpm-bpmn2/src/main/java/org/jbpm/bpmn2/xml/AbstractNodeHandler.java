@@ -549,13 +549,16 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
 	}
 
     protected String getSignalExpression(NodeImpl node, String signalName, String variable) {
-        String signalExpression = RUNTIME_SIGNAL_EVENT;
+        String signalExpression;
         String scope = (String) node.getMetaData("customScope");
         if ("processInstance".equalsIgnoreCase(scope)) {
+            // only signal the process instance
             signalExpression = PROCESS_INSTANCE_SIGNAL_EVENT +  "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
         } else if ("runtimeManager".equalsIgnoreCase(scope) || "project".equalsIgnoreCase(scope)) {
+            // signal via the runtime manager
             signalExpression = RUNTIME_MANAGER_SIGNAL_EVENT + "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
         } else if ("external".equalsIgnoreCase(scope)) {
+            // create a work item so that the signal can be triggered externally
             signalExpression = "org.drools.core.process.instance.impl.WorkItemImpl workItem = new org.drools.core.process.instance.impl.WorkItemImpl();" + EOL +
             "workItem.setName(\"External Send Task\");" + EOL +
             "workItem.setNodeInstanceId(kcontext.getNodeInstance().getId());" + EOL +
@@ -569,7 +572,8 @@ public abstract class AbstractNodeHandler extends BaseAbstractHandler implements
             (variable == null ? "" : "workItem.setParameter(\"Data\", " + variable + ");" + EOL) +
             "((org.drools.core.process.instance.WorkItemManager) kcontext.getKnowledgeRuntime().getWorkItemManager()).internalExecuteWorkItem(workItem);";
         } else {
-            signalExpression = signalExpression +  "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
+            // signal ("normally") via the knowledge runtime
+            signalExpression = RUNTIME_SIGNAL_EVENT +  "org.jbpm.process.instance.impl.util.VariableUtil.resolveVariable(\""+ signalName + "\", kcontext.getNodeInstance()), " + (variable == null ? "null" : variable) + ");";
         }
 
         return signalExpression;

@@ -152,7 +152,9 @@ public abstract class AbstractProcessInstanceMarshaller implements
                 strategy.write(stream, object);
             }
             
-        }    
+        } 
+        stream.writeBoolean(workFlow.isQueueBased());
+        
         return null;
 
     }
@@ -448,6 +450,7 @@ public abstract class AbstractProcessInstanceMarshaller implements
 			}
 		}
         processInstance.internalSetNodeInstanceCounter(nodeInstanceCounter);
+        processInstance.setQueueBased(stream.readBoolean());
         if (wm != null) {
             processInstance.reconnect();
         }

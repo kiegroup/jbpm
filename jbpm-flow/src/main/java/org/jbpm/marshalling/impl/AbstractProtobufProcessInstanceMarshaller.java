@@ -87,7 +87,8 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 .setNodeInstanceCounter( workFlow.getNodeInstanceCounter() )
                 .setProcessType( workFlow.getProcess().getType() )
                 .setParentProcessInstanceId(workFlow.getParentProcessInstanceId())
-                .setSignalCompletion(workFlow.isSignalCompletion());;
+                .setSignalCompletion(workFlow.isSignalCompletion())
+                .setQueueBased(workFlow.isQueueBased());
         if (workFlow.getProcessXml() != null) {
             _instance.setProcessXml( workFlow.getProcessXml());
         }
@@ -487,6 +488,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         }
 
         WorkflowProcessInstanceImpl processInstance = createProcessInstance();
+        processInstance.setQueueBased(_instance.getQueueBased());
         processInstance.setId( _instance.getId() );
         String processId = _instance.getProcessId();
         processInstance.setProcessId( processId );
@@ -534,7 +536,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             ExclusiveGroupInstance exclusiveGroupInstance = new ExclusiveGroupInstance();
             processInstance.addContextInstance( ExclusiveGroup.EXCLUSIVE_GROUP, exclusiveGroupInstance );
             for ( Long nodeInstanceId : _excl.getGroupNodeInstanceIdList() ) {
-                NodeInstance nodeInstance = ((org.jbpm.workflow.instance.NodeInstanceContainer)processInstance).getNodeInstance( nodeInstanceId, true );
+                NodeInstance nodeInstance = ((org.jbpm.workflow.instance.NodeInstanceContainer)processInstance).getNodeInstanceRecursively( nodeInstanceId );
                 if ( nodeInstance == null ) {
                     throw new IllegalArgumentException( "Could not find node instance when deserializing exclusive group instance: " + nodeInstanceId );
                 }
@@ -573,27 +575,27 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
     public NodeInstance readNodeInstance(MarshallerReaderContext context,
                                          NodeInstanceContainer nodeInstanceContainer,
                                          WorkflowProcessInstance processInstance) throws IOException {
-        JBPMMessages.ProcessInstance.NodeInstance _node = (JBPMMessages.ProcessInstance.NodeInstance) context.parameterObject;
+        JBPMMessages.ProcessInstance.NodeInstance _nodeInstance = (JBPMMessages.ProcessInstance.NodeInstance) context.parameterObject;
         
-        NodeInstanceImpl nodeInstance = readNodeInstanceContent( _node,
+        NodeInstanceImpl nodeInstance = readNodeInstanceContent( _nodeInstance,
                                                                  context, 
                                                                  processInstance);
 
-        nodeInstance.setNodeId( _node.getNodeId() );                
-        nodeInstance.setId( _node.getId() );
+        nodeInstance.setNodeId( _nodeInstance.getNodeId() );
+        nodeInstance.setId( _nodeInstance.getId() );
         nodeInstance.setNodeInstanceContainer( nodeInstanceContainer );
         nodeInstance.setProcessInstance( (org.jbpm.workflow.instance.WorkflowProcessInstance) processInstance );
-        nodeInstance.setLevel(_node.getLevel()==0?1:_node.getLevel());
+        nodeInstance.setLevel(_nodeInstance.getLevel()==0?1:_nodeInstance.getLevel());
 
-        switch ( _node.getContent().getType() ) {
+        switch ( _nodeInstance.getContent().getType() ) {
             case COMPOSITE_CONTEXT_NODE :
             	
             case DYNAMIC_NODE :
-                if ( _node.getContent().getComposite().getVariableCount() > 0 ) {
+                if ( _nodeInstance.getContent().getComposite().getVariableCount() > 0 ) {
                     Context variableScope = ((org.jbpm.process.core.Process) ((org.jbpm.process.instance.ProcessInstance)
                             processInstance).getProcess()).getDefaultContext( VariableScope.VARIABLE_SCOPE );
                     VariableScopeInstance variableScopeInstance = (VariableScopeInstance) ((CompositeContextNodeInstance) nodeInstance).getContextInstance( variableScope );
-                    for ( JBPMMessages.Variable _variable : _node.getContent().getComposite().getVariableList() ) {
+                    for ( JBPMMessages.Variable _variable : _nodeInstance.getContent().getComposite().getVariableList() ) {
                         try {
                             Object _value = ProtobufProcessMarshaller.unmarshallVariableValue( context, _variable );
                             variableScopeInstance.internalSetVariable( _variable.getName(), _value );
@@ -602,24 +604,24 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                         }
                     }
                 }
-                if ( _node.getContent().getComposite().getIterationLevelsCount() > 0 ) {
+                if ( _nodeInstance.getContent().getComposite().getIterationLevelsCount() > 0 ) {
                     
-                    for ( JBPMMessages.IterationLevel _level : _node.getContent().getComposite().getIterationLevelsList()) {
+                    for ( JBPMMessages.IterationLevel _level : _nodeInstance.getContent().getComposite().getIterationLevelsList()) {
                         ((CompositeContextNodeInstance) nodeInstance).getIterationLevels().put(_level.getId(), _level.getLevel());
                     }
                 }
-                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getComposite().getNodeInstanceList() ) {
+                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _nodeInstance.getContent().getComposite().getNodeInstanceList() ) {
                     context.parameterObject = _instance;
                     readNodeInstance( context,
                                       (CompositeContextNodeInstance) nodeInstance,
                                       processInstance );
                 }
 
-                for ( JBPMMessages.ProcessInstance.ExclusiveGroupInstance _excl : _node.getContent().getComposite().getExclusiveGroupList() ) {
+                for ( JBPMMessages.ProcessInstance.ExclusiveGroupInstance _excl : _nodeInstance.getContent().getComposite().getExclusiveGroupList() ) {
                     ExclusiveGroupInstance exclusiveGroupInstance = new ExclusiveGroupInstance();
                     ((CompositeContextNodeInstance) nodeInstance).addContextInstance( ExclusiveGroup.EXCLUSIVE_GROUP, exclusiveGroupInstance );
                     for ( Long nodeInstanceId : _excl.getGroupNodeInstanceIdList() ) {
-                        NodeInstance groupNodeInstance = ((org.jbpm.workflow.instance.NodeInstanceContainer)processInstance).getNodeInstance( nodeInstanceId, true );
+                        NodeInstance groupNodeInstance = ((org.jbpm.workflow.instance.NodeInstanceContainer)processInstance).getNodeInstanceRecursively( nodeInstanceId );
                         if ( groupNodeInstance == null ) {
                             throw new IllegalArgumentException( "Could not find node instance when deserializing exclusive group instance: " + nodeInstanceId );
                         }
@@ -628,13 +630,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 }
                 break;
             case FOR_EACH_NODE :
-                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getForEach().getNodeInstanceList() ) {
+                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _nodeInstance.getContent().getForEach().getNodeInstanceList() ) {
                     context.parameterObject = _instance;
                     readNodeInstance( context,
                                       (ForEachNodeInstance) nodeInstance,
                                       processInstance );
                     VariableScopeInstance variableScopeInstance = (VariableScopeInstance) ((ForEachNodeInstance) nodeInstance).getContextInstance( VariableScope.VARIABLE_SCOPE );
-                    for ( JBPMMessages.Variable _variable : _node.getContent().getForEach().getVariableList() ) {
+                    for ( JBPMMessages.Variable _variable : _nodeInstance.getContent().getForEach().getVariableList() ) {
                         try {
                             Object _value = ProtobufProcessMarshaller.unmarshallVariableValue( context, _variable );
                             variableScopeInstance.internalSetVariable( _variable.getName(), _value );
@@ -642,22 +644,22 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                             throw new IllegalArgumentException( "Could not reload variable " + _variable.getName() );
                         }
                     }
-                    if ( _node.getContent().getForEach().getIterationLevelsCount() > 0 ) {
+                    if ( _nodeInstance.getContent().getForEach().getIterationLevelsCount() > 0 ) {
                         
-                        for ( JBPMMessages.IterationLevel _level : _node.getContent().getForEach().getIterationLevelsList()) {
+                        for ( JBPMMessages.IterationLevel _level : _nodeInstance.getContent().getForEach().getIterationLevelsList()) {
                             ((ForEachNodeInstance) nodeInstance).getIterationLevels().put(_level.getId(), _level.getLevel());
                         }
                     }
                 }
                 break;
             case EVENT_SUBPROCESS_NODE :
-                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _node.getContent().getComposite().getNodeInstanceList() ) {
+                for ( JBPMMessages.ProcessInstance.NodeInstance _instance : _nodeInstance.getContent().getComposite().getNodeInstanceList() ) {
                     context.parameterObject = _instance;
                     readNodeInstance( context,
                                       (EventSubProcessNodeInstance) nodeInstance,
                                       processInstance );
                     VariableScopeInstance variableScopeInstance = (VariableScopeInstance) ((EventSubProcessNodeInstance) nodeInstance).getContextInstance( VariableScope.VARIABLE_SCOPE );
-                    for ( JBPMMessages.Variable _variable : _node.getContent().getComposite().getVariableList() ) {
+                    for ( JBPMMessages.Variable _variable : _nodeInstance.getContent().getComposite().getVariableList() ) {
                         try {
                             Object _value = ProtobufProcessMarshaller.unmarshallVariableValue( context, _variable );
                             variableScopeInstance.internalSetVariable( _variable.getName(), _value );

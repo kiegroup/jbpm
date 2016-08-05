@@ -21,6 +21,7 @@ import org.jbpm.process.core.context.exception.ActionExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionScope;
 import org.jbpm.process.instance.ContextInstanceContainer;
+import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.ProcessInstance;
 import org.jbpm.process.instance.impl.Action;
 import org.jbpm.workflow.instance.NodeInstance;
@@ -33,13 +34,22 @@ public class DefaultExceptionScopeInstance extends ExceptionScopeInstance {
         return ExceptionScope.EXCEPTION_SCOPE;
     }
 
+    @Override
+    public boolean isQueueBased() {
+        return ((ProcessImplementationPart) getProcessInstance()).isQueueBased();
+    }
+
 	public void handleException(ExceptionHandler handler, String exception, Object params) {
-		
+
+	    ProcessInstance processInstance = getProcessInstance();
+	    if( isQueueBased() ) {
+	        processInstance.addNewExecutionQueueToStack(false);
+	    }
+
 		if (handler instanceof ActionExceptionHandler) {
 		    ActionExceptionHandler exceptionHandler = (ActionExceptionHandler) handler;
 			Action action = (Action) exceptionHandler.getAction().getMetaData("Action");
 			try {
-		    	ProcessInstance processInstance = getProcessInstance();
 			    ProcessContext processContext = new ProcessContext(processInstance.getKnowledgeRuntime());
 			    ContextInstanceContainer contextInstanceContainer = getContextInstanceContainer();
 			    if (contextInstanceContainer instanceof NodeInstance) {

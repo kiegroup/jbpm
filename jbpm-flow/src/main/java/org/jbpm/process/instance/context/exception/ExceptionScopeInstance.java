@@ -18,9 +18,10 @@ package org.jbpm.process.instance.context.exception;
 
 import org.jbpm.process.core.context.exception.ExceptionHandler;
 import org.jbpm.process.core.context.exception.ExceptionScope;
+import org.jbpm.process.instance.ProcessImplementationPart;
 import org.jbpm.process.instance.context.AbstractContextInstance;
 
-public abstract class ExceptionScopeInstance extends AbstractContextInstance {
+public abstract class ExceptionScopeInstance extends AbstractContextInstance implements ProcessImplementationPart {
 
     private static final long serialVersionUID = 510l;
 
@@ -35,8 +36,10 @@ public abstract class ExceptionScopeInstance extends AbstractContextInstance {
     public void handleException(String exception, Object params) {
         ExceptionHandler handler = getExceptionScope().getExceptionHandler(exception);
         if (handler == null) {
-            throw new IllegalArgumentException(
-                "Could not find ExceptionHandler for " + exception);
+            throw new IllegalArgumentException("Could not find ExceptionHandler for " + exception);
+        }
+        if( isQueueBased() ) {
+            getProcessInstance().addNewExecutionQueueToStack(false);
         }
         handleException(handler, exception, params);
     }

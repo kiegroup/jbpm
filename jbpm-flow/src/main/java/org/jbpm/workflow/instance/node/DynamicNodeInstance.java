@@ -25,7 +25,6 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.definitions.rule.impl.RuleImpl;
 import org.drools.core.spi.Activation;
 import org.drools.core.util.MVELSafeHelper;
-import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.impl.NodeImpl;
 import org.jbpm.workflow.core.node.DynamicNode;
 import org.jbpm.workflow.instance.impl.NodeInstanceResolverFactory;
@@ -53,21 +52,21 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance implements
 		return (DynamicNode) getNode();
 	}
 
-    public void internalTrigger(NodeInstance from, String type) {
-    	triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
+	@Override
+	public void afterEntryActions(NodeInstance from, String type) {
     	// if node instance was cancelled, abort
 		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
 			return;
 		}
     	InternalAgenda agenda =  (InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda();
     	agenda.getRuleFlowGroup(getRuleFlowGroupName()).setAutoDeactivate(false);
+
     	agenda.activateRuleFlowGroup(
 			getRuleFlowGroupName(), getProcessInstance().getId(), getUniqueId());
 //    	if (getDynamicNode().isAutoComplete() && getNodeInstances(false).isEmpty()) {
 //    		triggerCompleted(NodeImpl.CONNECTION_DEFAULT_TYPE);
 //    	}
 
-        
         String rule = "RuleFlow-AdHocComplete-" + getProcessInstance().getProcessId() + "-" + getDynamicNode().getUniqueId();
         boolean isActive = ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
             .isRuleActiveInRuleFlowGroup("DROOLS_SYSTEM", rule, getProcessInstance().getId());
@@ -149,7 +148,8 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance implements
     		super.signalEvent(type, event);
     		for (Node node: getCompositeNode().getNodes()) {
     			if (type.equals(node.getName()) && node.getIncomingConnections().isEmpty()) {
-        			NodeInstance nodeInstance = getNodeInstance(node);
+    			    NodeInstance nodeInstance = createNodeInstance(node);
+    			    // case management
         			if (event != null) {                             
                         Map<String, Object> dynamicParams = new HashMap<>();
                         if (event instanceof Map) {
@@ -159,7 +159,13 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance implements
                         }
                         ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).setDynamicParameters(dynamicParams);
                     }
-                    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, NodeImpl.CONNECTION_DEFAULT_TYPE);
+        			
+                    String connectionType = NodeImpl.CONNECTION_DEFAULT_TYPE;
+                    if( isQueueBased() ) {
+                        addNodeInstanceTrigger((org.jbpm.workflow.instance.NodeInstance) nodeInstance, null, connectionType);
+                    } else {
+                        ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, connectionType);
+                    }
         		}
     		}
         }
@@ -167,10 +173,10 @@ public class DynamicNodeInstance extends CompositeContextNodeInstance implements
 
     protected boolean isTerminated(NodeInstance from) {
         if (from instanceof EndNodeInstance) {
-            
+
             return ((EndNodeInstance) from).getEndNode().isTerminate();
         }
-        
+
         return false;
     }
     

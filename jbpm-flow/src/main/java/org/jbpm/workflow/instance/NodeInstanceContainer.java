@@ -18,20 +18,59 @@ package org.jbpm.workflow.instance;
 
 import java.util.Collection;
 
+import org.jbpm.workflow.instance.impl.factory.ReuseNodeFactory;
+import org.jbpm.workflow.instance.impl.queue.ProcessInstanceAction;
+import org.jbpm.workflow.instance.node.ForEachNodeInstance;
 import org.kie.api.definition.process.Node;
 import org.kie.api.definition.process.NodeContainer;
 
 /**
- * 
+ * The NodeInstanceContainer is an runtime construct that is used to scope NodeInstance instances.
  */
 public interface NodeInstanceContainer extends org.kie.api.runtime.process.NodeInstanceContainer {
 
     Collection<NodeInstance> getNodeInstances(boolean recursive);
 
+    /**
+     * Searches through all posisble {@link NodeInstanceContainer} layers to find a {@link NodeInstance}
+     * @param nodeInstanceId The id of the {@link NodeInstance}
+     * @return The {@link NodeInstance} searched for
+     */
+    NodeInstance getNodeInstanceRecursively(long nodeInstanceId);
+
+    /**
+     * Returns the first node instance (of a container-like node). The
+     * {@link NodeInstance} will be created if it does not already exist.
+     * </p>
+     * This method should only be used by methods that end up providing
+     * a {@link ProcessInstanceAction}.
+     * </p>
+     * The returned {@link NodeInstance} should never be directly triggerd.
+     *
+     * @param nodeId The node id
+     * @return A {@link NodeInstance} corresponding to the node id
+     * @see {@link ReuseNodeFactory#getNodeInstance(Node, WorkflowProcessInstance, org.kie.api.runtime.process.NodeInstanceContainer)},
+     * {@link ForEachNodeInstance#createNodeInstance(Node)}
+     */
     NodeInstance getFirstNodeInstance(long nodeId);
 
-    NodeInstance getNodeInstance(Node node);
+    /**
+     * Creates (or uses a factory to create) a new {@link NodeInstance} based
+     * on the given Node.
+     * </p>
+     * This method should only be used by methods that end up providing
+     * a {@link ProcessInstanceAction}.
+     * </p>
+     * The returned {@link NodeInstance} should never be triggered directly.
+     * @param node
+     * @return {@link NodeInstance} the instance of the {@link Node} supplied
+     */
+    NodeInstance createNodeInstance(Node node);
 
+    /**
+     * Add new node instance to this instance's list of {@link NodeInstance}s
+     * @param nodeInstance
+     */
     void addNodeInstance(NodeInstance nodeInstance);
 
     void removeNodeInstance(NodeInstance nodeInstance);
@@ -49,7 +88,5 @@ public interface NodeInstanceContainer extends org.kie.api.runtime.process.NodeI
     void setCurrentLevel(int level);
     
     int getCurrentLevel();
-    
-    NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive);
 
 }

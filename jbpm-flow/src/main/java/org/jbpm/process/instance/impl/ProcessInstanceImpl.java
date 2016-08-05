@@ -28,11 +28,13 @@ import org.drools.core.common.InternalKnowledgeRuntime;
 import org.drools.core.util.MVELSafeHelper;
 import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
+import org.jbpm.process.core.context.variable.VariableScope;
 import org.jbpm.process.core.impl.XmlProcessDumper;
 import org.jbpm.process.core.impl.XmlProcessDumperFactory;
 import org.jbpm.process.instance.ContextInstance;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.workflow.instance.WorkflowProcessInstance;
 import org.jbpm.workflow.instance.impl.ProcessInstanceResolverFactory;
 import org.kie.api.definition.process.Process;
@@ -47,7 +49,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ProcessInstanceImpl implements ProcessInstance, Serializable {
 	
 	protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
-	private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceImpl.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ProcessInstanceImpl.class);
 	private static final long serialVersionUID = 510l;
 	
 	private long id;
@@ -324,4 +326,23 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public void setDescription(String description) {
     	this.description = description;
     }
+
+    @Override
+    public void initializeVariableScope(Map<String, Object> parameters) {
+        VariableScope variableScope = (VariableScope) ((ContextContainer) process).getDefaultContext( VariableScope.VARIABLE_SCOPE );
+        VariableScopeInstance variableScopeInstance = (VariableScopeInstance) this.getContextInstance( VariableScope.VARIABLE_SCOPE );
+        // set input parameters
+        if ( parameters != null ) {
+            if ( variableScope != null ) {
+                for ( Map.Entry<String, Object> entry : parameters.entrySet() ) {
+
+                    variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue());
+                    variableScopeInstance.setVariable( entry.getKey(), entry.getValue() );
+                }
+            } else {
+                throw new IllegalArgumentException( "This process does not support parameters!" );
+            }
+        }
+    }
+
 }

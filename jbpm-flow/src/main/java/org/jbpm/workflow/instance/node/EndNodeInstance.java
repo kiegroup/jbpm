@@ -19,29 +19,48 @@ package org.jbpm.workflow.instance.node;
 import org.drools.core.common.InternalKnowledgeRuntime;
 import org.jbpm.process.instance.InternalProcessRuntime;
 import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 import org.jbpm.workflow.core.node.EndNode;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 import org.jbpm.workflow.instance.impl.ExtendedNodeInstanceImpl;
+import org.jbpm.workflow.instance.impl.queue.AfterEntryActionsAction;
+import org.jbpm.workflow.instance.impl.queue.AfterExitActionsAction;
+import org.jbpm.workflow.instance.node.queue.EntryActionExceptionHandlingNodeInstance;
 import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of an end node.
- * 
+ *
  */
-public class EndNodeInstance extends ExtendedNodeInstanceImpl {
+public class EndNodeInstance
+    extends ExtendedNodeInstanceImpl
+    implements EntryActionExceptionHandlingNodeInstance {
 
     private static final long serialVersionUID = 510l;
 
     public EndNode getEndNode() {
     	return (EndNode) getNode();
     }
-    
-    public void internalTrigger(final NodeInstance from, String type) {
-        super.internalTrigger(from, type);
+
+    @Override
+    public void internalTrigger( NodeInstance from, String type ) {
+        boolean queueBased = isQueueBased();
+        if( queueBased ) {
+            getProcessInstance().addProcessInstanceAction(new AfterEntryActionsAction(this, from, type) );
+        }
+        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
+        if( ! queueBased ) {
+            afterEntryActions(from, type);
+        }
+    }
+
+    @Override
+    public void afterEntryActions(NodeInstance from, String type) {
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
             throw new IllegalArgumentException(
                 "An EndNode only accepts default incoming connections!");
         }
+
         boolean hidden = false;
         if (getNode().getMetaData().get("hidden") != null) {
             hidden = true;
@@ -51,6 +70,23 @@ public class EndNodeInstance extends ExtendedNodeInstanceImpl {
             ((InternalProcessRuntime) kruntime.getProcessRuntime())
                 .getProcessEventSupport().fireBeforeNodeLeft(this, kruntime);
         }
+        if( isQueueBased() ) {
+            afterInternalTrigger(hidden, kruntime);
+            super.afterNodeTriggered(hidden, kruntime);
+            endProcessInstance();
+        } else {
+            endProcessInstance();
+            afterInternalTrigger(hidden, kruntime);
+            super.afterNodeTriggered(hidden, kruntime);
+        }
+    }
+
+    @Override
+    public void afterNodeTriggered(boolean hidden, InternalKnowledgeRuntime kruntime) {
+       // no-op in order to override default NodeInstanceImpl behavior
+    }
+
+    private void endProcessInstance() {
         ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
         if (getEndNode().isTerminate()) {
         	if (getNodeInstanceContainer() instanceof CompositeNodeInstance) {
@@ -65,15 +101,19 @@ public class EndNodeInstance extends ExtendedNodeInstanceImpl {
         	} else {
         	    ((NodeInstanceContainer) getNodeInstanceContainer()).setState( ProcessInstance.STATE_COMPLETED );
         	}
-        	
+
         } else {
-            ((NodeInstanceContainer) getNodeInstanceContainer())
-                .nodeInstanceCompleted(this, null);
+            ((NodeInstanceContainer) getNodeInstanceContainer()).nodeInstanceCompleted(this, null);
         }
+    }
+
+    private void afterInternalTrigger(boolean hidden, InternalKnowledgeRuntime kruntime) {
         if (!hidden) {
             ((InternalProcessRuntime) kruntime.getProcessRuntime())
                 .getProcessEventSupport().fireAfterNodeLeft(this, kruntime);
         }
     }
+
+
 
 }
