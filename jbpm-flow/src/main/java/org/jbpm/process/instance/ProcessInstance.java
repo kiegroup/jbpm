@@ -61,5 +61,9 @@ public interface ProcessInstance extends org.kie.api.runtime.process.ProcessInst
 	void setSignalCompletion(boolean signalCompletion);
 	
 	boolean isSignalCompletion();
+	
+	String getDeploymentId();
+	
+	void setDeploymentId(String deploymentId);
     
 }
