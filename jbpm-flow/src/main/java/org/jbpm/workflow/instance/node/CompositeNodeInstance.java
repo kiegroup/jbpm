@@ -47,15 +47,15 @@ import org.kie.api.runtime.process.EventListener;
 
 /**
  * Runtime counterpart of a composite node.
- * 
+ *
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class CompositeNodeInstance extends StateBasedNodeInstance implements NodeInstanceContainer, EventNodeInstanceInterface, EventBasedNodeInstanceInterface {
 
     private static final long serialVersionUID = 510l;
-    
+
     private final List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>();
-   
+
     @Deprecated // this should be deleted in 7.0.x
     private long nodeInstanceCounter = 0;
     @Deprecated // this should be deleted in 7.0.x
@@ -64,7 +64,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     private int state = ProcessInstance.STATE_ACTIVE;
     private Map<String, Integer> iterationLevels = new HashMap<String, Integer>();
     private int currentLevel;
-    
+
     @Override
     public int getLevelForNode(String uniqueID) {
         if ("true".equalsIgnoreCase(System.getProperty("jbpm.loop.level.disabled"))) {
@@ -82,14 +82,14 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         iterationLevels.put(uniqueID, value);
         return value;
     }
-   
+
     public void setProcessInstance(WorkflowProcessInstance processInstance) {
     	super.setProcessInstance(processInstance);
     	this.singleNodeInstanceCounter = ((WorkflowProcessInstanceImpl) processInstance).internalGetNodeInstanceCounter();
     	this.deprecatedIdStrategy = ((WorkflowProcessInstanceImpl) processInstance).getDeprecatedIdStrategy();
     	registerExternalEventNodeListeners();
     }
-    
+
     private void registerExternalEventNodeListeners() {
     	for (Node node: getCompositeNode().getNodes()) {
 			if (node instanceof EventNode) {
@@ -105,15 +105,15 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
             }
     	}
     }
-    
+
     protected CompositeNode getCompositeNode() {
         return (CompositeNode) getNode();
     }
-    
+
     public NodeContainer getNodeContainer() {
         return getCompositeNode();
     }
-    
+
     public void internalTrigger(final org.kie.api.runtime.process.NodeInstance from, String type) {
     	super.internalTrigger(from, type);
     	// if node instance was cancelled, abort
@@ -126,7 +126,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 	        for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext(); ) {
 	            Connection connection = iterator.next();
 	            if ((connection.getFrom() instanceof CompositeNode.CompositeNodeStart) &&
-	            		(from == null || 
+	            		(from == null ||
 	    				((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
 	                NodeInstance nodeInstance = getNodeInstance(connection.getFrom());
 	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
@@ -144,7 +144,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
     	                	.trigger(null, null);
     	                found = true;
-        			}      	
+        			}
         		}
         	}
         	if (found) {
@@ -156,11 +156,11 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 	            "Could not find start for composite node: " + type);
         }
     }
-    
+
     protected void internalTriggerOnlyParent(final org.kie.api.runtime.process.NodeInstance from, String type) {
         super.internalTrigger(from, type);
     }
-    
+
     protected boolean isLinkedIncomingNodeRequired() {
     	return true;
     }
@@ -184,15 +184,19 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         }
         super.cancel();
     }
-    
+
     public void addNodeInstance(final NodeInstance nodeInstance) {
-        long id;
-        if( deprecatedIdStrategy ) { 
-            id = nodeInstanceCounter++;  
-        } else { 
-            id = singleNodeInstanceCounter.incrementAndGet();
+        if (nodeInstance.getId() == 0) {
+            // assign new id only if it does not exist as it might already be set by marshalling
+            // it's important to keep same ids of node instances as they might be references e.g. exclusive group
+            long id;
+            if( deprecatedIdStrategy ) {
+                id = nodeInstanceCounter++;
+            } else {
+                id = singleNodeInstanceCounter.incrementAndGet();
+            }
+            ((NodeInstanceImpl) nodeInstance).setId(id);
         }
-        ((NodeInstanceImpl) nodeInstance).setId(id);
         this.nodeInstances.add(nodeInstance);
     }
 
@@ -203,7 +207,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     public Collection<org.kie.api.runtime.process.NodeInstance> getNodeInstances() {
         return new ArrayList<org.kie.api.runtime.process.NodeInstance>(getNodeInstances(false));
     }
-    
+
     public Collection<NodeInstance> getNodeInstances(boolean recursive) {
         Collection<NodeInstance> result = nodeInstances;
         if (recursive) {
@@ -227,7 +231,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 		}
 		return null;
 	}
-	
+
 	public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
 		for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
 			if (nodeInstance.getId() == nodeInstanceId) {
@@ -246,7 +250,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         }
         return null;
     }
-    
+
     public NodeInstance getNodeInstance(final Node node) {
         // TODO do this cleaner for start / end of composite?
         if (node instanceof CompositeNode.CompositeNodeStart) {
@@ -269,7 +273,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         } else if (Boolean.parseBoolean((String)node.getMetaData().get("customAsync"))) {
             actualNode = new AsyncEventNode(node);
         }
-        
+
         NodeInstanceFactory conf = NodeInstanceFactoryRegistry.getInstance(getProcessInstance().getKnowledgeRuntime().getEnvironment()).getProcessNodeInstanceFactory(actualNode);
         if (conf == null) {
             throw new IllegalArgumentException("Illegal node type: " + node.getClass());
@@ -290,7 +294,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 					if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
 						EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
 						eventNodeInstance.signalEvent(type, event);
-					} else if( node instanceof EventSubProcessNode ) { 
+					} else if( node instanceof EventSubProcessNode ) {
 					    EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
 					    eventNodeInstance.signalEvent(type, event);
 					} else {
@@ -318,7 +322,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 		}
 		return result;
 	}
-	
+
 	public List<NodeInstance> getNodeInstances(final long nodeId, List<NodeInstance> currentView) {
 		List<NodeInstance> result = new ArrayList<NodeInstance>();
 		for (final Iterator<NodeInstance> iterator = currentView
@@ -338,15 +342,15 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         public CompositeNode.CompositeNodeStart getCompositeNodeStart() {
             return (CompositeNode.CompositeNodeStart) getNode();
         }
-        
+
         public void internalTrigger(org.kie.api.runtime.process.NodeInstance from, String type) {
             triggerCompleted();
         }
-        
+
         public void triggerCompleted() {
             triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
         }
-        
+
     }
 
     public class CompositeNodeEndInstance extends NodeInstanceImpl {
@@ -356,16 +360,16 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
         public CompositeNode.CompositeNodeEnd getCompositeNodeEnd() {
             return (CompositeNode.CompositeNodeEnd) getNode();
         }
-        
+
         public void internalTrigger(org.kie.api.runtime.process.NodeInstance from, String type) {
             triggerCompleted();
         }
-        
+
         public void triggerCompleted() {
             CompositeNodeInstance.this.triggerCompleted(
                 getCompositeNodeEnd().getOutType());
         }
-        
+
     }
 
 	public void addEventListeners() {
@@ -388,10 +392,10 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 
 	public void nodeInstanceCompleted(NodeInstance nodeInstance, String outType) {
 	    Node nodeInstanceNode = nodeInstance.getNode();
-	    if( nodeInstanceNode != null ) { 
+	    if( nodeInstanceNode != null ) {
 	        Object compensationBoolObj =  nodeInstanceNode.getMetaData().get("isForCompensation");
 	        boolean isForCompensation = compensationBoolObj == null ? false : ((Boolean) compensationBoolObj);
-	        if( isForCompensation ) { 
+	        if( isForCompensation ) {
 	            return;
 	        }
 	    }
@@ -407,7 +411,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     			"Completing a node instance that has no outgoing connection not supported.");
 	    }
 	}
-	
+
 	private static final class DoNothingEventListener implements EventListener, Serializable {
 		private static final long serialVersionUID = 5L;
 		public String[] getEventTypes() {
@@ -416,7 +420,7 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 		public void signalEvent(String type, Object event) {
 		}
 	}
-    
+
     public void setState(final int state) {
         this.state = state;
         if (state == ProcessInstance.STATE_ABORTED) {
