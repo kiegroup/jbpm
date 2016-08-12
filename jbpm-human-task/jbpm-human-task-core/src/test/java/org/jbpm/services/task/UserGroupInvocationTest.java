@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -41,35 +41,35 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 
 public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
-	
-	private static final Logger logger = LoggerFactory.getLogger(UserGroupInvocationTest.class);
 
-	private PoolingDataSource pds;
-	private EntityManagerFactory emf;
-	private CountInvokeUserGroupCallback callback;
-	
-	@Before
-	public void setup() {
-		pds = setupPoolingDataSource();
-		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
-		callback = new CountInvokeUserGroupCallback();
-		
-		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-												.entityManagerFactory(emf)
-												.userGroupCallback(callback)
-												.getTaskService();
-	}
-	
-	@After
-	public void clean() {
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
-	}
-	
+    private static final Logger logger = LoggerFactory.getLogger(UserGroupInvocationTest.class);
+
+    private PoolingDataSource pds;
+    private EntityManagerFactory emf;
+    private CountInvokeUserGroupCallback callback;
+
+    @Before
+    public void setup() {
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
+        callback = new CountInvokeUserGroupCallback();
+
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
+                                                .entityManagerFactory(emf)
+                                                .userGroupCallback(callback)
+                                                .getTaskService();
+    }
+
+    @After
+    public void clean() {
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
+    }
+
     @Test
     public void testAddStartCompleteUserAssignment() {
 
@@ -87,9 +87,9 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(3, callback.getExistsUserCounter());
         assertEquals(0, callback.getExistsGroupCounter());
         assertEquals(0, callback.getGetGroupCounter());
-        
+
         callback.reset();
-        
+
         long taskId = task.getId();
 
         taskService.start(taskId, "Darth Vader");
@@ -100,7 +100,7 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(1, callback.getExistsUserCounter());
         assertEquals(0, callback.getExistsGroupCounter());
         assertEquals(1, callback.getGetGroupCounter());
-        
+
         callback.reset();
         Task task1 = taskService.getTaskById(taskId);
         assertEquals(Status.InProgress, task1.getTaskData().getStatus());
@@ -118,7 +118,7 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(Status.Completed, task2.getTaskData().getStatus());
         assertEquals("Darth Vader", task2.getTaskData().getActualOwner().getId());
     }
-    
+
     @Test
     public void testAddStartCompleteGroupAssignment() {
 
@@ -136,11 +136,11 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(1, callback.getExistsUserCounter());
         assertEquals(2, callback.getExistsGroupCounter());
         assertEquals(0, callback.getGetGroupCounter());
-        
+
         callback.reset();
-        
+
         long taskId = task.getId();
-        
+
         taskService.claim(taskId, "Darth Vader");
         logger.debug("Callback invokation {}", callback.getExistsUserCounter());
         logger.debug("Callback invokation {}", callback.getExistsGroupCounter());
@@ -149,7 +149,7 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(1, callback.getExistsUserCounter());
         assertEquals(0, callback.getExistsGroupCounter());
         assertEquals(1, callback.getGetGroupCounter());
-        
+
         callback.reset();
 
         taskService.start(taskId, "Darth Vader");
@@ -160,7 +160,7 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(1, callback.getExistsUserCounter());
         assertEquals(0, callback.getExistsGroupCounter());
         assertEquals(1, callback.getGetGroupCounter());
-        
+
         callback.reset();
         Task task1 = taskService.getTaskById(taskId);
         assertEquals(Status.InProgress, task1.getTaskData().getStatus());
@@ -178,51 +178,51 @@ public class UserGroupInvocationTest extends HumanTaskServicesBaseTest {
         assertEquals(Status.Completed, task2.getTaskData().getStatus());
         assertEquals("Darth Vader", task2.getTaskData().getActualOwner().getId());
     }
-    
+
     private class CountInvokeUserGroupCallback implements UserGroupCallback {
 
-    	private int existsUserCounter = 0;
-    	private int existsGroupCounter = 0;
-    	private int getGroupCounter = 0;
-    	
-		@Override
-		public boolean existsUser(String userId) {
-			existsUserCounter++;
-			return true;
-		}
+        private int existsUserCounter = 0;
+        private int existsGroupCounter = 0;
+        private int getGroupCounter = 0;
 
-		@Override
-		public boolean existsGroup(String groupId) {
-			existsGroupCounter++;
-			return true;
-		}
+        @Override
+        public boolean existsUser(String userId) {
+            existsUserCounter++;
+            return true;
+        }
 
-		@Override
-		public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
-			getGroupCounter++;
-			List<String> groups = new ArrayList<String>();
-			groups.add("Knights Templer");
-			groups.add("Crusaders");
-			return groups;
-		}
+        @Override
+        public boolean existsGroup(String groupId) {
+            existsGroupCounter++;
+            return true;
+        }
 
-		public int getExistsUserCounter() {
-			return existsUserCounter;
-		}
+        @Override
+        public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
+            getGroupCounter++;
+            List<String> groups = new ArrayList<String>();
+            groups.add("Knights Templer");
+            groups.add("Crusaders");
+            return groups;
+        }
 
-		public int getExistsGroupCounter() {
-			return existsGroupCounter;
-		}
+        public int getExistsUserCounter() {
+            return existsUserCounter;
+        }
 
-		public int getGetGroupCounter() {
-			return getGroupCounter;
-		}
-		
-		public void reset() {
-			this.existsUserCounter = 0;
-			this.existsGroupCounter = 0;
-			this.getGroupCounter = 0;
-		}
-    	
+        public int getExistsGroupCounter() {
+            return existsGroupCounter;
+        }
+
+        public int getGetGroupCounter() {
+            return getGroupCounter;
+        }
+
+        public void reset() {
+            this.existsUserCounter = 0;
+            this.existsGroupCounter = 0;
+            this.getGroupCounter = 0;
+        }
+
     }
 }

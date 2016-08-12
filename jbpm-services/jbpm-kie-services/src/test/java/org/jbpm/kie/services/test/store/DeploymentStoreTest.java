@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,133 +39,133 @@ import org.kie.internal.runtime.conf.DeploymentDescriptor;
 
 public class DeploymentStoreTest extends AbstractKieServicesBaseTest {
 
-	private DeploymentStore store;
-	
-	@Before
-	public void setup() {
-		buildDatasource();
-		emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-		
-		store = new DeploymentStore();
-		store.setCommandService(new TransactionalCommandService(emf));
-	}
-	
-	@After
-	public void cleanup() {
-		close();
-	}
-	
-	@Test
-	public void testEnableAndGetActiveDeployments() {
-		Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
-		assertNotNull(enabled);
-		assertEquals(0, enabled.size());
-		
-		KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");
-		
-		store.enableDeploymentUnit(unit);
-		
-		enabled = store.getEnabledDeploymentUnits();
-		assertNotNull(enabled);
-		assertEquals(1, enabled.size());
-	}
-	
-	@Test
-	public void testEnableAndGetAndDisableActiveDeployments() {
-		Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
-		assertNotNull(enabled);
-		assertEquals(0, enabled.size());
-		
-		KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");
-		
-		store.enableDeploymentUnit(unit);
-		
-		enabled = store.getEnabledDeploymentUnits();
-		assertNotNull(enabled);
-		assertEquals(1, enabled.size());
-		
-		store.disableDeploymentUnit(unit);
-		
-		enabled = store.getEnabledDeploymentUnits();
-		assertNotNull(enabled);
-		assertEquals(0, enabled.size());
-	}
-	
-	@Test
-	public void testEnableAndGetByDateActiveDeployments() {
-		Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
-		assertNotNull(enabled);
-		assertEquals(0, enabled.size());
-		Date date = new Date();
-		KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");		
-		store.enableDeploymentUnit(unit);
-		
-		unit = new KModuleDeploymentUnit("org.jbpm", "prod", "1.0");		
-		store.enableDeploymentUnit(unit);
-		
-		Collection<DeploymentUnit> unitsEnabled = new HashSet<DeploymentUnit>();
-		Collection<DeploymentUnit> unitsDisabled = new HashSet<DeploymentUnit>();
-		Collection<DeploymentUnit> unitsActivated = new HashSet<DeploymentUnit>();
-		Collection<DeploymentUnit> unitsDeactivated = new HashSet<DeploymentUnit>();
-		
-		store.getDeploymentUnitsByDate(date, unitsEnabled, unitsDisabled, unitsActivated, unitsDeactivated);
-		assertNotNull(unitsEnabled);
-		assertEquals(2, unitsEnabled.size());
-		
-		assertNotNull(unitsDisabled);
-		assertEquals(0, unitsDisabled.size());
-		
-		date = new Date();		
-		store.disableDeploymentUnit(unit);
-		
-		// verify
-		unitsEnabled.clear();
-		unitsDisabled.clear();
-		unitsActivated.clear();
-		unitsDeactivated.clear();
-		
-		store.getDeploymentUnitsByDate(date, unitsEnabled, unitsDisabled, unitsActivated, unitsDeactivated);
-		assertNotNull(unitsEnabled);
-		assertEquals(0, unitsEnabled.size());
-		
-		assertNotNull(unitsDisabled);
-		assertEquals(1, unitsDisabled.size());
-	}
-	
-	@Test
+    private DeploymentStore store;
+
+    @Before
+    public void setup() {
+        buildDatasource();
+        emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+
+        store = new DeploymentStore();
+        store.setCommandService(new TransactionalCommandService(emf));
+    }
+
+    @After
+    public void cleanup() {
+        close();
+    }
+
+    @Test
+    public void testEnableAndGetActiveDeployments() {
+        Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
+        assertNotNull(enabled);
+        assertEquals(0, enabled.size());
+
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");
+
+        store.enableDeploymentUnit(unit);
+
+        enabled = store.getEnabledDeploymentUnits();
+        assertNotNull(enabled);
+        assertEquals(1, enabled.size());
+    }
+
+    @Test
+    public void testEnableAndGetAndDisableActiveDeployments() {
+        Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
+        assertNotNull(enabled);
+        assertEquals(0, enabled.size());
+
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");
+
+        store.enableDeploymentUnit(unit);
+
+        enabled = store.getEnabledDeploymentUnits();
+        assertNotNull(enabled);
+        assertEquals(1, enabled.size());
+
+        store.disableDeploymentUnit(unit);
+
+        enabled = store.getEnabledDeploymentUnits();
+        assertNotNull(enabled);
+        assertEquals(0, enabled.size());
+    }
+
+    @Test
+    public void testEnableAndGetByDateActiveDeployments() {
+        Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
+        assertNotNull(enabled);
+        assertEquals(0, enabled.size());
+        Date date = new Date();
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");
+        store.enableDeploymentUnit(unit);
+
+        unit = new KModuleDeploymentUnit("org.jbpm", "prod", "1.0");
+        store.enableDeploymentUnit(unit);
+
+        Collection<DeploymentUnit> unitsEnabled = new HashSet<DeploymentUnit>();
+        Collection<DeploymentUnit> unitsDisabled = new HashSet<DeploymentUnit>();
+        Collection<DeploymentUnit> unitsActivated = new HashSet<DeploymentUnit>();
+        Collection<DeploymentUnit> unitsDeactivated = new HashSet<DeploymentUnit>();
+
+        store.getDeploymentUnitsByDate(date, unitsEnabled, unitsDisabled, unitsActivated, unitsDeactivated);
+        assertNotNull(unitsEnabled);
+        assertEquals(2, unitsEnabled.size());
+
+        assertNotNull(unitsDisabled);
+        assertEquals(0, unitsDisabled.size());
+
+        date = new Date();
+        store.disableDeploymentUnit(unit);
+
+        // verify
+        unitsEnabled.clear();
+        unitsDisabled.clear();
+        unitsActivated.clear();
+        unitsDeactivated.clear();
+
+        store.getDeploymentUnitsByDate(date, unitsEnabled, unitsDisabled, unitsActivated, unitsDeactivated);
+        assertNotNull(unitsEnabled);
+        assertEquals(0, unitsEnabled.size());
+
+        assertNotNull(unitsDisabled);
+        assertEquals(1, unitsDisabled.size());
+    }
+
+    @Test
     public void testEnableAndGetActiveDeploymentsWithTransientNamedObject() {
         Collection<DeploymentUnit> enabled = store.getEnabledDeploymentUnits();
         assertNotNull(enabled);
         assertEquals(0, enabled.size());
-        
+
         KModuleDeploymentUnit unit = new KModuleDeploymentUnit("org.jbpm", "test", "1.0");
-        
+
         DeploymentDescriptor descriptor = unit.getDeploymentDescriptor();
         if (descriptor == null) {
             descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
         }
         // add transient named object model that should not be persisted
         descriptor.getBuilder()
-        .addWorkItemHandler(new TransientNamedObjectModel("ejb", "async", "org.jbpm.executor.impl.wih.AsyncWorkItemHandler", 
+        .addWorkItemHandler(new TransientNamedObjectModel("ejb", "async", "org.jbpm.executor.impl.wih.AsyncWorkItemHandler",
                     new Object[]{"jndi:java:module/ExecutorServiceEJBImpl", "org.jbpm.executor.commands.PrintOutCommand"}))
         .addEventListener(new TransientObjectModel("ejb", "not.existing.listener"));
-        
+
         unit.setDeploymentDescriptor(descriptor);
-        
+
         store.enableDeploymentUnit(unit);
-        
+
         enabled = store.getEnabledDeploymentUnits();
         assertNotNull(enabled);
         assertEquals(1, enabled.size());
-        
+
         DeploymentUnit unitEnabled = enabled.iterator().next();
         assertTrue(unitEnabled instanceof KModuleDeploymentUnit);
-        
+
         DeploymentDescriptor descriptorEnabled = ((KModuleDeploymentUnit) unitEnabled).getDeploymentDescriptor();
         assertNotNull(descriptorEnabled);
-        
+
         assertEquals(0, descriptorEnabled.getWorkItemHandlers().size());
         assertEquals(0, descriptorEnabled.getEventListeners().size());
-        
+
     }
 }

@@ -34,7 +34,7 @@ import org.kie.api.runtime.KieSession;
 import org.kie.internal.KnowledgeBase;
 
 /**
- * This class tests the following classes: 
+ * This class tests the following classes:
  * <ul>
  * <li>JPAWorkingMemoryDbLogger</li>
  * <li>AuditLogService</li>
@@ -43,25 +43,25 @@ import org.kie.internal.KnowledgeBase;
 public class CommandBasedAuditLogServiceTest extends AbstractAuditLogServiceTest {
 
     private HashMap<String, Object> context;
-    
+
     private KieSession session;
-    private AuditLogService auditLogService; 
+    private AuditLogService auditLogService;
 
     @Before
     public void setUp() throws Exception {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
-        
+
         // load the process
         KnowledgeBase kbase = createKnowledgeBase();
         // create a new session
         Environment env = createEnvironment(context);
         session = createKieSession(kbase, env);
-       
+
         // working memory logger
         AbstractAuditLogger dblogger = AuditLoggerFactory.newInstance(Type.JPA, session, null);
         assertNotNull(dblogger);
         assertTrue(dblogger instanceof JPAWorkingMemoryDbLogger);
-        
+
         auditLogService = new CommandBasedAuditLogService(session);
     }
 
@@ -77,30 +77,30 @@ public class CommandBasedAuditLogServiceTest extends AbstractAuditLogServiceTest
     public void testLogger1() throws Exception {
         runTestLogger1(session, auditLogService);
     }
-    
+
     @Test
     public void testLogger2() {
         runTestLogger2(session, auditLogService);
     }
-    
+
     @Test
     public void testLogger3() {
         runTestLogger3(session, auditLogService);
     }
-    
+
     @Test
     public void testLogger4() throws Exception {
         runTestLogger4(session, auditLogService);
     }
-    
+
     @Test
     public void testLogger4LargeVariable() throws Exception {
         runTestLogger4LargeVariable(session, auditLogService);
     }
-    
-    
+
+
     @Test
-    public void testLogger5() throws Exception { 
+    public void testLogger5() throws Exception {
         runTestLogger5(session, auditLogService);
     }
 

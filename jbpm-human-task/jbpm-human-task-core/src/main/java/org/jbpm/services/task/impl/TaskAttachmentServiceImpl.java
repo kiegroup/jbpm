@@ -30,21 +30,21 @@ import org.kie.internal.task.api.model.InternalTaskData;
  *
  */
 public class TaskAttachmentServiceImpl implements TaskAttachmentService {
- 
+
     private TaskPersistenceContext persistenceContext;
 
     public TaskAttachmentServiceImpl() {
     }
-    
-    public TaskAttachmentServiceImpl(TaskPersistenceContext persistenceContext) {
-    	this.persistenceContext = persistenceContext;
-    }
- 
-    public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
-		this.persistenceContext = persistenceContext;
-	}
 
-	public long addAttachment(long taskId, Attachment attachment, Content content) {
+    public TaskAttachmentServiceImpl(TaskPersistenceContext persistenceContext) {
+        this.persistenceContext = persistenceContext;
+    }
+
+    public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
+        this.persistenceContext = persistenceContext;
+    }
+
+    public long addAttachment(long taskId, Attachment attachment, Content content) {
         Task task = persistenceContext.findTask(taskId);
         persistenceContext.persistAttachment(attachment);
         persistenceContext.persistContent(content);
@@ -57,14 +57,14 @@ public class TaskAttachmentServiceImpl implements TaskAttachmentService {
        Task task = persistenceContext.findTask(taskId);
        Attachment attachment = ((InternalTaskData) task.getTaskData()).removeAttachment(attachmentId);
        Content content = persistenceContext.findContent(attachment.getAttachmentContentId());
-       
+
        persistenceContext.removeContent(content);
-       
+
     }
 
     public List<Attachment> getAllAttachmentsByTaskId(long taskId) {
-         return (List<Attachment>) persistenceContext.queryWithParametersInTransaction("AttachmentsByTaskId", 
-        		persistenceContext.addParametersToMap("taskId", taskId),
+         return (List<Attachment>) persistenceContext.queryWithParametersInTransaction("AttachmentsByTaskId",
+                persistenceContext.addParametersToMap("taskId", taskId),
                 ClassUtil.<List<Attachment>>castClass(List.class));
     }
 

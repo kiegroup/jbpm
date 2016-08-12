@@ -42,99 +42,99 @@ public class HumanTaskNodeFactory extends NodeFactory {
     protected Node createNode() {
         return new HumanTaskNode();
     }
-    
+
     protected HumanTaskNode getHumanTaskNode() {
-    	return (HumanTaskNode) getNode();
+        return (HumanTaskNode) getNode();
     }
 
     public HumanTaskNodeFactory name(String name) {
         getNode().setName(name);
         return this;
     }
-    
+
     public HumanTaskNodeFactory taskName(String taskName) {
-    	Work work = getHumanTaskNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getHumanTaskNode().setWork(work);
-    	}
-    	work.setParameter("TaskName", taskName);
-    	return this;
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter("TaskName", taskName);
+        return this;
     }
-    
+
     public HumanTaskNodeFactory actorId(String actorId) {
-    	Work work = getHumanTaskNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getHumanTaskNode().setWork(work);
-    	}
-    	work.setParameter("ActorId", actorId);
-    	return this;
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter("ActorId", actorId);
+        return this;
     }
-    
+
     public HumanTaskNodeFactory priority(String priority) {
-    	Work work = getHumanTaskNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getHumanTaskNode().setWork(work);
-    	}
-    	work.setParameter("Priority", priority);
-    	return this;
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter("Priority", priority);
+        return this;
     }
-    
+
     public HumanTaskNodeFactory comment(String comment) {
-    	Work work = getHumanTaskNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getHumanTaskNode().setWork(work);
-    	}
-    	work.setParameter("Comment", comment);
-    	return this;
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter("Comment", comment);
+        return this;
     }
-    
+
     public HumanTaskNodeFactory skippable(boolean skippable) {
-    	Work work = getHumanTaskNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getHumanTaskNode().setWork(work);
-    	}
-    	work.setParameter("Skippable", Boolean.toString(skippable));
-    	return this;
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter("Skippable", Boolean.toString(skippable));
+        return this;
     }
-    
+
     public HumanTaskNodeFactory content(String content) {
-    	Work work = getHumanTaskNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getHumanTaskNode().setWork(work);
-    	}
-    	work.setParameter("Content", content);
-    	return this;
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter("Content", content);
+        return this;
     }
-    
+
     public HumanTaskNodeFactory inMapping(String parameterName, String variableName) {
-    	getHumanTaskNode().addInMapping(parameterName, variableName);
+        getHumanTaskNode().addInMapping(parameterName, variableName);
         return this;
     }
 
     public HumanTaskNodeFactory outMapping(String parameterName, String variableName) {
-    	getHumanTaskNode().addOutMapping(parameterName, variableName);
+        getHumanTaskNode().addOutMapping(parameterName, variableName);
         return this;
     }
 
     public HumanTaskNodeFactory waitForCompletion(boolean waitForCompletion) {
-    	getHumanTaskNode().setWaitForCompletion(waitForCompletion);
+        getHumanTaskNode().setWaitForCompletion(waitForCompletion);
         return this;
     }
 
     public HumanTaskNodeFactory swimlane(String swimlane) {
-    	getHumanTaskNode().setSwimlane(swimlane);
+        getHumanTaskNode().setSwimlane(swimlane);
         return this;
     }
 
     public HumanTaskNodeFactory onEntryAction(String dialect, String action) {
         if (getHumanTaskNode().getActions(dialect) != null) {
-        	getHumanTaskNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
+            getHumanTaskNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
             List<DroolsAction> actions = new ArrayList<DroolsAction>();
             actions.add(new DroolsConsequenceAction(dialect, action));
@@ -145,7 +145,7 @@ public class HumanTaskNodeFactory extends NodeFactory {
 
     public HumanTaskNodeFactory onExitAction(String dialect, String action) {
         if (getHumanTaskNode().getActions(dialect) != null) {
-        	getHumanTaskNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
+            getHumanTaskNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
             List<DroolsAction> actions = new ArrayList<DroolsAction>();
             actions.add(new DroolsConsequenceAction(dialect, action));
@@ -155,22 +155,22 @@ public class HumanTaskNodeFactory extends NodeFactory {
     }
 
     public HumanTaskNodeFactory timer(String delay, String period, String dialect, String action) {
-    	Timer timer = new Timer();
-    	timer.setDelay(delay);
-    	timer.setPeriod(period);
-    	getHumanTaskNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
-    	return this;
+        Timer timer = new Timer();
+        timer.setDelay(delay);
+        timer.setPeriod(period);
+        getHumanTaskNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
+        return this;
     }
 
-	public HumanTaskNodeFactory workParameter(String name, Object value) {
-		Work work = getHumanTaskNode().getWork();
-		if (work == null) {
-			work = new WorkImpl();
-			getHumanTaskNode().setWork(work);
-		}
-		work.setParameter(name, value);
-		return this;
-	}
+    public HumanTaskNodeFactory workParameter(String name, Object value) {
+        Work work = getHumanTaskNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getHumanTaskNode().setWork(work);
+        }
+        work.setParameter(name, value);
+        return this;
+    }
 
 }
 

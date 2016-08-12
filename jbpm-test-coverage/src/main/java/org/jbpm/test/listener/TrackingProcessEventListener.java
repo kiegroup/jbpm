@@ -38,30 +38,30 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
 
     private final int numberOfCountDownsNeeded;
     private boolean transactional = true;
-    
-    public TrackingProcessEventListener(int involvedThreads) { 
+
+    public TrackingProcessEventListener(int involvedThreads) {
         this.numberOfCountDownsNeeded = involvedThreads;
-        
+
         this.processesAbortedLatch = new CountDownLatch(involvedThreads);
         this.processesStartedLatch = new CountDownLatch(involvedThreads);
         this.processesCompletedLatch = new CountDownLatch(involvedThreads);
     }
-    
-    public TrackingProcessEventListener() { 
+
+    public TrackingProcessEventListener() {
        this(1);
     }
-    
-    public TrackingProcessEventListener(boolean transactional) { 
+
+    public TrackingProcessEventListener(boolean transactional) {
         this(1);
         this.transactional = transactional;
      }
-   
+
     private final List<String> processesStarted = new ArrayList<String>();
     private CountDownLatch processesStartedLatch;
-    
+
     private final List<String> processesCompleted = new ArrayList<String>();
     private CountDownLatch processesCompletedLatch;
-    
+
     private final List<String> processesAborted = new ArrayList<String>();
     private CountDownLatch processesAbortedLatch;
 
@@ -77,7 +77,7 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
         String nodeName = event.getNodeInstance().getNodeName();
         CountDownLatch nodeLatch = getNodeTriggeredLatch(nodeName);
         nodesTriggered.add(nodeName);
-        countDown(nodeLatch);        
+        countDown(nodeLatch);
     }
 
     @Override
@@ -85,14 +85,14 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
         String nodeName = event.getNodeInstance().getNodeName();
         CountDownLatch nodeLatch = getNodeLeftLatch(nodeName);
         nodesLeft.add(nodeName);
-        countDown(nodeLatch);        
+        countDown(nodeLatch);
     }
 
     @Override
     public void beforeProcessStarted(ProcessStartedEvent event) {
-        if( processesStartedLatch.getCount() == 0 ) { 
+        if( processesStartedLatch.getCount() == 0 ) {
             processesStartedLatch = new CountDownLatch(numberOfCountDownsNeeded);
-        }        
+        }
         processesStarted.add(event.getProcessInstance().getProcessId());
         countDown(processesStartedLatch);
     }
@@ -101,13 +101,13 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
     public void beforeProcessCompleted(ProcessCompletedEvent event) {
         if (event.getProcessInstance().getState() == ProcessInstance.STATE_ABORTED) {
             processesAborted.add(event.getProcessInstance().getProcessId());
-            if( processesAbortedLatch.getCount() == 0 ) { 
+            if( processesAbortedLatch.getCount() == 0 ) {
                 processesAbortedLatch = new CountDownLatch(numberOfCountDownsNeeded);
             }
             countDown(processesAbortedLatch);
         } else {
             processesCompleted.add(event.getProcessInstance().getProcessId());
-            if( processesCompletedLatch.getCount() == 0 ) { 
+            if( processesCompletedLatch.getCount() == 0 ) {
                 processesCompletedLatch = new CountDownLatch(numberOfCountDownsNeeded);
             }
             countDown(processesCompletedLatch);
@@ -178,30 +178,30 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
     public boolean waitForProcessToAbort(long milliseconds) throws Exception {
         return processesAbortedLatch.await(milliseconds, TimeUnit.MILLISECONDS);
     }
-    
+
     public boolean waitForNodeTobeTriggered(String nodeName, long milliseconds) throws Exception {
         CountDownLatch nodeLatch = getNodeTriggeredLatch(nodeName);
         return nodeLatch.await(milliseconds, TimeUnit.MILLISECONDS);
     }
-    
+
     public boolean waitForNodeToBeLeft(String nodeName, long milliseconds) throws Exception {
         CountDownLatch nodeLatch = getNodeLeftLatch(nodeName);
         return nodeLatch.await(milliseconds, TimeUnit.MILLISECONDS);
     }
-    
-    private CountDownLatch getNodeTriggeredLatch(String nodeName) { 
+
+    private CountDownLatch getNodeTriggeredLatch(String nodeName) {
         return getNodeLatch(nodeTriggeredLatchMap, nodeName);
     }
-    
-    private CountDownLatch getNodeLeftLatch(String nodeName) { 
+
+    private CountDownLatch getNodeLeftLatch(String nodeName) {
         return getNodeLatch(nodeLeftLatchMap, nodeName);
     }
-    
-    private CountDownLatch getNodeLatch(ConcurrentHashMap<String, CountDownLatch> nodeLatchMap, String nodeName) { 
-        synchronized(nodeLatchMap) { 
+
+    private CountDownLatch getNodeLatch(ConcurrentHashMap<String, CountDownLatch> nodeLatchMap, String nodeName) {
+        synchronized(nodeLatchMap) {
             CountDownLatch nodeLatch = new CountDownLatch(numberOfCountDownsNeeded);
-            CountDownLatch previousLatch = nodeLatchMap.putIfAbsent(nodeName,nodeLatch); 
-            if( previousLatch != null ) {  
+            CountDownLatch previousLatch = nodeLatchMap.putIfAbsent(nodeName,nodeLatch);
+            if( previousLatch != null ) {
                 return previousLatch;
             }
             return nodeLatch;
@@ -215,14 +215,14 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
         processesCompleted.clear();
         processesAborted.clear();
         variablesChanged.clear();
-        
+
         processesStartedLatch = new CountDownLatch(numberOfCountDownsNeeded);
         processesAbortedLatch = new CountDownLatch(numberOfCountDownsNeeded);
         processesCompletedLatch = new CountDownLatch(numberOfCountDownsNeeded);
         nodeTriggeredLatchMap.clear();
         nodeLeftLatchMap.clear();
     }
-    
+
     protected void countDown(final CountDownLatch latch) {
         try {
             TransactionManager tm = TransactionManagerFactory.get().newTransactionManager();
@@ -230,17 +230,17 @@ public class TrackingProcessEventListener extends DefaultProcessEventListener {
                     && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                     && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
                 tm.registerTransactionSynchronization(new TransactionSynchronization() {
-                    
+
                     @Override
-                    public void beforeCompletion() {        
+                    public void beforeCompletion() {
                     }
-                    
+
                     @Override
                     public void afterCompletion(int status) {
                         latch.countDown();
                     }
                 });
-            } else {            
+            } else {
                 latch.countDown();
             }
         } catch (Exception e) {

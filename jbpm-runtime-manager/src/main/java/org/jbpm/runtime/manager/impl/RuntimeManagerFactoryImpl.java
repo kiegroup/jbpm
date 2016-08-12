@@ -34,8 +34,8 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
  * This is the main entry point class for the RuntimeManager module responsible for delivering <code>RuntimeManager</code>
  * instances based on given <code>RuntimeEnvironment</code>.
  * <br/>
- * It can be used in both CDI and non CDI environments although it does not produce RuntimeManager instance for CDI 
- * automatically but would be more used as an injected bean for other beans that might be interested in creating 
+ * It can be used in both CDI and non CDI environments although it does not produce RuntimeManager instance for CDI
+ * automatically but would be more used as an injected bean for other beans that might be interested in creating
  * <code>RuntimeManager</code> instances on demand.
  * <br/>
  * This factory will try to discover several services before building RuntimeManager:
@@ -47,18 +47,18 @@ import org.kie.internal.runtime.manager.TaskServiceFactory;
  *
  */
 public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
-    
+
 
     @Override
     public RuntimeManager newSingletonRuntimeManager(RuntimeEnvironment environment) {
-        
+
         return newSingletonRuntimeManager(environment, "default-singleton");
     }
     @Override
     public RuntimeManager newSingletonRuntimeManager(RuntimeEnvironment environment, String identifier) {
         SessionFactory factory = getSessionFactory(environment);
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
-        
+
         RuntimeManager manager = new SingletonRuntimeManager(environment, factory, taskServiceFactory, identifier);
         initTimerService(environment, manager);
         ((AbstractRuntimeManager) manager).init();
@@ -66,12 +66,12 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         return manager;
     }
 
-    @Override    
+    @Override
     public RuntimeManager newPerRequestRuntimeManager(RuntimeEnvironment environment) {
 
         return newPerRequestRuntimeManager(environment, "default-per-request");
     }
-    
+
     public RuntimeManager newPerRequestRuntimeManager(RuntimeEnvironment environment, String identifier) {
         SessionFactory factory = getSessionFactory(environment);
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
@@ -87,7 +87,7 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
 
         return newPerProcessInstanceRuntimeManager(environment, "default-per-pinstance");
     }
-    
+
     public RuntimeManager newPerProcessInstanceRuntimeManager(RuntimeEnvironment environment, String identifier) {
         SessionFactory factory = getSessionFactory(environment);
         TaskServiceFactory taskServiceFactory = getTaskServiceFactory(environment);
@@ -97,7 +97,7 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         ((AbstractRuntimeManager) manager).init();
         return manager;
     }
-    
+
     protected SessionFactory getSessionFactory(RuntimeEnvironment environment) {
         SessionFactory factory = null;
         if (environment.usePersistence()) {
@@ -105,42 +105,42 @@ public class RuntimeManagerFactoryImpl implements RuntimeManagerFactory {
         } else {
             factory = new InMemorySessionFactory(environment);
         }
-        
+
         return factory;
     }
 
     protected TaskServiceFactory getTaskServiceFactory(RuntimeEnvironment environment) {
-    	
-    	// if there is an implementation of TaskServiceFactory in the environment then use it
+
+        // if there is an implementation of TaskServiceFactory in the environment then use it
         TaskServiceFactory taskServiceFactory = (TaskServiceFactory) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate()
-        											.get("org.kie.internal.runtime.manager.TaskServiceFactory");
+                                                    .get("org.kie.internal.runtime.manager.TaskServiceFactory");
         if (taskServiceFactory != null) {
-        	return taskServiceFactory;
+            return taskServiceFactory;
         }
-        
+
         taskServiceFactory = new LocalTaskServiceFactory(environment);
-               
+
         return taskServiceFactory;
     }
-    
+
     protected void initTimerService(RuntimeEnvironment environment, RuntimeManager manager) {
         if (environment instanceof SchedulerProvider) {
-            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();  
+            GlobalSchedulerService schedulerService = ((SchedulerProvider) environment).getSchedulerService();
             if (schedulerService != null) {
                 TimerService globalTs = new GlobalTimerService(manager, schedulerService);
                 String timerServiceId = manager.getIdentifier()  + TimerServiceRegistry.TIMER_SERVICE_SUFFIX;
                 // and register it in the registry under 'default' key
                 TimerServiceRegistry.getInstance().registerTimerService(timerServiceId, globalTs);
-                ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService", 
+                ((SimpleRuntimeEnvironment)environment).addToConfiguration("drools.timerService",
                         "new org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate(\""+timerServiceId+"\")");
-                
+
                 if (!schedulerService.isTransactional()) {
                     schedulerService.setInterceptor(new TransactionAwareSchedulerServiceInterceptor(environment, manager, schedulerService));
                 }
             }
         }
     }
-    
+
 
 
 }

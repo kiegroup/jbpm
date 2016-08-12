@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -56,118 +56,118 @@ import org.slf4j.LoggerFactory;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ExecuteDeadlinesCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 3140157192156956692L;
-	private static final Logger logger = LoggerFactory.getLogger(ExecuteDeadlinesCommand.class);
-	
-	@XmlElement
-	@XmlSchemaType(name="long")
-	private Long deadlineId; 
-	@XmlElement
-	private DeadlineType type;
+    private static final long serialVersionUID = 3140157192156956692L;
+    private static final Logger logger = LoggerFactory.getLogger(ExecuteDeadlinesCommand.class);
 
-	
-	public ExecuteDeadlinesCommand() {
-		
-	}
-	
-	public ExecuteDeadlinesCommand(long taskId, long deadlineId, DeadlineType type) {
-		this.taskId = taskId;
-		this.deadlineId = deadlineId;
-		this.type = type;
-	}
-	
+    @XmlElement
+    @XmlSchemaType(name="long")
+    private Long deadlineId;
+    @XmlElement
+    private DeadlineType type;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Void execute(Context context) {
-		TaskContext ctx = (TaskContext) context;
-		UserInfo userInfo = (UserInfo) context.get(EnvironmentName.TASK_USER_INFO);
-		
-		TaskPersistenceContext persistenceContext = ctx.getPersistenceContext();
-		
-		try {
-	        Task task = persistenceContext.findTask(taskId);
-	        Deadline deadline = persistenceContext.findDeadline(deadlineId);
-	        if (task == null || deadline == null) {
-	        	return null;
-	        }
-	        TaskData taskData = task.getTaskData();
-	        
-	        
-	        if (taskData != null) {
-	            // check if task is still in valid status
-	            if (type.isValidStatus(taskData.getStatus())) {
-	                Map<String, Object> variables = null;
-	
-	
-	                    Content content = persistenceContext.findContent(taskData.getDocumentContentId());
-	
-	                    if (content != null) {
-	                        ContentMarshallerContext mContext = ctx.getTaskContentService().getMarshallerContext(task);
-	                        Object objectFromBytes = ContentMarshallerHelper.unmarshall(content.getContent(), mContext.getEnvironment(), mContext.getClassloader());
-	
-	                        if (objectFromBytes instanceof Map) {
-	                            variables = (Map<String, Object>) objectFromBytes;
-	
-	                        } else {
-	
-	                            variables = new HashMap<String, Object>();
-	                            variables.put("content", objectFromBytes);
-	                        }
-	                    } else {
-	                        variables = Collections.emptyMap();
-	                    }
-	
-	                if (deadline == null || deadline.getEscalations() == null ) {
-	                    return null;
-	                }
-	                
-	                TaskEventSupport taskEventSupport = ctx.getTaskEventSupport();
-	
-	                for (Escalation escalation : deadline.getEscalations()) {
-	
-	                    // we won't impl constraints for now
-	                    //escalation.getConstraints()
-	
-	                    // run reassignment first to allow notification to be send to new potential owners
-	                    if (!escalation.getReassignments().isEmpty()) {
-	                        
-	                        taskEventSupport.fireBeforeTaskReassigned(task, ctx);
-	                        
-	                        // get first and ignore the rest.
-	                        Reassignment reassignment = escalation.getReassignments().get(0);
-	                        logger.debug("Reassigning to {}", reassignment.getPotentialOwners());
-	                        ((InternalTaskData) task.getTaskData()).setStatus(Status.Ready);
-	                        
-	                        List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>(reassignment.getPotentialOwners());
-	                        ((InternalPeopleAssignments) task.getPeopleAssignments()).setPotentialOwners(potentialOwners);
-	                        ((InternalTaskData) task.getTaskData()).setActualOwner(null);
-	
-	                        taskEventSupport.fireAfterTaskReassigned(task, ctx);
-	                    }
-	                    for (Notification notification : escalation.getNotifications()) {
-	                        if (notification.getNotificationType() == NotificationType.Email) {
-	                            
-	                            taskEventSupport.fireBeforeTaskNotified(task, ctx);
-	                            logger.debug("Sending an Email");
-	                            NotificationListenerManager.get().broadcast(new NotificationEvent(notification, task, variables), userInfo);
-	                            
-	                            taskEventSupport.fireAfterTaskNotified(task, ctx);
-	                        }
-	                    }
-	                }
-	            }
-	            
-	        }
-	        
-	        deadline.setEscalated(true);
-	        persistenceContext.updateDeadline(deadline);
-	        persistenceContext.updateTask(task);
+
+    public ExecuteDeadlinesCommand() {
+
+    }
+
+    public ExecuteDeadlinesCommand(long taskId, long deadlineId, DeadlineType type) {
+        this.taskId = taskId;
+        this.deadlineId = deadlineId;
+        this.type = type;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Void execute(Context context) {
+        TaskContext ctx = (TaskContext) context;
+        UserInfo userInfo = (UserInfo) context.get(EnvironmentName.TASK_USER_INFO);
+
+        TaskPersistenceContext persistenceContext = ctx.getPersistenceContext();
+
+        try {
+            Task task = persistenceContext.findTask(taskId);
+            Deadline deadline = persistenceContext.findDeadline(deadlineId);
+            if (task == null || deadline == null) {
+                return null;
+            }
+            TaskData taskData = task.getTaskData();
+
+
+            if (taskData != null) {
+                // check if task is still in valid status
+                if (type.isValidStatus(taskData.getStatus())) {
+                    Map<String, Object> variables = null;
+
+
+                        Content content = persistenceContext.findContent(taskData.getDocumentContentId());
+
+                        if (content != null) {
+                            ContentMarshallerContext mContext = ctx.getTaskContentService().getMarshallerContext(task);
+                            Object objectFromBytes = ContentMarshallerHelper.unmarshall(content.getContent(), mContext.getEnvironment(), mContext.getClassloader());
+
+                            if (objectFromBytes instanceof Map) {
+                                variables = (Map<String, Object>) objectFromBytes;
+
+                            } else {
+
+                                variables = new HashMap<String, Object>();
+                                variables.put("content", objectFromBytes);
+                            }
+                        } else {
+                            variables = Collections.emptyMap();
+                        }
+
+                    if (deadline == null || deadline.getEscalations() == null ) {
+                        return null;
+                    }
+
+                    TaskEventSupport taskEventSupport = ctx.getTaskEventSupport();
+
+                    for (Escalation escalation : deadline.getEscalations()) {
+
+                        // we won't impl constraints for now
+                        //escalation.getConstraints()
+
+                        // run reassignment first to allow notification to be send to new potential owners
+                        if (!escalation.getReassignments().isEmpty()) {
+
+                            taskEventSupport.fireBeforeTaskReassigned(task, ctx);
+
+                            // get first and ignore the rest.
+                            Reassignment reassignment = escalation.getReassignments().get(0);
+                            logger.debug("Reassigning to {}", reassignment.getPotentialOwners());
+                            ((InternalTaskData) task.getTaskData()).setStatus(Status.Ready);
+
+                            List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>(reassignment.getPotentialOwners());
+                            ((InternalPeopleAssignments) task.getPeopleAssignments()).setPotentialOwners(potentialOwners);
+                            ((InternalTaskData) task.getTaskData()).setActualOwner(null);
+
+                            taskEventSupport.fireAfterTaskReassigned(task, ctx);
+                        }
+                        for (Notification notification : escalation.getNotifications()) {
+                            if (notification.getNotificationType() == NotificationType.Email) {
+
+                                taskEventSupport.fireBeforeTaskNotified(task, ctx);
+                                logger.debug("Sending an Email");
+                                NotificationListenerManager.get().broadcast(new NotificationEvent(notification, task, variables), userInfo);
+
+                                taskEventSupport.fireAfterTaskNotified(task, ctx);
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            deadline.setEscalated(true);
+            persistenceContext.updateDeadline(deadline);
+            persistenceContext.updateTask(task);
         } catch (Exception e) {
 
-        	logger.error("Error when executing deadlines", e);
+            logger.error("Error when executing deadlines", e);
         }
-		return null;
-	}
+        return null;
+    }
 
 }

@@ -21,22 +21,22 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 public class FaultDataImpl extends ContentDataImpl implements org.kie.internal.task.api.model.FaultData {
-	
-	private String faultName;
 
-	public String getFaultName() {
-		return faultName;
-	}
+    private String faultName;
 
-	public void setFaultName(String faultName) {
-		this.faultName = faultName;
-	}
-	
-	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeUTF( faultName );
-		super.writeExternal( out );
+    public String getFaultName() {
+        return faultName;
     }
-    
+
+    public void setFaultName(String faultName) {
+        this.faultName = faultName;
+    }
+
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF( faultName );
+        super.writeExternal( out );
+    }
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         faultName = in.readUTF();

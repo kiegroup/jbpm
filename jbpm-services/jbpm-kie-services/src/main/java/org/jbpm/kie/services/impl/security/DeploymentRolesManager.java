@@ -27,29 +27,29 @@ import org.kie.internal.identity.IdentityProvider;
 
 
 public class DeploymentRolesManager {
-    
+
     private static final int MAX_CACHE_ENTRIES = Integer.parseInt(System.getProperty("org.jbpm.service.cache.size", "100"));
 
     protected Map<String, List<String>> deploymentsRoles = new HashMap<String, List<String>>();
-    
+
     protected Map<String, List<String>> userDeploymentIdsCache = new LinkedHashMap<String, List<String>>() {
         private static final long serialVersionUID = -2324394641773215253L;
-        
+
         protected boolean removeEldestEntry(Map.Entry<String, List<String>> eldest) {
             return size() > MAX_CACHE_ENTRIES;
         }
     };
-    
+
     public void addRolesForDeployment(String deploymentId, List<String> roles) {
         deploymentsRoles.put(deploymentId, roles);
         userDeploymentIdsCache.clear();
     }
-    
+
     public void removeRolesForDeployment(String deploymentId) {
         deploymentsRoles.remove(deploymentId);
         userDeploymentIdsCache.clear();
     }
-    
+
     public List<String> getDeploymentsForUser(IdentityProvider identityProvider) {
         String identityName = null;
         List<String> roles = null;
@@ -64,7 +64,7 @@ public class DeploymentRolesManager {
         if (usersDeploymentIds != null) {
             return usersDeploymentIds;
         }
-        
+
         usersDeploymentIds = new ArrayList<String>();
         userDeploymentIdsCache.put(identityName, usersDeploymentIds);
         boolean isSecured = false;
@@ -76,11 +76,11 @@ public class DeploymentRolesManager {
                 isSecured = true;
             }
         }
-        
+
         if (isSecured && usersDeploymentIds.isEmpty()) {
             usersDeploymentIds.add("deployments-are-secured");
         }
-        
+
         return usersDeploymentIds;
     }
 }

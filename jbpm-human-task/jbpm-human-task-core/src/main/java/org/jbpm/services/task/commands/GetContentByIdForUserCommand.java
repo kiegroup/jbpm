@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,33 +28,33 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetContentByIdForUserCommand extends UserGroupCallbackTaskCommand<Content> {
 
-	private static final long serialVersionUID = 5911387213149078240L;
+    private static final long serialVersionUID = 5911387213149078240L;
 
-	@XmlElement
+    @XmlElement
     @XmlSchemaType(name="long")
-	private Long contentId;
-	
-	public GetContentByIdForUserCommand() {
-	}
-	
-	public GetContentByIdForUserCommand(Long contentId) {
-		this.contentId = contentId;
+    private Long contentId;
+
+    public GetContentByIdForUserCommand() {
+    }
+
+    public GetContentByIdForUserCommand(Long contentId) {
+        this.contentId = contentId;
     }
 
     public Long getContentId() {
-		return contentId;
-	}
+        return contentId;
+    }
 
-	public void setContentId(Long contentId) {
-		this.contentId = contentId;
-	}
+    public void setContentId(Long contentId) {
+        this.contentId = contentId;
+    }
 
-	public Content execute(Context cntxt) {
+    public Content execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-        
+
         return context.getTaskInstanceService().getContentByIdForUser(contentId, userId);
     }
 

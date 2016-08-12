@@ -21,16 +21,16 @@ package org.jbpm.services.task.utils;
  */
 public enum OnErrorAction {
 
-	/**
-	 * Collect information and log it to supported output.
-	 */
-	LOG,
-	/**
-	 * Abort an item that was initiator of an action (for instance work item)
-	 */
-	ABORT,
-	/**
-	 * Simply re-throw caught exception.  
-	 */
-	RETHROW;
+    /**
+     * Collect information and log it to supported output.
+     */
+    LOG,
+    /**
+     * Abort an item that was initiator of an action (for instance work item)
+     */
+    ABORT,
+    /**
+     * Simply re-throw caught exception.
+     */
+    RETHROW;
 }

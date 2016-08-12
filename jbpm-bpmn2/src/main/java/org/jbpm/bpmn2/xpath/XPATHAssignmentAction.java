@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,23 +33,23 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 public class XPATHAssignmentAction implements AssignmentAction {
-	
-	private String sourceExpr;
-	private String targetExpr;
-	private Assignment assignment;
-	private boolean isInput;
-	
-	public XPATHAssignmentAction(Assignment assignment, String sourceExpr, String targetExpr, boolean isInput) {
-		this.assignment = assignment;
-		this.sourceExpr = sourceExpr;
-		this.targetExpr = targetExpr;
-		this.isInput = isInput;
-	}
 
-	public void execute(WorkItem workItem, ProcessContext context) throws Exception {
+    private String sourceExpr;
+    private String targetExpr;
+    private Assignment assignment;
+    private boolean isInput;
+
+    public XPATHAssignmentAction(Assignment assignment, String sourceExpr, String targetExpr, boolean isInput) {
+        this.assignment = assignment;
+        this.sourceExpr = sourceExpr;
+        this.targetExpr = targetExpr;
+        this.isInput = isInput;
+    }
+
+    public void execute(WorkItem workItem, ProcessContext context) throws Exception {
         String from = assignment.getFrom();
         String to = assignment.getTo();
-        
+
         XPathFactory factory = XPathFactory.newInstance();
         XPath xpathFrom = factory.newXPath();
 
@@ -61,7 +61,7 @@ public class XPATHAssignmentAction implements AssignmentAction {
 
         Object target = null;
         Object source = null;
-        
+
         if (isInput) {
             source = context.getVariable(sourceExpr);
             target = ((WorkItem) workItem).getParameter(targetExpr);
@@ -69,9 +69,9 @@ public class XPATHAssignmentAction implements AssignmentAction {
             target = context.getVariable(targetExpr);
             source = ((WorkItem) workItem).getResult(sourceExpr);
         }
-        
+
         Object targetElem = null;
-        
+
 //        XPATHExpressionModifier modifier = new XPATHExpressionModifier();
 //        // modify the tree, returning the root node
 //        target = modifier.insertMissingData(to, (org.w3c.dom.Node) target);
@@ -80,10 +80,10 @@ public class XPATHAssignmentAction implements AssignmentAction {
         if (target != null) {
             org.w3c.dom.Node parent = null;
                 parent = ((org.w3c.dom.Node) target).getParentNode();
-                
-                
+
+
             targetElem = exprTo.evaluate(parent, XPathConstants.NODE);
-            
+
             if (targetElem == null) {
                 throw new RuntimeException("Nothing was selected by the to expression " + to + " on " + targetExpr);
             }
@@ -102,12 +102,12 @@ public class XPATHAssignmentAction implements AssignmentAction {
             // don't throw errors yet ?
             throw new RuntimeException("Source value was null for source " + sourceExpr);
         }
-        
+
         if (nl.getLength() == 0) {
             throw new RuntimeException("Nothing was selected by the from expression " + from + " on " + sourceExpr);
         }
         for (int i = 0 ; i < nl.getLength(); i++) {
-            
+
             if (!(targetElem instanceof org.w3c.dom.Node)) {
                 if (nl.item(i) instanceof Attr) {
                     targetElem = ((Attr) nl.item(i)).getValue();
@@ -128,12 +128,12 @@ public class XPATHAssignmentAction implements AssignmentAction {
                 }
             }
         }
-        
+
         if (isInput) {
             ((WorkItem) workItem).setParameter(targetExpr, target);
         } else {
             context.setVariable(targetExpr, target);
         }
-	}
+    }
 
 }

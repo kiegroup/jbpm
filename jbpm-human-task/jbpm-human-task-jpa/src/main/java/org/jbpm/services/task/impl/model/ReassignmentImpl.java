@@ -42,17 +42,17 @@ import org.kie.api.task.model.OrganizationalEntity;
 @Table(name="Reassignment")
 @SequenceGenerator(name="reassignmentIdSeq", sequenceName="REASSIGNMENT_ID_SEQ", allocationSize=1)
 public class ReassignmentImpl implements org.kie.internal.task.api.model.Reassignment {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="reassignmentIdSeq")
     private Long                       id;
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
-    @JoinColumn(name = "Reassignment_Documentation_Id", nullable = true)     
+    @JoinColumn(name = "Reassignment_Documentation_Id", nullable = true)
     private List<I18NText>             documentation = Collections.emptyList();
-    
+
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Reassignment_potentialOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
+    @JoinTable(name = "Reassignment_potentialOwners", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<OrganizationalEntity> potentialOwners = Collections.emptyList();
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -60,12 +60,12 @@ public class ReassignmentImpl implements org.kie.internal.task.api.model.Reassig
         CollectionUtils.writeI18NTextList( documentation, out );
         CollectionUtils.writeOrganizationalEntityList( potentialOwners, out );
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
         documentation = CollectionUtils.readI18NTextList( in );
-        potentialOwners = CollectionUtils.readOrganizationalEntityList( in );        
+        potentialOwners = CollectionUtils.readOrganizationalEntityList( in );
     }
 
     public Long getId() {
@@ -109,7 +109,7 @@ public class ReassignmentImpl implements org.kie.internal.task.api.model.Reassig
         ReassignmentImpl other = (ReassignmentImpl) obj;
         return CollectionUtils.equals( documentation, other.documentation ) && CollectionUtils.equals( potentialOwners, other.potentialOwners );
     }
-    
-    
+
+
 
 }

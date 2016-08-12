@@ -32,57 +32,57 @@ import org.kie.internal.runtime.manager.RuntimeManagerIdFilter;
 
 
 public class RuntimeManagerIdentifierFilterTest {
-    
+
     private static final ServiceLoader<RuntimeManagerIdFilter> runtimeManagerIdFilters = ServiceLoader.load(RuntimeManagerIdFilter.class);
 
     @Test
     public void testNumberOfFilterImplementationsFound() {
         assertNotNull(runtimeManagerIdFilters);
-        
+
         List<String> collected = new ArrayList<String>();
-        
+
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             collected.add(filter.getClass().getName());
         }
-        
+
         assertEquals(2, collected.size());
         assertTrue(collected.contains(RegExRuntimeManagerIdFilter.class.getName()));
         assertTrue(collected.contains(DeploymentIdResolver.class.getName()));
     }
-        
+
     @Test
     public void testGAVFilteringLatest() {
         assertNotNull(runtimeManagerIdFilters);
-        
+
         Collection<String> input = new ArrayList<String>();
         input.add("org.jbpm:test:2.0");
         input.add("org.jbpm:test:1.0");
         input.add("org.jbpm:another:1.0");
-        
+
         ArrayList<String> collected = new ArrayList<String>();
-        
+
         String pattern = "org.jbpm:test:latest";
-        
+
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             collected.addAll(filter.filter(pattern, input));
         }
         assertEquals(1, collected.size());
         assertEquals("org.jbpm:test:2.0", collected.get(0));
     }
-    
+
     @Test
     public void testRegExFilteringAll() {
         assertNotNull(runtimeManagerIdFilters);
-        
+
         ArrayList<String> input = new ArrayList<String>();
         input.add("org.jbpm:test:2.0");
         input.add("org.jbpm:test:1.0");
         input.add("org.jbpm:another:1.0");
-        
+
         ArrayList<String> collected = new ArrayList<String>();
-        
+
         String pattern = ".*";
-        
+
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             collected.addAll(filter.filter(pattern, input));
         }
@@ -91,42 +91,42 @@ public class RuntimeManagerIdentifierFilterTest {
         assertTrue(collected.contains(input.get(1)));
         assertTrue(collected.contains(input.get(2)));
     }
-    
+
     @Test
     public void testRegExFilteringAllVersions() {
         assertNotNull(runtimeManagerIdFilters);
-        
+
         ArrayList<String> input = new ArrayList<String>();
         input.add("org.jbpm:test:2.0");
         input.add("org.jbpm:test:1.0");
         input.add("org.jbpm:another:1.0");
-        
+
         ArrayList<String> collected = new ArrayList<String>();
-        
+
         String pattern = "org.jbpm:test:.*";
-        
+
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             collected.addAll(filter.filter(pattern, input));
         }
         assertEquals(2, collected.size());
         assertTrue(collected.contains(input.get(0)));
         assertTrue(collected.contains(input.get(1)));
-        
+
     }
-    
+
     @Test
     public void testRegExFilteringAllArtifactsAndVersions() {
         assertNotNull(runtimeManagerIdFilters);
-        
+
         ArrayList<String> input = new ArrayList<String>();
         input.add("org.jbpm:test:2.0");
         input.add("org.jbpm:test:1.0");
         input.add("org.jbpm:another:1.0");
-        
+
         ArrayList<String> collected = new ArrayList<String>();
-        
+
         String pattern = "org.jbpm:.*";
-        
+
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             collected.addAll(filter.filter(pattern, input));
         }
@@ -135,20 +135,20 @@ public class RuntimeManagerIdentifierFilterTest {
         assertTrue(collected.contains(input.get(1)));
         assertTrue(collected.contains(input.get(2)));
     }
-    
+
     @Test
     public void testRegExFilteringAllArtifactsWithGivenVersions() {
         assertNotNull(runtimeManagerIdFilters);
-        
+
         ArrayList<String> input = new ArrayList<String>();
         input.add("org.jbpm:test:2.0");
         input.add("org.jbpm:test:1.0");
         input.add("org.jbpm:another:1.0");
-        
+
         ArrayList<String> collected = new ArrayList<String>();
-        
+
         String pattern = "org.jbpm:.*:1.0";
-        
+
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             collected.addAll(filter.filter(pattern, input));
         }

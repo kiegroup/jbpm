@@ -35,7 +35,7 @@ public class RegExRuntimeManagerIdFilter implements RuntimeManagerIdFilter {
                 outputCollection.add(identifier);
             }
         }
-        
+
         return outputCollection;
     }
 

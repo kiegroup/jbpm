@@ -29,45 +29,45 @@ import org.kie.internal.io.ResourceFactory;
 
 
 public class RuleContextProviderImpl implements RuleContextProvider {
-	
-	private static RuleContextProviderImpl INSTANCE = new RuleContextProviderImpl();
-	
-	private RuleContextProviderImpl() {		
-		initialize();
-	}
-	
-	public static RuleContextProviderImpl get() {
-		return INSTANCE;
-	}
-    
+
+    private static RuleContextProviderImpl INSTANCE = new RuleContextProviderImpl();
+
+    private RuleContextProviderImpl() {
+        initialize();
+    }
+
+    public static RuleContextProviderImpl get() {
+        return INSTANCE;
+    }
+
     private static final String DEFAULT_ADD_TASK_RULES = "default-add-task.drl";
     private static final String DEFAULT_COMPLETE_TASK_RULES = "default-complete-task.drl";
 
     private Map<String, KieBase> kieBases = new HashMap<String, KieBase>();
     private Map<String, Map<String, Object>> globals = new HashMap<String, Map<String,Object>>();
-    
+
     public void initialize() {
         try {
             Resource addTask = ResourceFactory.newClassPathResource(DEFAULT_ADD_TASK_RULES);
-        
+
             KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
             kbuilder.add(addTask, ResourceType.DRL);
-            
+
             kieBases.put(TaskRuleService.ADD_TASK_SCOPE, kbuilder.newKnowledgeBase());
         } catch (Exception e) {
-            
+
         }
         try {
             Resource completeTask = ResourceFactory.newClassPathResource(DEFAULT_COMPLETE_TASK_RULES);
             KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
             kbuilder.add(completeTask, ResourceType.DRL);
-            
+
             kieBases.put(TaskRuleService.COMPLETE_TASK_SCOPE, kbuilder.newKnowledgeBase());
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     @Override
     public KieBase getKieBase(String scope) {
         return kieBases.get(scope);
@@ -77,7 +77,7 @@ public class RuleContextProviderImpl implements RuleContextProvider {
     public Map<String, Object> getGlobals(String scope) {
         return globals.get(scope);
     }
-    
+
     public void addGlobals(String scope, Map<String, Object> global) {
         this.globals.put(scope, global);
     }
@@ -85,6 +85,6 @@ public class RuleContextProviderImpl implements RuleContextProvider {
     @Override
     public void addKieBase(String scope, KieBase kbase) {
         this.kieBases.put(scope, kbase);
-        
+
     }
 }

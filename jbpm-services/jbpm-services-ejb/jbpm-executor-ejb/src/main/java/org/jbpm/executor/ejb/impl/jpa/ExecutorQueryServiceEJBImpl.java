@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -26,14 +26,14 @@ import org.kie.api.executor.ExecutorQueryService;
 @Stateless
 public class ExecutorQueryServiceEJBImpl extends ExecutorQueryServiceImpl implements ExecutorQueryService {
 
-	public ExecutorQueryServiceEJBImpl() {
-		super(true);
-	}
+    public ExecutorQueryServiceEJBImpl() {
+        super(true);
+    }
 
-	@EJB(beanInterface=TransactionalCommandServiceExecutorEJBImpl.class)
-	@Override
-	public void setCommandService(CommandService commandService) {
-		super.setCommandService(commandService);
-	}
+    @EJB(beanInterface=TransactionalCommandServiceExecutorEJBImpl.class)
+    @Override
+    public void setCommandService(CommandService commandService) {
+        super.setCommandService(commandService);
+    }
 
 }

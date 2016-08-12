@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,10 +40,10 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class ProcessStateTest extends AbstractBaseTest {
-    
+
     @Test
     public void testManualSignalState() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -123,7 +123,7 @@ public class ProcessStateTest extends AbstractBaseTest {
 
     @Test
     public void testImmediateStateConstraint1() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -132,9 +132,9 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -149,13 +149,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -178,10 +178,10 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     public void testImmediateStateConstraintPriorities1() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -190,9 +190,9 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -207,13 +207,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -236,10 +236,10 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     public void testImmediateStateConstraintPriorities2() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -248,9 +248,9 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -265,13 +265,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -294,10 +294,10 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("2", list.get(0));
     }
-    
+
     @Test
     public void testDelayedStateConstraint() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -306,12 +306,12 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.jbpm\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <imports>\n" +
-			"      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
-			"    </imports>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <imports>\n" +
+            "      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
+            "    </imports>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -326,13 +326,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -360,10 +360,10 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     public void testDelayedStateConstraint2() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -372,12 +372,12 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.jbpm\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <imports>\n" +
-			"      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
-			"    </imports>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <imports>\n" +
+            "      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
+            "    </imports>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -392,13 +392,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -426,11 +426,11 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("2", list.get(0));
     }
-    
+
     @Test
     @Ignore
     public void FIXMEtestDelayedStateConstraintPriorities1() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -439,12 +439,12 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <imports>\n" +
-			"      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
-			"    </imports>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <imports>\n" +
+            "      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
+            "    </imports>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -459,13 +459,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -492,11 +492,11 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("1", list.get(0));
     }
-    
+
     @Test
     @Ignore
     public void FIXMEtestDelayedStateConstraintPriorities2() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -505,12 +505,12 @@ public class ProcessStateTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.state\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-			"    <imports>\n" +
-			"      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
-			"    </imports>\n" +
-			"    <globals>\n" +
-			"      <global identifier=\"list\" type=\"java.util.List\" />\n" +
-			"    </globals>\n" +
+            "    <imports>\n" +
+            "      <import name=\"org.jbpm.integrationtests.test.Person\" />\n" +
+            "    </imports>\n" +
+            "    <globals>\n" +
+            "      <global identifier=\"list\" type=\"java.util.List\" />\n" +
+            "    </globals>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -525,13 +525,13 @@ public class ProcessStateTest extends AbstractBaseTest {
             "        </constraint>"+
             "      </constraints>\n" +
             "    </state>\n" +
-			"    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"3\" name=\"ActionNode1\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"1\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"4\" name=\"End\" />\n" +
-			"    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
-			"      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
-			"    </actionNode>\n" +
+            "    <actionNode id=\"5\" name=\"ActionNode2\" >\n" +
+            "      <action type=\"expression\" dialect=\"java\" >list.add(\"2\");</action>\n" +
+            "    </actionNode>\n" +
             "    <end id=\"6\" name=\"End\" />\n" +
             "  </nodes>\n" +
             "\n" +
@@ -558,10 +558,10 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(1, list.size());
         assertEquals("2", list.get(0));
     }
-    
+
     @Test
     public void testActionState() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -627,10 +627,10 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertTrue(list.contains("Action3a"));
         assertTrue(list.contains("Action4a"));
     }
-    
+
     @Test
     public void testTimerState() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -677,9 +677,9 @@ public class ProcessStateTest extends AbstractBaseTest {
         List<String> list = new ArrayList<String>();
         ksession.setGlobal("list", list);
         new Thread(new Runnable() {
-			public void run() {
-				ksession.fireUntilHalt();
-			}
+            public void run() {
+                ksession.fireUntilHalt();
+            }
         }).start();
         // start process
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
@@ -692,9 +692,9 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals("State", stateInstance.getNodeName());
         assertEquals(0, list.size());
         try {
-			Thread.sleep(4000);
-		} catch (InterruptedException e) {
-		}
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+        }
         assertEquals(4, list.size());
         assertTrue(list.contains("Timer1a"));
         assertTrue(list.contains("Timer2a"));
@@ -704,11 +704,11 @@ public class ProcessStateTest extends AbstractBaseTest {
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         assertEquals(4, list.size());
         try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-		}
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
         assertEquals(4, list.size());
         ksession.halt();
     }
-    
+
 }

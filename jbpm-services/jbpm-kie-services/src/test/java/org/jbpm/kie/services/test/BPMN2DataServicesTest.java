@@ -51,7 +51,7 @@ public class BPMN2DataServicesTest extends AbstractKieServicesBaseTest {
 
     @Before
     public void prepare() {
-    	configureServices();
+        configureServices();
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
@@ -82,7 +82,7 @@ public class BPMN2DataServicesTest extends AbstractKieServicesBaseTest {
     @After
     public void cleanup() {
 
-    	cleanupSingletonSessionId();
+        cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
                 deploymentService.undeploy(unit);

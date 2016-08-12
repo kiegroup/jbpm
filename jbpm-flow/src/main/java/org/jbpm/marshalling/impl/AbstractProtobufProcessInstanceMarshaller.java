@@ -69,7 +69,7 @@ import java.util.Map;
 
 /**
  * Default implementation of a process instance marshaller.
- * 
+ *
  */
 public abstract class AbstractProtobufProcessInstanceMarshaller
         implements
@@ -79,7 +79,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
     public JBPMMessages.ProcessInstance writeProcessInstance(MarshallerWriteContext context,
                                                              ProcessInstance processInstance) throws IOException {
         WorkflowProcessInstanceImpl workFlow = (WorkflowProcessInstanceImpl) processInstance;
-        
+
         JBPMMessages.ProcessInstance.Builder _instance = JBPMMessages.ProcessInstance.newBuilder()
                 .setId( workFlow.getId() )
                 .setProcessId( workFlow.getProcessId() )
@@ -153,7 +153,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 _instance.addVariable( ProtobufProcessMarshaller.marshallVariable( context, variable.getKey(), variable.getValue() ) );
             }
         }
-        
+
         List<Map.Entry<String, Integer>> iterationlevels = new ArrayList<Map.Entry<String, Integer>>( workFlow.getIterationLevels().entrySet() );
         Collections.sort( iterationlevels,
                           new Comparator<Map.Entry<String, Integer>>() {
@@ -165,13 +165,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
         for ( Map.Entry<String, Integer> level : iterationlevels ) {
             if ( level.getValue() != null ) {
-                _instance.addIterationLevels( 
+                _instance.addIterationLevels(
                         JBPMMessages.IterationLevel.newBuilder()
                         .setId(level.getKey())
                         .setLevel(level.getValue()) );
             }
         }
-        
+
         return _instance.build();
     }
 
@@ -181,9 +181,9 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 .setId( nodeInstance.getId() )
                 .setNodeId( nodeInstance.getNodeId())
                 .setLevel(((org.jbpm.workflow.instance.NodeInstance)nodeInstance).getLevel());
-                        
-        _node.setContent( writeNodeInstanceContent( _node, 
-                                                    nodeInstance, 
+
+        _node.setContent( writeNodeInstanceContent( _node,
+                                                    nodeInstance,
                                                     context ) );
         return _node.build();
     }
@@ -200,24 +200,24 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             JBPMMessages.ProcessInstance.NodeInstanceContent.RuleSetNode.Builder _ruleSet = JBPMMessages.ProcessInstance.NodeInstanceContent.RuleSetNode.newBuilder();
             _ruleSet.setRuleFlowGroup(((RuleSetNodeInstance) nodeInstance).getRuleFlowGroup());
             if ( timerInstances != null ) {
-                
+
                 for ( Long id : timerInstances ) {
                     _ruleSet.addTimerInstanceId( id );
                 }
             }
-            
+
            Map<String, FactHandle> facts = ((RuleSetNodeInstance) nodeInstance).getFactHandles();
            if (facts != null && facts.size() > 0) {
                for (Map.Entry<String, FactHandle> entry : facts.entrySet()) {
                    JBPMMessages.ProcessInstance.NodeInstanceContent.RuleSetNode.TextMapEntry.Builder _textMapEntry = JBPMMessages.ProcessInstance.NodeInstanceContent.RuleSetNode.TextMapEntry.newBuilder();
                    _textMapEntry.setName(entry.getKey());
                    _textMapEntry.setValue(entry.getValue().toExternalForm());
-                   
+
                    _ruleSet.addMapEntry(_textMapEntry.build());
                }
            }
            _content.setRuleSet( _ruleSet.build() );
-           
+
         } else if ( nodeInstance instanceof HumanTaskNodeInstance ) {
             JBPMMessages.ProcessInstance.NodeInstanceContent.HumanTaskNode.Builder _task = JBPMMessages.ProcessInstance.NodeInstanceContent.HumanTaskNode.newBuilder()
                     .setWorkItemId( ((HumanTaskNodeInstance) nodeInstance).getWorkItemId() );
@@ -234,7 +234,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         } else if ( nodeInstance instanceof WorkItemNodeInstance ) {
             JBPMMessages.ProcessInstance.NodeInstanceContent.WorkItemNode.Builder _wi = JBPMMessages.ProcessInstance.NodeInstanceContent.WorkItemNode.newBuilder()
                     .setWorkItemId( ((WorkItemNodeInstance) nodeInstance).getWorkItemId() );
-            
+
             List<Long> timerInstances =
                     ((WorkItemNodeInstance) nodeInstance).getTimerInstances();
             if ( timerInstances != null ) {
@@ -273,11 +273,11 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         } else if ( nodeInstance instanceof AsyncEventNodeInstance ) {
             JBPMMessages.ProcessInstance.NodeInstanceContent.AsyncEventNode.Builder _asyncEvent = JBPMMessages.ProcessInstance.NodeInstanceContent.AsyncEventNode.newBuilder();
             _asyncEvent.setEventType(((AsyncEventNodeInstance) nodeInstance).getEventType());
-                    
+
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.ASYNC_EVENT_NODE )
                     .setAsyncEvent(_asyncEvent.build());
-            
+
         } else if ( nodeInstance instanceof EventNodeInstance ) {
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.EVENT_NODE );
@@ -336,7 +336,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                                                                  subNodeInstance ) );
                 }
             }
-            
+
             VariableScopeInstance variableScopeInstance = (VariableScopeInstance) forEachNodeInstance.getContextInstance( VariableScope.VARIABLE_SCOPE);
             if ( variableScopeInstance != null ) {
                 List<Map.Entry<String, Object>> variables = new ArrayList<Map.Entry<String, Object>>( variableScopeInstance.getVariables().entrySet() );
@@ -348,11 +348,11 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                                       }
                                   } );
                 for ( Map.Entry<String, Object> variable : variables ) {
-                    
+
                     _foreach.addVariable( ProtobufProcessMarshaller.marshallVariable( context, variable.getKey(), variable.getValue() ) );
                 }
             }
-            
+
             List<Map.Entry<String, Integer>> iterationlevels = new ArrayList<Map.Entry<String, Integer>>( forEachNodeInstance.getIterationLevels().entrySet() );
             Collections.sort( iterationlevels,
                               new Comparator<Map.Entry<String, Integer>>() {
@@ -364,13 +364,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
             for ( Map.Entry<String, Integer> level : iterationlevels ) {
                 if ( level.getKey() != null && level.getValue() != null ) {
-                    _foreach.addIterationLevels( 
+                    _foreach.addIterationLevels(
                             JBPMMessages.IterationLevel.newBuilder()
                             .setId(level.getKey())
                             .setLevel(level.getValue()) );
                 }
             }
-            
+
             _content = JBPMMessages.ProcessInstance.NodeInstanceContent.newBuilder()
                     .setType( NodeInstanceType.FOR_EACH_NODE )
                     .setForEach( _foreach.build() );
@@ -404,11 +404,11 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                                       }
                                   } );
                 for ( Map.Entry<String, Object> variable : variables ) {
-                    
+
                     _composite.addVariable( ProtobufProcessMarshaller.marshallVariable( context, variable.getKey(), variable.getValue() ) );
                 }
             }
-            
+
             List<Map.Entry<String, Integer>> iterationlevels = new ArrayList<Map.Entry<String, Integer>>( compositeNodeInstance.getIterationLevels().entrySet() );
             Collections.sort( iterationlevels,
                               new Comparator<Map.Entry<String, Integer>>() {
@@ -420,13 +420,13 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
             for ( Map.Entry<String, Integer> level : iterationlevels ) {
                 if (level.getKey() != null && level.getValue() != null ) {
-                    _composite.addIterationLevels( 
+                    _composite.addIterationLevels(
                             JBPMMessages.IterationLevel.newBuilder()
                             .setId(level.getKey())
                             .setLevel(level.getValue()) );
                 }
             }
-            
+
             List<NodeInstance> nodeInstances = new ArrayList<NodeInstance>( compositeNodeInstance.getNodeInstances() );
             Collections.sort( nodeInstances,
                               new Comparator<NodeInstance>() {
@@ -465,11 +465,11 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
     public ProcessInstance readProcessInstance(MarshallerReaderContext context) throws IOException {
         InternalKnowledgeBase ruleBase = context.kBase;
         InternalWorkingMemory wm = context.wm;
-        
+
         JBPMMessages.ProcessInstance _instance = (org.jbpm.marshalling.impl.JBPMMessages.ProcessInstance) context.parameterObject;
         if( _instance == null ) {
             // try to parse from the stream
-            ExtensionRegistry registry = PersisterHelper.buildRegistry( context, null ); 
+            ExtensionRegistry registry = PersisterHelper.buildRegistry( context, null );
             Header _header;
             try {
 
@@ -490,12 +490,12 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         String processXml = _instance.getProcessXml();
         Process process = null;
         if (processXml != null && processXml.trim().length() > 0) {
-        	processInstance.setProcessXml( processXml );
-        	process = processInstance.getProcess();
+            processInstance.setProcessXml( processXml );
+            process = processInstance.getProcess();
         } else {
             process = ruleBase.getProcess( processId );
             if (process == null) {
-            	throw new RuntimeException("Could not find process " + processId + " when restoring process instance " + processInstance.getId());
+                throw new RuntimeException("Could not find process " + processId + " when restoring process instance " + processInstance.getId());
             }
             processInstance.setProcess( process );
         }
@@ -507,7 +507,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
         long nodeInstanceCounter = _instance.getNodeInstanceCounter();
         processInstance.setKnowledgeRuntime( wm.getKnowledgeRuntime() );
         processInstance.internalSetNodeInstanceCounter( nodeInstanceCounter );
-        for( String completedNodeId : _instance.getCompletedNodeIdsList() ) { 
+        for( String completedNodeId : _instance.getCompletedNodeIdsList() ) {
             processInstance.addCompletedNodeId(completedNodeId);
         }
 
@@ -521,8 +521,8 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
         for ( JBPMMessages.ProcessInstance.NodeInstance _node : _instance.getNodeInstanceList() ) {
             context.parameterObject = _node;
-            readNodeInstance( context, 
-                              processInstance, 
+            readNodeInstance( context,
+                              processInstance,
                               processInstance );
         }
 
@@ -546,21 +546,21 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
             for ( JBPMMessages.Variable _variable : _instance.getVariableList() ) {
                 try {
                     Object _value = ProtobufProcessMarshaller.unmarshallVariableValue( context, _variable );
-                    variableScopeInstance.internalSetVariable( _variable.getName(), 
+                    variableScopeInstance.internalSetVariable( _variable.getName(),
                                                                _value );
                 } catch ( ClassNotFoundException e ) {
                     throw new IllegalArgumentException( "Could not reload variable " + _variable.getName() );
                 }
             }
         }
-        
+
         if ( _instance.getIterationLevelsCount() > 0 ) {
-            
+
             for ( JBPMMessages.IterationLevel _level : _instance.getIterationLevelsList()) {
                 processInstance.getIterationLevels().put(_level.getId(), _level.getLevel());
             }
-        }        
-    	processInstance.reconnect();
+        }
+        processInstance.reconnect();
         return processInstance;
     }
 
@@ -570,12 +570,12 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                                          NodeInstanceContainer nodeInstanceContainer,
                                          WorkflowProcessInstance processInstance) throws IOException {
         JBPMMessages.ProcessInstance.NodeInstance _node = (JBPMMessages.ProcessInstance.NodeInstance) context.parameterObject;
-        
+
         NodeInstanceImpl nodeInstance = readNodeInstanceContent( _node,
-                                                                 context, 
+                                                                 context,
                                                                  processInstance);
 
-        nodeInstance.setNodeId( _node.getNodeId() );                
+        nodeInstance.setNodeId( _node.getNodeId() );
         nodeInstance.setId( _node.getId() );
         nodeInstance.setNodeInstanceContainer( nodeInstanceContainer );
         nodeInstance.setProcessInstance( (org.jbpm.workflow.instance.WorkflowProcessInstance) processInstance );
@@ -583,7 +583,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
 
         switch ( _node.getContent().getType() ) {
             case COMPOSITE_CONTEXT_NODE :
-            	
+
             case DYNAMIC_NODE :
                 if ( _node.getContent().getComposite().getVariableCount() > 0 ) {
                     Context variableScope = ((org.jbpm.process.core.Process) ((org.jbpm.process.instance.ProcessInstance)
@@ -599,7 +599,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     }
                 }
                 if ( _node.getContent().getComposite().getIterationLevelsCount() > 0 ) {
-                    
+
                     for ( JBPMMessages.IterationLevel _level : _node.getContent().getComposite().getIterationLevelsList()) {
                         ((CompositeContextNodeInstance) nodeInstance).getIterationLevels().put(_level.getId(), _level.getLevel());
                     }
@@ -639,7 +639,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                         }
                     }
                     if ( _node.getContent().getForEach().getIterationLevelsCount() > 0 ) {
-                        
+
                         for ( JBPMMessages.IterationLevel _level : _node.getContent().getForEach().getIterationLevelsList()) {
                             ((ForEachNodeInstance) nodeInstance).getIterationLevels().put(_level.getId(), _level.getLevel());
                         }
@@ -686,14 +686,14 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                     }
                     ((RuleSetNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
                 }
-                
+
                 if (_content.getRuleSet().getMapEntryCount() > 0) {
                     Map<String, FactHandle> factInfo = new HashMap<String, FactHandle>();
-                    
+
                     for (TextMapEntry entry : _content.getRuleSet().getMapEntryList()) {
                         factInfo.put(entry.getName(), DefaultFactHandle.createFromExternalFormat(entry.getValue()));
                     }
-                    
+
                     ((RuleSetNodeInstance) nodeInstance).setFactHandles(factInfo);
                 }
                 break;
@@ -767,14 +767,14 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 break;
             case COMPOSITE_CONTEXT_NODE :
                 nodeInstance = new CompositeContextNodeInstance();
-                
+
                 if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
                     for ( Long _timerId : _content.getComposite().getTimerInstanceIdList() ) {
                         timerInstances.add( _timerId );
                     }
                     ((CompositeContextNodeInstance) nodeInstance).internalSetTimerInstances( timerInstances );
-                }                
+                }
                 break;
             case DYNAMIC_NODE :
                 nodeInstance = new DynamicNodeInstance();
@@ -798,7 +798,7 @@ public abstract class AbstractProtobufProcessInstanceMarshaller
                 break;
             case EVENT_SUBPROCESS_NODE :
                 nodeInstance = new EventSubProcessNodeInstance();
-                
+
                 if ( _content.getComposite().getTimerInstanceIdCount() > 0 ) {
                     List<Long> timerInstances = new ArrayList<Long>();
                     for ( Long _timerId : _content.getComposite().getTimerInstanceIdList() ) {

@@ -47,7 +47,7 @@ import org.kie.api.definition.process.NodeContainer;
 
 /**
  * Runtime counterpart of a composite node.
- * 
+ *
  */
 public class CompositeNodeInstance extends StateBasedNodeInstance implements NodeInstanceContainer, EventNodeInstanceInterface, EventBasedNodeInstanceInterface {
 
@@ -79,25 +79,25 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     public void setProcessInstance(WorkflowProcessInstance processInstance) {
-    	super.setProcessInstance(processInstance);
-    	this.singleNodeInstanceCounter = ((WorkflowProcessInstanceImpl) processInstance).internalGetNodeInstanceCounter();
-    	registerExternalEventNodeListeners();
+        super.setProcessInstance(processInstance);
+        this.singleNodeInstanceCounter = ((WorkflowProcessInstanceImpl) processInstance).internalGetNodeInstanceCounter();
+        registerExternalEventNodeListeners();
     }
 
     private void registerExternalEventNodeListeners() {
-    	for (Node node: getCompositeNode().getNodes()) {
-			if (node instanceof EventNode) {
-				if ("external".equals(((EventNode) node).getScope())) {
-					getProcessInstance().addEventListener(
-						((EventNode) node).getType(), EMPTY_EVENT_LISTENER,  true);
-				}
-			} else if (node instanceof EventSubProcessNode) {
+        for (Node node: getCompositeNode().getNodes()) {
+            if (node instanceof EventNode) {
+                if ("external".equals(((EventNode) node).getScope())) {
+                    getProcessInstance().addEventListener(
+                        ((EventNode) node).getType(), EMPTY_EVENT_LISTENER,  true);
+                }
+            } else if (node instanceof EventSubProcessNode) {
                 List<String> events = ((EventSubProcessNode) node).getEvents();
                 for (String type : events) {
                     getProcessInstance().addEventListener(type, EMPTY_EVENT_LISTENER, true);
                 }
             }
-    	}
+        }
     }
 
     protected CompositeNode getCompositeNode() {
@@ -109,45 +109,45 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     public void internalTrigger(final org.kie.api.runtime.process.NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
-    	// if node instance was cancelled, abort
-		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
-			return;
-		}
+        super.internalTrigger(from, type);
+        // if node instance was cancelled, abort
+        if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
+            return;
+        }
         CompositeNode.NodeAndType nodeAndType = getCompositeNode().internalGetLinkedIncomingNode(type);
         if (nodeAndType != null) {
-	        List<Connection> connections = nodeAndType.getNode().getIncomingConnections(nodeAndType.getType());
-	        for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext(); ) {
-	            Connection connection = iterator.next();
-	            if ((connection.getFrom() instanceof CompositeNode.CompositeNodeStart) &&
-	            		(from == null ||
-	    				((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
-	                NodeInstance nodeInstance = getNodeInstance(connection.getFrom());
-	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
-	                return;
-	            }
-	        }
+            List<Connection> connections = nodeAndType.getNode().getIncomingConnections(nodeAndType.getType());
+            for (Iterator<Connection> iterator = connections.iterator(); iterator.hasNext(); ) {
+                Connection connection = iterator.next();
+                if ((connection.getFrom() instanceof CompositeNode.CompositeNodeStart) &&
+                        (from == null ||
+                        ((CompositeNode.CompositeNodeStart) connection.getFrom()).getInNode().getId() == from.getNodeId())) {
+                    NodeInstance nodeInstance = getNodeInstance(connection.getFrom());
+                    ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).trigger(null, nodeAndType.getType());
+                    return;
+                }
+            }
         } else {
-        	// try to search for start nodes
-        	boolean found = false;
-        	for (Node node: getCompositeNode().getNodes()) {
-        		if (node instanceof StartNode) {
-        			StartNode startNode = (StartNode) node;
-        			if (startNode.getTriggers() == null || startNode.getTriggers().isEmpty()) {
-    	                NodeInstance nodeInstance = getNodeInstance(startNode);
-    	                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
-    	                	.trigger(null, null);
-    	                found = true;
-        			}
-        		}
-        	}
-        	if (found) {
-        		return;
-        	}
+            // try to search for start nodes
+            boolean found = false;
+            for (Node node: getCompositeNode().getNodes()) {
+                if (node instanceof StartNode) {
+                    StartNode startNode = (StartNode) node;
+                    if (startNode.getTriggers() == null || startNode.getTriggers().isEmpty()) {
+                        NodeInstance nodeInstance = getNodeInstance(startNode);
+                        ((org.jbpm.workflow.instance.NodeInstance) nodeInstance)
+                            .trigger(null, null);
+                        found = true;
+                    }
+                }
+            }
+            if (found) {
+                return;
+            }
         }
         if (isLinkedIncomingNodeRequired()) {
-	        throw new IllegalArgumentException(
-	            "Could not find start for composite node: " + type);
+            throw new IllegalArgumentException(
+                "Could not find start for composite node: " + type);
         }
     }
 
@@ -156,18 +156,18 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     protected boolean isLinkedIncomingNodeRequired() {
-    	return true;
+        return true;
     }
 
     public void triggerCompleted(String outType) {
-    	boolean cancelRemainingInstances = getCompositeNode().isCancelRemainingInstances();
-    	((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
+        boolean cancelRemainingInstances = getCompositeNode().isCancelRemainingInstances();
+        ((org.jbpm.workflow.instance.NodeInstanceContainer)getNodeInstanceContainer()).setCurrentLevel(getLevel());
         triggerCompleted(outType, cancelRemainingInstances);
         if (cancelRemainingInstances) {
-	        while (!nodeInstances.isEmpty()) {
-	            NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
-	            ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
-	        }
+            while (!nodeInstances.isEmpty()) {
+                NodeInstance nodeInstance = (NodeInstance) nodeInstances.get(0);
+                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).cancel();
+            }
         }
     }
 
@@ -181,9 +181,9 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 
     public void addNodeInstance(final NodeInstance nodeInstance) {
         if (nodeInstance.getId() == 0) {
-            // assign new id only if it does not exist as it might already be set by marshalling 
+            // assign new id only if it does not exist as it might already be set by marshalling
             // it's important to keep same ids of node instances as they might be references e.g. exclusive group
-            long id = singleNodeInstanceCounter.incrementAndGet();        
+            long id = singleNodeInstanceCounter.incrementAndGet();
             ((NodeInstanceImpl) nodeInstance).setId(id);
         }
         this.nodeInstances.add(nodeInstance);
@@ -205,30 +205,30 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
                 NodeInstance nodeInstance = iterator.next();
                 if (nodeInstance instanceof NodeInstanceContainer) {
                     result.addAll(((NodeInstanceContainer)
-                		nodeInstance).getNodeInstances(true));
+                        nodeInstance).getNodeInstances(true));
                 }
             }
         }
         return Collections.unmodifiableCollection(result);
     }
 
-	public NodeInstance getNodeInstance(long nodeInstanceId) {
-		for (NodeInstance nodeInstance: nodeInstances) {
-			if (nodeInstance.getId() == nodeInstanceId) {
-				return nodeInstance;
-			}
-		}
-		return null;
-	}
+    public NodeInstance getNodeInstance(long nodeInstanceId) {
+        for (NodeInstance nodeInstance: nodeInstances) {
+            if (nodeInstance.getId() == nodeInstanceId) {
+                return nodeInstance;
+            }
+        }
+        return null;
+    }
 
-	public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
-		for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
-			if (nodeInstance.getId() == nodeInstanceId) {
-				return nodeInstance;
-			}
-		}
-		return null;
-	}
+    public NodeInstance getNodeInstance(long nodeInstanceId, boolean recursive) {
+        for (NodeInstance nodeInstance: getNodeInstances(recursive)) {
+            if (nodeInstance.getId() == nodeInstanceId) {
+                return nodeInstance;
+            }
+        }
+        return null;
+    }
 
     public NodeInstance getFirstNodeInstance(final long nodeId) {
         for ( final Iterator<NodeInstance> iterator = this.nodeInstances.iterator(); iterator.hasNext(); ) {
@@ -275,55 +275,55 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
     }
 
     @Override
-	public void signalEvent(String type, Object event) {
-		List<NodeInstance> currentView = new ArrayList<NodeInstance>(this.nodeInstances);
-		super.signalEvent(type, event);
-		for (Node node: getCompositeNode().internalGetNodes()) {
-			if (node instanceof EventNodeInterface) {
-				if (((EventNodeInterface) node).acceptsEvent(type, event)) {
-					if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
-						EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
-						eventNodeInstance.signalEvent(type, event);
-					} else if( node instanceof EventSubProcessNode ) {
-					    EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
-					    eventNodeInstance.signalEvent(type, event);
-					} else {
-						List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
-						if (nodeInstances != null && !nodeInstances.isEmpty()) {
-							for (NodeInstance nodeInstance : nodeInstances) {
-								((EventNodeInstanceInterface) nodeInstance)
-										.signalEvent(type, event);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+    public void signalEvent(String type, Object event) {
+        List<NodeInstance> currentView = new ArrayList<NodeInstance>(this.nodeInstances);
+        super.signalEvent(type, event);
+        for (Node node: getCompositeNode().internalGetNodes()) {
+            if (node instanceof EventNodeInterface) {
+                if (((EventNodeInterface) node).acceptsEvent(type, event)) {
+                    if (node instanceof EventNode && ((EventNode) node).getFrom() == null) {
+                        EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
+                        eventNodeInstance.signalEvent(type, event);
+                    } else if( node instanceof EventSubProcessNode ) {
+                        EventNodeInstanceInterface eventNodeInstance = (EventNodeInstanceInterface) getNodeInstance(node);
+                        eventNodeInstance.signalEvent(type, event);
+                    } else {
+                        List<NodeInstance> nodeInstances = getNodeInstances(node.getId(), currentView);
+                        if (nodeInstances != null && !nodeInstances.isEmpty()) {
+                            for (NodeInstance nodeInstance : nodeInstances) {
+                                ((EventNodeInstanceInterface) nodeInstance)
+                                        .signalEvent(type, event);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	public List<NodeInstance> getNodeInstances(final long nodeId) {
-		List<NodeInstance> result = new ArrayList<NodeInstance>();
-		for (final Iterator<NodeInstance> iterator = this.nodeInstances
-				.iterator(); iterator.hasNext();) {
-			final NodeInstance nodeInstance = iterator.next();
-			if (nodeInstance.getNodeId() == nodeId) {
-				result.add(nodeInstance);
-			}
-		}
-		return result;
-	}
+    public List<NodeInstance> getNodeInstances(final long nodeId) {
+        List<NodeInstance> result = new ArrayList<NodeInstance>();
+        for (final Iterator<NodeInstance> iterator = this.nodeInstances
+                .iterator(); iterator.hasNext();) {
+            final NodeInstance nodeInstance = iterator.next();
+            if (nodeInstance.getNodeId() == nodeId) {
+                result.add(nodeInstance);
+            }
+        }
+        return result;
+    }
 
-	public List<NodeInstance> getNodeInstances(final long nodeId, List<NodeInstance> currentView) {
-		List<NodeInstance> result = new ArrayList<NodeInstance>();
-		for (final Iterator<NodeInstance> iterator = currentView
-				.iterator(); iterator.hasNext();) {
-			final NodeInstance nodeInstance = iterator.next();
-			if (nodeInstance.getNodeId() == nodeId) {
-				result.add(nodeInstance);
-			}
-		}
-		return result;
-	}
+    public List<NodeInstance> getNodeInstances(final long nodeId, List<NodeInstance> currentView) {
+        List<NodeInstance> result = new ArrayList<NodeInstance>();
+        for (final Iterator<NodeInstance> iterator = currentView
+                .iterator(); iterator.hasNext();) {
+            final NodeInstance nodeInstance = iterator.next();
+            if (nodeInstance.getNodeId() == nodeId) {
+                result.add(nodeInstance);
+            }
+        }
+        return result;
+    }
 
     public class CompositeNodeStartInstance extends NodeInstanceImpl {
 
@@ -362,45 +362,45 @@ public class CompositeNodeInstance extends StateBasedNodeInstance implements Nod
 
     }
 
-	public void addEventListeners() {
-		super.addEventListeners();
-		for (NodeInstance nodeInstance: nodeInstances) {
+    public void addEventListeners() {
+        super.addEventListeners();
+        for (NodeInstance nodeInstance: nodeInstances) {
             if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
                 ((EventBasedNodeInstanceInterface) nodeInstance).addEventListeners();
             }
         }
-	}
+    }
 
-	public void removeEventListeners() {
-		super.removeEventListeners();
-		for (NodeInstance nodeInstance: nodeInstances) {
+    public void removeEventListeners() {
+        super.removeEventListeners();
+        for (NodeInstance nodeInstance: nodeInstances) {
             if (nodeInstance instanceof EventBasedNodeInstanceInterface) {
                 ((EventBasedNodeInstanceInterface) nodeInstance).removeEventListeners();
             }
         }
-	}
+    }
 
-	public void nodeInstanceCompleted(NodeInstance nodeInstance, String outType) {
-	    Node nodeInstanceNode = nodeInstance.getNode();
-	    if( nodeInstanceNode != null ) {
-	        Object compensationBoolObj =  nodeInstanceNode.getMetaData().get("isForCompensation");
-	        boolean isForCompensation = compensationBoolObj == null ? false : ((Boolean) compensationBoolObj);
-	        if( isForCompensation ) {
-	            return;
-	        }
-	    }
-	    if (nodeInstance instanceof EndNodeInstance || nodeInstance instanceof EventSubProcessNodeInstance ) {
+    public void nodeInstanceCompleted(NodeInstance nodeInstance, String outType) {
+        Node nodeInstanceNode = nodeInstance.getNode();
+        if( nodeInstanceNode != null ) {
+            Object compensationBoolObj =  nodeInstanceNode.getMetaData().get("isForCompensation");
+            boolean isForCompensation = compensationBoolObj == null ? false : ((Boolean) compensationBoolObj);
+            if( isForCompensation ) {
+                return;
+            }
+        }
+        if (nodeInstance instanceof EndNodeInstance || nodeInstance instanceof EventSubProcessNodeInstance ) {
             if (((org.jbpm.workflow.core.WorkflowProcess) getProcessInstance().getProcess()).isAutoComplete()) {
                 if (nodeInstances.isEmpty()) {
                     triggerCompleted(
                         org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
                 }
             }
-	    } else {
-    		throw new IllegalArgumentException(
-    			"Completing a node instance that has no outgoing connection not supported.");
-	    }
-	}
+        } else {
+            throw new IllegalArgumentException(
+                "Completing a node instance that has no outgoing connection not supported.");
+        }
+    }
 
     public void setState(final int state) {
         this.state = state;

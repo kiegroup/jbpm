@@ -30,13 +30,13 @@ import org.kie.internal.task.api.InternalTaskService;
 public class TaskCleanUpProcessEventListener extends DefaultProcessEventListener {
 
     private InternalTaskService taskService;
-    
-	public TaskCleanUpProcessEventListener(TaskService taskService) {
+
+    public TaskCleanUpProcessEventListener(TaskService taskService) {
         this.taskService = (InternalTaskService) taskService;
     }
- 
+
     @Override
-    public void afterProcessCompleted(ProcessCompletedEvent event) {        
+    public void afterProcessCompleted(ProcessCompletedEvent event) {
         List<Status> statuses = new ArrayList<Status>();
         statuses.add(Status.Error);
         statuses.add(Status.Failed);
@@ -50,8 +50,8 @@ public class TaskCleanUpProcessEventListener extends DefaultProcessEventListener
         taskService.removeTasks(completedTasksByProcessId);
     }
 
-	public void setTaskService(InternalTaskService taskService) {
-		this.taskService = taskService;
-	}
-    
+    public void setTaskService(InternalTaskService taskService) {
+        this.taskService = taskService;
+    }
+
 }

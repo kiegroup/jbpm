@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class JsonTaskSerializationTest extends AbstractTaskSerializationTest {
 
     private static final Logger logger = LoggerFactory.getLogger(JsonTaskSerializationTest.class);
-    
+
     public final static int JMS_SERIALIZATION_TYPE = 1;
 
     private ObjectMapper mapper = new ObjectMapper();
@@ -33,7 +33,7 @@ public class JsonTaskSerializationTest extends AbstractTaskSerializationTest {
     public TestType getType() {
         return TestType.JSON;
     }
-    
+
     public <T> T testRoundTrip(T object) throws Exception {
         String jsonStr =  mapper.writeValueAsString(object);
         logger.debug(jsonStr);
@@ -46,7 +46,7 @@ public class JsonTaskSerializationTest extends AbstractTaskSerializationTest {
     }
 
     // Specific JSON tests --------------------------------------------------------------------------------------------------------
-    
+
     /**
      * None at the moment
      */

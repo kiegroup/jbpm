@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,13 +24,13 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 public class EventNodeHandler extends AbstractNodeHandler {
-    
+
     protected Node createNode() {
         return new EventNode();
     }
-    
+
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return EventNode.class;
     }
 
@@ -48,11 +48,11 @@ public class EventNodeHandler extends AbstractNodeHandler {
             eventNode.setScope(scope);
         }
     }
-    
+
     public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		EventNode eventNode = (EventNode) node;
-		writeNode("eventNode", eventNode, xmlDump, includeMeta);
-		String variableName = eventNode.getVariableName();
+        EventNode eventNode = (EventNode) node;
+        writeNode("eventNode", eventNode, xmlDump, includeMeta);
+        String variableName = eventNode.getVariableName();
         if (variableName != null && variableName.length() != 0) {
             xmlDump.append("variableName=\"" + variableName + "\" ");
         }
@@ -62,21 +62,21 @@ public class EventNodeHandler extends AbstractNodeHandler {
         }
         xmlDump.append(">" + EOL);
         if (includeMeta) {
-        	writeMetaData(eventNode, xmlDump);
+            writeMetaData(eventNode, xmlDump);
         }
         xmlDump.append("      <eventFilters>" + EOL);
         for (EventFilter filter: eventNode.getEventFilters()) {
-        	if (filter instanceof EventTypeFilter) {
-        		xmlDump.append("        <eventFilter "
+            if (filter instanceof EventTypeFilter) {
+                xmlDump.append("        <eventFilter "
                     + "type=\"eventType\" "
                     + "eventType=\"" + ((EventTypeFilter) filter).getType() + "\" />" + EOL);
-        	} else {
-        		throw new IllegalArgumentException(
-    				"Unknown filter type: " + filter);
-        	}
+            } else {
+                throw new IllegalArgumentException(
+                    "Unknown filter type: " + filter);
+            }
         }
         xmlDump.append("      </eventFilters>" + EOL);
         endNode("eventNode", xmlDump);
-	}
+    }
 
 }

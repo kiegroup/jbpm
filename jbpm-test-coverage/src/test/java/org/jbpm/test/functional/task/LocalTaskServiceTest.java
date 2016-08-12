@@ -41,13 +41,13 @@ public class LocalTaskServiceTest extends JbpmTestCase {
 
     private static final String HUMAN_TASK = "org/jbpm/test/functional/common/HumanTask.bpmn2";
     private static final String HUMAN_TASK_ID = "org.jbpm.test.functional.common.HumanTask";
-    
+
     private static final String EVALUATION = "org/jbpm/test/functional/task/Evaluation2.bpmn";
     private static final String EVALUTION_ID = "com.sample.evaluation";
-    
+
     private static final String TASK_MULTIPLE_ACTORS = "org/jbpm/test/functional/task/HumanTaskMultipleActors.bpmn2";
     private static final String TASK_MULTIPLE_ACTORS_ID = "com.sample.humantask.multipleactors";
-    
+
     private static final String TASK_SINGLE_TYPE = "org/jbpm/test/functional/task/HumanTaskWithSingleTypeContent.bpmn2";
     private static final String TASK_SINGLE_TYPE_ID = "com.sample.bpmn.hello1";
 
@@ -115,12 +115,12 @@ public class LocalTaskServiceTest extends JbpmTestCase {
         assertNodeTriggered(processInstance.getId(), "end");
         assertProcessInstanceCompleted(processInstance.getId());
     }
-    
-    @Test 
+
+    @Test
     public void groupTaskQueryTest() throws Exception {
 
         KnowledgeRuntimeLoggerFactory.newConsoleLogger((KnowledgeRuntimeEventManager) kieSession);
- 
+
         logger.info("### Starting process ###");
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("employee", "salaboy");
@@ -149,7 +149,7 @@ public class LocalTaskServiceTest extends JbpmTestCase {
 
     }
 
-    
+
     @Test
     public void testMultipleActorsClaimedQuery() {
         // start a new process instance
@@ -157,26 +157,26 @@ public class LocalTaskServiceTest extends JbpmTestCase {
         ProcessInstance pi = kieSession.startProcess(TASK_MULTIPLE_ACTORS_ID, params);
 
         // krisv claim task
-        
+
         List<TaskSummary> task1 = taskService.getTasksAssignedAsPotentialOwner("krisv", "en-UK");
         assertNotNull(task1);
         assertEquals(1, task1.size());
-        
+
         System.out.println("krisv's task:" + task1.get(0).getName());
         taskService.claim(task1.get(0).getId(), "krisv");
-        
+
         // john can get task which krisv has already claimed
         List<TaskSummary> task2 = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertNotNull(task2);
         assertEquals(0, task2.size());
-        
+
         taskService.start(task1.get(0).getId(), "krisv");
         taskService.complete(task1.get(0).getId(), "krisv", null);
-        
+
         assertProcessInstanceCompleted(pi.getId());
     }
-   
-    
+
+
     @Test
     public void testHumanTaskWithSingleTypeContent() {
 
@@ -204,11 +204,11 @@ public class LocalTaskServiceTest extends JbpmTestCase {
         assertNotNull(contentMap);
         assertEquals(1, contentMap.size());
         assertTrue(contentMap.containsKey("Content"));
-        
+
         String actualContent = (String) contentMap.get("Content");
         assertNotNull(actualContent);
         assertEquals("someContent", actualContent);
-        
+
         // let's move on to complete the tasks and process instance
         taskService.complete(task.getId(), "john", null);
 

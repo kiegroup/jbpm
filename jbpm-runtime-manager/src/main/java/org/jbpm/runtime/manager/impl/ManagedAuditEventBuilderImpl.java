@@ -29,51 +29,51 @@ import org.kie.api.event.process.ProcessVariableChangedEvent;
 
 public class ManagedAuditEventBuilderImpl extends DefaultAuditEventBuilderImpl {
 
-	private String ownerId;
+    private String ownerId;
 
-	@Override
-	public AuditEvent buildEvent(ProcessStartedEvent pse) {
+    @Override
+    public AuditEvent buildEvent(ProcessStartedEvent pse) {
 
-		ProcessInstanceLog log = (ProcessInstanceLog) super.buildEvent(pse);
-		log.setExternalId(ownerId);
-		return log;
-	}
+        ProcessInstanceLog log = (ProcessInstanceLog) super.buildEvent(pse);
+        log.setExternalId(ownerId);
+        return log;
+    }
 
-	@Override
-	public AuditEvent buildEvent(ProcessCompletedEvent pce, Object log) {
-		ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log);
-		instanceLog.setExternalId(ownerId);
-		return instanceLog;
+    @Override
+    public AuditEvent buildEvent(ProcessCompletedEvent pce, Object log) {
+        ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log);
+        instanceLog.setExternalId(ownerId);
+        return instanceLog;
 
-	}
+    }
 
-	@Override
-	public AuditEvent buildEvent(ProcessNodeTriggeredEvent pnte) {
-		NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnte);
-		nodeInstanceLog.setExternalId(ownerId);
-		return nodeInstanceLog;
+    @Override
+    public AuditEvent buildEvent(ProcessNodeTriggeredEvent pnte) {
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnte);
+        nodeInstanceLog.setExternalId(ownerId);
+        return nodeInstanceLog;
 
-	}
+    }
 
-	@Override
-	public AuditEvent buildEvent(ProcessNodeLeftEvent pnle, Object log) {
-		NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnle, log);
-		nodeInstanceLog.setExternalId(ownerId);
-		return nodeInstanceLog;
-	}
+    @Override
+    public AuditEvent buildEvent(ProcessNodeLeftEvent pnle, Object log) {
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnle, log);
+        nodeInstanceLog.setExternalId(ownerId);
+        return nodeInstanceLog;
+    }
 
-	@Override
-	public AuditEvent buildEvent(ProcessVariableChangedEvent pvce) {
-		VariableInstanceLog variableLog = (VariableInstanceLog) super.buildEvent(pvce);
-		variableLog.setExternalId(ownerId);
-		return variableLog;
-	}
+    @Override
+    public AuditEvent buildEvent(ProcessVariableChangedEvent pvce) {
+        VariableInstanceLog variableLog = (VariableInstanceLog) super.buildEvent(pvce);
+        variableLog.setExternalId(ownerId);
+        return variableLog;
+    }
 
-	public String getOwnerId() {
-		return ownerId;
-	}
+    public String getOwnerId() {
+        return ownerId;
+    }
 
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 }

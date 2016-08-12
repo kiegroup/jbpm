@@ -54,7 +54,7 @@ public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
     @OneToMany(cascade = CascadeType.ALL, targetEntity=EscalationImpl.class)
     @JoinColumn(name = "Deadline_Escalation_Id", nullable = true)
     private List<Escalation> escalations = Collections.emptyList();
-    
+
     @Basic
     private Short escalated = 0;
 
@@ -86,7 +86,7 @@ public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
         CollectionUtils.writeEscalationList(escalations, out);
 
         out.writeShort(escalated);
-        
+
     }
 
     public void readExternal(ObjectInput in) throws IOException,
@@ -134,7 +134,7 @@ public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
         this.escalations = escalations;
     }
 
-   
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -144,7 +144,7 @@ public class DeadlineImpl implements org.kie.internal.task.api.model.Deadline {
         result = prime * result + CollectionUtils.hashCode(escalations);
         result = prime * result + (isEscalated() ? 1231 : 1237);
         if (id != null) {
-        	result = prime * result + (int) (id ^ (id >>> 32));
+            result = prime * result + (int) (id ^ (id >>> 32));
         }
         return result;
     }

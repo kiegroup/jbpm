@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,7 +31,7 @@ import org.kie.api.task.model.Status;
 public class GetTaskAssignedAsBusinessAdminCommand extends UserGroupCallbackTaskCommand<List<TaskSummary>> {
 
     private static final long serialVersionUID = -128903115964900028L;
-    
+
     @XmlElement
     private List<Status> status;
 
@@ -42,7 +42,7 @@ public class GetTaskAssignedAsBusinessAdminCommand extends UserGroupCallbackTask
         this.userId = userId;
 
     }
-    
+
     public GetTaskAssignedAsBusinessAdminCommand(String userId, List<Status> status) {
         this.userId = userId;
         this.status=status;

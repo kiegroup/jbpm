@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,12 +31,12 @@ public class LanguageImpl implements org.kie.internal.task.api.model.Language {
     public void setMapkey(String language) {
         this.mapkey = language;
     }
- 
-    public LanguageImpl() { 
-        
+
+    public LanguageImpl() {
+
     }
-    
-    public LanguageImpl(String lang) { 
+
+    public LanguageImpl(String lang) {
         this.mapkey = lang;
     }
 
@@ -47,25 +47,25 @@ public class LanguageImpl implements org.kie.internal.task.api.model.Language {
 
     @Override
     public boolean equals(Object obj) {
-        if( obj == null ) { 
-           if( this.mapkey == null ) { 
+        if( obj == null ) {
+           if( this.mapkey == null ) {
                return true;
            }
            return false;
         }
-        else if( obj instanceof String ) { 
+        else if( obj instanceof String ) {
             return obj.equals(this.mapkey);
         }
-        else if( obj instanceof LanguageImpl ) { 
+        else if( obj instanceof LanguageImpl ) {
             LanguageImpl other = (LanguageImpl) obj;
-            if( this.mapkey == null ) { 
+            if( this.mapkey == null ) {
                 return (other).mapkey == null;
             }
-            else { 
+            else {
                 return this.mapkey.equals(other.mapkey);
             }
         }
-        else { 
+        else {
             return false;
         }
     }
@@ -74,5 +74,5 @@ public class LanguageImpl implements org.kie.internal.task.api.model.Language {
     public String toString() {
         return mapkey == null ? null : mapkey.toString();
     }
-    
+
 }

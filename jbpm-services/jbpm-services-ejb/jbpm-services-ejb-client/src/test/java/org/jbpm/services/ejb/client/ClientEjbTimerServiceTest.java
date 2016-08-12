@@ -48,36 +48,36 @@ import org.kie.internal.query.QueryFilter;
 import org.kie.scanner.MavenRepository;
 
 public class ClientEjbTimerServiceTest extends AbstractKieServicesBaseTest {
-	
-	private static final String application = "sample-war-ejb-app";
-	
-	private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-    
+
+    private static final String application = "sample-war-ejb-app";
+
+    private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
+
     private static final String ARTIFACT_ID = "custom-data-project";
     private static final String GROUP_ID = "org.jbpm.test";
     private static final String VERSION = "1.0";
-    
+
     private Long processInstanceId;
-    
+
     @Before
     public void prepare() throws MalformedURLException {
-    	
-    	configureServices();
+
+        configureServices();
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         File kjar = new File("src/test/resources/kjar/custom-data-project-1.0.jar");
         File pom = new File("src/test/resources/kjar/pom.xml");
         MavenRepository repository = getMavenRepository();
         repository.installArtifact(releaseId, kjar, pom);
-       
+
     }
-    
+
     @After
     public void cleanup() {
-    	if (processInstanceId != null) {
-	    	// let's abort process instance to leave the system in clear state
-	    	processService.abortProcessInstance(processInstanceId);
-    	}
+        if (processInstanceId != null) {
+            // let's abort process instance to leave the system in clear state
+            processService.abortProcessInstance(processInstanceId);
+        }
         cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
@@ -88,93 +88,93 @@ public class ClientEjbTimerServiceTest extends AbstractKieServicesBaseTest {
         close();
     }
 
-	@Override
-	protected void close() {
-		// do nothing
-	}
-	
-	@Before
-	public void setup() {
-		configureServices();
-	}
+    @Override
+    protected void close() {
+        // do nothing
+    }
 
-	@Override
-	protected void configureServices() {
-		try {
-			ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
-			DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
-			ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
-			RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
-			DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
-			UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
-			
-			setBpmn2Service(definitionService);
-			setProcessService(processService);
-			setRuntimeDataService(runtimeDataService);
-			setUserTaskService(userTaskService);
-			setDeploymentService(new DeploymentServiceWrapper(deploymentService));
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to configure services");
-		}
-	}
-	
-	@Test
+    @Before
+    public void setup() {
+        configureServices();
+    }
+
+    @Override
+    protected void configureServices() {
+        try {
+            ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
+            DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
+            ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
+            RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
+            DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
+            UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
+
+            setBpmn2Service(definitionService);
+            setProcessService(processService);
+            setRuntimeDataService(runtimeDataService);
+            setUserTaskService(userTaskService);
+            setDeploymentService(new DeploymentServiceWrapper(deploymentService));
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to configure services");
+        }
+    }
+
+    @Test
     public void testStartProcess() throws InterruptedException {
-    	assertNotNull(deploymentService);
-        
+        assertNotNull(deploymentService);
+
         KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-        
+
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
-    	assertNotNull(processService);
-    	
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	params.put("expiresAt", "2s");
-    	
-    	long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "timer-test.timer-process", params);
-    	assertNotNull(processInstanceId);
-    	
-    	ProcessInstance pi = processService.getProcessInstance(processInstanceId);    	
-    	assertNotNull(pi);
-    	
-    	Thread.sleep(3000);
-    	
-    	pi = processService.getProcessInstance(processInstanceId);    	
-    	assertNull(pi);
+        assertNotNull(processService);
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("expiresAt", "2s");
+
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "timer-test.timer-process", params);
+        assertNotNull(processInstanceId);
+
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+        assertNotNull(pi);
+
+        Thread.sleep(3000);
+
+        pi = processService.getProcessInstance(processInstanceId);
+        assertNull(pi);
 
     }
-	
-	@Test
+
+    @Test
     public void testStartProcessWithHTDeadline() throws InterruptedException {
-    	assertNotNull(deploymentService);
-        
+        assertNotNull(deploymentService);
+
         KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
-        
-        deploymentService.deploy(deploymentUnit);	
+
+        deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
-    	assertNotNull(processService);
-    	
-    	processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "htdeadlinetest");
-        
+        assertNotNull(processService);
+
+        processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "htdeadlinetest");
+
         List<TaskSummary> krisTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("krisv", new QueryFilter());
         assertEquals(1, krisTasks.size());
         List<TaskSummary> johnTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("john", new QueryFilter());
         assertEquals(0, johnTasks.size());
         List<TaskSummary> maryTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("mary", new QueryFilter());
         assertEquals(0, maryTasks.size());
-        
+
         // now wait for 2 seconds for first reassignment
         Thread.sleep(3000);
-        
+
         krisTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("krisv", new QueryFilter());
         assertEquals(0, krisTasks.size());
         johnTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("john", new QueryFilter());
         assertEquals(1, johnTasks.size());
         maryTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("mary", new QueryFilter());
         assertEquals(0, maryTasks.size());
-        
+
         userTaskService.start(johnTasks.get(0).getId(), "john");
-        
+
         // now wait for 2 more seconds for second reassignment
         Thread.sleep(2000);
         krisTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("krisv", new QueryFilter());
@@ -183,10 +183,10 @@ public class ClientEjbTimerServiceTest extends AbstractKieServicesBaseTest {
         assertEquals(1, johnTasks.size());
         maryTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("mary", new QueryFilter());
         assertEquals(0, maryTasks.size());
-        
+
         // now wait for 1 seconds to make sure that reassignment did not happen any more since task was already started
         Thread.sleep(3000);
-        
+
         krisTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("krisv", new QueryFilter());
         assertEquals(0, krisTasks.size());
         johnTasks = runtimeDataService.getTasksAssignedAsPotentialOwner("john", new QueryFilter());
@@ -195,11 +195,11 @@ public class ClientEjbTimerServiceTest extends AbstractKieServicesBaseTest {
         assertEquals(1, maryTasks.size());
         userTaskService.start(maryTasks.get(0).getId(), "mary");
         userTaskService.complete(maryTasks.get(0).getId(), "mary", null);
-        
+
         // now wait for 2 seconds to make sure that reassignment did not happen any more since task was completed
         Thread.sleep(2000);
-        
-        ProcessInstance processInstance = processService.getProcessInstance(processInstanceId);        
+
+        ProcessInstance processInstance = processService.getProcessInstance(processInstanceId);
         assertNull(processInstance);
         processInstanceId = null;
 

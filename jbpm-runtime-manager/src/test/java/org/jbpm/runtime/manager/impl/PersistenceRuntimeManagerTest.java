@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -52,7 +52,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 public class PersistenceRuntimeManagerTest extends AbstractBaseTest {
     private PoolingDataSource pds;
     private UserGroupCallback userGroupCallback;
-    private RuntimeManager manager; 
+    private RuntimeManager manager;
     @Before
     public void setup() {
         Properties properties= new Properties();
@@ -62,31 +62,31 @@ public class PersistenceRuntimeManagerTest extends AbstractBaseTest {
 
         pds = TestUtil.setupPoolingDataSource();
     }
-    
+
     @After
     public void teardown() {
         manager.close();
         pds.close();
     }
-   
+
     @SuppressWarnings("unchecked")
     @Test
     public void testPerProcessInstanceManagerDestorySession() {
-    	
-    	EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
+                .newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-UserTask.bpmn2"), ResourceType.BPMN2)
                 .get();
-        
+
         EntityManager em = emf.createEntityManager();
         List<SessionInfo> sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(0, sessions.size());
-        
-        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);        
+
+        manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         assertNotNull(manager);
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(0, sessions.size());
@@ -94,60 +94,60 @@ public class PersistenceRuntimeManagerTest extends AbstractBaseTest {
         // since there is no process instance yet we need to get new session
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         runtime.getKieSession();
-        
+
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(1, sessions.size());
-        
+
         KieSession ksession = runtime.getKieSession();
 
-        assertNotNull(ksession);       
+        assertNotNull(ksession);
         long ksession1Id = ksession.getIdentifier();
         assertTrue(ksession1Id == 2);
 
         ProcessInstance pi1 = ksession.startProcess("UserTask");
-        
-        // both processes started 
-        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState()); 
+
+        // both processes started
+        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState());
         manager.disposeRuntimeEngine(runtime);
-        
+
         runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(pi1.getId()));
         ksession = runtime.getKieSession();
         assertEquals(ksession1Id, ksession.getId());
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(1, sessions.size());
-        
+
         ksession.getWorkItemManager().completeWorkItem(1, null);
         // since process is completed now session should not be there any more
         try {
             manager.getRuntimeEngine(ProcessInstanceIdContext.get(pi1.getId())).getKieSession();
             fail("Session for this (" + pi1.getId() + ") process instance is no more accessible");
         } catch (RuntimeException e) {
-            
-        }      
+
+        }
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(0, sessions.size());
         manager.close();
         emf.close();
     }
-   
+
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testPerRequestManagerDestorySession() {
-    	
-    	EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.jbpm.persistence.jpa");
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
+                .newDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-ScriptTask.bpmn2"), ResourceType.BPMN2)
                 .addAsset(ResourceFactory.newClassPathResource("BPMN2-UserTask.bpmn2"), ResourceType.BPMN2)
                 .get();
-        
+
         EntityManager em = emf.createEntityManager();
         List<SessionInfo> sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(0, sessions.size());
-        
-        manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);        
+
+        manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
         assertNotNull(manager);
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(0, sessions.size());
@@ -155,29 +155,29 @@ public class PersistenceRuntimeManagerTest extends AbstractBaseTest {
         // since there is no process instance yet we need to get new session
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         runtime.getKieSession();
-        
+
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(1, sessions.size());
-        
+
         KieSession ksession = runtime.getKieSession();
 
-        assertNotNull(ksession);       
+        assertNotNull(ksession);
 
         ProcessInstance pi1 = ksession.startProcess("UserTask");
-        
-        // both processes started 
-        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState()); 
+
+        // both processes started
+        assertEquals(ProcessInstance.STATE_ACTIVE, pi1.getState());
         manager.disposeRuntimeEngine(runtime);
-        
+
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(0, sessions.size());
-        
+
         runtime = manager.getRuntimeEngine(EmptyContext.get());
         ksession = runtime.getKieSession();
-        
+
         sessions = em.createQuery("from SessionInfo").getResultList();
         assertEquals(1, sessions.size());
-        
+
         ksession.getWorkItemManager().completeWorkItem(1, null);
 
         manager.disposeRuntimeEngine(runtime);

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Message {
-	
+
     private Recipients recipients;
     private String     from;
     private String     replyTo;
@@ -81,7 +81,7 @@ public class Message {
     public void setBody(String body) {
         this.body = body;
     }
-    
+
     public List<String> getAttachments() {
         return attachments;
     }
@@ -89,7 +89,7 @@ public class Message {
     public void setAttachments(List<String> attachments) {
         this.attachments = attachments;
     }
-    
+
     public boolean hasAttachment() {
         return !this.attachments.isEmpty();
     }
@@ -109,65 +109,65 @@ public class Message {
 
     public boolean equals(Object obj) {
         if (this == obj) {
-			return true;
+            return true;
         }
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final Message other = (Message) obj;
-		if (body == null) {
-			if (other.body != null) {
-				return false;
-			}
-		} else if (!body.equals(other.body)) {
-			return false;
-		}
-		if (documentFormat == null) {
-			if (other.documentFormat != null) {
-				return false;
-			}
-		} else if (!documentFormat.equals(other.documentFormat)) {
-			return false;
-		}
-		if (from == null) {
-			if (other.from != null) {
-				return false;
-			}
-		} else if (!from.equals(other.from)) {
-			return false;
-		}
-		if (recipients == null) {
-			if (other.recipients != null) {
-				return false;
-			}
-		} else if (!recipients.equals(other.recipients)) {
-			return false;
-		}
-		if (replyTo == null) {
-			if (other.replyTo != null) {
-				return false;
-			}
-		} else if (!replyTo.equals(other.replyTo)) {
-			return false;
-		}
-		if (subject == null) {
-			if (other.subject != null) {
-				return false;
-			}
-		} else if (!subject.equals(other.subject)) {
-			return false;
-		}
-		if (attachments == null) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Message other = (Message) obj;
+        if (body == null) {
+            if (other.body != null) {
+                return false;
+            }
+        } else if (!body.equals(other.body)) {
+            return false;
+        }
+        if (documentFormat == null) {
+            if (other.documentFormat != null) {
+                return false;
+            }
+        } else if (!documentFormat.equals(other.documentFormat)) {
+            return false;
+        }
+        if (from == null) {
+            if (other.from != null) {
+                return false;
+            }
+        } else if (!from.equals(other.from)) {
+            return false;
+        }
+        if (recipients == null) {
+            if (other.recipients != null) {
+                return false;
+            }
+        } else if (!recipients.equals(other.recipients)) {
+            return false;
+        }
+        if (replyTo == null) {
+            if (other.replyTo != null) {
+                return false;
+            }
+        } else if (!replyTo.equals(other.replyTo)) {
+            return false;
+        }
+        if (subject == null) {
+            if (other.subject != null) {
+                return false;
+            }
+        } else if (!subject.equals(other.subject)) {
+            return false;
+        }
+        if (attachments == null) {
             if (other.attachments != null) {
                 return false;
             }
         } else if (!attachments.equals(other.attachments)) {
             return false;
         }
-		return true;
+        return true;
     }
 
 

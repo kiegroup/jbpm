@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,66 +27,66 @@ import org.kie.api.runtime.CommandExecutor;
 import org.kie.internal.runtime.manager.audit.query.NodeInstanceLogDeleteBuilder;
 
 public class NodeInstanceLogDeleteBuilderImpl extends
-		AbstractAuditDeleteBuilderImpl<NodeInstanceLogDeleteBuilder> implements NodeInstanceLogDeleteBuilder {
+        AbstractAuditDeleteBuilderImpl<NodeInstanceLogDeleteBuilder> implements NodeInstanceLogDeleteBuilder {
 
-    private static String NODE_INSTANCE_LOG_DELETE = 
+    private static String NODE_INSTANCE_LOG_DELETE =
             "DELETE\n"
             + "FROM NodeInstanceLog l\n";
-    
-	public NodeInstanceLogDeleteBuilderImpl(JPAAuditLogService jpaService) {
-		super(jpaService);
-		intersect();
-	}
 
-	public NodeInstanceLogDeleteBuilderImpl(CommandExecutor cmdExecutor) {
-		super(cmdExecutor);
-		intersect();
-	}
+    public NodeInstanceLogDeleteBuilderImpl(JPAAuditLogService jpaService) {
+        super(jpaService);
+        intersect();
+    }
 
-	@Override
-	public NodeInstanceLogDeleteBuilder workItemId(long... workItemId) {
-		if (checkIfNull(workItemId)) {
-			return this;
-		}
-		addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);
+    public NodeInstanceLogDeleteBuilderImpl(CommandExecutor cmdExecutor) {
+        super(cmdExecutor);
+        intersect();
+    }
+
+    @Override
+    public NodeInstanceLogDeleteBuilder workItemId(long... workItemId) {
+        if (checkIfNull(workItemId)) {
+            return this;
+        }
+        addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);
         return this;
-	}
+    }
 
-	@Override
-	public NodeInstanceLogDeleteBuilder nodeInstanceId(String... nodeInstanceId) {
-		if (checkIfNull(nodeInstanceId)) {
-			return this;
-		}
-		addObjectParameter(NODE_INSTANCE_ID_LIST, "node instance id", nodeInstanceId);
+    @Override
+    public NodeInstanceLogDeleteBuilder nodeInstanceId(String... nodeInstanceId) {
+        if (checkIfNull(nodeInstanceId)) {
+            return this;
+        }
+        addObjectParameter(NODE_INSTANCE_ID_LIST, "node instance id", nodeInstanceId);
         return this;
-	}
+    }
 
-	@Override
-	public NodeInstanceLogDeleteBuilder nodeId(String... nodeId) {
-		if (checkIfNull(nodeId)) {
-			return this;
-		}
-		addObjectParameter(NODE_ID_LIST, "node id", nodeId);
+    @Override
+    public NodeInstanceLogDeleteBuilder nodeId(String... nodeId) {
+        if (checkIfNull(nodeId)) {
+            return this;
+        }
+        addObjectParameter(NODE_ID_LIST, "node id", nodeId);
         return this;
-	}
+    }
 
-	@Override
-	public NodeInstanceLogDeleteBuilder nodeName(String... name) {
-		if (checkIfNull(name)) {
-			return this;
-		}
-		addObjectParameter(NODE_NAME_LIST, "node name", name);
+    @Override
+    public NodeInstanceLogDeleteBuilder nodeName(String... name) {
+        if (checkIfNull(name)) {
+            return this;
+        }
+        addObjectParameter(NODE_NAME_LIST, "node name", name);
         return this;
-	}	
-	
-	@Override
-	public NodeInstanceLogDeleteBuilder externalId(String... externalId) {
-		if (checkIfNull(externalId)) {
-			return this;
-		}
-		addObjectParameter(EXTERNAL_ID_LIST, "external id", externalId);
-		return this;
-	}
+    }
+
+    @Override
+    public NodeInstanceLogDeleteBuilder externalId(String... externalId) {
+        if (checkIfNull(externalId)) {
+            return this;
+        }
+        addObjectParameter(EXTERNAL_ID_LIST, "external id", externalId);
+        return this;
+    }
 
     @Override
     protected Class getQueryType() {

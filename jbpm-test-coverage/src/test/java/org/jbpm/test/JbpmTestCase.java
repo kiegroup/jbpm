@@ -40,9 +40,9 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     protected static final String EMPTY_CASE = "EmptyCase.bpmn2";
-    
+
     public JbpmTestCase() {
         this(true);
     }
@@ -81,8 +81,8 @@ public abstract class JbpmTestCase extends JbpmJUnitBaseTestCase {
     );
 
     @Override
-    protected PoolingDataSource setupPoolingDataSource() {        
-        
+    protected PoolingDataSource setupPoolingDataSource() {
+
         Properties dsProps = PersistenceUtil.getDatasourceProperties();
         String jdbcUrl = dsProps.getProperty("url");
         String driverClass = dsProps.getProperty("driverClassName");

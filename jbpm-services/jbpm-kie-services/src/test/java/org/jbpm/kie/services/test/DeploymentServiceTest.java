@@ -59,7 +59,7 @@ public class DeploymentServiceTest extends AbstractKieServicesBaseTest {
 
     @Before
     public void prepare() {
-    	configureServices();
+        configureServices();
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
@@ -360,10 +360,10 @@ public class DeploymentServiceTest extends AbstractKieServicesBaseTest {
 
         assertEquals(1, ((DeployedUnitImpl) deployed3).getDeployedClasses().size());
         try {
-			assertNotNull(Class.forName("org.pkg1.Message", true, ((InternalRuntimeManager)deployed3.getRuntimeManager()).getEnvironment().getClassLoader()));
-		} catch (ClassNotFoundException e) {
-			fail("Class org.pkg1.Message should be found in deployment");
-		}
+            assertNotNull(Class.forName("org.pkg1.Message", true, ((InternalRuntimeManager)deployed3.getRuntimeManager()).getEnvironment().getClassLoader()));
+        } catch (ClassNotFoundException e) {
+            fail("Class org.pkg1.Message should be found in deployment");
+        }
 
     }
 }

@@ -27,54 +27,54 @@ import org.junit.Test;
 
 public class QueryManagerTest {
 
-	@Test
-	public void testLoadQueriesNotFound() {
-		QueryManager manager = new QueryManager();
-		
-		manager.addNamedQueries("test-orm.xml");
-		
-		String query = manager.getQuery("test-query-1", null);
-		assertNull(query);
-	}
-	
-	@Test
-	public void testLoadQueriesFound() {
-		QueryManager manager = new QueryManager();
-		
-		manager.addNamedQueries("test-orm.xml");
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("orderby", "log.date");
-		String query = manager.getQuery("test-query-3", params);
-		assertNotNull(query);
-		assertTrue(query.endsWith("ORDER BY log.date"));
-	}
-	
-	@Test
-	public void testLoadQueriesFoundAsc() {
-		QueryManager manager = new QueryManager();
-		
-		manager.addNamedQueries("test-orm.xml");
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("orderby", "log.date");
-		params.put("asc", "true");
-		String query = manager.getQuery("test-query-3", params);
-		assertNotNull(query);
-		assertTrue(query.endsWith("ORDER BY log.date ASC"));
-	}
-	
-	@Test
-	public void testLoadQueriesFoundDesc() {
-		QueryManager manager = new QueryManager();
-		
-		manager.addNamedQueries("test-orm.xml");
-		
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("orderby", "log.date");
-		params.put("desc", "true");
-		String query = manager.getQuery("test-query-3", params);
-		assertNotNull(query);
-		assertTrue(query.endsWith("ORDER BY log.date DESC"));
-	}
+    @Test
+    public void testLoadQueriesNotFound() {
+        QueryManager manager = new QueryManager();
+
+        manager.addNamedQueries("test-orm.xml");
+
+        String query = manager.getQuery("test-query-1", null);
+        assertNull(query);
+    }
+
+    @Test
+    public void testLoadQueriesFound() {
+        QueryManager manager = new QueryManager();
+
+        manager.addNamedQueries("test-orm.xml");
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderby", "log.date");
+        String query = manager.getQuery("test-query-3", params);
+        assertNotNull(query);
+        assertTrue(query.endsWith("ORDER BY log.date"));
+    }
+
+    @Test
+    public void testLoadQueriesFoundAsc() {
+        QueryManager manager = new QueryManager();
+
+        manager.addNamedQueries("test-orm.xml");
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderby", "log.date");
+        params.put("asc", "true");
+        String query = manager.getQuery("test-query-3", params);
+        assertNotNull(query);
+        assertTrue(query.endsWith("ORDER BY log.date ASC"));
+    }
+
+    @Test
+    public void testLoadQueriesFoundDesc() {
+        QueryManager manager = new QueryManager();
+
+        manager.addNamedQueries("test-orm.xml");
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderby", "log.date");
+        params.put("desc", "true");
+        String query = manager.getQuery("test-query-3", params);
+        assertNotNull(query);
+        assertTrue(query.endsWith("ORDER BY log.date DESC"));
+    }
 }

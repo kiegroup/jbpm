@@ -37,13 +37,13 @@ public class ProcessInstanceMigrationServiceImpl implements ProcessInstanceMigra
 
     @Override
     public MigrationReport migrate(String sourceDeploymentId, Long processInstanceId, String targetDeploymentId, String targetProcessId) {
-        MigrationSpec migrationSpec = new MigrationSpec(sourceDeploymentId, processInstanceId, targetDeploymentId, targetProcessId);        
+        MigrationSpec migrationSpec = new MigrationSpec(sourceDeploymentId, processInstanceId, targetDeploymentId, targetProcessId);
         MigrationManager migrationManager = new MigrationManager(migrationSpec);
-        
+
         org.jbpm.runtime.manager.impl.migration.MigrationReport report = null;
         try {
             report = migrationManager.migrate();
-        
+
         } catch (MigrationException e) {
             report = e.getReport();
         }
@@ -52,45 +52,45 @@ public class ProcessInstanceMigrationServiceImpl implements ProcessInstanceMigra
 
     @Override
     public MigrationReport migrate(String sourceDeploymentId, Long processInstanceId, String targetDeploymentId, String targetProcessId, Map<String, String> nodeMapping) {
-        MigrationSpec migrationSpec = new MigrationSpec(sourceDeploymentId, processInstanceId, targetDeploymentId, targetProcessId);        
+        MigrationSpec migrationSpec = new MigrationSpec(sourceDeploymentId, processInstanceId, targetDeploymentId, targetProcessId);
         MigrationManager migrationManager = new MigrationManager(migrationSpec);
-        
+
         org.jbpm.runtime.manager.impl.migration.MigrationReport report = null;
         try {
             report = migrationManager.migrate(nodeMapping);
-        
+
         } catch (MigrationException e) {
             report = e.getReport();
         }
-        
+
         return convert(report);
     }
 
     @Override
     public List<MigrationReport> migrate(String sourceDeploymentId, List<Long> processInstanceIds, String targetDeploymentId, String targetProcessId) {
-        
+
         return migrate(sourceDeploymentId, processInstanceIds, targetDeploymentId, targetProcessId, Collections.emptyMap());
     }
 
     @Override
     public List<MigrationReport> migrate(String sourceDeploymentId, List<Long> processInstanceIds, String targetDeploymentId, String targetProcessId, Map<String, String> nodeMapping) {
         List<MigrationReport> reports = new ArrayList<MigrationReport>();
-        
+
         for (Long pId : processInstanceIds) {
-            MigrationReport report = migrate(sourceDeploymentId, pId, targetDeploymentId, targetProcessId, nodeMapping);  
+            MigrationReport report = migrate(sourceDeploymentId, pId, targetDeploymentId, targetProcessId, nodeMapping);
             reports.add(report);
         }
-        
+
         return reports;
     }
-    
+
     /*
      * Helper methods
-     */    
+     */
 
     protected MigrationReport convert(org.jbpm.runtime.manager.impl.migration.MigrationReport report) {
         List<MigrationEntry> logs = new ArrayList<MigrationEntry>();
-        
+
         for (org.jbpm.runtime.manager.impl.migration.MigrationEntry orig : report.getEntries()) {
             logs.add(new MigrationEntryImpl(orig.getTimestamp(), orig.getMessage(), orig.getType().toString()));
         }

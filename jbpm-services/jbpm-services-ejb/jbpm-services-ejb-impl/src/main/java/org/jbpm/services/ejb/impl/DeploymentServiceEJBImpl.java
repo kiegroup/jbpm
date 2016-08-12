@@ -59,141 +59,141 @@ import org.kie.internal.runtime.conf.DeploymentDescriptor;
 @Lock(LockType.WRITE)
 public class DeploymentServiceEJBImpl extends KModuleDeploymentService implements ListenerSupport, DeploymentService, DeploymentServiceEJBLocal, DeploymentServiceEJBRemote {
 
-	@Inject
-	private Instance<IdentityProvider> identityProvider;
-	
-	private EJBContext context;
-	
-	private boolean isExecutorAvailable = false;
-	// inject resources
-	
-	@PostConstruct
+    @Inject
+    private Instance<IdentityProvider> identityProvider;
+
+    private EJBContext context;
+
+    private boolean isExecutorAvailable = false;
+    // inject resources
+
+    @PostConstruct
     public void onInit() {
-    	isExecutorAvailable = isExecutorOnClasspath();
-		if (identityProvider.isUnsatisfied()) {
-			setIdentityProvider(new EJBContextIdentityProvider(context));
-		} else {
-			setIdentityProvider(identityProvider.get());
-		}
-		setManagerFactory(new RuntimeManagerFactoryImpl());
-		super.onInit();
-	}
-	
+        isExecutorAvailable = isExecutorOnClasspath();
+        if (identityProvider.isUnsatisfied()) {
+            setIdentityProvider(new EJBContextIdentityProvider(context));
+        } else {
+            setIdentityProvider(identityProvider.get());
+        }
+        setManagerFactory(new RuntimeManagerFactoryImpl());
+        super.onInit();
+    }
+
     @PreDestroy
-	@Override
-	public void shutdown() {
-		super.shutdown();
-	}
-	
-	@Resource
-	public void setContext(EJBContext context) {
-		this.context = context;
-	}
-	
-	@PersistenceUnit(unitName="org.jbpm.domain")
-	@Override
-	public void setEmf(EntityManagerFactory emf) {
-		
-		super.setEmf(emf);
-	}
-	
-	// inject ejb beans
-	@EJB(beanInterface=DefinitionServiceEJBLocal.class)
-	@Override
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-		
-		super.setBpmn2Service(bpmn2Service);
-		super.addListener((DeploymentEventListener) bpmn2Service);
-	}
+    @Override
+    public void shutdown() {
+        super.shutdown();
+    }
 
-	@EJB(beanInterface=RuntimeDataServiceEJBLocal.class)
-	@Override
-	public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
-		
-		super.setRuntimeDataService(runtimeDataService);
-		super.addListener((DeploymentEventListener) runtimeDataService);
+    @Resource
+    public void setContext(EJBContext context) {
+        this.context = context;
+    }
 
-	}
+    @PersistenceUnit(unitName="org.jbpm.domain")
+    @Override
+    public void setEmf(EntityManagerFactory emf) {
 
-	@EJB(beanInterface=FormManagerServiceEJBImpl.class)
-	@Override
-	public void setFormManagerService(FormManagerService formManagerService) {
-		super.setFormManagerService(formManagerService);
-	}
+        super.setEmf(emf);
+    }
 
-	@EJB(beanInterface=ExecutorServiceEJB.class)
-	@Override
+    // inject ejb beans
+    @EJB(beanInterface=DefinitionServiceEJBLocal.class)
+    @Override
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
+
+        super.setBpmn2Service(bpmn2Service);
+        super.addListener((DeploymentEventListener) bpmn2Service);
+    }
+
+    @EJB(beanInterface=RuntimeDataServiceEJBLocal.class)
+    @Override
+    public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
+
+        super.setRuntimeDataService(runtimeDataService);
+        super.addListener((DeploymentEventListener) runtimeDataService);
+
+    }
+
+    @EJB(beanInterface=FormManagerServiceEJBImpl.class)
+    @Override
+    public void setFormManagerService(FormManagerService formManagerService) {
+        super.setFormManagerService(formManagerService);
+    }
+
+    @EJB(beanInterface=ExecutorServiceEJB.class)
+    @Override
     public void setExecutorService(ExecutorService executorService) {
         super.setExecutorService(executorService);
     }
 
     @Override
-	public void deploy(String groupId, String artifactId, String version) {
-		KModuleDeploymentUnit unit = new KModuleDeploymentUnit(groupId, artifactId, version);
-		
-		addAsyncHandler(unit);
-		
-		super.deploy(unit);
-	}
+    public void deploy(String groupId, String artifactId, String version) {
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit(groupId, artifactId, version);
 
-	@Override
-	public void deploy(String groupId, String artifactId, String version,
-			String kbaseName, String ksessionName) {
-		KModuleDeploymentUnit unit = new KModuleDeploymentUnit(groupId, artifactId, version, kbaseName, ksessionName);
-		
-		addAsyncHandler(unit);
-		
-		super.deploy(unit);
-	}
+        addAsyncHandler(unit);
 
-	@Override
-	public void deploy(String groupId, String artifactId, String version,
-			String kbaseName, String ksessionName, String strategy) {
-		KModuleDeploymentUnit unit = new KModuleDeploymentUnit(groupId, artifactId, version, kbaseName, ksessionName, strategy);
-		
-		addAsyncHandler(unit);
-		
-		super.deploy(unit);
-		
-	}
+        super.deploy(unit);
+    }
 
-	@Override
-	public void deploy(DeploymentUnit unit) {
-		addAsyncHandler((KModuleDeploymentUnit)unit);
-		super.deploy(unit);
-	}
+    @Override
+    public void deploy(String groupId, String artifactId, String version,
+            String kbaseName, String ksessionName) {
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit(groupId, artifactId, version, kbaseName, ksessionName);
 
-	@Override
-	public void undeploy(String deploymentId) {
-		DeployedUnit deployed = getDeployedUnit(deploymentId);
-		if (deployed != null) {
-			super.undeploy(deployed.getDeploymentUnit());
-		}
-	}
-	
-	protected void addAsyncHandler(KModuleDeploymentUnit unit) {
-		// add async only when the executor component is not disabled
-		if (isExecutorAvailable) {
-			DeploymentDescriptor descriptor = unit.getDeploymentDescriptor();
-			if (descriptor == null) {
-				descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-			}
-			descriptor.getBuilder()
-			.addWorkItemHandler(new TransientNamedObjectModel("ejb", "async", "org.jbpm.executor.impl.wih.AsyncWorkItemHandler", 
-						new Object[]{"jndi:java:module/ExecutorServiceEJBImpl", "org.jbpm.executor.commands.PrintOutCommand"}));
-			
-			unit.setDeploymentDescriptor(descriptor);
-		}
-	}
-	
-	protected boolean isExecutorOnClasspath() {
-		try {
-			Class.forName("org.jbpm.executor.impl.wih.AsyncWorkItemHandler");
-			
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
-	}
+        addAsyncHandler(unit);
+
+        super.deploy(unit);
+    }
+
+    @Override
+    public void deploy(String groupId, String artifactId, String version,
+            String kbaseName, String ksessionName, String strategy) {
+        KModuleDeploymentUnit unit = new KModuleDeploymentUnit(groupId, artifactId, version, kbaseName, ksessionName, strategy);
+
+        addAsyncHandler(unit);
+
+        super.deploy(unit);
+
+    }
+
+    @Override
+    public void deploy(DeploymentUnit unit) {
+        addAsyncHandler((KModuleDeploymentUnit)unit);
+        super.deploy(unit);
+    }
+
+    @Override
+    public void undeploy(String deploymentId) {
+        DeployedUnit deployed = getDeployedUnit(deploymentId);
+        if (deployed != null) {
+            super.undeploy(deployed.getDeploymentUnit());
+        }
+    }
+
+    protected void addAsyncHandler(KModuleDeploymentUnit unit) {
+        // add async only when the executor component is not disabled
+        if (isExecutorAvailable) {
+            DeploymentDescriptor descriptor = unit.getDeploymentDescriptor();
+            if (descriptor == null) {
+                descriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
+            }
+            descriptor.getBuilder()
+            .addWorkItemHandler(new TransientNamedObjectModel("ejb", "async", "org.jbpm.executor.impl.wih.AsyncWorkItemHandler",
+                        new Object[]{"jndi:java:module/ExecutorServiceEJBImpl", "org.jbpm.executor.commands.PrintOutCommand"}));
+
+            unit.setDeploymentDescriptor(descriptor);
+        }
+    }
+
+    protected boolean isExecutorOnClasspath() {
+        try {
+            Class.forName("org.jbpm.executor.impl.wih.AsyncWorkItemHandler");
+
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 
 }

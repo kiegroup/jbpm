@@ -38,7 +38,7 @@ public class StartNodeFactory extends NodeFactory {
         getNode().setName(name);
         return this;
     }
-    
+
     // TODO event triggers
-    
+
 }

@@ -28,35 +28,35 @@ import org.kie.internal.task.api.TaskVariableIndexer;
 /**
  * Represents logic behind mechanism to index task variables.
  * Supports custom indexers to be loaded dynamically via JDK ServiceLoader
- * 
+ *
  * Adds default indexer (org.jbpm.services.task.audit.variable.StringTaskVariableIndexer) as the last indexer
  * as it accepts all types
  *
  */
 public class TaskIndexerManager {
-    
+
     private static ServiceLoader<TaskVariableIndexer> taskVariableIndexers = ServiceLoader.load(TaskVariableIndexer.class);
-    
+
     private static TaskIndexerManager INSTANCE = new TaskIndexerManager();
-    
+
     private List<TaskVariableIndexer> indexers = new ArrayList<TaskVariableIndexer>();
-    
+
     private TaskIndexerManager() {
         for (TaskVariableIndexer indexer : taskVariableIndexers) {
             indexers.add(indexer);
         }
-        
+
         // always add at the end the default one
         indexers.add(new StringTaskVariableIndexer());
     }
-    
+
     public List<TaskVariable> index(Task task, String variableName, Object variable) {
         for (TaskVariableIndexer indexer : indexers) {
             if (indexer.accept(variable)) {
                 List<TaskVariable> indexed = indexer.index(variableName, variable);
-                
+
                 if (indexed != null) {
-                                   
+
                     // populate all indexed variables with task information
                     for (TaskVariable taskVariable : indexed) {
                         taskVariable.setTaskId(task.getId());
@@ -65,16 +65,16 @@ public class TaskIndexerManager {
                         taskVariable.setProcessId(task.getTaskData().getProcessId());
                         taskVariable.setModificationDate(new Date());
                     }
-                    
+
                     return indexed;
 
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     public static TaskIndexerManager get() {
         return INSTANCE;
     }

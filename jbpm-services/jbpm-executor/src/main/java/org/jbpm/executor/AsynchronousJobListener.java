@@ -22,14 +22,14 @@ import java.util.EventListener;
 public interface AsynchronousJobListener extends EventListener {
 
     void beforeJobScheduled(AsynchronousJobEvent event);
-    
+
     void afterJobScheduled(AsynchronousJobEvent event);
-    
+
     void beforeJobExecuted(AsynchronousJobEvent event);
-    
+
     void afterJobExecuted(AsynchronousJobEvent event);
-    
+
     void beforeJobCancelled(AsynchronousJobEvent event);
-    
+
     void afterJobCancelled(AsynchronousJobEvent event);
 }

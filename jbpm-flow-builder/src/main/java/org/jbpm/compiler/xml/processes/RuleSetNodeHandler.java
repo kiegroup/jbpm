@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,18 +34,18 @@ public class RuleSetNodeHandler extends AbstractNodeHandler {
         RuleSetNode ruleSetNode = (RuleSetNode) node;
         String ruleFlowGroup = element.getAttribute("ruleFlowGroup");
         if (ruleFlowGroup != null && ruleFlowGroup.length() > 0) {
-        	ruleSetNode.setRuleFlowGroup(ruleFlowGroup);
+            ruleSetNode.setRuleFlowGroup(ruleFlowGroup);
         }
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return RuleSetNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		RuleSetNode ruleSetNode = (RuleSetNode) node;
-		writeNode("ruleSet", ruleSetNode, xmlDump, includeMeta);
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        RuleSetNode ruleSetNode = (RuleSetNode) node;
+        writeNode("ruleSet", ruleSetNode, xmlDump, includeMeta);
         String ruleFlowGroup = ruleSetNode.getRuleFlowGroup();
         if (ruleFlowGroup != null) {
             xmlDump.append("ruleFlowGroup=\"" + ruleFlowGroup + "\" ");
@@ -53,15 +53,15 @@ public class RuleSetNodeHandler extends AbstractNodeHandler {
         if (ruleSetNode.getTimers() != null || (includeMeta && containsMetaData(ruleSetNode))) {
             xmlDump.append(">\n");
             if (ruleSetNode.getTimers() != null) {
-            	writeTimers(ruleSetNode.getTimers(), xmlDump);
+                writeTimers(ruleSetNode.getTimers(), xmlDump);
             }
             if (includeMeta) {
-            	writeMetaData(ruleSetNode, xmlDump);
+                writeMetaData(ruleSetNode, xmlDump);
             }
             endNode("ruleSet", xmlDump);
         } else {
             endNode(xmlDump);
         }
-	}
+    }
 
 }

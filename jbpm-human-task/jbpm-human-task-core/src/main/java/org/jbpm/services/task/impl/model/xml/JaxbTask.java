@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -63,7 +63,7 @@ public class JaxbTask implements InternalTask {
     @XmlElement
     @XmlSchemaType(name="long")
     private Long id;
-    
+
     @XmlElement
     @XmlSchemaType(name="int")
     private Integer priority;
@@ -78,55 +78,55 @@ public class JaxbTask implements InternalTask {
 
     @XmlElement(name="task-type")
     @XmlSchemaType(name="string")
-    private String taskType; 
-    
+    private String taskType;
+
     @XmlElement
     @XmlSchemaType(name="string")
     private String name;
-    
+
     @XmlElement
     @XmlSchemaType(name="string")
     private String subject;
-    
+
     @XmlElement
     @XmlSchemaType(name="string")
     private String description;
-    
+
     @XmlElement
     private List<JaxbI18NText> names;
-    
+
     @XmlElement
     private List<JaxbI18NText> subjects;
-    
+
     @XmlElement
     private List<JaxbI18NText> descriptions;
-    
+
     @XmlElement(name="people-assignments")
     private JaxbPeopleAssignments peopleAssignments;
-    
+
     @XmlElement
     private SubTasksStrategy subTasksStrategy;
-    
+
     @XmlElement
     private JaxbTaskData taskData;
-    
+
     @XmlElement
     private JaxbDeadlines deadlines = new JaxbDeadlines();
-    
+
     @XmlElement(name="form-name")
     @XmlSchemaType(name="string")
     private String formName;
- 
-    public JaxbTask() { 
+
+    public JaxbTask() {
         // Default constructor
     }
-    
-    public JaxbTask(Task task) { 
+
+    public JaxbTask(Task task) {
         initialize(task);
     }
-    
-    public void initialize(Task task) { 
-        if( task == null ) { 
+
+    public void initialize(Task task) {
+        if( task == null ) {
             return;
         }
         this.id = task.getId();
@@ -140,34 +140,34 @@ public class JaxbTask implements InternalTask {
         this.subject = ((InternalTask)task).getSubject();
         this.descriptions = convertListFromInterfaceToJaxbImpl(task.getDescriptions(), I18NText.class, JaxbI18NText.class);
         this.description = ((InternalTask)task).getDescription();
-        
+
         this.taskType = task.getTaskType();
         this.formName = ((InternalTask)task).getFormName();
         this.taskData = new JaxbTaskData(task.getTaskData());
     }
-   
+
     /**
      * This is a convienence method that retrieves a TaskImpl instance. It's used
      * internally in the {@link AddTaskCommand#execute(org.kie.internal.command.Context)} method
      * because that command requires a persistable task representation.
      * </p>
-     * Users who are looking for information from the task should <i>not</i> use this method: 
+     * Users who are looking for information from the task should <i>not</i> use this method:
      * all of the task information is already available via the normal methods
-     * defined by the {@link Task} or {@link InternalTask} interfaces, both of which this class 
-     * implements: for example: {@link JaxbTask#getId()}, {@link JaxbTask#getTaskData()} 
+     * defined by the {@link Task} or {@link InternalTask} interfaces, both of which this class
+     * implements: for example: {@link JaxbTask#getId()}, {@link JaxbTask#getTaskData()}
      * or {@link JaxbTask#getPeopleAssignments()}.
      * @return a TaskImpl instance
      */
-    public Task getTask() { 
+    public Task getTask() {
         InternalTask taskImpl = (InternalTask) TaskModelProvider.getFactory().newTask();
 
-        if( this.getId() != null ) { 
+        if( this.getId() != null ) {
             taskImpl.setId(this.getId());
         }
-        if( this.priority != null ) { 
+        if( this.priority != null ) {
             taskImpl.setPriority(this.getPriority());
         }
-        
+
         JaxbPeopleAssignments jaxbPeopleAssignments = this.peopleAssignments;
         InternalPeopleAssignments peopleAssignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         if (jaxbPeopleAssignments.getTaskInitiator() != null) {
@@ -184,10 +184,10 @@ public class JaxbTask implements InternalTask {
         peopleAssignments.setTaskStakeholders(taskStake);
         List<OrganizationalEntity> recipients = copyOrganizationalEntityList(jaxbPeopleAssignments.getRecipients());
         peopleAssignments.setRecipients(recipients);
-        taskImpl.setPeopleAssignments(peopleAssignments);        
-        
+        taskImpl.setPeopleAssignments(peopleAssignments);
+
         taskImpl.setSubTaskStrategy(this.getSubTaskStrategy());
-      
+
         {
             List<I18NText> names = new ArrayList<I18NText>();
             for (I18NText n: this.getNames()) {
@@ -196,12 +196,12 @@ public class JaxbTask implements InternalTask {
                 ((InternalI18NText) text).setLanguage(n.getLanguage());
                 ((InternalI18NText) text).setText(n.getText());
                 names.add(text);
-            }        
+            }
             taskImpl.setNames(names);
         }
-        
+
         if (this.getName() != null) {
-            taskImpl.setName(this.getName());   
+            taskImpl.setName(this.getName());
         } else if (!this.getNames().isEmpty()) {
             taskImpl.setName(this.getNames().get(0).getText());
         }
@@ -218,7 +218,7 @@ public class JaxbTask implements InternalTask {
             taskImpl.setSubjects(subjects);
         }
         if (this.getSubject() != null) {
-            taskImpl.setSubject(this.getSubject()); 
+            taskImpl.setSubject(this.getSubject());
         } else if (!this.getSubjects().isEmpty()) {
             taskImpl.setSubject(this.getSubjects().get(0).getText());
         }
@@ -235,14 +235,14 @@ public class JaxbTask implements InternalTask {
             taskImpl.setDescriptions(descriptions);
         }
         if (this.getDescription() != null) {
-            taskImpl.setDescription(this.getDescription()); 
+            taskImpl.setDescription(this.getDescription());
         } else if (!this.getDescriptions().isEmpty()) {
             taskImpl.setDescription(this.getDescriptions().get(0).getText());
         }
-       
+
         taskImpl.setTaskType(this.getTaskType());
         taskImpl.setFormName(this.getFormName());
-        
+
         // task data
         InternalTaskData taskData = (InternalTaskData) TaskModelProvider.getFactory().newTaskData();
         JaxbTaskData jaxbTaskData = (JaxbTaskData) this.getTaskData();
@@ -269,11 +269,11 @@ public class JaxbTask implements InternalTask {
         taskData.setParentId(jaxbTaskData.getParentId());
         taskData.setProcessId(jaxbTaskData.getProcessId());
         taskData.setProcessSessionId(jaxbTaskData.getProcessSessionId());
-        
+
         List<Comment> jaxbComments = jaxbTaskData.getComments();
-        if( jaxbComments != null ) { 
+        if( jaxbComments != null ) {
             List<Comment> comments = new ArrayList<Comment>(jaxbComments.size());
-            for( Comment jaxbComment : jaxbComments ) { 
+            for( Comment jaxbComment : jaxbComments ) {
                 InternalComment comment = (InternalComment) TaskModelProvider.getFactory().newComment();
                 if( jaxbComment.getId() != null ) {
                     comment.setId(jaxbComment.getId());
@@ -286,11 +286,11 @@ public class JaxbTask implements InternalTask {
             taskData.setComments(comments);
         }
         List<Attachment> jaxbAttachments = jaxbTaskData.getAttachments();
-        if( jaxbAttachments != null ) { 
+        if( jaxbAttachments != null ) {
             List<Attachment> attachments = new ArrayList<Attachment>(jaxbAttachments.size());
-            for( Attachment jaxbAttach : jaxbAttachments ) { 
+            for( Attachment jaxbAttach : jaxbAttachments ) {
                 InternalAttachment attach = (InternalAttachment) TaskModelProvider.getFactory().newAttachment();
-                if( jaxbAttach.getId() != null ) { 
+                if( jaxbAttach.getId() != null ) {
                     attach.setId(jaxbAttach.getId());
                 }
                 attach.setName(jaxbAttach.getName());
@@ -304,43 +304,43 @@ public class JaxbTask implements InternalTask {
             taskData.setAttachments(attachments);
         }
         taskData.setDeploymentId(jaxbTaskData.getDeploymentId());
-        
+
         ((InternalTask)taskImpl).setTaskData(taskData);
-        
+
         return taskImpl;
     }
-   
-    private User createUser(String userId) { 
-        if( userId == null ) { 
+
+    private User createUser(String userId) {
+        if( userId == null ) {
             return null;
         }
         return TaskModelProvider.getFactory().newUser(userId);
     }
-    
-    private Group createGroup(String groupId) { 
-        if( groupId == null ) { 
+
+    private Group createGroup(String groupId) {
+        if( groupId == null ) {
             return null;
         }
         return TaskModelProvider.getFactory().newGroup(groupId);
     }
-    
-    private List<OrganizationalEntity> copyOrganizationalEntityList(List<OrganizationalEntity> jaxbOrgEntList) { 
-        if( jaxbOrgEntList == null ) { 
+
+    private List<OrganizationalEntity> copyOrganizationalEntityList(List<OrganizationalEntity> jaxbOrgEntList) {
+        if( jaxbOrgEntList == null ) {
             return null;
         }
         List<OrganizationalEntity> orgEntList = new ArrayList<OrganizationalEntity>(jaxbOrgEntList.size());
-        for( OrganizationalEntity jaxbOrgEnt : jaxbOrgEntList ) { 
+        for( OrganizationalEntity jaxbOrgEnt : jaxbOrgEntList ) {
             if(jaxbOrgEnt instanceof User) {
                 User user = createUser(jaxbOrgEnt.getId());
                 orgEntList.add(user);
             } else if(jaxbOrgEnt instanceof Group) {
                 Group group = createGroup(jaxbOrgEnt.getId());
                 orgEntList.add(group);
-            } 
+            }
         }
         return orgEntList;
     }
-    
+
     @Override
     public Long getId() {
         return id;
@@ -363,7 +363,7 @@ public class JaxbTask implements InternalTask {
 
     @Override
     public List<I18NText> getNames() {
-        if( names == null ) { 
+        if( names == null ) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(names));
@@ -374,7 +374,7 @@ public class JaxbTask implements InternalTask {
     }
 
     public List<I18NText> getSubjects() {
-        if( subjects == null ) { 
+        if( subjects == null ) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(subjects));
@@ -386,7 +386,7 @@ public class JaxbTask implements InternalTask {
 
     @Override
     public List<I18NText> getDescriptions() {
-        if( descriptions == null ) { 
+        if( descriptions == null ) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(JaxbI18NText.convertListFromJaxbImplToInterface(descriptions));
@@ -402,9 +402,9 @@ public class JaxbTask implements InternalTask {
     }
 
     public void setPeopleAssignments(PeopleAssignments peopleAssignments) {
-        if( peopleAssignments instanceof JaxbPeopleAssignments ) { 
+        if( peopleAssignments instanceof JaxbPeopleAssignments ) {
         this.peopleAssignments = (JaxbPeopleAssignments) peopleAssignments;
-        } else { 
+        } else {
             this.peopleAssignments = new JaxbPeopleAssignments(peopleAssignments);
         }
     }
@@ -415,9 +415,9 @@ public class JaxbTask implements InternalTask {
     }
 
     public void setTaskData(TaskData taskData) {
-        if( taskData instanceof JaxbTaskData ) { 
+        if( taskData instanceof JaxbTaskData ) {
             this.taskData = (JaxbTaskData) taskData;
-        } else { 
+        } else {
             this.taskData = new JaxbTaskData(taskData);
         }
     }
@@ -441,7 +441,7 @@ public class JaxbTask implements InternalTask {
         // no-op
     }
 
-   
+
     @Override
     public void setFormName(String formName) {
         this.formName = formName;

@@ -59,7 +59,7 @@ public class TaskImpl implements InternalTask {
     @GeneratedValue(strategy = GenerationType.AUTO, generator="taskIdSeq")
     @Column(name = "id")
     private Long                 id = 0L;
-    
+
     @Version
     @Column(name = "OPTLOCK")
     private int                  version;
@@ -71,11 +71,11 @@ public class TaskImpl implements InternalTask {
     private int                  priority;
 
     private String name;
-    
+
     private String subject;
-    
+
     private String description;
-    
+
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Task_Names_Id", nullable = true)
     private List<I18NText> names        = Collections.emptyList();
@@ -104,14 +104,14 @@ public class TaskImpl implements InternalTask {
     @Enumerated(EnumType.STRING)
     // Default Behaviour
     private SubTasksStrategy subTaskStrategy = SubTasksStrategy.NoAction;
-    
+
     private String               taskType;
-    
+
     private String               formName;
-    
+
     @Basic
     private Short archived = 0;
-    
+
 
     public TaskImpl() {
     }
@@ -121,36 +121,36 @@ public class TaskImpl implements InternalTask {
         out.writeInt( priority );
         out.writeShort( archived );
         if (taskType != null) {
-        	out.writeUTF(taskType);
+            out.writeUTF(taskType);
         } else {
-        	out.writeUTF("");
+            out.writeUTF("");
         }
-        
+
         if (formName != null) {
-        	out.writeUTF(formName);
+            out.writeUTF(formName);
         } else {
-        	out.writeUTF("");
+            out.writeUTF("");
         }
-        
+
         if (name != null) {
-        	out.writeUTF(name);
+            out.writeUTF(name);
         } else {
-        	out.writeUTF("");
+            out.writeUTF("");
         }
-               
+
         if (subject != null) {
-        	out.writeUTF(subject);
+            out.writeUTF(subject);
         } else {
-        	out.writeUTF("");
+            out.writeUTF("");
         }
-               
+
         if (description != null) {
-        	out.writeUTF(description);
+            out.writeUTF(description);
         } else {
-        	out.writeUTF("");
+            out.writeUTF("");
         }
-        
-        
+
+
         CollectionUtils.writeI18NTextList( names, out );
         CollectionUtils.writeI18NTextList( subjects, out );
         CollectionUtils.writeI18NTextList( descriptions, out );
@@ -161,7 +161,7 @@ public class TaskImpl implements InternalTask {
         } else {
             out.writeBoolean(false);
         }
-        
+
         if ( peopleAssignments != null ) {
             out.writeBoolean( true );
             peopleAssignments.writeExternal( out );
@@ -205,11 +205,11 @@ public class TaskImpl implements InternalTask {
         names = CollectionUtils.readI18NTextList( in );
         subjects = CollectionUtils.readI18NTextList( in );
         descriptions = CollectionUtils.readI18NTextList( in );
-        
+
         if (in.readBoolean()) {
             subTaskStrategy = SubTasksStrategy.valueOf(in.readUTF());
         }
-        
+
         if ( in.readBoolean() ) {
             peopleAssignments = new PeopleAssignmentsImpl();
             peopleAssignments.readExternal( in );
@@ -231,7 +231,7 @@ public class TaskImpl implements InternalTask {
         }
 
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -254,7 +254,7 @@ public class TaskImpl implements InternalTask {
             this.archived = (archived == true) ? new Short("1") : new Short("0");
         }
     }
-    
+
     public int getVersion() {
         return this.version;
     }
@@ -338,7 +338,7 @@ public class TaskImpl implements InternalTask {
     public void setFormName(String formName) {
         this.formName = formName;
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -423,7 +423,7 @@ public class TaskImpl implements InternalTask {
     public void setDescription(String description) {
         this.description = description;
     }
-    
-    
+
+
 
 }

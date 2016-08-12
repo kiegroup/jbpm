@@ -29,29 +29,29 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class DisposeSessionTransactionSynchronization extends OrderedTransactionSynchronization {
-	private static final Logger logger = LoggerFactory.getLogger(DisposeSessionTransactionSynchronization.class);
+    private static final Logger logger = LoggerFactory.getLogger(DisposeSessionTransactionSynchronization.class);
 
-	private RuntimeEngine runtime;
-	private RuntimeManager manager;
-	
-	public DisposeSessionTransactionSynchronization(RuntimeManager manager, RuntimeEngine runtime) {
-		super(10, "DestroySessionTransactionSynchronization"+runtime.toString());
-		this.manager = manager;
-	    this.runtime = runtime;
-	}
-	
-	public void beforeCompletion() {
-	    // clean the manager state to make sure it's done as sometimes afterCompletion is done in another thread
-	    ((AbstractRuntimeManager) manager).softDispose(runtime);
-	}
+    private RuntimeEngine runtime;
+    private RuntimeManager manager;
 
-	public void afterCompletion(int status) {
-	    try {
-	    	((RuntimeEngineImpl) runtime).setAfterCompletion(true);
-	        manager.disposeRuntimeEngine(runtime);
-	    } catch (Throwable e) {
-	        logger.debug("Could not dispose runtime engine", e);
-	    }
-	}
+    public DisposeSessionTransactionSynchronization(RuntimeManager manager, RuntimeEngine runtime) {
+        super(10, "DestroySessionTransactionSynchronization"+runtime.toString());
+        this.manager = manager;
+        this.runtime = runtime;
+    }
+
+    public void beforeCompletion() {
+        // clean the manager state to make sure it's done as sometimes afterCompletion is done in another thread
+        ((AbstractRuntimeManager) manager).softDispose(runtime);
+    }
+
+    public void afterCompletion(int status) {
+        try {
+            ((RuntimeEngineImpl) runtime).setAfterCompletion(true);
+            manager.disposeRuntimeEngine(runtime);
+        } catch (Throwable e) {
+            logger.debug("Could not dispose runtime engine", e);
+        }
+    }
 
 }

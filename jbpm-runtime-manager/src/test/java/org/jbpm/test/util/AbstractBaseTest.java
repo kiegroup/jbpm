@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractBaseTest {
-    
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     @Rule
     public TestRule watcher = new TestWatcher() {
         protected void starting(Description description) {
@@ -41,19 +41,19 @@ public abstract class AbstractBaseTest {
             logger.info("Finished {}", description);
         }
     };
-    
+
     @After
     public void cleanup() {
-    	EntityManagerFactoryManager.get().clear();
+        EntityManagerFactoryManager.get().clear();
     }
-    
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         LoggingPrintStream.resetInterceptSysOutSysErr();
     }
 }

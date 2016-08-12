@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -24,29 +24,29 @@ import org.jbpm.process.builder.dialect.ProcessDialect;
 
 public class JavaScriptProcessDialect implements ProcessDialect {
 
-	private static final ActionBuilder actionBuilder = new JavaScriptActionBuilder();
-	private static final ReturnValueEvaluatorBuilder returnValueEvaluatorBuilder = new JavaScriptReturnValueEvaluatorBuilder();
-	
-	public void addProcess(final ProcessBuildContext context) {
+    private static final ActionBuilder actionBuilder = new JavaScriptActionBuilder();
+    private static final ReturnValueEvaluatorBuilder returnValueEvaluatorBuilder = new JavaScriptReturnValueEvaluatorBuilder();
+
+    public void addProcess(final ProcessBuildContext context) {
         // @TODO setup line mappings
-	}
+    }
 
-	public ActionBuilder getActionBuilder() {
-		return actionBuilder;
-	}
+    public ActionBuilder getActionBuilder() {
+        return actionBuilder;
+    }
 
-	public ProcessClassBuilder getProcessClassBuilder() {
+    public ProcessClassBuilder getProcessClassBuilder() {
         throw new UnsupportedOperationException(
             "JavaScriptProcessDialect.getProcessClassBuilder is not supported" );
-	}
+    }
 
-	public ReturnValueEvaluatorBuilder getReturnValueEvaluatorBuilder() {
-	    return returnValueEvaluatorBuilder;
-	}
+    public ReturnValueEvaluatorBuilder getReturnValueEvaluatorBuilder() {
+        return returnValueEvaluatorBuilder;
+    }
 
-	public AssignmentBuilder getAssignmentBuilder() {
-		throw new UnsupportedOperationException(
-			"JavaScript assignments not supported");
-	}
+    public AssignmentBuilder getAssignmentBuilder() {
+        throw new UnsupportedOperationException(
+            "JavaScript assignments not supported");
+    }
 
 }

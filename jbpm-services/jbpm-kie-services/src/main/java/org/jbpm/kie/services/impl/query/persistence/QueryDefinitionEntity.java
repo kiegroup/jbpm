@@ -37,28 +37,28 @@ import org.jbpm.services.api.query.model.QueryDefinition.Target;
 @Table(name="QueryDefinitionStore", uniqueConstraints={@UniqueConstraint(columnNames="qName")})
 @SequenceGenerator(name="queryDefIdSeq", sequenceName="QUERY_DEF_ID_SEQ", allocationSize=1)
 public class QueryDefinitionEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="queryDefIdSeq")
     @Column(name = "id")
     private Long id;
- 
+
     @Lob
     @Column(name="qExpression", length=65535)
     private String expression;
-    
+
     @Column(name="qName")
     private String name;
-    
+
     @Column(name="qSource")
     private String source;
-   
+
     @Column(name="qTarget")
     private String target;
-    
-    public QueryDefinitionEntity() {        
+
+    public QueryDefinitionEntity() {
     }
-    
+
     public QueryDefinitionEntity(QueryDefinition queryDefinition) {
         this.name = queryDefinition.getName();
         this.source = queryDefinition.getSource();
@@ -69,39 +69,39 @@ public class QueryDefinitionEntity {
     public Long getId() {
         return id;
     }
-    
+
     public void setId(Long id) {
         this.id = id;
     }
-    
+
     public String getExpression() {
         return expression;
     }
-    
+
     public void setExpression(String expression) {
         this.expression = expression;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getSource() {
         return source;
     }
-    
+
     public void setSource(String source) {
         this.source = source;
     }
-    
+
     public String getTarget() {
         return target;
     }
-    
+
     public void setTarget(String target) {
         this.target = target;
     }
@@ -110,14 +110,14 @@ public class QueryDefinitionEntity {
     public String toString() {
         return "QueryDefinitionEntity [id=" + id + ", name=" + name + ", source=" + source + ", target=" + target +", {expression=" + expression + "}]";
     }
-    
+
     public QueryDefinition toQueryDefinition() {
         SqlQueryDefinition queryDefinition = new SqlQueryDefinition(name, source);
         queryDefinition.setExpression(expression);
         queryDefinition.setTarget(Target.valueOf(target));
-        
+
         return queryDefinition;
     }
-    
+
 
 }

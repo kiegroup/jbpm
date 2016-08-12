@@ -27,23 +27,23 @@ import org.jbpm.process.instance.context.AbstractContextInstance;
 public class ExclusiveGroupInstance extends AbstractContextInstance {
 
     private static final long serialVersionUID = 510l;
-    
+
     private Map<Long, NodeInstance> nodeInstances = new HashMap<Long, NodeInstance>();
-    
+
     public String getContextType() {
         return ExclusiveGroup.EXCLUSIVE_GROUP;
     }
-    
+
     public boolean containsNodeInstance(NodeInstance nodeInstance) {
-    	return nodeInstances.containsKey(nodeInstance.getId());
+        return nodeInstances.containsKey(nodeInstance.getId());
     }
-    
+
     public void addNodeInstance(NodeInstance nodeInstance) {
-    	nodeInstances.put(nodeInstance.getId(), nodeInstance);
+        nodeInstances.put(nodeInstance.getId(), nodeInstance);
     }
-    
+
     public Collection<NodeInstance> getNodeInstances() {
-    	return nodeInstances.values();
+        return nodeInstances.values();
     }
-    
+
 }

@@ -36,28 +36,28 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class BusinessRuleTaskHandler extends AbstractNodeHandler {
-	
-	private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
-    
+
+    private DataTransformerRegistry transformerRegistry = DataTransformerRegistry.get();
+
     protected Node createNode(Attributes attrs) {
         return new RuleSetNode();
     }
-    
+
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return RuleSetNode.class;
     }
 
-    protected void handleNode(final Node node, final Element element, final String uri, 
+    protected void handleNode(final Node node, final Element element, final String uri,
             final String localName, final ExtensibleXmlParser parser) throws SAXException {
-    	super.handleNode(node, element, uri, localName, parser);
+        super.handleNode(node, element, uri, localName, parser);
         RuleSetNode ruleSetNode = (RuleSetNode) node;
-		String ruleFlowGroup = element.getAttribute("ruleFlowGroup");
-		if (ruleFlowGroup != null) {
-			ruleSetNode.setRuleFlowGroup(ruleFlowGroup);
-		}
-		org.w3c.dom.Node xmlNode = element.getFirstChild();
-		while (xmlNode != null) {
+        String ruleFlowGroup = element.getAttribute("ruleFlowGroup");
+        if (ruleFlowGroup != null) {
+            ruleSetNode.setRuleFlowGroup(ruleFlowGroup);
+        }
+        org.w3c.dom.Node xmlNode = element.getFirstChild();
+        while (xmlNode != null) {
             String nodeName = xmlNode.getNodeName();
             if ("ioSpecification".equals(nodeName)) {
                 readIoSpecification(xmlNode, dataInputs, dataOutputs);
@@ -68,23 +68,23 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
             }
             xmlNode = xmlNode.getNextSibling();
         }
-		
+
         handleScript(ruleSetNode, element, "onEntry");
         handleScript(ruleSetNode, element, "onExit");
-	}
+    }
 
-	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
-		RuleSetNode ruleSetNode = (RuleSetNode) node;
-		writeNode("businessRuleTask", ruleSetNode, xmlDump, metaDataType);
-		if (ruleSetNode.getRuleFlowGroup() != null) {
-			xmlDump.append("g:ruleFlowGroup=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(ruleSetNode.getRuleFlowGroup()) + "\" >" + EOL);
-		}
-		writeExtensionElements(ruleSetNode, xmlDump);
-		writeIO(ruleSetNode, xmlDump);
-		endNode("businessRuleTask", xmlDump);
-	}
-	
-	protected void readDataInputAssociation(org.w3c.dom.Node xmlNode, RuleSetNode ruleSetNode, Map<String, String> dataInputs) {
+    public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
+        RuleSetNode ruleSetNode = (RuleSetNode) node;
+        writeNode("businessRuleTask", ruleSetNode, xmlDump, metaDataType);
+        if (ruleSetNode.getRuleFlowGroup() != null) {
+            xmlDump.append("g:ruleFlowGroup=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(ruleSetNode.getRuleFlowGroup()) + "\" >" + EOL);
+        }
+        writeExtensionElements(ruleSetNode, xmlDump);
+        writeIO(ruleSetNode, xmlDump);
+        endNode("businessRuleTask", xmlDump);
+    }
+
+    protected void readDataInputAssociation(org.w3c.dom.Node xmlNode, RuleSetNode ruleSetNode, Map<String, String> dataInputs) {
         // sourceRef
         org.w3c.dom.Node subNode = xmlNode.getFirstChild();
         if ("sourceRef".equals(subNode.getNodeName())) {
@@ -93,21 +93,21 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
             subNode = subNode.getNextSibling();
             String target = subNode.getTextContent();
             // transformation
-    		Transformation transformation = null;
-    		subNode = subNode.getNextSibling();
-    		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
-    			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
-    			String expression = subNode.getTextContent();
-    			
-    			DataTransformer transformer = transformerRegistry.find(lang);
-    			if (transformer == null) {
-    				throw new IllegalArgumentException("No transformer registered for language " + lang);
-    			}    			
-    			transformation = new Transformation(lang, expression);    			
-    			
-    			subNode = subNode.getNextSibling();
-    		}
-    		// assignments  
+            Transformation transformation = null;
+            subNode = subNode.getNextSibling();
+            if (subNode != null && "transformation".equals(subNode.getNodeName())) {
+                String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
+                String expression = subNode.getTextContent();
+
+                DataTransformer transformer = transformerRegistry.find(lang);
+                if (transformer == null) {
+                    throw new IllegalArgumentException("No transformer registered for language " + lang);
+                }
+                transformation = new Transformation(lang, expression);
+
+                subNode = subNode.getNextSibling();
+            }
+            // assignments
             List<Assignment> assignments = new LinkedList<Assignment>();
             while(subNode != null){
                 org.w3c.dom.Node ssubNode = subNode.getFirstChild();
@@ -150,7 +150,7 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
             }
         }
     }
-    
+
     protected void readDataOutputAssociation(org.w3c.dom.Node xmlNode, RuleSetNode ruleSetNode, Map<String, String> dataOutputs) {
         // sourceRef
         org.w3c.dom.Node subNode = xmlNode.getFirstChild();
@@ -159,19 +159,19 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
         subNode = subNode.getNextSibling();
         String target = subNode.getTextContent();
         // transformation
- 		Transformation transformation = null;
- 		subNode = subNode.getNextSibling();
- 		if (subNode != null && "transformation".equals(subNode.getNodeName())) {
- 			String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
- 			String expression = subNode.getTextContent();
- 			DataTransformer transformer = transformerRegistry.find(lang);
- 			if (transformer == null) {
- 				throw new IllegalArgumentException("No transformer registered for language " + lang);
- 			}    			
- 			transformation = new Transformation(lang, expression, source); 		
- 			subNode = subNode.getNextSibling();
- 		}
- 		// assignments 
+        Transformation transformation = null;
+        subNode = subNode.getNextSibling();
+        if (subNode != null && "transformation".equals(subNode.getNodeName())) {
+            String lang = subNode.getAttributes().getNamedItem("language").getNodeValue();
+            String expression = subNode.getTextContent();
+            DataTransformer transformer = transformerRegistry.find(lang);
+            if (transformer == null) {
+                throw new IllegalArgumentException("No transformer registered for language " + lang);
+            }
+            transformation = new Transformation(lang, expression, source);
+            subNode = subNode.getNextSibling();
+        }
+        // assignments
         List<Assignment> assignments = new LinkedList<Assignment>();
         while(subNode != null){
             org.w3c.dom.Node ssubNode = subNode.getFirstChild();
@@ -182,7 +182,7 @@ public class BusinessRuleTaskHandler extends AbstractNodeHandler {
         }
         ruleSetNode.addOutAssociation(new DataAssociation(dataOutputs.get(source), target, assignments, transformation));
     }
-    
+
     protected void writeIO(RuleSetNode ruleSetNode, StringBuilder xmlDump) {
         xmlDump.append("      <ioSpecification>" + EOL);
         for (Map.Entry<String, String> entry: ruleSetNode.getInMappings().entrySet()) {

@@ -67,7 +67,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of <code>RegisterableItemsFactory</code> dedicated to CDI environments that allows us to get 
+ * Implementation of <code>RegisterableItemsFactory</code> dedicated to CDI environments that allows us to get
  * injections of following components:
  * <ul>
  *  <li><code>ExternalTaskEventListener</code> - required bean</li>
@@ -75,10 +75,10 @@ import org.slf4j.LoggerFactory;
  *  <li><code>EventListenerProducer<ProcessEventListener>></code> - optional bean (0 or more)</li>
  *  <li><code>EventListenerProducer<AgendaEventListener>></code> - optional bean (0 or more)</li>
  *  <li><code>EventListenerProducer<WorkingMemoryEventListener>></code> - optional bean (0 or more)</li>
- *  <li><code>RuntimeFinder</code> - optional required only when single CDI bean is going to manage many 
+ *  <li><code>RuntimeFinder</code> - optional required only when single CDI bean is going to manage many
  *  <code>RuntimeManager</code> instances</li>
  * </ul>
- * In addition to that, <code>AbstractAuditLogger</code> can be set after the bean has been injected if the default 
+ * In addition to that, <code>AbstractAuditLogger</code> can be set after the bean has been injected if the default
  * is not sufficient. Although this factory extends <code>DefaultRegisterableItemsFactory</code>, it will not
  * use any of the listeners and handlers that come from the super class. It relies mainly on CDI injections
  * where the only exception from this rule is <code>AbstractAuditLogger</code>
@@ -88,20 +88,20 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *  <li>getFactory(BeanManager, AbstractAuditLogger)</li>
  *  <li>getFactory(BeanManager, AbstractAuditLogger, KieContainer, String)</li>
- * </ul>  
+ * </ul>
  */
 public class InjectableRegisterableItemsFactory extends DefaultRegisterableItemsFactory {
 
     private static final String DEFAULT_KIE_SESSION = "defaultKieSession";
     private static final Logger logger = LoggerFactory.getLogger(InjectableRegisterableItemsFactory.class);
-    
+
     // optional injections
     @Inject
     @Any
-    private Instance<GlobalProducer> globalProducer; 
+    private Instance<GlobalProducer> globalProducer;
     @Inject
     @Any
-    private Instance<WorkItemHandlerProducer> workItemHandlerProducer;  
+    private Instance<WorkItemHandlerProducer> workItemHandlerProducer;
     @Inject
     @Process
     private Instance<EventListenerProducer<ProcessEventListener>> processListenerProducer;
@@ -116,19 +116,19 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
     private Instance<EventListenerProducer<TaskLifeCycleEventListener>> taskListenerProducer;
     @Inject
     private Instance<ExecutorService> executorService;
-    
+
     private AbstractAuditLogger auditlogger;
-    
+
     // to handle kmodule approach
     private KieContainer kieContainer;
     private String ksessionName;
-    
+
 
     @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
         Map<String, WorkItemHandler> handler = new HashMap<String, WorkItemHandler>();
         handler.put("Human Task", getHTWorkItemHandler(runtime));
-        
+
         RuntimeManager manager = ((RuntimeEngineImpl)runtime).getManager();
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("ksession", runtime.getKieSession());
@@ -140,20 +140,20 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         } catch (Exception e) {
             logger.debug("Executor service not available due to {}", e.getMessage());
         }
-        
+
         if (kieContainer != null) {
-        	// add classloader as one of the parameters so it can be easily referenced
-        	parameters.put("classLoader", kieContainer.getClassLoader());
+            // add classloader as one of the parameters so it can be easily referenced
+            parameters.put("classLoader", kieContainer.getClassLoader());
             KieSessionModel ksessionModel = null;
             if(StringUtils.isEmpty(ksessionName)) {
                 ksessionModel = ((KieContainerImpl)kieContainer).getKieProject().getDefaultKieSession();
                 if (ksessionModel == null) {
                     ksessionModel = ((KieContainerImpl)kieContainer).getKieSessionModel(DEFAULT_KIE_SESSION);
                 }
-            } else {            
+            } else {
                 ksessionModel = ((KieContainerImpl)kieContainer).getKieSessionModel(ksessionName);
             }
-            
+
             if (ksessionModel == null) {
                 throw new IllegalStateException("Cannot find ksession, either it does not exist or there are multiple default ksession in kmodule.xml");
             }
@@ -177,19 +177,19 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         handler.putAll(getWorkItemHandlersFromDescriptor(runtime));
         return handler;
     }
-    
+
 
     @Override
     public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-        
+
         List<ProcessEventListener> defaultListeners = new ArrayList<ProcessEventListener>();
         if(auditlogger != null) {
             defaultListeners.add(auditlogger);
         } else if (getAuditBuilder() != null) {
-        	AbstractAuditLogger aLogger = getAuditLoggerInstance(runtime);
-        	if (aLogger != null) {
-        		defaultListeners.add(aLogger);
-        	}
+            AbstractAuditLogger aLogger = getAuditLoggerInstance(runtime);
+            if (aLogger != null) {
+                defaultListeners.add(aLogger);
+            }
         }
         try {
             for (EventListenerProducer<ProcessEventListener> producer : processListenerProducer) {
@@ -198,12 +198,12 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         } catch (Exception e) {
             logger.warn("Exception while evaluating ProcessEventListener producers {}", e.getMessage());
         }
-        
+
         // add listeners from descriptor
-        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, ProcessEventListener.class)); 
+        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, ProcessEventListener.class));
         return defaultListeners;
     }
-    
+
     @Override
     public List<RuleRuntimeEventListener> getRuleRuntimeEventListeners(RuntimeEngine runtime) {
         List<RuleRuntimeEventListener> defaultListeners = new ArrayList<RuleRuntimeEventListener>();
@@ -217,7 +217,7 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         // add listeners from descriptor
         defaultListeners.addAll(getEventListenerFromDescriptor(runtime, RuleRuntimeEventListener.class));
         return defaultListeners;
-    }      
+    }
 
     @Override
     public List<AgendaEventListener> getAgendaEventListeners(RuntimeEngine runtime) {
@@ -231,17 +231,17 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
             logger.warn("Exception while evaluating WorkingMemoryEventListener producers {}", e.getMessage());
         }
         // add listeners from descriptor
-        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, AgendaEventListener.class)); 
+        defaultListeners.addAll(getEventListenerFromDescriptor(runtime, AgendaEventListener.class));
         return defaultListeners;
-    }   
-    
-    
+    }
+
+
     @Override
     public List<TaskLifeCycleEventListener> getTaskListeners() {
         List<TaskLifeCycleEventListener> defaultListeners = new ArrayList<TaskLifeCycleEventListener>();
         try {
             for ( EventListenerProducer<TaskLifeCycleEventListener> producer : taskListenerProducer ) {
-            	defaultListeners.addAll( producer.getEventListeners(null, null) );
+                defaultListeners.addAll( producer.getEventListeners(null, null) );
             }
         } catch ( Exception e ) {
             logger.warn( "Cannot add listeners to task service due to {}", e.getMessage() );
@@ -249,12 +249,12 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         // add listeners from descriptor
         defaultListeners.addAll(getTaskListenersFromDescriptor());
         return defaultListeners;
-    }  
-    
+    }
+
     @Override
-	public Map<String, Object> getGlobals(RuntimeEngine runtime) {    	
-    	Map<String, Object> globals = new HashMap<String, Object>();
-        
+    public Map<String, Object> getGlobals(RuntimeEngine runtime) {
+        Map<String, Object> globals = new HashMap<String, Object>();
+
         RuntimeManager manager = ((RuntimeEngineImpl)runtime).getManager();
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("ksession", runtime.getKieSession());
@@ -266,7 +266,7 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         } catch (Exception e) {
             logger.debug("Executor service not available due to {}", e.getMessage());
         }
-        
+
         try {
             for (GlobalProducer producer : globalProducer) {
                 globals.putAll(producer.getGlobals(manager.getIdentifier(), parameters));
@@ -275,16 +275,16 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
             // do nothing as work item handler is considered optional
             logger.warn("Exception while evalutating globals prodcuers {}", e.getMessage());
         }
-        
-	    // add globals from descriptor
-	    globals.putAll(getGlobalsFromDescriptor(runtime));
-        
+
+        // add globals from descriptor
+        globals.putAll(getGlobalsFromDescriptor(runtime));
+
         return globals;
-	}
+    }
 
 
-	/**
-     * Allows us to create an instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple 
+    /**
+     * Allows us to create an instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple
      * independent instances are required on runtime and that need cannot be satisfied with regular CDI practices.
      * @param beanManager - bean manager instance of the container
      * @param auditlogger - <code>AbstractAuditLogger</code> logger instance to be used, might be null
@@ -295,14 +295,14 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         instance.setAuditlogger(auditlogger);
         return instance;
     }
-    
+
     /**
-     * Allows us to create instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple 
+     * Allows us to create instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple
      * independent instances are required on runtime and that need cannot be satisfied with regular CDI practices.
      * @param beanManager - bean manager instance of the container
      * @param auditlogger - <code>AbstractAuditLogger</code> logger instance to be used, might be null
      * @param kieContainer - <code>KieContainer</code> that the factory is built for
-     * @param ksessionName - name of the ksession defined in kmodule to be used, 
+     * @param ksessionName - name of the ksession defined in kmodule to be used,
      * if not given default ksession from kmodule will be used.
      * @return
      */
@@ -313,9 +313,9 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         instance.setKsessionName(ksessionName);
         return instance;
     }
-    
-	/**
-     * Allows to create instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple 
+
+    /**
+     * Allows to create instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple
      * independent instances are required on runtime and that need cannot be satisfied with regular CDI practices.
      * @param beanManager - bean manager instance of the container
      * @param eventBuilder - <code>AuditEventBuilder</code> logger builder instance to be used, might be null
@@ -326,14 +326,14 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         instance.setAuditBuilder(eventBuilder);
         return instance;
     }
-    
+
     /**
-     * Allows to create instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple 
+     * Allows to create instance of this class dynamically via <code>BeanManager</code>. This is useful in case multiple
      * independent instances are required on runtime and that need cannot be satisfied with regular CDI practices.
      * @param beanManager - bean manager instance of the container
      * @param eventBuilder - <code>AbstractAuditLogger</code> logger builder instance to be used, might be null
      * @param kieContainer - <code>KieContainer</code> that the factory is built for
-     * @param ksessionName - name of the ksession defined in kmodule to be used, 
+     * @param ksessionName - name of the ksession defined in kmodule to be used,
      * if not given default ksession from kmodule will be used.
      * @return
      */
@@ -344,8 +344,8 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
         instance.setKsessionName(ksessionName);
         return instance;
     }
-    
-    
+
+
     protected static <T> T getInstanceByType(BeanManager manager, Class<T> type, Annotation... bindings) {
         final Bean<?> bean = manager.resolve(manager.getBeans(type, bindings));
         if (bean == null) {
@@ -387,33 +387,33 @@ public class InjectableRegisterableItemsFactory extends DefaultRegisterableItems
      * <ul>
      *  <li>jbpm.audit.jms.connection.factory.jndi - JNDI name of the connection factory to look up - type String</li>
      *  <li>jbpm.audit.jms.queue.jndi - JNDI name of the queue to look up - type String</li>
-     * </ul> 
+     * </ul>
      * @return instance of the audit logger
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected AbstractAuditLogger getAuditLoggerInstance(RuntimeEngine engine) {
-    	DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
-    	AbstractAuditLogger auditLogger = null;
+        DeploymentDescriptor descriptor = getRuntimeManager().getDeploymentDescriptor();
+        AbstractAuditLogger auditLogger = null;
         if ("true".equals(System.getProperty("jbpm.audit.jms.enabled")) || descriptor.getAuditMode() == AuditMode.JMS) {
             try {
                 Properties properties = new Properties();
                 properties.load(getRuntimeManager().getEnvironment().getClassLoader().getResourceAsStream("/jbpm.audit.jms.properties"));
-                
+
                 auditLogger =  AuditLoggerFactory.newJMSInstance((Map)properties);
             } catch (IOException e) {
                 logger.error("Unable to load jms audit properties from {}", "/jbpm.audit.jms.properties", e);
             }
             auditLogger.setBuilder(getAuditBuilder(engine));
-        } else if (descriptor.getAuditMode() == AuditMode.JPA){        
-        	if (descriptor.getPersistenceUnit().equals(descriptor.getAuditPersistenceUnit())) {
-        		auditLogger = AuditLoggerFactory.newJPAInstance(engine.getKieSession().getEnvironment());
-        	} else {
-        		auditLogger = new JPAWorkingMemoryDbLogger(EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()));
-        	}
-        	auditLogger.setBuilder(getAuditBuilder(engine));
-        }        
-        
+        } else if (descriptor.getAuditMode() == AuditMode.JPA){
+            if (descriptor.getPersistenceUnit().equals(descriptor.getAuditPersistenceUnit())) {
+                auditLogger = AuditLoggerFactory.newJPAInstance(engine.getKieSession().getEnvironment());
+            } else {
+                auditLogger = new JPAWorkingMemoryDbLogger(EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()));
+            }
+            auditLogger.setBuilder(getAuditBuilder(engine));
+        }
+
         return auditLogger;
     }
-    
+
 }

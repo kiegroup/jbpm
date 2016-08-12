@@ -54,14 +54,14 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHTWorkItemHandler.class);
-    
+
     protected OnErrorAction action = OnErrorAction.LOG;
 
     public AbstractHTWorkItemHandler() {
     }
 
     public AbstractHTWorkItemHandler( OnErrorAction action) {
-        
+
         this.action = action;
     }
 
@@ -72,12 +72,12 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
     protected Task createTaskBasedOnWorkItemParams(KieSession session, WorkItem workItem) {
         InternalTask task = (InternalTask) TaskModelProvider.getFactory().newTask();
         String taskName = (String) workItem.getParameter("NodeName");
-        
+
         String locale = (String) workItem.getParameter("Locale");
         if (locale == null) {
             locale = "en-UK";
         }
-        
+
         if (taskName != null) {
             List<I18NText> names = new ArrayList<I18NText>();
             I18NText text = TaskModelProvider.getFactory().newI18NText();
@@ -89,39 +89,39 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         task.setName(taskName);
         // this should be replaced by FormName filled by designer
         // TaskName shouldn't be trimmed if we are planning to use that for the task lists
-        String formName = (String) workItem.getParameter("TaskName"); 
+        String formName = (String) workItem.getParameter("TaskName");
         if(formName != null){
             task.setFormName(formName);
         }
-        
+
         String comment = (String) workItem.getParameter("Comment");
         if (comment == null) {
             comment = "";
         }
-        
+
         String description = (String) workItem.getParameter("Description");
         if (description == null) {
             description = comment;
         }
-        
+
         List<I18NText> descriptions = new ArrayList<I18NText>();
         I18NText descText = TaskModelProvider.getFactory().newI18NText();
         ((InternalI18NText) descText).setLanguage(locale);
         ((InternalI18NText) descText).setText(description);
         descriptions.add(descText);
         task.setDescriptions(descriptions);
-        
+
         task.setDescription(description);
-        
+
         List<I18NText> subjects = new ArrayList<I18NText>();
         I18NText subjectText = TaskModelProvider.getFactory().newI18NText();
         ((InternalI18NText) subjectText).setLanguage(locale);
         ((InternalI18NText) subjectText).setText(comment);
         subjects.add(subjectText);
         task.setSubjects(subjects);
-        
+
         task.setSubject(comment);
-        
+
         String priorityString = (String) workItem.getParameter("Priority");
         int priority = 0;
         if (priorityString != null) {
@@ -132,17 +132,17 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
             }
         }
         task.setPriority(priority);
-        
-        
-        
-        
-        InternalTaskData taskData = (InternalTaskData) TaskModelProvider.getFactory().newTaskData();        
+
+
+
+
+        InternalTaskData taskData = (InternalTaskData) TaskModelProvider.getFactory().newTaskData();
         taskData.setWorkItemId(workItem.getId());
         taskData.setProcessInstanceId(workItem.getProcessInstanceId());
         if (session != null && session.getProcessInstance(workItem.getProcessInstanceId()) != null) {
             taskData.setProcessId(session.getProcessInstance(workItem.getProcessInstanceId()).getProcess().getId());
             String deploymentId = ((WorkItemImpl) workItem).getDeploymentId();
-            taskData.setDeploymentId(deploymentId);            
+            taskData.setDeploymentId(deploymentId);
         }
         if (session != null && (session instanceof KieSession)) {
             taskData.setProcessSessionId(((KieSession) session).getIdentifier());
@@ -153,12 +153,12 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         if (parentId != null) {
             taskData.setParentId(parentId);
         }
-        
+
         String createdBy = (String) workItem.getParameter("CreatedBy");
         if (createdBy != null && createdBy.trim().length() > 0) {
-        	User user = TaskModelProvider.getFactory().newUser();
-        	((InternalOrganizationalEntity) user).setId(createdBy);
-            taskData.setCreatedBy(user);            
+            User user = TaskModelProvider.getFactory().newUser();
+            ((InternalOrganizationalEntity) user).setId(createdBy);
+            taskData.setCreatedBy(user);
         }
         String dueDateString = (String) workItem.getParameter("DueDate");
         Date date = null;
@@ -173,13 +173,13 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         if(date != null){
             taskData.setExpirationTime(date);
         }
-        
+
         PeopleAssignmentHelper peopleAssignmentHelper = new PeopleAssignmentHelper();
         peopleAssignmentHelper.handlePeopleAssignments(workItem, task, taskData);
-        
+
         PeopleAssignments peopleAssignments = task.getPeopleAssignments();
         List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
-        
+
         taskData.initialize();
         task.setTaskData(taskData);
         task.setDeadlines(HumanTaskHandlerHelper.setDeadlines(workItem, businessAdministrators, session.getEnvironment()));
@@ -201,7 +201,7 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         }
         return content;
     }
-    
+
     protected Map<String, Object> createTaskDataBasedOnWorkItemParams(KieSession session, WorkItem workItem) {
         Map<String, Object> data = new HashMap<String, Object>();
         Object contentObject = workItem.getParameter("Content");
@@ -210,20 +210,20 @@ public abstract class AbstractHTWorkItemHandler implements WorkItemHandler {
         } else {
             data.put("Content", contentObject);
         }
-        
+
         return data;
     }
-    
+
     protected boolean isAutoClaim(WorkItem workItem, Task task) {
         String swimlaneUser = (String) workItem.getParameter("SwimlaneActorId");
         if (swimlaneUser != null  && !"".equals(swimlaneUser) && task.getTaskData().getStatus() == Status.Ready) {
             return true;
         }
-        
+
         return false;
     }
 
-    
+
     public abstract void executeWorkItem(WorkItem workItem, WorkItemManager manager);
 
     public abstract void abortWorkItem(WorkItem workItem, WorkItemManager manager);

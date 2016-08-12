@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -60,7 +60,7 @@ public class MemoryLeakTest {
     private Environment env = null;
 
     private static final String PROCESS_NAME = "RuleTaskWithProcessInstance";
-    
+
     @BeforeClass
     public static void beforeClass() {
         testContext = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
@@ -80,28 +80,28 @@ public class MemoryLeakTest {
     public void findEventSupportRegisteredInstancesTest() {
         // setup
         KieBase kbase = createKnowledgeBase();
-        
-        for( int i = 0; i < 3; ++i ) { 
+
+        for( int i = 0; i < 3; ++i ) {
             createKnowledgeSessionStartProcessEtc(kbase);
         }
-        
+
         KieBaseEventSupport eventSupport = (KieBaseEventSupport) getValueOfField("eventSupport", KnowledgeBaseImpl.class, kbase);
         assertEquals( "Event listeners should have been detached", 0, eventSupport.getEventListeners().size());
     }
-    
+
     private KieBase createKnowledgeBase() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add(ResourceFactory.newClassPathResource("memory/BPMN2-RuleTaskWithInsertProcessInstance.bpmn2"), ResourceType.BPMN2);
         kbuilder.add(ResourceFactory.newClassPathResource("memory/ProcessInstanceRule.drl"), ResourceType.DRL);
-        
+
         if (!kbuilder.getErrors().isEmpty()) {
             Iterator<KnowledgeBuilderError> errIter = kbuilder.getErrors().iterator();
-            while( errIter.hasNext() ) { 
+            while( errIter.hasNext() ) {
                 KnowledgeBuilderError err = errIter.next();
                 StringBuilder lines = new StringBuilder("");
-                if( err.getLines().length > 0 ) { 
+                if( err.getLines().length > 0 ) {
                     lines.append(err.getLines()[0]);
-                    for( int i = 1; i < err.getLines().length; ++i ) { 
+                    for( int i = 1; i < err.getLines().length; ++i ) {
                         lines.append(", " + err.getLines()[i]);
                     }
                 }
@@ -111,47 +111,47 @@ public class MemoryLeakTest {
         }
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages());
-        
+
         return kbase;
     }
 
-    private void createKnowledgeSessionStartProcessEtc(KieBase kbase) { 
+    private void createKnowledgeSessionStartProcessEtc(KieBase kbase) {
         logger.info("session count=" + kbase.getKieSessions().size());
-        
+
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, getKnowledgeSessionConfiguration(), env);
         addEventListenersToSession(ksession);
-        
+
         /**
-         * The following log line caused the memory leak. 
-         * The specific (reverse-ordered) stack trace is the following: 
-         * 
+         * The following log line caused the memory leak.
+         * The specific (reverse-ordered) stack trace is the following:
+         *
          *   MemoryLeakTest.createKnowledgeSessionStartProcessEtc(KnowledgeBase) calls kbase.getKieSessions()
          *   ..
-         *   KnowledgeBaseImpl.getStatefulKnowledgeSessions() line: 186  
-         *   StatefulKnowledgeSessionImpl.<init>(ReteooWorkingMemory, KnowledgeBase) line: 121   
-         *   ReteooStatefulSession(AbstractWorkingMemory).setKnowledgeRuntime(InternalKnowledgeRuntime) line: 1268   
-         *   ReteooStatefulSession(AbstractWorkingMemory).createProcessRuntime() line: 342   
-         *   ProcessRuntimeFactory.newProcessRuntime(AbstractWorkingMemory) line: 12 
-         *   ProcessRuntimeFactoryServiceImpl.newProcessRuntime(AbstractWorkingMemory) line: 1   
-         *   ProcessRuntimeFactoryServiceImpl.newProcessRuntime(AbstractWorkingMemory) line: 10  
-         *   ProcessRuntimeImpl.<init>(AbstractWorkingMemory) line: 84   
-         *   ProcessRuntimeImpl.initProcessEventListeners() line: 215 
-         *   
+         *   KnowledgeBaseImpl.getStatefulKnowledgeSessions() line: 186
+         *   StatefulKnowledgeSessionImpl.<init>(ReteooWorkingMemory, KnowledgeBase) line: 121
+         *   ReteooStatefulSession(AbstractWorkingMemory).setKnowledgeRuntime(InternalKnowledgeRuntime) line: 1268
+         *   ReteooStatefulSession(AbstractWorkingMemory).createProcessRuntime() line: 342
+         *   ProcessRuntimeFactory.newProcessRuntime(AbstractWorkingMemory) line: 12
+         *   ProcessRuntimeFactoryServiceImpl.newProcessRuntime(AbstractWorkingMemory) line: 1
+         *   ProcessRuntimeFactoryServiceImpl.newProcessRuntime(AbstractWorkingMemory) line: 10
+         *   ProcessRuntimeImpl.<init>(AbstractWorkingMemory) line: 84
+         *   ProcessRuntimeImpl.initProcessEventListeners() line: 215
+         *
          * And ProcessRuntimeImpl.initProcessEventListeners() is what adds a new listener
-         * to AbstractRuleBase.eventSupport.listeners via this line (235): 
+         * to AbstractRuleBase.eventSupport.listeners via this line (235):
          *   kruntime.getKnowledgeBase().addEventListener(knowledgeBaseListener);
-         * 
-         * The StatefulKnowledgeSessionImpl instance created in this .getStatefulKnowledgeSessions() 
-         * method is obviously never disposed, which means that the listener is never removed. 
-         * The listener then contains a link to a field (signalManager) of the ProcessRuntimeImpl, 
-         * which contains a link to the StatefulKnowledgeSessionImpl instance created here. etc.. 
+         *
+         * The StatefulKnowledgeSessionImpl instance created in this .getStatefulKnowledgeSessions()
+         * method is obviously never disposed, which means that the listener is never removed.
+         * The listener then contains a link to a field (signalManager) of the ProcessRuntimeImpl,
+         * which contains a link to the StatefulKnowledgeSessionImpl instance created here. etc..
          */
         logger.info("session count=" + kbase.getKieSessions().size());
-        
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-       
-        try { 
+
+        try {
             // create process instance, insert into session and start process
             Map<String, Object> processParams = new HashMap<String, Object>();
             String [] fireballVarHolder = new String[1];
@@ -159,26 +159,26 @@ public class MemoryLeakTest {
             ProcessInstance processInstance = ksession.createProcessInstance(PROCESS_NAME, processParams);
             ksession.insert(processInstance);
             ksession.startProcessInstance(processInstance.getId());
-    
+
             // after the log line has been added, the DefaultProcessEventListener registered
             //  in the addEventListenersToSession() method no longer works?!?
             ksession.fireAllRules();
-            
+
             // test process variables
             String [] procVar = (String []) ((WorkflowProcessInstance) processInstance).getVariable("fireball");
             assertEquals( "Rule task did NOT fire or complete.", "boom!", procVar[0] );
-    
+
             // complete task and process
             Map<String, Object> results = new HashMap<String, Object>();
             results.put( "chaerg", new SerializableResult("zhrini", 302l, "F", "A", "T"));
             ksession.getWorkItemManager().completeWorkItem(handler.getWorkItem().getId(), results);
-            
+
             assertNull( ksession.getProcessInstance(processInstance.getId()));
         } finally {
             // This should clean up all listeners, but doesn't -> see docs above
             ksession.dispose();
         }
-        
+
     }
 
     private KieSessionConfiguration getKnowledgeSessionConfiguration() {
@@ -203,10 +203,10 @@ public class MemoryLeakTest {
         });
 
     }
-    
+
     private Object getValueOfField(String fieldname, Class<?> sourceClass, Object source ) {
         String sourceClassName = sourceClass.getName();
-    
+
         Field field = null;
         try {
             field = sourceClass.getDeclaredField(fieldname);
@@ -216,7 +216,7 @@ public class MemoryLeakTest {
         } catch (NoSuchFieldException e) {
             fail("Unable to retrieve " + fieldname + " field from " + sourceClassName + ": " + e.getCause());
         }
-    
+
         assertNotNull("." + fieldname + " field is null!?!", field);
         Object fieldValue = null;
         try {

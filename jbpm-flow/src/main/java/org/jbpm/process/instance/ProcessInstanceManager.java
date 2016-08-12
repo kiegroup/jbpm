@@ -24,23 +24,23 @@ import org.kie.api.runtime.process.ProcessInstance;
 public interface ProcessInstanceManager {
 
     ProcessInstance getProcessInstance(long id);
-    
+
     ProcessInstance getProcessInstance(long id, boolean readOnly);
 
     ProcessInstance getProcessInstance(CorrelationKey correlationKey);
-    
+
     Collection<ProcessInstance> getProcessInstances();
 
     void addProcessInstance(ProcessInstance processInstance, CorrelationKey correlationKey);
-    
+
     void internalAddProcessInstance(ProcessInstance processInstance);
 
     void removeProcessInstance(ProcessInstance processInstance);
 
     void internalRemoveProcessInstance(ProcessInstance processInstance);
-    
+
     void clearProcessInstances();
-    
+
     void clearProcessInstancesState();
 
 }

@@ -27,42 +27,42 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Simple command to log the contextual data and return empty results. After attempting to get BeanManager
- * and creating simple CDI bean based on given class name as parameter. 
+ * and creating simple CDI bean based on given class name as parameter.
  * Just for demo purpose.
- * 
+ *
  */
 public class RequeueRunningJobsCommand implements Command{
-    
+
     private static final Logger logger = LoggerFactory.getLogger(RequeueRunningJobsCommand.class);
 
     public ExecutionResults execute(CommandContext ctx) {
-    	
-    
-    	Long olderThan = (Long) ctx.getData("MaxRunningTime");
-    	Long requestId = (Long) ctx.getData("RequestId");
-    	try {
-    		ExecutorService executorService = ExecutorServiceFactory.newExecutorService(null);
-    		if (executorService instanceof RequeueAware) {
-    			
-    			if (requestId != null) {
-    				logger.info("Requeue jobs by id {}", requestId);
-    				((RequeueAware)executorService).requeueById(requestId);
-    			} else {
-    				logger.info("Requeue jobs older than {}", olderThan);
-    				((RequeueAware)executorService).requeue(olderThan);
-    			}
-    		} else {
-    			logger.info("Executor Service is not capable of jobs requeue");
-    		}
-			
-		} catch (Exception e) {		
-			logger.error("Error while creating CDI bean from jbpm executor", e);
-		}
-    	
+
+
+        Long olderThan = (Long) ctx.getData("MaxRunningTime");
+        Long requestId = (Long) ctx.getData("RequestId");
+        try {
+            ExecutorService executorService = ExecutorServiceFactory.newExecutorService(null);
+            if (executorService instanceof RequeueAware) {
+
+                if (requestId != null) {
+                    logger.info("Requeue jobs by id {}", requestId);
+                    ((RequeueAware)executorService).requeueById(requestId);
+                } else {
+                    logger.info("Requeue jobs older than {}", olderThan);
+                    ((RequeueAware)executorService).requeue(olderThan);
+                }
+            } else {
+                logger.info("Executor Service is not capable of jobs requeue");
+            }
+
+        } catch (Exception e) {
+            logger.error("Error while creating CDI bean from jbpm executor", e);
+        }
+
         logger.info("Command executed on executor with data {}", ctx.getData());
         ExecutionResults executionResults = new ExecutionResults();
         return executionResults;
     }
-    
-    
+
+
 }

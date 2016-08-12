@@ -30,29 +30,29 @@ import org.kie.internal.task.api.InternalTaskService;
 
 
 public class SupportProcessTest extends JbpmTestCase{
-    
+
     public SupportProcessTest() {
         super(true, true);
     }
-  
+
     @Test
     public void simpleSupportProcessTest() {
         createRuntimeManager("org/jbpm/test/functional/jpa/support.bpmn");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
         TaskService taskService = runtimeEngine.getTaskService();
-  
-        
+
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("customer", "salaboy");
         ProcessInstance processInstance = ksession.startProcess("support.process", params);
-        
+
         assertProcessInstanceActive(processInstance.getId());
         assertProcessVarExists(processInstance, "customer");
         // Configure Release
         List<TaskSummary> tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
         assertNodeTriggered(processInstance.getId(), "Create Support");
-        
+
         assertEquals(1, tasksAssignedToSalaboy.size());
         assertEquals("Create Support", tasksAssignedToSalaboy.get(0).getName());
 
@@ -64,14 +64,14 @@ public class SupportProcessTest extends JbpmTestCase{
         Map<String, Object> taskContent = ((InternalTaskService) taskService).getTaskContent(createSupportTask.getId());
 
         assertEquals("salaboy", taskContent.get("input_customer"));
-        
+
         Map<String, Object> output = new HashMap<String, Object>();
 
         output.put("output_customer", "salaboy/redhat");
         taskService.complete(createSupportTask.getId(), "salaboy", output);
-        
+
         assertNodeTriggered(processInstance.getId(), "Resolve Support");
-        
+
         tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
         assertEquals(1, tasksAssignedToSalaboy.size());
 
@@ -84,7 +84,7 @@ public class SupportProcessTest extends JbpmTestCase{
         taskService.complete(resolveSupportTask.getId(), "salaboy", null);
 
         assertNodeTriggered(processInstance.getId(), "Notify Customer");
-       
+
         tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
         assertEquals(1, tasksAssignedToSalaboy.size());
 
@@ -97,8 +97,8 @@ public class SupportProcessTest extends JbpmTestCase{
         output.put("output_solution", "solved today");
         taskService.complete(notifySupportTask.getId(), "salaboy", output);
 
-        
+
         assertProcessInstanceCompleted(processInstance.getId());
-        
+
     }
 }

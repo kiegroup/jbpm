@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -64,17 +64,17 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
 
     private int managerType;
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { 1 }, { 2 }, { 3 }  };
         return Arrays.asList(data);
     };
-    
+
     public GlobalQuartzDBTimerServiceTest(int managerType) {
         this.managerType = managerType;
     }
-    
+
     @Before
     public void setUp() {
         cleanupSingletonSessionId();
@@ -84,43 +84,43 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         globalScheduler = new QuartzSchedulerService();
         ((QuartzSchedulerService)globalScheduler).forceShutdown();
     }
-    
+
     @After
     public void tearDown() {
         try {
-            
+
             globalScheduler.shutdown();
         } catch (Exception e) {
-            
+
         }
         cleanup();
         System.clearProperty("org.quartz.properties");
-    }   
-    
+    }
+
     @Override
     protected RuntimeManager getManager(RuntimeEnvironment environment, boolean waitOnStart) {
         RuntimeManager manager = null;
-    	if (managerType ==1) {
-    		manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
+        if (managerType ==1) {
+            manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         } else if (managerType == 2) {
-        	manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
+            manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
         } else if (managerType == 3) {
-        	manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+            manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         } else {
             throw new IllegalArgumentException("Invalid runtime maanger type");
         }
-    	if (waitOnStart) {
-	    	// wait for the 2 seconds (default startup delay for quartz)
-	    	try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
-    	}
-    	return manager;
+        if (waitOnStart) {
+            // wait for the 2 seconds (default startup delay for quartz)
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+        }
+        return manager;
     }
 
-    
+
     @Test(timeout=20000)
     public void testTimerStartManagerClose() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("StartProcess", 3);
@@ -132,58 +132,58 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
 
             @Override
             public void beforeProcessStarted(ProcessStartedEvent event) {
-                timerExporations.add(event.getProcessInstance().getId());                
+                timerExporations.add(event.getProcessInstance().getId());
             }
 
         };
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/TimerStart2.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
                 .get();
-        
+
         manager = getManager(environment, false);
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
+
         assertEquals(0, timerExporations.size());
-       
+
         countDownListener.waitTillCompleted();
         manager.disposeRuntimeEngine(runtime);
         int atDispose = timerExporations.size();
         assertTrue(atDispose > 0);
-        
+
         ((AbstractRuntimeManager)manager).close(true);
         countDownListener.reset(1);
         countDownListener.waitTillCompleted(3000);
         assertEquals(atDispose, timerExporations.size());
         additionalCopy.shutdown();
     }
-    
+
     /**
      * Test that illustrates that jobs are persisted and survives server restart
-     * and as soon as GlobalTimerService is active jobs are fired and it loads and aborts the 
+     * and as soon as GlobalTimerService is active jobs are fired and it loads and aborts the
      * process instance to illustrate jobs are properly removed when isntance is aborted
      * NOTE: this test is disabled by default as it requires real db (not in memory)
      * and test to be executed separately each with new jvm process
      */
-    @Test 
+    @Test
     @Ignore
     public void testAbortGlobalTestService() throws Exception {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycle3.bpmn2"), ResourceType.BPMN2)
                 .addConfiguration("drools.timerService", "org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate")
                 .get();
-        
+
         RuntimeManager manger = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
-        
+
         // build GlobalTimerService instance
-        
+
         TimerService globalTs = new GlobalTimerService(manger, globalScheduler);
         // and register it in the registry under 'default' key
         TimerServiceRegistry.getInstance().registerTimerService("default", globalTs);
@@ -197,23 +197,23 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
                     timerExporations.add(event.getProcessInstance().getId());
                 }
             }
-            
-        };        
+
+        };
         long id = -1;
         Thread.sleep(5000);
         RuntimeEngine runtime = manger.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
         ksession.addEventListener(listener);
-        
+
         ksession.abortProcessInstance(id);
-        ProcessInstance processInstance = ksession.getProcessInstance(id);        
+        ProcessInstance processInstance = ksession.getProcessInstance(id);
         assertNull(processInstance);
         // let's wait to ensure no more timers are expired and triggered
         Thread.sleep(3000);
         ksession.dispose();
-        
+
     }
-    
+
     /**
      * Test that illustrates that jobs are persisted and survives server restart
      * and as soon as GlobalTimerService is active jobs are fired
@@ -224,16 +224,16 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
     @Ignore
     public void testContinueGlobalTestService() throws Exception {
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycle2.bpmn2"), ResourceType.BPMN2)
                 .addConfiguration("drools.timerService", "org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate")
                 .get();
-       
+
         RuntimeManager manger = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
-        
+
         // build GlobalTimerService instance
-        
+
         TimerService globalTs = new GlobalTimerService(manger, globalScheduler);
         // and register it in the registry under 'default' key
         TimerServiceRegistry.getInstance().registerTimerService("default", globalTs);
@@ -247,12 +247,12 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
                     timerExporations.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         };
 
 
         Thread.sleep(5000);
-        
+
     }
 
     @Test(timeout=20000)
@@ -306,7 +306,7 @@ public class GlobalQuartzDBTimerServiceTest extends GlobalTimerServiceBaseTest {
         manager.disposeRuntimeEngine(runtime);
         manager.close();
     }
-    
+
     @Test(timeout=20000)
     public void testTimerRequiresRecoveryFlagSet() throws Exception {
         Properties properties= new Properties();

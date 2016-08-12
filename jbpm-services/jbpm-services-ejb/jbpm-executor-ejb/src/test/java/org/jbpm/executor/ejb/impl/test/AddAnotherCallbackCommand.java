@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,11 +23,11 @@ import org.kie.api.executor.ExecutionResults;
 
 public class AddAnotherCallbackCommand implements Command {
 
-	@Override
-	public ExecutionResults execute(CommandContext ctx) throws Exception {
-		String callbacks = (String) ctx.getData("callbacks");
-		ctx.setData("callbacks", callbacks + ",org.jbpm.executor.ejb.impl.test.CustomCallback");
-		return new ExecutionResults();
-	}
+    @Override
+    public ExecutionResults execute(CommandContext ctx) throws Exception {
+        String callbacks = (String) ctx.getData("callbacks");
+        ctx.setData("callbacks", callbacks + ",org.jbpm.executor.ejb.impl.test.CustomCallback");
+        return new ExecutionResults();
+    }
 
 }

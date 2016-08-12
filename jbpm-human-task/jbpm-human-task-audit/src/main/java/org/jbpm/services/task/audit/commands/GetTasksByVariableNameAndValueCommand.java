@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,19 +40,19 @@ public class GetTasksByVariableNameAndValueCommand extends UserGroupCallbackTask
 
     @XmlElement
     private List<Status> statuses;
-    
+
     @XmlElement
     private String variableName;
-    
+
     @XmlElement
     private String variableValue;
-   
+
     @XmlElement(type=QueryFilter.class)
     private QueryFilter filter;
 
     public GetTasksByVariableNameAndValueCommand() {
     }
-    
+
     public GetTasksByVariableNameAndValueCommand(String userId, String variableName, String variableValue, List<Status> status, QueryFilter filter) {
         this.userId = userId;
         this.variableName = variableName;
@@ -68,7 +68,7 @@ public class GetTasksByVariableNameAndValueCommand extends UserGroupCallbackTask
     public String getVariableName() {
         return variableName;
     }
-    
+
     public String getVariableValue() {
         return variableValue;
     }
@@ -89,18 +89,18 @@ public class GetTasksByVariableNameAndValueCommand extends UserGroupCallbackTask
             }
         }
         TaskPersistenceContext persistenceContext = context.getPersistenceContext();
-        
+
         List<TaskSummary> tasks = (List<TaskSummary>) persistenceContext.queryWithParametersInTransaction("TasksByStatusByVariableNameAndValue",
                 persistenceContext.addParametersToMap(
                                         "userId", userId,
                                         "groupIds", groupIds,
                                         "variableName", variableName,
-                                        "variableValue", variableValue, 
+                                        "variableValue", variableValue,
                                         "status", statuses),
                                         ClassUtil.<List<TaskSummary>>castClass(List.class));
-        
+
         return tasks;
-       
+
     }
 
 }

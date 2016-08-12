@@ -45,7 +45,7 @@ import org.kie.internal.identity.IdentityProvider;
 @Lock(LockType.READ)
 public class QueryServiceEJBImpl extends QueryServiceImpl implements QueryServiceEJBLocal, QueryServiceEJBRemote {
 
-    
+
     @Inject
     private Instance<IdentityProvider> identityProvider;
 
@@ -66,28 +66,28 @@ public class QueryServiceEJBImpl extends QueryServiceImpl implements QueryServic
     @EJB(beanInterface=TransactionalCommandServiceEJBImpl.class)
     @Override
     public void setCommandService(TransactionalCommandService commandService) {
-        
+
         super.setCommandService(commandService);
     }
 
     @Lock(LockType.WRITE)
     @Override
     public void registerQuery(QueryDefinition queryDefinition) throws QueryAlreadyRegisteredException {
-        
+
         super.registerQuery(queryDefinition);
     }
 
     @Lock(LockType.WRITE)
     @Override
     public void replaceQuery(QueryDefinition queryDefinition) {
-        
+
         super.replaceQuery(queryDefinition);
     }
 
     @Lock(LockType.WRITE)
     @Override
     public void unregisterQuery(String uniqueQueryName) throws QueryNotFoundException {
-        
+
         super.unregisterQuery(uniqueQueryName);
     }
 

@@ -57,24 +57,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EmailNotificationListener implements NotificationListener {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(EmailNotificationListener.class);
 
     private Session mailSession = EmailSessionProducer.produceSession();
-    
-    
+
+
     @Override
     public void onNotification(NotificationEvent event, UserInfo userInfo) {
-        
+
         if (userInfo == null || mailSession == null) {
             logger.info("Missing mail session or userinfo - skipping email notification listener processing");
             return;
         }
-        
+
         if (event.getNotification() instanceof EmailNotification) {
-  
+
             EmailNotification notification = (EmailNotification) event.getNotification();
-            
+
             Task task = event.getTask();
 
             // group users into languages
@@ -102,44 +102,44 @@ public class EmailNotificationListener implements NotificationListener {
 
             for (Iterator<Map.Entry<String, List<User>>> it = users.entrySet()
                     .iterator(); it.hasNext();) {
-               
-                try { 
+
+                try {
                     Map.Entry<String, List<User>> entry = it.next();
                     Language lang = TaskModelProvider.getFactory().newLanguage();
                     lang.setMapkey(entry.getKey());
                     EmailNotificationHeader header = headers.get(lang);
-    
+
                     Message msg = new MimeMessage(mailSession);
                     Set<String> toAddresses = new HashSet<String>();
                     for (User user : entry.getValue()) {
-    
+
                         String emailAddress = userInfo.getEmailForEntity(user);
-                        if (emailAddress != null && !toAddresses.contains(emailAddress)) {                        	
-                        	msg.addRecipients( Message.RecipientType.TO, InternetAddress.parse( emailAddress, false));
-                        	toAddresses.add(emailAddress);
+                        if (emailAddress != null && !toAddresses.contains(emailAddress)) {
+                            msg.addRecipients( Message.RecipientType.TO, InternetAddress.parse( emailAddress, false));
+                            toAddresses.add(emailAddress);
                         } else {
-                        	logger.warn("Email address not found for user {}", user.getId());
+                            logger.warn("Email address not found for user {}", user.getId());
                         }
                     }
-                    
-    
+
+
                     if (header.getFrom() != null && header.getFrom().trim().length() > 0) {
-                    	User user = TaskModelProvider.getFactory().newUser();
-                    	((InternalOrganizationalEntity) user).setId(header.getFrom());
+                        User user = TaskModelProvider.getFactory().newUser();
+                        ((InternalOrganizationalEntity) user).setId(header.getFrom());
                         msg.setFrom( new InternetAddress(userInfo.getEmailForEntity(user)));
                     } else {
                         msg.setFrom( new InternetAddress(mailSession.getProperty("mail.from")));
                     }
-    
+
                     if (header.getReplyTo() != null && header.getReplyTo().trim().length() > 0) {
-                    	User user = TaskModelProvider.getFactory().newUser();
-                    	((InternalOrganizationalEntity) user).setId(header.getReplyTo());
-                        msg.setReplyTo( new InternetAddress[] {  
+                        User user = TaskModelProvider.getFactory().newUser();
+                        ((InternalOrganizationalEntity) user).setId(header.getReplyTo());
+                        msg.setReplyTo( new InternetAddress[] {
                                 new InternetAddress(userInfo.getEmailForEntity(user))});
                     } else if (mailSession.getProperty("mail.replyto") != null) {
                         msg.setReplyTo( new InternetAddress[] {  new InternetAddress(mailSession.getProperty("mail.replyto"))});
                     }
-                    
+
                     Map<String, Object> vars = new HashMap<String, Object>();
                     vars.put("doc", variables);
                     // add internal items to be able to reference them in templates
@@ -151,18 +151,18 @@ public class EmailNotificationListener implements NotificationListener {
                     if (task.getPeopleAssignments() != null) {
                         vars.put("owners", task.getPeopleAssignments().getPotentialOwners());
                     }
-    
+
                     String subject = (String) TemplateRuntime.eval(header.getSubject(), vars);
                     String body = (String) TemplateRuntime.eval(header.getBody(), vars);
-    
+
                     if (variables.containsKey("attachments")) {
                         Multipart multipart = new MimeMultipart();
                         // prepare body as first mime body part
                         MimeBodyPart messageBodyPart = new MimeBodyPart();
-    
-                        messageBodyPart.setDataHandler( new DataHandler( new ByteArrayDataSource( body, "text/html" ) ) );         
+
+                        messageBodyPart.setDataHandler( new DataHandler( new ByteArrayDataSource( body, "text/html" ) ) );
                         multipart.addBodyPart(messageBodyPart);
-                        
+
                         List<String> attachments = getAttachements(variables.get("attachments"));
                         for (String attachment : attachments) {
                             MimeBodyPart attachementBodyPart = new MimeBodyPart();
@@ -172,7 +172,7 @@ public class EmailNotificationListener implements NotificationListener {
                             String fileName = new File(attachmentUrl.getFile()).getName();
                             attachementBodyPart.setFileName(fileName);
                             attachementBodyPart.setContentID("<"+fileName+">");
-    
+
                             multipart.addBodyPart(attachementBodyPart);
                         }
                         // Put parts in message
@@ -180,9 +180,9 @@ public class EmailNotificationListener implements NotificationListener {
                     } else {
                         msg.setDataHandler( new DataHandler( new ByteArrayDataSource( body, "text/html" ) ) );
                     }
-                    
+
                     msg.setSubject( subject );
-                    
+
                     msg.setHeader( "X-Mailer", "jbpm huamn task service" );
                     msg.setSentDate( new Date() );
 
@@ -195,20 +195,20 @@ public class EmailNotificationListener implements NotificationListener {
             }
         }
     }
-    
+
     protected URL getAttachemntURL(String attachment) throws MalformedURLException {
         if (attachment.startsWith("classpath:")) {
             String location = attachment.replaceFirst("classpath:", "");
             return this.getClass().getResource(location);
         } else {
             URL attachmentUrl = new URL(attachment);
-            
+
             return attachmentUrl;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
-    protected List<String> getAttachements(Object attachementsFromVariables) { 
+    protected List<String> getAttachements(Object attachementsFromVariables) {
         if (attachementsFromVariables instanceof List) {
             return (List<String>) attachementsFromVariables;
         } else {
@@ -216,19 +216,19 @@ public class EmailNotificationListener implements NotificationListener {
             return Arrays.asList(attachementsAsString.split(","));
         }
     }
-    
+
     protected void buildMapByLanguage(Map<String, List<User>> map, Group group, UserInfo userInfo) {
-    	Iterator<OrganizationalEntity> it = userInfo.getMembersForGroup(group);
-    	if (it != null) {
-	    	while (it.hasNext()) {
-	            OrganizationalEntity entity = it.next();
-	            if (entity instanceof Group) {
-	                buildMapByLanguage(map, (Group) entity, userInfo);
-	            } else {
-	                buildMapByLanguage(map, (User) entity, userInfo);
-	            }
-	        }
-    	}
+        Iterator<OrganizationalEntity> it = userInfo.getMembersForGroup(group);
+        if (it != null) {
+            while (it.hasNext()) {
+                OrganizationalEntity entity = it.next();
+                if (entity instanceof Group) {
+                    buildMapByLanguage(map, (Group) entity, userInfo);
+                } else {
+                    buildMapByLanguage(map, (User) entity, userInfo);
+                }
+            }
+        }
     }
 
     protected void buildMapByLanguage(Map<String, List<User>> map, User user, UserInfo userInfo) {

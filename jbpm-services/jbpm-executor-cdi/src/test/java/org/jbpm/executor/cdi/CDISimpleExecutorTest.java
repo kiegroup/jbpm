@@ -40,12 +40,12 @@ public class CDISimpleExecutorTest extends BasicExecutorBaseTest {
 
     @Deployment()
     public static Archive<?> createDeployment() {
-    	// setup data source as part of the deployment as it requires to be already active while boostraping archive
-    	pds = ExecutorTestUtil.setupPoolingDataSource();
+        // setup data source as part of the deployment as it requires to be already active while boostraping archive
+        pds = ExecutorTestUtil.setupPoolingDataSource();
         return ShrinkWrap.create(JavaArchive.class, "executor-cdi-service.jar")
                 .addPackage("org.jbpm.shared.services.api")
                 .addPackage("org.jbpm.shared.services.impl")
-                .addPackage("org.jbpm.executor")                
+                .addPackage("org.jbpm.executor")
                 .addPackage("org.jbpm.executor.impl")
                 .addPackage("org.jbpm.executor.impl.jpa")
                 .addPackage("org.jbpm.executor.impl.mem")
@@ -57,34 +57,34 @@ public class CDISimpleExecutorTest extends BasicExecutorBaseTest {
                 .addPackage("org.jbpm.executor.cdi.impl.jpa")
                 .addPackage("org.jbpm.executor.cdi.impl.mem")
                 .addPackage("org.jbpm.executor.cdi.impl.runtime")
-                
+
                 .addAsManifestResource("META-INF/persistence.xml", ArchivePaths.create("persistence.xml"))
                 .addAsManifestResource("META-INF/Executor-orm.xml", ArchivePaths.create("Executor-orm.xml"))
                 .addAsManifestResource("META-INF/beans.xml", ArchivePaths.create("beans.xml"))
-        		.addAsManifestResource("META-INF/javax.enterprise.inject.spi.Extension", 
-        				"services/javax.enterprise.inject.spi.Extension");
+                .addAsManifestResource("META-INF/javax.enterprise.inject.spi.Extension",
+                        "services/javax.enterprise.inject.spi.Extension");
 
     }
 
     private static PoolingDataSource pds;
-    
+
     @BeforeClass
     public static void beforeClass() {
 
     }
-    
+
     @AfterClass
     public static void afterClass() {
-    	pds.close();
+        pds.close();
     }
-    
+
     @Before
     public void setup() {
-    	emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
+        emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
     }
-    
+
     @Inject
     public void setExecutorService(ExecutorService executorService) {
-    	super.executorService = executorService;
+        super.executorService = executorService;
     }
 }

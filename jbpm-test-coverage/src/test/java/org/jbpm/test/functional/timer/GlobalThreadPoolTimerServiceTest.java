@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -50,15 +50,15 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 @RunWith(Parameterized.class)
 public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest {
-    
+
     private int managerType;
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { 1 }, { 2 }, { 3 }  };
         return Arrays.asList(data);
     };
-    
+
     public GlobalThreadPoolTimerServiceTest(int managerType) {
         this.managerType = managerType;
     }
@@ -68,14 +68,14 @@ public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest
         emf = Persistence.createEntityManagerFactory("org.jbpm.test.persistence");
         globalScheduler = new ThreadPoolSchedulerService(1);
     }
-    
+
     @After
     public void tearDown() {
         try {
             globalScheduler.shutdown();
         } catch (Exception e) {
-            
-        }   
+
+        }
         cleanup();
     }
 
@@ -91,7 +91,7 @@ public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest
             throw new IllegalArgumentException("Invalid runtime maanger type");
         }
     }
-    
+
     @Test(timeout=20000)
     public void testInterediateTimerWithGlobalTestServiceWithinTransaction() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("timer", 3);
@@ -107,12 +107,12 @@ public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest
                     timerExporations.add(event.getProcessInstance().getId());
                 }
             }
-            
+
         };
-        
+
         environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
-    			.entityManagerFactory(emf)
+                .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addAsset(ResourceFactory.newClassPathResource("org/jbpm/test/functional/timer/IntermediateCatchEventTimerCycle3.bpmn2"), ResourceType.BPMN2)
                 .schedulerService(globalScheduler)
                 .registerableItemsFactory(new TestRegisterableItemsFactory(listener, countDownListener))
@@ -123,8 +123,8 @@ public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest
 
         RuntimeEngine runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         KieSession ksession = runtime.getKieSession();
-        
-        
+
+
         ProcessInstance processInstance = ksession.startProcess("IntermediateCatchEvent");
         assertTrue(processInstance.getState() == ProcessInstance.STATE_ACTIVE);
         // now wait for 1 second for first timer to trigger
@@ -133,20 +133,20 @@ public class GlobalThreadPoolTimerServiceTest extends GlobalTimerServiceBaseTest
         manager.disposeRuntimeEngine(runtime);
         countDownListener.waitTillCompleted();
         countDownListener.reset(1);
-        
+
         try {
             runtime = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
             ksession = runtime.getKieSession();
-    
-            
-            processInstance = ksession.getProcessInstance(processInstance.getId());        
+
+
+            processInstance = ksession.getProcessInstance(processInstance.getId());
             assertNull(processInstance);
         } catch (SessionNotFoundException e) {
             // expected for PerProcessInstanceManagers since process instance is completed
         }
         // let's wait to ensure no more timers are expired and triggered
         countDownListener.waitTillCompleted(3000);
-   
+
         assertEquals(3, timerExporations.size());
         manager.disposeRuntimeEngine(runtime);
     }

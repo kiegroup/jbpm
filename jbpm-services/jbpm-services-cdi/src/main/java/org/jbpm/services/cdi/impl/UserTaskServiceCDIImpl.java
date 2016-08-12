@@ -27,31 +27,31 @@ import org.kie.internal.task.api.InternalTaskService;
 
 @ApplicationScoped
 public class UserTaskServiceCDIImpl extends UserTaskServiceImpl {
-	
-	@Inject
-	private Instance<InternalTaskService> injectedTaskService;
-	
-	@Inject
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
-		super.setDeploymentService(deploymentService);
-	}
 
-	@Inject
-	@Override
-	public void setDataService(RuntimeDataService dataService) {
-		super.setDataService(dataService);
-	}
+    @Inject
+    private Instance<InternalTaskService> injectedTaskService;
 
-	@Inject
-	@Override
-	public void setNonProcessScopedTaskService(InternalTaskService nonProcessScopedTaskService) {
-		super.setNonProcessScopedTaskService(nonProcessScopedTaskService);
-	}
+    @Inject
+    @Override
+    public void setDeploymentService(DeploymentService deploymentService) {
+        super.setDeploymentService(deploymentService);
+    }
 
-	@Override
-	protected InternalTaskService getInternalTaskService() {
-		
-		return injectedTaskService.get();
-	}
+    @Inject
+    @Override
+    public void setDataService(RuntimeDataService dataService) {
+        super.setDataService(dataService);
+    }
+
+    @Inject
+    @Override
+    public void setNonProcessScopedTaskService(InternalTaskService nonProcessScopedTaskService) {
+        super.setNonProcessScopedTaskService(nonProcessScopedTaskService);
+    }
+
+    @Override
+    protected InternalTaskService getInternalTaskService() {
+
+        return injectedTaskService.get();
+    }
 }

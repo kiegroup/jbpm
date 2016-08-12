@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -50,58 +50,58 @@ import org.slf4j.LoggerFactory;
 @Lock(LockType.WRITE)
 @AccessTimeout(value=1, unit=TimeUnit.MINUTES)
 public class DeploymentSynchronizerEJBImpl extends DeploymentSynchronizer {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DeploymentSynchronizerEJBImpl.class);
 
-	@Resource
+    @Resource
     private TimerService timerService;
-	
-	private Timer timer;
-	private TransactionalCommandService commandService;
-	
-	@PostConstruct
-	public void configure() {
+
+    private Timer timer;
+    private TransactionalCommandService commandService;
+
+    @PostConstruct
+    public void configure() {
         DeploymentStore store = new DeploymentStore();
         store.setCommandService(commandService);
-        
+
         setDeploymentStore(store);
-        
-		if (DEPLOY_SYNC_ENABLED) {
-			ScheduleExpression schedule = new ScheduleExpression();
-			
-			schedule.hour("*");
-			schedule.minute("*");
-			schedule.second("*/" + DEPLOY_SYNC_INTERVAL);
-			timer = timerService.createCalendarTimer(schedule, new TimerConfig(null, false));
-		}
-	}
-	
-	@PreDestroy
-	public void shutdown() {
-		if (timer != null) {
-		    try {
+
+        if (DEPLOY_SYNC_ENABLED) {
+            ScheduleExpression schedule = new ScheduleExpression();
+
+            schedule.hour("*");
+            schedule.minute("*");
+            schedule.second("*/" + DEPLOY_SYNC_INTERVAL);
+            timer = timerService.createCalendarTimer(schedule, new TimerConfig(null, false));
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        if (timer != null) {
+            try {
                 timer.cancel();
             } catch (NoSuchObjectLocalException e) {
                 logger.debug("Timer {} is already canceled or expired", timer);
             }
-		}
-	}
-	
-	@EJB(beanInterface=DeploymentServiceEJBLocal.class)
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
-		super.setDeploymentService(deploymentService);
-	}
-	
-	@EJB(beanInterface=TransactionalCommandServiceEJBImpl.class)
-	public void setCommandService(TransactionalCommandService commandService) {
-		this.commandService = commandService;
-	}
+        }
+    }
 
-	@Timeout
-	public void synchronize() {
-		super.synchronize();
-	}
+    @EJB(beanInterface=DeploymentServiceEJBLocal.class)
+    @Override
+    public void setDeploymentService(DeploymentService deploymentService) {
+        super.setDeploymentService(deploymentService);
+    }
 
-	
+    @EJB(beanInterface=TransactionalCommandServiceEJBImpl.class)
+    public void setCommandService(TransactionalCommandService commandService) {
+        this.commandService = commandService;
+    }
+
+    @Timeout
+    public void synchronize() {
+        super.synchronize();
+    }
+
+
 }

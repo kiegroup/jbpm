@@ -52,9 +52,9 @@ import org.kie.internal.identity.IdentityProvider;
 @Kjar
 public class DeploymentServiceCDIImpl extends KModuleDeploymentService {
 
-	
+
     @Inject
-    private BeanManager beanManager; 
+    private BeanManager beanManager;
     @Inject
     @Deploy
     protected Event<DeploymentEvent> deploymentEvent;
@@ -67,92 +67,92 @@ public class DeploymentServiceCDIImpl extends KModuleDeploymentService {
     @Inject
     @Deactivate
     protected Event<DeploymentEvent> deactivateEvent;
-    
-    
+
+
     @Inject
     private Instance<RequestScopedBackupIdentityProvider> backupProviders;
-    
+
     @PostConstruct
     public void onInit() {
-    	super.onInit();
+        super.onInit();
     }
 
     @PreDestroy
-	@Override
-	public void shutdown() {
-		super.shutdown();
-	}
+    @Override
+    public void shutdown() {
+        super.shutdown();
+    }
 
-	@Override
-	public void notifyOnDeploy(DeploymentUnit unit, DeployedUnit deployedUnit) {
-		if (deploymentEvent != null) {
+    @Override
+    public void notifyOnDeploy(DeploymentUnit unit, DeployedUnit deployedUnit) {
+        if (deploymentEvent != null) {
             deploymentEvent.fire(new DeploymentEvent(unit.getIdentifier(), deployedUnit));
         }
-	}
-	@Override
-	public void notifyOnUnDeploy(DeploymentUnit unit, DeployedUnit deployedUnit) {
-		if (undeploymentEvent != null && deployedUnit != null) {
+    }
+    @Override
+    public void notifyOnUnDeploy(DeploymentUnit unit, DeployedUnit deployedUnit) {
+        if (undeploymentEvent != null && deployedUnit != null) {
             undeploymentEvent.fire(new DeploymentEvent(unit.getIdentifier(), deployedUnit));
         }
-	}
-	
-	@Override
-	public void notifyOnActivate(DeploymentUnit unit, DeployedUnit deployedUnit) {
-		if (activateEvent != null && deployedUnit != null) {
-			activateEvent.fire(new DeploymentEvent(unit.getIdentifier(), deployedUnit));
+    }
+
+    @Override
+    public void notifyOnActivate(DeploymentUnit unit, DeployedUnit deployedUnit) {
+        if (activateEvent != null && deployedUnit != null) {
+            activateEvent.fire(new DeploymentEvent(unit.getIdentifier(), deployedUnit));
         }
-	}
+    }
 
-	@Override
-	public void notifyOnDeactivate(DeploymentUnit unit, DeployedUnit deployedUnit) {
-		if (deactivateEvent != null && deployedUnit != null) {
-			deactivateEvent.fire(new DeploymentEvent(unit.getIdentifier(), deployedUnit));
+    @Override
+    public void notifyOnDeactivate(DeploymentUnit unit, DeployedUnit deployedUnit) {
+        if (deactivateEvent != null && deployedUnit != null) {
+            deactivateEvent.fire(new DeploymentEvent(unit.getIdentifier(), deployedUnit));
         }
-	}
+    }
 
-	@Inject
-	@Override
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-
-		super.setBpmn2Service(bpmn2Service);
-	}
-	
-	@Inject
-	@Override
-	public void setManagerFactory(RuntimeManagerFactory managerFactory) {
-
-		super.setManagerFactory(managerFactory);
-	}
-	
-	@Inject
-    @PersistenceUnit(unitName = "org.jbpm.domain")
-	@Override
-	public void setEmf(EntityManagerFactory emf) {
-
-		super.setEmf(emf);
-	}
-	
-	@Inject
-	@Override
-	public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
-
-		super.setRuntimeDataService(runtimeDataService);
-	}
-	
-	@Inject
-	@Override
-	public void setIdentityProvider(IdentityProvider identityProvider) {
-
-		super.setIdentityProvider(new IdentityProviderCDIWrapper(identityProvider, backupProviders));
-	}
-        
     @Inject
-	@Override
-	public void setFormManagerService(FormManagerService formManagerService) {
-		super.setFormManagerService(formManagerService);
-	}
-	
-    @Inject	
+    @Override
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
+
+        super.setBpmn2Service(bpmn2Service);
+    }
+
+    @Inject
+    @Override
+    public void setManagerFactory(RuntimeManagerFactory managerFactory) {
+
+        super.setManagerFactory(managerFactory);
+    }
+
+    @Inject
+    @PersistenceUnit(unitName = "org.jbpm.domain")
+    @Override
+    public void setEmf(EntityManagerFactory emf) {
+
+        super.setEmf(emf);
+    }
+
+    @Inject
+    @Override
+    public void setRuntimeDataService(RuntimeDataService runtimeDataService) {
+
+        super.setRuntimeDataService(runtimeDataService);
+    }
+
+    @Inject
+    @Override
+    public void setIdentityProvider(IdentityProvider identityProvider) {
+
+        super.setIdentityProvider(new IdentityProviderCDIWrapper(identityProvider, backupProviders));
+    }
+
+    @Inject
+    @Override
+    public void setFormManagerService(FormManagerService formManagerService) {
+        super.setFormManagerService(formManagerService);
+    }
+
+    @Inject
     public void setExecutorService(Instance<ExecutorService> executorService) {
         if (!executorService.isUnsatisfied()) {
             super.setExecutorService(executorService.get());
@@ -160,11 +160,11 @@ public class DeploymentServiceCDIImpl extends KModuleDeploymentService {
     }
 
     @Override
-	protected RegisterableItemsFactory getRegisterableItemsFactory(AuditEventBuilder auditLoggerBuilder, KieContainer kieContainer,
-			KModuleDeploymentUnit unit) {
-        
+    protected RegisterableItemsFactory getRegisterableItemsFactory(AuditEventBuilder auditLoggerBuilder, KieContainer kieContainer,
+            KModuleDeploymentUnit unit) {
+
         return InjectableRegisterableItemsFactory.getFactory(beanManager, auditLoggerBuilder, kieContainer,
                     unit.getKsessionName());
-        
-	}
+
+    }
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,13 +35,13 @@ public abstract class AbstractCompositeNodeHandler extends AbstractNodeHandler {
         }
         // add associations
         List<Association> associations = (List<Association>) node.getMetaData().get(ProcessHandler.ASSOCIATIONS);
-        if( associations != null ) {   
+        if( associations != null ) {
             for (Association association : associations ) {
                 XmlBPMNProcessDumper.INSTANCE.visitAssociation(association, xmlDump);
             }
         }
     }
-    
+
     protected List<Connection> getSubConnections(CompositeNode compositeNode) {
         List<Connection> connections = new ArrayList<Connection>();
         for (org.kie.api.definition.process.Node subNode: compositeNode.getNodes()) {

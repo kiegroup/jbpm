@@ -41,7 +41,7 @@ public class TaskVariableImpl implements TaskVariable, Serializable {
 
     private static final long serialVersionUID = 5388016330549830048L;
     private static final Logger logger = LoggerFactory.getLogger(TaskVariableImpl.class);
-    
+
     @Transient
     private final int VARIABLE_LOG_LENGTH = Integer.parseInt(System.getProperty("org.jbpm.task.var.log.length", "4000"));
 

@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * MigrationManager is responsible for updating all required components during process instance migration.
  * Each process instance should be have dedicated instance of the manager to allow simple execution model.
  * Each manager maintains MigrationReport that is constantly updated when migration is running.
- * 
+ *
  * It comes with following migration entries (as part of the report)
  * <ul>
  *  <li>INFO - written mostly for information about given migration step and its result</li>
@@ -65,171 +65,171 @@ import org.slf4j.LoggerFactory;
  *  <li>ERROR - terminates the migration and restores to last state - before migration</li>
  * </ul>
  * There could be at most single ERROR type of entry as first one that occurred terminates the migration.
- * 
+ *
  * Migration is composed of two steps
  * <ul>
  *  <li>validation - various checks to ensure migration can be performed to limit number of failed migrations</li>
  *  <li>migration - actual migration that changes state of the process instance and its index data - history logs</li>
  * <ul>
- * 
+ *
  * Migration can either be performed with or without node instance mapping. Node instance mapping allows to map nodes
- * only of the same type as it simply changes node reference of the node and does not replace the node instance 
+ * only of the same type as it simply changes node reference of the node and does not replace the node instance
  * (by canceling current node and triggering new one).
  */
 public class MigrationManager {
-	
-	private static final Logger logger = LoggerFactory.getLogger(MigrationManager.class);
-	
-	private MigrationReport report;
-	private MigrationSpec migrationSpec;
 
-	/**
-	 * Creates new instance of MigrationManager with given migration specification.
-	 * Migration specification will be validated upon call to {@link #migrate()} method
-	 * @param migrationSpec definition of what needs to be migrated
-	 */
-	public MigrationManager(MigrationSpec migrationSpec) {
+    private static final Logger logger = LoggerFactory.getLogger(MigrationManager.class);
+
+    private MigrationReport report;
+    private MigrationSpec migrationSpec;
+
+    /**
+     * Creates new instance of MigrationManager with given migration specification.
+     * Migration specification will be validated upon call to {@link #migrate()} method
+     * @param migrationSpec definition of what needs to be migrated
+     */
+    public MigrationManager(MigrationSpec migrationSpec) {
         this.report = new MigrationReport(migrationSpec);
         this.migrationSpec = migrationSpec;
     }
 
-	/**
-	 * Performs migration without node instance mapping
-	 * @return returns migration report describing complete migration process.
-	 */
-	public MigrationReport migrate() {
-	    return migrate(null);
-	}
+    /**
+     * Performs migration without node instance mapping
+     * @return returns migration report describing complete migration process.
+     */
+    public MigrationReport migrate() {
+        return migrate(null);
+    }
 
-	/**
-	 * Performs migration with node mapping (if non null).
-	 * @param nodeMapping node instance mapping that is composed of unique ids of source node mapped to target node
-	 * @return returns migration report describing complete migration process.
-	 */
-	public MigrationReport migrate(Map<String, String> nodeMapping) {		
-	    
-	    validate();
-	    KieSession current = null;
+    /**
+     * Performs migration with node mapping (if non null).
+     * @param nodeMapping node instance mapping that is composed of unique ids of source node mapped to target node
+     * @return returns migration report describing complete migration process.
+     */
+    public MigrationReport migrate(Map<String, String> nodeMapping) {
+
+        validate();
+        KieSession current = null;
         KieSession tobe = null;
-	    TransactionManager txm = null;
-	    boolean transactionOwner = false;
-	    try {		    
-			InternalRuntimeManager currentManager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getDeploymentId());		
-			InternalRuntimeManager toBeManager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getToDeploymentId());
-			// start transaction to secure consistency of the migration			
-			txm = TransactionManagerFactory.get().newTransactionManager(currentManager.getEnvironment().getEnvironment());
-			transactionOwner = txm.begin();
-			
-			org.kie.api.definition.process.Process toBeProcess = toBeManager.getEnvironment().getKieBase().getProcess(migrationSpec.getToProcessId());
-			
-			String auditPu = currentManager.getDeploymentDescriptor().getAuditPersistenceUnit();
-			
-			EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(auditPu);
-			EntityManager em = emf.createEntityManager();			
-            
-			try {
-    	         // update variable instance log information with new deployment id and process id
+        TransactionManager txm = null;
+        boolean transactionOwner = false;
+        try {
+            InternalRuntimeManager currentManager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getDeploymentId());
+            InternalRuntimeManager toBeManager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getToDeploymentId());
+            // start transaction to secure consistency of the migration
+            txm = TransactionManagerFactory.get().newTransactionManager(currentManager.getEnvironment().getEnvironment());
+            transactionOwner = txm.begin();
+
+            org.kie.api.definition.process.Process toBeProcess = toBeManager.getEnvironment().getKieBase().getProcess(migrationSpec.getToProcessId());
+
+            String auditPu = currentManager.getDeploymentDescriptor().getAuditPersistenceUnit();
+
+            EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(auditPu);
+            EntityManager em = emf.createEntityManager();
+
+            try {
+                 // update variable instance log information with new deployment id and process id
                 Query varLogQuery = em.createQuery("update VariableInstanceLog set externalId = :depId, processId = :procId where processInstanceId = :procInstanceId");
                 varLogQuery
                     .setParameter("depId", migrationSpec.getToDeploymentId())
                     .setParameter("procId", migrationSpec.getToProcessId())
                     .setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
-                
+
                 int varsUpdated = varLogQuery.executeUpdate();
-                report.addEntry(Type.INFO, "Variable instances updated = " + varsUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());            
-    			
-    			// update node instance log information with new deployment id and process id
-    			Query nodeLogQuery = em.createQuery("update NodeInstanceLog set externalId = :depId, processId = :procId where processInstanceId = :procInstanceId");
-    			nodeLogQuery
-    				.setParameter("depId", migrationSpec.getToDeploymentId())
-    				.setParameter("procId", migrationSpec.getToProcessId())
-    				.setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
-    			
-    			int nodesUpdated = nodeLogQuery.executeUpdate();
-    			report.addEntry(Type.INFO, "Node instances updated = " + nodesUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
-    			
-    			// update process instance log with new deployment and process id
-    			Query pInstanceLogQuery = em.createQuery("update ProcessInstanceLog set externalId = :depId, processId = :procId, processName = :procName, processVersion= :procVersion where processInstanceId = :procInstanceId");
-    			pInstanceLogQuery
-    				.setParameter("depId", migrationSpec.getToDeploymentId())
-    				.setParameter("procId", migrationSpec.getToProcessId())
-    				.setParameter("procName", toBeProcess.getName())
-    				.setParameter("procVersion", toBeProcess.getVersion())
-    				.setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
-    			
-    			int pInstancesUpdated = pInstanceLogQuery.executeUpdate();
-    			report.addEntry(Type.INFO, "Process instances updated = " + pInstancesUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
-    
-    			try {
-        	         // update task audit instance log with new deployment and process id
+                report.addEntry(Type.INFO, "Variable instances updated = " + varsUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
+
+                // update node instance log information with new deployment id and process id
+                Query nodeLogQuery = em.createQuery("update NodeInstanceLog set externalId = :depId, processId = :procId where processInstanceId = :procInstanceId");
+                nodeLogQuery
+                    .setParameter("depId", migrationSpec.getToDeploymentId())
+                    .setParameter("procId", migrationSpec.getToProcessId())
+                    .setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
+
+                int nodesUpdated = nodeLogQuery.executeUpdate();
+                report.addEntry(Type.INFO, "Node instances updated = " + nodesUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
+
+                // update process instance log with new deployment and process id
+                Query pInstanceLogQuery = em.createQuery("update ProcessInstanceLog set externalId = :depId, processId = :procId, processName = :procName, processVersion= :procVersion where processInstanceId = :procInstanceId");
+                pInstanceLogQuery
+                    .setParameter("depId", migrationSpec.getToDeploymentId())
+                    .setParameter("procId", migrationSpec.getToProcessId())
+                    .setParameter("procName", toBeProcess.getName())
+                    .setParameter("procVersion", toBeProcess.getVersion())
+                    .setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
+
+                int pInstancesUpdated = pInstanceLogQuery.executeUpdate();
+                report.addEntry(Type.INFO, "Process instances updated = " + pInstancesUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
+
+                try {
+                     // update task audit instance log with new deployment and process id
                     Query taskVarLogQuery = em.createQuery("update TaskVariableImpl set processId = :procId where processInstanceId = :procInstanceId");
                     taskVarLogQuery
                         .setParameter("procId", migrationSpec.getToProcessId())
                         .setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
-                    
+
                     int taskVarUpdated = taskVarLogQuery.executeUpdate();
                     report.addEntry(Type.INFO, "Task variables updated = " + taskVarUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
-    			} catch (Throwable e) {
-    			    logger.warn("Unexpected error during migration", e);
-    			    report.addEntry(Type.WARN, "Cannot update task variables (added in version 6.3) due to " + e.getMessage());
+                } catch (Throwable e) {
+                    logger.warn("Unexpected error during migration", e);
+                    report.addEntry(Type.WARN, "Cannot update task variables (added in version 6.3) due to " + e.getMessage());
                 }
-    
-    			
-    			// update task audit instance log with new deployment and process id
-    			Query auditTaskLogQuery = em.createQuery("update AuditTaskImpl set deploymentId = :depId, processId = :procId where processInstanceId = :procInstanceId");
-    			auditTaskLogQuery
-    				.setParameter("depId", migrationSpec.getToDeploymentId())
-    				.setParameter("procId", migrationSpec.getToProcessId())
-    				.setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
-    			
-    			int auditTaskUpdated = auditTaskLogQuery.executeUpdate();
-    			report.addEntry(Type.INFO, "Task audit updated = " + auditTaskUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
-    			
-    			// update task  instance log with new deployment and process id
-    			Query taskLogQuery = em.createQuery("update TaskImpl set deploymentId = :depId, processId = :procId where processInstanceId = :procInstanceId");
-    			taskLogQuery
-    				.setParameter("depId", migrationSpec.getToDeploymentId())
-    				.setParameter("procId", migrationSpec.getToProcessId())
-    				.setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
-    			
-    			int taskUpdated = taskLogQuery.executeUpdate();
-    			report.addEntry(Type.INFO, "Tasks updated = " + taskUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
-    			
-    			
-    			try {
-    				// update context mapping info with new deployment
-    				Query contextInfoQuery = em.createQuery("update ContextMappingInfo set ownerId = :depId where contextId = :procInstanceId");
-    				contextInfoQuery
-    					.setParameter("depId", migrationSpec.getToDeploymentId())
-    					.setParameter("procInstanceId", migrationSpec.getProcessInstanceId().toString());
-    				
-    				int contextInfoUpdated = contextInfoQuery.executeUpdate();
-    				report.addEntry(Type.INFO, "Context info updated = " + contextInfoUpdated+ " for process instance id " + migrationSpec.getProcessInstanceId());
-    			} catch (Throwable e) {
-    			    logger.warn("Unexpected error during migration", e);
-    			    report.addEntry(Type.WARN, "Cannot update context mapping owner (added in version 6.2) due to " + e.getMessage());
-    			}
-    		
-    			current = JPAKnowledgeService.newStatefulKnowledgeSession(currentManager.getEnvironment().getKieBase(), null, currentManager.getEnvironment().getEnvironment());
-    			tobe = JPAKnowledgeService.newStatefulKnowledgeSession(toBeManager.getEnvironment().getKieBase(), null, toBeManager.getEnvironment().getEnvironment());
-    			
-    			upgradeProcessInstance(current, tobe, migrationSpec.getProcessInstanceId(), migrationSpec.getToProcessId(), nodeMapping, em, toBeManager.getIdentifier());
-    			
-    			em.flush();
-			} finally {
-    			em.clear();
-    			em.close();    		
-			}
-			
-			txm.commit(transactionOwner);
-			report.addEntry(Type.INFO, "Migration of process instance (" + migrationSpec.getProcessInstanceId() + ") completed successfully to process " + migrationSpec.getToProcessId());
-			report.setSuccessful(true);
-			report.setEndDate(new Date());
-		} catch (Throwable e) {
-		    txm.rollback(transactionOwner);
-		    logger.error("Unexpected error during migration", e);
-		    report.addEntry(Type.ERROR, "Migration of process instance (" + migrationSpec.getProcessInstanceId() + ") failed due to " + e.getMessage());			
-		} finally {
+
+
+                // update task audit instance log with new deployment and process id
+                Query auditTaskLogQuery = em.createQuery("update AuditTaskImpl set deploymentId = :depId, processId = :procId where processInstanceId = :procInstanceId");
+                auditTaskLogQuery
+                    .setParameter("depId", migrationSpec.getToDeploymentId())
+                    .setParameter("procId", migrationSpec.getToProcessId())
+                    .setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
+
+                int auditTaskUpdated = auditTaskLogQuery.executeUpdate();
+                report.addEntry(Type.INFO, "Task audit updated = " + auditTaskUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
+
+                // update task  instance log with new deployment and process id
+                Query taskLogQuery = em.createQuery("update TaskImpl set deploymentId = :depId, processId = :procId where processInstanceId = :procInstanceId");
+                taskLogQuery
+                    .setParameter("depId", migrationSpec.getToDeploymentId())
+                    .setParameter("procId", migrationSpec.getToProcessId())
+                    .setParameter("procInstanceId", migrationSpec.getProcessInstanceId());
+
+                int taskUpdated = taskLogQuery.executeUpdate();
+                report.addEntry(Type.INFO, "Tasks updated = " + taskUpdated + " for process instance id " + migrationSpec.getProcessInstanceId());
+
+
+                try {
+                    // update context mapping info with new deployment
+                    Query contextInfoQuery = em.createQuery("update ContextMappingInfo set ownerId = :depId where contextId = :procInstanceId");
+                    contextInfoQuery
+                        .setParameter("depId", migrationSpec.getToDeploymentId())
+                        .setParameter("procInstanceId", migrationSpec.getProcessInstanceId().toString());
+
+                    int contextInfoUpdated = contextInfoQuery.executeUpdate();
+                    report.addEntry(Type.INFO, "Context info updated = " + contextInfoUpdated+ " for process instance id " + migrationSpec.getProcessInstanceId());
+                } catch (Throwable e) {
+                    logger.warn("Unexpected error during migration", e);
+                    report.addEntry(Type.WARN, "Cannot update context mapping owner (added in version 6.2) due to " + e.getMessage());
+                }
+
+                current = JPAKnowledgeService.newStatefulKnowledgeSession(currentManager.getEnvironment().getKieBase(), null, currentManager.getEnvironment().getEnvironment());
+                tobe = JPAKnowledgeService.newStatefulKnowledgeSession(toBeManager.getEnvironment().getKieBase(), null, toBeManager.getEnvironment().getEnvironment());
+
+                upgradeProcessInstance(current, tobe, migrationSpec.getProcessInstanceId(), migrationSpec.getToProcessId(), nodeMapping, em, toBeManager.getIdentifier());
+
+                em.flush();
+            } finally {
+                em.clear();
+                em.close();
+            }
+
+            txm.commit(transactionOwner);
+            report.addEntry(Type.INFO, "Migration of process instance (" + migrationSpec.getProcessInstanceId() + ") completed successfully to process " + migrationSpec.getToProcessId());
+            report.setSuccessful(true);
+            report.setEndDate(new Date());
+        } catch (Throwable e) {
+            txm.rollback(transactionOwner);
+            logger.error("Unexpected error during migration", e);
+            report.addEntry(Type.ERROR, "Migration of process instance (" + migrationSpec.getProcessInstanceId() + ") failed due to " + e.getMessage());
+        } finally {
             if (current != null) {
                 try {
                     current.destroy();
@@ -239,18 +239,18 @@ public class MigrationManager {
             }
 
             if (tobe != null) {
-                
+
                 try {
                     tobe.destroy();
                 } catch (SessionNotFoundException e) {
                     // in case of rollback session might not exist
                 }
             }
-		}
-		
-		return report;
-	}
-	
+        }
+
+        return report;
+    }
+
     private void validate() {
         if (migrationSpec == null) {
             report.addEntry(Type.ERROR, "no process data given for migration");
@@ -272,21 +272,21 @@ public class MigrationManager {
 
         // verify if given runtime manager exists - registered under source deployment id
         if (!RuntimeManagerRegistry.get().isRegistered(migrationSpec.getDeploymentId())) {
-            report.addEntry(Type.ERROR, "No deployment found for " + migrationSpec.getDeploymentId());            
+            report.addEntry(Type.ERROR, "No deployment found for " + migrationSpec.getDeploymentId());
         }
         // verify if given runtime manager exists - registered under target deployment id
         if (!RuntimeManagerRegistry.get().isRegistered(migrationSpec.getToDeploymentId())) {
-            report.addEntry(Type.ERROR, "No target deployment found for " + migrationSpec.getToDeploymentId());           
+            report.addEntry(Type.ERROR, "No target deployment found for " + migrationSpec.getToDeploymentId());
         }
-        
+
         // verify if given target process id exists in target runtime manager
         InternalRuntimeManager manager = (InternalRuntimeManager) RuntimeManagerRegistry.get().getManager(migrationSpec.getToDeploymentId());
         if (manager.getEnvironment().getKieBase().getProcess(migrationSpec.getToProcessId()) == null) {
-            report.addEntry(Type.ERROR, "No process found for " + migrationSpec.getToProcessId() + " in deployment " + migrationSpec.getToDeploymentId());          
+            report.addEntry(Type.ERROR, "No process found for " + migrationSpec.getToProcessId() + " in deployment " + migrationSpec.getToDeploymentId());
         }
-        
+
         String auditPu = manager.getDeploymentDescriptor().getAuditPersistenceUnit();
-        
+
         EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(auditPu);
 
         JPAAuditLogService auditService = new JPAAuditLogService(emf);
@@ -299,15 +299,15 @@ public class MigrationManager {
             auditService.dispose();
         }
     }
-	
+
     private void upgradeProcessInstance(KieRuntime oldkruntime,
-    		KieRuntime kruntime,
-    		long processInstanceId,
-    		String processId,
-    		Map<String, String> nodeMapping, EntityManager em, String deploymentId) {
-    	if (nodeMapping == null) {
-    		nodeMapping = new HashMap<String, String>();
-    	}
+            KieRuntime kruntime,
+            long processInstanceId,
+            String processId,
+            Map<String, String> nodeMapping, EntityManager em, String deploymentId) {
+        if (nodeMapping == null) {
+            nodeMapping = new HashMap<String, String>();
+        }
         WorkflowProcessInstanceImpl processInstance = (WorkflowProcessInstanceImpl) oldkruntime.getProcessInstance(processInstanceId);
         if (processInstance == null) {
             report.addEntry(Type.ERROR, "Could not find process instance " + processInstanceId);
@@ -323,21 +323,21 @@ public class MigrationManager {
             report.addEntry(Type.WARN, "Source and target process id is exactly the same (" + processId + ") it's recommended to use unique process ids");
         }
         synchronized (processInstance) {
-        	org.kie.api.definition.process.Process oldProcess = processInstance.getProcess();
-	        processInstance.disconnect();
-	        processInstance.setProcess(oldProcess);
-	        updateNodeInstances(processInstance, nodeMapping, (NodeContainer) process, em);
-	        processInstance.setKnowledgeRuntime((InternalKnowledgeRuntime) extractIfNeeded(kruntime));
-	        processInstance.setDeploymentId(deploymentId);
-	        processInstance.setProcess(process);
-	        processInstance.reconnect();
-		}
+            org.kie.api.definition.process.Process oldProcess = processInstance.getProcess();
+            processInstance.disconnect();
+            processInstance.setProcess(oldProcess);
+            updateNodeInstances(processInstance, nodeMapping, (NodeContainer) process, em);
+            processInstance.setKnowledgeRuntime((InternalKnowledgeRuntime) extractIfNeeded(kruntime));
+            processInstance.setDeploymentId(deploymentId);
+            processInstance.setProcess(process);
+            processInstance.reconnect();
+        }
     }
-    
+
     private void updateNodeInstances(NodeInstanceContainer nodeInstanceContainer, Map<String, String> nodeMapping, NodeContainer nodeContainer, EntityManager em) {
-    	if (nodeMapping == null || nodeMapping.isEmpty()) {
-    		return;
-    	}
+        if (nodeMapping == null || nodeMapping.isEmpty()) {
+            return;
+        }
         for (NodeInstance nodeInstance: nodeInstanceContainer.getNodeInstances()) {
             Long upgradedNodeId = null;
             String oldNodeId = (String) ((NodeImpl) ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).getNode()).getMetaData().get("UniqueId");
@@ -348,21 +348,21 @@ public class MigrationManager {
             }
             Node upgradedNode = findNodeByUniqueId(newNodeId, nodeContainer);
             if (upgradedNode == null) {
-            	try {
-            		upgradedNodeId = Long.parseLong(newNodeId);
-            	} catch (NumberFormatException e) {
-            		continue;
-            	}
+                try {
+                    upgradedNodeId = Long.parseLong(newNodeId);
+                } catch (NumberFormatException e) {
+                    continue;
+                }
             } else {
                 upgradedNodeId = upgradedNode.getId();
             }
-            
+
             ((NodeInstanceImpl) nodeInstance).setNodeId(upgradedNodeId);
-            
+
             if (upgradedNode != null) {
                 // update log information for new node information
                 Query nodeLogQuery = em.createQuery("update NodeInstanceLog set nodeId = :nodeId, nodeName = :nodeName, nodeType = :nodeType where id in " +
-                        "( select id from NodeInstanceLog nil where nil.nodeId = :oldNodeId and processInstanceId = :processInstanceId "+  
+                        "( select id from NodeInstanceLog nil where nil.nodeId = :oldNodeId and processInstanceId = :processInstanceId "+
                         " GROUP BY nil.nodeInstanceId" +
                         " HAVING sum(nil.type) = 0) and processInstanceId = :processInstanceId ");
                 nodeLogQuery
@@ -371,14 +371,14 @@ public class MigrationManager {
                     .setParameter("nodeType", upgradedNode.getClass().getSimpleName())
                     .setParameter("oldNodeId", oldNodeId)
                     .setParameter("processInstanceId", nodeInstance.getProcessInstance().getId());
-                
+
                 int nodesUpdated = nodeLogQuery.executeUpdate();
                 report.addEntry(Type.INFO, "Mapping: Node instance logs updated = " + nodesUpdated + " for node instance id " + nodeInstance.getId());
-                
+
                 if (upgradedNode instanceof HumanTaskNode && nodeInstance instanceof HumanTaskNodeInstance) {
-                    
-                    
-                    
+
+
+
                     Long taskId = (Long) em.createQuery("select id from TaskImpl where workItemId = :workItemId")
                                                         .setParameter("workItemId", ((HumanTaskNodeInstance) nodeInstance).getWorkItemId())
                                                         .getSingleResult();
@@ -387,68 +387,68 @@ public class MigrationManager {
                         name = ((HumanTaskNode) upgradedNode).getName();
                     }
                     String description = (String)((HumanTaskNode) upgradedNode).getWork().getParameter("Description");
-                    
+
                     // update task audit instance log with new deployment and process id
                     Query auditTaskLogQuery = em.createQuery("update AuditTaskImpl set name = :name, description = :description where taskId = :taskId");
                     auditTaskLogQuery
                         .setParameter("name", name)
                         .setParameter("description", description)
                         .setParameter("taskId", taskId);
-                    
+
                     int auditTaskUpdated = auditTaskLogQuery.executeUpdate();
                     report.addEntry(Type.INFO, "Mapping: Task audit updated = " + auditTaskUpdated + " for task id " + taskId);
-                    
+
                     // update task  instance log with new deployment and process id
                     Query taskLogQuery = em.createQuery("update TaskImpl set name = :name, description = :description where id = :taskId");
                     taskLogQuery
                     .setParameter("name", name)
                     .setParameter("description", description)
                     .setParameter("taskId", taskId);
-                    
+
                     int taskUpdated = taskLogQuery.executeUpdate();
                     report.addEntry(Type.INFO, "Mapping: Task updated = " + taskUpdated + " for task id " + taskId);
-                    
+
                 }
             }
-            
+
             if (nodeInstance instanceof NodeInstanceContainer) {
-            	updateNodeInstances((NodeInstanceContainer) nodeInstance, nodeMapping, nodeContainer, em);
+                updateNodeInstances((NodeInstanceContainer) nodeInstance, nodeMapping, nodeContainer, em);
             }
         }
 
     }
-    
+
     private Node findNodeByUniqueId(String uniqueId, NodeContainer nodeContainer) {
-    	Node result = null;
-    	
-    	for (Node node : nodeContainer.getNodes()) {
-    		if (uniqueId.equals(node.getMetaData().get("UniqueId"))) {
-    			return node;
-    		}
-    		if (node instanceof NodeContainer) {
-    			result = findNodeByUniqueId(uniqueId, (NodeContainer) node);
-    			if (result != null) {
-    				return result;
-    			}
-    		}
-    	}
-    	
-    	return result;
+        Node result = null;
+
+        for (Node node : nodeContainer.getNodes()) {
+            if (uniqueId.equals(node.getMetaData().get("UniqueId"))) {
+                return node;
+            }
+            if (node instanceof NodeContainer) {
+                result = findNodeByUniqueId(uniqueId, (NodeContainer) node);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        return result;
     }
-    
+
     private  KieRuntime extractIfNeeded(KieRuntime ksession) {
-    	if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
-    		return ((KnowledgeCommandContext)((CommandBasedStatefulKnowledgeSession) ksession).getCommandService().getContext()).getKieSession();
-    	}
-    	
-    	return ksession;
+        if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
+            return ((KnowledgeCommandContext)((CommandBasedStatefulKnowledgeSession) ksession).getCommandService().getContext()).getKieSession();
+        }
+
+        return ksession;
     }
-    
-	private boolean isEmpty(String value) {
-		if (value == null || value.isEmpty()) {
-			return true;
-		}
-		
-		return false;
-	}
+
+    private boolean isEmpty(String value) {
+        if (value == null || value.isEmpty()) {
+            return true;
+        }
+
+        return false;
+    }
 }

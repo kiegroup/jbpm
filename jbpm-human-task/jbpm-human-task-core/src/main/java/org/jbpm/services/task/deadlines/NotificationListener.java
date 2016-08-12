@@ -23,11 +23,11 @@ import org.kie.internal.task.api.model.NotificationEvent;
  * Different listener implementations can exists and all will be independently invoked.
  */
 public interface NotificationListener {
-    
+
     /**
      * Invoked when notification is about to be sent.
      * @param event notification event that includes task, notification itself and task variables
      * @param userInfo Implementation of <code>UserInfo</code> to be able to find user details such as email address
      */
-	void onNotification(NotificationEvent event, UserInfo userInfo);
+    void onNotification(NotificationEvent event, UserInfo userInfo);
 }

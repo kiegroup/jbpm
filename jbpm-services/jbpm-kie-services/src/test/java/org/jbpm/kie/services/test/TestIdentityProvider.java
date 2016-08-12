@@ -22,9 +22,9 @@ import java.util.List;
 import org.kie.internal.identity.IdentityProvider;
 
 public class TestIdentityProvider implements IdentityProvider {
-	
-	private String name = "testUser";
-	private List<String> roles = new ArrayList<String>();
+
+    private String name = "testUser";
+    private List<String> roles = new ArrayList<String>();
 
     public String getName() {
         return name;
@@ -34,17 +34,17 @@ public class TestIdentityProvider implements IdentityProvider {
         return roles;
     }
 
-	@Override
-	public boolean hasRole(String role) {
-		return roles.contains(role);
-	}
+    @Override
+    public boolean hasRole(String role) {
+        return roles.contains(role);
+    }
 
-	// just for testing
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
+    // just for testing
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

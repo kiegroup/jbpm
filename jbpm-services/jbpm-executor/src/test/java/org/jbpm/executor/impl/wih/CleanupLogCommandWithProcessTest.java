@@ -62,7 +62,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
 
     private PoolingDataSource pds;
-    private UserGroupCallback userGroupCallback;  
+    private UserGroupCallback userGroupCallback;
     private RuntimeManager manager;
     private ExecutorService executorService;
     private EntityManagerFactory emf = null;
@@ -76,7 +76,7 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         executorService = buildExecutorService();
     }
-    
+
     @After
     public void teardown() {
         executorService.destroy();
@@ -85,15 +85,15 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
             manager.close();
         }
         if (emf != null) {
-        	emf.close();
+            emf.close();
         }
         pds.close();
     }
-    
+
     protected CountDownAsyncJobListener configureListener(int threads) {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(threads);
         ((ExecutorServiceImpl) executorService).addAsyncJobListener(countDownListener);
-        
+
         return countDownListener;
     }
 
@@ -113,94 +113,94 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
                         handlers.put("async", new DoNothingWorkItemHandler());
                         return handlers;
                     }
-                    
+
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);  
-        
+        assertNotNull(ksession);
+
         assertEquals(0, getProcessLogSize("ScriptTask"));
         assertEquals(0, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
-        
+
         Date startDate = new Date();
-        
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         assertEquals(1, getProcessLogSize("ScriptTask"));
         assertEquals(5, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
-        
+
         scheduleLogCleanup(false, true, false, startDate, "ScriptTask", "yyyy-MM-dd", manager.getIdentifier());
         countDownListener.waitTillCompleted();
         System.out.println("Aborting process instance " + processInstance.getId());
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNotNull(processInstance);
-        
+
         assertEquals(1, getProcessLogSize("ScriptTask"));
         assertEquals(5, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
-        
+
         runtime.getKieSession().abortProcessInstance(processInstance.getId());
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         assertEquals(1, getProcessLogSize("ScriptTask"));
         assertEquals(6, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
-        
+
         Thread.sleep(1000);
-        
+
         scheduleLogCleanup(false, false, false, new Date(), "ScriptTask", "yyyy-MM-dd HH:mm:ss", manager.getIdentifier());
         countDownListener.reset(1);
         countDownListener.waitTillCompleted();
-        
+
         assertEquals(0, getProcessLogSize("ScriptTask"));
         assertEquals(0, getNodeInstanceLogSize("ScriptTask"));
         assertEquals(0, getTaskLogSize("ScriptTask"));
         assertEquals(0, getVariableLogSize("ScriptTask"));
     }
-    
-    
-    private ExecutorService buildExecutorService() {        
+
+
+    private ExecutorService buildExecutorService() {
         emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.persistence.complete");
 
         executorService = ExecutorServiceFactory.newExecutorService(emf);
-        
+
         executorService.init();
-        
+
         return executorService;
     }
-    
-	private void scheduleLogCleanup(boolean skipProcessLog,
-			boolean skipTaskLog, boolean skipExecutorLog, Date olderThan,
-			String forProcess, String dateFormat, String identifier) {
-		CommandContext commandContext = new CommandContext();
-		commandContext.setData("EmfName", "org.jbpm.persistence.complete");
-		commandContext.setData("SkipProcessLog", String.valueOf(skipProcessLog));
-		commandContext.setData("SkipTaskLog", String.valueOf(skipTaskLog));
-		commandContext.setData("SkipExecutorLog",String.valueOf(skipExecutorLog));
-		commandContext.setData("SingleRun", "true");
-		commandContext.setData("OlderThan", new SimpleDateFormat(dateFormat).format(olderThan));
-		commandContext.setData("DateFormat", dateFormat);
-		commandContext.setData("ForDeployment", identifier);
-		// commandContext.setData("OlderThanPeriod", olderThanPeriod);
-		commandContext.setData("ForProcess", forProcess);
-		executorService.scheduleRequest("org.jbpm.executor.commands.LogCleanupCommand", commandContext);
-	}
-	
-	private int getProcessLogSize(String processId) {
+
+    private void scheduleLogCleanup(boolean skipProcessLog,
+            boolean skipTaskLog, boolean skipExecutorLog, Date olderThan,
+            String forProcess, String dateFormat, String identifier) {
+        CommandContext commandContext = new CommandContext();
+        commandContext.setData("EmfName", "org.jbpm.persistence.complete");
+        commandContext.setData("SkipProcessLog", String.valueOf(skipProcessLog));
+        commandContext.setData("SkipTaskLog", String.valueOf(skipTaskLog));
+        commandContext.setData("SkipExecutorLog",String.valueOf(skipExecutorLog));
+        commandContext.setData("SingleRun", "true");
+        commandContext.setData("OlderThan", new SimpleDateFormat(dateFormat).format(olderThan));
+        commandContext.setData("DateFormat", dateFormat);
+        commandContext.setData("ForDeployment", identifier);
+        // commandContext.setData("OlderThanPeriod", olderThanPeriod);
+        commandContext.setData("ForProcess", forProcess);
+        executorService.scheduleRequest("org.jbpm.executor.commands.LogCleanupCommand", commandContext);
+    }
+
+    private int getProcessLogSize(String processId) {
         return new JPAAuditLogService(emf).processInstanceLogQuery()
                 .processId(processId)
                 .build()
@@ -215,7 +215,7 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
                 .getResultList()
                 .size();
     }
-    
+
     private int getNodeInstanceLogSize(String processId) {
         return new JPAAuditLogService(emf).nodeInstanceLogQuery()
                 .processId(processId)
@@ -223,7 +223,7 @@ public class CleanupLogCommandWithProcessTest extends AbstractExecutorBaseTest {
                 .getResultList()
                 .size();
     }
-    
+
     private int getVariableLogSize(String processId) {
         return new JPAAuditLogService(emf).variableInstanceLogQuery()
                 .processId(processId)

@@ -21,15 +21,15 @@ import java.util.Map;
 
 public interface ProcessDesc extends DeployedAsset {
 
-	String getPackageName();
+    String getPackageName();
 
-	String getNamespace();
+    String getNamespace();
 
-	String getDeploymentId();
+    String getDeploymentId();
 
-	String getEncodedProcessSource();
+    String getEncodedProcessSource();
 
-	Map<String, String> getForms();
+    Map<String, String> getForms();
 
-	List<String> getRoles();
+    List<String> getRoles();
 }

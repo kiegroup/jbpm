@@ -50,7 +50,7 @@ public class ActionNodeFactory extends NodeFactory {
         getActionNode().setAction(new DroolsConsequenceAction(dialect, action));
         return this;
     }
-    
+
     //
     // Allow the creation of programmatic actions that implement org.jbpm.process.instance.impl.Action interface.
     // I just want to write simple classes to execute arbitrary logic without having to use a file.
@@ -60,5 +60,5 @@ public class ActionNodeFactory extends NodeFactory {
       droolsAction.setMetaData("Action",action);
       getActionNode().setAction(droolsAction);
       return this;
-  }    
+  }
 }

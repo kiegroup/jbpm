@@ -62,23 +62,23 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
     protected DeploymentService deploymentService;
     @Inject
     protected DefinitionService bpmn2Service;
-    
+
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-    
+
     @Before
     public void prepare() {
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
         processes.add("repo/processes/support/support.bpmn");
-        
+
         DeploymentDescriptor customDescriptor = new DeploymentDescriptorImpl("org.jbpm.domain");
-		customDescriptor.getBuilder()
-		.addTaskEventListener(new ObjectModel("org.jbpm.services.cdi.test.ext.DebugTaskLifeCycleEventListener"));		
-		
+        customDescriptor.getBuilder()
+        .addTaskEventListener(new ObjectModel("org.jbpm.services.cdi.test.ext.DebugTaskLifeCycleEventListener"));
+
         Map<String, String> resources = new HashMap<String, String>();
-		resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
-        
+        resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
+
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes, resources);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
@@ -87,15 +87,15 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
             fs.write(getPom(releaseId).getBytes());
             fs.close();
         } catch (Exception e) {
-            
+
         }
         MavenRepository repository = getMavenRepository();
         repository.deployArtifact(releaseId, kJar1, pom);
     }
-    
+
     @After
     public void cleanup() {
-    	DebugTaskLifeCycleEventListener.resetEventCounter();
+        DebugTaskLifeCycleEventListener.resetEventCounter();
         TestUtil.cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
@@ -105,11 +105,11 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         }
     }
 
- 
+
 
     @Test
     public void testSupportProcess()  {
-    	DeploymentUnit deploymentUnitSupport = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);       
+        DeploymentUnit deploymentUnitSupport = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
         deploymentService.deploy(deploymentUnitSupport);
         units.add(deploymentUnitSupport);
 
@@ -118,19 +118,19 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
 
         RuntimeManager managerSupport = deploymentService.getRuntimeManager(deploymentUnitSupport.getIdentifier());
         assertNotNull(managerSupport);
-        
+
         int currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(0, currentNumberOfEvents);
-        
+
         RuntimeEngine engine = managerSupport.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
         ProcessInstance pI = engine.getKieSession().startProcess("support.process", params);
         assertNotNull(pI);
         TaskService taskService = engine.getTaskService();
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(2, currentNumberOfEvents);
-        
+
         // Configure Release
         List<TaskSummary> tasksAssignedToSalaboy = taskService.getTasksAssignedAsPotentialOwner("salaboy", "en-UK");
 
@@ -141,7 +141,7 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         TaskSummary createSupportTask = tasksAssignedToSalaboy.get(0);
 
         taskService.start(createSupportTask.getId(), "salaboy");
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(4, currentNumberOfEvents);
 
@@ -152,8 +152,8 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
 
 
 
-        Map<String, String> taskOutputMappings = bpmn2Service.getTaskOutputMappings(deploymentUnitSupport.getIdentifier(), 
-        		"support.process", createSupportTask.getName());
+        Map<String, String> taskOutputMappings = bpmn2Service.getTaskOutputMappings(deploymentUnitSupport.getIdentifier(),
+                "support.process", createSupportTask.getName());
 
         assertEquals(1, taskOutputMappings.size());
         assertEquals("output_customer", taskOutputMappings.keySet().iterator().next());
@@ -162,7 +162,7 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
 
         output.put("output_customer", "polymita/redhat");
         taskService.complete(createSupportTask.getId(), "salaboy", output);
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(8, currentNumberOfEvents);
 
@@ -174,12 +174,12 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         TaskSummary resolveSupportTask = tasksAssignedToSalaboy.get(0);
 
         taskService.start(resolveSupportTask.getId(), "salaboy");
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(10, currentNumberOfEvents);
 
         taskService.complete(resolveSupportTask.getId(), "salaboy", null);
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(14, currentNumberOfEvents);
 
@@ -192,14 +192,14 @@ public abstract class SupportProcessBaseTest extends AbstractKieServicesBaseTest
         TaskSummary notifySupportTask = tasksAssignedToSalaboy.get(0);
 
         taskService.start(notifySupportTask.getId(), "salaboy");
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(16, currentNumberOfEvents);
-        
+
         output = new HashMap<String, Object>();
         output.put("output_solution", "solved today");
         taskService.complete(notifySupportTask.getId(), "salaboy", output);
-        
+
         currentNumberOfEvents = DebugTaskLifeCycleEventListener.getEventCounter();
         assertEquals(18, currentNumberOfEvents);
 

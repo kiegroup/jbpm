@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -14,7 +14,7 @@
 */
 
 /**
- * 
+ *
  */
 package org.jbpm.integrationtests.test;
 
@@ -25,9 +25,9 @@ import java.util.List;
 
 public class Message implements Serializable {
 
-	private static final long serialVersionUID = 4L;
-	
-	private String          message1 = "One";
+    private static final long serialVersionUID = 4L;
+
+    private String          message1 = "One";
     private String          message2 = "Two";
     private String          message3 = "Three";
     private String          message4 = "Four";

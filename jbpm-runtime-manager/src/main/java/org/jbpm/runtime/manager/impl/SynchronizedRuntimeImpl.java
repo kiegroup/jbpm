@@ -29,7 +29,7 @@ import org.kie.internal.task.api.InternalTaskService;
 public class SynchronizedRuntimeImpl extends RuntimeEngineImpl {
 
     private TaskService synchronizedTaskService;
-    
+
     public SynchronizedRuntimeImpl(KieSession ksession, InternalTaskService taskService) {
         super(ksession, taskService);
         if (taskService != null) {
@@ -39,9 +39,9 @@ public class SynchronizedRuntimeImpl extends RuntimeEngineImpl {
 
     @Override
     public TaskService getTaskService() {
-    	if (synchronizedTaskService == null) {
-    		throw new UnsupportedOperationException("TaskService was not configured");
-    	}
+        if (synchronizedTaskService == null) {
+            throw new UnsupportedOperationException("TaskService was not configured");
+        }
         return this.synchronizedTaskService;
     }
 

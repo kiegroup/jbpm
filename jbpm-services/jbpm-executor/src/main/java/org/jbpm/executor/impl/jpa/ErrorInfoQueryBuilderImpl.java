@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,10 +39,10 @@ import org.kie.internal.runtime.manager.audit.query.ErrorInfoQueryBuilder;
 public class ErrorInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<ErrorInfoQueryBuilder>  implements ErrorInfoQueryBuilder {
 
     private final ExecutorJPAAuditService jpaAuditService;
-    
-     public ErrorInfoQueryBuilderImpl(ExecutorJPAAuditService jpaAuditService) { 
+
+     public ErrorInfoQueryBuilderImpl(ExecutorJPAAuditService jpaAuditService) {
         this.jpaAuditService = jpaAuditService;
-     }		
+     }
 
     @Override
     public ErrorInfoQueryBuilder message( String... message ) {
@@ -72,11 +72,11 @@ public class ErrorInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<ErrorInf
     public ErrorInfoQueryBuilder stackTraceRegex( String... stackTraceRegex ) {
         QueryWhere queryWhere = getQueryWhere();
         QueryCriteriaType origCriteriaType = queryWhere.getCriteriaType();
-        
+
         queryWhere.setToLike();
         addObjectParameter(STACK_TRACE_LIST, "stack trace regex", stackTraceRegex);
-        
-        switch(origCriteriaType) { 
+
+        switch(origCriteriaType) {
         case NORMAL:
             queryWhere.setToNormal();
             break;
@@ -98,17 +98,17 @@ public class ErrorInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<ErrorInf
         this.queryWhere.setAscending(listId);
         return this;
     }
-   
+
     @Override
     public ErrorInfoQueryBuilder descending( ErrorInfoQueryBuilder.OrderBy field ) {
         String listId = convertOrderByToListId(field);
         this.queryWhere.setDescending(listId);
         return this;
     }
-   
-    private String convertOrderByToListId(ErrorInfoQueryBuilder.OrderBy field) { 
+
+    private String convertOrderByToListId(ErrorInfoQueryBuilder.OrderBy field) {
         String listId;
-        switch( field ) { 
+        switch( field ) {
         case id:
             listId = QueryParameterIdentifiers.ID_LIST;
             break;
@@ -117,14 +117,14 @@ public class ErrorInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<ErrorInf
             break;
         default:
             throw new IllegalArgumentException("Unknown 'order-by' field: " + field.toString() );
-        } 
+        }
         return listId;
     }
-    
+
     @Override
     public ParametrizedQuery<ErrorInfo> build() {
         return new ParametrizedQuery<ErrorInfo>() {
-            private QueryWhere queryData = new QueryWhere(getQueryWhere()); 
+            private QueryWhere queryData = new QueryWhere(getQueryWhere());
             @Override
             public List<ErrorInfo> getResultList() {
                 return jpaAuditService.queryLogs(queryData, org.jbpm.executor.entities.ErrorInfo.class, ErrorInfo.class);

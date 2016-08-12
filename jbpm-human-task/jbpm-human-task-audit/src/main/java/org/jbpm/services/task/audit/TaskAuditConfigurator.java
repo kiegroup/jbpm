@@ -23,17 +23,17 @@ import org.kie.api.task.TaskService;
 
  */
 public class TaskAuditConfigurator {
-    
+
     private final TaskAuditService taskAuditService = new TaskAuditServiceImpl();
-    
+
     public TaskAuditConfigurator setTaskService(TaskService service) {
         taskAuditService.setTaskService(service);
         return this;
     }
-    
+
     public TaskAuditService getTaskAuditService(){
         return taskAuditService;
     }
 
-   
+
 }

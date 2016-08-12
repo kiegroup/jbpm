@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,47 +37,47 @@ public class ForEachNodeHandler extends CompositeNodeHandler {
     public Class generateNodeFor() {
         return ForEachNode.class;
     }
-    
+
     protected String getNodeName() {
-    	return "forEach";
+        return "forEach";
     }
-    
+
     protected void writeAttributes(CompositeNode compositeNode, StringBuilder xmlDump, boolean includeMeta) {
-    	ForEachNode forEachNode = (ForEachNode) compositeNode;
-    	String variableName = forEachNode.getVariableName();
-    	if (variableName != null) {
-    		xmlDump.append("variableName=\"" + variableName + "\" ");
-    	}
-    	String collectionExpression = forEachNode.getCollectionExpression();
-    	if (collectionExpression != null) {
-    		xmlDump.append("collectionExpression=\"" + XmlDumper.replaceIllegalChars(collectionExpression) + "\" ");
-    	}
-    	boolean waitForCompletion = forEachNode.isWaitForCompletion();
-    	if (!waitForCompletion) {
-    		xmlDump.append("waitForCompletion=\"false\" ");
-    	}
+        ForEachNode forEachNode = (ForEachNode) compositeNode;
+        String variableName = forEachNode.getVariableName();
+        if (variableName != null) {
+            xmlDump.append("variableName=\"" + variableName + "\" ");
+        }
+        String collectionExpression = forEachNode.getCollectionExpression();
+        if (collectionExpression != null) {
+            xmlDump.append("collectionExpression=\"" + XmlDumper.replaceIllegalChars(collectionExpression) + "\" ");
+        }
+        boolean waitForCompletion = forEachNode.isWaitForCompletion();
+        if (!waitForCompletion) {
+            xmlDump.append("waitForCompletion=\"false\" ");
+        }
     }
 
     protected List<Node> getSubNodes(CompositeNode compositeNode) {
-    	return super.getSubNodes(((ForEachNode) compositeNode).getCompositeNode());
+        return super.getSubNodes(((ForEachNode) compositeNode).getCompositeNode());
     }
 
     protected List<Connection> getSubConnections(CompositeNode compositeNode) {
-    	return super.getSubConnections(((ForEachNode) compositeNode).getCompositeNode());
+        return super.getSubConnections(((ForEachNode) compositeNode).getCompositeNode());
     }
 
     protected Map<String, CompositeNode.NodeAndType> getInPorts(CompositeNode compositeNode) {
-    	return ((ForEachNode) compositeNode).getCompositeNode().getLinkedIncomingNodes();
+        return ((ForEachNode) compositeNode).getCompositeNode().getLinkedIncomingNodes();
     }
-    
+
     protected Map<String, CompositeNode.NodeAndType> getOutPorts(CompositeNode compositeNode) {
-    	return ((ForEachNode) compositeNode).getCompositeNode().getLinkedOutgoingNodes();
+        return ((ForEachNode) compositeNode).getCompositeNode().getLinkedOutgoingNodes();
     }
-    
-    protected void handleNode(final Node node, final Element element, final String uri, 
+
+    protected void handleNode(final Node node, final Element element, final String uri,
             final String localName, final ExtensibleXmlParser parser) throws SAXException {
-    	super.handleNode(node, element, uri, localName, parser);
-    	ForEachNode forEachNode = (ForEachNode) node;
+        super.handleNode(node, element, uri, localName, parser);
+        ForEachNode forEachNode = (ForEachNode) node;
         final String variableName = element.getAttribute("variableName");
         if (variableName != null && variableName.length() != 0) {
             forEachNode.setVariable(variableName, new ObjectDataType());

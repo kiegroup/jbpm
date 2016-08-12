@@ -21,19 +21,19 @@ import java.lang.reflect.Field;
 public class Connection {
 
     public Connection() { }
-    
-    public Connection(String host, String port, String userName, String password) { 
-       this.host = host; 
-       this.port = port; 
-       this.userName = userName; 
-       this.password =  password; 
+
+    public Connection(String host, String port, String userName, String password) {
+       this.host = host;
+       this.port = port;
+       this.userName = userName;
+       this.password =  password;
     }
-    
-    public Connection(String host, String port) { 
-       this.host = host; 
-       this.port = port; 
+
+    public Connection(String host, String port) {
+       this.host = host;
+       this.port = port;
     }
-    
+
     private String host;
     private String port;
     private String userName;
@@ -56,17 +56,17 @@ public class Connection {
         if ( getClass() != obj.getClass() ) return false;
 
         Field [] fields = Connection.class.getDeclaredFields();
-        for( int i = 0; i < fields.length; ++i ) { 
+        for( int i = 0; i < fields.length; ++i ) {
             try {
                 Object thisVal = fields[i].get(this);
                 Object thatVal = fields[i].get(obj);
                 if( thisVal != null && thatVal != null ) {
-                    if( ! thisVal.equals(thatVal) ) { 
+                    if( ! thisVal.equals(thatVal) ) {
                         return false;
                     }
                 }
-                else if( thisVal != thatVal ) { 
-                    return false; 
+                else if( thisVal != thatVal ) {
+                    return false;
                 }
             } catch (Exception e) {
                 return false;

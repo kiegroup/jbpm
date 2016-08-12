@@ -29,10 +29,10 @@ public class MigrationReportImpl implements org.jbpm.services.api.admin.Migratio
     private static final long serialVersionUID = 549850629493262347L;
 
     private boolean successful;
-    
+
     private Date startDate;
     private Date endDate;
-    
+
     private List<MigrationEntry> entries = new ArrayList<MigrationEntry>();
 
     public MigrationReportImpl(boolean successful, Date startDate, Date endDate, List<MigrationEntry> entries) {
@@ -45,31 +45,31 @@ public class MigrationReportImpl implements org.jbpm.services.api.admin.Migratio
     public boolean isSuccessful() {
         return successful;
     }
-    
+
     public void setSuccessful(boolean successful) {
         this.successful = successful;
     }
-    
+
     public Date getStartDate() {
         return startDate;
     }
-    
+
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
-    
+
     public Date getEndDate() {
         return endDate;
     }
-    
+
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
-    
+
     public List<MigrationEntry> getEntries() {
         return entries;
     }
-    
+
     public void setEntries(List<MigrationEntry> entries) {
         this.entries = entries;
     }

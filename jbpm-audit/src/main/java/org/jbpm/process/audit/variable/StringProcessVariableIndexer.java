@@ -39,13 +39,13 @@ public class StringProcessVariableIndexer implements ProcessVariableIndexer {
     @Override
     public List<VariableInstanceLog> index(String name, Object variable) {
         List<VariableInstanceLog> indexed = new ArrayList<VariableInstanceLog>();
-        
+
         org.jbpm.process.audit.VariableInstanceLog processVariable = new org.jbpm.process.audit.VariableInstanceLog();
         processVariable.setVariableId(name);
         processVariable.setValue(variable == null ? "" : variable.toString());
-        
+
         indexed.add(processVariable);
-        
+
         return indexed;
     }
 

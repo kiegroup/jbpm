@@ -28,14 +28,14 @@ import org.kie.internal.runtime.manager.EventListenerProducer;
 @Task
 public class CustomTaskEventListenerProducer implements EventListenerProducer<TaskLifeCycleEventListener> {
 
-	@Override
-	public List<TaskLifeCycleEventListener> getEventListeners(String identifier, Map<String, Object> params) {
-		
-		List<TaskLifeCycleEventListener> taskEventListeners = new ArrayList<TaskLifeCycleEventListener>();
-		taskEventListeners.add(new JPATaskLifeCycleEventListener(true));
+    @Override
+    public List<TaskLifeCycleEventListener> getEventListeners(String identifier, Map<String, Object> params) {
 
-		
-		return taskEventListeners;
-	}
+        List<TaskLifeCycleEventListener> taskEventListeners = new ArrayList<TaskLifeCycleEventListener>();
+        taskEventListeners.add(new JPATaskLifeCycleEventListener(true));
+
+
+        return taskEventListeners;
+    }
 
 }

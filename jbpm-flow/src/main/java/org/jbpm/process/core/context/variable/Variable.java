@@ -27,7 +27,7 @@ import org.jbpm.process.core.ValueObject;
 
 /**
  * Default implementation of a variable.
- * 
+ *
  */
 public class Variable implements TypeObject, ValueObject, Serializable {
 
@@ -81,15 +81,15 @@ public class Variable implements TypeObject, ValueObject, Serializable {
     public void setMetaData(String name, Object value) {
         this.metaData.put(name, value);
     }
-    
+
     public Object getMetaData(String name) {
         return this.metaData.get(name);
     }
-    
+
     public Map<String, Object> getMetaData() {
-    	return this.metaData;
+        return this.metaData;
     }
-    
+
     public String toString() {
         return this.name;
     }

@@ -34,26 +34,26 @@ import org.kie.api.runtime.process.WorkItemHandler;
 /**
  * This implementation extends the DefaultRegisterableItemsFactory
  * and relies on definitions of work item handlers and
- * listeners that come from kmodule.xml from kjar. 
+ * listeners that come from kmodule.xml from kjar.
  * It will directly register all listeners and work item handlers on the ksession
  * and will also return listeners and handlers provided by the default implementation.
  *
  */
 public class KModuleRegisterableItemsFactory extends DefaultRegisterableItemsFactory {
 
-	private static final String DEFAULT_KIE_SESSION = "defaultKieSession";
-	
+    private static final String DEFAULT_KIE_SESSION = "defaultKieSession";
+
     private KieContainer kieContainer;
     private String ksessionName;
-    
-    
+
+
     public KModuleRegisterableItemsFactory(KieContainer kieContainer,
             String ksessionName) {
         super();
         this.kieContainer = kieContainer;
         this.ksessionName = ksessionName;
     }
-    
+
     public KModuleRegisterableItemsFactory(KieContainer kieContainer,
             String ksessionName, AuditEventBuilder auditBuilder) {
         super();
@@ -68,13 +68,13 @@ public class KModuleRegisterableItemsFactory extends DefaultRegisterableItemsFac
         if(StringUtils.isEmpty(ksessionName)) {
             ksessionModel = ((KieContainerImpl)kieContainer).getKieProject().getDefaultKieSession();
             if (ksessionModel == null) {
-            	ksessionName = DEFAULT_KIE_SESSION;
-            	ksessionModel = ((KieContainerImpl)kieContainer).getKieSessionModel(ksessionName);
+                ksessionName = DEFAULT_KIE_SESSION;
+                ksessionModel = ((KieContainerImpl)kieContainer).getKieSessionModel(ksessionName);
             }
-        } else {            
+        } else {
             ksessionModel = ((KieContainerImpl)kieContainer).getKieSessionModel(ksessionName);
         }
-        
+
         if (ksessionModel == null) {
             throw new IllegalStateException("Cannot find ksession, either it does not exist or there are multiple default ksession in kmodule.xml");
         }
@@ -83,18 +83,18 @@ public class KModuleRegisterableItemsFactory extends DefaultRegisterableItemsFac
         parameters.put("taskService", runtime.getTaskService());
         parameters.put("runtimeManager", ((RuntimeEngineImpl)runtime).getManager());
         if (getRuntimeManager().getKieContainer() != null) {
-        	parameters.put("kieContainer", getRuntimeManager().getKieContainer());
+            parameters.put("kieContainer", getRuntimeManager().getKieContainer());
         }
         parameters.put("classLoader", getRuntimeManager().getEnvironment().getClassLoader());
         try {
 
             CDIHelper.wireListnersAndWIHs(ksessionModel, runtime.getKieSession(), parameters);
         } catch (Exception e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             // use fallback mechanism
             CDIHelper.wireListnersAndWIHs(ksessionModel, runtime.getKieSession());
         }
-        
+
         return super.getWorkItemHandlers(runtime);
     }
 

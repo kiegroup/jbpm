@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,14 +33,14 @@ import javax.xml.bind.annotation.XmlSchemaType;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name="start-process-instance-with-parent-command")
 public class StartProcessInstanceWithParentCommand implements GenericCommand<ProcessInstance>, ProcessInstanceIdCommand {
-    
+
     /** Generated serial version UID */
     private static final long serialVersionUID = 7634752111656248015L;
-   
+
     @XmlAttribute(required = true)
     @XmlSchemaType(name="long")
     private Long processInstanceId;
-    
+
     @XmlAttribute(required = true)
     @XmlSchemaType(name="long")
     private Long parentProcessInstanceId;
@@ -79,7 +79,7 @@ public class StartProcessInstanceWithParentCommand implements GenericCommand<Pro
         if( parentProcessInstanceId > 0 ) {
             ((ProcessInstanceImpl) processInstance).setMetaData("ParentProcessInstanceId", parentProcessInstanceId);
         }
-    
+
         return ksession.startProcessInstance(processInstanceId.longValue());
     }
 }

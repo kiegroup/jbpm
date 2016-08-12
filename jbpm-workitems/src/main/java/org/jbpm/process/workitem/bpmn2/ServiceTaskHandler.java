@@ -45,39 +45,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implements Cacheable {
-    
+
     public static final String WSDL_IMPORT_TYPE = "http://schemas.xmlsoap.org/wsdl/";
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ServiceTaskHandler.class);
-    
+
     private ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
     private JaxWsDynamicClientFactory dcf;
     private KieSession ksession;
     private int asyncTimeout = 10;
     private ClassLoader classLoader;
 
-	enum WSMode {
+    enum WSMode {
         SYNC,
         ASYNC,
         ONEWAY;
 
     }
-    
+
     public ServiceTaskHandler() {
         this.dcf = JaxWsDynamicClientFactory.newInstance();
     }
-    
+
     public ServiceTaskHandler(KieSession ksession) {
         this.dcf = JaxWsDynamicClientFactory.newInstance();
         this.ksession = ksession;
     }
-    
+
     public ServiceTaskHandler(KieSession ksession, ClassLoader classloader) {
         this.dcf = JaxWsDynamicClientFactory.newInstance();
         this.ksession = ksession;
         this.classLoader = classloader;
     }
-    
+
     public ServiceTaskHandler(KieSession ksession, int timeout) {
         this.dcf = JaxWsDynamicClientFactory.newInstance();
         this.ksession = ksession;
@@ -89,12 +89,12 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
         if ("##WebService".equalsIgnoreCase(implementation)) {
             // since JaxWsDynamicClientFactory will change the TCCL we need to restore it after creating client
             ClassLoader origClassloader = Thread.currentThread().getContextClassLoader();
-            
+
             String interfaceRef = (String) workItem.getParameter("interfaceImplementationRef");
             String operationRef = (String) workItem.getParameter("operationImplementationRef");
             Object parameter = workItem.getParameter("Parameter");
             WSMode mode = WSMode.valueOf(workItem.getParameter("mode") == null ? "SYNC" : ((String) workItem.getParameter("mode")).toUpperCase());
-            
+
             try {
                  Client client = getWSClient(workItem, interfaceRef);
                  if (client == null) {
@@ -103,15 +103,15 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
                  switch (mode) {
                 case SYNC:
                     Object[] result = client.invoke(operationRef, parameter);
-                    
-                    Map<String, Object> output = new HashMap<String, Object>();          
-   
+
+                    Map<String, Object> output = new HashMap<String, Object>();
+
                     if (result == null || result.length == 0) {
                       output.put("Result", null);
                     } else {
                       output.put("Result", result[0]);
                     }
-   
+
                     manager.completeWorkItem(workItem.getId(), output);
                     break;
                 case ASYNC:
@@ -119,16 +119,16 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
                     final long workItemId = workItem.getId();
                     final String deploymentId = nonNull(((WorkItemImpl)workItem).getDeploymentId());
                     final long processInstanceId = workItem.getProcessInstanceId();
-                    
+
                     client.invoke(callback, operationRef, parameter);
                     new Thread(new Runnable() {
-                       
+
                        public void run() {
-                           
+
                            try {
-                              
+
                                Object[] result = callback.get(asyncTimeout, TimeUnit.SECONDS);
-                               Map<String, Object> output = new HashMap<String, Object>();          
+                               Map<String, Object> output = new HashMap<String, Object>();
                                if (callback.isDone()) {
                                    if (result == null) {
                                      output.put("Result", null);
@@ -138,27 +138,27 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
                                }
                                RuntimeManager manager = RuntimeManagerRegistry.get().getManager(deploymentId);
                                if (manager != null) {
-	                               RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-	                               
-	                               engine.getKieSession().getWorkItemManager().completeWorkItem(workItemId, output);
-	                               
-	                               manager.disposeRuntimeEngine(engine);
+                                   RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
+
+                                   engine.getKieSession().getWorkItemManager().completeWorkItem(workItemId, output);
+
+                                   manager.disposeRuntimeEngine(engine);
                                } else {
-                            	   // in case there is no RuntimeManager available use available ksession, 
-                            	   // as it might be used without runtime manager at all
-                            	   ksession.getWorkItemManager().completeWorkItem(workItemId, output);
+                                   // in case there is no RuntimeManager available use available ksession,
+                                   // as it might be used without runtime manager at all
+                                   ksession.getWorkItemManager().completeWorkItem(workItemId, output);
                                }
                            } catch (Exception e) {
                               logger.error("Error encountered while invoking ws operation asynchronously ", e);
                            }
-                           
-                           
+
+
                        }
                    }).start();
                     break;
                 case ONEWAY:
                     ClientCallback callbackFF = new ClientCallback();
-                    
+
                     client.invoke(callbackFF, operationRef, parameter);
                     manager.completeWorkItem(workItem.getId(),  new HashMap<String, Object>());
                     break;
@@ -169,15 +169,15 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
              } catch (Exception e) {
                  handleException(e, interfaceRef, "", operationRef, parameter.getClass().getName(), parameter);
              } finally {
-         		Thread.currentThread().setContextClassLoader(origClassloader);
-         	}
+                Thread.currentThread().setContextClassLoader(origClassloader);
+            }
         } else {
             executeJavaWorkItem(workItem, manager);
         }
-        
+
 
     }
-    
+
     @SuppressWarnings("unchecked")
     protected synchronized Client getWSClient(WorkItem workItem, String interfaceRef) {
         if (clients.containsKey(interfaceRef)) {
@@ -187,50 +187,50 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
         long processInstanceId = ((WorkItemImpl) workItem).getProcessInstanceId();
         WorkflowProcessImpl process = ((WorkflowProcessImpl) ksession.getProcessInstance(processInstanceId).getProcess());
         List<Bpmn2Import> typedImports = (List<Bpmn2Import>)process.getMetaData("Bpmn2Imports");
-        
-        
-        
+
+
+
         if (typedImports != null ){
             Client client = null;
             for (Bpmn2Import importObj : typedImports) {
-                
+
                 if (WSDL_IMPORT_TYPE.equalsIgnoreCase(importObj.getType())) {
-                
+
                     try {
                         client = dcf.createClient(importObj.getLocation(), new QName(importObj.getNamespace(), interfaceRef), getInternalClassLoader(), null);
                         clients.put(interfaceRef, client);
-                        
+
                         return client;
                     } catch (Exception e) {
-                	    logger.error("Error when creating WS Client", e);
+                        logger.error("Error when creating WS Client", e);
                         continue;
                     }
                 }
             }
         }
-        
+
         return null;
 
     }
 
     private ClassLoader getInternalClassLoader() {
-		if (this.classLoader != null) {
-			return this.classLoader;
-		}
-		
-		return Thread.currentThread().getContextClassLoader();
-	}
+        if (this.classLoader != null) {
+            return this.classLoader;
+        }
 
-	public void executeJavaWorkItem(WorkItem workItem, WorkItemManager manager) {
+        return Thread.currentThread().getContextClassLoader();
+    }
+
+    public void executeJavaWorkItem(WorkItem workItem, WorkItemManager manager) {
         String i = (String) workItem.getParameter("Interface");
-        String iImplementationRef = (String) workItem.getParameter("interfaceImplementationRef"); 
+        String iImplementationRef = (String) workItem.getParameter("interfaceImplementationRef");
         String operation = (String) workItem.getParameter("Operation");
         String parameterType = (String) workItem.getParameter("ParameterType");
         Object parameter = workItem.getParameter("Parameter");
-        
+
         String[] interfaces = {i, iImplementationRef};
         Class<?> c = null;
-        
+
         for(String interf : interfaces) {
             try {
                 c = Class.forName(interf, true, getInternalClassLoader());
@@ -241,7 +241,7 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
                 }
             }
         }
-        
+
         try {
             Object instance = c.newInstance();
             Class<?>[] classes = null;
@@ -271,8 +271,8 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
             handleException(e, i, iImplementationRef, operation, parameterType, parameter);
         }
     }
-    
-    private void handleException(Throwable cause, String service, String iImplementationRef, String operation, String paramType, Object param) { 
+
+    private void handleException(Throwable cause, String service, String iImplementationRef, String operation, String paramType, Object param) {
         logger.debug("Handling exception {} inside service {} or {} and operation {} with param type {} and value {}",
                 cause.getMessage(), service, operation, paramType, param);
         Map<String, Object> data = new HashMap<String, Object>();
@@ -282,37 +282,37 @@ public class ServiceTaskHandler extends AbstractLogOrThrowWorkItemHandler implem
         data.put("Operation", operation);
         data.put("ParameterType", paramType);
         data.put("Parameter", param);
-        
+
         handleException(cause, data);
-        
+
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         // Do nothing, cannot be aborted
     }
-    
+
     public ClassLoader getClassLoader() {
-		return classLoader;
-	}
+        return classLoader;
+    }
 
-	public void setClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
-	
-	protected String nonNull(String value) {
-		if (value == null) {
-			return "";
-		}
-		
-		return value;
-	}
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
 
-	@Override
-	public void close() {
-		if (clients != null) {
-			for (Client client : clients.values()) {
-				client.destroy();
-			}
-		}
-	}
+    protected String nonNull(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value;
+    }
+
+    @Override
+    public void close() {
+        if (clients != null) {
+            for (Client client : clients.values()) {
+                client.destroy();
+            }
+        }
+    }
 }

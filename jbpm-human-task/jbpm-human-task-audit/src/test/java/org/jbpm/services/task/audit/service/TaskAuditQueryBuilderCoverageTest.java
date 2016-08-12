@@ -136,8 +136,8 @@ public class TaskAuditQueryBuilderCoverageTest extends HumanTaskServicesBaseTest
                     Status [] statusArr = { Status.Completed, Status.Suspended };
                     return statusArr;
                 } else if( elemType.equals(TaskVariable.VariableType.class) ) {
-                    VariableType [] typeArr = { 
-                            taskVariableType++ % 2 == 0 ? TaskVariable.VariableType.INPUT : VariableType.OUTPUT 
+                    VariableType [] typeArr = {
+                            taskVariableType++ % 2 == 0 ? TaskVariable.VariableType.INPUT : VariableType.OUTPUT
                     };
                     return typeArr;
                 }

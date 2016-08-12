@@ -28,30 +28,30 @@ import org.kie.internal.task.api.model.InternalTaskData;
  *
  */
 public class TaskCommentServiceImpl implements TaskCommentService {
-     
+
     private TaskPersistenceContext persistenceContext;
 
-	public TaskCommentServiceImpl() {
+    public TaskCommentServiceImpl() {
     }
-	
-	public TaskCommentServiceImpl(TaskPersistenceContext persistenceContext) {
-		this.persistenceContext = persistenceContext;
-	}
-    
+
+    public TaskCommentServiceImpl(TaskPersistenceContext persistenceContext) {
+        this.persistenceContext = persistenceContext;
+    }
+
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
-		this.persistenceContext = persistenceContext;
-	}
+        this.persistenceContext = persistenceContext;
+    }
 
     public long addComment(long taskId, Comment comment) {
         Task task = persistenceContext.findTask(taskId);
-        
+
         if (persistenceContext.findUser(comment.getAddedBy().getId()) == null) {
             persistenceContext.persistUser(comment.getAddedBy());
         }
         persistenceContext.persistComment(comment);
         ((InternalTaskData) task.getTaskData()).addComment(comment);
         return comment.getId();
-       
+
     }
 
     public void deleteComment(long taskId, long commentId) {
@@ -64,14 +64,14 @@ public class TaskCommentServiceImpl implements TaskCommentService {
     public List<Comment> getAllCommentsByTaskId(long taskId) {
         Task task = persistenceContext.findTask(taskId);
         if (task != null) {
-        	return new ArrayList<Comment>(task.getTaskData().getComments());
+            return new ArrayList<Comment>(task.getTaskData().getComments());
         }
-        
+
         return new ArrayList<Comment>();
     }
 
     public Comment getCommentById(long commentId) {
         return persistenceContext.findComment(commentId);
     }
-    
+
 }

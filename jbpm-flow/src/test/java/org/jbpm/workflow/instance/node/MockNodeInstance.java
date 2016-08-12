@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.jbpm.workflow.instance.node;
 
@@ -29,24 +29,24 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.process.NodeInstance;
 
 public class MockNodeInstance extends NodeInstanceImpl {
-    
+
     private static final long serialVersionUID = 510l;
 
     private Map<String, List<NodeInstance>> triggers = new HashMap<String, List<NodeInstance>>();
     private MockNode mockNode;
-    
+
     public MockNodeInstance(MockNode mockNode) {
         this.mockNode = mockNode;
     }
-    
+
     public Node getNode() {
         return mockNode;
     }
-    
+
     public MockNode getMockNode() {
         return mockNode;
     }
-    
+
     public void internalTrigger(NodeInstance from, String type) {
         if (type == null) {
             throw new IllegalArgumentException(
@@ -59,23 +59,23 @@ public class MockNodeInstance extends NodeInstanceImpl {
         }
         list.add(from);
     }
-    
+
     public Map<String, List<NodeInstance>> getTriggers() {
         return triggers;
-    }      
-    
+    }
+
     public int hashCode() {
         return (int) getNodeId();
     }
-    
+
     public boolean equals(Object object) {
         if ( object == null || (!( object instanceof MockNodeInstance ) )) {
             return false;
         }
         MockNodeInstance other = ( MockNodeInstance ) object;
         return getNodeId() == other.getNodeId();
-    }        
-    
+    }
+
     public void triggerCompleted() {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, true);
     }

@@ -31,22 +31,22 @@ import org.slf4j.LoggerFactory;
 
 public class MVELObjectModelResolver implements ObjectModelResolver {
 
-	private static final Logger logger = LoggerFactory.getLogger(MVELObjectModelResolver.class);
-	
-	public static final String ID = "mvel";
-	
-	@Override
-	public Object getInstance(ObjectModel model, ClassLoader cl, Map<String, Object> contextParams) {
-		Object instance = null;
-		InternalRuntimeManager manager = null;
-		if (contextParams.containsKey("runtimeManager")) {
-			manager = (InternalRuntimeManager) contextParams.get("runtimeManager");
-			instance = manager.getCacheManager().get(model.getIdentifier());
-			if (instance != null) {
-				return instance;
-			}
-		}
-		ParserConfiguration config = new ParserConfiguration();
+    private static final Logger logger = LoggerFactory.getLogger(MVELObjectModelResolver.class);
+
+    public static final String ID = "mvel";
+
+    @Override
+    public Object getInstance(ObjectModel model, ClassLoader cl, Map<String, Object> contextParams) {
+        Object instance = null;
+        InternalRuntimeManager manager = null;
+        if (contextParams.containsKey("runtimeManager")) {
+            manager = (InternalRuntimeManager) contextParams.get("runtimeManager");
+            instance = manager.getCacheManager().get(model.getIdentifier());
+            if (instance != null) {
+                return instance;
+            }
+        }
+        ParserConfiguration config = new ParserConfiguration();
         config.setClassLoader(cl);
         ParserContext ctx = new ParserContext(config);
         if (contextParams != null) {
@@ -57,20 +57,20 @@ public class MVELObjectModelResolver implements ObjectModelResolver {
 
         Object compiledExpression = MVEL.compileExpression(model.getIdentifier(), ctx);
         instance = MVELSafeHelper.getEvaluator().executeExpression( compiledExpression, contextParams );
-        
-        if (manager != null && instance instanceof Cacheable) {
-			manager.getCacheManager().add(model.getIdentifier(), instance);
-		}
-        return instance;
-	}
 
-	@Override
-	public boolean accept(String resolverId) {
-		if (ID.equals(resolverId)) {
-			return true;
-		}
-		logger.debug("Resolver id {} is not accepted by {}", resolverId, this.getClass());
-		return false;
-	}
+        if (manager != null && instance instanceof Cacheable) {
+            manager.getCacheManager().add(model.getIdentifier(), instance);
+        }
+        return instance;
+    }
+
+    @Override
+    public boolean accept(String resolverId) {
+        if (ID.equals(resolverId)) {
+            return true;
+        }
+        logger.debug("Resolver id {} is not accepted by {}", resolverId, this.getClass());
+        return false;
+    }
 
 }

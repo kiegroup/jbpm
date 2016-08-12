@@ -31,7 +31,7 @@ public class Activator
     private ServiceRegistration bpmn2ProcessReg;
 
     @SuppressWarnings("unchecked")
-	public void start(BundleContext bc) throws Exception {
+    public void start(BundleContext bc) throws Exception {
         this.bpmn2ProcessReg = bc.registerService( new String[]{ BPMN2ProcessProvider.class.getName(), Service.class.getName()},
                                                    new BPMN2ProcessProviderImpl(),
                                                    new Hashtable() );

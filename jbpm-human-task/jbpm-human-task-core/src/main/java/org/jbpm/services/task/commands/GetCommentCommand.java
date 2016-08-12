@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,28 +28,28 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetCommentCommand extends TaskCommand<Comment> {
 
-	private static final long serialVersionUID = 5911387213149078240L;
+    private static final long serialVersionUID = 5911387213149078240L;
 
-	@XmlElement
+    @XmlElement
     @XmlSchemaType(name="long")
-	private Long commentId;
-	
-	public GetCommentCommand() {
-	}
-	
-	public GetCommentCommand(Long commentId) {
-		this.commentId = commentId;
+    private Long commentId;
+
+    public GetCommentCommand() {
+    }
+
+    public GetCommentCommand(Long commentId) {
+        this.commentId = commentId;
     }
 
     public Long getCommentId() {
-		return commentId;
-	}
+        return commentId;
+    }
 
-	public void setCommentId(Long commentId) {
-		this.commentId = commentId;
-	}
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
+    }
 
-	public Comment execute(Context cntxt) {
+    public Comment execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         return context.getTaskCommentService().getCommentById(commentId);
     }

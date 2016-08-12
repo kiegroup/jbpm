@@ -49,65 +49,65 @@ import org.kie.internal.identity.IdentityProvider;
 @Lock(LockType.READ)
 public class RuntimeDataServiceEJBImpl extends RuntimeDataServiceImpl implements DeploymentEventListener, RuntimeDataService, RuntimeDataServiceEJBLocal, RuntimeDataServiceEJBRemote {
 
-	@Inject
-	private Instance<IdentityProvider> identityProvider;
+    @Inject
+    private Instance<IdentityProvider> identityProvider;
 
-	@Resource
-	private EJBContext context;
-	// inject resources
+    @Resource
+    private EJBContext context;
+    // inject resources
 
-	@PostConstruct
-	public void configure() {
-		if (identityProvider.isUnsatisfied()) {
-			setIdentityProvider(new EJBContextIdentityProvider(context));
-		} else {
-			setIdentityProvider(identityProvider.get());
-		}
-	}
+    @PostConstruct
+    public void configure() {
+        if (identityProvider.isUnsatisfied()) {
+            setIdentityProvider(new EJBContextIdentityProvider(context));
+        } else {
+            setIdentityProvider(identityProvider.get());
+        }
+    }
 
-	@EJB(beanInterface=AuditTransactionalCommandServiceEJBImpl.class)
-	@Override
-	public void setCommandService(TransactionalCommandService commandService) {
-		super.setCommandService(commandService);
-	}
+    @EJB(beanInterface=AuditTransactionalCommandServiceEJBImpl.class)
+    @Override
+    public void setCommandService(TransactionalCommandService commandService) {
+        super.setCommandService(commandService);
+    }
 
 
-	@EJB(beanInterface=TaskServiceEJBLocal.class)
-	@Override
-	public void setTaskService(TaskService taskService) {
-		super.setTaskService(taskService);
+    @EJB(beanInterface=TaskServiceEJBLocal.class)
+    @Override
+    public void setTaskService(TaskService taskService) {
+        super.setTaskService(taskService);
 
-		setTaskAuditService(TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService());
-	}
+        setTaskAuditService(TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService());
+    }
 
-	@EJB(beanInterface=DeploymentRolesManagerEJBImpl.class)
-	@Override
+    @EJB(beanInterface=DeploymentRolesManagerEJBImpl.class)
+    @Override
     public void setDeploymentRolesManager(DeploymentRolesManager deploymentRolesManager) {
         super.setDeploymentRolesManager(deploymentRolesManager);
     }
 
     @Lock(LockType.WRITE)
-	@Override
-	public void onDeploy(DeploymentEvent event) {
-		super.onDeploy(event);
-	}
+    @Override
+    public void onDeploy(DeploymentEvent event) {
+        super.onDeploy(event);
+    }
 
-	@Lock(LockType.WRITE)
-	@Override
-	public void onUnDeploy(DeploymentEvent event) {
-		super.onUnDeploy(event);
-	}
+    @Lock(LockType.WRITE)
+    @Override
+    public void onUnDeploy(DeploymentEvent event) {
+        super.onUnDeploy(event);
+    }
 
-	@Lock(LockType.WRITE)
-	@Override
-	public void onActivate(DeploymentEvent event) {
-		super.onActivate(event);
-	}
+    @Lock(LockType.WRITE)
+    @Override
+    public void onActivate(DeploymentEvent event) {
+        super.onActivate(event);
+    }
 
-	@Lock(LockType.WRITE)
-	@Override
-	public void onDeactivate(DeploymentEvent event) {
-		super.onDeactivate(event);
-	}
+    @Lock(LockType.WRITE)
+    @Override
+    public void onDeactivate(DeploymentEvent event) {
+        super.onDeactivate(event);
+    }
 
 }

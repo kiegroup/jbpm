@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -44,41 +44,41 @@ public class JaxbComment implements Comment {
     @XmlElement
     @XmlSchemaType(name = "string")
     private String text;
-    
+
     @XmlElement(name="added-by")
     @XmlSchemaType(name = "string")
     private String addedBy;
-    
+
     @XmlElement(name="added-at")
     @XmlSchemaType(name = "dateTime")
     private Date addedAt;
 
-    public JaxbComment() { 
+    public JaxbComment() {
         // JAXB Constructor
     }
-    
-    public JaxbComment(Comment comment) { 
+
+    public JaxbComment(Comment comment) {
         initialize(comment);
     }
-   
-    public JaxbComment(String userId, Date commentDate, String commentText) { 
-       this.addedBy = userId; 
-       this.addedAt = commentDate; 
-       this.text = commentText; 
+
+    public JaxbComment(String userId, Date commentDate, String commentText) {
+       this.addedBy = userId;
+       this.addedAt = commentDate;
+       this.text = commentText;
     }
-    
-    protected void initialize(Comment comment) { 
-        if( comment != null ) { 
+
+    protected void initialize(Comment comment) {
+        if( comment != null ) {
             this.id = comment.getId();
             this.text = comment.getText();
             User addedByUser = comment.getAddedBy();
-            if( addedByUser != null ) { 
+            if( addedByUser != null ) {
                 this.addedBy = addedByUser.getId();
             }
             this.addedAt = comment.getAddedAt();
         }
     }
-    
+
     @Override
     public Long getId() {
         return id;
@@ -103,7 +103,7 @@ public class JaxbComment implements Comment {
         return addedAt;
     }
 
-    public void setAddedAt(Date commentDate) { 
+    public void setAddedAt(Date commentDate) {
         this.addedAt = commentDate;
     }
 

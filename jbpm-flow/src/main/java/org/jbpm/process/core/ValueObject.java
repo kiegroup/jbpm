@@ -19,8 +19,8 @@ package org.jbpm.process.core;
 import org.drools.core.process.core.TypeObject;
 
 public interface ValueObject extends TypeObject {
-	
-	Object getValue();
+
+    Object getValue();
 
     void setValue(Object value);
 }

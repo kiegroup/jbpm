@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,7 +37,7 @@ public class HumanTaskExample {
 
     public static final void main(String[] args) {
         try {
-            RuntimeManager manager = getRuntimeManager("humantask/HumanTask.bpmn");        
+            RuntimeManager manager = getRuntimeManager("humantask/HumanTask.bpmn");
             RuntimeEngine runtime = manager.getRuntimeEngine(null);
             KieSession ksession = runtime.getKieSession();
 
@@ -49,7 +49,7 @@ public class HumanTaskExample {
 
             // "sales-rep" reviews request
             TaskService taskService = runtime.getTaskService();
-    		TaskSummary task1 = taskService.getTasksAssignedAsPotentialOwner("sales-rep", "en-UK").get(0);
+            TaskSummary task1 = taskService.getTasksAssignedAsPotentialOwner("sales-rep", "en-UK").get(0);
             System.out.println("Sales-rep executing task " + task1.getName() + "(" + task1.getId() + ": " + task1.getDescription() + ")");
             taskService.claim(task1.getId(), "sales-rep");
             taskService.start(task1.getId(), "sales-rep");
@@ -85,9 +85,9 @@ public class HumanTaskExample {
             }
             taskService.complete(task4.getId(), "sales-rep", null);
 
-    		System.out.println("Process instance completed");
-    		
-    		manager.disposeRuntimeEngine(runtime);
+            System.out.println("Process instance completed");
+
+            manager.disposeRuntimeEngine(runtime);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -96,29 +96,29 @@ public class HumanTaskExample {
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
+        JBPMHelper.startH2Server();
+        JBPMHelper.setupDataSource();
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
-    			public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
-    				List<String> result = new ArrayList<String>();
-    				if ("sales-rep".equals(userId)) {
-    					result.add("sales");
-    				} else if ("john".equals(userId)) {
-    					result.add("PM");
-    				}
-    				return result;
-    			}
-    			public boolean existsUser(String arg0) {
-    				return true;
-    			}
-    			public boolean existsGroup(String arg0) {
-    				return true;
-    			}
-    		})
+                public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
+                    List<String> result = new ArrayList<String>();
+                    if ("sales-rep".equals(userId)) {
+                        result.add("sales");
+                    } else if ("john".equals(userId)) {
+                        result.add("PM");
+                    }
+                    return result;
+                }
+                public boolean existsUser(String arg0) {
+                    return true;
+                }
+                public boolean existsGroup(String arg0) {
+                    return true;
+                }
+            })
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource(process), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }
-    
+
 }

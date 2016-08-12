@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -44,13 +44,13 @@ public class SplitNodeHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return Split.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		Split splitNode = (Split) node;
-		writeNode("split", splitNode, xmlDump, includeMeta);
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        Split splitNode = (Split) node;
+        writeNode("split", splitNode, xmlDump, includeMeta);
         int type = splitNode.getType();
         if (type != 0) {
             xmlDump.append("type=\"" + type + "\" ");
@@ -60,7 +60,7 @@ public class SplitNodeHandler extends AbstractNodeHandler {
         } else {
             xmlDump.append(">" + EOL);
             if (includeMeta) {
-            	writeMetaData(splitNode, xmlDump);
+                writeMetaData(splitNode, xmlDump);
             }
             xmlDump.append("      <constraints>" + EOL);
             for (Map.Entry<ConnectionRef, Constraint> entry: splitNode.getConstraints().entrySet()) {
@@ -92,6 +92,6 @@ public class SplitNodeHandler extends AbstractNodeHandler {
             xmlDump.append("      </constraints>" + EOL);
             endNode("split", xmlDump);
         }
-	}
+    }
 
 }

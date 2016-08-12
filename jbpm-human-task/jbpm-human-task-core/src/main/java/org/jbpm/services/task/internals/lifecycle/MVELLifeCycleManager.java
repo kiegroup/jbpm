@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -64,11 +64,11 @@ import org.slf4j.LoggerFactory;
  */
 
 public class MVELLifeCycleManager implements LifeCycleManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(MVELLifeCycleManager.class);
 
     private TaskContext context;
-    
+
     private TaskPersistenceContext persistenceContext;
 
     private TaskContentService taskContentService;
@@ -77,20 +77,20 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
     public MVELLifeCycleManager() {
     }
-    
+
     public MVELLifeCycleManager(TaskContext context, TaskPersistenceContext persistenceContext, TaskContentService contentService,
-    		TaskEventSupport taskEventSupport) {
-    	this.context = context;
-    	this.persistenceContext = persistenceContext;
-    	this.taskContentService = contentService;
-    	this.taskEventSupport = taskEventSupport;
-    	
+            TaskEventSupport taskEventSupport) {
+        this.context = context;
+        this.persistenceContext = persistenceContext;
+        this.taskContentService = contentService;
+        this.taskEventSupport = taskEventSupport;
+
     }
 
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
         this.persistenceContext = persistenceContext;
     }
-    
+
     public void setTaskEventSupport(TaskEventSupport taskEventSupport) {
         this.taskEventSupport = taskEventSupport;
     }
@@ -98,7 +98,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
     public void setTaskContentService(TaskContentService taskContentService) {
         this.taskContentService = taskContentService;
     }
-    
+
 
     void evalCommand(final Operation operation, final List<OperationCommand> commands, final Task task,
             final User user, final OrganizationalEntity targetEntity,
@@ -143,18 +143,18 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                     }
                 }
             }
-            
+
 
             if (!command.isGroupTargetEntityAllowed() && targetEntity instanceof Group) {
                 String errorMessage = "User '" + user + "' was unable to execute operation '" + operation + "' on task id " + task.getId() + " due to 'target entity cannot be group'";
-                throw new PermissionDeniedException(errorMessage); 
+                throw new PermissionDeniedException(errorMessage);
             }
         }
         if (!statusMatched) {
             String errorMessage = "User '" + user + "' was unable to execute operation '" + operation + "' on task id " + task.getId() + " due to a no 'current status' match";
             throw new PermissionDeniedException(errorMessage);
         }
-        
+
 
     }
 
@@ -229,7 +229,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
         final PeopleAssignments people = task.getPeopleAssignments();
         final InternalTaskData taskData = (InternalTaskData) task.getTaskData();
-        
+
         if (command.getNewStatus() != null) {
             taskData.setStatus(command.getNewStatus());
         } else if (command.isSetToPreviousStatus()) {
@@ -251,7 +251,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
         if (command.isSetNewOwnerToNull()) {
             taskData.setActualOwner(null);
         }
-        
+
         if (command.getExec() != null) {
             switch (command.getExec()) {
                 case Claim: {
@@ -263,10 +263,10 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                     break;
                 }
                 case Nominate: {
-                	if (entities != null && entities.length > 0) {
-                		List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>(Arrays.asList(entities));
-                		((InternalPeopleAssignments) task.getPeopleAssignments()).setPotentialOwners(potentialOwners);
-                		assignOwnerAndStatus((InternalTaskData) task.getTaskData(), potentialOwners);                    	
+                    if (entities != null && entities.length > 0) {
+                        List<OrganizationalEntity> potentialOwners = new ArrayList<OrganizationalEntity>(Arrays.asList(entities));
+                        ((InternalPeopleAssignments) task.getPeopleAssignments()).setPotentialOwners(potentialOwners);
+                        assignOwnerAndStatus((InternalTaskData) task.getTaskData(), potentialOwners);
                     }
                     break;
                 }
@@ -275,7 +275,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
 
     }
-    
+
 
     public void taskOperation(final Operation operation, final long taskId, final String userId,
             final String targetEntityId, final Map<String, Object> data,
@@ -286,7 +286,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
             Task task = persistenceContext.findTask(taskId);
             if (task == null) {
-            	String errorMessage = "Task '" + taskId + "' not found";
+                String errorMessage = "Task '" + taskId + "' not found";
                 throw new PermissionDeniedException(errorMessage);
             }
             User user = persistenceContext.findUser(userId);
@@ -295,25 +295,25 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                 targetEntity = persistenceContext.findOrgEntity(targetEntityId);
             }
 
-            switch (operation) {    
+            switch (operation) {
                 case Activate: {
-                	taskEventSupport.fireBeforeTaskActivated(task, context);
+                    taskEventSupport.fireBeforeTaskActivated(task, context);
                     break;
                 }
                 case Claim: {
-                	taskEventSupport.fireBeforeTaskClaimed(task, context);
+                    taskEventSupport.fireBeforeTaskClaimed(task, context);
                     break;
                 }
                 case Complete: {
-                	taskEventSupport.fireBeforeTaskCompleted(task, context);
+                    taskEventSupport.fireBeforeTaskCompleted(task, context);
                     break;
                 }
                 case Delegate: {
-                	taskEventSupport.fireBeforeTaskDelegated(task, context);
+                    taskEventSupport.fireBeforeTaskDelegated(task, context);
                     break;
                 }
                 case Exit: {
-                	taskEventSupport.fireBeforeTaskExited(task, context);
+                    taskEventSupport.fireBeforeTaskExited(task, context);
                     break;
                 }
 
@@ -332,104 +332,104 @@ public class MVELLifeCycleManager implements LifeCycleManager {
                     break;
                 }
                 case Forward: {
-                	taskEventSupport.fireBeforeTaskForwarded(task, context);
+                    taskEventSupport.fireBeforeTaskForwarded(task, context);
                     break;
                 }
                 case Nominate: {
-                	taskEventSupport.fireBeforeTaskNominated(task, context);
+                    taskEventSupport.fireBeforeTaskNominated(task, context);
                     break;
                 }
                 case Release: {
-                	taskEventSupport.fireBeforeTaskReleased(task, context);
+                    taskEventSupport.fireBeforeTaskReleased(task, context);
                     break;
                 }
                 case Resume: {
-                	taskEventSupport.fireBeforeTaskResumed(task, context);
+                    taskEventSupport.fireBeforeTaskResumed(task, context);
                     break;
                 }
                 case Skip: {
-                	taskEventSupport.fireBeforeTaskSkipped(task, context);
+                    taskEventSupport.fireBeforeTaskSkipped(task, context);
                     break;
                 }
                 case Start: {
-                	taskEventSupport.fireBeforeTaskStarted(task, context);
+                    taskEventSupport.fireBeforeTaskStarted(task, context);
                     break;
                 }
                 case Stop: {
-                	taskEventSupport.fireBeforeTaskStopped(task, context);
+                    taskEventSupport.fireBeforeTaskStopped(task, context);
                     break;
                 }
                 case Suspend: {
-                	taskEventSupport.fireBeforeTaskSuspended(task, context);
+                    taskEventSupport.fireBeforeTaskSuspended(task, context);
                     break;
                 }
 
             }
-            
+
             evalCommand(operation, commands, task, user, targetEntity, groupIds, entities);
 
             switch (operation) {
                 case Activate: {
-                	taskEventSupport.fireAfterTaskActivated(task, context);
+                    taskEventSupport.fireAfterTaskActivated(task, context);
                     break;
                 }
                 case Claim: {
-                	taskEventSupport.fireAfterTaskClaimed(task, context);
+                    taskEventSupport.fireAfterTaskClaimed(task, context);
                     break;
                 }
                 case Complete: {
                     if (data != null) {
-                        
+
                         taskContentService.addOutputContent(taskId, data);
-                        
+
                     }
                     taskEventSupport.fireAfterTaskCompleted(task, context);
                     break;
                 }
-                case Delegate: {                	
+                case Delegate: {
                     // This is a really bad hack to execut the correct behavior
                     ((InternalTaskData) task.getTaskData()).setStatus(Status.Reserved);
                     taskEventSupport.fireAfterTaskDelegated(task, context);
                     break;
                 }
                 case Exit: {
-                	taskEventSupport.fireAfterTaskExited(task, context);
+                    taskEventSupport.fireAfterTaskExited(task, context);
                     break;
                 }
                 case Fail: {
-                	taskEventSupport.fireAfterTaskFailed(task, context);
+                    taskEventSupport.fireAfterTaskFailed(task, context);
                     break;
                 }
                 case Forward: {
-                	taskEventSupport.fireAfterTaskForwarded(task, context);
+                    taskEventSupport.fireAfterTaskForwarded(task, context);
                     break;
-                }   
+                }
                 case Nominate: {
-                	taskEventSupport.fireAfterTaskNominated(task, context);
+                    taskEventSupport.fireAfterTaskNominated(task, context);
                     break;
                 }
                 case Release: {
-                	taskEventSupport.fireAfterTaskReleased(task, context);
+                    taskEventSupport.fireAfterTaskReleased(task, context);
                     break;
                 }
                 case Resume: {
-                	taskEventSupport.fireAfterTaskResumed(task, context);
+                    taskEventSupport.fireAfterTaskResumed(task, context);
                     break;
                 }
                 case Start: {
-                	taskEventSupport.fireAfterTaskStarted(task, context);
+                    taskEventSupport.fireAfterTaskStarted(task, context);
                     break;
                 }
                 case Skip: {
-                	taskEventSupport.fireAfterTaskSkipped(task, context);
+                    taskEventSupport.fireAfterTaskSkipped(task, context);
                     break;
                 }
                 case Stop: {
-                	taskEventSupport.fireAfterTaskStopped(task, context);
+                    taskEventSupport.fireAfterTaskStopped(task, context);
                     break;
-                }    
+                }
                 case Suspend: {
-                	taskEventSupport.fireAfterTaskSuspended(task, context);
+                    taskEventSupport.fireAfterTaskSuspended(task, context);
                     break;
                 }
             }
@@ -440,7 +440,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
 
     }
 
-    
+
     public static Map<Operation, List<OperationCommand>> initMVELOperations() {
 
         Map<String, Object> vars = new HashMap<String, Object>();
@@ -513,7 +513,7 @@ public class MVELLifeCycleManager implements LifeCycleManager {
         }
     }
 
-    
+
     /**
      * This method will potentially assign the actual owner of this TaskData and set the status
      * of the data.

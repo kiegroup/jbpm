@@ -25,14 +25,14 @@ import org.jbpm.process.instance.impl.ContextInstanceFactory;
 import org.jbpm.workflow.instance.NodeInstanceContainer;
 
 public class WorkflowReuseContextInstanceFactory implements ContextInstanceFactory {
-    
+
     public final Class<? extends ContextInstance> cls;
-    
+
     public WorkflowReuseContextInstanceFactory(Class<? extends ContextInstance> cls){
         this.cls = cls;
     }
 
-	public ContextInstance getContextInstance(Context context, ContextInstanceContainer contextInstanceContainer, ProcessInstance processInstance) {    	
+    public ContextInstance getContextInstance(Context context, ContextInstanceContainer contextInstanceContainer, ProcessInstance processInstance) {
         ContextInstance result = contextInstanceContainer.getContextInstance( context.getType(), context.getId() );
         if (result != null) {
             return result;
@@ -64,6 +64,6 @@ public class WorkflowReuseContextInstanceFactory implements ContextInstanceFacto
             throw new RuntimeException("Unable to instantiate context '"
                 + this.cls.getName() + "': " + e.getMessage());
         }
-	}
+    }
 
 }

@@ -19,10 +19,10 @@ package org.jbpm.services.api;
 import org.jbpm.services.api.model.DeployedUnit;
 
 public class DeploymentEvent {
-    
+
     private String deploymentId;
     private DeployedUnit deployedUnit;
-    
+
     public DeploymentEvent(String deploymentId, DeployedUnit deployedUnit) {
         this.deployedUnit = deployedUnit;
         this.deploymentId = deploymentId;
@@ -43,5 +43,5 @@ public class DeploymentEvent {
     public void setDeploymentId(String deploymentId) {
         this.deploymentId = deploymentId;
     }
-    
+
 }

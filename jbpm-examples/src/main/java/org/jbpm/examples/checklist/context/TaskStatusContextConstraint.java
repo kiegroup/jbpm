@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,18 +22,18 @@ import org.jbpm.examples.checklist.ChecklistItem;
 import org.jbpm.examples.checklist.ChecklistItem.Status;
 
 public class TaskStatusContextConstraint implements ChecklistContextConstraint {
-	
-	private List<Status> statusses;
-	
-	public TaskStatusContextConstraint(List<Status> statusses) {
-		if (statusses == null || statusses.size() == 0) {
-			throw new IllegalArgumentException("Statusses cannot be empty");
-		}
-		this.statusses = statusses;
-	}
-	
-	public boolean acceptsTask(ChecklistItem item) {
-		return statusses.contains(item.getStatus());
-	}
+
+    private List<Status> statusses;
+
+    public TaskStatusContextConstraint(List<Status> statusses) {
+        if (statusses == null || statusses.size() == 0) {
+            throw new IllegalArgumentException("Statusses cannot be empty");
+        }
+        this.statusses = statusses;
+    }
+
+    public boolean acceptsTask(ChecklistItem item) {
+        return statusses.contains(item.getStatus());
+    }
 
 }

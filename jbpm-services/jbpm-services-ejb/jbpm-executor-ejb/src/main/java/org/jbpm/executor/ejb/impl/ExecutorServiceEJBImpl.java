@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,41 +35,41 @@ import org.kie.api.executor.ExecutorStoreService;
 @Startup
 public class ExecutorServiceEJBImpl extends ExecutorServiceImpl implements ExecutorServiceEJB, ExecutorService, RequeueAware {
 
-	private ExecutorStoreService storeService;
-	
-	@PostConstruct
-	@Override
-	public void init() {
-		ExecutorImpl executor = new ExecutorImpl();
-		executor.setExecutorStoreService(storeService);
-		
-		setExecutor(executor);
-		
-		super.init();
-	}
+    private ExecutorStoreService storeService;
 
-	@PreDestroy
-	@Override
-	public void destroy() {
-		super.destroy();
-	}
+    @PostConstruct
+    @Override
+    public void init() {
+        ExecutorImpl executor = new ExecutorImpl();
+        executor.setExecutorStoreService(storeService);
+
+        setExecutor(executor);
+
+        super.init();
+    }
+
+    @PreDestroy
+    @Override
+    public void destroy() {
+        super.destroy();
+    }
 
 
-	@EJB
-	@Override
-	public void setQueryService(ExecutorQueryService queryService) {
-		super.setQueryService(queryService);
-	}
+    @EJB
+    @Override
+    public void setQueryService(ExecutorQueryService queryService) {
+        super.setQueryService(queryService);
+    }
 
-	@EJB(beanInterface=ExecutorRequestAdminServiceEJBImpl.class)
-	@Override
-	public void setAdminService(ExecutorAdminService adminService) {
-		super.setAdminService(adminService);
-	}
-	
-	@EJB
-	public void setStoreService(ExecutorStoreService storeService) {
-		this.storeService = storeService;
-	}
+    @EJB(beanInterface=ExecutorRequestAdminServiceEJBImpl.class)
+    @Override
+    public void setAdminService(ExecutorAdminService adminService) {
+        super.setAdminService(adminService);
+    }
+
+    @EJB
+    public void setStoreService(ExecutorStoreService storeService) {
+        this.storeService = storeService;
+    }
 
 }

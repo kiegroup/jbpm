@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
 public class SerializationTest {
 
     private static final Logger log = LoggerFactory.getLogger(JPAAuditLogService.class);
-    
-    private static Class [] jaxbClasses = { 
+
+    private static Class [] jaxbClasses = {
         ClearHistoryLogsCommand.class,
         FindActiveProcessInstancesCommand.class,
         FindNodeInstancesCommand.class,
@@ -47,34 +47,34 @@ public class SerializationTest {
         FindSubProcessInstancesCommand.class,
         FindVariableInstancesCommand.class
     };
-    
+
     public Object testRoundtrip(Object in) throws Exception {
         String xmlObject = convertJaxbObjectToString(in);
         log.debug(xmlObject);
         return convertStringToJaxbObject(xmlObject);
     }
-    
+
     private static String convertJaxbObjectToString(Object object) throws JAXBException {
         Marshaller marshaller = JAXBContext.newInstance(jaxbClasses).createMarshaller();
         StringWriter stringWriter = new StringWriter();
-        
+
         marshaller.marshal(object, stringWriter);
         String output = stringWriter.toString();
-        
+
         return output;
     }
-    
+
     private static Object convertStringToJaxbObject(String xmlStr) throws JAXBException {
         Unmarshaller unmarshaller = JAXBContext.newInstance(jaxbClasses).createUnmarshaller();
         ByteArrayInputStream xmlStrInputStream = new ByteArrayInputStream(xmlStr.getBytes());
-        
+
         Object jaxbObj = unmarshaller.unmarshal(xmlStrInputStream);
-        
+
         return jaxbObj;
     }
- 
+
     @Test
-    public void commandsTest() throws Exception { 
+    public void commandsTest() throws Exception {
         List<Command<?>> cmds = new ArrayList<Command<?>>();
         cmds.add(new ClearHistoryLogsCommand());
         cmds.add(new FindActiveProcessInstancesCommand("org.jbpm.test.jaxb"));
@@ -86,7 +86,7 @@ public class SerializationTest {
         cmds.add(new FindSubProcessInstancesCommand(2048));
         cmds.add(new FindVariableInstancesCommand(37));
         cmds.add(new FindVariableInstancesCommand(74, "mars"));
-        
+
         for( Command<?> cmd : cmds ) {
             testRoundtrip(cmd);
         }

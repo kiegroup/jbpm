@@ -24,16 +24,16 @@ import org.jbpm.workflow.instance.impl.NodeInstanceFactory;
 import org.jbpm.workflow.instance.impl.NodeInstanceImpl;
 
 public class ReuseNodeFactory implements NodeInstanceFactory {
-    
+
     public final Class<? extends NodeInstance> cls;
-    
+
     public ReuseNodeFactory(Class<? extends NodeInstance> cls){
         this.cls = cls;
     }
 
-	public NodeInstance getNodeInstance(Node node, WorkflowProcessInstance processInstance, NodeInstanceContainer nodeInstanceContainer) {   
+    public NodeInstance getNodeInstance(Node node, WorkflowProcessInstance processInstance, NodeInstanceContainer nodeInstanceContainer) {
         NodeInstance result = ((org.jbpm.workflow.instance.NodeInstanceContainer)
-    		nodeInstanceContainer).getFirstNodeInstance( node.getId() );
+            nodeInstanceContainer).getFirstNodeInstance( node.getId() );
         if (result != null) {
             return result;
         }
@@ -55,6 +55,6 @@ public class ReuseNodeFactory implements NodeInstanceFactory {
             throw new RuntimeException("Unable to instantiate node '"
                 + this.cls.getName() + "': " + e.getMessage());
         }
-	}
+    }
 
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -46,26 +46,26 @@ public class JoinNodeHandler extends AbstractNodeHandler {
         return Join.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		Join joinNode = (Join) node;
-		writeNode("join", joinNode, xmlDump, includeMeta);
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        Join joinNode = (Join) node;
+        writeNode("join", joinNode, xmlDump, includeMeta);
         int type = joinNode.getType();
         if (type != 0) {
             xmlDump.append("type=\"" + type + "\" ");
         }
         if (type == Join.TYPE_N_OF_M) {
-        	String n = joinNode.getN();
-	        if (n != null && n.length() != 0) {
-	            xmlDump.append("n=\"" + n + "\" ");
-	        }
+            String n = joinNode.getN();
+            if (n != null && n.length() != 0) {
+                xmlDump.append("n=\"" + n + "\" ");
+            }
         }
         if (includeMeta && containsMetaData(joinNode)) {
-        	xmlDump.append(">" + EOL);
-        	writeMetaData(joinNode, xmlDump);
-        	endNode("join", xmlDump);
+            xmlDump.append(">" + EOL);
+            writeMetaData(joinNode, xmlDump);
+            endNode("join", xmlDump);
         } else {
             endNode(xmlDump);
         }
-	}
+    }
 
 }

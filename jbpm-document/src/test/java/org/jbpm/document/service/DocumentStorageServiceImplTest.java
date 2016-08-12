@@ -39,37 +39,37 @@ import org.junit.runners.Parameterized.Parameters;
 public class DocumentStorageServiceImplTest {
 
     private static final String STORAGE_PATH_TEST = "target/docs";
-    
+
     @Parameters(name= "{index}: impl={0}")
     public static Iterable<Object[]> data() {
         System.setProperty("org.jbpm.document.storage", STORAGE_PATH_TEST);
-        
-        return Arrays.asList(new Object[][] { 
+
+        return Arrays.asList(new Object[][] {
             {new DocumentStorageServiceImpl()},
             {DocumentStorageServiceProvider.get().getStorageService()}
         });
     }
-    
+
     private DocumentStorageService documentStorageService;
-    
+
     public DocumentStorageServiceImplTest(DocumentStorageService documentStorageService) {
         this.documentStorageService = documentStorageService;
     }
-    
+
     @AfterClass
     public static void cleanupOnce() {
         System.clearProperty("org.jbpm.document.storage");
     }
-    
+
     @Before
     public void setup() {
         // clean document storage
-        
+
         File storagePath = new File(STORAGE_PATH_TEST);
         deleteFolder(storagePath);
-        
+
     }
-    
+
     protected void deleteFolder(File path) {
         File[] directories = path.listFiles();
         if (directories != null) {
@@ -81,65 +81,65 @@ public class DocumentStorageServiceImplTest {
             }
         }
     }
-    
+
     @Test
     public void testSaveAndGetDocument() {
         byte[] content = "document content".getBytes();
         Document document = documentStorageService.buildDocument("mydoc", content.length, new Date(), new HashMap<String, String>());
         assertNotNull(document.getIdentifier());
-        
+
         documentStorageService.saveDocument(document, content);
-        
+
         Document fromStorage = documentStorageService.getDocument(document.getIdentifier());
         assertNotNull(fromStorage);
-        
+
         assertEquals(document.getIdentifier(), fromStorage.getIdentifier());
         assertEquals(document.getName(), fromStorage.getName());
         assertEquals(content.length, fromStorage.getContent().length);
     }
-    
+
     @Test
     public void testSaveAndDeleteDocument() {
         byte[] content = "another document content".getBytes();
         Document document = documentStorageService.buildDocument("mydoc", content.length, new Date(), new HashMap<String, String>());
         assertNotNull(document.getIdentifier());
-        
+
         documentStorageService.saveDocument(document, content);
-        
+
         Document fromStorage = documentStorageService.getDocument(document.getIdentifier());
         assertNotNull(fromStorage);
-        
+
         assertEquals(document.getIdentifier(), fromStorage.getIdentifier());
         assertEquals(document.getName(), fromStorage.getName());
         assertEquals(content.length, fromStorage.getContent().length);
-        
+
         documentStorageService.deleteDocument(fromStorage);
-        
+
         fromStorage = documentStorageService.getDocument(document.getIdentifier());
         assertNull(fromStorage);
     }
-    
+
     @Test
     public void testSaveAndDeleteByIdDocument() {
         byte[] content = "yet another document content".getBytes();
         Document document = documentStorageService.buildDocument("mydoc", content.length, new Date(), new HashMap<String, String>());
         assertNotNull(document.getIdentifier());
-        
+
         documentStorageService.saveDocument(document, content);
-        
+
         Document fromStorage = documentStorageService.getDocument(document.getIdentifier());
         assertNotNull(fromStorage);
-        
+
         assertEquals(document.getIdentifier(), fromStorage.getIdentifier());
         assertEquals(document.getName(), fromStorage.getName());
         assertEquals(content.length, fromStorage.getContent().length);
-        
+
         documentStorageService.deleteDocument(fromStorage.getIdentifier());
-        
+
         fromStorage = documentStorageService.getDocument(document.getIdentifier());
         assertNull(fromStorage);
     }
-    
+
     @Test
     public void testSaveAndListDocuments() {
         long lastModified = System.currentTimeMillis() - 10000;
@@ -147,20 +147,20 @@ public class DocumentStorageServiceImplTest {
             byte[] content = (i +" another document content").getBytes();
             Document document = documentStorageService.buildDocument("mydoc"+i, content.length, new Date(lastModified + i * 1000), new HashMap<String, String>());
             assertNotNull(document.getIdentifier());
-            
+
             documentStorageService.saveDocument(document, content);
         }
-        
+
         List<Document> docs = documentStorageService.listDocuments(0, 5);
         assertNotNull(docs);
         assertEquals(5, docs.size());
-        
+
         assertEquals("mydoc" + 0, docs.get(0).getName());
         assertEquals("mydoc" + 1, docs.get(1).getName());
         assertEquals("mydoc" + 2, docs.get(2).getName());
         assertEquals("mydoc" + 3, docs.get(3).getName());
         assertEquals("mydoc" + 4, docs.get(4).getName());
-        
+
         docs = documentStorageService.listDocuments(1, 5);
         assertNotNull(docs);
         assertEquals(5, docs.size());
@@ -169,26 +169,26 @@ public class DocumentStorageServiceImplTest {
         assertEquals("mydoc" + 7, docs.get(2).getName());
         assertEquals("mydoc" + 8, docs.get(3).getName());
         assertEquals("mydoc" + 9, docs.get(4).getName());
-        
+
         docs = documentStorageService.listDocuments(1, 2);
         assertNotNull(docs);
         assertEquals(2, docs.size());
         assertEquals("mydoc" + 2, docs.get(0).getName());
         assertEquals("mydoc" + 3, docs.get(1).getName());
     }
-    
+
     @Test
     public void testListDocumentsLessThanPageSize() {
         byte[] content = "yet another document content".getBytes();
         Document document = documentStorageService.buildDocument("mydoc", content.length, new Date(), new HashMap<String, String>());
         assertNotNull(document.getIdentifier());
-        
+
         documentStorageService.saveDocument(document, content);
-        
+
         List<Document> docs = documentStorageService.listDocuments(0, 5);
         assertNotNull(docs);
         assertEquals(1, docs.size());
-        
+
         assertEquals("mydoc", docs.get(0).getName());
     }
 }

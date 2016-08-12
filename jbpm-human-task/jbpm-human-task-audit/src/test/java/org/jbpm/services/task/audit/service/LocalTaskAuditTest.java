@@ -30,30 +30,30 @@ import org.jbpm.services.task.audit.TaskAuditServiceFactory;
 
 public class LocalTaskAuditTest extends TaskAuditBaseTest {
 
-	private PoolingDataSource pds;
-	private EntityManagerFactory emf;
-	
-	@Before
-	public void setup() {
-		pds = setupPoolingDataSource();
-		emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
+    private PoolingDataSource pds;
+    private EntityManagerFactory emf;
 
-		this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
-												.entityManagerFactory(emf)
-												.listener(new JPATaskLifeCycleEventListener(true))
-												.listener(new BAMTaskEventListener(true))
-												.getTaskService();
-                
+    @Before
+    public void setup() {
+        pds = setupPoolingDataSource();
+        emf = Persistence.createEntityManagerFactory( "org.jbpm.services.task" );
+
+        this.taskService = (InternalTaskService) HumanTaskServiceFactory.newTaskServiceConfigurator()
+                                                .entityManagerFactory(emf)
+                                                .listener(new JPATaskLifeCycleEventListener(true))
+                                                .listener(new BAMTaskEventListener(true))
+                                                .getTaskService();
+
         this.taskAuditService = TaskAuditServiceFactory.newTaskAuditServiceConfigurator().setTaskService(taskService).getTaskAuditService();
-	}
-	
-	@After
-	public void clean() {
-		if (emf != null) {
-			emf.close();
-		}
-		if (pds != null) {
-			pds.close();
-		}
-	}
+    }
+
+    @After
+    public void clean() {
+        if (emf != null) {
+            emf.close();
+        }
+        if (pds != null) {
+            pds.close();
+        }
+    }
 }

@@ -40,13 +40,13 @@ public class StringTaskVariableIndexer implements TaskVariableIndexer {
     @Override
     public List<TaskVariable> index(String name, Object variable) {
         List<TaskVariable> indexed = new ArrayList<TaskVariable>();
-        
+
         TaskVariableImpl taskVariable = new TaskVariableImpl();
         taskVariable.setName(name);
         taskVariable.setValue(variable.toString());
-        
+
         indexed.add(taskVariable);
-        
+
         return indexed;
     }
 

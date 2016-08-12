@@ -27,7 +27,7 @@ public class AggregateColumnFilter implements Serializable {
     private AggregateFunctionType type;
     private String columnId;
     private String newColumnId;
-    
+
     public AggregateColumnFilter(AggregateFunctionType type, String columnId, String newColumnId) {
         this.type = type;
         this.columnId = columnId;
@@ -37,25 +37,25 @@ public class AggregateColumnFilter implements Serializable {
     public AggregateFunctionType getType() {
         return type;
     }
-    
+
     public void setType(AggregateFunctionType type) {
         this.type = type;
     }
-    
+
     public String getColumnId() {
         return columnId;
     }
-    
+
     public void setColumnId(String columnId) {
         this.columnId = columnId;
     }
 
-    
+
     public String getNewColumnId() {
         return newColumnId;
     }
 
-    
+
     public void setNewColumnId(String newColumnId) {
         this.newColumnId = newColumnId;
     }

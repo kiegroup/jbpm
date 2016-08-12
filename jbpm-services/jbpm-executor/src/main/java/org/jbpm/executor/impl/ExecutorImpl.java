@@ -57,9 +57,9 @@ import org.slf4j.LoggerFactory;
  *  <li>retry count - default 3 retries - use system property org.kie.executor.retry.count</li>
  *  <li>execution interval - default 3 seconds - use system property org.kie.executor.interval</li>
  * </ul>
- * Additionally executor can be disable to not start at all when system property org.kie.executor.disabled is 
+ * Additionally executor can be disable to not start at all when system property org.kie.executor.disabled is
  * set to true
- * Executor can be used with JMS as the medium to notify about jobs to be executed instead of relying strictly 
+ * Executor can be used with JMS as the medium to notify about jobs to be executed instead of relying strictly
  * on poll mechanism that is available by default. JMS support is configurable and is enabled by default
  * although it requires JMS resources (connection factory and destination) to properly operate. If any of
  * these will not be found it will deactivate JMS support.
@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
 public class ExecutorImpl implements Executor {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorImpl.class);
-    
+
     private ExecutorStoreService executorStoreService;
 
     private List<ScheduledFuture<?>> handle = new ArrayList<ScheduledFuture<?>>();
@@ -82,8 +82,8 @@ public class ExecutorImpl implements Executor {
     private int interval = Integer.parseInt(System.getProperty("org.kie.executor.interval", "3"));
     private int initialDelay = Integer.parseInt(System.getProperty("org.kie.executor.initial.delay", "100"));
     private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
-    
-    
+
+
     // jms related instances
     private boolean useJMS = Boolean.parseBoolean(System.getProperty("org.kie.executor.jms", "true"));
     private String connectionFactoryName = System.getProperty("org.kie.executor.jms.cf", "java:/JmsXA");
@@ -92,61 +92,61 @@ public class ExecutorImpl implements Executor {
     private ConnectionFactory connectionFactory;
     private Queue queue;
 
-	private ScheduledExecutorService scheduler;
-	
-	private ExecutorEventSupport eventSupport = new ExecutorEventSupport();
+    private ScheduledExecutorService scheduler;
+
+    private ExecutorEventSupport eventSupport = new ExecutorEventSupport();
 
     public ExecutorImpl() {
     }
-    
+
     public void setEventSupport(ExecutorEventSupport eventSupport) {
         this.eventSupport = eventSupport;
     }
-    
+
     public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
-		this.executorStoreService = executorStoreService;
-	}
-    
+        this.executorStoreService = executorStoreService;
+    }
+
     public ExecutorStoreService getExecutorStoreService() {
         return executorStoreService;
     }
 
-    
+
     public String getConnectionFactoryName() {
         return connectionFactoryName;
     }
 
-    
+
     public void setConnectionFactoryName(String connectionFactoryName) {
         this.connectionFactoryName = connectionFactoryName;
     }
 
-    
+
     public String getQueueName() {
         return queueName;
     }
 
-    
+
     public void setQueueName(String queueName) {
         this.queueName = queueName;
     }
 
-    
+
     public ConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
-    
+
     public void setConnectionFactory(ConnectionFactory connectionFactory) {
         this.connectionFactory = connectionFactory;
     }
 
-    
+
     public Queue getQueue() {
         return queue;
     }
 
-    
+
     public void setQueue(Queue queue) {
         this.queue = queue;
     }
@@ -192,20 +192,20 @@ public class ExecutorImpl implements Executor {
     public void setThreadPoolSize(int threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public TimeUnit getTimeunit() {
-		return timeunit;
-	}
 
     /**
      * {@inheritDoc}
      */
-	public void setTimeunit(TimeUnit timeunit) {
-		this.timeunit = timeunit;
-	}
+    public TimeUnit getTimeunit() {
+        return timeunit;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void setTimeunit(TimeUnit timeunit) {
+        this.timeunit = timeunit;
+    }
 
     /**
      * {@inheritDoc}
@@ -215,20 +215,20 @@ public class ExecutorImpl implements Executor {
             logger.info("Starting Executor Component ...\n" + " \t - Thread Pool Size: {}" + "\n"
                     + " \t - Interval: {} {} \n" + " \t - Retries per Request: {}\n",
                     threadPoolSize, interval, timeunit.toString(), retries);
-            
+
             int delayIncremental = 0;
-            
+
             scheduler = Executors.newScheduledThreadPool(threadPoolSize);
             for (int i = 0; i < threadPoolSize; i++) {
                 long delay = 2000 + delayIncremental;
                 long interval = TimeUnit.MILLISECONDS.convert(this.interval, timeunit);
                 logger.debug("Starting executor thread with initial delay {} interval {} and time unit {}", delay, interval, TimeUnit.MILLISECONDS);
                 handle.add(scheduler.scheduleAtFixedRate(executorStoreService.buildExecutorRunnable(), delay, interval, TimeUnit.MILLISECONDS));
-                               
+
                 delayIncremental += this.initialDelay;
-                
+
             }
-            
+
             if (useJMS) {
                 try {
                     InitialContext ctx = new InitialContext();
@@ -247,42 +247,42 @@ public class ExecutorImpl implements Executor {
                 }
             }
         } else {
-        	throw new ExecutorNotStartedException();
+            throw new ExecutorNotStartedException();
         }
     }
-    
+
     public void init(ThreadFactory threadFactory) {
         if (!"true".equalsIgnoreCase(System.getProperty("org.kie.executor.disabled"))) {
             logger.info("Starting Executor Component ...\n" + " \t - Thread Pool Size: {}" + "\n"
                     + " \t - Interval: {}" + " Seconds\n" + " \t - Retries per Request: {}\n",
                     threadPoolSize, interval, retries);
-            
+
             int delayIncremental = 0;
-            
+
             scheduler = Executors.newScheduledThreadPool(threadPoolSize, threadFactory);
             for (int i = 0; i < threadPoolSize; i++) {
-                
+
                 long delay = 2000 + delayIncremental;
                 long interval = TimeUnit.MILLISECONDS.convert(this.interval, timeunit);
                 logger.debug("Starting executor thread with initial delay {} interval {} and time unit {}", delay, interval, TimeUnit.MILLISECONDS);
                 handle.add(scheduler.scheduleAtFixedRate(executorStoreService.buildExecutorRunnable(), delay, interval, TimeUnit.MILLISECONDS));
-                
+
                 delayIncremental += this.initialDelay;
             }
         } else {
-        	throw new ExecutorNotStartedException();
+            throw new ExecutorNotStartedException();
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void destroy() {
         logger.info(" >>>>> Destroying Executor !!!");
         if (handle != null) {
-        	for (ScheduledFuture<?> h : handle) {
-        		h.cancel(false);
-        	}
+            for (ScheduledFuture<?> h : handle) {
+                h.cancel(false);
+            }
         }
         if (scheduler != null) {
             scheduler.shutdownNow();
@@ -296,13 +296,13 @@ public class ExecutorImpl implements Executor {
     public Long scheduleRequest(String commandId, CommandContext ctx) {
         return scheduleRequest(commandId, new Date(), ctx);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Long scheduleRequest(String commandId, Date date, CommandContext ctx) {
-        
+
         if (ctx == null) {
             throw new IllegalStateException("A Context Must Be Provided! ");
         }
@@ -326,25 +326,25 @@ public class ExecutorImpl implements Executor {
             if (priority < 0) {
                 logger.warn("Priority {} is not valid (cannot be less than 0) setting it to 0", priority);
                 priority = 0;
-                
+
             } else if (priority > 9) {
                 logger.warn("Priority {} is not valid (cannot be more than 9) setting it to 9", priority);
                 priority = 9;
             }
-            
+
         }
         requestInfo.setPriority(priority);
-        
+
         if (ctx.getData("retryDelay") != null) {
             List<Long> retryDelay = new ArrayList<Long>();
             String[] timeExpressions = ((String) ctx.getData("retryDelay")).split(",");
-            
+
             for (String timeExpr : timeExpressions) {
                 retryDelay.add(TimeUtils.parseTimeString(timeExpr));
             }
             ctx.setData("retryDelay", retryDelay);
         }
-        
+
         if (ctx != null) {
             try {
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -359,11 +359,11 @@ public class ExecutorImpl implements Executor {
         eventSupport.fireBeforeJobScheduled(requestInfo, null);
         try {
             executorStoreService.persistRequest(requestInfo);
-    
+
             if (useJMS) {
-                // send JMS only for immediate job requests not for these that should be executed in future 
+                // send JMS only for immediate job requests not for these that should be executed in future
                 long currentTimestamp = System.currentTimeMillis();
-                
+
                 if (currentTimestamp >= date.getTime()) {
                     logger.debug("Sending JMS message to trigger job execution for job {}", requestInfo.getId());
                     // send JMS message to trigger processing
@@ -372,7 +372,7 @@ public class ExecutorImpl implements Executor {
                     logger.debug("JMS message not sent for job {} as the job should not be executed immediately but at {}", requestInfo.getId(), date);
                 }
             }
-            
+
             logger.debug("Scheduled request for Command: {} - requestId: {} with {} retries", commandId, requestInfo.getId(), requestInfo.getRetries());
             eventSupport.fireAfterJobScheduled(requestInfo, null);
         } catch (Throwable e) {
@@ -398,7 +398,7 @@ public class ExecutorImpl implements Executor {
         logger.debug("After - Cancelling Request with Id: {}", requestId);
     }
 
-    
+
     protected void sendMessage(String messageBody, int priority) {
         if (connectionFactory == null && queue == null) {
             throw new IllegalStateException("ConnectionFactory and Queue cannot be null");
@@ -409,13 +409,13 @@ public class ExecutorImpl implements Executor {
         try {
             queueConnection = connectionFactory.createConnection();
             queueSession = queueConnection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
-                      
+
             TextMessage message = queueSession.createTextMessage(messageBody);
-            producer = queueSession.createProducer(queue);  
+            producer = queueSession.createProducer(queue);
             producer.setPriority(priority);
-            
+
             queueConnection.start();
-            
+
             producer.send(message);
         } catch (Exception e) {
             throw new RuntimeException("Error when sending JMS message with executor job request", e);
@@ -427,7 +427,7 @@ public class ExecutorImpl implements Executor {
                     logger.warn("Error when closing producer", e);
                 }
             }
-            
+
             if (queueSession != null) {
                 try {
                     queueSession.close();
@@ -435,7 +435,7 @@ public class ExecutorImpl implements Executor {
                     logger.warn("Error when closing queue session", e);
                 }
             }
-            
+
             if (queueConnection != null) {
                 try {
                     queueConnection.close();

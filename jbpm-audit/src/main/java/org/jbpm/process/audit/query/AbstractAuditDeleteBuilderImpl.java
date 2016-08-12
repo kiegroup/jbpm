@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,29 +33,29 @@ import org.kie.internal.runtime.manager.audit.query.AuditDeleteBuilder;
 
 public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBuilderImpl<T> implements AuditDeleteBuilder<T> {
 
-    protected final CommandExecutor executor; 
-    protected final JPAAuditLogService jpaAuditService; 
-    
-    protected AbstractAuditDeleteBuilderImpl(JPAAuditLogService jpaService) { 
+    protected final CommandExecutor executor;
+    protected final JPAAuditLogService jpaAuditService;
+
+    protected AbstractAuditDeleteBuilderImpl(JPAAuditLogService jpaService) {
         this.executor = null;
         this.jpaAuditService = jpaService;
     }
-    
-    protected AbstractAuditDeleteBuilderImpl(CommandExecutor cmdExecutor) { 
+
+    protected AbstractAuditDeleteBuilderImpl(CommandExecutor cmdExecutor) {
         this.executor = cmdExecutor;
         this.jpaAuditService = null;
     }
-   
+
     // service methods
-    
-    protected JPAAuditLogService getJpaAuditLogService() { 
+
+    protected JPAAuditLogService getJpaAuditLogService() {
         JPAAuditLogService jpaAuditLogService = this.jpaAuditService;
-        if( jpaAuditLogService == null ) { 
+        if( jpaAuditLogService == null ) {
            jpaAuditLogService = this.executor.execute(getJpaAuditLogServiceCommand);
         }
         return jpaAuditLogService;
     }
-    
+
     private AuditCommand<JPAAuditLogService> getJpaAuditLogServiceCommand = new AuditCommand<JPAAuditLogService>() {
         private static final long serialVersionUID = 101L;
         @Override
@@ -66,7 +66,7 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
     };
 
     // query builder methods
-    
+
     @SuppressWarnings("unchecked")
     public T date( Date... date ) {
         if (checkIfNull(date)) {
@@ -117,37 +117,37 @@ public abstract class AbstractAuditDeleteBuilderImpl<T> extends AbstractDeleteBu
         return (T) this;
     }
 
-    
+
     protected <T> boolean checkIfNull(T...parameter) {
-    	if( parameter == null ) { 
+        if( parameter == null ) {
             return true;
         }
-        for( int i = 0; i < parameter.length; ++i ) { 
-           if( parameter[i] == null ) { 
-        	   return true;
+        for( int i = 0; i < parameter.length; ++i ) {
+           if( parameter[i] == null ) {
+               return true;
            }
         }
-        
+
         return false;
     }
-    
+
     protected Date[] ensureDateNotTimestamp(Date...date) {
-		Date[] validated = new Date[date.length];
-		for (int i = 0; i < date.length; ++i) {
-			if (date[i] instanceof Timestamp) {
-				validated[i] = new Date(date[i].getTime());
-			} else {
-				validated[i] = date[i];
-			}
-		}
-		
-		return validated;
+        Date[] validated = new Date[date.length];
+        for (int i = 0; i < date.length; ++i) {
+            if (date[i] instanceof Timestamp) {
+                validated[i] = new Date(date[i].getTime());
+            } else {
+                validated[i] = date[i];
+            }
+        }
+
+        return validated;
     }
- 
+
     abstract protected Class getQueryType();
-    
+
     abstract protected String getQueryBase();
-    
+
     public ParametrizedUpdate build() {
         return new ParametrizedUpdate() {
             private QueryWhere queryWhere = new QueryWhere(getQueryWhere());

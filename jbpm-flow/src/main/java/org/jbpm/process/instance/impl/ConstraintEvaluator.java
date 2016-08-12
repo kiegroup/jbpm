@@ -21,7 +21,7 @@ import org.jbpm.workflow.core.Constraint;
 import org.jbpm.workflow.instance.NodeInstance;
 
 public interface ConstraintEvaluator extends Constraint {
-    
+
     public boolean evaluate(NodeInstance instance,
                             Connection connection,
                             Constraint constraint);

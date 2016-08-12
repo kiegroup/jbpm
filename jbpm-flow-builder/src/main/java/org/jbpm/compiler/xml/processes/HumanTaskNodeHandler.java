@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -50,26 +50,26 @@ public class HumanTaskNodeHandler extends WorkItemNodeHandler {
         visitParameters(workItemNode, xmlDump);
         xmlDump.append(">" + EOL);
         if (includeMeta) {
-        	writeMetaData(workItemNode, xmlDump);
+            writeMetaData(workItemNode, xmlDump);
         }
         Work work = workItemNode.getWork();
         visitWork(work, xmlDump, includeMeta);
         visitInMappings(workItemNode.getInMappings(), xmlDump);
         visitOutMappings(workItemNode.getOutMappings(), xmlDump);
         for (String eventType: workItemNode.getActionTypes()) {
-        	writeActions(eventType, workItemNode.getActions(eventType), xmlDump);
+            writeActions(eventType, workItemNode.getActions(eventType), xmlDump);
         }
         writeTimers(workItemNode.getTimers(), xmlDump);
         endNode("humanTask", xmlDump);
     }
-    
-	protected void visitParameters(WorkItemNode workItemNode, StringBuilder xmlDump) {
-	    super.visitParameters(workItemNode, xmlDump);
-	    HumanTaskNode humanTaskNode = (HumanTaskNode) workItemNode;
-	    String swimlane = humanTaskNode.getSwimlane();
-	    if (swimlane != null) {
-	        xmlDump.append("swimlane=\"" + swimlane + "\" ");
-	    }
-	}
-    
+
+    protected void visitParameters(WorkItemNode workItemNode, StringBuilder xmlDump) {
+        super.visitParameters(workItemNode, xmlDump);
+        HumanTaskNode humanTaskNode = (HumanTaskNode) workItemNode;
+        String swimlane = humanTaskNode.getSwimlane();
+        if (swimlane != null) {
+            xmlDump.append("swimlane=\"" + swimlane + "\" ");
+        }
+    }
+
 }

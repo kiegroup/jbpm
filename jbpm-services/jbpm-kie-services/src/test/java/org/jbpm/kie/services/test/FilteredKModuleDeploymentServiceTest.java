@@ -72,8 +72,8 @@ public class FilteredKModuleDeploymentServiceTest extends AbstractKieServicesBas
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
 
     public void prepare(String packages) {
-    	configureServices();
-    	logger.debug("Preparing kjar");
+        configureServices();
+        logger.debug("Preparing kjar");
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();

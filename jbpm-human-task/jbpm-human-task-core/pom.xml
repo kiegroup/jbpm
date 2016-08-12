@@ -107,9 +107,9 @@
     
     <!-- persistence -->
     <dependency>
-	    <groupId>org.jbpm</groupId>
-	    <artifactId>jbpm-human-task-jpa</artifactId>
-	    <scope>test</scope>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-human-task-jpa</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jbpm</groupId>

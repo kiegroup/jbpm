@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,9 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessMilestoneTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessMilestoneTest.class);
-    
+
     @Test
     public void testMilestone() {
         Reader source = new StringReader(
@@ -70,7 +70,7 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
         builder.addRuleFlow(source);
 
         StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
         ProcessInstance processInstance = ( ProcessInstance ) workingMemory.startProcess("org.drools.milestone");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         workingMemory.insert(new Person("Jane Doe", 20));
@@ -79,7 +79,7 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
         workingMemory.fireAllRules();
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testMilestoneWithProcessInstanceConstraint() {
         Reader source = new StringReader(
@@ -118,14 +118,14 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
             "</process>");
         builder.addRuleFlow(source);
         for (DroolsError error: builder.getErrors().getErrors()) {
-        	logger.error(error.toString());
+            logger.error(error.toString());
         }
 
         StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
         Person john = new Person("John Doe", 20);
         Person jane = new Person("Jane Doe", 20);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("name", john.getName());
         ProcessInstance processInstanceJohn = ( ProcessInstance )
@@ -139,25 +139,25 @@ public class ProcessMilestoneTest extends AbstractBaseTest {
             workingMemory.startProcess("org.drools.milestone", params);
         workingMemory.insert(processInstanceJane);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstanceJane.getState());
-        
+
         workingMemory.insert(jane);
         workingMemory.fireAllRules();
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstanceJohn.getState());
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstanceJane.getState());
-        
+
         workingMemory.insert(john);
         workingMemory.fireAllRules();
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstanceJohn.getState());
     }
-    
+
     public static class ProcessUtils {
-    	
-    	public static Object getValue(RuleFlowProcessInstance processInstance, String name) {
-    		VariableScopeInstance scope = (VariableScopeInstance)
-    			processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
-    		return scope.getVariable(name);
-    	}
-    	
+
+        public static Object getValue(RuleFlowProcessInstance processInstance, String name) {
+            VariableScopeInstance scope = (VariableScopeInstance)
+                processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE);
+            return scope.getVariable(name);
+        }
+
     }
 
 }

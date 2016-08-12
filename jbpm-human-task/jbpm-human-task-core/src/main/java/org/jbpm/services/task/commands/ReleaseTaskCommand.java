@@ -22,22 +22,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.kie.internal.command.Context;
 
 /**
- * Operation.Release 
-        : [ new OperationCommand().{ 
+ * Operation.Release
+        : [ new OperationCommand().{
                 status = [ Status.Reserved, Status.InProgress ],
-                allowed = [Allowed.Owner, Allowed.BusinessAdministrator ],  
-                setNewOwnerToNull = true,            
+                allowed = [Allowed.Owner, Allowed.BusinessAdministrator ],
+                setNewOwnerToNull = true,
                 newStatus = Status.Ready
-            } ],    
+            } ],
  */
 @XmlRootElement(name="release-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ReleaseTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = -9094809920345727802L;
 
-	public ReleaseTaskCommand() {
-	}
+    private static final long serialVersionUID = -9094809920345727802L;
+
+    public ReleaseTaskCommand() {
+    }
 
     public ReleaseTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -49,9 +49,9 @@ public class ReleaseTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().release(taskId, userId);
-    	return null;
-       
+        context.getTaskInstanceService().release(taskId, userId);
+        return null;
+
     }
 
 }

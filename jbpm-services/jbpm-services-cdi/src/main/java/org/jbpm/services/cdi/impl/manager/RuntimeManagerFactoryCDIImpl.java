@@ -31,15 +31,15 @@ public class RuntimeManagerFactoryCDIImpl extends RuntimeManagerFactoryImpl {
 
     @Inject
     private Instance<TaskServiceFactory> taskServiceFactoryInjected;
-    
+
     @Override
     protected TaskServiceFactory getTaskServiceFactory(RuntimeEnvironment environment) {
-    	
-    	// if there is an implementation of TaskServiceFactory in the environment then use it
+
+        // if there is an implementation of TaskServiceFactory in the environment then use it
         TaskServiceFactory taskServiceFactory = (TaskServiceFactory) ((SimpleRuntimeEnvironment)environment).getEnvironmentTemplate()
-        											.get("org.kie.internal.runtime.manager.TaskServiceFactory");
+                                                    .get("org.kie.internal.runtime.manager.TaskServiceFactory");
         if (taskServiceFactory != null) {
-        	return taskServiceFactory;
+            return taskServiceFactory;
         }
         try {
             taskServiceFactory = taskServiceFactoryInjected.get();
@@ -48,7 +48,7 @@ public class RuntimeManagerFactoryCDIImpl extends RuntimeManagerFactoryImpl {
         } catch (Exception e) {
             taskServiceFactory = new LocalTaskServiceFactory(environment);
         }
-        
+
         return taskServiceFactory;
     }
 }

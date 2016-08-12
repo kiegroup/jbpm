@@ -28,35 +28,35 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class RemoveGroupCommand extends TaskCommand<Void> {
 
-	private static final long serialVersionUID = 7393379209067431866L;
+    private static final long serialVersionUID = 7393379209067431866L;
 
-	@XmlElement
+    @XmlElement
     @XmlSchemaType(name="string")
-	private String groupId;
-    
+    private String groupId;
+
     public RemoveGroupCommand() {
     }
 
     public RemoveGroupCommand(String groupId) {
-    	this.groupId = groupId;
+        this.groupId = groupId;
     }
 
 
     public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-                
+
         context.getTaskIdentityService().removeGroup(groupId);;
         return null;
-    	 
+
     }
 
-	public String getGroupId() {
-		return groupId;
-	}
+    public String getGroupId() {
+        return groupId;
+    }
 
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-    
+
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,7 +40,7 @@ public class EvaluationExample2 {
 
     public static final void main(String[] args) {
         try {
-            RuntimeManager manager = getRuntimeManager("evaluation/Evaluation2.bpmn");        
+            RuntimeManager manager = getRuntimeManager("evaluation/Evaluation2.bpmn");
             RuntimeEngine runtime = manager.getRuntimeEngine(null);
             KieSession ksession = runtime.getKieSession();
 
@@ -64,7 +64,7 @@ public class EvaluationExample2 {
             taskService.claim(task2.getId(), "john");
             taskService.start(task2.getId(), "john");
             taskService.complete(task2.getId(), "john", null);
-            
+
             // "mary", part of the "HR" group, delegates a performance evaluation
             TaskSummary task3 = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK").get(0);
             System.out.println("Mary delegating task " + task3.getName() + "(" + task3.getId() + ": " + task3.getDescription() + ") to krisv");
@@ -82,8 +82,8 @@ public class EvaluationExample2 {
             taskService.complete(task3b.getId(), "mary", null);
 
             System.out.println("Process instance completed");
-    		
-    		manager.disposeRuntimeEngine(runtime);
+
+            manager.disposeRuntimeEngine(runtime);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -92,29 +92,29 @@ public class EvaluationExample2 {
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
+        JBPMHelper.startH2Server();
+        JBPMHelper.setupDataSource();
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .userGroupCallback(new UserGroupCallback() {
-    			public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
-    				List<String> result = new ArrayList<String>();
-    				if ("mary".equals(userId)) {
-    					result.add("HR");
-    				} else if ("john".equals(userId)) {
-    					result.add("PM");
-    				}
-    				return result;
-    			}
-    			public boolean existsUser(String arg0) {
-    				return true;
-    			}
-    			public boolean existsGroup(String arg0) {
-    				return true;
-    			}
-    		})
+                public List<String> getGroupsForUser(String userId, List<String> groupIds, List<String> allExistingGroupIds) {
+                    List<String> result = new ArrayList<String>();
+                    if ("mary".equals(userId)) {
+                        result.add("HR");
+                    } else if ("john".equals(userId)) {
+                        result.add("PM");
+                    }
+                    return result;
+                }
+                public boolean existsUser(String arg0) {
+                    return true;
+                }
+                public boolean existsGroup(String arg0) {
+                    return true;
+                }
+            })
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource(process), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }
-    
+
 }

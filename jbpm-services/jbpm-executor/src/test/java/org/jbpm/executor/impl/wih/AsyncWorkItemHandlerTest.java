@@ -64,7 +64,7 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
 
     private PoolingDataSource pds;
-    private UserGroupCallback userGroupCallback;  
+    private UserGroupCallback userGroupCallback;
     private RuntimeManager manager;
     private ExecutorService executorService;
     private EntityManagerFactory emf = null;
@@ -78,7 +78,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
         userGroupCallback = new JBossUserGroupCallbackImpl(properties);
         executorService = buildExecutorService();
     }
-    
+
     @After
     public void teardown() {
         executorService.destroy();
@@ -87,7 +87,7 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
             manager.close();
         }
         if (emf != null) {
-        	emf.close();
+            emf.close();
         }
         pds.close();
     }
@@ -115,23 +115,23 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                     }
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         Thread.sleep(3000);
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
-    
+
     @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerWithAbort() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
@@ -155,26 +155,26 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                     }
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
-        
+
+
         runtime.getKieSession().abortProcessInstance(processInstance.getId());
-        
+
         countDownListener.waitTillCompleted();
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
-    
+
     @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerDuplicatedRegister() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
@@ -198,28 +198,28 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                     }
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         countDownListener.waitTillCompleted();
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         manager.close();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
 
     }
-    
+
     @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerDelayed() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
@@ -243,26 +243,26 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                     }
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession); 
-        
+        assertNotNull(ksession);
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("delayAsync", "4s");
-        
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask", params);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         countDownListener.waitTillCompleted();
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
-    
+
     @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerAndReturnNullCommand() throws Exception {
         final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
@@ -283,26 +283,26 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
                         listeners.add(countDownListener);
                         return listeners;
-                    } 
+                    }
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         countDownListener.waitTillCompleted();
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
-    
+
     @Test
     public void testRunProcessWithAsyncHandlerWithBusinessKey() throws Exception {
 
@@ -318,37 +318,37 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         handlers.put("async", new AsyncWorkItemHandler(executorService, "org.jbpm.executor.commands.PrintOutCommand"));
                         return handlers;
                     }
-                    
+
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession); 
-        
+        assertNotNull(ksession);
+
         String businessKey = UUID.randomUUID().toString();
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("businessKey", businessKey);
-        
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask", params);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
-        Thread.sleep(3000);  
-        
+
+        Thread.sleep(3000);
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         List<RequestInfo> jobRequest = executorService.getRequestsByBusinessKey(businessKey, new QueryContext());
         assertNotNull(jobRequest);
         assertEquals(1, jobRequest.size());
         assertEquals(businessKey, jobRequest.get(0).getKey());
         assertEquals(STATUS.DONE, jobRequest.get(0).getStatus());
     }
-    
+
     @Test
     public void testRunProcessWithAsyncHandlerWithBusinessKeyAbort() throws Exception {
 
@@ -364,37 +364,37 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
                         handlers.put("async", new AsyncWorkItemHandler(executorService, "org.jbpm.executor.commands.PrintOutCommand"));
                         return handlers;
                     }
-                    
+
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession); 
-        
+        assertNotNull(ksession);
+
         String businessKey = UUID.randomUUID().toString();
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("businessKey", businessKey);
-        
+
         ProcessInstance processInstance = ksession.startProcess("ScriptTask", params);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         runtime.getKieSession().abortProcessInstance(processInstance.getId());
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         List<RequestInfo> jobRequest = executorService.getRequestsByBusinessKey(businessKey, new QueryContext());
         assertNotNull(jobRequest);
         assertEquals(1, jobRequest.size());
         assertEquals(businessKey, jobRequest.get(0).getKey());
         assertEquals(STATUS.CANCELLED, jobRequest.get(0).getStatus());
     }
-    
+
     @Test(timeout=10000)
     public void testRunProcessWithAsyncHandlerProritizedJobs() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(1);
@@ -414,60 +414,60 @@ public class AsyncWorkItemHandlerTest extends AbstractExecutorBaseTest {
 
                 })
                 .get();
-        
-        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment); 
+
+        manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine runtime = manager.getRuntimeEngine(EmptyContext.get());
         KieSession ksession = runtime.getKieSession();
-        assertNotNull(ksession);       
-        
+        assertNotNull(ksession);
+
         ProcessInstance processInstance = ksession.startProcess("async-examples.priority-jobs");
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         List<RequestInfo> delayedPrintOuts = executorService.getRequestsByCommand("org.jbpm.executor.test.CustomCommand", new QueryContext());
         List<RequestInfo> printOuts = executorService.getRequestsByCommand("org.jbpm.executor.commands.PrintOutCommand", new QueryContext());
-        
+
         assertEquals(1, delayedPrintOuts.size());
         assertEquals(1, printOuts.size());
-        
+
         assertEquals(STATUS.QUEUED, delayedPrintOuts.get(0).getStatus());
         assertEquals(STATUS.QUEUED, printOuts.get(0).getStatus());
-        
+
         countDownListener.waitTillCompleted();
-        
+
         delayedPrintOuts = executorService.getRequestsByCommand("org.jbpm.executor.test.CustomCommand", new QueryContext());
         printOuts = executorService.getRequestsByCommand("org.jbpm.executor.commands.PrintOutCommand", new QueryContext());
-        
+
         assertEquals(1, delayedPrintOuts.size());
         assertEquals(1, printOuts.size());
-        
+
         assertEquals(STATUS.DONE, delayedPrintOuts.get(0).getStatus());
         assertEquals(STATUS.QUEUED, printOuts.get(0).getStatus());
-        
+
         countDownListener.reset(1);
         countDownListener.waitTillCompleted();
-        
+
         delayedPrintOuts = executorService.getRequestsByCommand("org.jbpm.executor.test.CustomCommand", new QueryContext());
         printOuts = executorService.getRequestsByCommand("org.jbpm.executor.commands.PrintOutCommand", new QueryContext());
-        
+
         assertEquals(1, delayedPrintOuts.size());
         assertEquals(1, printOuts.size());
-        
+
         assertEquals(STATUS.DONE, delayedPrintOuts.get(0).getStatus());
         assertEquals(STATUS.DONE, printOuts.get(0).getStatus());
-        
+
         processInstance = runtime.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
     }
-    
-    private ExecutorService buildExecutorService() {        
+
+    private ExecutorService buildExecutorService() {
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 
         executorService = ExecutorServiceFactory.newExecutorService(emf);
-        
+
         executorService.init();
-        
+
         return executorService;
     }
 }

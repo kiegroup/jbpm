@@ -10,14 +10,14 @@
       <directory>..</directory>
       <outputDirectory></outputDirectory>
       <includes>
-        <include>jbpm-audit/**</include>	  
-        <include>jbpm-bpmn2/**</include>	
-        <include>jbpm-bpmn2-emfextmodel/**</include>	
+        <include>jbpm-audit/**</include>    
+        <include>jbpm-bpmn2/**</include>  
+        <include>jbpm-bpmn2-emfextmodel/**</include>  
         <include>jbpm-distribution/**</include>
         <include>jbpm-document/**</include>
         <include>jbpm-examples/**</include>
         <include>jbpm-flow/**</include>
-        <include>jbpm-flow-builder/**</include>		
+        <include>jbpm-flow-builder/**</include>   
         <include>jbpm-human-task/**</include>
         <include>jbpm-installer/**</include>
         <include>jbpm-persistence-jpa/**</include>

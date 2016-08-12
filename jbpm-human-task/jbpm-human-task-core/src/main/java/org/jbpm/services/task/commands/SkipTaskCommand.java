@@ -34,11 +34,11 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="skip-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class SkipTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = 8145425383669415596L;
 
-	public SkipTaskCommand() {
-	}
+    private static final long serialVersionUID = 8145425383669415596L;
+
+    public SkipTaskCommand() {
+    }
 
     public SkipTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -50,8 +50,8 @@ public class SkipTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().skip(taskId, userId);
-    	return null;
-        
+        context.getTaskInstanceService().skip(taskId, userId);
+        return null;
+
     }
 }

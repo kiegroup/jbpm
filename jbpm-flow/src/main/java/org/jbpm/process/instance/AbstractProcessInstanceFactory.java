@@ -27,24 +27,24 @@ import org.kie.internal.process.CorrelationKey;
 import org.kie.internal.runtime.manager.InternalRuntimeManager;
 
 public abstract class AbstractProcessInstanceFactory implements ProcessInstanceFactory {
-	
-	public ProcessInstance createProcessInstance(Process process, CorrelationKey correlationKey, 
-			                                     InternalKnowledgeRuntime kruntime,
-			                                     Map<String, Object> parameters) {
-		ProcessInstance processInstance = (ProcessInstance) createProcessInstance();
-		processInstance.setKnowledgeRuntime( kruntime );
+
+    public ProcessInstance createProcessInstance(Process process, CorrelationKey correlationKey,
+                                                 InternalKnowledgeRuntime kruntime,
+                                                 Map<String, Object> parameters) {
+        ProcessInstance processInstance = (ProcessInstance) createProcessInstance();
+        processInstance.setKnowledgeRuntime( kruntime );
         processInstance.setProcess( process );
-        
+
         if (correlationKey != null) {
-        	processInstance.getMetaData().put("CorrelationKey", correlationKey);
+            processInstance.getMetaData().put("CorrelationKey", correlationKey);
         }
         InternalRuntimeManager manager = (InternalRuntimeManager) kruntime.getEnvironment().get("RuntimeManager");
         if (manager != null) {
             processInstance.setDeploymentId(manager.getIdentifier());
         }
-        
+
         ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager()
-    		.addProcessInstance( processInstance, correlationKey );
+            .addProcessInstance( processInstance, correlationKey );
 
         // set variable default values
         // TODO: should be part of processInstanceImpl?
@@ -54,20 +54,20 @@ public abstract class AbstractProcessInstanceFactory implements ProcessInstanceF
         if ( parameters != null ) {
             if ( variableScope != null ) {
                 for ( Map.Entry<String, Object> entry : parameters.entrySet() ) {
-                	
-                	variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue());
+
+                    variableScope.validateVariable(process.getName(), entry.getKey(), entry.getValue());
                     variableScopeInstance.setVariable( entry.getKey(), entry.getValue() );
                 }
             } else {
                 throw new IllegalArgumentException( "This process does not support parameters!" );
             }
         }
-        
-        return processInstance;
-	}
-	
 
-	
-	public abstract ProcessInstance createProcessInstance();
+        return processInstance;
+    }
+
+
+
+    public abstract ProcessInstance createProcessInstance();
 
 }

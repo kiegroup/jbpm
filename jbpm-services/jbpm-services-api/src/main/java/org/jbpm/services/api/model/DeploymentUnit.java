@@ -19,8 +19,8 @@ package org.jbpm.services.api.model;
 import org.kie.internal.runtime.conf.RuntimeStrategy;
 
 public interface DeploymentUnit {
-    
+
     String getIdentifier();
-    
+
     RuntimeStrategy getStrategy();
 }

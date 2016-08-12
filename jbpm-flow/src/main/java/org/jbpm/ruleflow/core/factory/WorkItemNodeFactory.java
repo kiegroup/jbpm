@@ -55,57 +55,57 @@ public class WorkItemNodeFactory extends NodeFactory {
         getNode().setName(name);
         return this;
     }
-    
+
     public WorkItemNodeFactory waitForCompletion(boolean waitForCompletion) {
-    	getWorkItemNode().setWaitForCompletion(waitForCompletion);
-    	return this;
+        getWorkItemNode().setWaitForCompletion(waitForCompletion);
+        return this;
     }
-    
+
     public WorkItemNodeFactory inMapping(String parameterName, String variableName) {
-    	getWorkItemNode().addInMapping(parameterName, variableName);
-    	return this;
+        getWorkItemNode().addInMapping(parameterName, variableName);
+        return this;
     }
 
     public WorkItemNodeFactory outMapping(String parameterName, String variableName) {
-    	getWorkItemNode().addOutMapping(parameterName, variableName);
-    	return this;
+        getWorkItemNode().addOutMapping(parameterName, variableName);
+        return this;
     }
-    
+
     public WorkItemNodeFactory workName(String name) {
-    	Work work = getWorkItemNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getWorkItemNode().setWork(work);
-    	}
-    	work.setName(name);
-    	return this;
+        Work work = getWorkItemNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getWorkItemNode().setWork(work);
+        }
+        work.setName(name);
+        return this;
     }
 
     public WorkItemNodeFactory workParameter(String name, Object value) {
-    	Work work = getWorkItemNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getWorkItemNode().setWork(work);
-    	}
-    	work.setParameter(name, value);
-    	return this;
+        Work work = getWorkItemNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getWorkItemNode().setWork(work);
+        }
+        work.setParameter(name, value);
+        return this;
     }
-    
+
     public WorkItemNodeFactory workParameterDefinition(String name, DataType dataType) {
-    	Work work = getWorkItemNode().getWork();
-    	if (work == null) {
-    		work = new WorkImpl();
-    		getWorkItemNode().setWork(work);
-    	}
-    	Set<ParameterDefinition> parameterDefinitions = work.getParameterDefinitions();
-    	parameterDefinitions.add(new ParameterDefinitionImpl(name, dataType));
-    	work.setParameterDefinitions(parameterDefinitions);
-    	return this;
+        Work work = getWorkItemNode().getWork();
+        if (work == null) {
+            work = new WorkImpl();
+            getWorkItemNode().setWork(work);
+        }
+        Set<ParameterDefinition> parameterDefinitions = work.getParameterDefinitions();
+        parameterDefinitions.add(new ParameterDefinitionImpl(name, dataType));
+        work.setParameterDefinitions(parameterDefinitions);
+        return this;
     }
 
     public WorkItemNodeFactory onEntryAction(String dialect, String action) {
         if (getWorkItemNode().getActions(dialect) != null) {
-        	getWorkItemNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
+            getWorkItemNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
             List<DroolsAction> actions = new ArrayList<DroolsAction>();
             actions.add(new DroolsConsequenceAction(dialect, action));
@@ -116,7 +116,7 @@ public class WorkItemNodeFactory extends NodeFactory {
 
     public WorkItemNodeFactory onExitAction(String dialect, String action) {
         if (getWorkItemNode().getActions(dialect) != null) {
-        	getWorkItemNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
+            getWorkItemNode().getActions(dialect).add(new DroolsConsequenceAction(dialect, action));
         } else {
             List<DroolsAction> actions = new ArrayList<DroolsAction>();
             actions.add(new DroolsConsequenceAction(dialect, action));
@@ -126,11 +126,11 @@ public class WorkItemNodeFactory extends NodeFactory {
     }
 
     public WorkItemNodeFactory timer(String delay, String period, String dialect, String action) {
-    	Timer timer = new Timer();
-    	timer.setDelay(delay);
-    	timer.setPeriod(period);
-    	getWorkItemNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
-    	return this;
+        Timer timer = new Timer();
+        timer.setDelay(delay);
+        timer.setPeriod(period);
+        getWorkItemNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
+        return this;
     }
-    
+
 }

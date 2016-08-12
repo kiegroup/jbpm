@@ -19,29 +19,29 @@ package org.jbpm.services.api.model;
 import java.util.Date;
 
 public interface UserTaskInstanceDesc {
-	Long getTaskId();
+    Long getTaskId();
 
-	String getStatus();
+    String getStatus();
 
-	Date getActivationTime();
+    Date getActivationTime();
 
-	String getName();
+    String getName();
 
-	String getDescription();
+    String getDescription();
 
-	Integer getPriority();
+    Integer getPriority();
 
-	String getCreatedBy();
+    String getCreatedBy();
 
-	Date getCreatedOn();
+    Date getCreatedOn();
 
-	Date getDueDate();
+    Date getDueDate();
 
-	Long getProcessInstanceId();
+    Long getProcessInstanceId();
 
-	String getProcessId();
+    String getProcessId();
 
-	String getActualOwner();
+    String getActualOwner();
 
-	String getDeploymentId();
+    String getDeploymentId();
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,29 +30,29 @@ import org.slf4j.LoggerFactory;
 public class ProcessMain {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessMain.class);
-    
-	public static final void main(String[] args) throws Exception {
-	    JBPMHelper.startUp();
-		// load up the knowledge base
-		KnowledgeBase kbase = readKnowledgeBase();
-		StatefulKnowledgeSession ksession = JBPMHelper.newStatefulKnowledgeSession(kbase);
-		// start a new process instance
-		ksession.startProcess("com.sample.bpmn.hello");
-		logger.info("Process started ...");
-	}
 
-	private static KnowledgeBase readKnowledgeBase() throws Exception {
-		KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-		kbuilder.add(ResourceFactory.newClassPathResource("humantask.bpmn"), ResourceType.BPMN2);
-		return kbuilder.newKnowledgeBase();
-	}
-	
-	private static void startUp() {
-		JBPMHelper.startH2Server();
-		JBPMHelper.setupDataSource();
-		// please comment this line if you already have the task service running,
-		// for example when running the jbpm-installer
-		JBPMHelper.startTaskService();
-	}
-	
+    public static final void main(String[] args) throws Exception {
+        JBPMHelper.startUp();
+        // load up the knowledge base
+        KnowledgeBase kbase = readKnowledgeBase();
+        StatefulKnowledgeSession ksession = JBPMHelper.newStatefulKnowledgeSession(kbase);
+        // start a new process instance
+        ksession.startProcess("com.sample.bpmn.hello");
+        logger.info("Process started ...");
+    }
+
+    private static KnowledgeBase readKnowledgeBase() throws Exception {
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        kbuilder.add(ResourceFactory.newClassPathResource("humantask.bpmn"), ResourceType.BPMN2);
+        return kbuilder.newKnowledgeBase();
+    }
+
+    private static void startUp() {
+        JBPMHelper.startH2Server();
+        JBPMHelper.setupDataSource();
+        // please comment this line if you already have the task service running,
+        // for example when running the jbpm-installer
+        JBPMHelper.startTaskService();
+    }
+
 }

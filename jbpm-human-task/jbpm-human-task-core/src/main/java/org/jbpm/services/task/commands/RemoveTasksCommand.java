@@ -28,31 +28,31 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="remove-tasks-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class RemoveTasksCommand extends TaskCommand<Integer> {
-	
-	private static final long serialVersionUID = -5174631969130504959L;
 
-	@XmlElement
-	private List tasks;
-	
-	public RemoveTasksCommand() {
-	}
+    private static final long serialVersionUID = -5174631969130504959L;
+
+    @XmlElement
+    private List tasks;
+
+    public RemoveTasksCommand() {
+    }
 
     public RemoveTasksCommand(List<TaskSummary> tasks) {
         this.tasks = tasks;
     }
 
     public List<TaskSummary> getTasks() {
-		return tasks;
-	}
+        return tasks;
+    }
 
-	public void setTasks(List<TaskSummary> tasks) {
-		this.tasks = tasks;
-	}
+    public void setTasks(List<TaskSummary> tasks) {
+        this.tasks = tasks;
+    }
 
-	public Integer execute(Context cntxt) {
+    public Integer execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
-    	return context.getTaskAdminService().removeTasks(tasks);
-       
+
+        return context.getTaskAdminService().removeTasks(tasks);
+
     }
 }

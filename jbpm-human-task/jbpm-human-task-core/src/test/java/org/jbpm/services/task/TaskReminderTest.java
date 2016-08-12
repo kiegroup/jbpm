@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -96,7 +96,7 @@ public class TaskReminderTest extends HumanTaskServicesBaseTest {
     public void testTaskReminderWithoutNotification() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
@@ -124,7 +124,7 @@ public class TaskReminderTest extends HumanTaskServicesBaseTest {
     public void testTaskReminderWithNotificationByTaskNostarted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
@@ -162,7 +162,7 @@ public class TaskReminderTest extends HumanTaskServicesBaseTest {
     public void testTaskReminderWithNotificationByTaskNoCompleted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 

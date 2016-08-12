@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,7 +25,7 @@ import org.drools.core.definitions.InternalKnowledgePackage;
 import org.kie.api.definition.process.Process;
 
 public class ProcessBuildContext extends PackageBuildContext {
-	
+
     private Process      process;
     private ProcessDescr processDescr;
     private DialectCompiletimeRegistry dialectRegistry;
@@ -63,9 +63,9 @@ public class ProcessBuildContext extends PackageBuildContext {
     public void setProcess(Process process) {
         this.process = process;
     }
-    
+
     public DialectCompiletimeRegistry getDialectRegistry() {
-    	return dialectRegistry;
+        return dialectRegistry;
     }
 
 }

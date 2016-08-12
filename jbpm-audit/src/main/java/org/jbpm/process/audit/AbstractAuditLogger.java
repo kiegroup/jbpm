@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,7 +22,7 @@ import org.kie.api.event.process.ProcessEventListener;
 import org.kie.api.runtime.KieSession;
 
 public abstract class AbstractAuditLogger implements ProcessEventListener {
-    
+
     public static final int BEFORE_START_EVENT_TYPE = 0;
     public static final int AFTER_START_EVENT_TYPE = 1;
     public static final int BEFORE_COMPLETE_EVENT_TYPE = 2;
@@ -33,25 +33,25 @@ public abstract class AbstractAuditLogger implements ProcessEventListener {
     public static final int AFTER_NODE_LEFT_EVENT_TYPE = 7;
     public static final int BEFORE_VAR_CHANGE_EVENT_TYPE = 8;
     public static final int AFTER_VAR_CHANGE_EVENT_TYPE = 9;
-    
+
     protected AuditEventBuilder builder = new DefaultAuditEventBuilderImpl();
-    
+
     /*
      * for backward compatibility
      */
     public AbstractAuditLogger(WorkingMemory workingMemory) {
         // environment is retrieved from the logged event
     }
-    
+
     public AbstractAuditLogger(KieSession session) {
         // environment is retrieved from the logged event
     }
     /*
      * end of backward compatibility
      */
-    
+
     public AbstractAuditLogger() {
-        
+
     }
 
     public AuditEventBuilder getBuilder() {
@@ -61,5 +61,5 @@ public abstract class AbstractAuditLogger implements ProcessEventListener {
     public void setBuilder(AuditEventBuilder builder) {
         this.builder = builder;
     }
-    
+
 }

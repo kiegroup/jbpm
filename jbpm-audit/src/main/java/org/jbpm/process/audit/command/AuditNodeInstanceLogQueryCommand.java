@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,18 +32,18 @@ public class AuditNodeInstanceLogQueryCommand extends AuditCommand<List<NodeInst
 
     /** generated serial version UID */
     private static final long serialVersionUID = -5408224599858065532L;
-    
+
     @XmlElement
     private QueryWhere queryWhere;
-   
+
     public AuditNodeInstanceLogQueryCommand() {
         // JAXB constructor
     }
-    
+
     public AuditNodeInstanceLogQueryCommand(QueryWhere queryWhere) {
-       this.queryWhere = queryWhere; 
+       this.queryWhere = queryWhere;
     }
-    
+
     @Override
     public List<NodeInstanceLog> execute( Context context ) {
         setLogEnvironment(context);

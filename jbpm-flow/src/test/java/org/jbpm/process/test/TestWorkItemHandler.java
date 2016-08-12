@@ -24,12 +24,12 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 
 /**
- * 
+ *
  */
 public class TestWorkItemHandler implements WorkItemHandler {
 
     public Deque<WorkItem> workItems = new LinkedList<WorkItem>();
-    
+
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         this.workItems.add(workItem);
     }
@@ -38,7 +38,7 @@ public class TestWorkItemHandler implements WorkItemHandler {
         this.workItems.add(workItem);
     }
 
-    public Deque<WorkItem> getWorkItems() { 
+    public Deque<WorkItem> getWorkItems() {
         return this.workItems;
     }
 }

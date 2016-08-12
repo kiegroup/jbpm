@@ -25,7 +25,7 @@ import org.kie.internal.process.ProcessVariableIndexer;
 
 /**
  * Simple (test purpose) linked list process variable indexer that creates variable log
- * for each entry of the list where its name is suffixed with index number e.g. [0] 
+ * for each entry of the list where its name is suffixed with index number e.g. [0]
  *
  */
 public class ListProcessVariableIndexer implements ProcessVariableIndexer {
@@ -41,20 +41,20 @@ public class ListProcessVariableIndexer implements ProcessVariableIndexer {
     @Override
     public List<VariableInstanceLog> index(String name, Object variable) {
         List<VariableInstanceLog> indexed = new ArrayList<VariableInstanceLog>();
-        
+
         List<?> listVariable = (List<?>) variable;
         int index = 0;
-        
+
         for (Object listElement : listVariable) {
-        
+
             org.jbpm.process.audit.VariableInstanceLog processVariable = new org.jbpm.process.audit.VariableInstanceLog();
             processVariable.setVariableId(name +"[" + index + "]");
             processVariable.setValue(listElement.toString());
-            
+
             indexed.add(processVariable);
             index++;
         }
-        
+
         return indexed;
     }
 

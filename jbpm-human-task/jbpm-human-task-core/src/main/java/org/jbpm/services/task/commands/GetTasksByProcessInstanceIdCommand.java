@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,32 +30,32 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetTasksByProcessInstanceIdCommand extends TaskCommand<List<Long>> implements ProcessInstanceIdCommand {
 
-	private static final long serialVersionUID = -2328845811017055632L;
+    private static final long serialVersionUID = -2328845811017055632L;
 
-	@XmlElement(name="process-instance-id")
+    @XmlElement(name="process-instance-id")
     @XmlSchemaType(name="long")
-	private Long processInstanceId;
-	
-	public GetTasksByProcessInstanceIdCommand() {
-	}
-	
-	public GetTasksByProcessInstanceIdCommand(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
+    private Long processInstanceId;
+
+    public GetTasksByProcessInstanceIdCommand() {
     }
 
-	@Override
+    public GetTasksByProcessInstanceIdCommand(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    @Override
     public Long getProcessInstanceId() {
-		return processInstanceId;
-	}
+        return processInstanceId;
+    }
 
-	@Override
-	public void setProcessInstanceId(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+    @Override
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
 
-	public List<Long> execute(Context cntxt) {
+    public List<Long> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-    	return context.getTaskQueryService().getTasksByProcessInstanceId(processInstanceId);
+        return context.getTaskQueryService().getTasksByProcessInstanceId(processInstanceId);
     }
 
 }

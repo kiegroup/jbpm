@@ -28,43 +28,43 @@ import org.kie.internal.process.ProcessVariableIndexer;
 /**
  * Represents logic behind mechanism to index task variables.
  * Supports custom indexers to be loaded dynamically via JDK ServiceLoader
- * 
+ *
  * Adds default indexer (org.jbpm.services.task.audit.variable.StringTaskVariableIndexer) as the last indexer
  * as it accepts all types
  *
  */
 public class ProcessIndexerManager {
-    
+
     private static ServiceLoader<ProcessVariableIndexer> taskVariableIndexers = ServiceLoader.load(ProcessVariableIndexer.class);
-    
+
     private static ProcessIndexerManager INSTANCE;
-    
+
     private List<ProcessVariableIndexer> indexers = new ArrayList<ProcessVariableIndexer>();
-    
+
     private ProcessIndexerManager() {
         for (ProcessVariableIndexer indexer : taskVariableIndexers) {
             indexers.add(indexer);
         }
-        
+
         // always add at the end the default one
         indexers.add(new StringProcessVariableIndexer());
     }
-    
+
     public List<VariableInstanceLog> index(AuditEventBuilder builder, ProcessVariableChangedEvent event) {
         String variableName = event.getVariableId();
         Object variable = event.getNewValue();
-        
-        
+
+
         for (ProcessVariableIndexer indexer : indexers) {
             if (indexer.accept(variable)) {
                 List<VariableInstanceLog> indexed = indexer.index(variableName, variable);
-                
+
                 if (indexed != null) {
-                                   
+
                     // populate all indexed variables with task information
                     for (VariableInstanceLog processVariable : indexed) {
                         VariableInstanceLog log = (VariableInstanceLog) builder.buildEvent(event);
-                        
+
                         ((org.jbpm.process.audit.VariableInstanceLog)processVariable).setProcessId(log.getProcessId());
                         ((org.jbpm.process.audit.VariableInstanceLog)processVariable).setProcessInstanceId(log.getProcessInstanceId());
                         ((org.jbpm.process.audit.VariableInstanceLog)processVariable).setDate(log.getDate());
@@ -72,21 +72,21 @@ public class ProcessIndexerManager {
                         ((org.jbpm.process.audit.VariableInstanceLog)processVariable).setOldValue(log.getOldValue());
                         ((org.jbpm.process.audit.VariableInstanceLog)processVariable).setVariableInstanceId(log.getVariableInstanceId());
                     }
-                    
+
                     return indexed;
 
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     public static ProcessIndexerManager get() {
         if (INSTANCE == null) {
             INSTANCE = new ProcessIndexerManager();
         }
-        
+
         return INSTANCE;
     }
 }

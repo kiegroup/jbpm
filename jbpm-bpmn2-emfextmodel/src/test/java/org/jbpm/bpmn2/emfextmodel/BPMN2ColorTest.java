@@ -29,26 +29,26 @@ import org.omg.spec.bpmn.non.normative.color.util.ColorResourceFactoryImpl;
 
 public class BPMN2ColorTest extends TestCase {
     private ResourceSet resourceSet;
-    
+
     @Override
     protected void setUp() throws Exception {
         resourceSet = new ResourceSetImpl();
-        
+
         resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put
-            (Resource.Factory.Registry.DEFAULT_EXTENSION, 
+            (Resource.Factory.Registry.DEFAULT_EXTENSION,
              new ColorResourceFactoryImpl());
         resourceSet.getPackageRegistry().put
             (ColorPackage.eNS_URI,
-            		ColorPackage.eINSTANCE);
+                    ColorPackage.eINSTANCE);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
     }
-    
+
     @SuppressWarnings("unchecked")
-	public void testColorAttributes() throws Exception {
-    	XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
+    public void testColorAttributes() throws Exception {
+        XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         inResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
         inResource.setEncoding("UTF-8");
         DocumentRoot documentRoot = ColorFactory.eINSTANCE.createDocumentRoot();

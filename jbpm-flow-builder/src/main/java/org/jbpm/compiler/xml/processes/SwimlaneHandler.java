@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,15 +36,15 @@ public class SwimlaneHandler extends BaseAbstractHandler
             this.validParents = new HashSet();
             this.validParents.add( Process.class );
 
-            this.validPeers = new HashSet();         
-            this.validPeers.add( null );            
+            this.validPeers = new HashSet();
+            this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
 
-    
+
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
@@ -54,8 +54,8 @@ public class SwimlaneHandler extends BaseAbstractHandler
         WorkflowProcessImpl process = (WorkflowProcessImpl) parser.getParent();
         final String name = attrs.getValue("name");
         emptyAttributeCheck(localName, "name", name, parser);
-        
-        SwimlaneContext swimlaneContext = (SwimlaneContext) 
+
+        SwimlaneContext swimlaneContext = (SwimlaneContext)
             process.getDefaultContext(SwimlaneContext.SWIMLANE_SCOPE);
         if (swimlaneContext != null) {
             Swimlane swimlane = new Swimlane();
@@ -65,10 +65,10 @@ public class SwimlaneHandler extends BaseAbstractHandler
             throw new SAXParseException(
                 "Could not find default swimlane context.", parser.getLocator());
         }
-        
+
         return null;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -78,6 +78,6 @@ public class SwimlaneHandler extends BaseAbstractHandler
 
     public Class generateNodeFor() {
         return Swimlane.class;
-    }    
+    }
 
 }

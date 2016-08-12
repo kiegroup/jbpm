@@ -21,52 +21,52 @@ import org.slf4j.LoggerFactory;
 import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public class ExecutorQueryBuilderCoverageTest {
-   
+
     private static final Logger logger = LoggerFactory.getLogger(ExecutorQueryBuilderCoverageTest.class);
-    
+
 
     private static PoolingDataSource pds;
     private static EntityManagerFactory emf;
-    
+
     private ExecutorJPAAuditService auditService;
-    
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         pds = ExecutorTestUtil.setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
         hackTheDatabaseMetadataLoggerBecauseTheresALogbackXmlInTheClasspath();
     }
-        
+
     @Before
-    public void setup() { 
+    public void setup() {
         auditService = new ExecutorJPAAuditService(emf);
     }
-    
+
     @AfterClass
-    public static void reset() { 
-        if( emf != null ) { 
+    public static void reset() {
+        if( emf != null ) {
             emf.close();
             emf = null;
         }
-        if( pds != null ) { 
+        if( pds != null ) {
             pds.close();
             pds = null;
         }
     }
 
     private static ModuleSpecificInputFiller inputFiller = new ModuleSpecificInputFiller() {
-      
+
         private int errorInfoOrderByType = 0;
         private int requestInfoOrderByType = 0;
-        
+
         @Override
         public Object fillInput( Class type ) {
-            if( ErrorInfoQueryBuilder.OrderBy.class.equals(type) ) { 
+            if( ErrorInfoQueryBuilder.OrderBy.class.equals(type) ) {
                return ( errorInfoOrderByType++ % 2 == 0 ?
                        ErrorInfoQueryBuilder.OrderBy.id
                        : ErrorInfoQueryBuilder.OrderBy.time );
-            } else if( RequestInfoQueryBuilder.OrderBy.class.equals(type) ) { 
-               switch(requestInfoOrderByType++ % 6)  { 
+            } else if( RequestInfoQueryBuilder.OrderBy.class.equals(type) ) {
+               switch(requestInfoOrderByType++ % 6)  {
                case 0:
                    return RequestInfoQueryBuilder.OrderBy.deploymentId;
                case 1:
@@ -80,35 +80,35 @@ public class ExecutorQueryBuilderCoverageTest {
                case 5:
                    return RequestInfoQueryBuilder.OrderBy.time;
                }
-            } else if( type.isArray() ) { 
+            } else if( type.isArray() ) {
                 Class elemType = type.getComponentType();
-                if( STATUS.class.equals(elemType) ) { 
-                   STATUS [] statusArr = { 
-                           STATUS.DONE, 
-                           STATUS.CANCELLED, 
+                if( STATUS.class.equals(elemType) ) {
+                   STATUS [] statusArr = {
+                           STATUS.DONE,
+                           STATUS.CANCELLED,
                            STATUS.ERROR
                    };
                    return statusArr;
                 }
             }
-           return null; 
+           return null;
         }
     };
 
     @Test
-    public void errorInfoQueryBuilderCoverageTest() { 
+    public void errorInfoQueryBuilderCoverageTest() {
        ErrorInfoQueryBuilder queryBuilder = auditService.errorInfoQueryBuilder();
        Class builderClass = ErrorInfoQueryBuilder.class;
-       
+
        queryBuilderCoverageTest(queryBuilder, builderClass, inputFiller);
     }
-    
+
     @Test
-    public void requestInfoQueryBuilderCoverageTest() { 
+    public void requestInfoQueryBuilderCoverageTest() {
        RequestInfoQueryBuilder queryBuilder = auditService.requestInfoQueryBuilder();
        Class builderClass = RequestInfoQueryBuilder.class;
-       
+
        queryBuilderCoverageTest(queryBuilder, builderClass, inputFiller);
     }
-    
+
 }

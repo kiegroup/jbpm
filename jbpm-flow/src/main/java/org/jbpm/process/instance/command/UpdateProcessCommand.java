@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,52 +31,52 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 @XmlRootElement(name="update-process-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class UpdateProcessCommand implements GenericCommand<Void>, ProcessInstanceIdCommand {
-	
-	private static final long serialVersionUID = 6L;
 
-	@XmlElement
-	@XmlSchemaType(name="long")
-	private Long processInstanceId;
-	
-	@XmlElement
-	@XmlSchemaType(name="string")
+    private static final long serialVersionUID = 6L;
+
+    @XmlElement
+    @XmlSchemaType(name="long")
+    private Long processInstanceId;
+
+    @XmlElement
+    @XmlSchemaType(name="string")
     private String processXml;
-    
+
     public UpdateProcessCommand(Long processInstanceId, String processXml) {
-    	this.processInstanceId = processInstanceId;
-    	this.processXml = processXml;
+        this.processInstanceId = processInstanceId;
+        this.processXml = processXml;
     }
 
     @Override
     public Long getProcessInstanceId() {
-		return processInstanceId;
-	}
+        return processInstanceId;
+    }
 
     @Override
-	public void setProcessInstanceId(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
 
-	public String getProcessXml() {
-		return processXml;
-	}
+    public String getProcessXml() {
+        return processXml;
+    }
 
-	public void setProcessXml(String processXml) {
-		this.processXml = processXml;
-	}
+    public void setProcessXml(String processXml) {
+        this.processXml = processXml;
+    }
 
-	public Void execute(Context context) {
+    public Void execute(Context context) {
         KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
         ProcessInstanceImpl processInstance = (ProcessInstanceImpl)
-    		ksession.getProcessInstance(processInstanceId);
+            ksession.getProcessInstance(processInstanceId);
         if (processInstance != null) {
-        	processInstance.setProcessXml(processXml);
+            processInstance.setProcessXml(processXml);
         }
         return null;
     }
-	
-	public String toString() {
-		return "((ProcessInstanceImpl) ksession.getProcessInstance(" 
-			+ processInstanceId + ")).setProcessXml(" + processXml + ");";
-	}
+
+    public String toString() {
+        return "((ProcessInstanceImpl) ksession.getProcessInstance("
+            + processInstanceId + ")).setProcessXml(" + processXml + ");";
+    }
 }

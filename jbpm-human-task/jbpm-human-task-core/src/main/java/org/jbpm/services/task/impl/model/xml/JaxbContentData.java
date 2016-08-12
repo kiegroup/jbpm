@@ -16,24 +16,24 @@ import org.kie.internal.task.api.model.ContentData;
 public class JaxbContentData extends AbstractJaxbTaskObject<ContentData> implements ContentData {
 
     @XmlElement
-    private AccessType accessType; 
+    private AccessType accessType;
 
     @XmlElement
     @XmlSchemaType(name="string")
     private String type;
-   
+
     @XmlElement
     @XmlSchemaType(name="base64Binary")
     private byte[] content = null;
-    
+
     public JaxbContentData() {
         super(ContentData.class);
     }
 
     public JaxbContentData(ContentData contentData) {
         super(contentData, ContentData.class);
-    } 
-        
+    }
+
     @Override
     public AccessType getAccessType() {
         return accessType;

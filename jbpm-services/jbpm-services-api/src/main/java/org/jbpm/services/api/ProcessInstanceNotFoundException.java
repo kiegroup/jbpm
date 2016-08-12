@@ -18,14 +18,14 @@ package org.jbpm.services.api;
 
 public class ProcessInstanceNotFoundException extends RuntimeException {
 
-	private static final long serialVersionUID = 4139469799335673640L;
-	
-	public ProcessInstanceNotFoundException(String message) {
-		super(message);
-	}
+    private static final long serialVersionUID = 4139469799335673640L;
 
-	public ProcessInstanceNotFoundException(String message, Throwable t) {
-		super(message, t);
-	}
+    public ProcessInstanceNotFoundException(String message) {
+        super(message);
+    }
+
+    public ProcessInstanceNotFoundException(String message, Throwable t) {
+        super(message, t);
+    }
 
 }

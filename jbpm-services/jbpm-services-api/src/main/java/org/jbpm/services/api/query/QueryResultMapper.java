@@ -33,16 +33,16 @@ public interface QueryResultMapper<T> extends Serializable {
      * @return mapped result of raw data set
      */
     T map(Object result);
-    
+
     /**
      * Returns unique name of this query result mapper implementation
      * @return
      */
     String getName();
-    
+
     /**
-     * Returns type of the data produced by this mapper. 
-     * If the type is collection then the returned type should 
+     * Returns type of the data produced by this mapper.
+     * If the type is collection then the returned type should
      * be type of the elements in collection e.g.:<br/>
      * <code>
      *  List&lt;ProcessInstanceDesc&gt; returned type should be ProcessInstanceDesc.class
@@ -50,15 +50,15 @@ public interface QueryResultMapper<T> extends Serializable {
      * @return
      */
     Class<?> getType();
-    
+
     /**
      * Returns new instance of the mapper for given column mapping
-     * @param columnMapping provides column mapping (name to type) that can be 
+     * @param columnMapping provides column mapping (name to type) that can be
      * shipped to mapper for improved transformation - can be null (accepted types: string, long, integer, date, double)
      * @return new instance of the mapper configured with column mapping
      */
     QueryResultMapper<T> forColumnMapping(Map<String, String> columnMapping);
-    
+
     // process instance related
     public static final String COLUMN_PROCESSINSTANCEID = "PROCESSINSTANCEID";
     public static final String COLUMN_PROCESSID = "PROCESSID";
@@ -74,11 +74,11 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_CORRELATIONKEY = "CORRELATIONKEY";
     public static final String COLUMN_EXTERNALID = "EXTERNALID";
     public static final String COLUMN_PROCESSINSTANCEDESCRIPTION = "PROCESSINSTANCEDESCRIPTION";
-    
+
     // process variable related
     public static final String COLUMN_VAR_NAME = "VARIABLEID";
     public static final String COLUMN_VAR_VALUE = "VALUE";
-    
+
     // task related
     public static final String COLUMN_ACTIVATIONTIME = "ACTIVATIONTIME";
     public static final String COLUMN_ACTUALOWNER = "ACTUALOWNER";
@@ -96,12 +96,12 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_TASKID = "TASKID";
     public static final String COLUMN_WORKITEMID = "WORKITEMID";
     public static final String COLUMN_ORGANIZATIONAL_ENTITY = "ID";
-    
+
     // task variables related
     public static final String COLUMN_TASK_VAR_NAME = "TVNAME";
     public static final String COLUMN_TASK_VAR_VALUE = "TVVALUE";
     public static final String COLUMN_TASK_VAR_TYPE = "TVTYPE";
-    
+
     //jobs related
     public static final String COLUMN_JOB_ID = "id";
     public static final String COLUMN_JOB_TIMESTAMP = "timestamp";
@@ -109,5 +109,5 @@ public interface QueryResultMapper<T> extends Serializable {
     public static final String COLUMN_JOB_COMMANDNAME = "commandName";
     public static final String COLUMN_JOB_MESSAGE = "message";
     public static final String COLUMN_JOB_BUSINESSKEY = "businessKey";
-   
+
 }

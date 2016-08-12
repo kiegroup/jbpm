@@ -170,7 +170,7 @@ public abstract class AbstractTaskSerializationTest {
         assertNotNull(bornAgainTask.getNames());
         assertTrue("Round-tripped task has empty 'names' list!", !bornAgainTask.getNames().isEmpty());
 
-        ComparePair compare = new ComparePair(task, bornAgainTask, Task.class);        
+        ComparePair compare = new ComparePair(task, bornAgainTask, Task.class);
         compare.recursiveCompare();
 
         assertNotNull(((InternalTask) xmlTask).getFormName());

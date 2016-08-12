@@ -38,12 +38,12 @@ public class Patient implements Serializable{
     public Patient() {
     }
 
-    
+
     public Patient(String name) {
         this.name = name;
     }
 
-    
+
     public Long getId() {
         return id;
     }
@@ -59,7 +59,7 @@ public class Patient implements Serializable{
     public void setNextAppointment(Date nextAppointment) {
         this.nextAppointment = nextAppointment;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -114,7 +114,7 @@ public class Patient implements Serializable{
         hash = 47 * hash + (this.nextAppointment != null ? this.nextAppointment.hashCode() : 0);
         return hash;
     }
-    
-    
-    
+
+
+
 }

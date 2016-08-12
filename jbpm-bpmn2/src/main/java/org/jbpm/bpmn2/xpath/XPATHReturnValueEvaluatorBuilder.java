@@ -44,7 +44,7 @@ public class XPATHReturnValueEvaluatorBuilder
                                                                           null );
 
             constraintNode.setEvaluator( expr );
-            
+
         } catch ( final Exception e ) {
             context.getErrors().add( new DescrBuildError( context.getParentDescr(),
                                                           descr,

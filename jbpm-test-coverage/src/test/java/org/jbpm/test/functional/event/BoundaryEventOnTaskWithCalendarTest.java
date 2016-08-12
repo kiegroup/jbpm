@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -45,7 +45,7 @@ public class BoundaryEventOnTaskWithCalendarTest extends JbpmTestCase {
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
         ksession.getEnvironment().set("jbpm.business.calendar", new BusinessCalendarImpl());
-        
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         DateTime now = new DateTime(System.currentTimeMillis());
         now.plus(2000);
@@ -57,7 +57,7 @@ public class BoundaryEventOnTaskWithCalendarTest extends JbpmTestCase {
         assertNodeTriggered(processInstance.getId(), "Start", "form1");
 
         countDownListener.waitTillCompleted();
-        
+
         ProcessInstance pi = ksession.getProcessInstance(processInstance.getId());
         assertNull(pi);
 
@@ -65,7 +65,7 @@ public class BoundaryEventOnTaskWithCalendarTest extends JbpmTestCase {
         assertProcessInstanceCompleted(processInstance.getId());
     }
 
- 
+
     @Test(timeout=10000)
     public void testProcessWithTimeCycleISO() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("deadline1", 1);
@@ -75,21 +75,21 @@ public class BoundaryEventOnTaskWithCalendarTest extends JbpmTestCase {
         KieSession ksession = runtimeEngine.getKieSession();
         ksession.getEnvironment().set("jbpm.business.calendar", new BusinessCalendarImpl() {
 
-			@Override
-			public long calculateBusinessTimeAsDuration(String timeExpression) {
-				timeExpression = adoptISOFormat(timeExpression);
-		        return TimeUtils.parseTimeString(timeExpression);
-		        
-			}
+            @Override
+            public long calculateBusinessTimeAsDuration(String timeExpression) {
+                timeExpression = adoptISOFormat(timeExpression);
+                return TimeUtils.parseTimeString(timeExpression);
 
-			@Override
-			public Date calculateBusinessTimeAsDate(String timeExpression) {
-				timeExpression = adoptISOFormat(timeExpression);
-	            return new Date(TimeUtils.parseTimeString(getCurrentTime() + timeExpression));
-			}
-        	
+            }
+
+            @Override
+            public Date calculateBusinessTimeAsDate(String timeExpression) {
+                timeExpression = adoptISOFormat(timeExpression);
+                return new Date(TimeUtils.parseTimeString(getCurrentTime() + timeExpression));
+            }
+
         });
-        
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("date", "R3/PT2S");
 
@@ -99,7 +99,7 @@ public class BoundaryEventOnTaskWithCalendarTest extends JbpmTestCase {
         assertNodeTriggered(processInstance.getId(), "Start", "form1");
 
         countDownListener.waitTillCompleted();
-        
+
         ProcessInstance pi = ksession.getProcessInstance(processInstance.getId());
         assertNull(pi);
 

@@ -32,16 +32,16 @@ import org.kie.api.runtime.rule.FactHandle;
 /**
  * Process event listener that is responsible for managing process instance as fact
  * so rules can reason over it. It ensure that process instance is inserted as soon as it starts
- * and gets retracted as soon as process instance completes. In addition it updates process instance 
+ * and gets retracted as soon as process instance completes. In addition it updates process instance
  * whenever process variable is updated.
  *
  */
 public class RuleAwareProcessEventLister implements ProcessEventListener {
-    
+
     private ConcurrentHashMap<Long, FactHandle> store = new ConcurrentHashMap<Long, FactHandle>();
 
     public void beforeProcessStarted(ProcessStartedEvent event) {
-        
+
         FactHandle handle = event.getKieRuntime().insert(event.getProcessInstance());
         store.put(event.getProcessInstance().getId(), handle);
     }
@@ -56,7 +56,7 @@ public class RuleAwareProcessEventLister implements ProcessEventListener {
 
     public void afterProcessCompleted(ProcessCompletedEvent event) {
         FactHandle handle = getProcessInstanceFactHandle(event.getProcessInstance().getId(), event.getKieRuntime());
-        
+
         if (handle != null) {
             event.getKieRuntime().delete(handle);
         }
@@ -84,7 +84,7 @@ public class RuleAwareProcessEventLister implements ProcessEventListener {
 
     public void afterVariableChanged(ProcessVariableChangedEvent event) {
         FactHandle handle = getProcessInstanceFactHandle(event.getProcessInstance().getId(), event.getKieRuntime());
-        
+
         if (handle != null) {
             event.getKieRuntime().update(handle, event.getProcessInstance());
         } else {
@@ -94,14 +94,14 @@ public class RuleAwareProcessEventLister implements ProcessEventListener {
     }
 
     protected FactHandle getProcessInstanceFactHandle(final Long processInstanceId, KieRuntime kruntime) {
-        
+
         if (store.containsKey(processInstanceId)) {
             return store.get(processInstanceId);
         }
-        
+
         //else try to search for it in the working memory
         Collection<FactHandle> factHandles = kruntime.getFactHandles(new ObjectFilter() {
-            
+
             public boolean accept(Object object) {
                 if (WorkflowProcessInstance.class.isAssignableFrom(object.getClass())) {
                     if (((WorkflowProcessInstance) object).getId() == processInstanceId) {
@@ -111,7 +111,7 @@ public class RuleAwareProcessEventLister implements ProcessEventListener {
                 return false;
             }
         });
-        
+
         if (factHandles != null && factHandles.size() > 0) {
             FactHandle handle = factHandles.iterator().next();
             // put it into store for faster access

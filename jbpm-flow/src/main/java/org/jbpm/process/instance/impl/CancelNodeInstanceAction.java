@@ -24,25 +24,25 @@ import org.kie.api.runtime.process.ProcessContext;
 import org.kie.api.runtime.process.WorkflowProcessInstance;
 
 public class CancelNodeInstanceAction implements Action, Serializable {
-	
-	private static final long serialVersionUID = 1L;
-	
-	private String attachedToNodeId;
-	
-	public CancelNodeInstanceAction(String attachedToNodeId) {
-		super();
-		this.attachedToNodeId = attachedToNodeId;
-	}
-	
-	public void execute(ProcessContext context) throws Exception {
-		WorkflowProcessInstance pi = context.getNodeInstance().getProcessInstance();
-		NodeInstance nodeInstance = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
-		if (nodeInstance != null) {
-		    ((org.jbpm.workflow.instance.NodeInstance)nodeInstance).cancel();
-		}
-	}
-	
-	private NodeInstance findNodeByUniqueId(Collection<NodeInstance> nodeInstances, String uniqueId) {
+
+    private static final long serialVersionUID = 1L;
+
+    private String attachedToNodeId;
+
+    public CancelNodeInstanceAction(String attachedToNodeId) {
+        super();
+        this.attachedToNodeId = attachedToNodeId;
+    }
+
+    public void execute(ProcessContext context) throws Exception {
+        WorkflowProcessInstance pi = context.getNodeInstance().getProcessInstance();
+        NodeInstance nodeInstance = findNodeByUniqueId(pi.getNodeInstances(), attachedToNodeId);
+        if (nodeInstance != null) {
+            ((org.jbpm.workflow.instance.NodeInstance)nodeInstance).cancel();
+        }
+    }
+
+    private NodeInstance findNodeByUniqueId(Collection<NodeInstance> nodeInstances, String uniqueId) {
 
         if (nodeInstances != null && !nodeInstances.isEmpty()) {
             for (NodeInstance nInstance : nodeInstances) {

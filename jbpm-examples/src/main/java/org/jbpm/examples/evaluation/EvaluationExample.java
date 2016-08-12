@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,7 +35,7 @@ public class EvaluationExample {
 
     public static final void main(String[] args) {
         try {
-            RuntimeManager manager = getRuntimeManager("evaluation/Evaluation.bpmn");        
+            RuntimeManager manager = getRuntimeManager("evaluation/Evaluation.bpmn");
             RuntimeEngine runtime = manager.getRuntimeEngine(null);
             KieSession ksession = runtime.getKieSession();
 
@@ -43,39 +43,39 @@ public class EvaluationExample {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("employee", "krisv");
             params.put("reason", "Yearly performance evaluation");
-    		ksession.startProcess("com.sample.evaluation", params);
+            ksession.startProcess("com.sample.evaluation", params);
 
-    		// complete Self Evaluation
+            // complete Self Evaluation
             TaskService taskService = runtime.getTaskService();
-    		List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("krisv", "en-UK");
-    		TaskSummary task = tasks.get(0);
-    		System.out.println("'krisv' completing task " + task.getName() + ": " + task.getDescription());
-    		taskService.start(task.getId(), "krisv");
-    		Map<String, Object> results = new HashMap<String, Object>();
-    		results.put("performance", "exceeding");
-    		taskService.complete(task.getId(), "krisv", results);
-    		
-    		// john from HR
-    		tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
-    		task = tasks.get(0);
-    		System.out.println("'john' completing task " + task.getName() + ": " + task.getDescription());
-    		taskService.start(task.getId(), "john");
-    		results = new HashMap<String, Object>();
-    		results.put("performance", "acceptable");
-    		taskService.complete(task.getId(), "john", results);
-    		
-    		// mary from PM
-    		tasks = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK");
-    		task = tasks.get(0);
-    		System.out.println("'mary' completing task " + task.getName() + ": " + task.getDescription());
-    		taskService.start(task.getId(), "mary");
-    		results = new HashMap<String, Object>();
-    		results.put("performance", "outstanding");
-    		taskService.complete(task.getId(), "mary", results);
-    		
-    		System.out.println("Process instance completed");
-    		
-    		manager.disposeRuntimeEngine(runtime);
+            List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("krisv", "en-UK");
+            TaskSummary task = tasks.get(0);
+            System.out.println("'krisv' completing task " + task.getName() + ": " + task.getDescription());
+            taskService.start(task.getId(), "krisv");
+            Map<String, Object> results = new HashMap<String, Object>();
+            results.put("performance", "exceeding");
+            taskService.complete(task.getId(), "krisv", results);
+
+            // john from HR
+            tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
+            task = tasks.get(0);
+            System.out.println("'john' completing task " + task.getName() + ": " + task.getDescription());
+            taskService.start(task.getId(), "john");
+            results = new HashMap<String, Object>();
+            results.put("performance", "acceptable");
+            taskService.complete(task.getId(), "john", results);
+
+            // mary from PM
+            tasks = taskService.getTasksAssignedAsPotentialOwner("mary", "en-UK");
+            task = tasks.get(0);
+            System.out.println("'mary' completing task " + task.getName() + ": " + task.getDescription());
+            taskService.start(task.getId(), "mary");
+            results = new HashMap<String, Object>();
+            results.put("performance", "outstanding");
+            taskService.complete(task.getId(), "mary", results);
+
+            System.out.println("Process instance completed");
+
+            manager.disposeRuntimeEngine(runtime);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -84,12 +84,12 @@ public class EvaluationExample {
 
     private static RuntimeManager getRuntimeManager(String process) {
         // load up the knowledge base
-    	JBPMHelper.startH2Server();
-    	JBPMHelper.setupDataSource();
+        JBPMHelper.startH2Server();
+        JBPMHelper.setupDataSource();
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder()
             .addAsset(KieServices.Factory.get().getResources().newClassPathResource(process), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }
-    
+
 }

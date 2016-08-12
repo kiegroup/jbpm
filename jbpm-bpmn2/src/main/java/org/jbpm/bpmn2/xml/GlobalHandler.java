@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,41 +28,41 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class GlobalHandler extends BaseAbstractHandler implements Handler {
-	
+
     public GlobalHandler() {
         if ( (this.validParents == null) && (this.validPeers == null) ) {
             this.validParents = new HashSet();
             this.validParents.add( Process.class );
 
-            this.validPeers = new HashSet();         
-            this.validPeers.add( null );            
+            this.validPeers = new HashSet();
+            this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
                         final ExtensibleXmlParser parser) throws SAXException {
         parser.startElementBuilder( localName, attrs );
-        WorkflowProcessImpl  process = ( WorkflowProcessImpl ) parser.getParent();        
-        
+        WorkflowProcessImpl  process = ( WorkflowProcessImpl ) parser.getParent();
+
         final String identifier = attrs.getValue( "identifier" );
         final String type = attrs.getValue( "type" );
         emptyAttributeCheck( localName, "identifier", identifier, parser );
         emptyAttributeCheck( localName, "type", type, parser );
-        
+
         Map<String, String> map = process.getGlobals();
         if ( map == null ) {
             map = new HashMap<String, String>();
             process.setGlobals( map );
         }
         map.put( identifier, type );
-        
+
         return null;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -72,6 +72,6 @@ public class GlobalHandler extends BaseAbstractHandler implements Handler {
 
     public Class generateNodeFor() {
         return null;
-    }    
+    }
 
 }

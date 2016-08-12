@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,7 +27,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class WorkHandler extends BaseAbstractHandler implements Handler {
-    
+
     public WorkHandler() {
         if ((this.validParents == null) && (this.validPeers == null)) {
             this.validParents = new HashSet();
@@ -39,7 +39,7 @@ public class WorkHandler extends BaseAbstractHandler implements Handler {
             this.allowNesting = false;
         }
     }
-    
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
@@ -53,8 +53,8 @@ public class WorkHandler extends BaseAbstractHandler implements Handler {
         work.setName(name);
         workItemNode.setWork(work);
         return work;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -64,6 +64,6 @@ public class WorkHandler extends BaseAbstractHandler implements Handler {
 
     public Class generateNodeFor() {
         return Work.class;
-    }    
+    }
 
 }

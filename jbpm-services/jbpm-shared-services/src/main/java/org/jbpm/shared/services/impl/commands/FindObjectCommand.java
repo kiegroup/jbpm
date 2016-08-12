@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,21 +21,21 @@ import org.kie.internal.command.Context;
 
 public class FindObjectCommand<T> implements GenericCommand<T> {
 
-	private static final long serialVersionUID = -4014807273522465028L;
+    private static final long serialVersionUID = -4014807273522465028L;
 
-	private Object identifer;
-	private Class<T> clazz;
-	
-	public FindObjectCommand(Object identifer, Class<T> clazz) {
-		this.identifer = identifer;
-		this.clazz = clazz;
-	}
-	
-	@Override
-	public T execute(Context context) {
-		JpaPersistenceContext ctx = (JpaPersistenceContext) context;
-		return ctx.find(clazz, identifer);
-	}
+    private Object identifer;
+    private Class<T> clazz;
+
+    public FindObjectCommand(Object identifer, Class<T> clazz) {
+        this.identifer = identifer;
+        this.clazz = clazz;
+    }
+
+    @Override
+    public T execute(Context context) {
+        JpaPersistenceContext ctx = (JpaPersistenceContext) context;
+        return ctx.find(clazz, identifer);
+    }
 
 
 }

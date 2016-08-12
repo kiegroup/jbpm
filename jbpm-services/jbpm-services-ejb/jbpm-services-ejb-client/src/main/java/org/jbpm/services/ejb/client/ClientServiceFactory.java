@@ -23,19 +23,19 @@ import javax.naming.NamingException;
  *
  */
 public interface ClientServiceFactory {
-	
-	/**
-	 * Returns unique name of given factory implementation
-	 * @return
-	 */
-	String getName();
 
-	/**
-	 * Returns remote view of given service interface from selected application
-	 * @param application application identifier on the container
-	 * @param serviceInterface remote service interface to be found
-	 * @return
-	 * @throws NamingException
-	 */
-	<T> T getService(String application, Class<T> serviceInterface) throws NamingException;
+    /**
+     * Returns unique name of given factory implementation
+     * @return
+     */
+    String getName();
+
+    /**
+     * Returns remote view of given service interface from selected application
+     * @param application application identifier on the container
+     * @param serviceInterface remote service interface to be found
+     * @return
+     * @throws NamingException
+     */
+    <T> T getService(String application, Class<T> serviceInterface) throws NamingException;
 }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,13 +21,13 @@ import org.kie.api.runtime.process.ProcessContext;
 
 public class RecordHandler implements JavaHandler {
 
-	public Map<String, Object> execute(ProcessContext kcontext) {
-		String employeeId = (String) kcontext.getVariable("employeeId");
-		// look up employee in for example db
-		// we will just create one here for demo purposes
-		Employee employee = new Employee(employeeId, "krisv");
-		kcontext.setVariable("employee", employee);
-		return null;
-	}
+    public Map<String, Object> execute(ProcessContext kcontext) {
+        String employeeId = (String) kcontext.getVariable("employeeId");
+        // look up employee in for example db
+        // we will just create one here for demo purposes
+        Employee employee = new Employee(employeeId, "krisv");
+        kcontext.setVariable("employee", employee);
+        return null;
+    }
 
 }

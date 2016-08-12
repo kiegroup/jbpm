@@ -335,119 +335,119 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
         RuntimeEnvironmentBuilder builder = null;
         if (!setupDataSource){
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newEmptyBuilder()
+                    .newEmptyBuilder()
             .addConfiguration("drools.processSignalManagerFactory", DefaultSignalManagerFactory.class.getName())
-            .addConfiguration("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName())            
+            .addConfiguration("drools.processInstanceManagerFactory", DefaultProcessInstanceManagerFactory.class.getName())
             .registerableItemsFactory(new SimpleRegisterableItemsFactory() {
 
-				@Override
-				public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-					Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-					handlers.putAll(super.getWorkItemHandlers(runtime));
-					handlers.putAll(customHandlers);
-					return handlers;
-				}
+                @Override
+                public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
+                    Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
+                    handlers.putAll(super.getWorkItemHandlers(runtime));
+                    handlers.putAll(customHandlers);
+                    return handlers;
+                }
 
-				@Override
-				public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-					List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
-					listeners.addAll(customProcessListeners);
-					return listeners;
-				}
+                @Override
+                public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+                    List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                    listeners.addAll(customProcessListeners);
+                    return listeners;
+                }
 
-				@Override
-				public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
-					List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-					listeners.addAll(customAgendaListeners);
-					return listeners;
-				}
+                @Override
+                public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
+                    List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
+                    listeners.addAll(customAgendaListeners);
+                    return listeners;
+                }
 
-				@Override
-				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
-					listeners.addAll(customTaskListeners);
-					return listeners;
-				}
+                @Override
+                public List<TaskLifeCycleEventListener> getTaskListeners() {
+                    List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
+                    listeners.addAll(customTaskListeners);
+                    return listeners;
+                }
 
-	        });
+            });
 
         } else if (sessionPersistence) {
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newDefaultBuilder()
+                    .newDefaultBuilder()
             .entityManagerFactory(emf)
             .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
 
-				@Override
-				public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-					Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-					handlers.putAll(super.getWorkItemHandlers(runtime));
-					handlers.putAll(customHandlers);
-					return handlers;
-				}
+                @Override
+                public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
+                    Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
+                    handlers.putAll(super.getWorkItemHandlers(runtime));
+                    handlers.putAll(customHandlers);
+                    return handlers;
+                }
 
-				@Override
-				public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-					List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
-					listeners.addAll(customProcessListeners);
-					return listeners;
-				}
+                @Override
+                public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+                    List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                    listeners.addAll(customProcessListeners);
+                    return listeners;
+                }
 
-				@Override
-				public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
-					List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-					listeners.addAll(customAgendaListeners);
-					return listeners;
-				}
+                @Override
+                public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
+                    List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
+                    listeners.addAll(customAgendaListeners);
+                    return listeners;
+                }
 
-				@Override
-				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
-					listeners.addAll(customTaskListeners);
-					return listeners;
-				}
+                @Override
+                public List<TaskLifeCycleEventListener> getTaskListeners() {
+                    List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
+                    listeners.addAll(customTaskListeners);
+                    return listeners;
+                }
 
-	        });
+            });
         } else {
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newDefaultInMemoryBuilder()
-        			.entityManagerFactory(emf)
-        			.registerableItemsFactory(new DefaultRegisterableItemsFactory() {
+                    .newDefaultInMemoryBuilder()
+                    .entityManagerFactory(emf)
+                    .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
 
-				@Override
-				public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
-					Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-					handlers.putAll(super.getWorkItemHandlers(runtime));
-					handlers.putAll(customHandlers);
-					return handlers;
-				}
+                @Override
+                public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
+                    Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
+                    handlers.putAll(super.getWorkItemHandlers(runtime));
+                    handlers.putAll(customHandlers);
+                    return handlers;
+                }
 
-				@Override
-				public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
-					List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
-					listeners.addAll(customProcessListeners);
-					return listeners;
-				}
+                @Override
+                public List<ProcessEventListener> getProcessEventListeners(RuntimeEngine runtime) {
+                    List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
+                    listeners.addAll(customProcessListeners);
+                    return listeners;
+                }
 
-				@Override
-				public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
-					List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-					listeners.addAll(customAgendaListeners);
-					return listeners;
-				}
+                @Override
+                public List<AgendaEventListener> getAgendaEventListeners( RuntimeEngine runtime) {
+                    List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
+                    listeners.addAll(customAgendaListeners);
+                    return listeners;
+                }
 
-				@Override
-				public List<TaskLifeCycleEventListener> getTaskListeners() {
-					List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
-					listeners.addAll(customTaskListeners);
-					return listeners;
-				}
+                @Override
+                public List<TaskLifeCycleEventListener> getTaskListeners() {
+                    List<TaskLifeCycleEventListener> listeners = super.getTaskListeners();
+                    listeners.addAll(customTaskListeners);
+                    return listeners;
+                }
 
-	        });
+            });
         }
         builder.userGroupCallback(userGroupCallback);
-        
+
         for (Entry<String, Object> envEntry : customEnvironmentEntries.entrySet()) {
-        	builder.addEnvironmentEntry(envEntry.getKey(), envEntry.getValue());
+            builder.addEnvironmentEntry(envEntry.getKey(), envEntry.getValue());
         }
 
         for (Map.Entry<String, ResourceType> entry : resources.entrySet()) {
@@ -503,7 +503,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
                 }
                 break;
             }
-    
+
             return manager;
         } catch (Exception e) {
             if (e instanceof BitronixSystemException || e instanceof ClosedChannelException) {
@@ -521,11 +521,11 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     protected void disposeRuntimeManager() {
         if (!activeEngines.isEmpty()) {
             for (RuntimeEngine engine : activeEngines) {
-            	try {
-            		manager.disposeRuntimeEngine(engine);
-            	} catch (Exception e) {
-            		logger.debug("Exception during dipose of runtime engine, might be already disposed - {}", e.getMessage());
-            	}
+                try {
+                    manager.disposeRuntimeEngine(engine);
+                } catch (Exception e) {
+                    logger.debug("Exception during dipose of runtime engine, might be already disposed - {}", e.getMessage());
+                }
             }
             activeEngines.clear();
         }
@@ -892,7 +892,7 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
             pds.getDriverProperties().put("password", "");
             pds.getDriverProperties().put("url", "jdbc:h2:mem:jbpm-db;MVCC=true");
             pds.getDriverProperties().put("driverClassName", "org.h2.Driver");
-            pds.init();         
+            pds.init();
             logger.debug("DBPOOL_MGR:Pool created after cleanup of leftover resources");
         }
         return pds;
@@ -900,11 +900,11 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
 
     protected void clearHistory() {
         if (sessionPersistence && logService != null) {
-//        	RuntimeManager manager = createRuntimeManager();
-//        	RuntimeEngine engine = manager.getRuntimeEngine(null);
-//        	engine.getAuditService().clear();
-//        	manager.disposeRuntimeEngine(engine);
-//        	manager.close();
+//          RuntimeManager manager = createRuntimeManager();
+//          RuntimeEngine engine = manager.getRuntimeEngine(null);
+//          engine.getAuditService().clear();
+//          manager.disposeRuntimeEngine(engine);
+//          manager.close();
             JPAAuditLogService service = new JPAAuditLogService(emf);
             service.clear();
             service.dispose();
@@ -914,10 +914,10 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     }
 
     protected void clearCustomRegistry() {
-    	this.customAgendaListeners.clear();
-    	this.customHandlers.clear();
-    	this.customProcessListeners.clear();
-    	this.customTaskListeners.clear();
+        this.customAgendaListeners.clear();
+        this.customHandlers.clear();
+        this.customProcessListeners.clear();
+        this.customTaskListeners.clear();
     }
 
 
@@ -934,23 +934,23 @@ public abstract class JbpmJUnitBaseTestCase extends Assert {
     }
 
     public void addProcessEventListener(ProcessEventListener listener) {
-    	customProcessListeners.add(listener);
+        customProcessListeners.add(listener);
     }
 
     public void addAgendaEventListener(AgendaEventListener listener) {
-    	customAgendaListeners.add(listener);
+        customAgendaListeners.add(listener);
     }
 
     public void addTaskEventListener(TaskLifeCycleEventListener listener) {
-    	customTaskListeners.add(listener);
+        customTaskListeners.add(listener);
     }
 
     public void addWorkItemHandler(String name, WorkItemHandler handler) {
-    	customHandlers.put(name, handler);
+        customHandlers.put(name, handler);
     }
-    
+
     public void addEnvironmentEntry(String name, Object value) {
-    	customEnvironmentEntries.put(name, value);
+        customEnvironmentEntries.put(name, value);
     }
 
     public void setPersistenceProperty(String name, Object value) {

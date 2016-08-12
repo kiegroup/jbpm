@@ -35,18 +35,18 @@ import org.kie.internal.runtime.manager.WorkItemHandlerProducer;
  */
 @ApplicationScoped
 public class AsyncHandlerProducer implements WorkItemHandlerProducer {
-	
-	@EJB
-	private ExecutorServiceEJB executorService;
+
+    @EJB
+    private ExecutorServiceEJB executorService;
 
     @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(String identifier, Map<String, Object> params) {
         Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
-        
+
         if (executorService != null) {
             handlers.put("async",new AsyncWorkItemHandler(executorService, PrintOutCommand.class.getName()));
         }
-        
+
         return handlers;
     }
 

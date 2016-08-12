@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,15 +40,15 @@ public abstract class AbstractBaseTest {
 
     @Rule
     public TestName name = new TestName();
-    
-    @Before 
-    public void before() { 
+
+    @Before
+    public void before() {
         addLogger();
         logger.debug( "> " + name.getMethodName() );
     }
-   
+
     public abstract void addLogger();
-    
+
     protected static AtomicInteger uniqueIdGen = new AtomicInteger(0);
 
     public KieSession createKieSession(Process... process) {

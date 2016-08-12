@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Represents complete (might be unfinished in case of an error) 
- * process instance migration. It contains all migration entries 
+ * Represents complete (might be unfinished in case of an error)
+ * process instance migration. It contains all migration entries
  * that correspond to individual operations performed during migration.
  *
  */
@@ -35,43 +35,43 @@ public class MigrationReport implements Serializable {
     private static final long serialVersionUID = -5992169359542031146L;
 
     private MigrationSpec migrationSpec;
-    
+
     private boolean successful;
-    
+
     private Date startDate;
     private Date endDate;
-    
+
     private List<MigrationEntry> entries = new ArrayList<MigrationEntry>();
 
     public MigrationReport(MigrationSpec migrationSpec) {
         this.migrationSpec = migrationSpec;
         this.startDate = new Date();
     }
-    
+
     public MigrationSpec getMigrationSpec() {
         return migrationSpec;
     }
-    
+
     public void setMigrationSpec(MigrationSpec processData) {
         this.migrationSpec = processData;
     }
-    
+
     public boolean isSuccessful() {
         return successful;
     }
-    
+
     public void setSuccessful(boolean successful) {
         this.successful = successful;
     }
-    
+
     public Date getStartDate() {
         return startDate;
     }
-    
+
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
-    
+
     public Date getEndDate() {
         return endDate;
     }
@@ -79,15 +79,15 @@ public class MigrationReport implements Serializable {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
-    
+
     public List<MigrationEntry> getEntries() {
         return entries;
     }
-    
+
     public void setEntries(List<MigrationEntry> entries) {
         this.entries = entries;
     }
-    
+
     public void addEntry(MigrationEntry.Type type, String message) throws MigrationException {
         this.entries.add(new MigrationEntry(type, message));
         switch (type) {

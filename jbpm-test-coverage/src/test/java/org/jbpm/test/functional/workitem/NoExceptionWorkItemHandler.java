@@ -26,13 +26,13 @@ public class NoExceptionWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
     public void executeWorkItem( WorkItem workItem, WorkItemManager manager ) {
         // doNothing
         manager.completeWorkItem(workItem.getId(), null);
-        
+
     }
 
     @Override
     public void abortWorkItem( WorkItem workItem, WorkItemManager manager ) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

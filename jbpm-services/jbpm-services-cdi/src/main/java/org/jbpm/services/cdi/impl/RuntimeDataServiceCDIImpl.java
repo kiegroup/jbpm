@@ -38,54 +38,54 @@ import org.kie.internal.identity.IdentityProvider;
 
 @ApplicationScoped
 public class RuntimeDataServiceCDIImpl extends RuntimeDataServiceImpl {
-	
-	@Inject
+
+    @Inject
     private Instance<RequestScopedBackupIdentityProvider> backupProviders;
 
-	@Override
+    @Override
     public void onDeploy(@Observes@Deploy DeploymentEvent event) {
         super.onDeploy(event);
     }
-    
-	@Override
+
+    @Override
     public void onUnDeploy(@Observes@Undeploy DeploymentEvent event) {
         super.onUnDeploy(event);
     }
 
     @Override
-	public void onActivate(@Observes@Activate DeploymentEvent event) {
-		super.onActivate(event);
-	}
+    public void onActivate(@Observes@Activate DeploymentEvent event) {
+        super.onActivate(event);
+    }
 
-	@Override
-	public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
-		super.onDeactivate(event);
-	}
-
-	@Inject	
-	@Override
-	public void setCommandService(@Audit TransactionalCommandService commandService) {
-		super.setCommandService(commandService);
-	}
+    @Override
+    public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
+        super.onDeactivate(event);
+    }
 
     @Inject
-	@Override
-	public void setIdentityProvider(IdentityProvider identityProvider) {
-		super.setIdentityProvider(new IdentityProviderCDIWrapper(identityProvider, backupProviders));
-	}
+    @Override
+    public void setCommandService(@Audit TransactionalCommandService commandService) {
+        super.setCommandService(commandService);
+    }
 
     @Inject
-	@Override
-	public void setTaskService(TaskService taskService) {
-		super.setTaskService(taskService);
-	}
-	  
+    @Override
+    public void setIdentityProvider(IdentityProvider identityProvider) {
+        super.setIdentityProvider(new IdentityProviderCDIWrapper(identityProvider, backupProviders));
+    }
+
+    @Inject
+    @Override
+    public void setTaskService(TaskService taskService) {
+        super.setTaskService(taskService);
+    }
+
     @Inject
     @Override
     public void setTaskAuditService(TaskAuditService taskAuditService) {
         super.setTaskAuditService(taskAuditService);
     }
-    
+
     @Inject
     @Override
     public void setDeploymentRolesManager(DeploymentRolesManager deploymentRolesManager) {
@@ -96,5 +96,5 @@ public class RuntimeDataServiceCDIImpl extends RuntimeDataServiceImpl {
     public void init() {
         taskAuditService.setTaskService(taskService);
     }
-	    
+
 }

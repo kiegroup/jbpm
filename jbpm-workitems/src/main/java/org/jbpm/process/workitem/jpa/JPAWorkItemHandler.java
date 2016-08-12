@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * A WorkItemHandler to perform JPA operations. <br />
  * An <b>Action</b> must be provided as an input parameter. The supported value
  * for the Action parameters:
@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * When registering the WIH in the deployment descriptor, you must provide the
  * classloader where your mapped entities are and the name of the persistence
  * unit you configured in <em>persistence.xml</em>.
- * 
+ *
  * @author wsiqueir
  *
  */

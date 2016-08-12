@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,32 +27,32 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetPendingSubTasksCommand extends TaskCommand<Integer> {
 
-	private static final long serialVersionUID = 5077599352603072633L;
+    private static final long serialVersionUID = 5077599352603072633L;
 
     @XmlElement
     @XmlSchemaType(name="long")
-	private Long parentId;
-	
-	public GetPendingSubTasksCommand() {
-	}
-	
-	public GetPendingSubTasksCommand(Long parentId) {
-		this.parentId = parentId;
-	}
-		
+    private Long parentId;
+
+    public GetPendingSubTasksCommand() {
+    }
+
+    public GetPendingSubTasksCommand(Long parentId) {
+        this.parentId = parentId;
+    }
+
     public Long getParentId() {
-		return parentId;
-	}
+        return parentId;
+    }
 
-	public void setParentId(Long parentId) {
-		this.parentId = parentId;
-	}
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
 
-	public Integer execute(Context cntxt) {
+    public Integer execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-    	return context.getTaskQueryService().getPendingSubTasksByParent(parentId);
-        
-    	
+        return context.getTaskQueryService().getPendingSubTasksByParent(parentId);
+
+
 
     }
 

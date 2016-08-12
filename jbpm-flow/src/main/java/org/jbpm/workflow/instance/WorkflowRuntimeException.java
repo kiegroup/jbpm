@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -60,21 +60,21 @@ public class WorkflowRuntimeException extends RuntimeException {
     private void initialize(NodeInstance nodeInstance, ProcessInstance processInstance) {
         this.processInstanceId = processInstance.getId();
         this.processId = processInstance.getProcessId();
-        if( nodeInstance != null ) { 
+        if( nodeInstance != null ) {
             this.nodeInstanceId = nodeInstance.getId();
             this.nodeId = nodeInstance.getNodeId();
-            if( ((ProcessInstanceImpl) processInstance).getKnowledgeRuntime() != null ) { 
+            if( ((ProcessInstanceImpl) processInstance).getKnowledgeRuntime() != null ) {
                 this.nodeName = nodeInstance.getNodeName();
             }
         }
-        
-        VariableScopeInstance variableScope =  (VariableScopeInstance) 
-                ((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance( 
+
+        VariableScopeInstance variableScope =  (VariableScopeInstance)
+                ((org.jbpm.process.instance.ProcessInstance) processInstance).getContextInstance(
                         VariableScope.VARIABLE_SCOPE );
             // set input parameters
-        if( variableScope != null ) { 
+        if( variableScope != null ) {
             this.variables = variableScope.getVariables();
-        } else { 
+        } else {
             this.variables = new HashMap<String, Object>(0);
         }
     }
@@ -155,11 +155,11 @@ public class WorkflowRuntimeException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return MessageFormat.format("[{0}:{4} - {1}:{2}] -- {3}", 
+        return MessageFormat.format("[{0}:{4} - {1}:{2}] -- {3}",
                 getProcessId(),
-                (getNodeName() == null ? "?" : getNodeName()), 
-                (getNodeId() == 0 ? "?" : getNodeId()), 
-                (getCause() == null ? getMessage() : getCause().getMessage()), 
+                (getNodeName() == null ? "?" : getNodeName()),
+                (getNodeId() == 0 ? "?" : getNodeId()),
+                (getCause() == null ? getMessage() : getCause().getMessage()),
                 getProcessInstanceId());
     }
 

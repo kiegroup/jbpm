@@ -29,7 +29,7 @@ public interface Mappable {
     Map<String, String> getInMappings();
     void addInAssociation(DataAssociation dataAssociation);
     List<DataAssociation> getInAssociations();
-    
+
     void addOutMapping(String parameterName, String variableName);
     void setOutMappings(Map<String, String> outMapping);
     String getOutMapping(String parameterName);

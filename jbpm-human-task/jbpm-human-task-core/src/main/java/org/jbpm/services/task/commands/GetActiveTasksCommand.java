@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,32 +30,32 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetActiveTasksCommand extends TaskCommand<List<TaskSummary>> {
 
-	private static final long serialVersionUID = 5077599352603072633L;
+    private static final long serialVersionUID = 5077599352603072633L;
 
-	@XmlElement
-	private Date date;
+    @XmlElement
+    private Date date;
 
-	public GetActiveTasksCommand() {
-	}
-	
-	public GetActiveTasksCommand(Date date) {
-		this.date = date;
-	}
-	
+    public GetActiveTasksCommand() {
+    }
+
+    public GetActiveTasksCommand(Date date) {
+        this.date = date;
+    }
+
     public Date getDate() {
-		return date;
-	}
+        return date;
+    }
 
-	public void setDate(Date date) {
-		this.date = date;
-	}
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
-	public List<TaskSummary> execute(Context cntxt) {
+    public List<TaskSummary> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         if (date == null) {
-        	return context.getTaskAdminService().getActiveTasks();
+            return context.getTaskAdminService().getActiveTasks();
         } else {
-        	return context.getTaskAdminService().getActiveTasks(date);
+            return context.getTaskAdminService().getActiveTasks(date);
         }
 
     }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -42,7 +42,7 @@ public class XmlProcessReader {
             this.parser = new ExtensibleXmlParser();
         } else {
             this.parser = new ExtensibleXmlParser( parser );
-        }      
+        }
         this.parser.setSemanticModules( modules );
         this.parser.setData( new ProcessBuildData() );
         this.parser.setClassLoader( classLoader );
@@ -97,7 +97,7 @@ public class XmlProcessReader {
     public List<Process> getProcess() {
         return this.processes;
     }
-    
+
     public ProcessBuildData getProcessBuildData() {
         return (ProcessBuildData) this.parser.getData();
     }

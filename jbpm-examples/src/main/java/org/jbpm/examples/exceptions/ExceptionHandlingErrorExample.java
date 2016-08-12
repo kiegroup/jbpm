@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,11 +38,11 @@ public class ExceptionHandlingErrorExample {
 
     public static ProcessInstance runExample() {
         // load up the knowledge base
-    	RuntimeManager manager = createManager();
+        RuntimeManager manager = createManager();
         KieSession ksession = manager.getRuntimeEngine(null).getKieSession();
 
         String eventType = "Error-code";
-        SignallingTaskHandlerDecorator signallingTaskWrapper 
+        SignallingTaskHandlerDecorator signallingTaskWrapper
             = new SignallingTaskHandlerDecorator(ServiceTaskHandler.class, eventType);
         signallingTaskWrapper.setWorkItemExceptionParameterName(ExceptionService.exceptionParameterName);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", signallingTaskWrapper);
@@ -50,16 +50,16 @@ public class ExceptionHandlingErrorExample {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("serviceInputItem", "Input to Original Service");
         ProcessInstance processInstance = ksession.startProcess("ProcessWithExceptionHandlingError", params);
-        
+
         manager.close();
-        
+
         return processInstance;
     }
 
     private static RuntimeManager createManager() {
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get().newEmptyBuilder()
             .addAsset(KieServices.Factory.get().getResources()
-        		.newClassPathResource("exceptions/ExceptionHandlingWithError.bpmn2"), ResourceType.BPMN2)
+                .newClassPathResource("exceptions/ExceptionHandlingWithError.bpmn2"), ResourceType.BPMN2)
             .get();
         return RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
     }

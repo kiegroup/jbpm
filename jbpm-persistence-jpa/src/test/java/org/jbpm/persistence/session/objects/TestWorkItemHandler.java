@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,33 +21,33 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 public class TestWorkItemHandler implements WorkItemHandler {
 
-	private static TestWorkItemHandler INSTANCE = new TestWorkItemHandler();
-	
-	private WorkItem workItem;
-	private WorkItem aborted;
-	
-	public static TestWorkItemHandler getInstance() {
-		return INSTANCE;
-	}
-	
-	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-		this.workItem = workItem;
-	}
+    private static TestWorkItemHandler INSTANCE = new TestWorkItemHandler();
 
-	public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-		this.aborted = workItem;
-	}
-	
-	public WorkItem getWorkItem() {
-		WorkItem result = workItem;
-		workItem = null;
-		return result;
-	}
+    private WorkItem workItem;
+    private WorkItem aborted;
 
-	public WorkItem getAbortedWorkItem() {
-		WorkItem result = aborted;
-		aborted = null;
-		return result;
-	}
+    public static TestWorkItemHandler getInstance() {
+        return INSTANCE;
+    }
+
+    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+        this.workItem = workItem;
+    }
+
+    public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+        this.aborted = workItem;
+    }
+
+    public WorkItem getWorkItem() {
+        WorkItem result = workItem;
+        workItem = null;
+        return result;
+    }
+
+    public WorkItem getAbortedWorkItem() {
+        WorkItem result = aborted;
+        aborted = null;
+        return result;
+    }
 
 }

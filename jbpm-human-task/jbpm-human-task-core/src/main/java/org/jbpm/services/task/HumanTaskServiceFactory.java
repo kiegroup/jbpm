@@ -21,10 +21,10 @@ package org.jbpm.services.task;
  * provided by <code>HumanTaskConfigurator</code>
  */
 public class HumanTaskServiceFactory {
-    
+
     public static HumanTaskConfigurator newTaskServiceConfigurator(){
-        
+
         return new HumanTaskConfigurator();
     }
-    
+
 }

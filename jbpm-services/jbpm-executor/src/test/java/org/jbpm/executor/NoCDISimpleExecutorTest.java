@@ -26,32 +26,32 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 
 public class NoCDISimpleExecutorTest extends BasicExecutorBaseTest{
-    
-	private PoolingDataSource pds;
-	
-    
+
+    private PoolingDataSource pds;
+
+
     @Before
     public void setUp() {
         pds = ExecutorTestUtil.setupPoolingDataSource();
         emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
 
         executorService = ExecutorServiceFactory.newExecutorService(emf);
-        
-        
-        
+
+
+
         executorService.init();
         super.setUp();
     }
-    
+
     @After
     public void tearDown() {
         super.tearDown();
         executorService.destroy();
         if (emf != null) {
-        	emf.close();
+            emf.close();
         }
         pds.close();
     }
-   
-    
+
+
 }

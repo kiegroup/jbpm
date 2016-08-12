@@ -17,10 +17,10 @@
 package org.jbpm.process.instance.timer;
 
 /**
- * 
+ *
  */
 public interface TimerListener {
-    
+
     void timerTriggered(TimerInstance timer);
-    
+
 }

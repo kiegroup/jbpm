@@ -24,17 +24,17 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="remove-all-tasks-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class RemoveAllTasksCommand extends TaskCommand<Integer> {
-	
-	private static final long serialVersionUID = -5174631969130504959L;
 
-	public RemoveAllTasksCommand() {
-	}
+    private static final long serialVersionUID = -5174631969130504959L;
+
+    public RemoveAllTasksCommand() {
+    }
 
 
-	public Integer execute(Context cntxt) {
+    public Integer execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
-    	return context.getTaskAdminService().removeAllTasks();
-       
+
+        return context.getTaskAdminService().removeAllTasks();
+
     }
 }

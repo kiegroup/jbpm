@@ -42,11 +42,11 @@ public abstract class RuleFlowNodeContainerFactory {
     private NodeContainer nodeContainer;
 
     protected void setNodeContainer(NodeContainer nodeContainer) {
-    	this.nodeContainer = nodeContainer;
+        this.nodeContainer = nodeContainer;
     }
-    
+
     protected NodeContainer getNodeContainer() {
-    	return nodeContainer;
+        return nodeContainer;
     }
 
     public StartNodeFactory startNode(long id) {
@@ -108,13 +108,13 @@ public abstract class RuleFlowNodeContainerFactory {
     public ForEachNodeFactory forEachNode(long id) {
         return new ForEachNodeFactory(this, nodeContainer, id);
     }
-    
+
     public DynamicNodeFactory dynamicNode(long id) {
         return new DynamicNodeFactory(this, nodeContainer, id);
     }
-    
+
     public WorkItemNodeFactory workItemNode(long id) {
-    	return new WorkItemNodeFactory(this, nodeContainer, id);
+        return new WorkItemNodeFactory(this, nodeContainer, id);
     }
 
     public RuleFlowNodeContainerFactory connection(long fromId, long toId) {
@@ -125,7 +125,7 @@ public abstract class RuleFlowNodeContainerFactory {
             to, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE);
         return this;
     }
-    
+
     public abstract RuleFlowNodeContainerFactory done();
 
 }

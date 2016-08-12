@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,70 +19,70 @@ import org.jbpm.examples.checklist.ChecklistItem;
 
 public class DefaultChecklistItem implements ChecklistItem {
 
-	private String name;
-	private Status status;
-	private Long taskId;
-	private String type;
-	private String actors;
-	private long priority;
-	private String processId;
-	private Long processInstanceId;
-	private String orderingNb;
-	
-	public DefaultChecklistItem(String name, Status status, Long taskId, String type, String actors, long priority, String processId, Long processInstanceId, String orderingNb) {
-		this.name = name;
-		this.status = status;
-		this.taskId = taskId;
-		this.type = type;
-		this.actors = actors;
-		this.priority = priority;
-		this.processId = processId;
-		this.processInstanceId = processInstanceId;
-		this.orderingNb = orderingNb;
-	}
-	
-	public String getName() {
-		return name;
-	}
+    private String name;
+    private Status status;
+    private Long taskId;
+    private String type;
+    private String actors;
+    private long priority;
+    private String processId;
+    private Long processInstanceId;
+    private String orderingNb;
 
-	@Override
-	public Status getStatus() {
-		return status;
-	}
+    public DefaultChecklistItem(String name, Status status, Long taskId, String type, String actors, long priority, String processId, Long processInstanceId, String orderingNb) {
+        this.name = name;
+        this.status = status;
+        this.taskId = taskId;
+        this.type = type;
+        this.actors = actors;
+        this.priority = priority;
+        this.processId = processId;
+        this.processInstanceId = processInstanceId;
+        this.orderingNb = orderingNb;
+    }
 
-	@Override
-	public Long getTaskId() {
-		return taskId;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    @Override
+    public Status getStatus() {
+        return status;
+    }
 
-	@Override
-	public String getActors() {
-		return actors;
-	}
+    @Override
+    public Long getTaskId() {
+        return taskId;
+    }
 
-	@Override
-	public long getPriority() {
-		return priority;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public String getProcessId() {
-		return processId;
-	}
+    @Override
+    public String getActors() {
+        return actors;
+    }
 
-	@Override
-	public Long getProcessInstanceId() {
-		return processInstanceId;
-	}
-	
-	@Override
-	public String getOrderingNb() {
-		return orderingNb;
-	}
+    @Override
+    public long getPriority() {
+        return priority;
+    }
+
+    @Override
+    public String getProcessId() {
+        return processId;
+    }
+
+    @Override
+    public Long getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    @Override
+    public String getOrderingNb() {
+        return orderingNb;
+    }
 
 }

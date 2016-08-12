@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,96 +38,96 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class EjbSchedulerService implements GlobalSchedulerService {
 
-	private AtomicLong idCounter = new AtomicLong();
-	private TimerService globalTimerService;
-	private EJBTimerScheduler scheduler;
-	
-	private SchedulerServiceInterceptor interceptor = new DelegateSchedulerServiceInterceptor(this);
-	
+    private AtomicLong idCounter = new AtomicLong();
+    private TimerService globalTimerService;
+    private EJBTimerScheduler scheduler;
 
-	@Override
-	public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
-		Long id = idCounter.getAndIncrement();
-		String jobName = getJobName(ctx, id);
-		EjbGlobalJobHandle jobHandle = new EjbGlobalJobHandle(id, jobName, ((GlobalTimerService) globalTimerService).getTimerServiceId());
-		
-		TimerJobInstance jobInstance = scheduler.getTimerByName(jobName);
-		if (jobInstance != null) {
-			return jobInstance.getJobHandle();
-		}
-		
-		jobInstance = globalTimerService.getTimerJobFactoryManager().createTimerJobInstance(
-														job, 
-														ctx, 
-														trigger, 
-														jobHandle, 
-														(InternalSchedulerService) globalTimerService);
-		
-		jobHandle.setTimerJobInstance((TimerJobInstance) jobInstance);		
-		interceptor.internalSchedule(jobInstance);
-		return jobHandle;
-	}
+    private SchedulerServiceInterceptor interceptor = new DelegateSchedulerServiceInterceptor(this);
 
-	@Override
-	public boolean removeJob(JobHandle jobHandle) {
-		
-		boolean result = scheduler.removeJob(jobHandle);
-	
-		return result;
-	}
 
-	@Override
-	public void internalSchedule(TimerJobInstance timerJobInstance) {
-		scheduler.internalSchedule(timerJobInstance);
-	}
+    @Override
+    public JobHandle scheduleJob(Job job, JobContext ctx, Trigger trigger) {
+        Long id = idCounter.getAndIncrement();
+        String jobName = getJobName(ctx, id);
+        EjbGlobalJobHandle jobHandle = new EjbGlobalJobHandle(id, jobName, ((GlobalTimerService) globalTimerService).getTimerServiceId());
 
-	@Override
-	public void initScheduler(TimerService timerService) {
-		this.globalTimerService = timerService;
-		try {
-			this.scheduler = InitialContext.doLookup("java:module/EJBTimerScheduler");
-		} catch (NamingException e) {
-			throw new RuntimeException("Unable to find EJB scheduler for jBPM timer service", e);
-		}
-	}
+        TimerJobInstance jobInstance = scheduler.getTimerByName(jobName);
+        if (jobInstance != null) {
+            return jobInstance.getJobHandle();
+        }
 
-	@Override
-	public void shutdown() {
-		// managed by container - no op
+        jobInstance = globalTimerService.getTimerJobFactoryManager().createTimerJobInstance(
+                                                        job,
+                                                        ctx,
+                                                        trigger,
+                                                        jobHandle,
+                                                        (InternalSchedulerService) globalTimerService);
 
-	}
+        jobHandle.setTimerJobInstance((TimerJobInstance) jobInstance);
+        interceptor.internalSchedule(jobInstance);
+        return jobHandle;
+    }
 
-	@Override
-	public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
+    @Override
+    public boolean removeJob(JobHandle jobHandle) {
 
-		return new EjbGlobalJobHandle(-1, getJobName(ctx, -1l), ((GlobalTimerService) globalTimerService).getTimerServiceId());
-	}
+        boolean result = scheduler.removeJob(jobHandle);
 
-	@Override
-	public boolean isTransactional() {
-		return false;
-	}
+        return result;
+    }
 
-	@Override
-	public boolean retryEnabled() {
-		return false;
-	}
+    @Override
+    public void internalSchedule(TimerJobInstance timerJobInstance) {
+        scheduler.internalSchedule(timerJobInstance);
+    }
 
-	@Override
-	public void setInterceptor(SchedulerServiceInterceptor interceptor) {
-	    this.interceptor = interceptor; 
-	}
+    @Override
+    public void initScheduler(TimerService timerService) {
+        this.globalTimerService = timerService;
+        try {
+            this.scheduler = InitialContext.doLookup("java:module/EJBTimerScheduler");
+        } catch (NamingException e) {
+            throw new RuntimeException("Unable to find EJB scheduler for jBPM timer service", e);
+        }
+    }
 
-	@Override
-	public boolean isValid(GlobalJobHandle jobHandle) {
-	    
-        return true;	    
-	}
-	
-	private String getJobName(JobContext ctx, Long id) {
+    @Override
+    public void shutdown() {
+        // managed by container - no op
+
+    }
+
+    @Override
+    public JobHandle buildJobHandleForContext(NamedJobContext ctx) {
+
+        return new EjbGlobalJobHandle(-1, getJobName(ctx, -1l), ((GlobalTimerService) globalTimerService).getTimerServiceId());
+    }
+
+    @Override
+    public boolean isTransactional() {
+        return false;
+    }
+
+    @Override
+    public boolean retryEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setInterceptor(SchedulerServiceInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    @Override
+    public boolean isValid(GlobalJobHandle jobHandle) {
+
+        return true;
+    }
+
+    private String getJobName(JobContext ctx, Long id) {
 
         String jobname = null;
-        
+
         if (ctx instanceof ProcessJobContext) {
             ProcessJobContext processCtx = (ProcessJobContext) ctx;
             jobname = processCtx.getSessionId() + "-" + processCtx.getProcessInstanceId() + "-" + processCtx.getTimer().getId();
@@ -138,9 +138,9 @@ public class EjbSchedulerService implements GlobalSchedulerService {
             jobname = ((NamedJobContext) ctx).getJobName();
         } else {
             jobname = "Timer-"+ctx.getClass().getSimpleName()+ "-" + id;
-        
+
         }
         return jobname;
-	}
+    }
 
 }

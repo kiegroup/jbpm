@@ -25,39 +25,39 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 
 public abstract class ExtendedNodeInstanceImpl extends NodeInstanceImpl {
 
-	private static final long serialVersionUID = 510l;
-	
-	public ExtendedNodeImpl getExtendedNode() {
-		return (ExtendedNodeImpl) getNode();
-	}
-	
-	public void internalTrigger(NodeInstance from, String type) {
-		triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
-	}
-	
+    private static final long serialVersionUID = 510l;
+
+    public ExtendedNodeImpl getExtendedNode() {
+        return (ExtendedNodeImpl) getNode();
+    }
+
+    public void internalTrigger(NodeInstance from, String type) {
+        triggerEvent(ExtendedNodeImpl.EVENT_NODE_ENTER);
+    }
+
     public void triggerCompleted(boolean remove) {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, remove);
     }
-    
-	protected void triggerCompleted(String type, boolean remove) {
-		triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
-		super.triggerCompleted(type, remove);
-	}
-	
-	protected void triggerEvent(String type) {
-		ExtendedNodeImpl extendedNode = getExtendedNode();
-		if (extendedNode == null) {
-			return;
-		}
-		List<DroolsAction> actions = extendedNode.getActions(type);
-		if (actions != null) {
-			for (DroolsAction droolsAction: actions) {
-			    Action action = (Action) droolsAction.getMetaData("Action");
-				executeAction(action);
-			}
-		}
-	}
+
+    protected void triggerCompleted(String type, boolean remove) {
+        triggerEvent(ExtendedNodeImpl.EVENT_NODE_EXIT);
+        super.triggerCompleted(type, remove);
+    }
+
+    protected void triggerEvent(String type) {
+        ExtendedNodeImpl extendedNode = getExtendedNode();
+        if (extendedNode == null) {
+            return;
+        }
+        List<DroolsAction> actions = extendedNode.getActions(type);
+        if (actions != null) {
+            for (DroolsAction droolsAction: actions) {
+                Action action = (Action) droolsAction.getMetaData("Action");
+                executeAction(action);
+            }
+        }
+    }
 
 
-	
+
 }

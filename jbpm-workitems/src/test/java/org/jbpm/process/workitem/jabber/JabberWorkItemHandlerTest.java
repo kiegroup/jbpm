@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.kie.api.runtime.process.WorkItemManager;
 
 public class JabberWorkItemHandlerTest extends AbstractBaseTest {
-    
+
     @Test
     @Ignore
     public void TODOtestSendJabberMessage() throws Exception {
@@ -40,7 +40,7 @@ public class JabberWorkItemHandlerTest extends AbstractBaseTest {
         workItem.setParameter( "Service", "gmail.com" );
         workItem.setParameter( "User", "drools.demo" );
         workItem.setParameter( "Password", "pa$$word" );
-        
+
         WorkItemManager manager = new DefaultWorkItemManager(null);
         handler.executeWorkItem( workItem, manager );
 
@@ -48,6 +48,6 @@ public class JabberWorkItemHandlerTest extends AbstractBaseTest {
         // workingMemory.getWorkItemManager()
         //.registerWorkItemHandler("Notification", new NotificationWorkItemHandler());
 
-        
-    }    
+
+    }
 }

@@ -28,30 +28,30 @@ public class DocumentStorageServiceProvider {
 
     private static final ServiceLoader<DocumentStorageService> storageServices = ServiceLoader.load(DocumentStorageService.class);
     private static DocumentStorageServiceProvider INSTANCE = new DocumentStorageServiceProvider();
-    
+
     private DocumentStorageService documentStorageService;
-    
+
     private DocumentStorageServiceProvider() {
         discover();
     }
-    
+
     private synchronized void discover() {
         for (DocumentStorageService foundService : storageServices) {
-            if (documentStorageService != null) {                
+            if (documentStorageService != null) {
                 throw new RuntimeException("Ambiguous DocumentStorageService discovery, found more than one implementation");
             }
             documentStorageService = foundService;
         }
-        
+
         if (documentStorageService == null) {
             documentStorageService = new DocumentStorageServiceImpl();
         }
     }
-    
+
     public static DocumentStorageServiceProvider get() {
         return INSTANCE;
     }
-    
+
     public DocumentStorageService getStorageService() {
         return INSTANCE.documentStorageService;
     }

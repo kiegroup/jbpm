@@ -25,31 +25,31 @@ import org.jbpm.services.ejb.api.UserTaskServiceEJBRemote;
 import org.jbpm.services.ejb.client.helper.DeploymentServiceWrapper;
 
 public class ClientUserTaskServiceEJBTest extends UserTaskServiceImplTest {
-	
-	private static final String application = "sample-war-ejb-app";
 
-	@Override
-	protected void close() {
-		// do nothing
-	}
+    private static final String application = "sample-war-ejb-app";
 
-	@Override
-	protected void configureServices() {
-		try {
-			ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
-			DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
-			ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
-			RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
-			DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
-			UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
-			
-			setBpmn2Service(definitionService);
-			setProcessService(processService);
-			setRuntimeDataService(runtimeDataService);
-			setUserTaskService(userTaskService);
-			setDeploymentService(new DeploymentServiceWrapper(deploymentService));
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to configure services");
-		}
-	}
+    @Override
+    protected void close() {
+        // do nothing
+    }
+
+    @Override
+    protected void configureServices() {
+        try {
+            ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
+            DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
+            ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
+            RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
+            DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
+            UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
+
+            setBpmn2Service(definitionService);
+            setProcessService(processService);
+            setRuntimeDataService(runtimeDataService);
+            setUserTaskService(userTaskService);
+            setDeploymentService(new DeploymentServiceWrapper(deploymentService));
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to configure services");
+        }
+    }
 }

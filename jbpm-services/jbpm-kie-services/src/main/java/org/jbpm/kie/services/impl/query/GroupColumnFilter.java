@@ -24,8 +24,8 @@ public class GroupColumnFilter implements Serializable {
 
     private String newColumnId;
     private String columnId;
-    
-    public GroupColumnFilter(String columnId, String newColumnId) {        
+
+    public GroupColumnFilter(String columnId, String newColumnId) {
         this.columnId = columnId;
         this.newColumnId = newColumnId;
     }
@@ -33,15 +33,15 @@ public class GroupColumnFilter implements Serializable {
     public String getNewColumnId() {
         return newColumnId;
     }
-    
+
     public void setNewColumnId(String newColumnId) {
         this.newColumnId = newColumnId;
     }
-    
+
     public String getColumnId() {
         return columnId;
     }
-    
+
     public void setColumnId(String columnId) {
         this.columnId = columnId;
     }

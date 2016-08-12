@@ -29,24 +29,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ExcludeNonCDIImplExtension implements Extension {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ExcludeNonCDIImplExtension.class);
-	
-	private Set<String> excluded = new HashSet<String>();
-	
-	public ExcludeNonCDIImplExtension() {
-		excluded.add("org.jbpm.kie.services.impl");
-		excluded.add("org.jbpm.kie.services.impl.bpmn2");
-		excluded.add("org.jbpm.kie.services.impl.form.FormProviderServiceImpl");
-		excluded.add("org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl");
-		excluded.add("org.jbpm.services.task.wih.ExternalTaskEventListener");
-		excluded.add("org.jbpm.services.task.events.DefaultTaskEventListener");
-		excluded.add("org.jbpm.kie.services.impl.store.DeploymentSynchronizer");
-		excluded.add("org.jbpm.kie.services.impl.security.DeploymentRolesManager");
-		excluded.add("org.jbpm.kie.services.impl.query.QueryServiceImpl");
-		excluded.add("org.jbpm.kie.services.impl.admin.ProcessInstanceMigrationServiceImpl");
-		excluded.add("org.jbpm.kie.services.test.TestIdentityProvider");
-	}
+
+    private static final Logger logger = LoggerFactory.getLogger(ExcludeNonCDIImplExtension.class);
+
+    private Set<String> excluded = new HashSet<String>();
+
+    public ExcludeNonCDIImplExtension() {
+        excluded.add("org.jbpm.kie.services.impl");
+        excluded.add("org.jbpm.kie.services.impl.bpmn2");
+        excluded.add("org.jbpm.kie.services.impl.form.FormProviderServiceImpl");
+        excluded.add("org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl");
+        excluded.add("org.jbpm.services.task.wih.ExternalTaskEventListener");
+        excluded.add("org.jbpm.services.task.events.DefaultTaskEventListener");
+        excluded.add("org.jbpm.kie.services.impl.store.DeploymentSynchronizer");
+        excluded.add("org.jbpm.kie.services.impl.security.DeploymentRolesManager");
+        excluded.add("org.jbpm.kie.services.impl.query.QueryServiceImpl");
+        excluded.add("org.jbpm.kie.services.impl.admin.ProcessInstanceMigrationServiceImpl");
+        excluded.add("org.jbpm.kie.services.test.TestIdentityProvider");
+    }
 
 
     <X> void processAnnotatedType(@Observes final ProcessAnnotatedType<X> pat, BeanManager beanManager) {
@@ -54,15 +54,15 @@ public class ExcludeNonCDIImplExtension implements Extension {
         final Class<X> javaClass = annotatedType.getJavaClass();
         final Package pkg = javaClass.getPackage();
 
-  
+
         if (pkg != null && excluded.contains(pkg.getName())) {
-        	logger.debug("jBPM CDI integration :: excluding package {}", pkg.getName());
+            logger.debug("jBPM CDI integration :: excluding package {}", pkg.getName());
             pat.veto();
         } else if (javaClass != null && excluded.contains(javaClass.getName())) {
-        	logger.debug("jBPM CDI integration :: excluding class {}" + javaClass.getName());
-        	pat.veto();
+            logger.debug("jBPM CDI integration :: excluding class {}" + javaClass.getName());
+            pat.veto();
         }
-        
+
         return;
     }
 

@@ -31,27 +31,27 @@ import java.util.Collection;
 /**
  * Simple delegate for timer service that fetches the real instance of timer service from
  * TimerServiceRegistry under "default" key.
- * That requires TimerService to be registered prior to using this delegate, which usually 
+ * That requires TimerService to be registered prior to using this delegate, which usually
  * means before any session is created.
- * 
+ *
  * This delegate should be configured in session configuration so when initializing it will use
  * right TimerService implementation:
  * <code>
  *      Properties conf = new Properties();
- *      conf.setProperty("drools.timerService", "org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate");        
+ *      conf.setProperty("drools.timerService", "org.jbpm.process.core.timer.impl.RegisteredTimerServiceDelegate");
  *      KieSessionConfiguration sessionConf = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(conf);
  * </code>
  *
  */
 public class RegisteredTimerServiceDelegate implements TimerService, InternalSchedulerService, SessionClock {
-    
+
     private TimerService timerService;
-    
+
     public RegisteredTimerServiceDelegate() {
         this("default");
     }
-    
-    public RegisteredTimerServiceDelegate(String timerServiceKey) {        
+
+    public RegisteredTimerServiceDelegate(String timerServiceKey) {
         timerService = TimerServiceRegistry.getInstance().get(timerServiceKey);
         if (timerService == null) {
             throw new IllegalStateException("TimerService with key " + timerServiceKey + " was not found in the registry");
@@ -65,7 +65,7 @@ public class RegisteredTimerServiceDelegate implements TimerService, InternalSch
 
     @Override
     public boolean removeJob(JobHandle jobHandle) {
-        
+
         return timerService.removeJob(jobHandle);
     }
 
@@ -86,7 +86,7 @@ public class RegisteredTimerServiceDelegate implements TimerService, InternalSch
     }
 
     @Override
-    public long getCurrentTime() {        
+    public long getCurrentTime() {
         return timerService.getCurrentTime();
     }
 
@@ -96,12 +96,12 @@ public class RegisteredTimerServiceDelegate implements TimerService, InternalSch
     }
 
     @Override
-    public long getTimeToNextJob() {        
+    public long getTimeToNextJob() {
         return timerService.getTimeToNextJob();
     }
 
     @Override
-    public Collection<TimerJobInstance> getTimerJobInstances(long id) {        
+    public Collection<TimerJobInstance> getTimerJobInstances(long id) {
         return timerService.getTimerJobInstances(id);
     }
 

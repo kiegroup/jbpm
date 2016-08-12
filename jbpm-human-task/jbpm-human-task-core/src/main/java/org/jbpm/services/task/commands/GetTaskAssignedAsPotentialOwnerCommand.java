@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,17 +36,17 @@ public class GetTaskAssignedAsPotentialOwnerCommand extends UserGroupCallbackTas
 
     @XmlElement
     private List<Status> statuses;
-   
+
     @XmlElement(type=QueryFilter.class)
     private QueryFilter filter;
 
     public GetTaskAssignedAsPotentialOwnerCommand() {
     }
-    
+
     public GetTaskAssignedAsPotentialOwnerCommand(String userId) {
         this.userId = userId;
     }
-    
+
     public GetTaskAssignedAsPotentialOwnerCommand(String userId, List<Status> status) {
         this.userId = userId;
         this.statuses = status;
@@ -57,7 +57,7 @@ public class GetTaskAssignedAsPotentialOwnerCommand extends UserGroupCallbackTas
         this.statuses = status;
         this.groupIds = groupIds;
     }
-    
+
     public GetTaskAssignedAsPotentialOwnerCommand(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
         this.userId = userId;
         this.statuses = status;
@@ -83,7 +83,7 @@ public class GetTaskAssignedAsPotentialOwnerCommand extends UserGroupCallbackTas
             groupIds = doUserGroupCallbackOperation(userId, null, context);
         }
         return context.getTaskQueryService().getTasksAssignedAsPotentialOwner(userId, groupIds, statuses, filter);
-       
+
     }
 
 }

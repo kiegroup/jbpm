@@ -66,7 +66,7 @@ public class AsyncTaskTest extends JbpmAsyncJobTestCase {
 
         // Wait for the 4 retries to fail
         countDownListener.waitTillCompleted();
-        
+
         ProcessInstance processInstance = ksession.getProcessInstance(pi.getId());
         assertNull(processInstance);
 
@@ -86,29 +86,29 @@ public class AsyncTaskTest extends JbpmAsyncJobTestCase {
         CountDownAsyncJobListener countDownJobListener = new CountDownAsyncJobListener(1);
         try {
             ((ExecutorServiceImpl) getExecutorService()).addAsyncJobListener(countDownJobListener);
-            
+
             addProcessEventListener(countDownListener);
             KieSession ksession = createKSession(ASYNC_DATA_EXECUTOR);
             WorkItemManager wim = ksession.getWorkItemManager();
             wim.registerWorkItemHandler("async", new AsyncWorkItemHandler(getExecutorService()));
-    
+
             Map<String, Object> pm = new HashMap<String, Object>();
             pm.put("command", USER_COMMAND);
             ProcessInstance pi = ksession.startProcess(ASYNC_DATA_EXECUTOR_ID, pm);
-    
+
             assertNodeTriggered(pi.getId(), "StartProcess", "Set user info", "Process async");
             assertNodeNotTriggered(pi.getId(), "Output");
-    
+
             // Wait for the job to complete
             countDownListener.waitTillCompleted();
-            
+
             ProcessInstance processInstance = ksession.getProcessInstance(pi.getId());
             assertNull(processInstance);
-    
+
             assertNodeTriggered(pi.getId(), "Output", "EndProcess");
-            
+
             countDownJobListener.waitTillCompleted();
-            
+
             Assertions.assertThat(getExecutorService().getCompletedRequests(new QueryContext())).hasSize(1);
             assertProcessInstanceCompleted(pi.getId());
         } finally {
@@ -116,7 +116,7 @@ public class AsyncTaskTest extends JbpmAsyncJobTestCase {
         }
     }
 
-    
+
     @Test(timeout=10000)
     public void testTaskFail() throws Exception {
         CountDownAsyncJobListener countDownListener = new CountDownAsyncJobListener(4);
@@ -134,7 +134,7 @@ public class AsyncTaskTest extends JbpmAsyncJobTestCase {
 
         // Wait for the 4 retries to fail
         countDownListener.waitTillCompleted();
-        
+
         ProcessInstance processInstance = ksession.getProcessInstance(pi.getId());
         assertNotNull(processInstance);
 

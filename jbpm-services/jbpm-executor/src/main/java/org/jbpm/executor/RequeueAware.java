@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -17,16 +17,16 @@ package org.jbpm.executor;
 
 public interface RequeueAware {
 
-	/**
-	 * Moves <code>RequestInfo</code> instances that are in running state longer than
-	 * given amount of time (in milliseconds)
-	 * @param olderThan amount of time in milliseconds from current time stamp
-	 */
-	void requeue(Long olderThan);
-	
-	/**
-	 * Moves <code>RequestInfo</code> instance with given request id that are in running state
-	 * @param requestId request unique identifier
-	 */
-	void requeueById(Long requestId);
+    /**
+     * Moves <code>RequestInfo</code> instances that are in running state longer than
+     * given amount of time (in milliseconds)
+     * @param olderThan amount of time in milliseconds from current time stamp
+     */
+    void requeue(Long olderThan);
+
+    /**
+     * Moves <code>RequestInfo</code> instance with given request id that are in running state
+     * @param requestId request unique identifier
+     */
+    void requeueById(Long requestId);
 }

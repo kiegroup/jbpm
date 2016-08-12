@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,18 +27,18 @@ import org.kie.api.task.model.User;
 
 /**
  * This class is used to produce Task API objects.
- * 
- * The class (and all subclasses) are deliberately package-scoped because there are interfaces for these objects. 
+ *
+ * The class (and all subclasses) are deliberately package-scoped because there are interfaces for these objects.
  */
 class InternalJaxbWrapper {
 
     static class GetterUser implements User {
-    
+
         private final String id;
-        public GetterUser(String id) { 
+        public GetterUser(String id) {
             this.id = id;
         }
-        
+
         @Override
         public String getId() {
             return this.id;
@@ -49,41 +49,41 @@ class InternalJaxbWrapper {
         @Override
         public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException { unsupported(User.class); }
     }
-    
-    static class GetterGroup implements Group { 
-        
+
+    static class GetterGroup implements Group {
+
         private final String id;
-        
-        public GetterGroup(String id) { 
+
+        public GetterGroup(String id) {
             this.id = id;
         }
-        
+
         @Override
         public String getId() {
             return this.id;
         }
-    
+
         @Override
         public void writeExternal( ObjectOutput out ) throws IOException { unsupported(Group.class); }
         @Override
         public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException { unsupported(Group.class); }
     }
-    
+
     static class GetterI18NText implements I18NText {
-        
+
         private final Long id;
         private final String lang;
         private final String text;
-        
-        public GetterI18NText(Long id, String lang, String text) { 
+
+        public GetterI18NText(Long id, String lang, String text) {
             this.id = id;
             this.lang = lang;
             this.text = text;
         }
-        
+
         @Override
         public Long getId() { return this.id; }
-    
+
         @Override
         public String getLanguage() { return this.lang; }
 

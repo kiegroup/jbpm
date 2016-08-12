@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,33 +20,33 @@ import java.util.Date;
 
 public class OrderDetails implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	Date startDate;
-	
-	Date endDate;
-	
-	public OrderDetails(Date startDate, Date endDate) {
-		this.startDate = startDate;
-		this.endDate = endDate;
-	}
+    Date startDate;
 
-	public Date getStartDate() {
-		return startDate;
-	}
+    Date endDate;
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
-	}
+    public OrderDetails(Date startDate, Date endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 
-	public Date getEndDate() {
-		return endDate;
-	}
+    public Date getStartDate() {
+        return startDate;
+    }
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
-	}
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 }

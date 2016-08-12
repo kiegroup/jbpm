@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,20 +30,20 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AuditVariableInstanceLogQueryCommand extends AuditCommand<List<VariableInstanceLog>>{
 
-    /** generated serial version UID */ 
+    /** generated serial version UID */
     private static final long serialVersionUID = 403371489934741666L;
-    
+
     @XmlElement
     private QueryWhere queryWhere;
-   
+
     public AuditVariableInstanceLogQueryCommand() {
         // JAXB constructor
     }
-    
+
     public AuditVariableInstanceLogQueryCommand(QueryWhere queryWhere) {
-       this.queryWhere = queryWhere; 
+       this.queryWhere = queryWhere;
     }
-    
+
     @Override
     public List<VariableInstanceLog> execute( Context context ) {
         setLogEnvironment(context);

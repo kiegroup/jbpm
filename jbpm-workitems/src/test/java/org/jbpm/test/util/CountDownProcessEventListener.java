@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 public class CountDownProcessEventListener extends DefaultProcessEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(CountDownProcessEventListener.class);
-    
+
     private String nodeName;
     private CountDownLatch latch;
-    
+
     public CountDownProcessEventListener(String nodeName, int threads) {
         this.nodeName = nodeName;
         this.latch = new CountDownLatch(threads);
@@ -27,7 +27,7 @@ public class CountDownProcessEventListener extends DefaultProcessEventListener {
             latch.countDown();
         }
     }
-    
+
     public void waitTillCompleted() {
         try {
             latch.await();
@@ -35,7 +35,7 @@ public class CountDownProcessEventListener extends DefaultProcessEventListener {
             logger.debug("Interrputed thread while waiting for all triggers for node {}", nodeName);
         }
     }
-    
+
     public void waitTillCompleted(long timeOut) {
         try {
             latch.await(timeOut, TimeUnit.MILLISECONDS);

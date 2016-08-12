@@ -37,22 +37,22 @@ public class PersonTaskVariablesIndexer implements TaskVariableIndexer {
 
     @Override
     public List<TaskVariable> index(String name, Object variable) {
-        
+
         Person person = (Person) variable;
         List<TaskVariable> indexed = new ArrayList<TaskVariable>();
-        
+
         TaskVariableImpl personNameVar = new TaskVariableImpl();
         personNameVar.setName("person.name");
         personNameVar.setValue(person.getName());
-        
+
         indexed.add(personNameVar);
-        
+
         TaskVariableImpl personAgeVar = new TaskVariableImpl();
         personAgeVar.setName("person.age");
         personAgeVar.setValue(person.getAge()+"");
-        
+
         indexed.add(personAgeVar);
-        
+
         return indexed;
     }
 

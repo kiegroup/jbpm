@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,6 +20,6 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 public class CatchLinkNode extends ExtendedNodeImpl {
 
 
-	private static final long serialVersionUID = 201105121554L;
+    private static final long serialVersionUID = 201105121554L;
 
 }

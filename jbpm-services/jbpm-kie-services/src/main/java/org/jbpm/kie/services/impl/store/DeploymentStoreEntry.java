@@ -37,140 +37,140 @@ import javax.persistence.UniqueConstraint;
 @SequenceGenerator(name="deploymentStoreIdSeq", sequenceName="DEPLOY_STORE_ID_SEQ", allocationSize=1)
 public class DeploymentStoreEntry implements Serializable {
 
-	private static final long serialVersionUID = 6669858787722894023L;
-	
-	@Id
+    private static final long serialVersionUID = 6669858787722894023L;
+
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="deploymentStoreIdSeq")
     @Column(name = "id")
-	private Long id;
-	
-	@Column(name="DEPLOYMENT_ID")
-	private String deploymentId;
-	
-	@Lob
-	@Column(length=65535)
-	private String deploymentUnit;
-	
-	private Integer state;
-	
-	private Date updateDate;
-	
-	private String attributes;
+    private Long id;
 
-	public Long getId() {
-		return id;
-	}
+    @Column(name="DEPLOYMENT_ID")
+    private String deploymentId;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @Lob
+    @Column(length=65535)
+    private String deploymentUnit;
 
-	public String getDeploymentId() {
-		return deploymentId;
-	}
+    private Integer state;
 
-	public void setDeploymentId(String deploymentId) {
-		this.deploymentId = deploymentId;
-	}
+    private Date updateDate;
 
-	public String getDeploymentUnit() {
-		return deploymentUnit;
-	}
+    private String attributes;
 
-	public void setDeploymentUnit(String deploymentUnit) {
-		this.deploymentUnit = deploymentUnit;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public Integer getState() {
-		return state;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setState(Integer state) {
-		this.state = state;
-	}
+    public String getDeploymentId() {
+        return deploymentId;
+    }
 
-	public Date getUpdateDate() {
-		return updateDate;
-	}
+    public void setDeploymentId(String deploymentId) {
+        this.deploymentId = deploymentId;
+    }
 
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}
+    public String getDeploymentUnit() {
+        return deploymentUnit;
+    }
 
-	public String getAttributes() {
-		return attributes;
-	}
+    public void setDeploymentUnit(String deploymentUnit) {
+        this.deploymentUnit = deploymentUnit;
+    }
 
-	public void setAttributes(String attributes) {
-		this.attributes = attributes;
-	}
+    public Integer getState() {
+        return state;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result
-				+ ((deploymentId == null) ? 0 : deploymentId.hashCode());
-		result = prime * result
-				+ ((deploymentUnit == null) ? 0 : deploymentUnit.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((state == null) ? 0 : state.hashCode());
-		result = prime * result
-				+ ((updateDate == null) ? 0 : updateDate.hashCode());		
-		return result;
-	}
+    public void setState(Integer state) {
+        this.state = state;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DeploymentStoreEntry other = (DeploymentStoreEntry) obj;
-		if (attributes == null) {
-			if (other.attributes != null)
-				return false;
-		} else if (!attributes.equals(other.attributes))
-			return false;
-		if (deploymentId == null) {
-			if (other.deploymentId != null)
-				return false;
-		} else if (!deploymentId.equals(other.deploymentId))
-			return false;
-		if (deploymentUnit == null) {
-			if (other.deploymentUnit != null)
-				return false;
-		} else if (!deploymentUnit.equals(other.deploymentUnit))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (state == null) {
-			if (other.state != null)
-				return false;
-		} else if (!state.equals(other.state))
-			return false;
-		if (updateDate == null) {
-			if (other.updateDate != null)
-				return false;
-		} else if (!updateDate.equals(other.updateDate))
-			return false;
-		return true;
-	}
+    public Date getUpdateDate() {
+        return updateDate;
+    }
 
-	@Override
-	public String toString() {
-		return "DeploymentStoreEntry [id=" + id + ", deploymentId="
-				+ deploymentId + ", state=" + state + ", updateDate="
-				+ updateDate + "]";
-	}
-	
-	
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public String getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(String attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((attributes == null) ? 0 : attributes.hashCode());
+        result = prime * result
+                + ((deploymentId == null) ? 0 : deploymentId.hashCode());
+        result = prime * result
+                + ((deploymentUnit == null) ? 0 : deploymentUnit.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((state == null) ? 0 : state.hashCode());
+        result = prime * result
+                + ((updateDate == null) ? 0 : updateDate.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DeploymentStoreEntry other = (DeploymentStoreEntry) obj;
+        if (attributes == null) {
+            if (other.attributes != null)
+                return false;
+        } else if (!attributes.equals(other.attributes))
+            return false;
+        if (deploymentId == null) {
+            if (other.deploymentId != null)
+                return false;
+        } else if (!deploymentId.equals(other.deploymentId))
+            return false;
+        if (deploymentUnit == null) {
+            if (other.deploymentUnit != null)
+                return false;
+        } else if (!deploymentUnit.equals(other.deploymentUnit))
+            return false;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (state == null) {
+            if (other.state != null)
+                return false;
+        } else if (!state.equals(other.state))
+            return false;
+        if (updateDate == null) {
+            if (other.updateDate != null)
+                return false;
+        } else if (!updateDate.equals(other.updateDate))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "DeploymentStoreEntry [id=" + id + ", deploymentId="
+                + deploymentId + ", state=" + state + ", updateDate="
+                + updateDate + "]";
+    }
+
+
 
 }

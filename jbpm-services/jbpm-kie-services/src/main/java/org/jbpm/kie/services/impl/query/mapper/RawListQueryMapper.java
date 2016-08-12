@@ -25,20 +25,20 @@ import org.dashbuilder.dataset.DataSet;
 import org.jbpm.services.api.query.QueryResultMapper;
 
 /**
- * Dedicated mapper that transforms DataSet to List of lists where each 
+ * Dedicated mapper that transforms DataSet to List of lists where each
  * nested list represents all values of given row.
  *
  */
 public class RawListQueryMapper extends AbstractQueryMapper<List<Object>> implements QueryResultMapper<List<List<Object>>> {
-    
+
     private static final long serialVersionUID = 5935133069234696714L;
 
     /**
-     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead 
+     * Dedicated for ServiceLoader to create instance, use <code>get()</code> method instead
      */
     public RawListQueryMapper() {
     }
-    
+
     /**
      * Default access to get instance of the mapper
      * @return
@@ -52,29 +52,29 @@ public class RawListQueryMapper extends AbstractQueryMapper<List<Object>> implem
         if (result instanceof DataSet) {
             DataSet dataSetResult = (DataSet) result;
             List<List<Object>> mappedResult = new ArrayList<List<Object>>();
-            
+
             if (dataSetResult != null) {
-                
+
                 for (int i = 0; i < dataSetResult.getRowCount(); i++) {
                     List<Object> row = buildInstance(dataSetResult, i);
                     mappedResult.add(row);
-                
+
                 }
             }
-            
+
             return mappedResult;
         }
-        
+
         throw new IllegalArgumentException("Unsupported result for mapping " + result);
     }
-    
+
     protected List<Object> buildInstance(DataSet dataSetResult, int index) {
         List<Object> row = new ArrayList<Object>();
-        
+
         for (DataColumn column : dataSetResult.getColumns()) {
             row.add(dataSetResult.getColumnById(column.getId()).getValues().get(index));
         }
-        
+
         return row;
     }
 

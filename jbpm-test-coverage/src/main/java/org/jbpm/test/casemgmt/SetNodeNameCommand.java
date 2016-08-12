@@ -27,9 +27,9 @@ import org.kie.api.runtime.process.WorkflowProcessInstance;
 import org.kie.internal.command.Context;
 
 public class SetNodeNameCommand implements GenericCommand<Object> {
-    
+
     private static final long serialVersionUID = 7323092505416116457L;
-    
+
     private long processInstanceId;
     private String oldName;
     private String newName;
@@ -43,14 +43,14 @@ public class SetNodeNameCommand implements GenericCommand<Object> {
     @Override
     public Object execute(Context context) {
         KieSession kieSession = ((KnowledgeCommandContext) context).getKieSession();
-        
+
         Collection<NodeInstance> nodes = ((WorkflowProcessInstance) kieSession.getProcessInstance(processInstanceId)).getNodeInstances();
         for (NodeInstance ni : nodes) {
             if (ni.getNodeName().equals(oldName)) {
                 ((NodeImpl)ni.getNode()).setName(newName);
             }
         }
-        
+
         return null;
     }
 

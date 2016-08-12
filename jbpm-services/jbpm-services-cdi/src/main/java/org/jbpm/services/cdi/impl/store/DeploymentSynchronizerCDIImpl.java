@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,39 +33,39 @@ import org.jbpm.shared.services.impl.TransactionalCommandService;
 @ApplicationScoped
 public class DeploymentSynchronizerCDIImpl extends DeploymentSynchronizer {
 
-	@Inject
-	private TransactionalCommandService commandService;
-	
-	@PostConstruct
-	public void configure() {
-		DeploymentStore store = new DeploymentStore();
-		store.setCommandService(commandService);
-		
-		setDeploymentStore(store);
-	}
-	
-	@Inject
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
-		super.setDeploymentService(deploymentService);
-	}
+    @Inject
+    private TransactionalCommandService commandService;
 
-	public void onDeploy(@Observes@Deploy DeploymentEvent event) {
-		super.onDeploy(event);
+    @PostConstruct
+    public void configure() {
+        DeploymentStore store = new DeploymentStore();
+        store.setCommandService(commandService);
+
+        setDeploymentStore(store);
     }
-    
-    public void onUnDeploy(@Observes@Undeploy DeploymentEvent event) {    	
-    	super.onUnDeploy(event);
-    }
-    
+
+    @Inject
     @Override
-	public void onActivate(@Observes@Activate DeploymentEvent event) {
-		super.onActivate(event);
-	}
+    public void setDeploymentService(DeploymentService deploymentService) {
+        super.setDeploymentService(deploymentService);
+    }
 
-	@Override
-	public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
-		super.onDeactivate(event);
-	}
-	
+    public void onDeploy(@Observes@Deploy DeploymentEvent event) {
+        super.onDeploy(event);
+    }
+
+    public void onUnDeploy(@Observes@Undeploy DeploymentEvent event) {
+        super.onUnDeploy(event);
+    }
+
+    @Override
+    public void onActivate(@Observes@Activate DeploymentEvent event) {
+        super.onActivate(event);
+    }
+
+    @Override
+    public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
+        super.onDeactivate(event);
+    }
+
 }

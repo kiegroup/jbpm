@@ -31,11 +31,11 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="resume-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ResumeTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = -5174631969130504959L;
 
-	public ResumeTaskCommand() {
-	}
+    private static final long serialVersionUID = -5174631969130504959L;
+
+    public ResumeTaskCommand() {
+    }
 
     public ResumeTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -47,8 +47,8 @@ public class ResumeTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().resume(taskId, userId);
-    	return null;
-       
+        context.getTaskInstanceService().resume(taskId, userId);
+        return null;
+
     }
 }

@@ -35,9 +35,9 @@ public class SplitFactory extends NodeFactory {
     protected Node createNode() {
         return new Split();
     }
-    
+
     protected Split getSplit() {
-    	return (Split) getNode();
+        return (Split) getNode();
     }
 
     public SplitFactory name(String name) {
@@ -46,23 +46,23 @@ public class SplitFactory extends NodeFactory {
     }
 
     public SplitFactory type(int type) {
-    	getSplit().setType(type);
+        getSplit().setType(type);
         return this;
     }
-    
+
     public SplitFactory constraint(long toNodeId, String name, String type, String dialect, String constraint) {
-    	return constraint(toNodeId, name, type, dialect, constraint, 0);
+        return constraint(toNodeId, name, type, dialect, constraint, 0);
     }
-    
+
     public SplitFactory constraint(long toNodeId, String name, String type, String dialect, String constraint, int priority) {
         ConstraintImpl constraintImpl = new ConstraintImpl();
         constraintImpl.setName(name);
-        constraintImpl.setType(type); 
+        constraintImpl.setType(type);
         constraintImpl.setDialect(dialect);
         constraintImpl.setConstraint(constraint);
         constraintImpl.setPriority(priority);
         getSplit().addConstraint(
-    		new ConnectionRef(toNodeId, Node.CONNECTION_DEFAULT_TYPE), constraintImpl);
+            new ConnectionRef(toNodeId, Node.CONNECTION_DEFAULT_TYPE), constraintImpl);
         return this;
     }
 

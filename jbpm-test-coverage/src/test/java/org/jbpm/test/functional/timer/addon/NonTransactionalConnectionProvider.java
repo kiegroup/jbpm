@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,7 +28,7 @@ public class NonTransactionalConnectionProvider implements ConnectionProvider {
     private String url;
     private String user;
     private String password;
-    
+
     @SuppressWarnings("rawtypes")
     @Override
     public Connection getConnection() throws SQLException {
@@ -45,7 +45,7 @@ public class NonTransactionalConnectionProvider implements ConnectionProvider {
                 props.setProperty("password", password);
             }
             Connection connection = driver.connect(url, props);
-            
+
             return connection;
         } catch (Exception e) {
             throw new SQLException(e);
@@ -54,7 +54,7 @@ public class NonTransactionalConnectionProvider implements ConnectionProvider {
 
     @Override
     public void shutdown() throws SQLException {
- 
+
     }
 
     public String getDriverClassName() {

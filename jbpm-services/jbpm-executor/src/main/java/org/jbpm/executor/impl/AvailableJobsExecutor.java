@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 public class AvailableJobsExecutor extends AbstractAvailableJobsExecutor {
 
     private static final Logger logger = LoggerFactory.getLogger(AvailableJobsExecutor.class);
-    
+
     public void executeJob() {
         logger.debug("Executor Thread {} Waking Up!!!", this.toString());
         try {
             RequestInfo request = (RequestInfo) queryService.getRequestForProcessing();
             if (request != null) {
-            	executeGivenJob(request);
+                executeGivenJob(request);
             }
         } catch (Exception e) {
             logger.warn("Unexpected error while processin executor's job {}", e.getMessage(), e);

@@ -47,9 +47,9 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
  */
 public class TransactionAwareSchedulerServiceInterceptor extends DelegateSchedulerServiceInterceptor {
 
-	private RuntimeEnvironment environment;
-	private RuntimeManager manager;
-	
+    private RuntimeEnvironment environment;
+    private RuntimeManager manager;
+
     public TransactionAwareSchedulerServiceInterceptor(RuntimeEnvironment environment, RuntimeManager manager, GlobalSchedulerService schedulerService) {
         super(schedulerService);
         this.environment = environment;
@@ -58,107 +58,107 @@ public class TransactionAwareSchedulerServiceInterceptor extends DelegateSchedul
 
     @Override
     public final void internalSchedule(final TimerJobInstance timerJobInstance) {
-    	if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
-    		super.internalSchedule(timerJobInstance);
-    		return;
-    	}
-    	
+        if (hasEnvironmentEntry("IS_JTA_TRANSACTION", false)) {
+            super.internalSchedule(timerJobInstance);
+            return;
+        }
+
         TransactionManager tm = getTransactionManager(timerJobInstance.getJobContext());
         if (tm.getStatus() != TransactionManager.STATUS_NO_TRANSACTION
                 && tm.getStatus() != TransactionManager.STATUS_ROLLEDBACK
                 && tm.getStatus() != TransactionManager.STATUS_COMMITTED) {
-            TransactionManagerHelper.registerTransactionSyncInContainer(tm, 
-            		new ScheduleTimerTransactionSynchronization(timerJobInstance, delegate));
-            
+            TransactionManagerHelper.registerTransactionSyncInContainer(tm,
+                    new ScheduleTimerTransactionSynchronization(timerJobInstance, delegate));
+
             return;
         }
         super.internalSchedule(timerJobInstance);
     }
 
     private class ScheduleTimerTransactionSynchronization extends OrderedTransactionSynchronization {
-        
+
         private GlobalSchedulerService schedulerService;
         private TimerJobInstance timerJobInstance;
-        
+
         ScheduleTimerTransactionSynchronization(TimerJobInstance timerJobInstance, GlobalSchedulerService schedulerService) {
-        	super(5, "TransactionAwareSchedulerServiceInterceptor");
+            super(5, "TransactionAwareSchedulerServiceInterceptor");
             this.timerJobInstance = timerJobInstance;
             this.schedulerService = schedulerService;
         }
-        
+
         @Override
-        public void beforeCompletion() {                            
+        public void beforeCompletion() {
         }
-        
+
         @Override
         public void afterCompletion(int status) {
             if ( status == TransactionManager.STATUS_COMMITTED && !timerJobInstance.getJobHandle().isCancel()) {
                 this.schedulerService.internalSchedule(timerJobInstance);
             }
-            
+
         }
 
-		@Override
-		public int compareTo(OrderedTransactionSynchronization o) {
-			if (o instanceof ScheduleTimerTransactionSynchronization) {
-				if (this.timerJobInstance.equals(((ScheduleTimerTransactionSynchronization) o).timerJobInstance)) {
-					return 0;
-				}
-				return -1;
-			}
-			return super.compareTo(o);
-		}
-        
-        
+        @Override
+        public int compareTo(OrderedTransactionSynchronization o) {
+            if (o instanceof ScheduleTimerTransactionSynchronization) {
+                if (this.timerJobInstance.equals(((ScheduleTimerTransactionSynchronization) o).timerJobInstance)) {
+                    return 0;
+                }
+                return -1;
+            }
+            return super.compareTo(o);
+        }
+
+
     }
-    
+
     protected boolean hasEnvironmentEntry(String name, Object value) {
-    	Object envEntry = environment.getEnvironment().get(name);
-    	if (value == null) {
-    		return envEntry == null;
-    	}
-    	return value.equals(envEntry);
+        Object envEntry = environment.getEnvironment().get(name);
+        if (value == null) {
+            return envEntry == null;
+        }
+        return value.equals(envEntry);
     }
-    
+
     protected TransactionManager getTransactionManager(JobContext jobContext) {
-    	
-    	Object txm = getEnvironment(jobContext).get(EnvironmentName.TRANSACTION_MANAGER);
-    	if (txm != null && txm instanceof TransactionManager) {
-    		return (TransactionManager) txm;
-    	}
-    	
-    	return TransactionManagerFactory.get().newTransactionManager();
+
+        Object txm = getEnvironment(jobContext).get(EnvironmentName.TRANSACTION_MANAGER);
+        if (txm != null && txm instanceof TransactionManager) {
+            return (TransactionManager) txm;
+        }
+
+        return TransactionManagerFactory.get().newTransactionManager();
     }
-    
+
     protected Environment getEnvironment(JobContext jobContext) {
-    	JobContext ctxorig = jobContext;
+        JobContext ctxorig = jobContext;
         if (ctxorig instanceof SelfRemovalJobContext) {
             ctxorig = ((SelfRemovalJobContext) ctxorig).getJobContext();
         }
-    	// first attempt to get knowledge runtime's environment if job context is a process one
-    	if (ctxorig instanceof ProcessJobContext) {
-    		return ((ProcessJobContext) ctxorig).getKnowledgeRuntime().getEnvironment();
-    	} else {
-    		// next if we have manager set use it to get ksession's environment of active RuntimeEngine
-    		// while running this there must be an active RuntimeEngine present
-	    	if (manager != null) {
-	    		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(getProcessInstancId(ctxorig)));
-	    		return engine.getKieSession().getEnvironment();
-	    	} else {
-	    		// last resort use the runtime environment's environment template
-	    		return environment.getEnvironment();
-	    	}
-    	}
+        // first attempt to get knowledge runtime's environment if job context is a process one
+        if (ctxorig instanceof ProcessJobContext) {
+            return ((ProcessJobContext) ctxorig).getKnowledgeRuntime().getEnvironment();
+        } else {
+            // next if we have manager set use it to get ksession's environment of active RuntimeEngine
+            // while running this there must be an active RuntimeEngine present
+            if (manager != null) {
+                RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(getProcessInstancId(ctxorig)));
+                return engine.getKieSession().getEnvironment();
+            } else {
+                // last resort use the runtime environment's environment template
+                return environment.getEnvironment();
+            }
+        }
     }
-    
+
     protected Long getProcessInstancId(JobContext jobContext) {
-        
+
         if (jobContext instanceof ProcessJobContext) {
             return ((ProcessJobContext) jobContext).getProcessInstanceId();
         } else if(jobContext instanceof NamedJobContext){
-        	return ((NamedJobContext)jobContext).getProcessInstanceId();
+            return ((NamedJobContext)jobContext).getProcessInstanceId();
         } else {
-            return null; 
+            return null;
         }
     }
 }

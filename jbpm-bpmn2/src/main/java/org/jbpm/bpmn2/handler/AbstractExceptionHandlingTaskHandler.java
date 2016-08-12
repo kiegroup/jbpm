@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -21,35 +21,35 @@ public abstract class AbstractExceptionHandlingTaskHandler implements WorkItemHa
 
     private WorkItemHandler originalTaskHandler;
 
-    
-    public AbstractExceptionHandlingTaskHandler(WorkItemHandler originalTaskHandler) { 
+
+    public AbstractExceptionHandlingTaskHandler(WorkItemHandler originalTaskHandler) {
         this.originalTaskHandler = originalTaskHandler;
     }
-    
-    public AbstractExceptionHandlingTaskHandler(Class<? extends WorkItemHandler> originalTaskHandlerClass) { 
+
+    public AbstractExceptionHandlingTaskHandler(Class<? extends WorkItemHandler> originalTaskHandlerClass) {
         Class<?> [] clsParams = {};
         Object [] objParams = {};
-        try { 
+        try {
             this.originalTaskHandler = originalTaskHandlerClass.getConstructor(clsParams).newInstance(objParams);
-        } catch( Exception e ) { 
+        } catch( Exception e ) {
             throw new UnsupportedOperationException("The " + WorkItemHandler.class.getSimpleName() + " parameter must have a public no-argument constructor." );
         }
     }
-    
+
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         try {
             originalTaskHandler.executeWorkItem(workItem, manager);
-        } catch( Throwable cause ) { 
+        } catch( Throwable cause ) {
            handleExecuteException(cause, workItem, manager);
         }
     }
-    
+
     @Override
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         try {
             originalTaskHandler.abortWorkItem(workItem, manager);
-        } catch( RuntimeException re ) { 
+        } catch( RuntimeException re ) {
            handleAbortException(re, workItem, manager);
         }
     }
@@ -63,5 +63,5 @@ public abstract class AbstractExceptionHandlingTaskHandler implements WorkItemHa
     public abstract void handleExecuteException(Throwable cause, WorkItem workItem, WorkItemManager manager);
     public abstract void handleAbortException(Throwable cause, WorkItem workItem, WorkItemManager manager);
 
-    
+
 }

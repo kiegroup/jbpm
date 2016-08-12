@@ -29,21 +29,21 @@ public class ExecutorRunnable implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorRunnable.class);
 
-    private AvailableJobsExecutor availableJobsExecutor;       
-    
+    private AvailableJobsExecutor availableJobsExecutor;
+
     public void setAvailableJobsExecutor(AvailableJobsExecutor availableJobsExecutor) {
-		this.availableJobsExecutor = availableJobsExecutor;
-	}
+        this.availableJobsExecutor = availableJobsExecutor;
+    }
 
     public void run() {
-    	try {
-    		logger.debug("About to execute jobs...");
-    		
-    		this.availableJobsExecutor.executeJob();
-    	} catch (Exception e) {
-    		logger.warn("Error while executing jobs due to {}", e.getMessage());
-    	}
+        try {
+            logger.debug("About to execute jobs...");
+
+            this.availableJobsExecutor.executeJob();
+        } catch (Exception e) {
+            logger.warn("Error while executing jobs due to {}", e.getMessage());
+        }
     }
-    
-   
+
+
 }

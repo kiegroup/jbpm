@@ -32,52 +32,52 @@ import org.jbpm.services.api.query.QueryResultMapper;
 public class UserTaskInstanceWithCustomVarsQueryMapper extends AbstractQueryMapper<UserTaskInstanceWithVarsDesc> implements QueryResultMapper<List<UserTaskInstanceWithVarsDesc>> {
 
     private static final long serialVersionUID = 5935133069234696711L;
-    
+
     private Map<String, String> variablesMap = new HashMap<String, String>();
-    
+
     public UserTaskInstanceWithCustomVarsQueryMapper() {
-        
+
     }
-    
+
     public UserTaskInstanceWithCustomVarsQueryMapper(Map<String, String> variablesMap) {
         super();
         this.variablesMap = variablesMap;
     }
-    
+
     public static UserTaskInstanceWithCustomVarsQueryMapper get(Map<String, String> variablesMap) {
         return new UserTaskInstanceWithCustomVarsQueryMapper(variablesMap);
     }
-    
+
     @Override
     public List<UserTaskInstanceWithVarsDesc> map(Object result) {
         if (result instanceof DataSet) {
             DataSet dataSetResult = (DataSet) result;
             List<UserTaskInstanceWithVarsDesc> mappedResult = new ArrayList<UserTaskInstanceWithVarsDesc>();
-            
+
             if (dataSetResult != null) {
                 Map<Long, UserTaskInstanceWithVarsDesc> tmp = new HashMap<Long, UserTaskInstanceWithVarsDesc>();
-                
+
                 for (int i = 0; i < dataSetResult.getRowCount(); i++) {
-                    
+
                     Long taskId = getColumnLongValue(dataSetResult, COLUMN_TASKID, i);
                     UserTaskInstanceWithVarsDesc ut = tmp.get(taskId);
                     if (ut == null) {
 
                         ut = buildInstance(dataSetResult, i);
-                        mappedResult.add(ut);    
-                        
+                        mappedResult.add(ut);
+
                         tmp.put(taskId, ut);
                     }
-                    
+
                     Map<String, Object> variables = readVariables(variablesMap, dataSetResult, i);
                     ((org.jbpm.kie.services.impl.model.UserTaskInstanceWithVarsDesc) ut).setVariables(variables);
-                                    
+
                 }
             }
-            
+
             return mappedResult;
         }
-        
+
         throw new IllegalArgumentException("Unsupported result for mapping " + result);
     }
 

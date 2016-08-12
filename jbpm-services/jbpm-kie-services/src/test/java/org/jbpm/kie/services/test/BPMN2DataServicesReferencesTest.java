@@ -93,7 +93,7 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
 
     @Before
     public void prepare() {
-    	configureServices();
+        configureServices();
         KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> resources = new ArrayList<String>();
@@ -174,7 +174,7 @@ public class BPMN2DataServicesReferencesTest extends AbstractKieServicesBaseTest
                 // ignore if it fails..
             }
         }
-    	cleanupSingletonSessionId();
+        cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
                 deploymentService.undeploy(unit);

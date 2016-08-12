@@ -18,14 +18,14 @@ package org.jbpm.services.api;
 
 public class TaskNotFoundException extends RuntimeException {
 
-	private static final long serialVersionUID = 4138469799335673639L;
-	
-	public TaskNotFoundException(String message) {
-		super(message);
-	}
+    private static final long serialVersionUID = 4138469799335673639L;
 
-	public TaskNotFoundException(String message, Throwable t) {
-		super(message, t);
-	}
+    public TaskNotFoundException(String message) {
+        super(message);
+    }
+
+    public TaskNotFoundException(String message, Throwable t) {
+        super(message, t);
+    }
 
 }

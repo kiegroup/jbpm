@@ -30,12 +30,12 @@ import org.jbpm.workflow.core.Node;
 import org.jbpm.workflow.instance.node.CompositeContextNodeInstance;
 
 /**
- * 
+ *
  */
 public class VariableScopeInstance extends AbstractContextInstance {
 
     private static final long serialVersionUID = 510l;
-    
+
     private Map<String, Object> variables = new HashMap<String, Object>();
     private transient String variableIdPrefix = null;
     private transient String variableInstanceIdPrefix = null;
@@ -45,7 +45,7 @@ public class VariableScopeInstance extends AbstractContextInstance {
     }
 
     public Object getVariable(String name) {
-                
+
         Object value = variables.get(name);
         if (value != null) {
             return value;
@@ -57,11 +57,11 @@ public class VariableScopeInstance extends AbstractContextInstance {
         } else if ("parentProcessInstanceId".equals(name) && getProcessInstance() != null) {
             return getProcessInstance().getParentProcessInstanceId();
         }
-        
+
         // support for globals
         if (getProcessInstance() != null && getProcessInstance().getKnowledgeRuntime() != null) {
             return getProcessInstance().getKnowledgeRuntime().getGlobal(name);
-        }        
+        }
         return null;
     }
 
@@ -76,42 +76,42 @@ public class VariableScopeInstance extends AbstractContextInstance {
         }
         Object oldValue = variables.get(name);
         if (oldValue == null) {
-        	if (value == null) {
-        		return;
-        	}
-        } 
+            if (value == null) {
+                return;
+            }
+        }
         ProcessEventSupport processEventSupport = ((InternalProcessRuntime) getProcessInstance()
-    		.getKnowledgeRuntime().getProcessRuntime()).getProcessEventSupport();
-    	processEventSupport.fireBeforeVariableChanged(
-			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
-			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-			oldValue, value, getProcessInstance(),
-			getProcessInstance().getKnowledgeRuntime());
+            .getKnowledgeRuntime().getProcessRuntime()).getProcessEventSupport();
+        processEventSupport.fireBeforeVariableChanged(
+            (variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
+            (variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
+            oldValue, value, getProcessInstance(),
+            getProcessInstance().getKnowledgeRuntime());
         internalSetVariable(name, value);
         processEventSupport.fireAfterVariableChanged(
-			(variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
-			(variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
-    		oldValue, value, getProcessInstance(),
-			getProcessInstance().getKnowledgeRuntime());
+            (variableIdPrefix == null ? "" : variableIdPrefix + ":") + name,
+            (variableInstanceIdPrefix == null? "" : variableInstanceIdPrefix + ":") + name,
+            oldValue, value, getProcessInstance(),
+            getProcessInstance().getKnowledgeRuntime());
     }
-    
+
     public void internalSetVariable(String name, Object value) {
-    	variables.put(name, value);
+        variables.put(name, value);
     }
-    
+
     public VariableScope getVariableScope() {
-    	return (VariableScope) getContext();
+        return (VariableScope) getContext();
     }
-    
+
     public void setContextInstanceContainer(ContextInstanceContainer contextInstanceContainer) {
-    	super.setContextInstanceContainer(contextInstanceContainer);
-    	for (Variable variable : getVariableScope().getVariables()) {
+        super.setContextInstanceContainer(contextInstanceContainer);
+        for (Variable variable : getVariableScope().getVariables()) {
             setVariable(variable.getName(), variable.getValue());
         }
-    	if (contextInstanceContainer instanceof CompositeContextNodeInstance) {
-    		this.variableIdPrefix = ((Node) ((CompositeContextNodeInstance) contextInstanceContainer).getNode()).getUniqueId();
-    		this.variableInstanceIdPrefix = ((CompositeContextNodeInstance) contextInstanceContainer).getUniqueId();
-    	}
-	}
+        if (contextInstanceContainer instanceof CompositeContextNodeInstance) {
+            this.variableIdPrefix = ((Node) ((CompositeContextNodeInstance) contextInstanceContainer).getNode()).getUniqueId();
+            this.variableInstanceIdPrefix = ((CompositeContextNodeInstance) contextInstanceContainer).getUniqueId();
+        }
+    }
 
 }

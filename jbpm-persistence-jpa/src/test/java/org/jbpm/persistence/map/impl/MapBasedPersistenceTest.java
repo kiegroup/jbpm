@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,17 +35,17 @@ import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class MapBasedPersistenceTest extends MapPersistenceTest {
-    
+
     private SimpleProcessStorage storage;
-    
+
     @Before
     public void createStorage(){
         storage = new SimpleProcessStorage();
     }
-    
+
     @Override
     protected StatefulKnowledgeSession createSession(KieBase kbase) {
-        
+
         EnvironmentBuilder envBuilder = new ProcessStorageEnvironmentBuilder( storage );
         Environment env = KnowledgeBaseFactory.newEnvironment();
         env.set( EnvironmentName.TRANSACTION_MANAGER,
@@ -57,7 +57,7 @@ public class MapBasedPersistenceTest extends MapPersistenceTest {
                                                                 null,
                                                                 env );
     }
-    
+
     @Override
     protected StatefulKnowledgeSession disposeAndReloadSession(StatefulKnowledgeSession ksession, long ksessionId,
                                                              KieBase kbase) {
@@ -68,10 +68,10 @@ public class MapBasedPersistenceTest extends MapPersistenceTest {
                  envBuilder.getTransactionManager() );
         env.set( EnvironmentName.PERSISTENCE_CONTEXT_MANAGER,
                  envBuilder.getPersistenceContextManager() );
-        
+
         return JPAKnowledgeService.loadStatefulKnowledgeSession( ksessionId, kbase, null, env );
     }
-    
+
     @Override
     protected int getProcessInstancesCount() {
         return storage.processes.size();
@@ -81,7 +81,7 @@ public class MapBasedPersistenceTest extends MapPersistenceTest {
     protected int getKnowledgeSessionsCount() {
         return storage.ksessions.size();
     }
-    
+
     private static class SimpleProcessStorage
         implements
         ProcessStorage {

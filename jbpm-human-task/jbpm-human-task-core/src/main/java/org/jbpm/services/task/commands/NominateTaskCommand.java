@@ -43,14 +43,14 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class NominateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = 1874781422343631410L;
+    private static final long serialVersionUID = 1874781422343631410L;
 
-	@XmlElement
+    @XmlElement
     private List<JaxbOrganizationalEntity> potentialOwners;
-    
+
     public NominateTaskCommand() {
     }
-    
+
     public NominateTaskCommand(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
         this.taskId = taskId;
         this.userId = userId;
@@ -58,10 +58,10 @@ public class NominateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
     }
 
     public void setPotentialOwners(List<OrganizationalEntity> potentialOwners) {
-		this.potentialOwners = convertListFromInterfaceToJaxbImpl(potentialOwners, OrganizationalEntity.class, JaxbOrganizationalEntity.class);
-	}
+        this.potentialOwners = convertListFromInterfaceToJaxbImpl(potentialOwners, OrganizationalEntity.class, JaxbOrganizationalEntity.class);
+    }
 
-	public Void execute(Context cntxt) {
+    public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         List<OrganizationalEntity> realPotOwners = convertListFromJaxbImplToInterface(potentialOwners);
@@ -75,6 +75,6 @@ public class NominateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
     public List<JaxbOrganizationalEntity> getPotentialOwners() {
         return potentialOwners;
     }
-    
-    
+
+
 }

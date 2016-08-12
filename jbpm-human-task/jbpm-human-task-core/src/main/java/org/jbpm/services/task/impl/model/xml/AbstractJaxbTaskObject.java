@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,87 +34,87 @@ public class AbstractJaxbTaskObject<T> {
 
     @XmlTransient
     protected Class<?> realClass;
-   
+
     public AbstractJaxbTaskObject() {
         throw new UnsupportedOperationException("No-arg constructor must be implemented by the concrete class.");
     }
-    
-    protected AbstractJaxbTaskObject(Class<?> realClass) { 
-       this.realClass = realClass; 
+
+    protected AbstractJaxbTaskObject(Class<?> realClass) {
+       this.realClass = realClass;
     }
-    
+
     protected AbstractJaxbTaskObject(T taskObject, Class<?> objectInterface) {
         this(objectInterface);
         initialize(taskObject, objectInterface);
     }
 
-    protected void initialize(T taskObject, Class<?> objectInterface) { 
+    protected void initialize(T taskObject, Class<?> objectInterface) {
         if (taskObject != null) {
-            for (Method getIsMethod : objectInterface.getDeclaredMethods() ) { 
+            for (Method getIsMethod : objectInterface.getDeclaredMethods() ) {
                 String methodName = getIsMethod.getName();
                 String fieldName;
-                if( getIsMethod.getReturnType().equals(User.class) ) { 
+                if( getIsMethod.getReturnType().equals(User.class) ) {
                     continue;
                 }
                 if (methodName.startsWith("set")) {
-                    continue; 
+                    continue;
                 }
                 if (methodName.startsWith("get")) {
                     fieldName = methodName.substring(3);
                 } else if (methodName.startsWith("is")) {
                     fieldName = methodName.substring(2);
-                } 
+                }
                 else {
                     assert false : "Unknown method '" + methodName + "' in "+ this.getClass().getSimpleName() + ".";
                     continue;
                 }
                 // getField -> field (lowercase f)
                 fieldName = fieldName.substring(0,1).toLowerCase() + fieldName.substring(1);
-                try { 
+                try {
                     Field field = this.getClass().getDeclaredField(fieldName);
                     boolean origAccessStatus = field.isAccessible();
                     field.setAccessible(true);
                     Object setObject = getIsMethod.invoke(taskObject, new Object[0]);
                     field.set(this, setObject);
                     field.setAccessible(origAccessStatus);
-                } catch( Exception e ) { 
-                   throw new RuntimeException("Unable to initialize " + fieldName + " when creating " + this.getClass().getSimpleName() + ".", e ); 
+                } catch( Exception e ) {
+                   throw new RuntimeException("Unable to initialize " + fieldName + " when creating " + this.getClass().getSimpleName() + ".", e );
                 }
             }
-        } 
+        }
     }
 
-    static <T> T unsupported(Class<T> realClass) { 
+    static <T> T unsupported(Class<T> realClass) {
         String methodName = (new Throwable()).getStackTrace()[1].getMethodName();
         throw new UnsupportedOperationException(methodName + " is not supported on the JAXB " + realClass.getSimpleName() + " implementation.");
     }
 
     @SuppressWarnings("unchecked")
-    public static <I,J extends I> List<J> convertListFromInterfaceToJaxbImpl(List<I> interfacelList, Class<I> interfaceClass, Class<J> jaxbClass) { 
+    public static <I,J extends I> List<J> convertListFromInterfaceToJaxbImpl(List<I> interfacelList, Class<I> interfaceClass, Class<J> jaxbClass) {
         List<J> jaxbList;
-        if( interfacelList != null ) { 
+        if( interfacelList != null ) {
             jaxbList = new ArrayList<J>(interfacelList.size());
-            for( I interfaze : interfacelList ) { 
-                if( jaxbClass.isAssignableFrom(interfaze.getClass()) ) { 
+            for( I interfaze : interfacelList ) {
+                if( jaxbClass.isAssignableFrom(interfaze.getClass()) ) {
                     jaxbList.add((J) interfaze);
-                } else { 
+                } else {
                     jaxbList.add(jaxbConstructorWithInternalAsArgument(jaxbClass, interfaceClass, interfaze));
                 }
             }
-        } else { 
+        } else {
             jaxbList = new ArrayList<J>();
         }
         return jaxbList;
     }
-   
-    private static <J,I> J jaxbConstructorWithInternalAsArgument(Class<J> jaxbClass, Class<I> interfaze, I argument) { 
+
+    private static <J,I> J jaxbConstructorWithInternalAsArgument(Class<J> jaxbClass, Class<I> interfaze, I argument) {
         Class [] cnstrArgs = { interfaze };
         try {
             Constructor<J> cnstr = jaxbClass.getConstructor(cnstrArgs);
             return cnstr.newInstance(argument);
         } catch( Exception e ) {
             throw new RuntimeException("Unable to create " + jaxbClass.getName() + " using constructor with " + interfaze.getName() + " argument.", e);
-        } 
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -122,13 +122,13 @@ public class AbstractJaxbTaskObject<T> {
         if (value == null) {
             return defaultValue;
         }
-        
+
         return (T) value;
     }
-    
+
     public void writeExternal( ObjectOutput out ) throws IOException {
         unsupported(realClass);
-        
+
     }
 
     public void readExternal( ObjectInput in ) throws IOException, ClassNotFoundException {

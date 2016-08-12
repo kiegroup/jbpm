@@ -30,16 +30,16 @@ import org.jbpm.workflow.core.impl.ExtendedNodeImpl;
 
 /**
  * A for each node.
- * 
+ *
  * This node activates the contained subflow for each element of a collection.
  * The node continues if all activated the subflow has been completed for each
  * of the elements in the collection.
- * 
+ *
  */
 public class ForEachNode extends CompositeContextNode {
-    
+
     private static final long serialVersionUID = 510l;
-    
+
     private String variableName;
     private String outputVariableName;
     private String collectionExpression;
@@ -55,7 +55,7 @@ public class ForEachNode extends CompositeContextNode {
         split.setMetaData("UniqueId", getMetaData("Uniqueid") + ":foreach:split");
         super.addNode(split);
         super.linkIncomingConnections(
-            org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, 
+            org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE,
             new CompositeNode.NodeAndType(split, org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE));
         // Composite node
         CompositeContextNode compositeNode = new CompositeContextNode();
@@ -84,27 +84,27 @@ public class ForEachNode extends CompositeContextNode {
             super.getNode(3), org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE
         );
     }
-    
+
     public String getVariableName() {
         return variableName;
     }
-    
+
     public DataType getVariableType() {
-    	if (variableName == null) {
-    		return null;
-    	}
-    	for (Variable variable: ((VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE)).getVariables()) {
-    		if (variableName.equals(variable.getName())) {
-    			return variable.getType();
-    		}
-    	}
-    	return null;
+        if (variableName == null) {
+            return null;
+        }
+        for (Variable variable: ((VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE)).getVariables()) {
+            if (variableName.equals(variable.getName())) {
+                return variable.getType();
+            }
+        }
+        return null;
     }
-    
+
     public String getOutputVariableName() {
         return outputVariableName;
     }
-    
+
     public DataType getOutputVariableType() {
         if (outputVariableName == null) {
             return null;
@@ -116,89 +116,89 @@ public class ForEachNode extends CompositeContextNode {
         }
         return null;
     }
-    
+
     public CompositeContextNode getCompositeNode() {
-        return (CompositeContextNode) super.getNode(2); 
+        return (CompositeContextNode) super.getNode(2);
     }
-    
+
     public ForEachSplitNode getForEachSplitNode() {
-        return (ForEachSplitNode) super.getNode(1); 
+        return (ForEachSplitNode) super.getNode(1);
     }
-    
+
     public ForEachJoinNode getForEachJoinNode() {
-        return (ForEachJoinNode) super.getNode(3); 
+        return (ForEachJoinNode) super.getNode(3);
     }
-    
+
     public void addNode(Node node) {
-    	getCompositeNode().addNode(node);
+        getCompositeNode().addNode(node);
     }
-    
+
     protected void internalAddNode(Node node) {
-    	super.addNode(node);
+        super.addNode(node);
     }
-    
+
     public Node getNode(long id) {
-    	return getCompositeNode().getNode(id);
+        return getCompositeNode().getNode(id);
     }
-    
+
     public Node internalGetNode(long id) {
-    	return super.getNode(id);
+        return super.getNode(id);
     }
-    
+
     public Node[] getNodes() {
-		return getCompositeNode().getNodes();
+        return getCompositeNode().getNodes();
     }
-    
+
     public Node[] internalGetNodes() {
-    	return super.getNodes();
+        return super.getNodes();
     }
-    
+
     public void removeNode(Node node) {
-    	getCompositeNode().removeNode(node);
+        getCompositeNode().removeNode(node);
     }
-    
+
     protected void internalRemoveNode(Node node) {
-    	super.removeNode(node);
+        super.removeNode(node);
     }
-    
+
     public void linkIncomingConnections(String inType, long inNodeId, String inNodeType) {
-    	getCompositeNode().linkIncomingConnections(inType, inNodeId, inNodeType);
+        getCompositeNode().linkIncomingConnections(inType, inNodeId, inNodeType);
     }
 
     public void linkOutgoingConnections(long outNodeId, String outNodeType, String outType) {
-    	getCompositeNode().linkOutgoingConnections(outNodeId, outNodeType, outType);
-	}
-    
+        getCompositeNode().linkOutgoingConnections(outNodeId, outNodeType, outType);
+    }
+
     public CompositeNode.NodeAndType getLinkedIncomingNode(String inType) {
-    	return getCompositeNode().getLinkedIncomingNode(inType);
+        return getCompositeNode().getLinkedIncomingNode(inType);
     }
 
     public CompositeNode.NodeAndType internalGetLinkedIncomingNode(String inType) {
         return super.getLinkedIncomingNode(inType);
     }
-    
+
     public CompositeNode.NodeAndType getLinkedOutgoingNode(String inType) {
-    	return getCompositeNode().getLinkedOutgoingNode(inType);
+        return getCompositeNode().getLinkedOutgoingNode(inType);
     }
 
     public CompositeNode.NodeAndType internalGetLinkedOutgoingNode(String inType) {
         return super.getLinkedOutgoingNode(inType);
     }
-     
+
     public void setVariable(String variableName, DataType type) {
         this.variableName = variableName;
         VariableScope variableScope = (VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE);
         List<Variable> variables = variableScope.getVariables();
         if (variables == null) {
-        	variables = new ArrayList<Variable>();
-        	variableScope.setVariables(variables);
+            variables = new ArrayList<Variable>();
+            variableScope.setVariables(variables);
         }
         Variable variable = new Variable();
         variable.setName(variableName);
         variable.setType(type);
         variables.add(variable);
     }
-    
+
     public void setOutputVariable(String variableName, DataType type) {
         this.outputVariableName = variableName;
         VariableScope variableScope = (VariableScope) getCompositeNode().getDefaultContext(VariableScope.VARIABLE_SCOPE);
@@ -211,7 +211,7 @@ public class ForEachNode extends CompositeContextNode {
         variable.setName(variableName);
         variable.setType(type);
         variables.add(variable);
-        
+
         Variable tmpvariable = new Variable();
         tmpvariable.setName("foreach_output");
         tmpvariable.setType(type);
@@ -225,7 +225,7 @@ public class ForEachNode extends CompositeContextNode {
     public void setCollectionExpression(String collectionExpression) {
         this.collectionExpression = collectionExpression;
     }
-    
+
     public String getOutputCollectionExpression() {
         return outputCollectionExpression;
     }
@@ -258,45 +258,45 @@ public class ForEachNode extends CompositeContextNode {
         }
         return super.getContext(contextType);
     }
-    
+
     @Override
     public void addContext(Context context) {
-    	getCompositeNode().addContext(context);
+        getCompositeNode().addContext(context);
         ((AbstractContext) context).setContextContainer(getCompositeNode());
     }
 
     @Override
     public void setDefaultContext(Context context) {
-    	getCompositeNode().setDefaultContext(context);
+        getCompositeNode().setDefaultContext(context);
         ((AbstractContext) context).setContextContainer(getCompositeNode());
     }
-    
+
     @Override
     public List<Context> getContexts(String contextType) {
-    	List<Context> contexts = super.getContexts(contextType);
-    	if (contexts == null) {
-    		contexts = getCompositeNode().getContexts(contextType);        
+        List<Context> contexts = super.getContexts(contextType);
+        if (contexts == null) {
+            contexts = getCompositeNode().getContexts(contextType);
         }
-        
+
         return contexts;
     }
-    
+
     @Override
     public Context getContext(String contextType, long id) {
         Context ctx =  super.getContext(contextType, id);
         if (ctx == null) {
-        	ctx = getCompositeNode().getContext(contextType, id);        
+            ctx = getCompositeNode().getContext(contextType, id);
         }
-        
+
         return ctx;
     }
 
-	public String getCompletionConditionExpression() {
-		return completionConditionExpression;
-	}
+    public String getCompletionConditionExpression() {
+        return completionConditionExpression;
+    }
 
-	public void setCompletionConditionExpression(
-			String completionConditionExpression) {
-		this.completionConditionExpression = completionConditionExpression;
-	}
+    public void setCompletionConditionExpression(
+            String completionConditionExpression) {
+        this.completionConditionExpression = completionConditionExpression;
+    }
 }

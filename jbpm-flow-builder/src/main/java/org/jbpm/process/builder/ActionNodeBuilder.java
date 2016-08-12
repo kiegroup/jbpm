@@ -38,7 +38,7 @@ public class ActionNodeBuilder extends ExtendedNodeBuilder {
                       ProcessDescr processDescr,
                       ProcessBuildContext context,
                       Node node) {
-    	super.build(process, processDescr, context, node);
+        super.build(process, processDescr, context, node);
         ActionNode actionNode = ( ActionNode ) node;
         DroolsConsequenceAction action = (DroolsConsequenceAction) actionNode.getAction();
         ActionDescr actionDescr = new ActionDescr();
@@ -49,15 +49,15 @@ public class ActionNodeBuilder extends ExtendedNodeBuilder {
         dialect.getActionBuilder().build( context, action, actionDescr, (NodeImpl) node );
 
         Transformation transformation = (Transformation) node.getMetaData().get("Transformation");
-		if (transformation != null) {
-			WorkflowProcess wfProcess = (WorkflowProcess) process;
-			Map<String, Object> parameters = new HashMap<String, Object>();
-			parameters.put("imports", wfProcess.getImports());
-			parameters.put("classloader", context.getConfiguration().getClassLoader());
+        if (transformation != null) {
+            WorkflowProcess wfProcess = (WorkflowProcess) process;
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("imports", wfProcess.getImports());
+            parameters.put("classloader", context.getConfiguration().getClassLoader());
 
-			DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
-			transformation.setCompiledExpression(transformer.compile(transformation.getExpression(), parameters));
-		}
+            DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
+            transformation.setCompiledExpression(transformer.compile(transformation.getExpression(), parameters));
+        }
     }
 
 }

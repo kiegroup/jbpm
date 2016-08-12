@@ -98,14 +98,14 @@ public class MVELReturnValueEvaluator
             StatefulKnowledgeSession statefulKnowledgeSession = ((StatelessKnowledgeSessionImpl) context.getKieRuntime()).newWorkingMemory();
             internalWorkingMemory = ((StatefulKnowledgeSessionImpl) statefulKnowledgeSession).getInternalWorkingMemory();
         }
-        
-        VariableResolverFactory factory 
-            = unit.getFactory( context, 
+
+        VariableResolverFactory factory
+            = unit.getFactory( context,
                                null, // No previous declarations
                                null, // No rule
-                               null, // No "right object" 
+                               null, // No "right object"
                                null, // No (left) tuples
-                               vars, 
+                               vars,
                                internalWorkingMemory,
                                (GlobalResolver) context.getKieRuntime().getGlobals() );
 
@@ -117,13 +117,13 @@ public class MVELReturnValueEvaluator
         }
 
         Object value = MVELSafeHelper.getEvaluator().executeExpression( this.expr,
-	                                           null,
-	                                           factory );
+                                               null,
+                                               factory );
 
         if ( !(value instanceof Boolean) ) {
-            throw new RuntimeException( "Constraints must return boolean values: " + 
-        		unit.getExpression() + " returns " + value + 
-        		(value == null? "" : " (type=" + value.getClass()));
+            throw new RuntimeException( "Constraints must return boolean values: " +
+                unit.getExpression() + " returns " + value +
+                (value == null? "" : " (type=" + value.getClass()));
         }
         return ((Boolean) value).booleanValue();
 
@@ -132,9 +132,9 @@ public class MVELReturnValueEvaluator
     public Serializable getCompExpr() {
         return expr;
     }
-    
+
     public String toString() {
         return this.unit.getExpression();
-    }    
+    }
 
 }

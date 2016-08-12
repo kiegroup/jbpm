@@ -17,7 +17,7 @@
 package org.jbpm.examples.junit;
 
 public class HelloService {
-    
+
     public String hello(String name) {
         return "Hello " + name + "!";
     }

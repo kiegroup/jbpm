@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -48,7 +48,7 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class AbstractWorkItemHandlerTest {
 
-	
+
     @Test
     public void testServiceInvocationWithMultipleIntParams() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -57,12 +57,12 @@ public class AbstractWorkItemHandlerTest {
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new CustomWorkItemHandler(ksession));
         Map<String, Object> params = new HashMap<String, Object>();
 
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("HR.test", params);
 
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-	
+
    private static KnowledgeBase readKnowledgeBase() throws Exception {
         ProcessBuilderFactory.setProcessBuilderFactoryService(new ProcessBuilderFactoryServiceImpl());
         ProcessMarshallerFactory.setProcessMarshallerFactoryService(new ProcessMarshallerFactoryServiceImpl());
@@ -72,7 +72,7 @@ public class AbstractWorkItemHandlerTest {
         kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-TwoUserTasks.bpmn2"), ResourceType.BPMN2);
         return kbuilder.newKnowledgeBase();
     }
-    
+
     private static StatefulKnowledgeSession createSession(KnowledgeBase kbase) {
         Properties properties = new Properties();
         properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
@@ -80,24 +80,24 @@ public class AbstractWorkItemHandlerTest {
         KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
         return kbase.newStatefulKnowledgeSession(config, EnvironmentFactory.newEnvironment());
     }
-    
+
     private class CustomWorkItemHandler extends AbstractWorkItemHandler {
 
-		public CustomWorkItemHandler(StatefulKnowledgeSession ksession) {
-			super(ksession);
-		}
+        public CustomWorkItemHandler(StatefulKnowledgeSession ksession) {
+            super(ksession);
+        }
 
-		@Override
-		public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-			NodeInstance nodeInstance = getNodeInstance(workItem);
-			System.out.println("Node instance " + nodeInstance + " for work item " + workItem);
-			manager.completeWorkItem(workItem.getId(), null);
-		}
+        @Override
+        public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+            NodeInstance nodeInstance = getNodeInstance(workItem);
+            System.out.println("Node instance " + nodeInstance + " for work item " + workItem);
+            manager.completeWorkItem(workItem.getId(), null);
+        }
 
-		@Override
-		public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-			
-		}
-    	
+        @Override
+        public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+
+        }
+
     }
 }

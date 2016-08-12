@@ -45,7 +45,7 @@ import org.kie.api.executor.STATUS;
 public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, Serializable {
 
     private static final long serialVersionUID = 5823083735663566537L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="requestInfoIdSeq")
     private Long id;
@@ -64,10 +64,10 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
     //Number of times that this request has been executed
     private int executions = 0;
     private String deploymentId;
-    // owning component of this request, meaning when set only same component can execute it 
+    // owning component of this request, meaning when set only same component can execute it
     private String owner;
     private int priority = 0;
-    
+
     @Lob
     @Column(length=2147483647)
     private byte[] requestData;
@@ -112,7 +112,7 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
         this.executions = executions;
     }
 
-    
+
     public String getCommandName() {
         return commandName;
     }
@@ -135,7 +135,7 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
 
     public void setDeploymentId(String deploymentId) {
         this.deploymentId = deploymentId;
-    }    
+    }
 
     public String getMessage() {
         return message;
@@ -177,28 +177,28 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
         this.responseData = responseData;
     }
 
-	public String getOwner() {
-		return owner;
-	}
+    public String getOwner() {
+        return owner;
+    }
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
-	
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
     public int getPriority() {
         return priority;
     }
-    
+
     public void setPriority(int priority) {
         this.priority = priority;
     }
 
     @Override
     public String toString() {
-        return "RequestInfo{" + "id=" + id + ", time=" + time 
-        		+ ", status=" + status + ", commandName=" + commandName + ", message=" + message + ", owner=" + owner
-        		+ ", key=" + key + ", requestData=" + requestData + ", responseData=" + responseData 
-        		+ ", error=" + errorInfo + '}';
+        return "RequestInfo{" + "id=" + id + ", time=" + time
+                + ", status=" + status + ", commandName=" + commandName + ", message=" + message + ", owner=" + owner
+                + ", key=" + key + ", requestData=" + requestData + ", responseData=" + responseData
+                + ", error=" + errorInfo + '}';
     }
 
     @Override
@@ -261,5 +261,5 @@ public class RequestInfo implements org.kie.internal.executor.api.RequestInfo, S
         hash = 79 * hash + Arrays.hashCode(this.responseData);
         hash = 79 * hash + (this.errorInfo != null ? this.errorInfo.hashCode() : 0);
         return hash;
-    }    
+    }
 }

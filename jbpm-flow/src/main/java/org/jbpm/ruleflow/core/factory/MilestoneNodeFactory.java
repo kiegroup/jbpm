@@ -77,12 +77,12 @@ public class MilestoneNodeFactory extends NodeFactory {
     }
 
     public MilestoneNodeFactory timer(String delay, String period, String dialect, String action) {
-    	Timer timer = new Timer();
-    	timer.setDelay(delay);
-    	timer.setPeriod(period);
-    	getMilestoneNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
-    	return this;
+        Timer timer = new Timer();
+        timer.setDelay(delay);
+        timer.setPeriod(period);
+        getMilestoneNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
+        return this;
     }
-    
+
 }
 

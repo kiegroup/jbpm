@@ -77,7 +77,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     private DeploymentRolesManager deploymentRolesManager = new DeploymentRolesManager();
 
     public RuntimeDataServiceImpl() {
-    	QueryManager.get().addNamedQueries("META-INF/Servicesorm.xml");
+        QueryManager.get().addNamedQueries("META-INF/Servicesorm.xml");
         QueryManager.get().addNamedQueries("META-INF/TaskAuditorm.xml");
         QueryManager.get().addNamedQueries("META-INF/Taskorm.xml");
     }
@@ -87,13 +87,13 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     public void setIdentityProvider(IdentityProvider identityProvider) {
-		this.identityProvider = identityProvider;
-	}
+        this.identityProvider = identityProvider;
+    }
 
 
     public void setTaskService(TaskService taskService) {
-		this.taskService = taskService;
-	}
+        this.taskService = taskService;
+    }
 
     public void setTaskAuditService(TaskAuditService taskAuditService) {
         this.taskAuditService = taskAuditService;
@@ -103,7 +103,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         this.deploymentRolesManager = deploymentRolesManager;
     }
 
-	/*
+    /*
      * start
      * helper methods to index data upon deployment
      */
@@ -114,12 +114,12 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
             if( asset instanceof ProcessAssetDesc ) {
                 availableProcesses.add((ProcessAssetDesc) asset);
                 if (roles == null) {
-                	roles = ((ProcessAssetDesc) asset).getRoles();
+                    roles = ((ProcessAssetDesc) asset).getRoles();
                 }
             }
         }
         if (roles == null) {
-        	roles = Collections.emptyList();
+            roles = Collections.emptyList();
         }
         deploymentRolesManager.addRolesForDeployment(event.getDeploymentId(), roles);
     }
@@ -133,67 +133,67 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
 
-	@Override
-	public void onActivate(DeploymentEvent event) {
-		Collection<ProcessAssetDesc> outputCollection = new HashSet<ProcessAssetDesc>();
+    @Override
+    public void onActivate(DeploymentEvent event) {
+        Collection<ProcessAssetDesc> outputCollection = new HashSet<ProcessAssetDesc>();
         CollectionUtils.select(availableProcesses, new UnsecureByDeploymentIdPredicate(event.getDeploymentId()), outputCollection);
 
         for (ProcessAssetDesc process : outputCollection) {
-        	process.setActive(true);
+            process.setActive(true);
         }
 
-	}
+    }
 
-	@Override
-	public void onDeactivate(DeploymentEvent event) {
-		Collection<ProcessAssetDesc> outputCollection = new HashSet<ProcessAssetDesc>();
+    @Override
+    public void onDeactivate(DeploymentEvent event) {
+        Collection<ProcessAssetDesc> outputCollection = new HashSet<ProcessAssetDesc>();
         CollectionUtils.select(availableProcesses, new UnsecureByDeploymentIdPredicate(event.getDeploymentId()), outputCollection);
 
         for (ProcessAssetDesc process : outputCollection) {
-        	process.setActive(false);
+            process.setActive(false);
         }
-	}
+    }
 
     protected void applyQueryContext(Map<String, Object> params, QueryContext queryContext) {
-    	if (queryContext != null) {
-        	params.put("firstResult", queryContext.getOffset());
-        	params.put("maxResults", queryContext.getCount());
+        if (queryContext != null) {
+            params.put("firstResult", queryContext.getOffset());
+            params.put("maxResults", queryContext.getCount());
 
-        	if (queryContext.getOrderBy() != null && !queryContext.getOrderBy().isEmpty()) {
-        		params.put(QueryManager.ORDER_BY_KEY, queryContext.getOrderBy());
+            if (queryContext.getOrderBy() != null && !queryContext.getOrderBy().isEmpty()) {
+                params.put(QueryManager.ORDER_BY_KEY, queryContext.getOrderBy());
 
-	        	if (queryContext.isAscending()) {
-	        		params.put(QueryManager.ASCENDING_KEY, "true");
-	        	} else {
-	        		params.put(QueryManager.DESCENDING_KEY, "true");
-	        	}
-        	}
+                if (queryContext.isAscending()) {
+                    params.put(QueryManager.ASCENDING_KEY, "true");
+                } else {
+                    params.put(QueryManager.DESCENDING_KEY, "true");
+                }
+            }
         }
     }
 
 
 
     protected void applyDeploymentFilter(Map<String, Object> params) {
-    	List<String> deploymentIdForUser = deploymentRolesManager.getDeploymentsForUser(identityProvider);
+        List<String> deploymentIdForUser = deploymentRolesManager.getDeploymentsForUser(identityProvider);
 
-    	if (deploymentIdForUser != null && !deploymentIdForUser.isEmpty()) {
-    		params.put(FILTER, " log.externalId in (:deployments) ");
-    		params.put("deployments", deploymentIdForUser);
+        if (deploymentIdForUser != null && !deploymentIdForUser.isEmpty()) {
+            params.put(FILTER, " log.externalId in (:deployments) ");
+            params.put("deployments", deploymentIdForUser);
         }
     }
 
     protected <T> Collection<T> applyPaginition(List<T> input, QueryContext queryContext) {
         if (queryContext != null) {
-        	int start = queryContext.getOffset();
-        	int end = start + queryContext.getCount();
-        	if (input.size() < start) {
-        		// no elements in given range
-        		return new ArrayList<T>();
-        	} else if (input.size() >= end) {
-        		return Collections.unmodifiableCollection(new ArrayList<T>(input.subList(start, end)));
-        	} else if (input.size() < end) {
-        		return Collections.unmodifiableCollection(new ArrayList<T>(input.subList(start, input.size())));
-        	}
+            int start = queryContext.getOffset();
+            int end = start + queryContext.getCount();
+            if (input.size() < start) {
+                // no elements in given range
+                return new ArrayList<T>();
+            } else if (input.size() >= end) {
+                return Collections.unmodifiableCollection(new ArrayList<T>(input.subList(start, end)));
+            } else if (input.size() < end) {
+                return Collections.unmodifiableCollection(new ArrayList<T>(input.subList(start, input.size())));
+            }
 
         }
 
@@ -201,26 +201,26 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     protected void applySorting(List<ProcessDefinition> input, final QueryContext queryContext) {
-    	if (queryContext != null && queryContext.getOrderBy() != null && !queryContext.getOrderBy().isEmpty()) {
-    		Collections.sort(input, new Comparator<ProcessDefinition>() {
+        if (queryContext != null && queryContext.getOrderBy() != null && !queryContext.getOrderBy().isEmpty()) {
+            Collections.sort(input, new Comparator<ProcessDefinition>() {
 
-				@Override
-				public int compare(ProcessDefinition o1, ProcessDefinition o2) {
-					if ("ProcessName".equals(queryContext.getOrderBy())) {
-						return o1.getName().compareTo(o2.getName());
-					} else if ("ProcessVersion".equals(queryContext.getOrderBy())) {
-						return o1.getVersion().compareTo(o2.getVersion());
-					} else if ("Project".equals(queryContext.getOrderBy())) {
-						return o1.getDeploymentId().compareTo(o2.getDeploymentId());
-					}
-					return 0;
-				}
-			});
+                @Override
+                public int compare(ProcessDefinition o1, ProcessDefinition o2) {
+                    if ("ProcessName".equals(queryContext.getOrderBy())) {
+                        return o1.getName().compareTo(o2.getName());
+                    } else if ("ProcessVersion".equals(queryContext.getOrderBy())) {
+                        return o1.getVersion().compareTo(o2.getVersion());
+                    } else if ("Project".equals(queryContext.getOrderBy())) {
+                        return o1.getDeploymentId().compareTo(o2.getDeploymentId());
+                    }
+                    return 0;
+                }
+            });
 
-    		if (!queryContext.isAscending()) {
-    			Collections.reverse(input);
-    		}
-    	}
+            if (!queryContext.isAscending()) {
+                Collections.reverse(input);
+            }
+        }
     }
     /*
      * end
@@ -231,7 +231,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      * start
      * process definition methods
      */
-	public Collection<ProcessDefinition> getProcessesByDeploymentId(String deploymentId, QueryContext queryContext) {
+    public Collection<ProcessDefinition> getProcessesByDeploymentId(String deploymentId, QueryContext queryContext) {
         List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
         CollectionUtils.select(availableProcesses, new ByDeploymentIdPredicate(deploymentId, identityProvider.getRoles()), outputCollection);
 
@@ -240,7 +240,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     public ProcessDefinition getProcessesByDeploymentIdProcessId(String deploymentId, String processId) {
-    	List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
+        List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
         CollectionUtils.select(availableProcesses, new ByDeploymentIdProcessIdPredicate(deploymentId, processId, identityProvider.getRoles(), true), outputCollection);
 
         if (!outputCollection.isEmpty()) {
@@ -250,7 +250,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     public Collection<ProcessDefinition> getProcessesByFilter(String filter, QueryContext queryContext) {
-    	List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
+        List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
         CollectionUtils.select(availableProcesses, new RegExPredicate("(?i)^.*"+filter+".*$", identityProvider.getRoles()), outputCollection);
 
         applySorting(outputCollection, queryContext);
@@ -278,11 +278,11 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     public Collection<ProcessDefinition> getProcesses(QueryContext queryContext) {
-    	List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
-    	CollectionUtils.select(availableProcesses, new SecurePredicate(identityProvider.getRoles(), false), outputCollection);
+        List<ProcessDefinition> outputCollection = new ArrayList<ProcessDefinition>();
+        CollectionUtils.select(availableProcesses, new SecurePredicate(identityProvider.getRoles(), false), outputCollection);
 
-    	applySorting(outputCollection, queryContext);
-    	return applyPaginition(outputCollection, queryContext);
+        applySorting(outputCollection, queryContext);
+        return applyPaginition(outputCollection, queryContext);
     }
 
     @Override
@@ -310,11 +310,11 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      */
 
     public Collection<ProcessInstanceDesc> getProcessInstances(QueryContext queryContext) {
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	applyQueryContext(params, queryContext);
-    	applyDeploymentFilter(params);
+        Map<String, Object> params = new HashMap<String, Object>();
+        applyQueryContext(params, queryContext);
+        applyDeploymentFilter(params);
         List<ProcessInstanceDesc> processInstances =  commandService.execute(
-			new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstances", params));
+            new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstances", params));
 
         return Collections.unmodifiableCollection(processInstances);
     }
@@ -329,113 +329,113 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if (initiator == null) {
 
             processInstances = commandService.execute(
-    				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByStatus", params));
+                    new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByStatus", params));
         } else {
 
             params.put("initiator", initiator);
             processInstances = commandService.execute(
-    				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByStatusAndInitiator", params));
+                    new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByStatusAndInitiator", params));
         }
         return Collections.unmodifiableCollection(processInstances);
     }
 
     public Collection<ProcessInstanceDesc> getProcessInstancesByDeploymentId(String deploymentId, List<Integer> states, QueryContext queryContext) {
-    	Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("externalId", deploymentId);
         params.put("states", states);
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
         List<ProcessInstanceDesc> processInstances = commandService.execute(
-				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByDeploymentId",
+                new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByDeploymentId",
                 params));
-	    return Collections.unmodifiableCollection(processInstances);
+        return Collections.unmodifiableCollection(processInstances);
 
     }
 
 
     public Collection<ProcessInstanceDesc> getProcessInstancesByProcessDefinition(String processDefId, QueryContext queryContext){
-    	Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("processDefId", processDefId);
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-    	List<ProcessInstanceDesc> processInstances = commandService.execute(
-				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessDefinition",
+        List<ProcessInstanceDesc> processInstances = commandService.execute(
+                new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessDefinition",
               params));
 
         return Collections.unmodifiableCollection(processInstances);
     }
 
 
-	@Override
-	public Collection<ProcessInstanceDesc> getProcessInstancesByProcessDefinition(String processDefId, List<Integer> states, QueryContext queryContext) {
-		Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public Collection<ProcessInstanceDesc> getProcessInstancesByProcessDefinition(String processDefId, List<Integer> states, QueryContext queryContext) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("processId", processDefId);
         params.put("states", states);
         applyQueryContext(params, queryContext);
         applyDeploymentFilter(params);
-    	List<ProcessInstanceDesc> processInstances = commandService.execute(
-				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessIdAndStatus",
+        List<ProcessInstanceDesc> processInstances = commandService.execute(
+                new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessIdAndStatus",
               params));
 
         return Collections.unmodifiableCollection(processInstances);
-	}
+    }
 
     public ProcessInstanceDesc getProcessInstanceById(long processId) {
-    	Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("processId", processId);
         params.put("maxResults", 1);
 
         List<ProcessInstanceDesc> processInstances = commandService.execute(
-				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstanceById",
+                new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstanceById",
                 params));
 
         if (!processInstances.isEmpty()) {
-        	ProcessInstanceDesc desc = processInstances.iterator().next();
-        	List<String> statuses = new ArrayList<String>();
-        	statuses.add(Status.Ready.name());
-        	statuses.add(Status.Reserved.name());
-        	statuses.add(Status.InProgress.name());
+            ProcessInstanceDesc desc = processInstances.iterator().next();
+            List<String> statuses = new ArrayList<String>();
+            statuses.add(Status.Ready.name());
+            statuses.add(Status.Reserved.name());
+            statuses.add(Status.InProgress.name());
 
-        	params = new HashMap<String, Object>();
+            params = new HashMap<String, Object>();
             params.put("processInstanceId", desc.getId());
             params.put("statuses", statuses);
             List<UserTaskInstanceDesc> tasks = commandService.execute(
-    				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstancesByProcessInstanceId", params));
-        	((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
-        	return desc;
+                    new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstancesByProcessInstanceId", params));
+            ((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
+            return desc;
         }
         return null;
    }
 
-	@Override
-	public ProcessInstanceDesc getProcessInstanceByCorrelationKey(CorrelationKey correlationKey) {
-	   	Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public ProcessInstanceDesc getProcessInstanceByCorrelationKey(CorrelationKey correlationKey) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("correlationKey", correlationKey.toExternalForm());
         params.put("maxResults", 1);
 
         List<ProcessInstanceDesc> processInstances = commandService.execute(
-				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstanceByCorrelationKey",
+                new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstanceByCorrelationKey",
                 params));
 
         if (!processInstances.isEmpty()) {
-        	ProcessInstanceDesc desc = processInstances.iterator().next();
-        	List<String> statuses = new ArrayList<String>();
-        	statuses.add(Status.Ready.name());
-        	statuses.add(Status.Reserved.name());
-        	statuses.add(Status.InProgress.name());
+            ProcessInstanceDesc desc = processInstances.iterator().next();
+            List<String> statuses = new ArrayList<String>();
+            statuses.add(Status.Ready.name());
+            statuses.add(Status.Reserved.name());
+            statuses.add(Status.InProgress.name());
 
-        	params = new HashMap<String, Object>();
+            params = new HashMap<String, Object>();
             params.put("processInstanceId", desc.getId());
             params.put("statuses", statuses);
             List<UserTaskInstanceDesc> tasks = commandService.execute(
-    				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstancesByProcessInstanceId", params));
-        	((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
-        	return desc;
+                    new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstancesByProcessInstanceId", params));
+            ((org.jbpm.kie.services.impl.model.ProcessInstanceDesc)desc).setActiveTasks(tasks);
+            return desc;
         }
         return null;
-	}
+    }
 
-	@Override
+    @Override
     public Collection<ProcessInstanceDesc> getProcessInstancesByCorrelationKey(CorrelationKey correlationKey, QueryContext queryContext) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("correlationKey", correlationKey.toExternalForm() + "%");
@@ -462,12 +462,12 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if (initiator == null) {
 
             processInstances = commandService.execute(
-    				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessIdAndStatus", params));
+                    new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessIdAndStatus", params));
         } else {
             params.put("initiator", initiator);
 
             processInstances = commandService.execute(
-    				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessIdAndStatusAndInitiator", params));
+                    new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessIdAndStatusAndInitiator", params));
         }
 
         return Collections.unmodifiableCollection(processInstances);
@@ -486,12 +486,12 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         if (initiator == null) {
 
             processInstances = commandService.execute(
-    				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessNameAndStatus", params));
+                    new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessNameAndStatus", params));
         } else {
             params.put("initiator", initiator);
 
             processInstances = commandService.execute(
-    				new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessNameAndStatusAndInitiator", params));
+                    new QueryNameCommand<List<ProcessInstanceDesc>>("getProcessInstancesByProcessNameAndStatusAndInitiator", params));
         }
 
         return Collections.unmodifiableCollection(processInstances);
@@ -561,17 +561,17 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
 
     protected Collection<NodeInstanceDesc> getProcessInstanceHistory(long processId, boolean completed, QueryContext queryContext) {
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	params.put("processId", processId);
-    	applyQueryContext(params, queryContext);
-    	List<NodeInstanceDesc> nodeInstances = Collections.emptyList();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processId", processId);
+        applyQueryContext(params, queryContext);
+        List<NodeInstanceDesc> nodeInstances = Collections.emptyList();
         if (completed) {
-        	nodeInstances = commandService.execute(
-    				new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceCompletedNodes",
+            nodeInstances = commandService.execute(
+                    new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceCompletedNodes",
                     params));
         } else {
-        	nodeInstances = commandService.execute(
-    				new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceActiveNodes",
+            nodeInstances = commandService.execute(
+                    new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceActiveNodes",
                     params));
         }
 
@@ -580,11 +580,11 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
     @Override
     public Collection<NodeInstanceDesc> getProcessInstanceFullHistory(long processId, QueryContext queryContext) {
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	params.put("processId", processId);
-    	applyQueryContext(params, queryContext);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processId", processId);
+        applyQueryContext(params, queryContext);
         List<NodeInstanceDesc> nodeInstances = commandService.execute(
-				new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceFullHistory",
+                new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceFullHistory",
                 params));
 
         return nodeInstances;
@@ -592,31 +592,31 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
     @Override
     public Collection<NodeInstanceDesc> getProcessInstanceFullHistoryByType(long processId, EntryType type, QueryContext queryContext) {
-    	Map<String, Object> params = new HashMap<String, Object>();
-    	params.put("processId", processId);
-    	params.put("type", type.getValue());
-    	applyQueryContext(params, queryContext);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processId", processId);
+        params.put("type", type.getValue());
+        applyQueryContext(params, queryContext);
         List<NodeInstanceDesc> nodeInstances = commandService.execute(
-				new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceFullHistoryByType",
+                new QueryNameCommand<List<NodeInstanceDesc>>("getProcessInstanceFullHistoryByType",
                 params));
 
         return nodeInstances;
     }
 
 
-	@Override
-	public NodeInstanceDesc getNodeInstanceForWorkItem(Long workItemId) {
-		Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public NodeInstanceDesc getNodeInstanceForWorkItem(Long workItemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("workItemId", workItemId);
         params.put("maxResults", 1);
         List<NodeInstanceDesc> nodeInstances = commandService.execute(
-				new QueryNameCommand<List<NodeInstanceDesc>>("getNodeInstanceForWorkItem", params));
+                new QueryNameCommand<List<NodeInstanceDesc>>("getNodeInstanceForWorkItem", params));
 
-    	if (!nodeInstances.isEmpty()) {
-        	return nodeInstances.iterator().next();
+        if (!nodeInstances.isEmpty()) {
+            return nodeInstances.iterator().next();
         }
         return null;
-	}
+    }
 
     /*
      * end
@@ -629,10 +629,10 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      */
 
     public Collection<VariableDesc> getVariablesCurrentState(long processInstanceId) {
-    	Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("processInstanceId", processInstanceId);
         List<VariableDesc> variablesState = commandService.execute(
-				new QueryNameCommand<List<VariableDesc>>("getVariablesCurrentState", params));
+                new QueryNameCommand<List<VariableDesc>>("getVariablesCurrentState", params));
 
         return variablesState;
     }
@@ -642,8 +642,8 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         params.put("processInstanceId", processInstanceId);
         params.put("variableId", variableId);
         applyQueryContext(params, queryContext);
-    	List<VariableDesc> variablesState = commandService.execute(
-				new QueryNameCommand<List<VariableDesc>>("getVariableHistory",
+        List<VariableDesc> variablesState = commandService.execute(
+                new QueryNameCommand<List<VariableDesc>>("getVariableHistory",
                 params));
 
         return variablesState;
@@ -659,149 +659,149 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      * task methods
      */
 
-	@Override
-	public UserTaskInstanceDesc getTaskByWorkItemId(Long workItemId) {
-		Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public UserTaskInstanceDesc getTaskByWorkItemId(Long workItemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("workItemId", workItemId);
         params.put("maxResults", 1);
         List<UserTaskInstanceDesc> tasks = commandService.execute(
-				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstanceByWorkItemId", params));
+                new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstanceByWorkItemId", params));
 
-    	if (!tasks.isEmpty()) {
-        	return tasks.iterator().next();
+        if (!tasks.isEmpty()) {
+            return tasks.iterator().next();
         }
         return null;
-	}
+    }
 
-	@Override
-	public UserTaskInstanceDesc getTaskById(Long taskId) {
-		Map<String, Object> params = new HashMap<String, Object>();
+    @Override
+    public UserTaskInstanceDesc getTaskById(Long taskId) {
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("taskId", taskId);
         params.put("maxResults", 1);
         List<UserTaskInstanceDesc> tasks = commandService.execute(
-				new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstanceById", params));
+                new QueryNameCommand<List<UserTaskInstanceDesc>>("getTaskInstanceById", params));
 
-    	if (!tasks.isEmpty()) {
-        	return tasks.iterator().next();
+        if (!tasks.isEmpty()) {
+            return tasks.iterator().next();
         }
         return null;
-	}
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter) {
+    @Override
+    public List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter) {
 
-		List<Status> allActiveStatus = new ArrayList<Status>();
-		allActiveStatus.add(Status.Created);
-		allActiveStatus.add(Status.Ready);
-		allActiveStatus.add(Status.Reserved);
-		allActiveStatus.add(Status.InProgress);
-		allActiveStatus.add(Status.Suspended);
+        List<Status> allActiveStatus = new ArrayList<Status>();
+        allActiveStatus.add(Status.Created);
+        allActiveStatus.add(Status.Ready);
+        allActiveStatus.add(Status.Reserved);
+        allActiveStatus.add(Status.InProgress);
+        allActiveStatus.add(Status.Suspended);
 
-		Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("userId", userId);
         params.put("status", allActiveStatus);
         params.put("groupIds", identityProvider.getRoles());
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         return (List<TaskSummary>) commandService.execute(
-				new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsBusinessAdministratorByStatus",params));
+                new QueryNameCommand<List<TaskSummary>>("TasksAssignedAsBusinessAdministratorByStatus",params));
 
-	}
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null , null, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, QueryFilter filter) {
+        return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null , null, filter);
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, groupIds , null, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, QueryFilter filter) {
+        return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, groupIds , null, filter);
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, groupIds , status, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
+        return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, groupIds , status, filter);
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, QueryFilter filter) {
+        return ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, filter);
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(
-			String userId, List<Status> status, Date from, QueryFilter filter) {
+    @Override
+    public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(
+            String userId, List<Status> status, Date from, QueryFilter filter) {
         List<TaskSummary> taskSummaries = null;
         if (from != null) {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("expirationDate", from);
-			QueryFilter qf = new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)",
-	                            params, "order by t.id DESC", filter.getOffset(), filter.getCount());
+            QueryFilter qf = new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)",
+                                params, "order by t.id DESC", filter.getOffset(), filter.getCount());
 
 
-			taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, qf);
+            taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId, null, status, qf);
         } else {
             QueryFilter qf = new QueryFilter(filter.getOffset(), filter.getCount());
             taskSummaries = ((InternalTaskService)taskService).getTasksAssignedAsPotentialOwner(userId,null, status, qf);
         }
         return taskSummaries;
-	}
+    }
 
-	@Override
-	public List<TaskSummary> getTasksOwnedByExpirationDateOptional(String userId, List<Status> strStatuses, Date from,
-			QueryFilter filter) {
+    @Override
+    public List<TaskSummary> getTasksOwnedByExpirationDateOptional(String userId, List<Status> strStatuses, Date from,
+            QueryFilter filter) {
         List<TaskSummary> taskSummaries = null;
         if (from != null) {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("expirationDate", from);
-			QueryFilter qf = new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)",
-	                            params, "order by t.id DESC", filter.getOffset(), filter.getCount());
+            QueryFilter qf = new QueryFilter( "(t.taskData.expirationTime = :expirationDate or t.taskData.expirationTime is null)",
+                                params, "order by t.id DESC", filter.getOffset(), filter.getCount());
 
 
-			taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId, null, qf);
+            taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId, null, qf);
         } else {
             QueryFilter qf = new QueryFilter(filter.getOffset(), filter.getCount());
             taskSummaries = ((InternalTaskService)taskService).getTasksOwned(userId,null, qf);
         }
         return taskSummaries;
-	}
+    }
 
-	@Override
-	public List<TaskSummary> getTasksOwned(String userId, QueryFilter filter) {
+    @Override
+    public List<TaskSummary> getTasksOwned(String userId, QueryFilter filter) {
 
         return ((InternalTaskService)taskService).getTasksOwned(userId, null, filter);
-	}
+    }
 
-	@Override
-	public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, QueryFilter filter) {
-		return ((InternalTaskService)taskService).getTasksOwned(userId, status, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, QueryFilter filter) {
+        return ((InternalTaskService)taskService).getTasksOwned(userId, status, filter);
+    }
 
-	@Override
-	public List<Long> getTasksByProcessInstanceId(Long processInstanceId) {
-		return taskService.getTasksByProcessInstanceId(processInstanceId);
-	}
+    @Override
+    public List<Long> getTasksByProcessInstanceId(Long processInstanceId) {
+        return taskService.getTasksByProcessInstanceId(processInstanceId);
+    }
 
-	@Override
-	public List<TaskSummary> getTasksByStatusByProcessInstanceId(Long processInstanceId, List<Status> status, QueryFilter filter) {
+    @Override
+    public List<TaskSummary> getTasksByStatusByProcessInstanceId(Long processInstanceId, List<Status> status, QueryFilter filter) {
 
-		if (status == null || status.isEmpty()) {
+        if (status == null || status.isEmpty()) {
 
-			status = new ArrayList<Status>();
-			status.add(Status.Created);
-			status.add(Status.Ready);
-			status.add(Status.Reserved);
-			status.add(Status.InProgress);
-			status.add(Status.Suspended);
-		}
+            status = new ArrayList<Status>();
+            status.add(Status.Created);
+            status.add(Status.Ready);
+            status.add(Status.Reserved);
+            status.add(Status.InProgress);
+            status.add(Status.Suspended);
+        }
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("processInstanceId", processInstanceId);
-		params.put("status", status);
-		applyQueryContext(params, filter);
-		applyQueryFilter(params, filter);
-		return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("TasksByStatusByProcessId", params));
-	}
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("processInstanceId", processInstanceId);
+        params.put("status", status);
+        applyQueryContext(params, filter);
+        applyQueryFilter(params, filter);
+        return (List<TaskSummary>) commandService.execute(new QueryNameCommand<List<TaskSummary>>("TasksByStatusByProcessId", params));
+    }
 
 
     @Override
@@ -891,7 +891,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         }
     }
 
-	/*
+    /*
      * end
      * task methods
      */
@@ -907,7 +907,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         List<AuditTask> auditTasks = commandService.execute(
-    				new QueryNameCommand<List<AuditTask>>("getAllAuditTasksByUser", params));
+                    new QueryNameCommand<List<AuditTask>>("getAllAuditTasksByUser", params));
         return auditTasks;
     }
 
@@ -919,7 +919,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         List<AuditTask> auditTasks = commandService.execute(
-    				new QueryNameCommand<List<AuditTask>>("getAllAuditTasksByStatus", params));
+                    new QueryNameCommand<List<AuditTask>>("getAllAuditTasksByStatus", params));
         return auditTasks;
     }
 
@@ -936,12 +936,12 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     public List<TaskEvent> getTaskEvents(long taskId, QueryFilter filter) {
-    	Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("taskId", taskId);
         applyQueryContext(params, filter);
         applyQueryFilter(params, filter);
         List<TaskEvent> taskEvents = commandService.execute(
-    				new QueryNameCommand<List<TaskEvent>>("getAllTasksEvents", params));
+                    new QueryNameCommand<List<TaskEvent>>("getAllTasksEvents", params));
         return taskEvents;
     }
 
@@ -959,7 +959,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         private String pattern;
 
         private RegExPredicate(String pattern, List<String> roles) {
-        	super(roles, false);
+            super(roles, false);
             this.pattern = pattern;
         }
 
@@ -969,7 +969,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
                 ProcessAssetDesc pDesc = (ProcessAssetDesc) object;
                 boolean hasAccess = super.evaluate(object);
                 if (!hasAccess) {
-                	return false;
+                    return false;
                 }
                 if (pDesc.getId().matches(pattern)
                         || pDesc.getName().matches(pattern)) {
@@ -985,7 +985,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         private String deploymentId;
 
         private ByDeploymentIdPredicate(String deploymentId, List<String> roles) {
-        	super(roles, false);
+            super(roles, false);
             this.deploymentId = deploymentId;
         }
 
@@ -995,7 +995,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
                 ProcessAssetDesc pDesc = (ProcessAssetDesc) object;
                 boolean hasAccess = super.evaluate(object);
                 if (!hasAccess) {
-                	return false;
+                    return false;
                 }
                 if (pDesc.getDeploymentId().equals(deploymentId)) {
                     return true;
@@ -1010,7 +1010,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
         private String processId;
 
         private ByProcessIdPredicate(String processId, List<String> roles) {
-        	super(roles, false);
+            super(roles, false);
             this.processId = processId;
         }
 
@@ -1020,7 +1020,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
                 ProcessAssetDesc pDesc = (ProcessAssetDesc) object;
                 boolean hasAccess = super.evaluate(object);
                 if (!hasAccess) {
-                	return false;
+                    return false;
                 }
                 if (pDesc.getId().equals(processId)) {
                     return true;
@@ -1037,13 +1037,13 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
 
         private ByDeploymentIdProcessIdPredicate(String depoymentId, String processId, List<String> roles) {
             super(roles, false);
-        	this.depoymentId = depoymentId;
+            this.depoymentId = depoymentId;
             this.processId = processId;
         }
 
         private ByDeploymentIdProcessIdPredicate(String depoymentId, String processId, List<String> roles, boolean skipActiveCheck) {
             super(roles, skipActiveCheck);
-        	this.depoymentId = depoymentId;
+            this.depoymentId = depoymentId;
             this.processId = processId;
         }
 
@@ -1053,7 +1053,7 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
                 ProcessAssetDesc pDesc = (ProcessAssetDesc) object;
                 boolean hasAccess = super.evaluate(object);
                 if (!hasAccess) {
-                	return false;
+                    return false;
                 }
                 if (pDesc.getId().equals(processId) && pDesc.getDeploymentId().equals(depoymentId)) {
                     return true;
@@ -1064,29 +1064,29 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
     }
 
     private class SecurePredicate extends ActiveOnlyPredicate {
-    	private List<String> roles;
-    	private boolean skipActivCheck;
+        private List<String> roles;
+        private boolean skipActivCheck;
 
-    	private SecurePredicate(List<String> roles, boolean skipActivCheck) {
-    		this.roles = roles;
-    		this.skipActivCheck = skipActivCheck;
-    	}
+        private SecurePredicate(List<String> roles, boolean skipActivCheck) {
+            this.roles = roles;
+            this.skipActivCheck = skipActivCheck;
+        }
 
-    	public boolean evaluate(Object object) {
-    		if (!skipActivCheck) {
-	    		boolean isActive = super.evaluate(object);
-	    		if (!isActive) {
-	    			return false;
-    		}
-    		}
-    		ProcessAssetDesc pDesc = (ProcessAssetDesc) object;
-    		if (this.roles == null || this.roles.isEmpty() || pDesc.getRoles() == null || pDesc.getRoles().isEmpty()) {
-    			return true;
-    		}
+        public boolean evaluate(Object object) {
+            if (!skipActivCheck) {
+                boolean isActive = super.evaluate(object);
+                if (!isActive) {
+                    return false;
+            }
+            }
+            ProcessAssetDesc pDesc = (ProcessAssetDesc) object;
+            if (this.roles == null || this.roles.isEmpty() || pDesc.getRoles() == null || pDesc.getRoles().isEmpty()) {
+                return true;
+            }
 
 
-    		return CollectionUtils.containsAny(roles, pDesc.getRoles());
-    	}
+            return CollectionUtils.containsAny(roles, pDesc.getRoles());
+        }
     }
 
 
@@ -1135,14 +1135,14 @@ public class RuntimeDataServiceImpl implements RuntimeDataService, DeploymentEve
      */
 
      protected void applyQueryFilter(Map<String, Object> params, QueryFilter queryFilter) {
-    	if (queryFilter != null) {
-    	    applyQueryContext(params, queryFilter);
-        	if (queryFilter.getFilterParams() != null && !queryFilter.getFilterParams().isEmpty()) {
-        		params.put(FILTER, queryFilter.getFilterParams());
-        		for(String key : queryFilter.getParams().keySet()){
+        if (queryFilter != null) {
+            applyQueryContext(params, queryFilter);
+            if (queryFilter.getFilterParams() != null && !queryFilter.getFilterParams().isEmpty()) {
+                params.put(FILTER, queryFilter.getFilterParams());
+                for(String key : queryFilter.getParams().keySet()){
                     params.put(key, queryFilter.getParams().get(key));
                 }
-        	}
+            }
         }
     }
 

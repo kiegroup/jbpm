@@ -58,17 +58,17 @@ public class SynchronizedTaskService
             implements InternalTaskService, EventService<TaskLifeCycleEventListener> {
 
 
-	private Object ksession;
-	private InternalTaskService taskService;
+    private Object ksession;
+    private InternalTaskService taskService;
 
-	public SynchronizedTaskService(KieSession ksession, InternalTaskService taskService) {
-	    if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
-	        this.ksession = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession).getCommandService();
-	    } else {
-	        this.ksession = ksession;
-	    }
-		this.taskService = taskService;
-	}
+    public SynchronizedTaskService(KieSession ksession, InternalTaskService taskService) {
+        if (ksession instanceof CommandBasedStatefulKnowledgeSession) {
+            this.ksession = (SingleSessionCommandService) ((CommandBasedStatefulKnowledgeSession) ksession).getCommandService();
+        } else {
+            this.ksession = ksession;
+        }
+        this.taskService = taskService;
+    }
 
 
     @Override
@@ -851,20 +851,20 @@ public class SynchronizedTaskService
         }
     }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public void removeTaskEventListener(TaskLifeCycleEventListener listener) {
-		synchronized (ksession) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public void removeTaskEventListener(TaskLifeCycleEventListener listener) {
+        synchronized (ksession) {
             ((EventService<TaskLifeCycleEventListener>) taskService).removeTaskEventListener(listener);
         }
-	}
+    }
 
-	@Override
-	public <T> T execute(Command<T> command) {
-		synchronized (ksession) {
-			return taskService.execute(command);
-		}
-	}
+    @Override
+    public <T> T execute(Command<T> command) {
+        synchronized (ksession) {
+            return taskService.execute(command);
+        }
+    }
 
     @Override
     public List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDate(String userId, List<Status> statuses, Date expirationDate) {
@@ -920,41 +920,41 @@ public class SynchronizedTaskService
     }
 
 
-	@Override
-	public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds,
-			List<Long> taskIds, List<Long> procInstIds, List<String> busAdmins,
-			List<String> potOwners, List<String> taskOwners,
-			List<Status> status,  List<String> language, boolean union) {
-		synchronized (ksession) {
+    @Override
+    public List<TaskSummary> getTasksByVariousFields(String userId, List<Long> workItemIds,
+            List<Long> taskIds, List<Long> procInstIds, List<String> busAdmins,
+            List<String> potOwners, List<String> taskOwners,
+            List<Status> status,  List<String> language, boolean union) {
+        synchronized (ksession) {
             if (taskService != null) {
                 return taskService.getTasksByVariousFields(userId, workItemIds, taskIds, procInstIds,
-                		busAdmins, potOwners, taskOwners, status, language, union);
+                        busAdmins, potOwners, taskOwners, status, language, union);
             }
             return null;
         }
-	}
+    }
 
 
-	@Override
-	public List<TaskSummary> getTasksByVariousFields(String userId, Map<String, List<?>> parameters, boolean union) {
-		synchronized (ksession) {
+    @Override
+    public List<TaskSummary> getTasksByVariousFields(String userId, Map<String, List<?>> parameters, boolean union) {
+        synchronized (ksession) {
             if (taskService != null) {
                 return taskService.getTasksByVariousFields(userId, parameters, union);
             }
 
             return null;
         }
-	}
+    }
 
-	@Override
-	public List<TaskSummary> getTasksOwned(String userId, List<Status> status, QueryFilter filter) {
-	    return taskService.getTasksOwned(userId, status, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksOwned(String userId, List<Status> status, QueryFilter filter) {
+        return taskService.getTasksOwned(userId, status, filter);
+    }
 
-	@Override
-	public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
-	    return taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, status, filter);
-	}
+    @Override
+    public List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter) {
+        return taskService.getTasksAssignedAsPotentialOwner(userId, groupIds, status, filter);
+    }
 
     @Override
     public TaskSummaryQueryBuilder taskSummaryQuery( String userId ) {

@@ -26,18 +26,18 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ClearHistoryLogsCommand extends AuditCommand<Void> {
 
-	/** generated serial version UID */
+    /** generated serial version UID */
     private static final long serialVersionUID = 9066179664390664420L;
 
     public ClearHistoryLogsCommand() {
-	}
-	
+    }
+
     public Void execute(Context cntxt) {
         setLogEnvironment(cntxt);
         this.auditLogService.clear();
         return null;
     }
-    
+
     public String toString() {
         return AuditLogService.class.getSimpleName() + ".clear()";
     }

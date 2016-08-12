@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,30 +34,30 @@ import org.kie.internal.task.api.model.InternalTask;
 @XmlAccessorType(XmlAccessType.NONE)
 public class CancelDeadlineCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = -1315897796195789680L;
+    private static final long serialVersionUID = -1315897796195789680L;
 
-	@XmlElement
-	private boolean removeStart;
-	@XmlElement
-	private boolean removeEnd;
-	
+    @XmlElement
+    private boolean removeStart;
+    @XmlElement
+    private boolean removeEnd;
+
     public CancelDeadlineCommand() {
     }
-    
+
     public CancelDeadlineCommand(long taskId, boolean removeStart, boolean removeEnd) {
         this.taskId = taskId;
         this.removeStart = removeStart;
         this.removeEnd = removeEnd;
     }
-	@Override
-	public Void execute(Context cntxt) {
-		
-		TaskContext context = (TaskContext) cntxt;
-		
-		TaskDeadlinesService deadlineService = context.getTaskDeadlinesService();
+    @Override
+    public Void execute(Context cntxt) {
+
+        TaskContext context = (TaskContext) cntxt;
+
+        TaskDeadlinesService deadlineService = context.getTaskDeadlinesService();
         TaskQueryService queryService = context.getTaskQueryService();
         TaskPersistenceContext persistenceContext = context.getPersistenceContext();
-        
+
         InternalTask task = (InternalTask) queryService.getTaskInstanceById(taskId);
         if (task == null || task.getDeadlines() == null) {
             return null;
@@ -66,12 +66,12 @@ public class CancelDeadlineCommand extends UserGroupCallbackTaskCommand<Void> {
         Iterator<? extends Deadline> it = null;
 
         if (removeStart) {
-        	
+
             if (task.getDeadlines().getStartDeadlines() != null) {
-            	deadlineService.unschedule(taskId, DeadlineType.START);
+                deadlineService.unschedule(taskId, DeadlineType.START);
                 it = task.getDeadlines().getStartDeadlines().iterator();
                 while (it.hasNext()) {
-                    
+
                     persistenceContext.removeDeadline(it.next());
                     it.remove();
                 }
@@ -80,16 +80,16 @@ public class CancelDeadlineCommand extends UserGroupCallbackTaskCommand<Void> {
 
         if (removeEnd) {
             if (task.getDeadlines().getEndDeadlines() != null) {
-            	deadlineService.unschedule(taskId, DeadlineType.END);
+                deadlineService.unschedule(taskId, DeadlineType.END);
                 it = task.getDeadlines().getEndDeadlines().iterator();
-                while (it.hasNext()) {                    
+                while (it.hasNext()) {
                     persistenceContext.removeDeadline(it.next());
                     it.remove();
                 }
 
             }
         }
-		return null;
-	}
+        return null;
+    }
 
 }

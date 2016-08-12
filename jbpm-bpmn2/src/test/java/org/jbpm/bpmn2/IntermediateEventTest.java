@@ -923,11 +923,11 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
             @Override
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
-            	@SuppressWarnings("unchecked")
-				Map<String, String> variable = (Map<String, String>)event.getNodeInstance().getVariable("richiesta");
-            	if (variable != null) {
-            		variablevalues.addAll(variable.keySet());
-            	}
+                @SuppressWarnings("unchecked")
+                Map<String, String> variable = (Map<String, String>)event.getNodeInstance().getVariable("richiesta");
+                if (variable != null) {
+                    variablevalues.addAll(variable.keySet());
+                }
             }
 
         };
@@ -1804,11 +1804,11 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
     @Test
     public void testIntermediateCatchEventNoIncommingConnection() throws Exception {
         try {
-	    	KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventNoIncommingConnection.bpmn2");
-	        ksession = createKnowledgeSession(kbase);
+            KieBase kbase = createKnowledgeBase("BPMN2-IntermediateCatchEventNoIncommingConnection.bpmn2");
+            ksession = createKnowledgeSession(kbase);
         } catch (RuntimeException e) {
-        	assertNotNull(e.getMessage());
-        	assertTrue(e.getMessage().contains("has no incoming connection"));
+            assertNotNull(e.getMessage());
+            assertTrue(e.getMessage().contains("has no incoming connection"));
         }
 
     }
@@ -1868,7 +1868,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         assertProcessInstanceActive(processInstance.getId(), ksession);
 
         for (WorkItem wi : workItems) {
-        	ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
+            ksession.getWorkItemManager().completeWorkItem(wi.getId(), null);
         }
         assertProcessInstanceFinished(processInstance, ksession);
 
@@ -1980,12 +1980,12 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession.getWorkItemManager().registerWorkItemHandler("Send Task",
                 new SendTaskHandler(){
 
-					@Override
-					public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-						// collect message content for verification
-						messageContent.append(workItem.getParameter("Message"));
-						super.executeWorkItem(workItem, manager);
-					}
+                    @Override
+                    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+                        // collect message content for verification
+                        messageContent.append(workItem.getParameter("Message"));
+                        super.executeWorkItem(workItem, manager);
+                    }
 
         });
         Map<String, Object> params = new HashMap<String, Object>();
@@ -2064,13 +2064,13 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
         ksession = createKnowledgeSession(kbase);
 
         ProcessInstance processInstance = ksession.startProcess("com.sample.bpmn.Multiple_MessageSignal_Subprocess");
-		logger.debug("Parent Process ID: " + processInstance.getId());
+        logger.debug("Parent Process ID: " + processInstance.getId());
 
-		ksession.signalEvent("Message-Message_1","Test",processInstance.getId());
-		assertProcessInstanceActive(processInstance.getId(), ksession);
+        ksession.signalEvent("Message-Message_1","Test",processInstance.getId());
+        assertProcessInstanceActive(processInstance.getId(), ksession);
 
-		ksession.signalEvent("Message-Message_1","Test",processInstance.getId());
-		assertProcessInstanceCompleted(processInstance.getId(), ksession);
+        ksession.signalEvent("Message-Message_1","Test",processInstance.getId());
+        assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
 
     @Test
@@ -2601,7 +2601,7 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
 
         assertProcessInstanceFinished(processInstance, ksession);
     }
-    
+
     @Test(timeout=10000)
     public void testEventBasedSplitWithCronTimerAndSignal() throws Exception {
         System.setProperty("jbpm.enable.multi.con", "true");
@@ -2612,17 +2612,17 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
             CountDownProcessEventListener countDownListener4 = new CountDownProcessEventListener("Request an online review", 1);
             KieBase kbase = createKnowledgeBase("timer/BPMN2-CronTimerWithEventBasedGateway.bpmn2");
             ksession = createKnowledgeSession(kbase);
-            
+
             TestWorkItemHandler handler = new TestWorkItemHandler();
-            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);       
+            ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
             ksession.addEventListener(countDownListener);
             ksession.addEventListener(countDownListener2);
             ksession.addEventListener(countDownListener3);
             ksession.addEventListener(countDownListener4);
-            
+
             ProcessInstance processInstance = ksession.startProcess("timerWithEventBasedGateway");
             assertProcessInstanceActive(processInstance.getId(), ksession);
-            
+
             countDownListener.waitTillCompleted();
             logger.debug("First timer triggered");
             countDownListener2.waitTillCompleted();
@@ -2631,11 +2631,11 @@ public class IntermediateEventTest extends JbpmBpmn2TestCase {
             logger.debug("Third timer triggered");
             countDownListener4.waitTillCompleted();
             logger.debug("Fourth timer triggered");
-            
+
             List<WorkItem> wi = handler.getWorkItems();
             assertNotNull(wi);
             assertEquals(3, wi.size());
-    
+
             ksession.abortProcessInstance(processInstance.getId());
         } finally {
             // clear property only as the only relevant value is when it's set to true

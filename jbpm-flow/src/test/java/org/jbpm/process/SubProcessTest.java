@@ -46,49 +46,49 @@ import org.kie.api.runtime.process.WorkItemManager;
 import org.slf4j.LoggerFactory;
 
 public class SubProcessTest extends AbstractBaseTest  {
-    
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
-	private boolean executed = false;
-	private WorkItem workItem;
-	
-	@Before
-	public void setUp() {
-		executed = false;
-		workItem = null;
-	}
-  
-	String [] syncEventorder = { 
-	        "bps",
-	        "bnt-0", "bnl-0",
-	        "bnt-1",
-	        "bps",
-	        "bnt-0", "bnl-0",
-	        "bnt-1", "bnl-1",
-	        "bnt-2", "bnl-2",
-	        "bpc", "apc",
-	        "anl-2", "ant-2",
-	        "anl-1", "ant-1",
-	        "anl-0", "ant-0",
-	        "aps",
-	        "bnl-1",
-	        "bnt-2", "bnl-2",
-	        "bpc",
-	        "apc",
-	        "anl-2", "ant-2",
-	        "anl-1", "ant-1",
-	        "anl-0", "ant-0",
-	        "aps"
-	};
-	
-	@Test
+
+    private boolean executed = false;
+    private WorkItem workItem;
+
+    @Before
+    public void setUp() {
+        executed = false;
+        workItem = null;
+    }
+
+    String [] syncEventorder = {
+            "bps",
+            "bnt-0", "bnl-0",
+            "bnt-1",
+            "bps",
+            "bnt-0", "bnl-0",
+            "bnt-1", "bnl-1",
+            "bnt-2", "bnl-2",
+            "bpc", "apc",
+            "anl-2", "ant-2",
+            "anl-1", "ant-1",
+            "anl-0", "ant-0",
+            "aps",
+            "bnl-1",
+            "bnt-2", "bnl-2",
+            "bpc",
+            "apc",
+            "anl-2", "ant-2",
+            "anl-1", "ant-1",
+            "anl-0", "ant-0",
+            "aps"
+    };
+
+    @Test
     public void testSynchronousSubProcess() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.process");
         process.setName("Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -110,11 +110,11 @@ public class SubProcessTest extends AbstractBaseTest  {
             subProcessNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         RuleFlowProcess subprocess = new RuleFlowProcess();
         subprocess.setId("org.drools.core.process.subprocess");
         subprocess.setName("SubProcess");
-        
+
         startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -129,7 +129,7 @@ public class SubProcessTest extends AbstractBaseTest  {
         action.setMetaData("Action", new Action() {
             public void execute(ProcessContext context) throws Exception {
                 logger.info("Executed action");
-            	executed = true;
+                executed = true;
             }
         });
         actionNode.setAction(action);
@@ -140,40 +140,40 @@ public class SubProcessTest extends AbstractBaseTest  {
             actionNode, Node.CONNECTION_DEFAULT_TYPE
         );
         new ConnectionImpl(
-    		actionNode, Node.CONNECTION_DEFAULT_TYPE,
+            actionNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        KieSession ksession = createKieSession(process, subprocess); 
+
+        KieSession ksession = createKieSession(process, subprocess);
         TestProcessEventListener procEventListener = new TestProcessEventListener();
-        ksession.addEventListener(procEventListener); 
-        
+        ksession.addEventListener(procEventListener);
+
         ksession.startProcess("org.drools.core.process.process");
         assertTrue(executed);
         assertEquals(0, ksession.getProcessInstances().size());
-        
+
         verifyEventHistory(syncEventorder, procEventListener.getEventHistory());
     }
 
-	String [] asyncEventOrder = { 
-	        "bnl-1",
-	        "bnt-2", "bnl-2",
-	        "bpc", "apc",
-	        "bnl-1",
-	        "bnt-2", "bnl-2",
-	        "bpc", "apc",
-	        "anl-2", "ant-2",
-	        "anl-1",
-	        "anl-2", "ant-2",
-	        "anl-1",
-	};
-	
-	@Test
+    String [] asyncEventOrder = {
+            "bnl-1",
+            "bnt-2", "bnl-2",
+            "bpc", "apc",
+            "bnl-1",
+            "bnt-2", "bnl-2",
+            "bpc", "apc",
+            "anl-2", "ant-2",
+            "anl-1",
+            "anl-2", "ant-2",
+            "anl-1",
+    };
+
+    @Test
     public void testAsynchronousSubProcess() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.process");
         process.setName("Process");
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -195,11 +195,11 @@ public class SubProcessTest extends AbstractBaseTest  {
             subProcessNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         RuleFlowProcess subProcess = new RuleFlowProcess();
         subProcess.setId("org.drools.core.process.subprocess");
         subProcess.setName("SubProcess");
-        
+
         startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -220,37 +220,37 @@ public class SubProcessTest extends AbstractBaseTest  {
             workItemNode, Node.CONNECTION_DEFAULT_TYPE
         );
         new ConnectionImpl(
-    		workItemNode, Node.CONNECTION_DEFAULT_TYPE,
+            workItemNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
-        
+
+
         KieSession ksession = createKieSession(process, subProcess);
-        
+
         ksession.getWorkItemManager().registerWorkItemHandler("MyWork", new WorkItemHandler() {
-			public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-			    logger.info("Executing work item");
-				SubProcessTest.this.workItem = workItem;
-			}
-			public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-			}
+            public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+                logger.info("Executing work item");
+                SubProcessTest.this.workItem = workItem;
+            }
+            public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+            }
         });
         ksession.startProcess("org.drools.core.process.process");
         TestProcessEventListener procEventListener = new TestProcessEventListener();
-        ksession.addEventListener(procEventListener); 
-        
+        ksession.addEventListener(procEventListener);
+
         assertNotNull(workItem);
         assertEquals(2, ksession.getProcessInstances().size());
-        
+
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertEquals(0, ksession.getProcessInstances().size());
-        
+
         verifyEventHistory(asyncEventOrder, procEventListener.getEventHistory());
     }
-    
-	@Test
+
+    @Test
     public void testNonExistentSubProcess() {
-	    String nonExistentSubProcessName = "nonexistent.process";
+        String nonExistentSubProcessName = "nonexistent.process";
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.process");
         process.setName("Process");
@@ -264,16 +264,16 @@ public class SubProcessTest extends AbstractBaseTest  {
         EndNode endNode = new EndNode();
         endNode.setName("End");
         endNode.setId(3);
-        
+
         connect(startNode, subProcessNode);
         connect(subProcessNode, endNode);
-        
+
         process.addNode( startNode );
         process.addNode( subProcessNode );
         process.addNode( endNode );
 
         KieSession ksession = createKieSession(process);
-        
+
         try{
             ksession.startProcess("org.drools.core.process.process");
             fail("should throw exception");
@@ -281,10 +281,10 @@ public class SubProcessTest extends AbstractBaseTest  {
             assertTrue(re.getMessage().contains( nonExistentSubProcessName ));
         }
     }
-    
-	private void connect(Node sourceNode, Node targetNode) {
-		new ConnectionImpl(sourceNode, Node.CONNECTION_DEFAULT_TYPE,
-				           targetNode, Node.CONNECTION_DEFAULT_TYPE);
-	}
+
+    private void connect(Node sourceNode, Node targetNode) {
+        new ConnectionImpl(sourceNode, Node.CONNECTION_DEFAULT_TYPE,
+                           targetNode, Node.CONNECTION_DEFAULT_TYPE);
+    }
 
 }

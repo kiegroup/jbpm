@@ -45,11 +45,11 @@ import org.kie.api.runtime.process.ProcessContext;
 import org.slf4j.LoggerFactory;
 
 public class ForEachTest extends AbstractBaseTest {
-    
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
+
     private String [] eventOrder = {
             "bvc-persons", "avc-persons",
             "bps",
@@ -71,13 +71,13 @@ public class ForEachTest extends AbstractBaseTest {
             "anl-0", "ant-0",
             "aps"
     };
-    
-	@Test
+
+    @Test
     public void testForEach() {
         RuleFlowProcess process = new RuleFlowProcess();
         process.setId("org.drools.core.process.foreach");
         process.setName("ForEach Process");
-        
+
         List<Variable> variables = new ArrayList<Variable>();
         Variable variable = new Variable();
         variable.setName("persons");
@@ -88,7 +88,7 @@ public class ForEachTest extends AbstractBaseTest {
         variable.setType(listDataType);
         variables.add(variable);
         process.getVariableScope().setVariables(variables);
-        
+
         StartNode startNode = new StartNode();
         startNode.setName("Start");
         startNode.setId(1);
@@ -112,7 +112,7 @@ public class ForEachTest extends AbstractBaseTest {
             forEachNode, Node.CONNECTION_DEFAULT_TYPE,
             endNode, Node.CONNECTION_DEFAULT_TYPE
         );
-        
+
         final List<String> myList = new ArrayList<String>();
         ActionNode actionNode = new ActionNode();
         actionNode.setName("Print child");
@@ -132,21 +132,21 @@ public class ForEachTest extends AbstractBaseTest {
             actionNode.getId(), Node.CONNECTION_DEFAULT_TYPE,
             Node.CONNECTION_DEFAULT_TYPE);
         forEachNode.setVariable("child", personDataType);
-        
+
         KieSession ksession = createKieSession(process);
-        
+
         Map<String, Object> parameters = new HashMap<String, Object>();
         List<Person> persons = new ArrayList<Person>();
         persons.add(new Person("John Doe"));
         persons.add(new Person("Jane Doe"));
         persons.add(new Person("Jack"));
         parameters.put("persons", persons);
-        
+
         TestProcessEventListener procEventListener = new TestProcessEventListener();
         ksession.addEventListener(procEventListener);
         ksession.startProcess("org.drools.core.process.foreach", parameters);
         assertEquals(3, myList.size());
-     
+
         verifyEventHistory(eventOrder, procEventListener.getEventHistory());
     }
 

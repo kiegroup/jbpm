@@ -45,7 +45,7 @@ public class TransientObjectConverter implements Converter {
 
     @Override
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        
+
         return null;
     }
 

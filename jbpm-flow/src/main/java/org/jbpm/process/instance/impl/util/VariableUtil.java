@@ -14,12 +14,12 @@ import org.kie.api.runtime.process.NodeInstance;
 public class VariableUtil {
 
     protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
-    
+
     public static String resolveVariable(String s, NodeInstance nodeInstance) {
         if (s == null) {
             return null;
         }
-        
+
         Map<String, String> replacements = new HashMap<String, String>();
         Matcher matcher = PARAMETER_MATCHER.matcher(s);
         while (matcher.find()) {
@@ -29,7 +29,7 @@ public class VariableUtil {
                         ((org.jbpm.workflow.instance.NodeInstance)nodeInstance).resolveContextInstance(VariableScope.VARIABLE_SCOPE, paramName);
                 if (variableScopeInstance != null) {
                     Object variableValue = variableScopeInstance.getVariable(paramName);
-                    String variableValueString = variableValue == null ? "" : variableValue.toString(); 
+                    String variableValueString = variableValue == null ? "" : variableValue.toString();
                     replacements.put(paramName, variableValueString);
                 }
             }
@@ -37,7 +37,7 @@ public class VariableUtil {
         for (Map.Entry<String, String> replacement: replacements.entrySet()) {
             s = s.replace("#{" + replacement.getKey() + "}", replacement.getValue());
         }
-        
+
         return s;
     }
 }

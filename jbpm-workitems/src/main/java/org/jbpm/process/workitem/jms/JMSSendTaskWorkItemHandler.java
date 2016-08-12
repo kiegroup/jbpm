@@ -40,17 +40,17 @@ import org.slf4j.LoggerFactory;
 
 
 public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implements Cacheable {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JMSSendTaskWorkItemHandler.class);
-    
+
     private String connectionFactoryName;
     private String destinationName;
-    
+
     private ConnectionFactory connectionFactory;
     private Destination destination;
-    
+
     private boolean transacted = false;
-    
+
     public JMSSendTaskWorkItemHandler() {
         this.connectionFactoryName = "java:/JmsXA";
         this.destinationName = "queue/KIE.SIGNAL";
@@ -68,7 +68,7 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
         this.destination = destination;
         init();
     }
-    
+
     public JMSSendTaskWorkItemHandler(String connectionFactoryName, String destinationName, boolean transacted) {
         this.connectionFactoryName = connectionFactoryName;
         this.destinationName = destinationName;
@@ -82,7 +82,7 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
         this.transacted = transacted;
         init();
     }
-    
+
     protected void init() {
         try {
             InitialContext ctx = new InitialContext();
@@ -94,23 +94,23 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
             }
             logger.info("JMS based work item handler successfully activated on destination {}", destination);
         } catch (Exception e) {
-            logger.error("Unable to initialize JMS send work item handler due to {}", e.getMessage(), e);            
+            logger.error("Unable to initialize JMS send work item handler due to {}", e.getMessage(), e);
 
         }
     }
-    
+
     protected Message createMessage(WorkItem workItem, Session session) throws JMSException {
         BytesMessage message = session.createBytesMessage();
-        
+
         // set properties
         addPropertyIfExists("KIE_Signal", workItem.getParameter("Signal"), message);
         addPropertyIfExists("KIE_SignalProcessInstanceId", workItem.getParameter("SignalProcessInstanceId"), message);
         addPropertyIfExists("KIE_SignalWorkItemId", workItem.getParameter("SignalWorkItemId"), message);
         addPropertyIfExists("KIE_SignalDeploymentId", workItem.getParameter("SignalDeploymentId"), message);
-        
+
         addPropertyIfExists("KIE_ProcessInstanceId", workItem.getProcessInstanceId(), message);
         addPropertyIfExists("KIE_DeploymentId", ((WorkItemImpl)workItem).getDeploymentId(), message);
-        
+
         Object data = workItem.getParameter("Data");
         if (data != null) {
             try {
@@ -123,7 +123,7 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
                 logger.warn("Error serializing context data", e);
             }
         }
-        
+
         return message;
     }
 
@@ -132,19 +132,19 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
         if (connectionFactory == null || destination == null) {
             throw new RuntimeException("Connection factory and destination must be set for JMS send task handler");
         }
-        
+
         Connection connection = null;
         Session session = null;
         MessageProducer producer = null;
         try {
             connection = connectionFactory.createConnection();
             session = connection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
-                      
+
             Message message = createMessage(workItem, session);
-            producer = session.createProducer(destination);            
+            producer = session.createProducer(destination);
             producer.send(message);
         } catch (Exception e) {
-            handleException(e);            
+            handleException(e);
         } finally {
             if (producer != null) {
                 try {
@@ -153,7 +153,7 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
                     logger.warn("Error when closing producer", e);
                 }
             }
-            
+
             if (session != null) {
                 try {
                     session.close();
@@ -161,7 +161,7 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
                     logger.warn("Error when closing queue session", e);
                 }
             }
-            
+
             if (connection != null) {
                 try {
                     connection.close();
@@ -183,7 +183,7 @@ public class JMSSendTaskWorkItemHandler extends AbstractLogOrThrowWorkItemHandle
         connectionFactory = null;
         destination = null;
     }
-    
+
     protected void addPropertyIfExists(String propertyName, Object properyValue, Message msg) throws JMSException {
         if (properyValue != null) {
             msg.setObjectProperty(propertyName, properyValue);

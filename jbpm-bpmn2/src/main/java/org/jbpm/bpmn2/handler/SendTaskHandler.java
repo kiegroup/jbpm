@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SendTaskHandler implements WorkItemHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SendTaskHandler.class);
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {

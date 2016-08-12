@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -68,28 +68,28 @@ import org.slf4j.LoggerFactory;
 public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PersistentStatefulSessionTest.class);
-    
+
     private HashMap<String, Object> context;
     private Environment env;
-    
-    public PersistentStatefulSessionTest(boolean locking) { 
-       this.useLocking = locking; 
+
+    public PersistentStatefulSessionTest(boolean locking) {
+       this.useLocking = locking;
     }
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-    
+
     @Rule
     public TestName testName = new TestName();
-    
+
     @Before
     public void setUp() throws Exception {
         String methodName = testName.getMethodName();
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
-        
+
         env = createEnvironment(context);
         if( useLocking ) {
             env.set(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
@@ -111,7 +111,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         + "  list.add( $i );\n"
         + "end\n"
         + "\n";
-        
+
     @Test
     public void testLocalTransactionPerStatement() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -183,7 +183,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         // check we rolled back the state changes from the 3rd insert
         ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
-        ut.begin();        
+        ut.begin();
         ksession.fireAllRules();
         ut.commit();
         assertEquals( 2,
@@ -207,10 +207,10 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         assertEquals( 4,
                       list.size() );
-        
+
         // now load the ksession
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( ksession.getIdentifier(), kbase, null, env );
-        
+
         ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
         ksession.insert( 7 );
@@ -234,7 +234,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         int origNumObjects = ksession.getObjects().size();
         long id = ksession.getIdentifier();
-        
+
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         ksession.insert( "TestString" );
         logger.debug( "Started process instance {}", processInstance.getId() );
@@ -286,7 +286,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         assertNull( processInstance );
 
     }
-    
+
     @Test
     public void testPersistenceWorkItems2() throws Exception {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -296,10 +296,10 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         long id = ksession.getIdentifier();
-        
+
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
-        
+
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         ksession.insert( "TestString" );
         logger.debug( "Started process instance {}", processInstance.getId() );
@@ -310,7 +310,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         ksession.getWorkItemManager().completeWorkItem( workItem.getId(),
                                                        null );
-        
+
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
 
@@ -348,7 +348,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         assertNull( processInstance );
 
     }
-    
+
     @Test
     public void testPersistenceWorkItems3() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -363,7 +363,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         ksession.insert( "TestString" );
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testPersistenceState() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -373,7 +373,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         long id = ksession.getIdentifier();
-        
+
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         logger.debug( "Started process instance {}", processInstance.getId() );
 
@@ -389,7 +389,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         processInstance = ksession.getProcessInstance( processInstance.getId() );
         assertNull( processInstance );
     }
-    
+
     @Test
     public void testPersistenceRuleSet() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -402,7 +402,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         long id = ksession.getIdentifier();
-        
+
         ksession.insert(new ArrayList<Object>());
 
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
@@ -417,7 +417,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         processInstance = ksession.getProcessInstance( processInstance.getId() );
         assertNull( processInstance );
     }
-    
+
     @Test
     public void testPersistenceEvents() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -428,7 +428,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         long id = ksession.getIdentifier();
-        
+
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         logger.debug( "Started process instance {}", processInstance.getId() );
 
@@ -442,7 +442,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         ksession.getWorkItemManager().completeWorkItem( workItem.getId(), null );
-        
+
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         processInstance = ksession.getProcessInstance( processInstance.getId() );
         assertNotNull( processInstance );
@@ -454,12 +454,12 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         assertNotNull( processInstance );
 
         ksession.signalEvent("MyEvent2", null, processInstance.getId());
-        
+
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         processInstance = ksession.getProcessInstance( processInstance.getId() );
         assertNull( processInstance );
     }
-    
+
     @Test
     public void testProcessListener() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -473,50 +473,50 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         ProcessEventListener listener = new ProcessEventListener() {
             public void afterNodeLeft(ProcessNodeLeftEvent event) {
                 logger.debug("After node left: {}", event.getNodeInstance().getNodeName());
-                events.add(event);              
+                events.add(event);
             }
             public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
                 logger.debug("After node triggered: {}", event.getNodeInstance().getNodeName());
-                events.add(event);              
+                events.add(event);
             }
             public void afterProcessCompleted(ProcessCompletedEvent event) {
                 logger.debug("After process completed");
-                events.add(event);              
+                events.add(event);
             }
             public void afterProcessStarted(ProcessStartedEvent event) {
                 logger.debug("After process started");
-                events.add(event);              
+                events.add(event);
             }
             public void beforeNodeLeft(ProcessNodeLeftEvent event) {
                 logger.debug("Before node left: {}", event.getNodeInstance().getNodeName());
-                events.add(event);              
+                events.add(event);
             }
             public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
                 logger.debug("Before node triggered: {}", event.getNodeInstance().getNodeName());
-                events.add(event);              
+                events.add(event);
             }
             public void beforeProcessCompleted(ProcessCompletedEvent event) {
                 logger.debug("Before process completed");
-                events.add(event);              
+                events.add(event);
             }
             public void beforeProcessStarted(ProcessStartedEvent event) {
                 logger.debug("Before process started");
-                events.add(event);              
+                events.add(event);
             }
             public void afterVariableChanged(ProcessVariableChangedEvent event) {
                 logger.debug("After Variable Changed");
-                events.add(event);  
+                events.add(event);
             }
             public void beforeVariableChanged(ProcessVariableChangedEvent event) {
                 logger.debug("Before Variable Changed");
-                events.add(event); 
+                events.add(event);
             }
         };
         ksession.addEventListener(listener);
-        
+
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         logger.debug( "Started process instance {}", processInstance.getId() );
-        
+
         assertEquals(12, events.size());
         assertTrue(events.get(0) instanceof ProcessStartedEvent);
         assertTrue(events.get(1) instanceof ProcessNodeTriggeredEvent);
@@ -530,13 +530,13 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         assertTrue(events.get(9) instanceof ProcessNodeLeftEvent);
         assertTrue(events.get(10) instanceof ProcessNodeTriggeredEvent);
         assertTrue(events.get(11) instanceof ProcessStartedEvent);
-        
+
         ksession.removeEventListener(listener);
         events.clear();
-        
+
         processInstance = ksession.startProcess( "org.drools.test.TestProcess" );
         logger.debug( "Started process instance {}", processInstance.getId() );
-        
+
         assertTrue(events.isEmpty());
     }
 
@@ -552,7 +552,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
 
         StatefulKnowledgeSession ksession = JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, env );
         long id = ksession.getIdentifier();
-        
+
         ProcessInstance processInstance = ksession.startProcess( "com.sample.SuperProcess" );
         logger.debug( "Started process instance {}", processInstance.getId() );
 
@@ -586,7 +586,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         processInstance = ksession.getProcessInstance( processInstance.getId() );
         assertNull( "Process did not complete.", processInstance );
     }
-    
+
     @Test
     public void testPersistenceVariables() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
@@ -619,7 +619,7 @@ public class PersistentStatefulSessionTest extends AbstractBaseTest {
         workItem = handler.getWorkItem();
         assertNotNull( workItem );
         assertEquals( "John Doe", workItem.getParameter("text"));
-        
+
         ksession = JPAKnowledgeService.loadStatefulKnowledgeSession( id, kbase, null, env );
         processInstance = ksession.getProcessInstance( processInstance.getId() );
         assertNotNull( processInstance );

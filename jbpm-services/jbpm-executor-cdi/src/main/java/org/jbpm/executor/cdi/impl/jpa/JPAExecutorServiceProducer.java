@@ -32,50 +32,50 @@ import org.kie.api.executor.ExecutorStoreService;
 import org.kie.internal.runtime.cdi.Activate;
 
 /**
- * 
+ *
  * IMPORTANT: please keep all classes from package org.jbpm.shared.services.impl as FQCN
  * inside method body to avoid exception logged by CDI when used with in memory mode
  */
 @Activate(whenAvailable="org.jbpm.runtime.manager.impl.RuntimeManagerFactoryImpl")
 public class JPAExecutorServiceProducer {
 
-	@Inject
-	@PersistenceUnit(unitName = "org.jbpm.domain")
-	private EntityManagerFactory emf;
+    @Inject
+    @PersistenceUnit(unitName = "org.jbpm.domain")
+    private EntityManagerFactory emf;
 
-	@Produces
-	public ExecutorService produceExecutorService() {
-		ExecutorService service = ExecutorServiceFactory.newExecutorService(emf);		
-		
-		return service;
-	}
+    @Produces
+    public ExecutorService produceExecutorService() {
+        ExecutorService service = ExecutorServiceFactory.newExecutorService(emf);
 
-	@Produces
-	public ExecutorStoreService produceStoreService() {
-		ExecutorStoreService storeService = new JPAExecutorStoreService(true);
-		org.jbpm.shared.services.impl.TransactionalCommandService commandService = new org.jbpm.shared.services.impl.TransactionalCommandService(emf);			
-		((JPAExecutorStoreService) storeService).setCommandService(commandService);
-		((JPAExecutorStoreService) storeService).setEmf(emf);		
-		
-		return storeService;
-	}
+        return service;
+    }
 
-	@Produces
-	public ExecutorAdminService produceAdminService() {
-		ExecutorAdminService adminService = new ExecutorRequestAdminServiceImpl();
-		org.jbpm.shared.services.impl.TransactionalCommandService commandService = new org.jbpm.shared.services.impl.TransactionalCommandService(emf);				
-		((ExecutorRequestAdminServiceImpl) adminService).setCommandService(commandService);
-		
-		return adminService;
-	}
+    @Produces
+    public ExecutorStoreService produceStoreService() {
+        ExecutorStoreService storeService = new JPAExecutorStoreService(true);
+        org.jbpm.shared.services.impl.TransactionalCommandService commandService = new org.jbpm.shared.services.impl.TransactionalCommandService(emf);
+        ((JPAExecutorStoreService) storeService).setCommandService(commandService);
+        ((JPAExecutorStoreService) storeService).setEmf(emf);
 
-	@Produces
-	public ExecutorQueryService produceQueryService() {
-		ExecutorQueryService queryService = new ExecutorQueryServiceImpl(true);
-		org.jbpm.shared.services.impl.TransactionalCommandService commandService = new org.jbpm.shared.services.impl.TransactionalCommandService(emf);		
-		((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);
-		
-		return queryService;
-	}
+        return storeService;
+    }
+
+    @Produces
+    public ExecutorAdminService produceAdminService() {
+        ExecutorAdminService adminService = new ExecutorRequestAdminServiceImpl();
+        org.jbpm.shared.services.impl.TransactionalCommandService commandService = new org.jbpm.shared.services.impl.TransactionalCommandService(emf);
+        ((ExecutorRequestAdminServiceImpl) adminService).setCommandService(commandService);
+
+        return adminService;
+    }
+
+    @Produces
+    public ExecutorQueryService produceQueryService() {
+        ExecutorQueryService queryService = new ExecutorQueryServiceImpl(true);
+        org.jbpm.shared.services.impl.TransactionalCommandService commandService = new org.jbpm.shared.services.impl.TransactionalCommandService(emf);
+        ((ExecutorQueryServiceImpl) queryService).setCommandService(commandService);
+
+        return queryService;
+    }
 
 }

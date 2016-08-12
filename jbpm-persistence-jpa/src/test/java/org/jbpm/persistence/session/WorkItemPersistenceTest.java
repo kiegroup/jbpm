@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -83,35 +83,35 @@ import org.slf4j.LoggerFactory;
 public class WorkItemPersistenceTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkItemPersistenceTest.class);
-    
+
     private HashMap<String, Object> context;
     private EntityManagerFactory emf;
-    
+
     static {
         ProcessRuntimeFactory.setProcessRuntimeFactoryService(new ProcessRuntimeFactoryServiceImpl());
     }
-    
-    public WorkItemPersistenceTest(boolean locking) { 
-        this.useLocking = locking; 
+
+    public WorkItemPersistenceTest(boolean locking) {
+        this.useLocking = locking;
      }
-     
+
      @Parameters
      public static Collection<Object[]> persistence() {
          Object[][] data = new Object[][] { { false }, { true } };
          return Arrays.asList(data);
      };
-     
+
     @Before
     public void setUp() throws Exception {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
         emf = (EntityManagerFactory) context.get(ENTITY_MANAGER_FACTORY);
     }
-    
+
     @After
     public void tearDown() throws Exception {
-       cleanUp(context); 
+       cleanUp(context);
     }
-   
+
     protected StatefulKnowledgeSession createSession(KnowledgeBase kbase) {
         return JPAKnowledgeService.newStatefulKnowledgeSession( kbase, null, createEnvironment(context) );
     }
@@ -160,7 +160,7 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
         variable.setName( "UserName" );
         variable.setType( new StringDataType() );
         variables.add( variable );
-        
+
         variable = new Variable();
         variable.setName( "MyObject" );
         variable.setType( new ObjectDataType() );
@@ -181,10 +181,10 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
         workItemNode.addInMapping( "Attachment", "MyObject" );
         workItemNode.addOutMapping( "Result", "MyObject" );
         workItemNode.addOutMapping( "Result.length()", "Number" );
-        
+
         Work work = new WorkImpl();
         work.setName( workName );
-        
+
         Set<ParameterDefinition> parameterDefinitions = new HashSet<ParameterDefinition>();
         ParameterDefinition parameterDefinition = new ParameterDefinitionImpl( "ActorId", new StringDataType() );
         parameterDefinitions.add( parameterDefinition );
@@ -193,7 +193,7 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
         parameterDefinition = new ParameterDefinitionImpl( "Comment", new StringDataType() );
         parameterDefinitions.add( parameterDefinition );
         work.setParameterDefinitions( parameterDefinitions );
-        
+
         work.setParameter( "ActorId", "#{UserName}" );
         work.setParameter( "Content", "#{Person.name}" );
         workItemNode.setWork( work );
@@ -224,7 +224,7 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
     public void testHumanTask() {
         List<ProcessInstanceInfo> procInstInfoList = retrieveProcessInstanceInfo(emf);
         int numProcInstInfos = procInstInfoList.size();
-        
+
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -264,11 +264,11 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
             "  </connections>\n" +
             "\n" +
             "</process>");
-        
+
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( ResourceFactory.newReaderResource(source), ResourceType.DRF );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );        
+        kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
         StatefulKnowledgeSession ksession = createSession(kbase);
         final List<WorkItem> workItems = new ArrayList<WorkItem>();
         DoNothingWorkItemHandler handler = new DoNothingWorkItemHandler() {
@@ -278,16 +278,16 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
                 super.executeWorkItem(workItem, manager);
                 workItems.add(workItem);
             }
-            
+
         };
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         ProcessInstance processInstance = ksession.startProcess("org.drools.humantask");
-        
+
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
-        
+
         int state = processInstance.getState();
-        switch(state) { 
+        switch(state) {
         case ProcessInstance.STATE_ABORTED:
             logger.debug("STATE_ABORTED");
             break;
@@ -303,44 +303,44 @@ public class WorkItemPersistenceTest extends AbstractBaseTest {
         case ProcessInstance.STATE_SUSPENDED:
             logger.debug("STATE_SUSPENDED");
             break;
-        default: 
+        default:
             logger.debug("Unknown state: {}", state );
         }
-       
+
         procInstInfoList = retrieveProcessInstanceInfo(emf);
         assertTrue( (procInstInfoList.size() - numProcInstInfos) == 1);
-        
+
         ProcessInstanceInfo processInstanceInfoMadeInThisTest = procInstInfoList.get(numProcInstInfos);
-        assertNotNull("ByteArray of ProcessInstanceInfo from this test is not filled and null!", 
+        assertNotNull("ByteArray of ProcessInstanceInfo from this test is not filled and null!",
                 processInstanceInfoMadeInThisTest.getProcessInstanceByteArray());
-        assertTrue("ByteArray of ProcessInstanceInfo from this test is not filled and empty!", 
+        assertTrue("ByteArray of ProcessInstanceInfo from this test is not filled and empty!",
                 processInstanceInfoMadeInThisTest.getProcessInstanceByteArray().length > 0);
         assertEquals(1, workItems.size());
         ksession.getWorkItemManager().completeWorkItem(workItems.get(0).getId(), null);
-        
+
         ProcessInstance pi = ksession.getProcessInstance(processInstance.getId());
         assertNull(pi);
     }
-    
+
     @SuppressWarnings("unchecked")
-    public static ArrayList<ProcessInstanceInfo> retrieveProcessInstanceInfo(EntityManagerFactory emf) { 
-        
+    public static ArrayList<ProcessInstanceInfo> retrieveProcessInstanceInfo(EntityManagerFactory emf) {
+
         JtaTransactionManager txm = new JtaTransactionManager(null, null, null);
         boolean txOwner = txm.begin();
-    
+
         EntityManager em = emf.createEntityManager();
-        
+
         ArrayList<ProcessInstanceInfo> procInstInfoList = new ArrayList<ProcessInstanceInfo>();
         List<Object> mdList = em.createQuery("SELECT p FROM ProcessInstanceInfo p").getResultList();
-        for( Object resultObject : mdList ) { 
+        for( Object resultObject : mdList ) {
             ProcessInstanceInfo procInstInfo = (ProcessInstanceInfo) resultObject;
             procInstInfoList.add(procInstInfo);
             logger.trace("> {}", procInstInfo);
         }
-        
+
         txm.commit(txOwner);
-        
+
         return procInstInfoList;
     }
-    
+
 }

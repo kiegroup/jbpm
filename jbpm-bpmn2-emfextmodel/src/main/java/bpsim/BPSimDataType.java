@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -41,38 +41,38 @@ import org.eclipse.emf.ecore.util.FeatureMap;
  * @generated
  */
 public interface BPSimDataType extends EObject {
-	/**
-	 * Returns the value of the '<em><b>Group</b></em>' attribute list.
-	 * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Group</em>' attribute list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Group</em>' attribute list.
-	 * @see bpsim.BpsimPackage#getBPSimDataType_Group()
-	 * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="true"
-	 *        extendedMetaData="kind='group' name='group:0'"
-	 * @generated
-	 */
-	FeatureMap getGroup();
+    /**
+     * Returns the value of the '<em><b>Group</b></em>' attribute list.
+     * The list contents are of type {@link org.eclipse.emf.ecore.util.FeatureMap.Entry}.
+     * <!-- begin-user-doc -->
+     * <p>
+     * If the meaning of the '<em>Group</em>' attribute list isn't clear,
+     * there really should be more of a description here...
+     * </p>
+     * <!-- end-user-doc -->
+     * @return the value of the '<em>Group</em>' attribute list.
+     * @see bpsim.BpsimPackage#getBPSimDataType_Group()
+     * @model unique="false" dataType="org.eclipse.emf.ecore.EFeatureMapEntry" many="true"
+     *        extendedMetaData="kind='group' name='group:0'"
+     * @generated
+     */
+    FeatureMap getGroup();
 
-	/**
-	 * Returns the value of the '<em><b>Scenario</b></em>' containment reference list.
-	 * The list contents are of type {@link bpsim.Scenario}.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Scenario</em>' containment reference list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Scenario</em>' containment reference list.
-	 * @see bpsim.BpsimPackage#getBPSimDataType_Scenario()
-	 * @model containment="true" required="true" transient="true" volatile="true" derived="true"
-	 *        extendedMetaData="kind='element' name='Scenario' namespace='##targetNamespace' group='#group:0'"
-	 * @generated
-	 */
-	EList<Scenario> getScenario();
+    /**
+     * Returns the value of the '<em><b>Scenario</b></em>' containment reference list.
+     * The list contents are of type {@link bpsim.Scenario}.
+     * <!-- begin-user-doc -->
+     * <p>
+     * If the meaning of the '<em>Scenario</em>' containment reference list isn't clear,
+     * there really should be more of a description here...
+     * </p>
+     * <!-- end-user-doc -->
+     * @return the value of the '<em>Scenario</em>' containment reference list.
+     * @see bpsim.BpsimPackage#getBPSimDataType_Scenario()
+     * @model containment="true" required="true" transient="true" volatile="true" derived="true"
+     *        extendedMetaData="kind='element' name='Scenario' namespace='##targetNamespace' group='#group:0'"
+     * @generated
+     */
+    EList<Scenario> getScenario();
 
 } // BPSimDataType

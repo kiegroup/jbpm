@@ -38,14 +38,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTestSupport {
-	
-	private static final Logger logger = LoggerFactory.getLogger(AbstractTestSupport.class);
 
-	protected static final String ARTIFACT_ID = "test-module";
-	protected static final String GROUP_ID = "org.jbpm.test";
-	protected static final String VERSION = "1.0.0-SNAPSHOT";
-	
-	protected static String getPom(ReleaseId releaseId, ReleaseId... dependencies) {
+    private static final Logger logger = LoggerFactory.getLogger(AbstractTestSupport.class);
+
+    protected static final String ARTIFACT_ID = "test-module";
+    protected static final String GROUP_ID = "org.jbpm.test";
+    protected static final String VERSION = "1.0.0-SNAPSHOT";
+
+    protected static String getPom(ReleaseId releaseId, ReleaseId... dependencies) {
         String pom =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
@@ -70,29 +70,29 @@ public abstract class AbstractTestSupport {
         pom += "</project>";
         return pom;
     }
-   
+
     protected static InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources) {
-    	return createKieJar(ks, releaseId, resources, null);
+        return createKieJar(ks, releaseId, resources, null);
     }
-    
+
    protected static InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources, Map<String, String> extraResources ) {
-     
-        
+
+
         KieFileSystem kfs = createKieFileSystemWithKProject(ks);
         kfs.writePomXML( getPom(releaseId) );
 
-        
+
         for (String resource : resources) {
             kfs.write("src/main/resources/KBase-test/" + resource, ResourceFactory.newClassPathResource(resource));
         }
         if (extraResources != null) {
-	        for (Map.Entry<String, String> entry : extraResources.entrySet()) {
-				kfs.write(entry.getKey(), ResourceFactory.newByteArrayResource(entry.getValue().getBytes()));
-			}
+            for (Map.Entry<String, String> entry : extraResources.entrySet()) {
+                kfs.write(entry.getKey(), ResourceFactory.newByteArrayResource(entry.getValue().getBytes()));
+            }
         }
-        
+
         kfs.write("src/main/resources/forms/DefaultProcess.ftl", ResourceFactory.newClassPathResource("repo/globals/forms/DefaultProcess.ftl"));
-        
+
         KieBuilder kieBuilder = ks.newKieBuilder(kfs);
         if (!kieBuilder.buildAll().getResults().getMessages().isEmpty()) {
             for (Message message : kieBuilder.buildAll().getResults().getMessages()) {
@@ -101,11 +101,11 @@ public abstract class AbstractTestSupport {
             throw new RuntimeException(
                     "There are errors builing the package, please check your knowledge assets!");
         }
-        
+
         return ( InternalKieModule ) kieBuilder.getKieModule();
     }
 
-    
+
 
     protected static KieFileSystem createKieFileSystemWithKProject(KieServices ks) {
         KieModuleModel kproj = ks.newKieModuleModel();
@@ -114,30 +114,30 @@ public abstract class AbstractTestSupport {
                 .setEqualsBehavior( EqualityBehaviorOption.EQUALITY )
                 .setEventProcessingMode( EventProcessingOption.STREAM );
 
-    
+
         kieBaseModel1.newKieSessionModel("ksession-test").setDefault(true)
                 .setType(KieSessionModel.KieSessionType.STATEFUL)
                 .setClockType( ClockTypeOption.get("realtime") )
                 .newWorkItemHandlerModel("Log", "new org.jbpm.process.instance.impl.demo.SystemOutWorkItemHandler()");
-        
+
         kieBaseModel1.newKieSessionModel("ksession-test2").setDefault(false)
         .setType(KieSessionModel.KieSessionType.STATEFUL)
         .setClockType( ClockTypeOption.get("realtime") );
-        
+
         KieFileSystem kfs = ks.newKieFileSystem();
         kfs.writeKModuleXML(kproj.toXML());
         return kfs;
     }
-    
+
     protected static void cleanupSingletonSessionId() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         if (tempDir.exists()) {
-            
+
             String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
-                
+
                 @Override
                 public boolean accept(File dir, String name) {
-                    
+
                     return name.endsWith("-jbpmSessionId.ser");
                 }
             });

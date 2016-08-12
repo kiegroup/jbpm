@@ -18,14 +18,14 @@ package org.jbpm.services.api;
 
 public class WorkItemNotFoundException extends RuntimeException {
 
-	private static final long serialVersionUID = 4139469799335673639L;
-	
-	public WorkItemNotFoundException(String message) {
-		super(message);
-	}
+    private static final long serialVersionUID = 4139469799335673639L;
 
-	public WorkItemNotFoundException(String message, Throwable t) {
-		super(message, t);
-	}
+    public WorkItemNotFoundException(String message) {
+        super(message);
+    }
+
+    public WorkItemNotFoundException(String message, Throwable t) {
+        super(message, t);
+    }
 
 }

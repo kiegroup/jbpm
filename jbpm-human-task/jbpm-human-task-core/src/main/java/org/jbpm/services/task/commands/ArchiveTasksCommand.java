@@ -30,14 +30,14 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ArchiveTasksCommand extends TaskCommand<Integer> {
 
-	private static final long serialVersionUID = -2218880638839442379L;
+    private static final long serialVersionUID = -2218880638839442379L;
 
-	@XmlAnyElement
-	private List<TaskSummary> tasks;
-	
-	public ArchiveTasksCommand() {
-	}
-	
+    @XmlAnyElement
+    private List<TaskSummary> tasks;
+
+    public ArchiveTasksCommand() {
+    }
+
     public ArchiveTasksCommand(List<TaskSummary> tasks) {
         this.tasks = tasks;
     }
@@ -48,13 +48,13 @@ public class ArchiveTasksCommand extends TaskCommand<Integer> {
 
     }
 
-	public List<TaskSummary> getTasks() {
-		return tasks;
-	}
+    public List<TaskSummary> getTasks() {
+        return tasks;
+    }
 
-	public void setTasks(List<TaskSummary> tasks) {
-		this.tasks = tasks;
-	}
-    
-    
+    public void setTasks(List<TaskSummary> tasks) {
+        this.tasks = tasks;
+    }
+
+
 }

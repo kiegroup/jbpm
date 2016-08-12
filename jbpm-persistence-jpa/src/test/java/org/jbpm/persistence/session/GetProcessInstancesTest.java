@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -43,29 +43,29 @@ import org.kie.internal.persistence.jpa.JPAKnowledgeService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 /**
- * This test looks at the behavior of the  {@link JPAProcessInstanceManager} 
- * with regards to created (but not started) process instances 
+ * This test looks at the behavior of the  {@link JPAProcessInstanceManager}
+ * with regards to created (but not started) process instances
  * and whether the process instances are available or not after creation.
  */
 @RunWith(Parameterized.class)
 public class GetProcessInstancesTest extends AbstractBaseTest {
-    
+
     private HashMap<String, Object> context;
-    
+
     private Environment env;
     private KnowledgeBase kbase;
     private long sessionId;
-    
-    public GetProcessInstancesTest(boolean locking) { 
-       this.useLocking = locking; 
+
+    public GetProcessInstancesTest(boolean locking) {
+       this.useLocking = locking;
     }
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-    
+
     @Before
     public void setUp() throws Exception {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
@@ -107,12 +107,12 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
 
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
-        
+
         StatefulKnowledgeSession ksession = reloadKnowledgeSession();
         processId[0] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
         processId[1] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
         assertEquals(2, ksession.getProcessInstances().size());
-        
+
         // process instance manager cache flushed on tx
         ut.commit();
         assertEquals(0, ksession.getProcessInstances().size());
@@ -120,7 +120,7 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
         ksession = reloadKnowledgeSession(ksession);
         assertEquals(0, ksession.getProcessInstances().size());
         ksession.dispose();
-        
+
         assertProcessInstancesExist(processId);
     }
 
@@ -130,12 +130,12 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
 
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
-        
+
         StatefulKnowledgeSession ksession = reloadKnowledgeSession();
         notProcess[0] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
         notProcess[1] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
         assertEquals(2, ksession.getProcessInstances().size());
-        
+
         ut.rollback();
         // Validate that proc inst mgr cache is also flushed on rollback
         assertEquals(0, ksession.getProcessInstances().size());
@@ -143,7 +143,7 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
         ksession = reloadKnowledgeSession(ksession);
         assertEquals(0, ksession.getProcessInstances().size());
         ksession.dispose();
-        
+
         assertProcessInstancesNotExist(notProcess);
     }
 
@@ -152,13 +152,13 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
         long[] notProcess = new long[4];
 
         StatefulKnowledgeSession ksession = reloadKnowledgeSession();
-        
+
         UserTransaction ut = (UserTransaction) new InitialContext().lookup( "java:comp/UserTransaction" );
         ut.begin();
-        
+
         notProcess[0] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
         notProcess[1] = ksession.createProcessInstance("org.jbpm.processinstance.helloworld", null).getId();
-        
+
         ut.rollback();
         // Validate that proc inst mgr cache is also flushed on rollback
         assertEquals(0, ksession.getProcessInstances().size());
@@ -166,15 +166,15 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
         ksession = reloadKnowledgeSession(ksession);
         assertEquals(0, ksession.getProcessInstances().size());
         ksession.dispose();
-        
+
         assertProcessInstancesNotExist(notProcess);
     }
 
-   
+
     /**
      * Helper functions
      */
-    
+
     private void assertProcessInstancesExist(long[] processId) {
         StatefulKnowledgeSession ksession = reloadKnowledgeSession();
 
@@ -198,7 +198,7 @@ public class GetProcessInstancesTest extends AbstractBaseTest {
 
         return kbuilder.newKnowledgeBase();
     }
-    
+
     private StatefulKnowledgeSession reloadKnowledgeSession() {
         return JPAKnowledgeService.loadStatefulKnowledgeSession(sessionId, kbase, null, env);
     }

@@ -33,41 +33,41 @@ import javax.persistence.Table;
 @Table(name="BooleanExpression")
 @SequenceGenerator(name="booleanExprIdSeq", sequenceName="BOOLEANEXPR_ID_SEQ", allocationSize=1)
 public class BooleanExpressionImpl implements org.kie.internal.task.api.model.BooleanExpression {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="booleanExprIdSeq")
     private Long   id;
     private String type;
-    
+
     @Lob @Column(length=65535)
     private String expression;
-    
+
     public BooleanExpressionImpl() {
-        
+
     }
-    
+
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
-        if( type == null ) { 
+        if( type == null ) {
             type = "";
         }
         out.writeUTF( type );
-        if( expression == null ) { 
+        if( expression == null ) {
             expression = "";
         }
-        out.writeUTF( expression );        
+        out.writeUTF( expression );
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
         type = in.readUTF();
-        expression = in.readUTF();        
+        expression = in.readUTF();
     }
-    
+
     public BooleanExpressionImpl(String type, String expression) {
         this.type = type;
-        this.expression = expression;        
+        this.expression = expression;
     }
 
     public Long getId() {
@@ -118,5 +118,5 @@ public class BooleanExpressionImpl implements org.kie.internal.task.api.model.Bo
         return true;
     }
 
-    
+
 }

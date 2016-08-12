@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -143,23 +143,23 @@ public final class JBPMHelper {
             Map<String, String> map = new HashMap<String, String>();
             map.put("hibernate.dialect", dialect);
             EntityManagerFactory emf = Persistence.createEntityManagerFactory(properties.getProperty("persistence.persistenceunit.name", "org.jbpm.persistence.jpa"), map);
-            
-            
+
+
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newDefaultBuilder()
-                .entityManagerFactory(emf)                
+                    .newDefaultBuilder()
+                .entityManagerFactory(emf)
                 .addEnvironmentEntry(EnvironmentName.TRANSACTION_MANAGER, TransactionManagerServices.getTransactionManager());
 
 
-        } else {            
+        } else {
             builder = RuntimeEnvironmentBuilder.Factory.get()
-        			.newDefaultInMemoryBuilder();
+                    .newDefaultInMemoryBuilder();
         }
         builder.knowledgeBase(kbase);
         RuntimeManager manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(builder.get());
         return (StatefulKnowledgeSession) manager.getRuntimeEngine(EmptyContext.get()).getKieSession();
     }
-    
+
     @Deprecated
     @SuppressWarnings("unchecked")
     public static UserGroupCallback getUserGroupCallback() {
@@ -168,7 +168,7 @@ public final class JBPMHelper {
         if (className != null) {
             try {
                 Class<UserGroupCallback> clazz = (Class<UserGroupCallback>) Class.forName(className);
-           
+
                 return clazz.newInstance();
             } catch (Exception e) {
                 throw new IllegalArgumentException("Cannot create instance of UserGroupCallback " + className, e);
@@ -188,22 +188,22 @@ public final class JBPMHelper {
         }
         return properties;
     }
-    
+
     @Deprecated
     protected static void cleanupSingletonSessionId() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         if (tempDir.exists()) {
-            
+
             String[] jbpmSerFiles = tempDir.list(new FilenameFilter() {
-                
+
                 @Override
                 public boolean accept(File dir, String name) {
-                    
+
                     return name.endsWith("-jbpmSessionId.ser");
                 }
             });
             for (String file : jbpmSerFiles) {
-                
+
                 new File(tempDir, file).delete();
             }
         }

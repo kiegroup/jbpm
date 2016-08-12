@@ -24,18 +24,18 @@ import org.jbpm.shared.services.impl.TransactionalCommandService;
 
 @Stateless
 public class TransactionalCommandServiceExecutorEJBImpl extends TransactionalCommandService {
-	
-	@PersistenceUnit(unitName="org.jbpm.domain")
-	@Override
-	public void setEmf(EntityManagerFactory emf) {
-		
-		super.setEmf(emf);
-	}
-	
-	
-	public TransactionalCommandServiceExecutorEJBImpl() {
-		super(null);
-		// entity manager will be set by setter method
-	}
+
+    @PersistenceUnit(unitName="org.jbpm.domain")
+    @Override
+    public void setEmf(EntityManagerFactory emf) {
+
+        super.setEmf(emf);
+    }
+
+
+    public TransactionalCommandServiceExecutorEJBImpl() {
+        super(null);
+        // entity manager will be set by setter method
+    }
 
 }

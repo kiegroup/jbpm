@@ -125,7 +125,7 @@ public class EventBasedGatewayTest extends JbpmTestCase {
 
     /**
      * No branch is selected, timer is triggered after 1 sec
-     * @throws Exception 
+     * @throws Exception
      */
     @Test(timeout = 30000)
     public void testTimer() throws Exception {
@@ -143,15 +143,15 @@ public class EventBasedGatewayTest extends JbpmTestCase {
         TrackingListenerAssert.assertTriggered(tpel, "sig");
         String timerNodeName = "timer";
         TrackingListenerAssert.assertTriggered(tpel, timerNodeName);
-        assertTrue( "Node '" + timerNodeName + "' was not triggered on time!", 
+        assertTrue( "Node '" + timerNodeName + "' was not triggered on time!",
                 tpel.waitForNodeToBeLeft(timerNodeName, 2000));
         TrackingListenerAssert.assertLeft(tpel, timerNodeName);
 
         assertTrue( "Process was not completed on time!", tpel.waitForProcessToComplete(2000));
-        
+
         TrackingListenerAssert.assertTriggeredAndLeft(tpel, "join");
         TrackingListenerAssert.assertTriggered(tpel, "end");
-        
+
         TrackingListenerAssert.assertProcessCompleted(tpel, EVENT_BASED_GATEWAY_ID);
     }
 

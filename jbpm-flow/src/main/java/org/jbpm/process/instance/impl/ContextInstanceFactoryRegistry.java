@@ -31,8 +31,8 @@ import org.jbpm.process.instance.context.variable.VariableScopeInstance;
 import org.jbpm.process.instance.impl.factory.ReuseContextInstanceFactory;
 
 public class ContextInstanceFactoryRegistry {
-    
-    public static final ContextInstanceFactoryRegistry INSTANCE = 
+
+    public static final ContextInstanceFactoryRegistry INSTANCE =
         new ContextInstanceFactoryRegistry();
 
     private Map<Class<? extends Context>, ContextInstanceFactory> registry;

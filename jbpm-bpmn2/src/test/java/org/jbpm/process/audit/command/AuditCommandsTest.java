@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,7 +38,7 @@ import org.kie.api.runtime.process.WorkItem;
 
 public class AuditCommandsTest extends JbpmBpmn2TestCase {
 
-    public AuditCommandsTest() { 
+    public AuditCommandsTest() {
         super(true);
     }
 
@@ -46,7 +46,7 @@ public class AuditCommandsTest extends JbpmBpmn2TestCase {
     @BeforeClass
     public static void setup() throws Exception {
         setUpDataSource();
-        
+
         // clear logs
         Environment env = EnvironmentFactory.newEnvironment();
         env.set(EnvironmentName.ENTITY_MANAGER_FACTORY, emf);
@@ -54,8 +54,8 @@ public class AuditCommandsTest extends JbpmBpmn2TestCase {
         logService.clear();
 
     }
-    
-    
+
+
 
     @Test
     public void testFindProcessInstanceCommands() throws Exception {
@@ -75,7 +75,7 @@ public class AuditCommandsTest extends JbpmBpmn2TestCase {
         ProcessInstanceLog log = logList.get(0);
         assertEquals(log.getProcessInstanceId().longValue(), processInstance.getId());
         assertEquals(log.getProcessId(), processInstance.getProcessId());
-        
+
         cmd = new FindActiveProcessInstancesCommand(processId);
         result = ksession.execute(cmd);
         assertNotNull( "Command result is empty!", result );
@@ -86,7 +86,7 @@ public class AuditCommandsTest extends JbpmBpmn2TestCase {
         assertEquals("Process instance id", log.getProcessInstanceId().longValue(), processInstance.getId());
         assertEquals("Process id", log.getProcessId(), processInstance.getProcessId());
         assertEquals("Status", log.getStatus().intValue(), ProcessInstance.STATE_ACTIVE );
-        
+
         cmd = new FindProcessInstanceCommand(processInstance.getId());
         result = ksession.execute(cmd);
         assertNotNull( "Command result is empty!", result );
@@ -94,25 +94,25 @@ public class AuditCommandsTest extends JbpmBpmn2TestCase {
         log = (ProcessInstanceLog) result;
         assertEquals(log.getProcessInstanceId().longValue(), processInstance.getId());
         assertEquals(log.getProcessId(), processInstance.getProcessId());
-        
+
         cmd = new ClearHistoryLogsCommand();
         result = ksession.execute(cmd);
         assertEquals( "There should be no more logs", 0, logService.findProcessInstances().size() );
-        
+
         // now signal process instance
         ksession = restoreSession(ksession, true);
         ksession.signalEvent("MyMessage", "SomeValue", processInstance.getId());
         assertProcessInstanceCompleted(processInstance.getId(), ksession);
     }
-    
+
     @Test
     public void testVarAndNodeInstanceCommands() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-SubProcessUserTask.bpmn2");
         KieSession ksession = createKnowledgeSession(kbase);
-        
+
         TestWorkItemHandler workItemHandler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", workItemHandler);
-        
+
         ProcessInstance processInstance = ksession.startProcess("SubProcess");
         assertProcessInstanceActive(processInstance);
 
@@ -122,21 +122,21 @@ public class AuditCommandsTest extends JbpmBpmn2TestCase {
         assertTrue( result instanceof List );
         List<NodeInstanceLog> nodeLogList = (List<NodeInstanceLog>) result;
         assertEquals( "Log list size is incorrect.", 8, nodeLogList.size() );
-    
+
         cmd = new FindNodeInstancesCommand(processInstance.getId(), "UserTask_1");
         result = ksession.execute(cmd);
         assertNotNull( "Command result is empty!", result );
         assertTrue( result instanceof List );
         nodeLogList = (List<NodeInstanceLog>) result;
         assertEquals( "Log list size is incorrect.", 1, nodeLogList.size() );
-    
+
         cmd = new FindVariableInstancesCommand(processInstance.getId(), "2:x");
         result = ksession.execute(cmd);
         assertNotNull( "Command result is empty!", result );
         assertTrue( result instanceof List );
         List<VariableInstanceLog> varLogList = (List<VariableInstanceLog>) result;
         assertEquals( "Log list size is incorrect.", 1, varLogList.size() );
-        
+
         WorkItem workItem = workItemHandler.getWorkItem();
         assertNotNull(workItem);
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);

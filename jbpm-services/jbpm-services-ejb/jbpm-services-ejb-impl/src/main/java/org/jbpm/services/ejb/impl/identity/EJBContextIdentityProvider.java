@@ -26,25 +26,25 @@ import org.kie.internal.identity.IdentityProvider;
 
 public class EJBContextIdentityProvider implements IdentityProvider {
 
-	private EJBContext context;
-	
-	public EJBContextIdentityProvider(EJBContext context) {
-		this.context = context;
-	}
-	
-	@Override
-	public String getName() {
-		return context.getCallerPrincipal().getName();
-	}
+    private EJBContext context;
 
-	@Override
-	public List<String> getRoles() {
-		return Collections.emptyList();
-	}
+    public EJBContextIdentityProvider(EJBContext context) {
+        this.context = context;
+    }
 
-	@Override
-	public boolean hasRole(String role) {
-		return context.isCallerInRole(role);
-	}
+    @Override
+    public String getName() {
+        return context.getCallerPrincipal().getName();
+    }
+
+    @Override
+    public List<String> getRoles() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean hasRole(String role) {
+        return context.isCallerInRole(role);
+    }
 
 }

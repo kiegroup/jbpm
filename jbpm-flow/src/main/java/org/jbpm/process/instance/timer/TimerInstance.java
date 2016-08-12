@@ -22,13 +22,13 @@ import java.util.Date;
 import org.drools.core.time.JobHandle;
 
 /**
- * 
+ *
  */
 public class TimerInstance implements Serializable{
 
     /** Generated serial version UID */
     private static final long serialVersionUID = 9161292833931227195L;
-    
+
     private long id;
     private long timerId;
     private long delay;
@@ -40,35 +40,35 @@ public class TimerInstance implements Serializable{
     private int repeatLimit = -1;
     private long sessionId;
     private String cronExpression;
-    
+
     public long getId() {
         return id;
     }
-    
+
     public void setId(long id) {
         this.id = id;
     }
-    
+
     public long getTimerId() {
-		return timerId;
-	}
+        return timerId;
+    }
 
-	public void setTimerId(long timerId) {
-		this.timerId = timerId;
-	}
+    public void setTimerId(long timerId) {
+        this.timerId = timerId;
+    }
 
-	public long getDelay() {
+    public long getDelay() {
         return delay;
     }
-    
+
     public void setDelay(long delay) {
         this.delay = delay;
     }
-    
+
     public long getPeriod() {
         return period;
     }
-    
+
     public void setPeriod(long period) {
         this.period = period;
     }
@@ -80,30 +80,30 @@ public class TimerInstance implements Serializable{
     public void setJobHandle(JobHandle jobHandle) {
         this.jobHandle = jobHandle;
     }
-    
+
     public Date getActivated() {
-		return activated;
-	}
-
-	public void setActivated(Date activated) {
-		this.activated = activated;
-	}
-
-	public void setLastTriggered(Date lastTriggered) {
-    	this.lastTriggered = lastTriggered;
+        return activated;
     }
-    
+
+    public void setActivated(Date activated) {
+        this.activated = activated;
+    }
+
+    public void setLastTriggered(Date lastTriggered) {
+        this.lastTriggered = lastTriggered;
+    }
+
     public Date getLastTriggered() {
-    	return lastTriggered;
+        return lastTriggered;
     }
 
-	public long getProcessInstanceId() {
-		return processInstanceId;
-	}
+    public long getProcessInstanceId() {
+        return processInstanceId;
+    }
 
-	public void setProcessInstanceId(long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+    public void setProcessInstanceId(long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
 
     public int getRepeatLimit() {
         return repeatLimit;

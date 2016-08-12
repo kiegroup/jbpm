@@ -28,11 +28,11 @@ import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogDeleteBui
 import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogQueryBuilder;
 
 /**
- * Implementations of this class 
- * deal with {@link ProcessInstanceLog}, {@link NodeInstanceLog} 
- * and {@link VariableInstanceLog} entities. 
+ * Implementations of this class
+ * deal with {@link ProcessInstanceLog}, {@link NodeInstanceLog}
+ * and {@link VariableInstanceLog} entities.
  * </p>
- * Please see the public methods for the interface of this service. 
+ * Please see the public methods for the interface of this service.
  */
 public interface AuditLogService extends AuditService {
 
@@ -40,11 +40,11 @@ public interface AuditLogService extends AuditService {
      * Service methods
      * @return
      */
-	@Override
+    @Override
     public List<ProcessInstanceLog> findProcessInstances();
 
     public List<ProcessInstanceLog> findActiveProcessInstances();
-    
+
     public List<ProcessInstanceLog> findProcessInstances(String processId);
 
     public List<ProcessInstanceLog> findActiveProcessInstances(String processId);
@@ -62,36 +62,36 @@ public interface AuditLogService extends AuditService {
     public List<VariableInstanceLog> findVariableInstances(long processInstanceId, String variableId);
 
     public List<VariableInstanceLog> findVariableInstancesByName(String variableId, boolean onlyActiveProcesses);
-    
+
     public List<VariableInstanceLog> findVariableInstancesByNameAndValue(String variableId, String value, boolean onlyActiveProcesses);
-    
+
     /**
-     * Creates a "query builder" instance that allows the user to specify the 
+     * Creates a "query builder" instance that allows the user to specify the
      * specific query criteria to retrieve {@link NodeInstanceLog} instances.
      * @return a {@link NodeInstanceLogQueryBuilder} instance
      */
     public NodeInstanceLogQueryBuilder nodeInstanceLogQuery();
-    
+
     /**
-     * Creates a "query builder" instance that allows the user to specify the 
+     * Creates a "query builder" instance that allows the user to specify the
      * specific query criteria to retrieve {@link VariableInstanceLog} instances.
      * @return a {@link VariableInstanceLogQueryBuilder} instance
      */
     public VariableInstanceLogQueryBuilder variableInstanceLogQuery();
-    
+
     /**
-     * Creates a "query builder" instance that allows the user to specify the 
+     * Creates a "query builder" instance that allows the user to specify the
      * specific query criteria to retrieve {@link ProcessInstanceLog} instances.
      * @return a {@link ProcessInstanceLogQueryBuilder} instance
      */
     public ProcessInstanceLogQueryBuilder processInstanceLogQuery();
-    
+
     public ProcessInstanceLogDeleteBuilder processInstanceLogDelete();
-    
+
     public NodeInstanceLogDeleteBuilder nodeInstanceLogDelete();
-    
+
     public VariableInstanceLogDeleteBuilder variableInstanceLogDelete();
-  
+
     // The query methods should not be available in any public API's
     public <T,R> List<R> queryLogs(QueryWhere queryWhere, Class<T> queryType, Class<R> resultType);
 

@@ -56,12 +56,12 @@ public class HumanTaskRoleCaseTest extends JbpmTestCase {
 
         caseMgmtService.addUserToRole(pid, "customRole", "admin");
         caseMgmtService.addUserToRole(pid, "customRole", "john");
-        
+
         String selectedUser = getRandomUserInTheRole(pid, "customRole");
-        
+
         caseMgmtService.setCaseData(pid, "optUserId", selectedUser);
-        
-        
+
+
         caseMgmtService.triggerAdHocFragment(pid, "Optional Human Task");
 
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner(selectedUser, "en-UK");
@@ -81,7 +81,7 @@ public class HumanTaskRoleCaseTest extends JbpmTestCase {
 
         caseMgmtService.addUserToRole(pid, "customRole", "john");
         caseMgmtService.addUserToRole(pid, "customRole", "mary");
-        
+
         String selectedUser = getRandomUserInTheRole(pid, "customRole");
 
         caseMgmtService.createDynamicHumanTask(pid, "Custom Role Task", selectedUser, null, null, null);

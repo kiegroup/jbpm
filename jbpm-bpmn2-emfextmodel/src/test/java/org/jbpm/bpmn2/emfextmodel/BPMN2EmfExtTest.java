@@ -41,45 +41,45 @@ import junit.framework.TestCase;
 
 public class BPMN2EmfExtTest extends TestCase {
     private ResourceSet resourceSet;
-    
+
     @Override
     protected void setUp() throws Exception {
         resourceSet = new ResourceSetImpl();
-        
+
         resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put
-            (Resource.Factory.Registry.DEFAULT_EXTENSION, 
+            (Resource.Factory.Registry.DEFAULT_EXTENSION,
              new DroolsResourceFactoryImpl());
         resourceSet.getPackageRegistry().put
-            (DroolsPackage.eNS_URI, 
-            		DroolsPackage.eINSTANCE);
+            (DroolsPackage.eNS_URI,
+                    DroolsPackage.eINSTANCE);
     }
-    
+
     @Override
     protected void tearDown() throws Exception {
     }
-    
+
     @SuppressWarnings("unchecked")
-	public void testMetadataElement() throws Exception {
-    	// write
-    	XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
+    public void testMetadataElement() throws Exception {
+        // write
+        XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         inResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
         inResource.setEncoding("UTF-8");
         DocumentRoot documentRoot = DroolsFactory.eINSTANCE.createDocumentRoot();
-        
+
         MetaDataType metadataType =  DroolsFactory.eINSTANCE.createMetaDataType();
         metadataType.setName("testvalue");
-        metadataType.setMetaValue("testentry"); 
-        
+        metadataType.setMetaValue("testentry");
+
         documentRoot.setMetaData(metadataType);
         inResource.getContents().add(documentRoot);
-        
+
         StringWriter stringWriter = new StringWriter();
         inResource.save(stringWriter, null);
         assertNotNull(stringWriter.getBuffer().toString());
         if(stringWriter.getBuffer().toString().length() < 1) {
             fail("generated xml is empty");
         }
-    	
+
         // read
         XMLResource outResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         outResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
@@ -88,15 +88,15 @@ public class BPMN2EmfExtTest extends TestCase {
         options.put( XMLResource.OPTION_ENCODING, "UTF-8" );
         InputStream is = new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8"));
         outResource.load(is, options);
-        
+
         DocumentRoot outRoot = (DocumentRoot) outResource.getContents().get(0);
         assertNotNull(outRoot.getMetaData());
         MetaDataType outMetadataType =  outRoot.getMetaData();
         assertEquals(outMetadataType.getName(), "testvalue");
         assertEquals(outMetadataType.getMetaValue(), "testentry");
-        
+
     }
-    
+
     public void testOnEntryScriptElement() throws Exception {
         // write
         XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
@@ -108,14 +108,14 @@ public class BPMN2EmfExtTest extends TestCase {
         root.setScriptFormat("format");
         documentRoot.setOnEntryScript(root);
         inResource.getContents().add(documentRoot);
-        
+
         StringWriter stringWriter = new StringWriter();
         inResource.save(stringWriter, null);
         assertNotNull(stringWriter.getBuffer().toString());
         if(stringWriter.getBuffer().toString().length() < 1) {
             fail("generated xml is empty");
         }
-        
+
         // read
         XMLResource outResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         outResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
@@ -124,14 +124,14 @@ public class BPMN2EmfExtTest extends TestCase {
         options.put( XMLResource.OPTION_ENCODING, "UTF-8" );
         InputStream is = new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8"));
         outResource.load(is, options);
-        
+
         DocumentRoot outRoot = (DocumentRoot) outResource.getContents().get(0);
         assertNotNull(outRoot.getOnEntryScript());
         OnEntryScriptType scriptType = outRoot.getOnEntryScript();
         assertEquals("script", scriptType.getScript());
         assertEquals("format", scriptType.getScriptFormat());
     }
-    
+
     public void testOnExitScriptElement() throws Exception {
         // write
         XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
@@ -143,14 +143,14 @@ public class BPMN2EmfExtTest extends TestCase {
         root.setScriptFormat("format");
         documentRoot.setOnExitScript(root);
         inResource.getContents().add(documentRoot);
-        
+
         StringWriter stringWriter = new StringWriter();
         inResource.save(stringWriter, null);
         assertNotNull(stringWriter.getBuffer().toString());
         if(stringWriter.getBuffer().toString().length() < 1) {
             fail("generated xml is empty");
         }
-        
+
         // read
         XMLResource outResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         outResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
@@ -159,14 +159,14 @@ public class BPMN2EmfExtTest extends TestCase {
         options.put( XMLResource.OPTION_ENCODING, "UTF-8" );
         InputStream is = new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8"));
         outResource.load(is, options);
-        
+
         DocumentRoot outRoot = (DocumentRoot) outResource.getContents().get(0);
         assertNotNull(outRoot.getOnExitScript());
         OnExitScriptType scriptType = outRoot.getOnExitScript();
         assertEquals("script", scriptType.getScript());
         assertEquals("format", scriptType.getScriptFormat());
     }
-    
+
     public void testImportElement() throws Exception {
         // write
         XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
@@ -177,14 +177,14 @@ public class BPMN2EmfExtTest extends TestCase {
         root.setName("import");
         documentRoot.setImport(root);
         inResource.getContents().add(documentRoot);
-        
+
         StringWriter stringWriter = new StringWriter();
         inResource.save(stringWriter, null);
         assertNotNull(stringWriter.getBuffer().toString());
         if(stringWriter.getBuffer().toString().length() < 1) {
             fail("generated xml is empty");
         }
-        
+
         // read
         XMLResource outResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         outResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
@@ -193,13 +193,13 @@ public class BPMN2EmfExtTest extends TestCase {
         options.put( XMLResource.OPTION_ENCODING, "UTF-8" );
         InputStream is = new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8"));
         outResource.load(is, options);
-        
+
         DocumentRoot outRoot = (DocumentRoot) outResource.getContents().get(0);
         assertNotNull(outRoot.getImport());
         ImportType importType = outRoot.getImport();
         assertEquals("import", importType.getName());
     }
-    
+
     public void testGlobalElement() throws Exception {
         // write
         XMLResource inResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
@@ -211,14 +211,14 @@ public class BPMN2EmfExtTest extends TestCase {
         root.setType("type");
         documentRoot.setGlobal(root);
         inResource.getContents().add(documentRoot);
-        
+
         StringWriter stringWriter = new StringWriter();
         inResource.save(stringWriter, null);
         assertNotNull(stringWriter.getBuffer().toString());
         if(stringWriter.getBuffer().toString().length() < 1) {
             fail("generated xml is empty");
         }
-        
+
         // read
         XMLResource outResource = (XMLResource) resourceSet.createResource(URI.createURI("inputStream://dummyUriWithValidSuffix.xml"));
         outResource.getDefaultLoadOptions().put(XMLResource.OPTION_ENCODING, "UTF-8");
@@ -227,12 +227,12 @@ public class BPMN2EmfExtTest extends TestCase {
         options.put( XMLResource.OPTION_ENCODING, "UTF-8" );
         InputStream is = new ByteArrayInputStream(stringWriter.getBuffer().toString().getBytes("UTF-8"));
         outResource.load(is, options);
-        
+
         DocumentRoot outRoot = (DocumentRoot) outResource.getContents().get(0);
         assertNotNull(outRoot.getGlobal());
         GlobalType globalType = outRoot.getGlobal();
         assertEquals("identifier", globalType.getIdentifier());
         assertEquals("type", globalType.getType());
     }
-    
+
 }

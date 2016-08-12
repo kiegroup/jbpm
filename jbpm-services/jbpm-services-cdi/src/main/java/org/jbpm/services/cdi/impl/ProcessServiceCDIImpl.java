@@ -26,17 +26,17 @@ import org.jbpm.services.api.RuntimeDataService;
 @ApplicationScoped
 public class ProcessServiceCDIImpl extends ProcessServiceImpl {
 
-	@Inject
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
-		super.setDeploymentService(deploymentService);
-	}
+    @Inject
+    @Override
+    public void setDeploymentService(DeploymentService deploymentService) {
+        super.setDeploymentService(deploymentService);
+    }
 
-	@Inject
-	@Override
-	public void setDataService(RuntimeDataService dataService) {
-		super.setDataService(dataService);
-	}
+    @Inject
+    @Override
+    public void setDataService(RuntimeDataService dataService) {
+        super.setDataService(dataService);
+    }
 
-	
+
 }

@@ -26,7 +26,7 @@ import org.jbpm.process.core.Context;
 import org.jbpm.process.core.ContextContainer;
 
 /**
- * 
+ *
  */
 public class ContextContainerImpl implements Serializable, ContextContainer {
 
@@ -39,7 +39,7 @@ public class ContextContainerImpl implements Serializable, ContextContainer {
     public List<Context> getContexts(String contextType) {
         return this.subContexts.get(contextType);
     }
-    
+
     public void addContext(Context context) {
         List<Context> list = this.subContexts.get(context.getType());
         if (list == null) {
@@ -51,7 +51,7 @@ public class ContextContainerImpl implements Serializable, ContextContainer {
             context.setId(++lastContextId);
         }
     }
-    
+
     public Context getContext(String contextType, long id) {
         List<Context> list = this.subContexts.get(contextType);
         if (list != null) {
@@ -67,7 +67,7 @@ public class ContextContainerImpl implements Serializable, ContextContainer {
     public void setDefaultContext(Context context) {
         this.defaultContexts.put(context.getType(), context);
     }
-    
+
     public Context getDefaultContext(String contextType) {
         return defaultContexts.get(contextType);
     }

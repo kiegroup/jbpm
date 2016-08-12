@@ -46,64 +46,64 @@ public class TaskVariableQueryBuilderImpl extends AbstractTaskAuditQueryBuilderI
      }
 
     @Override
-	public TaskVariableQueryBuilder taskId(long... taskId) {
-		addLongParameter(TASK_ID_LIST, "task id", taskId);
+    public TaskVariableQueryBuilder taskId(long... taskId) {
+        addLongParameter(TASK_ID_LIST, "task id", taskId);
         return this;
-	}
+    }
 
-	@Override
+    @Override
     public TaskVariableQueryBuilder taskIdRange( Long taskIdMin, Long taskIdMax ) {
-	    addRangeParameters(TASK_ID_LIST, "task id range", taskIdMin, taskIdMax);
+        addRangeParameters(TASK_ID_LIST, "task id range", taskIdMin, taskIdMax);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder id( long... id ) {
-		addLongParameter(ID_LIST, "task id", id);
+        addLongParameter(ID_LIST, "task id", id);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder modificationDate( Date... modDate ) {
-		addObjectParameter(DATE_LIST, "log time", modDate);
+        addObjectParameter(DATE_LIST, "log time", modDate);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder modificationDateRange( Date modDateMin, Date modDateMax ) {
-	    addRangeParameters(DATE_LIST, "log time range", modDateMin, modDateMax);
+        addRangeParameters(DATE_LIST, "log time range", modDateMin, modDateMax);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder name( String... name ) {
-	    addObjectParameter(TASK_VARIABLE_NAME_ID_LIST, "name", name);
+        addObjectParameter(TASK_VARIABLE_NAME_ID_LIST, "name", name);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder value( String... value ) {
-		addObjectParameter(TASK_VARIABLE_VALUE_ID_LIST, "value", value);
+        addObjectParameter(TASK_VARIABLE_VALUE_ID_LIST, "value", value);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder type( VariableType... type ) {
-		addObjectParameter(TYPE_LIST, "task variable type", type);
+        addObjectParameter(TYPE_LIST, "task variable type", type);
         return this;
     }
 
-	@Override
+    @Override
     public TaskVariableQueryBuilder ascending( org.kie.internal.task.query.TaskVariableQueryBuilder.OrderBy field ) {
-		String listId = convertOrderByToListId(field);
-		this.queryWhere.setAscending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setAscending(listId);
         return this;
     }
 
     @Override
     public TaskVariableQueryBuilder descending( org.kie.internal.task.query.TaskVariableQueryBuilder.OrderBy field ) {
-		String listId = convertOrderByToListId(field);
-		this.queryWhere.setDescending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setDescending(listId);
         return this;
     }
 

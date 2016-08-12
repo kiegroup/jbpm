@@ -48,20 +48,20 @@ public class CDITestHelper {
     @Inject
     private BeanManager beanManager;
     private EntityManagerFactory emf;
-    
+
     @Inject
     @Kjar
     private DeploymentService deploymentService;
-    
-    
+
+
     @Produces
     @Singleton
     @PerRequest
     @PerProcessInstance
     public RuntimeEnvironment produceEnvironment(EntityManagerFactory emf) {
-        
+
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
+                .newDefaultBuilder()
                 .entityManagerFactory(emf)
                 .userGroupCallback(getUserGroupCallback())
                 .registerableItemsFactory(InjectableRegisterableItemsFactory.getFactory(beanManager, new ManagedAuditEventBuilderImpl()))
@@ -70,13 +70,13 @@ public class CDITestHelper {
                 .get();
         return environment;
     }
-    
+
     @Produces
     public EntityManagerFactory produceEntityManagerFactory() {
         if (this.emf == null) {
-        	this.emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain"); 
+            this.emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
         }
-        
+
         return this.emf;
     }
 
@@ -89,19 +89,19 @@ public class CDITestHelper {
         properties.setProperty("katy", "HR,IT,Accounting");
         return new JBossUserGroupCallbackImpl(properties);
     }
-    
+
     @Produces
     public TaskService produceTaskService() {
-    	return HumanTaskServiceFactory.newTaskServiceConfigurator()
-		.entityManagerFactory(produceEntityManagerFactory())
-		.listener(new JPATaskLifeCycleEventListener(true))
-		.listener(new BAMTaskEventListener(true))
-		.getTaskService();
+        return HumanTaskServiceFactory.newTaskServiceConfigurator()
+        .entityManagerFactory(produceEntityManagerFactory())
+        .listener(new JPATaskLifeCycleEventListener(true))
+        .listener(new BAMTaskEventListener(true))
+        .getTaskService();
     }
-    
+
     @Produces
     public DeploymentService produceKjarDeployService() {
-    	return deploymentService;
+        return deploymentService;
     }
-    
+
 }

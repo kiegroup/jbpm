@@ -29,23 +29,23 @@ import org.jbpm.services.cdi.Undeploy;
 @ApplicationScoped
 public class BPMN2DataServiceCDIImpl extends BPMN2DataServiceImpl {
 
-	@Override
+    @Override
     public void onDeploy(@Observes@Deploy DeploymentEvent event) {
         super.onDeploy(event);
     }
-    
-	@Override
+
+    @Override
     public void onUnDeploy(@Observes@Undeploy DeploymentEvent event) {
         super.onUnDeploy(event);
     }
 
     @Override
-	public void onActivate(@Observes@Activate DeploymentEvent event) {
-		super.onActivate(event);
-	}
+    public void onActivate(@Observes@Activate DeploymentEvent event) {
+        super.onActivate(event);
+    }
 
-	@Override
-	public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
-		super.onDeactivate(event);
-	}
+    @Override
+    public void onDeactivate(@Observes@Deactivate DeploymentEvent event) {
+        super.onDeactivate(event);
+    }
 }

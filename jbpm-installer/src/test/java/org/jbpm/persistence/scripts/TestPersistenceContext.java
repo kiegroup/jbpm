@@ -98,7 +98,7 @@ public final class TestPersistenceContext {
     public void executeScripts(final File scriptsRootFolder) throws IOException, SQLException {
         executeScripts(scriptsRootFolder, null);
     }
-    
+
     public void executeScripts(final File scriptsRootFolder, String type) throws IOException, SQLException {
         testIsInitialized();
         final File[] sqlScripts = TestsUtil.getDDLScriptFilesByDatabaseType(scriptsRootFolder, databaseType, true);
@@ -145,7 +145,7 @@ public final class TestPersistenceContext {
         session = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, environment);
         session.startProcess(processId);
     }
-    
+
     public void createSomeTask() {
         testIsInitialized();
         TaskImpl task = new TaskImpl();
@@ -154,21 +154,21 @@ public final class TestPersistenceContext {
         List<I18NText> names = new ArrayList<I18NText>();
         names.add(name);
         task.setNames(names);
-        InternalTaskData taskData = (InternalTaskData) TaskModelProvider.getFactory().newTaskData();        
+        InternalTaskData taskData = (InternalTaskData) TaskModelProvider.getFactory().newTaskData();
         taskData.setWorkItemId(12);
         taskData.setProcessInstanceId(1);
         taskData.setProcessId("someprocess");
         taskData.setDeploymentId("org.jbpm.test:someprocess:1.0");
         taskData.setProcessSessionId(1);
         task.setTaskData(taskData);
-        InternalPeopleAssignments peopleAssignments = 
+        InternalPeopleAssignments peopleAssignments =
             (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         peopleAssignments.setPotentialOwners(new ArrayList<OrganizationalEntity>());
         peopleAssignments.setBusinessAdministrators(new ArrayList<OrganizationalEntity>());
         peopleAssignments.setExcludedOwners(new ArrayList<OrganizationalEntity>());
         peopleAssignments.setRecipients(new ArrayList<OrganizationalEntity>());
         peopleAssignments.setTaskStakeholders(new ArrayList<OrganizationalEntity>());
-        InternalOrganizationalEntity jdoe = 
+        InternalOrganizationalEntity jdoe =
             (InternalOrganizationalEntity) TaskModelProvider.getFactory().newUser();
         jdoe.setId("jdoe");
         peopleAssignments.getPotentialOwners().add(jdoe);

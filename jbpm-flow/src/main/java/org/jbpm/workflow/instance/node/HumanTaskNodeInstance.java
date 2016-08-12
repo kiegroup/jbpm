@@ -26,13 +26,13 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
 
     private static final long serialVersionUID = 510l;
     private String separator = System.getProperty("org.jbpm.ht.user.separator", ",");
-    
+
     private transient SwimlaneContextInstance swimlaneContextInstance;
-    
+
     public HumanTaskNode getHumanTaskNode() {
         return (HumanTaskNode) getNode();
     }
-    
+
     protected WorkItem createWorkItem(WorkItemNode workItemNode) {
         WorkItem workItem = super.createWorkItem(workItemNode);
         String actorId = assignWorkItem(workItem);
@@ -41,7 +41,7 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         }
         return workItem;
     }
-    
+
     protected String assignWorkItem(WorkItem workItem) {
         String actorId = null;
         // if this human task node is part of a swimlane, check whether an actor
@@ -55,16 +55,16 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         // if no actor can be assigned based on the swimlane, check whether an
         // actor is specified for this human task
         if (actorId == null) {
-        	actorId = (String) workItem.getParameter("ActorId");
-        	if (actorId != null && swimlaneContextInstance != null && actorId.split(separator).length == 1) {
-        		swimlaneContextInstance.setActorId(swimlaneName, actorId);
-        		workItem.setParameter("SwimlaneActorId", actorId);
-        	}
+            actorId = (String) workItem.getParameter("ActorId");
+            if (actorId != null && swimlaneContextInstance != null && actorId.split(separator).length == 1) {
+                swimlaneContextInstance.setActorId(swimlaneName, actorId);
+                workItem.setParameter("SwimlaneActorId", actorId);
+            }
         }
         // always return ActorId from workitem as SwimlaneActorId is kept as separate parameter
         return (String) workItem.getParameter("ActorId");
     }
-    
+
     private SwimlaneContextInstance getSwimlaneContextInstance(String swimlaneName) {
         if (this.swimlaneContextInstance == null) {
             if (swimlaneName == null) {
@@ -81,7 +81,7 @@ public class HumanTaskNodeInstance extends WorkItemNodeInstance {
         }
         return this.swimlaneContextInstance;
     }
-    
+
     public void triggerCompleted(WorkItem workItem) {
         String swimlaneName = getHumanTaskNode().getSwimlane();
         SwimlaneContextInstance swimlaneContextInstance = getSwimlaneContextInstance(swimlaneName);

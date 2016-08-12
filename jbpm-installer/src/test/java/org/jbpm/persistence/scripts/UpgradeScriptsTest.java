@@ -29,7 +29,7 @@ public class UpgradeScriptsTest {
         testExecutingScripts("jbpm");
         testExecutingScripts("bpms");
     }
-    
+
     public void testExecutingScripts(String type) throws IOException, SQLException {
         // Clear schema.
         TestsUtil.clearSchema();
@@ -66,7 +66,7 @@ public class UpgradeScriptsTest {
         testPersistedProcess("jbpm");
         testPersistedProcess("bpms");
     }
-    
+
     public void testPersistedProcess(String type) throws IOException, ParseException, SQLException {
         // Clear schema.
         TestsUtil.clearSchema();

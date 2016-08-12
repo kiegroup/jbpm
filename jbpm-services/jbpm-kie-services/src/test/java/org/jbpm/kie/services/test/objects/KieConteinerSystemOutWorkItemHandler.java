@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,26 +22,26 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 public class KieConteinerSystemOutWorkItemHandler implements WorkItemHandler {
 
-	private KieContainer kieContainer;
-	
-	public KieConteinerSystemOutWorkItemHandler(KieContainer kieContainer) {
-		super();
-		this.kieContainer = kieContainer;
-	}
+    private KieContainer kieContainer;
 
-	@Override
-	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-		System.out.println("Executing work item " + workItem + " with handler with injected " + kieContainer);
-		if (kieContainer == null) {
-			throw new IllegalArgumentException("No kieContainer found");
-		}
-		manager.completeWorkItem(workItem.getId(), null);
-		
-	}
+    public KieConteinerSystemOutWorkItemHandler(KieContainer kieContainer) {
+        super();
+        this.kieContainer = kieContainer;
+    }
 
-	@Override
-	public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-		
-	}
+    @Override
+    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+        System.out.println("Executing work item " + workItem + " with handler with injected " + kieContainer);
+        if (kieContainer == null) {
+            throw new IllegalArgumentException("No kieContainer found");
+        }
+        manager.completeWorkItem(workItem.getId(), null);
+
+    }
+
+    @Override
+    public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+
+    }
 
 }

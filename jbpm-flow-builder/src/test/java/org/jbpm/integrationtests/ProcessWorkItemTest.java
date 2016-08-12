@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -43,10 +43,10 @@ import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class ProcessWorkItemTest extends AbstractBaseTest {
-    
+
     @Test
     public void testWorkItem() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -55,21 +55,21 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.actions\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-    		"    <variables>\n" +
-    		"      <variable name=\"UserName\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
-    		"        <value>John Doe</value>\n" +
-    		"      </variable>\n" +
-     		"      <variable name=\"Person\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.ObjectDataType\" className=\"org.jbpm.integrationtests.test.Person\" />\n" +
-    		"      </variable>\n" +
-    		"      <variable name=\"MyObject\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
-    		"      </variable>\n" +
-    		"      <variable name=\"Number\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.IntegerDataType\" />\n" +
-    		"      </variable>\n" +
-    		"    </variables>\n" +
+            "    <variables>\n" +
+            "      <variable name=\"UserName\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
+            "        <value>John Doe</value>\n" +
+            "      </variable>\n" +
+            "      <variable name=\"Person\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.ObjectDataType\" className=\"org.jbpm.integrationtests.test.Person\" />\n" +
+            "      </variable>\n" +
+            "      <variable name=\"MyObject\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
+            "      </variable>\n" +
+            "      <variable name=\"Number\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.IntegerDataType\" />\n" +
+            "      </variable>\n" +
+            "    </variables>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -114,9 +114,9 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );        
+        kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() );
         StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-    	
+
         TestWorkItemHandler handler = new TestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -125,7 +125,7 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         person.setName("John Doe");
         parameters.put("Person", person);
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
-        	ksession.startProcess("org.drools.actions", parameters);
+            ksession.startProcess("org.drools.actions", parameters);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         WorkItem workItem = handler.getWorkItem();
         assertNotNull(workItem);
@@ -134,7 +134,7 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         assertEquals("John Doe", workItem.getParameter("Comment"));
         ksession.getWorkItemManager().completeWorkItem(workItem.getId(), null);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
         parameters = new HashMap<String, Object>();
         parameters.put("UserName", "Jane Doe");
         parameters.put("MyObject", "SomeString");
@@ -142,7 +142,7 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         person.setName("Jane Doe");
         parameters.put("Person", person);
         processInstance = (WorkflowProcessInstance)
-        	ksession.startProcess("org.drools.actions", parameters);
+            ksession.startProcess("org.drools.actions", parameters);
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         workItem = handler.getWorkItem();
         assertNotNull(workItem);
@@ -157,10 +157,10 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         assertEquals("SomeOtherString", processInstance.getVariable("MyObject"));
         assertEquals(15, processInstance.getVariable("Number"));
     }
-    
+
     @Test
     public void testWorkItemImmediateCompletion() {
-    	KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+        KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         Reader source = new StringReader(
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "<process xmlns=\"http://drools.org/drools-5.0/process\"\n" +
@@ -169,21 +169,21 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
             "         type=\"RuleFlow\" name=\"flow\" id=\"org.drools.actions\" package-name=\"org.drools\" version=\"1\" >\n" +
             "\n" +
             "  <header>\n" +
-    		"    <variables>\n" +
-    		"      <variable name=\"UserName\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
-    		"        <value>John Doe</value>\n" +
-    		"      </variable>\n" +
-     		"      <variable name=\"Person\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.ObjectDataType\" className=\"org.jbpm.integrationtests.test.Person\" />\n" +
-    		"      </variable>\n" +
-    		"      <variable name=\"MyObject\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
-    		"      </variable>\n" +
-    		"      <variable name=\"Number\" >\n" +
-    		"        <type name=\"org.drools.core.process.core.datatype.impl.type.IntegerDataType\" />\n" +
-    		"      </variable>\n" +
-    		"    </variables>\n" +
+            "    <variables>\n" +
+            "      <variable name=\"UserName\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
+            "        <value>John Doe</value>\n" +
+            "      </variable>\n" +
+            "      <variable name=\"Person\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.ObjectDataType\" className=\"org.jbpm.integrationtests.test.Person\" />\n" +
+            "      </variable>\n" +
+            "      <variable name=\"MyObject\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.StringDataType\" />\n" +
+            "      </variable>\n" +
+            "      <variable name=\"Number\" >\n" +
+            "        <type name=\"org.drools.core.process.core.datatype.impl.type.IntegerDataType\" />\n" +
+            "      </variable>\n" +
+            "    </variables>\n" +
             "  </header>\n" +
             "\n" +
             "  <nodes>\n" +
@@ -227,12 +227,12 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
             "\n" +
             "</process>");
         kbuilder.add( ResourceFactory.newReaderResource( source ), ResourceType.DRF );
-        
+
         Collection<KnowledgePackage> kpkgs = kbuilder.getKnowledgePackages();
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        kbase.addKnowledgePackages( kpkgs );        
+        kbase.addKnowledgePackages( kpkgs );
         StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
-    	
+
         ImmediateTestWorkItemHandler handler = new ImmediateTestWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
@@ -242,10 +242,10 @@ public class ProcessWorkItemTest extends AbstractBaseTest {
         person.setName("John Doe");
         parameters.put("Person", person);
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance)
-        	ksession.startProcess("org.drools.actions", parameters);
+            ksession.startProcess("org.drools.actions", parameters);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     private static class ImmediateTestWorkItemHandler implements WorkItemHandler {
         public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
             manager.completeWorkItem(workItem.getId(), null);

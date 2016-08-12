@@ -36,9 +36,9 @@ public class EventNodeFactory extends NodeFactory {
     protected Node createNode() {
         return new EventNode();
     }
-    
+
     protected EventNode getEventNode() {
-    	return(EventNode) getNode();
+        return(EventNode) getNode();
     }
 
     public EventNodeFactory name(String name) {
@@ -47,28 +47,28 @@ public class EventNodeFactory extends NodeFactory {
     }
 
     public EventNodeFactory variableName(String variableName) {
-    	getEventNode().setVariableName(variableName);
+        getEventNode().setVariableName(variableName);
         return this;
     }
 
     public EventNodeFactory eventFilter(EventFilter eventFilter) {
-    	getEventNode().addEventFilter(eventFilter);
+        getEventNode().addEventFilter(eventFilter);
         return this;
     }
 
     public EventNodeFactory eventType(String eventType) {
-    	EventTypeFilter filter = new EventTypeFilter();
-    	filter.setType(eventType);
-    	return eventFilter(filter);
+        EventTypeFilter filter = new EventTypeFilter();
+        filter.setType(eventType);
+        return eventFilter(filter);
     }
 
     public EventNodeFactory eventTransformer(EventTransformer transformer) {
-    	getEventNode().setEventTransformer(transformer);
+        getEventNode().setEventTransformer(transformer);
         return this;
     }
 
     public EventNodeFactory scope(String scope) {
-    	getEventNode().setScope(scope);
+        getEventNode().setScope(scope);
         return this;
     }
 }

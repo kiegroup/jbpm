@@ -78,10 +78,10 @@ public class PessimisticLockTasksServiceTest extends JbpmTestCase {
     @Test
     public void testPessimisticLockingOnTask() throws Exception {
 
-    	final List<Exception> exceptions = new ArrayList<Exception>();
-    	addEnvironmentEntry(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
+        final List<Exception> exceptions = new ArrayList<Exception>();
+        addEnvironmentEntry(EnvironmentName.USE_PESSIMISTIC_LOCKING, true);
 
-    	createRuntimeManager("org/jbpm/test/functional/task/Evaluation2.bpmn");
+        createRuntimeManager("org/jbpm/test/functional/task/Evaluation2.bpmn");
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         final KieSession ksession = runtimeEngine.getKieSession();
         final TaskService taskService = runtimeEngine.getTaskService();

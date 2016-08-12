@@ -109,13 +109,13 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
     }
 
     public void onInit() {
-    	EntityManagerFactoryManager.get().addEntityManagerFactory("org.jbpm.domain", getEmf());
+        EntityManagerFactoryManager.get().addEntityManagerFactory("org.jbpm.domain", getEmf());
     }
 
     @Override
     public void deploy(DeploymentUnit unit) {
-    	try {
-    		super.deploy(unit);
+        try {
+            super.deploy(unit);
             if (!(unit instanceof KModuleDeploymentUnit)) {
                 throw new IllegalArgumentException("Invalid deployment unit provided - " + unit.getClass().getName());
             }
@@ -126,16 +126,16 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
             KieContainer kieContainer = kmoduleUnit.getKieContainer();
             ReleaseId releaseId = null;
             if (kieContainer == null) {
-	            KieServices ks = KieServices.Factory.get();
+                KieServices ks = KieServices.Factory.get();
 
-	            releaseId = ks.newReleaseId(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion());
+                releaseId = ks.newReleaseId(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion());
 
-	            MavenRepository repository = getMavenRepository();
-	            repository.resolveArtifact(releaseId.toExternalForm());
+                MavenRepository repository = getMavenRepository();
+                repository.resolveArtifact(releaseId.toExternalForm());
 
-	            kieContainer = ks.newKieContainer(releaseId);
+                kieContainer = ks.newKieContainer(releaseId);
 
-	            kmoduleUnit.setKieContainer(kieContainer);
+                kmoduleUnit.setKieContainer(kieContainer);
             }
             releaseId = kieContainer.getReleaseId();
 
@@ -167,27 +167,27 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 
             // process the files in the deployment
             if (module.getKieDependencies() != null) {
-    	        Collection<InternalKieModule> dependencies = module.getKieDependencies().values();
-    	        for (InternalKieModule depModule : dependencies) {
+                Collection<InternalKieModule> dependencies = module.getKieDependencies().values();
+                for (InternalKieModule depModule : dependencies) {
 
-    	        	logger.debug("Processing dependency module " + depModule.getReleaseId());
-    	        	files = depModule.getFileNames();
+                    logger.debug("Processing dependency module " + depModule.getReleaseId());
+                    files = depModule.getFileNames();
 
-    	        	processResources(depModule, files, kieContainer, kmoduleUnit, deployedUnit, depModule.getReleaseId(), processDescriptors);
-    	        }
+                    processResources(depModule, files, kieContainer, kmoduleUnit, deployedUnit, depModule.getReleaseId(), processDescriptors);
+                }
             }
             Collection<ReleaseId> dependencies = module.getJarDependencies(new DependencyFilter.ExcludeScopeFilter("test", "provided"));
 
             // process deployment dependencies
             if (dependencies != null && !dependencies.isEmpty()) {
                 // Classes 2: classes added from project and dependencies added
-            	processClassloader(kieContainer, deployedUnit);
+                processClassloader(kieContainer, deployedUnit);
             }
 
             AuditEventBuilder auditLoggerBuilder = setupAuditLogger(identityProvider, unit.getIdentifier());
 
             RuntimeEnvironmentBuilder builder = boostrapRuntimeEnvironmentBuilder(
-            		kmoduleUnit, deployedUnit, kieContainer, kmoduleUnit.getMergeMode())
+                    kmoduleUnit, deployedUnit, kieContainer, kmoduleUnit.getMergeMode())
                     .knowledgeBase(kbase)
                     .classLoader(kieContainer.getClassLoader());
 
@@ -195,34 +195,34 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
 
             commonDeploy(unit, deployedUnit, builder.get(), kieContainer);
             kmoduleUnit.setDeployed(true);
-    	} catch (Throwable e) {
-    		logger.warn("Unexpected error while deploying unit {}", unit.getIdentifier(), e);
-    		// catch all possible errors to be able to report them to caller as RuntimeException
-    		throw new RuntimeException(e);
-    	}
+        } catch (Throwable e) {
+            logger.warn("Unexpected error while deploying unit {}", unit.getIdentifier(), e);
+            // catch all possible errors to be able to report them to caller as RuntimeException
+            throw new RuntimeException(e);
+        }
     }
 
     protected RegisterableItemsFactory getRegisterableItemsFactory(AuditEventBuilder auditLoggerBuilder,
-    		KieContainer kieContainer,KModuleDeploymentUnit unit) {
-    	KModuleRegisterableItemsFactory factory = new KModuleRegisterableItemsFactory(kieContainer, unit.getKsessionName());
-    	factory.setAuditBuilder(auditLoggerBuilder);
-		return factory;
+            KieContainer kieContainer,KModuleDeploymentUnit unit) {
+        KModuleRegisterableItemsFactory factory = new KModuleRegisterableItemsFactory(kieContainer, unit.getKsessionName());
+        factory.setAuditBuilder(auditLoggerBuilder);
+        return factory;
     }
 
     @Override
-	public void undeploy(DeploymentUnit unit) {
-    	if (!(unit instanceof KModuleDeploymentUnit)) {
+    public void undeploy(DeploymentUnit unit) {
+        if (!(unit instanceof KModuleDeploymentUnit)) {
             throw new IllegalArgumentException("Invalid deployment unit provided - " + unit.getClass().getName());
         }
         KModuleDeploymentUnit kmoduleUnit = (KModuleDeploymentUnit) unit;
-		super.undeploy(unit);
+        super.undeploy(unit);
 
         formManagerService.unRegisterForms( unit.getIdentifier() );
 
         KieServices ks = KieServices.Factory.get();
-		ReleaseId releaseId = ks.newReleaseId(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion());
-		ks.getRepository().removeKieModule(releaseId);
-	}
+        ReleaseId releaseId = ks.newReleaseId(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion());
+        ks.getRepository().removeKieModule(releaseId);
+    }
 
     /**
      * This creates and fills a {@link RuntimeEnvironmentBuilder} instance, which is later used when creating services.
@@ -237,105 +237,105 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
      * @return A {@link RuntimeEnvironmentBuilder} instance ready for use
      */
     protected RuntimeEnvironmentBuilder boostrapRuntimeEnvironmentBuilder(KModuleDeploymentUnit deploymentUnit,
-    		DeployedUnit deployedUnit, KieContainer kieContainer, MergeMode mode) {
-    	DeploymentDescriptor descriptor = deploymentUnit.getDeploymentDescriptor();
-    	if (descriptor == null || ((DeploymentDescriptorImpl)descriptor).isEmpty()) { // skip empty descriptors as its default can override settings
-	    	DeploymentDescriptorManager descriptorManager = new DeploymentDescriptorManager("org.jbpm.domain");
-	    	List<DeploymentDescriptor> descriptorHierarchy = descriptorManager.getDeploymentDescriptorHierarchy(kieContainer);
+            DeployedUnit deployedUnit, KieContainer kieContainer, MergeMode mode) {
+        DeploymentDescriptor descriptor = deploymentUnit.getDeploymentDescriptor();
+        if (descriptor == null || ((DeploymentDescriptorImpl)descriptor).isEmpty()) { // skip empty descriptors as its default can override settings
+            DeploymentDescriptorManager descriptorManager = new DeploymentDescriptorManager("org.jbpm.domain");
+            List<DeploymentDescriptor> descriptorHierarchy = descriptorManager.getDeploymentDescriptorHierarchy(kieContainer);
 
-			descriptor = merger.merge(descriptorHierarchy, mode);
-			deploymentUnit.setDeploymentDescriptor(descriptor);
-    	} else if (descriptor != null && !deploymentUnit.isDeployed()) {
-    		DeploymentDescriptorManager descriptorManager = new DeploymentDescriptorManager("org.jbpm.domain");
-	    	List<DeploymentDescriptor> descriptorHierarchy = descriptorManager.getDeploymentDescriptorHierarchy(kieContainer);
+            descriptor = merger.merge(descriptorHierarchy, mode);
+            deploymentUnit.setDeploymentDescriptor(descriptor);
+        } else if (descriptor != null && !deploymentUnit.isDeployed()) {
+            DeploymentDescriptorManager descriptorManager = new DeploymentDescriptorManager("org.jbpm.domain");
+            List<DeploymentDescriptor> descriptorHierarchy = descriptorManager.getDeploymentDescriptorHierarchy(kieContainer);
 
-	    	descriptorHierarchy.add(0, descriptor);
-	    	descriptor = merger.merge(descriptorHierarchy, mode);
-			deploymentUnit.setDeploymentDescriptor(descriptor);
-    	}
+            descriptorHierarchy.add(0, descriptor);
+            descriptor = merger.merge(descriptorHierarchy, mode);
+            deploymentUnit.setDeploymentDescriptor(descriptor);
+        }
 
-		// first set on unit the strategy
-		deploymentUnit.setStrategy(descriptor.getRuntimeStrategy());
+        // first set on unit the strategy
+        deploymentUnit.setStrategy(descriptor.getRuntimeStrategy());
 
-		// setting up runtime environment via builder
-		RuntimeEnvironmentBuilder builder = null;
-		if (descriptor.getPersistenceMode() == PersistenceMode.NONE) {
-			builder = RuntimeEnvironmentBuilder.Factory.get().newDefaultInMemoryBuilder();
-		} else {
-			builder = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder();
-		}
-		// populate various properties of the builder
-		EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(descriptor.getPersistenceUnit());
-		builder.entityManagerFactory(emf);
+        // setting up runtime environment via builder
+        RuntimeEnvironmentBuilder builder = null;
+        if (descriptor.getPersistenceMode() == PersistenceMode.NONE) {
+            builder = RuntimeEnvironmentBuilder.Factory.get().newDefaultInMemoryBuilder();
+        } else {
+            builder = RuntimeEnvironmentBuilder.Factory.get().newDefaultBuilder();
+        }
+        // populate various properties of the builder
+        EntityManagerFactory emf = EntityManagerFactoryManager.get().getOrCreate(descriptor.getPersistenceUnit());
+        builder.entityManagerFactory(emf);
 
-		Map<String, Object> contaxtParams = new HashMap<String, Object>();
-		contaxtParams.put("entityManagerFactory", emf);
-		contaxtParams.put("classLoader", kieContainer.getClassLoader());
-		// process object models that are globally configured (environment entries, session configuration)
-		for (NamedObjectModel model : descriptor.getEnvironmentEntries()) {
-			Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
-			builder.addEnvironmentEntry(model.getName(), entry);
-		}
+        Map<String, Object> contaxtParams = new HashMap<String, Object>();
+        contaxtParams.put("entityManagerFactory", emf);
+        contaxtParams.put("classLoader", kieContainer.getClassLoader());
+        // process object models that are globally configured (environment entries, session configuration)
+        for (NamedObjectModel model : descriptor.getEnvironmentEntries()) {
+            Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
+            builder.addEnvironmentEntry(model.getName(), entry);
+        }
 
-		for (NamedObjectModel model : descriptor.getConfiguration()) {
-			Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
-			builder.addConfiguration(model.getName(), (String) entry);
-		}
-		ObjectMarshallingStrategy[] mStrategies = new ObjectMarshallingStrategy[descriptor.getMarshallingStrategies().size() + 1];
-		int index = 0;
-		for (ObjectModel model : descriptor.getMarshallingStrategies()) {
-			Object strategy = getInstanceFromModel(model, kieContainer, contaxtParams);
-			mStrategies[index] = (ObjectMarshallingStrategy)strategy;
-			index++;
-		}
-		// lastly add the main default strategy
-		mStrategies[index] = new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT);
-		builder.addEnvironmentEntry(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, mStrategies);
+        for (NamedObjectModel model : descriptor.getConfiguration()) {
+            Object entry = getInstanceFromModel(model, kieContainer, contaxtParams);
+            builder.addConfiguration(model.getName(), (String) entry);
+        }
+        ObjectMarshallingStrategy[] mStrategies = new ObjectMarshallingStrategy[descriptor.getMarshallingStrategies().size() + 1];
+        int index = 0;
+        for (ObjectModel model : descriptor.getMarshallingStrategies()) {
+            Object strategy = getInstanceFromModel(model, kieContainer, contaxtParams);
+            mStrategies[index] = (ObjectMarshallingStrategy)strategy;
+            index++;
+        }
+        // lastly add the main default strategy
+        mStrategies[index] = new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT);
+        builder.addEnvironmentEntry(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, mStrategies);
 
-		builder.addEnvironmentEntry("KieDeploymentDescriptor", descriptor);
-		builder.addEnvironmentEntry("KieContainer", kieContainer);
-		if (executorService != null) {
-		    builder.addEnvironmentEntry("ExecutorService", executorService);
-		}
-		// populate all assets with roles for this deployment unit
-		List<String> requiredRoles = descriptor.getRequiredRoles(DeploymentDescriptor.TYPE_VIEW);
-		if (requiredRoles != null && !requiredRoles.isEmpty()) {
-			for (DeployedAsset desc : deployedUnit.getDeployedAssets()) {
-				if (desc instanceof ProcessAssetDesc) {
-					((ProcessAssetDesc) desc).setRoles(requiredRoles);
-				}
-			}
-		}
+        builder.addEnvironmentEntry("KieDeploymentDescriptor", descriptor);
+        builder.addEnvironmentEntry("KieContainer", kieContainer);
+        if (executorService != null) {
+            builder.addEnvironmentEntry("ExecutorService", executorService);
+        }
+        // populate all assets with roles for this deployment unit
+        List<String> requiredRoles = descriptor.getRequiredRoles(DeploymentDescriptor.TYPE_VIEW);
+        if (requiredRoles != null && !requiredRoles.isEmpty()) {
+            for (DeployedAsset desc : deployedUnit.getDeployedAssets()) {
+                if (desc instanceof ProcessAssetDesc) {
+                    ((ProcessAssetDesc) desc).setRoles(requiredRoles);
+                }
+            }
+        }
 
-		// Classes 3: classes added from descriptor
-		List<String> remoteableClasses = descriptor.getClasses();
-		if (remoteableClasses != null && !remoteableClasses.isEmpty()) {
-			for (String className : remoteableClasses) {
-			    Class descriptorClass = null;
-				try {
-				    descriptorClass = kieContainer.getClassLoader().loadClass(className);
+        // Classes 3: classes added from descriptor
+        List<String> remoteableClasses = descriptor.getClasses();
+        if (remoteableClasses != null && !remoteableClasses.isEmpty()) {
+            for (String className : remoteableClasses) {
+                Class descriptorClass = null;
+                try {
+                    descriptorClass = kieContainer.getClassLoader().loadClass(className);
                     logger.debug( "Loaded {} into the classpath from deployment descriptor {}", className, kieContainer.getReleaseId().toExternalForm());
                 } catch (ClassNotFoundException cnfe) {
                     throw new IllegalArgumentException("Class " + className + " not found in the project");
                 } catch (NoClassDefFoundError e) {
-                	throw new IllegalArgumentException("Class " + className + " not found in the project");
-				}
-				addClassToDeployedUnit(descriptorClass, (DeployedUnitImpl) deployedUnit);
-			}
-		}
+                    throw new IllegalArgumentException("Class " + className + " not found in the project");
+                }
+                addClassToDeployedUnit(descriptorClass, (DeployedUnitImpl) deployedUnit);
+            }
+        }
 
-    	return builder;
+        return builder;
     }
 
 
     protected Object getInstanceFromModel(ObjectModel model, KieContainer kieContainer, Map<String, Object> contaxtParams) {
-    	ObjectModelResolver resolver = ObjectModelResolverProvider.get(model.getResolver());
-		if (resolver == null) {
-		    // if we don't throw an exception here, we have an NPE below..
-			throw new IllegalStateException("Unable to find ObjectModelResolver for " + model.getResolver());
-		}
+        ObjectModelResolver resolver = ObjectModelResolverProvider.get(model.getResolver());
+        if (resolver == null) {
+            // if we don't throw an exception here, we have an NPE below..
+            throw new IllegalStateException("Unable to find ObjectModelResolver for " + model.getResolver());
+        }
 
-		return resolver.getInstance(model, kieContainer.getClassLoader(), contaxtParams);
+        return resolver.getInstance(model, kieContainer.getClassLoader(), contaxtParams);
     }
 
     /**
@@ -348,8 +348,8 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
      * @param deploymentUnit The {@link DeploymentUnit}, necessary to get the deployment id
      * @param deployedUnit The {@link DeployedUnit}, which contains the results of actions here
      */
-	protected void processResources(InternalKieModule module, Collection<String> files,
-    		KieContainer kieContainer, DeploymentUnit unit, DeployedUnitImpl deployedUnit, ReleaseId releaseId, Map<String, ProcessDescriptor> processes) {
+    protected void processResources(InternalKieModule module, Collection<String> files,
+            KieContainer kieContainer, DeploymentUnit unit, DeployedUnitImpl deployedUnit, ReleaseId releaseId, Map<String, ProcessDescriptor> processes) {
         for (String fileName : files) {
             if(fileName.matches(".+bpmn[2]?$")) {
                 ProcessAssetDesc process;
@@ -377,7 +377,7 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                     if (fileName.indexOf( "/" ) != -1) fileName = fileName.substring( fileName.lastIndexOf( "/" ) + 1);
                     formManagerService.registerForm(unit.getIdentifier(), fileName, formContent);
                 } catch (UnsupportedEncodingException e) {
-                	throw new IllegalArgumentException("Unsupported encoding while processing form " + fileName);
+                    throw new IllegalArgumentException("Unsupported encoding while processing form " + fileName);
                 }
             } else if( fileName.matches(".+class$")) {
                 // Classes 1: classes from deployment added
@@ -389,14 +389,14 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                 } catch (ClassNotFoundException cnfe) {
                     throw new IllegalArgumentException("Class " + className + " not found in the project");
                 } catch (NoClassDefFoundError e) {
-                	throw new IllegalArgumentException("Class " + className + " not found in the project");
-				}
+                    throw new IllegalArgumentException("Class " + className + " not found in the project");
+                }
                 addClassToDeployedUnit(deploymentClass, deployedUnit);
             }
         }
     }
 
-	private void addClassToDeployedUnit(Class deploymentClass, DeployedUnitImpl deployedUnit) {
+    private void addClassToDeployedUnit(Class deploymentClass, DeployedUnitImpl deployedUnit) {
         if( deploymentClass != null ) {
             DeploymentUnit unit = deployedUnit.getDeploymentUnit();
             Boolean limitClasses = false;
@@ -413,48 +413,48 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
                 deployedUnit.addClass(deploymentClass);
             }
         }
-	}
+    }
 
-	/**
-	 * This processes the deployment dependencies, which are made available by the {@link KieContainer} {@link ClassLoader}.
-	 *
-	 * @param kieContainer The {@link KieContainer}, used to get the {@link ClassLoader}
-	 * @param deployedUnit The {@link DeployedUnitImpl}, used to store the classes loaded
-	 */
-	protected void processClassloader(KieContainer kieContainer, DeployedUnitImpl deployedUnit) {
-		if (kieContainer.getClassLoader() instanceof ProjectClassLoader) {
-			ClassLoader parentCl = kieContainer.getClassLoader().getParent();
-			if (parentCl instanceof URLClassLoader) {
-				URL[] urls = ((URLClassLoader) parentCl).getURLs();
-				if (urls == null || urls.length == 0) {
-					return;
-				}
-				ConfigurationBuilder builder = new ConfigurationBuilder();
-				builder.addUrls(urls);
-				builder.addClassLoader(kieContainer.getClassLoader());
+    /**
+     * This processes the deployment dependencies, which are made available by the {@link KieContainer} {@link ClassLoader}.
+     *
+     * @param kieContainer The {@link KieContainer}, used to get the {@link ClassLoader}
+     * @param deployedUnit The {@link DeployedUnitImpl}, used to store the classes loaded
+     */
+    protected void processClassloader(KieContainer kieContainer, DeployedUnitImpl deployedUnit) {
+        if (kieContainer.getClassLoader() instanceof ProjectClassLoader) {
+            ClassLoader parentCl = kieContainer.getClassLoader().getParent();
+            if (parentCl instanceof URLClassLoader) {
+                URL[] urls = ((URLClassLoader) parentCl).getURLs();
+                if (urls == null || urls.length == 0) {
+                    return;
+                }
+                ConfigurationBuilder builder = new ConfigurationBuilder();
+                builder.addUrls(urls);
+                builder.addClassLoader(kieContainer.getClassLoader());
 
-				Reflections reflections = new Reflections(builder);
+                Reflections reflections = new Reflections(builder);
 
-				Set<Class<?>> xmlRootElemClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);
-				Set<Class<?>> xmlTypeClasses = reflections.getTypesAnnotatedWith(XmlType.class);
-				Set<Class<?>> remoteableClasses = reflections.getTypesAnnotatedWith(Remotable.class);
+                Set<Class<?>> xmlRootElemClasses = reflections.getTypesAnnotatedWith(XmlRootElement.class);
+                Set<Class<?>> xmlTypeClasses = reflections.getTypesAnnotatedWith(XmlType.class);
+                Set<Class<?>> remoteableClasses = reflections.getTypesAnnotatedWith(Remotable.class);
 
-				Set<Class<?>> allClasses = new HashSet<Class<?>>();
-				for( Set<Class<?>> classesToAdd : new Set[] { xmlRootElemClasses, xmlTypeClasses, remoteableClasses } ) {
-				   if( classesToAdd != null ) {
-				       allClasses.addAll(classesToAdd);
-				   }
-				}
+                Set<Class<?>> allClasses = new HashSet<Class<?>>();
+                for( Set<Class<?>> classesToAdd : new Set[] { xmlRootElemClasses, xmlTypeClasses, remoteableClasses } ) {
+                   if( classesToAdd != null ) {
+                       allClasses.addAll(classesToAdd);
+                   }
+                }
 
-				for (Class<?> clazz : allClasses) {
-				    filterClassesAddedToDeployedUnit(deployedUnit, clazz);
-				    break;
-				}
-			}
-	    }
-	}
+                for (Class<?> clazz : allClasses) {
+                    filterClassesAddedToDeployedUnit(deployedUnit, clazz);
+                    break;
+                }
+            }
+        }
+    }
 
-	/**
+    /**
      * This method is used to filter classes that are added to the {@link DeployedUnit}.
      * </p>
      * When this method is used, only classes that are meant to be used with serialization are
@@ -504,13 +504,13 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
         }
     }
 
-	public void setBpmn2Service(DefinitionService bpmn2Service) {
-	    this.bpmn2Service = bpmn2Service;
-	}
+    public void setBpmn2Service(DefinitionService bpmn2Service) {
+        this.bpmn2Service = bpmn2Service;
+    }
 
-	public void setMerger(DeploymentDescriptorMerger merger) {
-		this.merger = merger;
-	}
+    public void setMerger(DeploymentDescriptorMerger merger) {
+        this.merger = merger;
+    }
 
     public void setFormManagerService(FormManagerService formManagerService) {
         this.formManagerService = formManagerService;
@@ -521,36 +521,36 @@ public class KModuleDeploymentService extends AbstractDeploymentService {
     }
 
 
-	@Override
-	public void activate(String deploymentId) {
-		DeployedUnit deployed = getDeployedUnit(deploymentId);
-		if (deployed != null) {
-			((DeployedUnitImpl)deployed).setActive(true);
-			notifyOnActivate(deployed.getDeploymentUnit(), deployed);
-		}
-	}
+    @Override
+    public void activate(String deploymentId) {
+        DeployedUnit deployed = getDeployedUnit(deploymentId);
+        if (deployed != null) {
+            ((DeployedUnitImpl)deployed).setActive(true);
+            notifyOnActivate(deployed.getDeploymentUnit(), deployed);
+        }
+    }
 
-	@Override
-	public void deactivate(String deploymentId) {
-		DeployedUnit deployed = getDeployedUnit(deploymentId);
-		if (deployed != null) {
-			((DeployedUnitImpl)deployed).setActive(false);
-			notifyOnDeactivate(deployed.getDeploymentUnit(), deployed);
-		}
-	}
+    @Override
+    public void deactivate(String deploymentId) {
+        DeployedUnit deployed = getDeployedUnit(deploymentId);
+        if (deployed != null) {
+            ((DeployedUnitImpl)deployed).setActive(false);
+            notifyOnDeactivate(deployed.getDeploymentUnit(), deployed);
+        }
+    }
 
 
-	protected String getProcessId(String processSource) {
+    protected String getProcessId(String processSource) {
 
-	    try {
-	        InputSource inputSource = new InputSource(new StringReader(processSource));
-	        String processId = (String) processIdXPathExpression.evaluate(inputSource, XPathConstants.STRING);
+        try {
+            InputSource inputSource = new InputSource(new StringReader(processSource));
+            String processId = (String) processIdXPathExpression.evaluate(inputSource, XPathConstants.STRING);
 
             return processId;
         } catch (XPathExpressionException e) {
             logger.error("Unable to find process id from process source due to {}", e.getMessage());
             return null;
         }
-	}
+    }
 
 }

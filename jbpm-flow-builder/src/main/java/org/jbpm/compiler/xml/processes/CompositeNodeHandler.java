@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -42,51 +42,51 @@ public class CompositeNodeHandler extends AbstractNodeHandler {
     public Class<?> generateNodeFor() {
         return CompositeNode.class;
     }
-    
+
     public boolean allowNesting() {
-    	return true;
+        return true;
     }
-    
+
     protected String getNodeName() {
-    	return "composite";
+        return "composite";
     }
 
     public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-    	super.writeNode(getNodeName(), node, xmlDump, includeMeta);
+        super.writeNode(getNodeName(), node, xmlDump, includeMeta);
         CompositeNode compositeNode = (CompositeNode) node;
         writeAttributes(compositeNode, xmlDump, includeMeta);
         xmlDump.append(">" + EOL);
         if (includeMeta) {
-        	writeMetaData(compositeNode, xmlDump);
+            writeMetaData(compositeNode, xmlDump);
         }
-    	for (String eventType: compositeNode.getActionTypes()) {
-        	writeActions(eventType, compositeNode.getActions(eventType), xmlDump);
+        for (String eventType: compositeNode.getActionTypes()) {
+            writeActions(eventType, compositeNode.getActions(eventType), xmlDump);
         }
         writeTimers(compositeNode.getTimers(), xmlDump);
         if (compositeNode instanceof CompositeContextNode) {
-        	VariableScope variableScope = (VariableScope)
-				((CompositeContextNode) compositeNode).getDefaultContext(VariableScope.VARIABLE_SCOPE);
-        	if (variableScope != null) {
-        		List<Variable> variables = variableScope.getVariables();
-        		XmlWorkflowProcessDumper.visitVariables(variables, xmlDump);
-        	}
-        	ExceptionScope exceptionScope = (ExceptionScope)
-				((CompositeContextNode) compositeNode).getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
-	    	if (exceptionScope != null) {
-	    		XmlWorkflowProcessDumper.visitExceptionHandlers(
-    				exceptionScope.getExceptionHandlers(), xmlDump);
-	    	}
+            VariableScope variableScope = (VariableScope)
+                ((CompositeContextNode) compositeNode).getDefaultContext(VariableScope.VARIABLE_SCOPE);
+            if (variableScope != null) {
+                List<Variable> variables = variableScope.getVariables();
+                XmlWorkflowProcessDumper.visitVariables(variables, xmlDump);
+            }
+            ExceptionScope exceptionScope = (ExceptionScope)
+                ((CompositeContextNode) compositeNode).getDefaultContext(ExceptionScope.EXCEPTION_SCOPE);
+            if (exceptionScope != null) {
+                XmlWorkflowProcessDumper.visitExceptionHandlers(
+                    exceptionScope.getExceptionHandlers(), xmlDump);
+            }
         }
         List<Node> subNodes = getSubNodes(compositeNode);
         xmlDump.append("      <nodes>" + EOL);
         for (Node subNode: subNodes) {
-    		XmlRuleFlowProcessDumper.INSTANCE.visitNode(subNode, xmlDump, includeMeta);
+            XmlRuleFlowProcessDumper.INSTANCE.visitNode(subNode, xmlDump, includeMeta);
         }
         xmlDump.append("      </nodes>" + EOL);
         List<Connection> connections = getSubConnections(compositeNode);
         xmlDump.append("      <connections>" + EOL);
         for (Connection connection: connections) {
-        	XmlRuleFlowProcessDumper.INSTANCE.visitConnection(connection, xmlDump, includeMeta);
+            XmlRuleFlowProcessDumper.INSTANCE.visitConnection(connection, xmlDump, includeMeta);
         }
         xmlDump.append("      </connections>" + EOL);
         Map<String, CompositeNode.NodeAndType> inPorts = getInPorts(compositeNode);
@@ -103,27 +103,27 @@ public class CompositeNodeHandler extends AbstractNodeHandler {
         xmlDump.append("      </out-ports>" + EOL);
         endNode(getNodeName(), xmlDump);
     }
-    
+
     protected void writeAttributes(CompositeNode compositeNode, StringBuilder xmlDump, boolean includeMeta) {
     }
-    
+
     protected List<Node> getSubNodes(CompositeNode compositeNode) {
-    	List<Node> subNodes =
-    		new ArrayList<Node>();
+        List<Node> subNodes =
+            new ArrayList<Node>();
         for (org.kie.api.definition.process.Node subNode: compositeNode.getNodes()) {
-        	// filter out composite start and end nodes as they can be regenerated
-        	if ((!(subNode instanceof CompositeNode.CompositeNodeStart)) &&
-    			(!(subNode instanceof CompositeNode.CompositeNodeEnd))) {
-        		subNodes.add((Node) subNode);
-        	}
+            // filter out composite start and end nodes as they can be regenerated
+            if ((!(subNode instanceof CompositeNode.CompositeNodeStart)) &&
+                (!(subNode instanceof CompositeNode.CompositeNodeEnd))) {
+                subNodes.add((Node) subNode);
+            }
         }
         return subNodes;
     }
-    
+
     protected List<Connection> getSubConnections(CompositeNode compositeNode) {
-    	List<Connection> connections = new ArrayList<Connection>();
+        List<Connection> connections = new ArrayList<Connection>();
         for (org.kie.api.definition.process.Node subNode: compositeNode.getNodes()) {
-        	// filter out composite start and end nodes as they can be regenerated
+            // filter out composite start and end nodes as they can be regenerated
             if (!(subNode instanceof CompositeNode.CompositeNodeEnd)) {
                 for (Connection connection: subNode.getIncomingConnections(Node.CONNECTION_DEFAULT_TYPE)) {
                     if (!(connection.getFrom() instanceof CompositeNode.CompositeNodeStart)) {
@@ -134,13 +134,13 @@ public class CompositeNodeHandler extends AbstractNodeHandler {
         }
         return connections;
     }
-    
+
     protected Map<String, CompositeNode.NodeAndType> getInPorts(CompositeNode compositeNode) {
-    	return compositeNode.getLinkedIncomingNodes();
+        return compositeNode.getLinkedIncomingNodes();
     }
-    
+
     protected Map<String, CompositeNode.NodeAndType> getOutPorts(CompositeNode compositeNode) {
-    	return compositeNode.getLinkedOutgoingNodes();
+        return compositeNode.getLinkedOutgoingNodes();
     }
 
 }

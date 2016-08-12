@@ -40,25 +40,25 @@ import org.kie.api.task.model.Task;
 import org.kie.internal.command.Context;
 
 public class CaseMgmtUtil implements CaseMgmtService {
-    
+
     private KieSession ksession;
     private AuditService auditService;
     private TaskService taskService;
-    
+
     public CaseMgmtUtil(RuntimeEngine engine) {
         this.auditService = engine.getAuditService();
         this.ksession = engine.getKieSession();
         this.taskService = engine.getTaskService();
     }
-    
+
     public CaseMgmtUtil(ProcessContext kcontext) {
         this.ksession = (KieSession) kcontext.getKieRuntime();
     }
-    
+
     /**
      ************************** PROCESS INSTANCE DESCRIPTION **************************
      **/
-    
+
     public String getProcessInstanceDescription(long processInstanceId) {
         return ((ProcessInstanceImpl) getProcessInstance(processInstanceId)).getDescription();
     }
@@ -69,7 +69,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
 
     /**
      * Case roles are currently stored as metadata 'customCaseRoles' of the process
-     * (a comma-separated list of role names, cardinality ) 
+     * (a comma-separated list of role names, cardinality )
      */
     public Map<String, Role> getCaseRoles(String processId) {
         Process process = ksession.getKieBase().getProcess(processId);
@@ -89,7 +89,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result;
     }
-    
+
     public String[] getCaseRoleNames(String processId) {
         List<String> result = new ArrayList<String>();
         for (Role role: getCaseRoles(processId).values()) {
@@ -97,7 +97,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result.toArray(new String[result.size()]);
     }
-    
+
     /**
      * Case roles instances are currently stored as process instance variable "CaseRoles"
      * (a Map<String, RoleInstance>)
@@ -105,10 +105,10 @@ public class CaseMgmtUtil implements CaseMgmtService {
     @SuppressWarnings("unchecked")
     public Map<String, RoleInstance> getCaseRoleInstances(long processInstanceId) {
         ProcessInstance processInstance = getProcessInstance(processInstanceId);
-        return (Map<String, RoleInstance>) 
+        return (Map<String, RoleInstance>)
             ((WorkflowProcessInstance) processInstance).getVariable("CaseRoles");
     }
-    
+
     public Map<String, String[]> getCaseRoleInstanceNames(long processInstanceId) {
         Map<String, String[]> result = new HashMap<String, String[]>();
         ProcessInstance processInstance = getProcessInstance(processInstanceId);
@@ -124,7 +124,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result;
     }
-    
+
     private ProcessInstance getProcessInstance(long processInstanceId) {
         ProcessInstance processInstance = ksession.getProcessInstance(processInstanceId);
         if (processInstance == null) {
@@ -132,7 +132,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return processInstance;
     }
-    
+
     public void addUserToRole(final long processInstanceId, final String roleName, final String userId) {
         ksession.execute(new GenericCommand<Void>() {
             private static final long serialVersionUID = 630L;
@@ -152,7 +152,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
                         Integer cardinality = role.getCardinality();
                         if (cardinality != null && cardinality > 0) {
                             if (cardinality < roleInstance.getRoleAssignments().size() + 1) {
-                                throw new IllegalArgumentException("Cannot add more users for role " + roleName 
+                                throw new IllegalArgumentException("Cannot add more users for role " + roleName
                                     + ", maximum cardinality " + cardinality + " already reached");
                             }
                         }
@@ -161,7 +161,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
                 roleInstance.addRoleAssignment(userId);
                 return null;
             }
-        });      
+        });
     }
 
     public void setCaseRoleInstance(final long processInstanceId, final String roleName, final String[] userIds) {
@@ -182,7 +182,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
             }
         });
     }
-    
+
     public static void addUserToRole(ProcessContext kcontext, String roleName, String userId) {
         new CaseMgmtUtil(kcontext)
             .addUserToRole(kcontext.getProcessInstance().getId(), roleName, userId);
@@ -204,7 +204,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
     /**
      ************************** NEW CASE **************************
      */
-    
+
     public ProcessInstance startNewCase(String name) {
         Map<String, Object> params = new HashMap<String, Object>();
         if (name != null) {
@@ -212,12 +212,12 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return ksession.startProcess("EmptyCase", params);
     }
-    
+
     public Process[] getAvailableProcesses() {
         Collection<Process> processes = ksession.getKieBase().getProcesses();
         return processes.toArray(new Process[processes.size()]);
     }
-    
+
     public Process[] getAvailableCases() {
         Collection<Process> processes = ksession.getKieBase().getProcesses();
         List<Process> result = new ArrayList<Process>();
@@ -228,15 +228,15 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result.toArray(new Process[result.size()]);
     }
-    
+
     /**
      ************************** CASE FILE **************************
      */
-    
+
     public Map<String, Object> getCaseData(long processInstanceId) {
         return ((WorkflowProcessInstanceImpl) getProcessInstance(processInstanceId)).getVariables();
     }
-    
+
     public void setCaseData(final long processInstanceId, final String name, final Object data) {
         ksession.execute(new GenericCommand<Void>() {
             private static final long serialVersionUID = 630L;
@@ -246,17 +246,17 @@ public class CaseMgmtUtil implements CaseMgmtService {
             }
         });
     }
-    
+
     /**
      ************************** AD-HOC **************************
      **/
-    
+
     public String[] getAdHocFragmentNames(final long processInstanceId) {
         final List<String> result = new ArrayList<String>();
         ksession.execute(new GenericCommand<Void>() {
             private static final long serialVersionUID = 630L;
             public Void execute(Context context) {
-                WorkflowProcessInstance processInstance = 
+                WorkflowProcessInstance processInstance =
                     (WorkflowProcessInstance) getProcessInstance(processInstanceId);
                 org.jbpm.workflow.core.WorkflowProcess process = (org.jbpm.workflow.core.WorkflowProcess)
                     processInstance.getProcess();
@@ -269,7 +269,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         });
         return result.toArray(new String[result.size()]);
     }
-    
+
     private void checkAdHoc(NodeContainer nodeContainer, List<String> result) {
         for (Node node : nodeContainer.getNodes()) {
             if (node instanceof StartNode) {
@@ -280,7 +280,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
             }
         }
     }
-    
+
     private void checkNodeInstances(NodeInstanceContainer nodeInstanceContainer, List<String> result) {
         for (NodeInstance nodeInstance: nodeInstanceContainer.getNodeInstances()) {
             if (nodeInstance instanceof DynamicNodeInstance) {
@@ -289,16 +289,16 @@ public class CaseMgmtUtil implements CaseMgmtService {
             }
         }
     }
-    
+
     public void triggerAdHocFragment(long processInstanceId, String name) {
         ksession.signalEvent(name, null, processInstanceId);
     }
-    
+
     /**
      ************************** DYNAMIC **************************
      **/
-    
-    public void createDynamicProcess(long processInstanceId, String processId, 
+
+    public void createDynamicProcess(long processInstanceId, String processId,
                                      Map<String, Object> parameters) {
         DynamicUtils.addDynamicSubProcess(
             getProcessInstance(processInstanceId), ksession, processId, parameters);
@@ -329,14 +329,14 @@ public class CaseMgmtUtil implements CaseMgmtService {
     /**
      ************************** MILESTONES **************************
      **/
-    
+
     public Map<String, String> getMilestones(String processId) {
         Process process = ksession.getKieBase().getProcess(processId);
         Map<String, String> result = new HashMap<String, String>();
         getMilestones((WorkflowProcess) process, result);
         return result;
     }
-    
+
     private void getMilestones(NodeContainer container, Map<String, String> result) {
         for (Node node: container.getNodes()) {
             if (node instanceof WorkItemNode) {
@@ -349,12 +349,12 @@ public class CaseMgmtUtil implements CaseMgmtService {
             }
         }
     }
-    
+
     public String[] getMilestoneNames(String processId) {
         Map<String, String> milestones = getMilestones(processId);
         return milestones.keySet().toArray(new String[milestones.size()]);
     }
-    
+
     public String[] getAchievedMilestones(long processInstanceId) {
         ProcessInstanceLog processInstance = auditService.findProcessInstance(processInstanceId);
         Map<String, String> milestones = getMilestones(processInstance.getProcessId());
@@ -371,11 +371,11 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result.toArray(new String[result.size()]);
     }
-    
+
     /**
      ************************** OVERVIEW **************************
      **/
-    
+
     public Task[] getActiveTasks(final long processInstanceId) {
         final List<Long> workItemIds = new ArrayList<Long>();
         ksession.execute(new GenericCommand<Void>() {
@@ -392,7 +392,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result.toArray(new Task[result.size()]);
     }
-    
+
     private void getActiveTasks(NodeInstanceContainer nodeInstanceContainer, List<Long> workItemIds) {
         for (NodeInstance nodeInstance: nodeInstanceContainer.getNodeInstances()) {
             if (nodeInstance instanceof WorkItemNodeInstance) {
@@ -418,7 +418,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         });
         return result.toArray(new ProcessInstance[result.size()]);
     }
-    
+
     private void getActiveSubProcesses(NodeInstanceContainer nodeInstanceContainer, List<ProcessInstance> result) {
         for (NodeInstance nodeInstance: nodeInstanceContainer.getNodeInstances()) {
             if (nodeInstance instanceof SubProcessNodeInstance) {
@@ -457,7 +457,7 @@ public class CaseMgmtUtil implements CaseMgmtService {
         }
         return result.toArray(new NodeInstanceLog[result.size()]);
     }
-    
+
     private void getActiveNodes(NodeInstanceContainer nodeInstanceContainer, List<Long> nodes) {
         for (NodeInstance nodeInstance: nodeInstanceContainer.getNodeInstances()) {
             nodes.add(nodeInstance.getId());

@@ -31,30 +31,30 @@ import org.jbpm.shared.services.impl.TransactionalCommandService;
 public class PersistDataSetCDIListener extends PersistDataSetListener {
 
     public PersistDataSetCDIListener() {
-        
+
     }
-    
+
     @Inject
     public PersistDataSetCDIListener(TransactionalCommandService commandService) {
         super(commandService);
     }
 
-    
+
     public void onDataSetDefStale(@Observes DataSetStaleEvent event) {
         super.onDataSetDefStale(event.getDataSetDef());
     }
 
-    
+
     public void onDataSetDefModified(@Observes DataSetDefModifiedEvent event) {
         super.onDataSetDefModified(event.getOldDataSetDef(), event.getNewDataSetDef());
     }
 
-    
+
     public void onDataSetDefRegistered(@Observes DataSetDefRegisteredEvent event) {
         super.onDataSetDefRegistered(event.getDataSetDef());
     }
 
-    
+
     public void onDataSetDefRemoved(@Observes DataSetDefRemovedEvent event) {
         super.onDataSetDefRemoved(event.getDataSetDef());
     }

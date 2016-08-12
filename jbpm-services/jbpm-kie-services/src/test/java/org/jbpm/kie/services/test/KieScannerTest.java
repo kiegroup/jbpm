@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -180,7 +180,7 @@ public class KieScannerTest {
                "\n" +
                "</definitions>";
     }
-    
+
     protected String getPom(ReleaseId releaseId, ReleaseId... dependencies) {
         String pom =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -206,13 +206,13 @@ public class KieScannerTest {
         pom += "</project>";
         return pom;
     }
-    
+
     protected File createKPom(FileManager fileManager, ReleaseId releaseId, ReleaseId... dependencies) throws IOException {
         File pomFile = fileManager.newFile("pom.xml");
         fileManager.write(pomFile, getPom(releaseId, dependencies));
         return pomFile;
     }
-    
+
     protected KieFileSystem createKieFileSystemWithKProject(KieServices ks, boolean isdefault) {
         KieModuleModel kproj = ks.newKieModuleModel();
 

@@ -40,31 +40,31 @@ import org.kie.internal.task.query.TaskSummaryQueryBuilder;
 /**
  * This service provides an interface to retrieve data about the runtime, including the following:
  * <ul>
- * 	<li>process instances</li>
- * 	<li>process definitions</li>
- * 	<li>node instance information</li>
- * 	<li>variable information</li>
+ *  <li>process instances</li>
+ *  <li>process definitions</li>
+ *  <li>node instance information</li>
+ *  <li>variable information</li>
  * </ul>
  */
 public interface RuntimeDataService {
-	/**
-	 * Represents type of node instance log entries.
-	 *
-	 */
-	enum EntryType {
-		 START(0),
-		 END(1);
+    /**
+     * Represents type of node instance log entries.
+     *
+     */
+    enum EntryType {
+         START(0),
+         END(1);
 
-		 private int value;
+         private int value;
 
-		 private EntryType(int value) {
-			 this.value = value;
-		 }
+         private EntryType(int value) {
+             this.value = value;
+         }
 
-		public int getValue() {
-			return value;
-		}
-	}
+        public int getValue() {
+            return value;
+        }
+    }
 
     // Process instance information
 
@@ -316,38 +316,38 @@ public interface RuntimeDataService {
      */
     ProcessDefinition getProcessesByDeploymentIdProcessId(String deploymentId, String processId);
 
-	// user task query operations
+    // user task query operations
 
-	/**
-	 * Return a task by its workItemId.
-	 *
-	 * @param workItemId
-	 * @return
-	 */
+    /**
+     * Return a task by its workItemId.
+     *
+     * @param workItemId
+     * @return
+     */
     UserTaskInstanceDesc getTaskByWorkItemId(Long workItemId);
 
-	/**
-	 * Return a task by its taskId.
-	 *
-	 * @param taskId
-	 * @return
-	 */
-	UserTaskInstanceDesc getTaskById(Long taskId);
+    /**
+     * Return a task by its taskId.
+     *
+     * @param taskId
+     * @return
+     */
+    UserTaskInstanceDesc getTaskById(Long taskId);
 
-	/**
-	 * Return a list of assigned tasks as a Business Administrator. Business
-	 * administrators play the same role as task stakeholders but at task type
-	 * level. Therefore, business administrators can perform the exact same
-	 * operations as task stakeholders. Business administrators may also observe
-	 * the progress of notifications.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter);
+    /**
+     * Return a list of assigned tasks as a Business Administrator. Business
+     * administrators play the same role as task stakeholders but at task type
+     * level. Therefore, business administrators can perform the exact same
+     * operations as task stakeholders. Business administrators may also observe
+     * the progress of notifications.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksAssignedAsBusinessAdministrator(String userId, QueryFilter filter);
 
-	/**
+    /**
      * Return a list of assigned tasks as a Business Administrator for with one of the listed
      * statuses
      * @param userId
@@ -355,153 +355,153 @@ public interface RuntimeDataService {
      * @param filter
      * @return
      */
-	List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, List<Status> statuses, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user is eligible for.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user or groups are eligible for.
-	 *
-	 * @param userId
-	 * @param groupIds
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user is eligible for with one of the listed
-	 * statuses.
-	 *
-	 * @param userId
-	 * @param status
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user or groups are eligible for with one of the listed
-	 * statuses.
-	 * @param userId
-	 * @param groupIds
-	 * @param status
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user is eligible for with one of the listed
-	 * statuses and expiration date starting at <code>from</code>. Tasks that do not have expiration date set
-	 * will also be included in the result set.
-	 *
-	 * @param userId
-	 * @param status
-	 * @param from
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(String userId, List<Status> status, Date from, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user has claimed with one of the listed
-	 * statuses and expiration date starting at <code>from</code>. Tasks that do not have expiration date set
-	 * will also be included in the result set.
-	 *
-	 * @param userId
-	 * @param status
-	 * @param from
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksOwnedByExpirationDateOptional(String userId, List<Status> strStatuses, Date from, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user has claimed.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksOwned(String userId, QueryFilter filter);
-
-	/**
-	 * Return a list of tasks the user has claimed with one of the listed
-	 * statuses.
-	 *
-	 * @param userId
-	 * @param status
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, QueryFilter filter);
-
-	/**
-	 * Get a list of tasks the Process Instance is waiting on.
-	 *
-	 * @param processInstanceId
-	 * @return
-	 */
-	List<Long> getTasksByProcessInstanceId(Long processInstanceId);
-
-	/**
-	 * Get a list of tasks the Process Instance is waiting on with one of the
-	 * listed statuses.
-	 *
-	 * @param processInstanceId
-	 * @param status
-	 * @param filter
-	 * @return
-	 */
-	List<TaskSummary> getTasksByStatusByProcessInstanceId(Long processInstanceId, List<Status> status, QueryFilter filter);
+    List<TaskSummary> getTasksAssignedAsBusinessAdministratorByStatus(String userId, List<Status> statuses, QueryFilter filter);
 
     /**
-	 * Get a list of tasks audit logs for the user provides applying the query filter
-	 * listed statuses.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
+     * Return a list of tasks the user is eligible for.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user or groups are eligible for.
+     *
+     * @param userId
+     * @param groupIds
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user is eligible for with one of the listed
+     * statuses.
+     *
+     * @param userId
+     * @param status
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksAssignedAsPotentialOwnerByStatus(String userId, List<Status> status, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user or groups are eligible for with one of the listed
+     * statuses.
+     * @param userId
+     * @param groupIds
+     * @param status
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksAssignedAsPotentialOwner(String userId, List<String> groupIds, List<Status> status, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user is eligible for with one of the listed
+     * statuses and expiration date starting at <code>from</code>. Tasks that do not have expiration date set
+     * will also be included in the result set.
+     *
+     * @param userId
+     * @param status
+     * @param from
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksAssignedAsPotentialOwnerByExpirationDateOptional(String userId, List<Status> status, Date from, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user has claimed with one of the listed
+     * statuses and expiration date starting at <code>from</code>. Tasks that do not have expiration date set
+     * will also be included in the result set.
+     *
+     * @param userId
+     * @param status
+     * @param from
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksOwnedByExpirationDateOptional(String userId, List<Status> strStatuses, Date from, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user has claimed.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksOwned(String userId, QueryFilter filter);
+
+    /**
+     * Return a list of tasks the user has claimed with one of the listed
+     * statuses.
+     *
+     * @param userId
+     * @param status
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksOwnedByStatus(String userId, List<Status> status, QueryFilter filter);
+
+    /**
+     * Get a list of tasks the Process Instance is waiting on.
+     *
+     * @param processInstanceId
+     * @return
+     */
+    List<Long> getTasksByProcessInstanceId(Long processInstanceId);
+
+    /**
+     * Get a list of tasks the Process Instance is waiting on with one of the
+     * listed statuses.
+     *
+     * @param processInstanceId
+     * @param status
+     * @param filter
+     * @return
+     */
+    List<TaskSummary> getTasksByStatusByProcessInstanceId(Long processInstanceId, List<Status> status, QueryFilter filter);
+
+    /**
+     * Get a list of tasks audit logs for the user provides applying the query filter
+     * listed statuses.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
     List<AuditTask> getAllAuditTask(String userId, QueryFilter filter);
 
     /**
-	 * Get a list of all active tasks audit logs for the user provides applying the query filter
-	 * listed statuses.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
+     * Get a list of all active tasks audit logs for the user provides applying the query filter
+     * listed statuses.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
     List<AuditTask> getAllAuditTaskByStatus(String userId, QueryFilter filter);
 
     /**
-	 * Get a list of group tasks (actualOwner == null) audit logs for the user provides applying the query filter
-	 * listed statuses.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
+     * Get a list of group tasks (actualOwner == null) audit logs for the user provides applying the query filter
+     * listed statuses.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
     List<AuditTask> getAllGroupAuditTask(String userId, QueryFilter filter);
 
 
     /**
-	 * Get a list of tasks admin audit (user in businessAdministrators) logs for the user provides applying the query filter
-	 * listed statuses.
-	 *
-	 * @param userId
-	 * @param filter
-	 * @return
-	 */
+     * Get a list of tasks admin audit (user in businessAdministrators) logs for the user provides applying the query filter
+     * listed statuses.
+     *
+     * @param userId
+     * @param filter
+     * @return
+     */
     List<AuditTask> getAllAdminAuditTask(String userId, QueryFilter filter);
 
     /**

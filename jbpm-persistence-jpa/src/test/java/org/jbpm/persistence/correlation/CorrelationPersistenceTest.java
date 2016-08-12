@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -46,19 +46,19 @@ import org.kie.api.runtime.EnvironmentName;
 
 @RunWith(Parameterized.class)
 public class CorrelationPersistenceTest extends AbstractBaseTest {
-    
+
     private HashMap<String, Object> context;
-    
-    public CorrelationPersistenceTest(boolean locking) { 
-        this.useLocking = locking; 
+
+    public CorrelationPersistenceTest(boolean locking) {
+        this.useLocking = locking;
      }
-     
+
      @Parameters
      public static Collection<Object[]> persistence() {
          Object[][] data = new Object[][] { { false }, { true } };
          return Arrays.asList(data);
      };
-         
+
     @Before
     public void before() throws Exception {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
@@ -75,12 +75,12 @@ public class CorrelationPersistenceTest extends AbstractBaseTest {
         props.add("test123");
         props.add("123test");
         em.persist(factory.newCorrelationKey(props));
-        
+
         ut.commit();
     }
-    
+
     @After
-    public void after() {  
+    public void after() {
         try {
             EntityManagerFactory emf = (EntityManagerFactory) context.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
             UserTransaction ut = InitialContext.doLookup("java:comp/UserTransaction");
@@ -103,37 +103,37 @@ public class CorrelationPersistenceTest extends AbstractBaseTest {
         Query query = em.createNamedQuery("GetProcessInstanceIdByCorrelation");
         query.setParameter("properties", Arrays.asList(new String[] {"test123"}));
         query.setParameter("elem_count", new Long(1));
-        
+
         List<Long> processInstances = query.getResultList();
         em.close();
         assertNotNull(processInstances);
         assertEquals(1, processInstances.size());
     }
-    
+
     @Test
     public void testCreateCorrelationMultiValueDoesNotMatch() throws Exception {
         EntityManagerFactory emf = (EntityManagerFactory) context.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
         EntityManager em = emf.createEntityManager();
-        
+
         Query query = em.createNamedQuery("GetProcessInstanceIdByCorrelation");
         query.setParameter("properties", Arrays.asList(new String[] {"test123"}));
         query.setParameter("elem_count", new Long(2));
-        
+
         List<Long> processInstances = query.getResultList();
         em.close();
         assertNotNull(processInstances);
         assertEquals(0, processInstances.size());
     }
-    
+
     @Test
     public void testCreateCorrelationMultiValueDoesMatch() throws Exception {
         EntityManagerFactory emf = (EntityManagerFactory) context.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
         EntityManager em = emf.createEntityManager();
-        
+
         Query query = em.createNamedQuery("GetProcessInstanceIdByCorrelation");
         query.setParameter("properties", Arrays.asList(new String[] {"test123", "123test"}));
         query.setParameter("elem_count", new Long(2));
-        
+
         List<Long> processInstances = query.getResultList();
         em.close();
         assertNotNull(processInstances);

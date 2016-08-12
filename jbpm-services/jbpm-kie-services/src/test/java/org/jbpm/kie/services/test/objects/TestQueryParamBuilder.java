@@ -30,21 +30,21 @@ public class TestQueryParamBuilder implements QueryParamBuilder<ColumnFilter> {
     public TestQueryParamBuilder(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
-    
+
     @Override
     public ColumnFilter build() {
         // return null if it was already invoked
         if (built) {
             return null;
         }
-        
+
         String columnName = "processInstanceId";
-        
+
         ColumnFilter filter = FilterFactory.OR(
                 FilterFactory.greaterOrEqualsTo((Long)parameters.get("min")),
                 FilterFactory.lowerOrEqualsTo((Long)parameters.get("max")));
         filter.setColumnId(columnName);
-       
+
         built = true;
         return filter;
     }

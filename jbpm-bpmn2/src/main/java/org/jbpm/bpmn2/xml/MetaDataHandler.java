@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -44,13 +44,13 @@ public class MetaDataHandler extends BaseAbstractHandler
             this.validParents.add( SequenceFlow.class );
             this.validParents.add( Lane.class );
 
-            this.validPeers = new HashSet();         
+            this.validPeers = new HashSet();
             this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
@@ -61,8 +61,8 @@ public class MetaDataHandler extends BaseAbstractHandler
         final String name = attrs.getValue("name");
         emptyAttributeCheck(localName, "name", name, parser);
         return new MetaDataWrapper(parent, name);
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -73,40 +73,40 @@ public class MetaDataHandler extends BaseAbstractHandler
     public Class generateNodeFor() {
         return MetaDataWrapper.class;
     }
-    
+
     public class MetaDataWrapper implements ValueObject {
-    	private Object parent;
-    	private String name;
-    	public MetaDataWrapper(Object parent, String name) {
-    		this.parent = parent;
-    		this.name = name;
-    	}
-		public Object getValue() {
-			return getMetaData().get(name);
-		}
-		public void setValue(Object value) {
-			getMetaData().put(name, value);
-		}
-		public Map<String, Object> getMetaData() {
-			if (parent instanceof Node) {
-				return ((Node) parent).getMetaData();
-			} else if (parent instanceof RuleFlowProcess) {
-				return ((RuleFlowProcess) parent).getMetaData();
-			} else if (parent instanceof Variable) {
-				return ((Variable) parent).getMetaData();
-			} else if (parent instanceof SequenceFlow) {
+        private Object parent;
+        private String name;
+        public MetaDataWrapper(Object parent, String name) {
+            this.parent = parent;
+            this.name = name;
+        }
+        public Object getValue() {
+            return getMetaData().get(name);
+        }
+        public void setValue(Object value) {
+            getMetaData().put(name, value);
+        }
+        public Map<String, Object> getMetaData() {
+            if (parent instanceof Node) {
+                return ((Node) parent).getMetaData();
+            } else if (parent instanceof RuleFlowProcess) {
+                return ((RuleFlowProcess) parent).getMetaData();
+            } else if (parent instanceof Variable) {
+                return ((Variable) parent).getMetaData();
+            } else if (parent instanceof SequenceFlow) {
                 return ((SequenceFlow) parent).getMetaData();
             } else if(parent instanceof Lane) {
                 return ((Lane) parent).getMetaData();
             } else {
-				throw new IllegalArgumentException("Unknown parent " + parent);
-			}
-		}
-		public DataType getType() {
-			return new StringDataType();
-		}
-		public void setType(DataType type) {
-		}
+                throw new IllegalArgumentException("Unknown parent " + parent);
+            }
+        }
+        public DataType getType() {
+            return new StringDataType();
+        }
+        public void setType(DataType type) {
+        }
     }
 
 }

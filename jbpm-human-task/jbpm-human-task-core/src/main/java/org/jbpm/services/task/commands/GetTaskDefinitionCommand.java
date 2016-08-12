@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,31 +28,31 @@ import org.kie.internal.task.api.model.TaskDef;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetTaskDefinitionCommand extends TaskCommand<TaskDef> {
 
-	private static final long serialVersionUID = 5077599352603072633L;
+    private static final long serialVersionUID = 5077599352603072633L;
 
-	@XmlElement
+    @XmlElement
     @XmlSchemaType(name="string")
-	private String definitionId;
-	
-	public GetTaskDefinitionCommand() {
-	}
-	
-	public GetTaskDefinitionCommand(String definitionId) {
-		this.definitionId = definitionId;
+    private String definitionId;
+
+    public GetTaskDefinitionCommand() {
     }
 
-	public String getDefinitionId() {
-		return definitionId;
-	}
+    public GetTaskDefinitionCommand(String definitionId) {
+        this.definitionId = definitionId;
+    }
 
-	public void setDefinitionId(String definitionId) {
-		this.definitionId = definitionId;
-	}
+    public String getDefinitionId() {
+        return definitionId;
+    }
 
-	public TaskDef execute(Context cntxt) {
+    public void setDefinitionId(String definitionId) {
+        this.definitionId = definitionId;
+    }
+
+    public TaskDef execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
-    	return context.getTaskDefService().getTaskDefById(definitionId);
+
+        return context.getTaskDefService().getTaskDefById(definitionId);
 
     }
 

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,41 +32,41 @@ import org.kie.internal.definition.KnowledgePackage;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public abstract class AbstractBaseTest {
- 
+
     protected KnowledgeBuilderImpl builder;
-   
+
     @Before
-    public void before() { 
+    public void before() {
         builder = new KnowledgeBuilderImpl();
     }
-    
-    public StatefulKnowledgeSession createKieSession(KnowledgePackage... pkg) { 
-        try { 
+
+    public StatefulKnowledgeSession createKieSession(KnowledgePackage... pkg) {
+        try {
             return createKieSession(false, pkg);
-        } catch(Exception e ) { 
+        } catch(Exception e ) {
             String msg = "There's no reason fo an exception to be thrown here (because the kbase is not being serialized)!";
             fail( msg );
             throw new RuntimeException(msg, e);
         }
-    } 
-   
+    }
+
     public StatefulKnowledgeSession createKieSession(boolean serializeKbase, KnowledgePackage... pkg) throws Exception {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
         kbase.addKnowledgePackages((Collection) Arrays.asList(pkg));
-        if( serializeKbase ) { 
+        if( serializeKbase ) {
             kbase = JbpmSerializationHelper.serializeObject( kbase );
         }
 
         return kbase.newStatefulKnowledgeSession();
     }
-    
+
     @BeforeClass
-    public static void configure() { 
+    public static void configure() {
         LoggingPrintStream.interceptSysOutSysErr();
     }
-    
+
     @AfterClass
-    public static void reset() { 
+    public static void reset() {
         LoggingPrintStream.resetInterceptSysOutSysErr();
     }
 }

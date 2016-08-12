@@ -47,19 +47,19 @@ public class CDITestHelperNoTaskService {
     @Inject
     private BeanManager beanManager;
     private EntityManagerFactory emf;
-    
+
     @Inject
     @Kjar
     private DeploymentService deploymentService;
-    
+
     @Produces
     @Singleton
     @PerRequest
     @PerProcessInstance
     public RuntimeEnvironment produceEnvironment(EntityManagerFactory emf) {
-        
+
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder()
+                .newDefaultBuilder()
                 .entityManagerFactory(emf)
                 .userGroupCallback(getUserGroupCallback())
                 .registerableItemsFactory(InjectableRegisterableItemsFactory.getFactory(beanManager, new ManagedAuditEventBuilderImpl()))
@@ -68,19 +68,19 @@ public class CDITestHelperNoTaskService {
                 .get();
         return environment;
     }
-    
+
     @Produces
     public EntityManagerFactory produceEntityManagerFactory() {
         if (this.emf == null) {
-            this.emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain"); 
+            this.emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
         }
-        
+
         return this.emf;
     }
-    
+
     @PreDestroy
     public void doCleanUp() {
-    	EntityManagerFactoryManager.get().clear();
+        EntityManagerFactoryManager.get().clear();
     }
 
     @Produces
@@ -91,16 +91,16 @@ public class CDITestHelperNoTaskService {
         properties.setProperty("salaboy", "HR,IT,Accounting");
         properties.setProperty("katy", "HR,IT,Accounting");
         return new JBossUserGroupCallbackImpl(properties);
-    }  
- 
-    
+    }
+
+
     @Produces
     public DeploymentService produceKjarDeployService() {
-    	return deploymentService;
+        return deploymentService;
     }
-    
+
     @Produces
     public TaskLifeCycleEventListener produceTaskAuditLogger() {
-    	return new JPATaskLifeCycleEventListener(true);
+        return new JPATaskLifeCycleEventListener(true);
     }
 }

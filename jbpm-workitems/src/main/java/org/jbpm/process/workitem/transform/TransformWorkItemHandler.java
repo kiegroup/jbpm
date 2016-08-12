@@ -29,66 +29,66 @@ import org.slf4j.LoggerFactory;
 public class TransformWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(TransformWorkItemHandler.class);
-    
-	private static String INPUT_KEY = "InputObject";
-	private static String OUTPUT_TYPE_KEY = "OutputType";
-	private static String VARIABLE_OUTPUT_NAME = "OutputObject";
 
-	// Keyed on the return type of the transformer with a second key of the parameter type
-	private Map<Class<?>, Map<Class<?>, Method>> transforms =
-		new HashMap<Class<?>, Map<Class<?>, Method>>();
+    private static String INPUT_KEY = "InputObject";
+    private static String OUTPUT_TYPE_KEY = "OutputType";
+    private static String VARIABLE_OUTPUT_NAME = "OutputObject";
 
-	public void executeWorkItem(WorkItem inputItem, WorkItemManager itemMgr) {
-		try {
-			Object in = inputItem.getParameter(INPUT_KEY);
-			String outputType = (String) inputItem.getParameter(OUTPUT_TYPE_KEY);
-			Object output = Class.forName(outputType).newInstance();
-			Method txMethod = this.findTransform(output.getClass(), in.getClass());
+    // Keyed on the return type of the transformer with a second key of the parameter type
+    private Map<Class<?>, Map<Class<?>, Method>> transforms =
+        new HashMap<Class<?>, Map<Class<?>, Method>>();
 
-			if (txMethod != null) {
-				Object out = txMethod.invoke(null, in);
-				Map<String, Object> result = new HashMap<String, Object>();
-				result.put(VARIABLE_OUTPUT_NAME, out);
-				itemMgr.completeWorkItem(inputItem.getId(), result);
-			} else {
-			    logger.error("Failed to find a transform ");
-			}
-		} catch (Exception e) {
-			handleException(e);
-		}
-	}
+    public void executeWorkItem(WorkItem inputItem, WorkItemManager itemMgr) {
+        try {
+            Object in = inputItem.getParameter(INPUT_KEY);
+            String outputType = (String) inputItem.getParameter(OUTPUT_TYPE_KEY);
+            Object output = Class.forName(outputType).newInstance();
+            Method txMethod = this.findTransform(output.getClass(), in.getClass());
 
-	public void registerTransformer(Class<?> transformer) {
-		Method[] methods = transformer.getMethods();
-		if (methods == null) {
-			return;
-		}
-		for (Method meth : methods) {
-			// Only consider methods that have the @Transformer annotation
-			if (meth.getAnnotation(Transformer.class) == null) {
-				continue;
-			}
-			Class<?> returnType = meth.getReturnType();
-			Class<?> paramType = meth.getParameterTypes()[0];
+            if (txMethod != null) {
+                Object out = txMethod.invoke(null, in);
+                Map<String, Object> result = new HashMap<String, Object>();
+                result.put(VARIABLE_OUTPUT_NAME, out);
+                itemMgr.completeWorkItem(inputItem.getId(), result);
+            } else {
+                logger.error("Failed to find a transform ");
+            }
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
 
-			Map<Class<?>, Method> index = transforms.get(returnType);
-			if (index == null) {
-				index = new HashMap<Class<?>, Method>();
-				transforms.put(returnType, index);
-			}
-			index.put(paramType, meth);
-		}
-	}
+    public void registerTransformer(Class<?> transformer) {
+        Method[] methods = transformer.getMethods();
+        if (methods == null) {
+            return;
+        }
+        for (Method meth : methods) {
+            // Only consider methods that have the @Transformer annotation
+            if (meth.getAnnotation(Transformer.class) == null) {
+                continue;
+            }
+            Class<?> returnType = meth.getReturnType();
+            Class<?> paramType = meth.getParameterTypes()[0];
 
-	private Method findTransform(Class<?> returnClass, Class<?> paramClass) {
-		Map<Class<?>, Method> indexedTxForm = transforms.get(returnClass);
-		if (indexedTxForm == null) {
-			return null;
-		}
-		return indexedTxForm.get(paramClass);
-	}
+            Map<Class<?>, Method> index = transforms.get(returnType);
+            if (index == null) {
+                index = new HashMap<Class<?>, Method>();
+                transforms.put(returnType, index);
+            }
+            index.put(paramType, meth);
+        }
+    }
 
-	public void abortWorkItem(WorkItem arg0, WorkItemManager arg1) {
-		// Do nothing
-	}
+    private Method findTransform(Class<?> returnClass, Class<?> paramClass) {
+        Map<Class<?>, Method> indexedTxForm = transforms.get(returnClass);
+        if (indexedTxForm == null) {
+            return null;
+        }
+        return indexedTxForm.get(paramClass);
+    }
+
+    public void abortWorkItem(WorkItem arg0, WorkItemManager arg1) {
+        // Do nothing
+    }
 }

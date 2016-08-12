@@ -44,7 +44,7 @@ import org.kie.internal.task.api.model.NotificationType;
 @Table(name="Notification")
 @SequenceGenerator(name="notificationIdSeq", sequenceName="NOTIFICATION_ID_SEQ", allocationSize=1)
 public class NotificationImpl implements org.kie.internal.task.api.model.Notification  {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="notificationIdSeq")
     @Column(name = "id")
@@ -55,9 +55,9 @@ public class NotificationImpl implements org.kie.internal.task.api.model.Notific
     private List<I18NText>                   documentation = Collections.emptyList();
 
     private int                              priority;
-    
+
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
-    @JoinTable(name = "Notification_Recipients", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))    
+    @JoinTable(name = "Notification_Recipients", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "entity_id"))
     private List<OrganizationalEntity>       recipients = Collections.emptyList();
 
     @ManyToMany(targetEntity=OrganizationalEntityImpl.class)
@@ -65,43 +65,43 @@ public class NotificationImpl implements org.kie.internal.task.api.model.Notific
     private List<OrganizationalEntity>       businessAdministrators = Collections.emptyList();
 
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
-    @JoinColumn(name = "Notification_Names_Id", nullable = true)    
+    @JoinColumn(name = "Notification_Names_Id", nullable = true)
     private List<I18NText> names        = Collections.emptyList();
-    
+
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
-    @JoinColumn(name = "Notification_Subjects_Id", nullable = true)    
+    @JoinColumn(name = "Notification_Subjects_Id", nullable = true)
     private List<I18NText> subjects     = Collections.emptyList();
-    
+
     @OneToMany(cascade = CascadeType.ALL, targetEntity=I18NTextImpl.class)
     @JoinColumn(name = "Notification_Descriptions_Id", nullable = true)
-    private List<I18NText> descriptions = Collections.emptyList();  
-    
+    private List<I18NText> descriptions = Collections.emptyList();
+
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
         out.writeInt( priority );
-        
+
         CollectionUtils.writeOrganizationalEntityList( recipients, out );
-        CollectionUtils.writeOrganizationalEntityList( businessAdministrators, out );                
-        
+        CollectionUtils.writeOrganizationalEntityList( businessAdministrators, out );
+
         CollectionUtils.writeI18NTextList( documentation, out );
         CollectionUtils.writeI18NTextList( names, out );
         CollectionUtils.writeI18NTextList( subjects, out );
         CollectionUtils.writeI18NTextList( descriptions, out );
-        
+
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
         priority = in.readInt();
-        
+
         recipients = CollectionUtils.readOrganizationalEntityList( in );
         businessAdministrators = CollectionUtils.readOrganizationalEntityList( in );
-                
+
         documentation = CollectionUtils.readI18NTextList( in );
         names = CollectionUtils.readI18NTextList( in );
         subjects = CollectionUtils.readI18NTextList( in );
-        descriptions = CollectionUtils.readI18NTextList( in );        
+        descriptions = CollectionUtils.readI18NTextList( in );
     }
 
     public Long getId() {
@@ -111,7 +111,7 @@ public class NotificationImpl implements org.kie.internal.task.api.model.Notific
     public void setId(long id) {
         this.id = id;
     }
-    
+
     public NotificationType getNotificationType() {
         return NotificationType.Default;
     }
@@ -163,26 +163,26 @@ public class NotificationImpl implements org.kie.internal.task.api.model.Notific
     public void setSubjects(List<I18NText> subjects) {
         this.subjects = subjects;
     }
-    
+
     public List<I18NText> getDescriptions() {
         return descriptions;
     }
 
     public void setDescriptions(List<I18NText> descriptions) {
         this.descriptions = descriptions;
-    }    
+    }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + priority;        
-        result = prime * result + CollectionUtils.hashCode( documentation );        
-        result = prime * result + CollectionUtils.hashCode( recipients );        
+        result = prime * result + priority;
+        result = prime * result + CollectionUtils.hashCode( documentation );
+        result = prime * result + CollectionUtils.hashCode( recipients );
         result = prime * result + CollectionUtils.hashCode( businessAdministrators );
-        result = prime * result + CollectionUtils.hashCode( names );       
-        result = prime * result + CollectionUtils.hashCode( subjects );        
-        result = prime * result + CollectionUtils.hashCode( descriptions );        
+        result = prime * result + CollectionUtils.hashCode( names );
+        result = prime * result + CollectionUtils.hashCode( subjects );
+        result = prime * result + CollectionUtils.hashCode( descriptions );
         return result;
     }
 
@@ -191,11 +191,11 @@ public class NotificationImpl implements org.kie.internal.task.api.model.Notific
         if ( this == obj ) return true;
         if ( obj == null ) return false;
         if ( !(obj instanceof NotificationImpl) ) return false;
-        NotificationImpl other = (NotificationImpl) obj;        
-        
+        NotificationImpl other = (NotificationImpl) obj;
+
         return CollectionUtils.equals( businessAdministrators, other.businessAdministrators ) && CollectionUtils.equals( documentation, other.documentation )
         && CollectionUtils.equals( recipients, other.recipients ) && CollectionUtils.equals( descriptions, other.descriptions ) && CollectionUtils.equals( names, other.names )
         && CollectionUtils.equals( subjects, other.subjects );
     }
-                
+
 }

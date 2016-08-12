@@ -29,7 +29,7 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 // @author: salaboy
 public class RSSWorkItemHandlerTest extends AbstractBaseTest {
-  
+
     @Test
     @Ignore
     public void FIXMEtestReadRSSFeed() throws Exception {
@@ -37,7 +37,7 @@ public class RSSWorkItemHandlerTest extends AbstractBaseTest {
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setParameter( "URL", "http://salaboy.wordpress.com/feed/;http://salaboy.wordpress.com/feed/" );
 
-        
+
         WorkItemManager manager = new DefaultWorkItemManager(null);
         handler.executeWorkItem( workItem, manager );
 
@@ -47,6 +47,6 @@ public class RSSWorkItemHandlerTest extends AbstractBaseTest {
         // workingMemory.getWorkItemManager()
         //.registerWorkItemHandler("Notification", new NotificationWorkItemHandler());
 
-        
-    }    
+
+    }
 }

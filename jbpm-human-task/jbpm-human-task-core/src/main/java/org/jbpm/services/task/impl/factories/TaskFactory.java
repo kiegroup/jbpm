@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,14 +32,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TaskFactory {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TaskFactory.class);
- 
+
     public static Task evalTask(Reader reader, Map<String, Object> vars) {
         Task task = null;
         try {
             task = (Task) MVELUtils.eval(MVELUtils.toString(reader), vars);
-           
+
 
         } catch (IOException ex) {
             logger.error("Error while evaluating task", ex);
@@ -49,7 +49,7 @@ public class TaskFactory {
 
     public static Task evalTask(String taskString, Map<String, Object> vars) {
         Task task = (Task) MVELUtils.eval(taskString, vars);
-        
+
         return task;
     }
 

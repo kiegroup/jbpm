@@ -21,19 +21,19 @@ import org.jbpm.workflow.instance.impl.WorkflowProcessInstanceImpl;
 
 /**
  * Marshaller class for RuleFlowProcessInstances
- * 
+ *
  */
 
 public class ProtobufRuleFlowProcessInstanceMarshaller extends
-		AbstractProtobufProcessInstanceMarshaller {
+        AbstractProtobufProcessInstanceMarshaller {
 
-	public static ProtobufRuleFlowProcessInstanceMarshaller INSTANCE = new ProtobufRuleFlowProcessInstanceMarshaller();
+    public static ProtobufRuleFlowProcessInstanceMarshaller INSTANCE = new ProtobufRuleFlowProcessInstanceMarshaller();
 
-	private ProtobufRuleFlowProcessInstanceMarshaller() {
-	}
+    private ProtobufRuleFlowProcessInstanceMarshaller() {
+    }
 
-	protected WorkflowProcessInstanceImpl createProcessInstance() {
-		return new RuleFlowProcessInstance();
-	}
+    protected WorkflowProcessInstanceImpl createProcessInstance() {
+        return new RuleFlowProcessInstance();
+    }
 
 }

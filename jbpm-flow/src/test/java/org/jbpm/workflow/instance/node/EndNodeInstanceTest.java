@@ -35,40 +35,40 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.slf4j.LoggerFactory;
 
 public class EndNodeInstanceTest extends AbstractBaseTest {
-	
-    public void addLogger() { 
+
+    public void addLogger() {
         logger = LoggerFactory.getLogger(this.getClass());
     }
-    
+
     @Test
     public void testEndNode() {
         KnowledgeBase kbase = KnowledgeBaseFactory.newKnowledgeBase();
-        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();        
-        
-        MockNode mockNode = new MockNode();        
+        StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+
+        MockNode mockNode = new MockNode();
         MockNodeInstanceFactory factory = new MockNodeInstanceFactory( new MockNodeInstance( mockNode ) );
         NodeInstanceFactoryRegistry.getInstance(ksession.getEnvironment()).register(  mockNode.getClass(), factory );
-        
-        WorkflowProcessImpl process = new WorkflowProcessImpl(); 
-        
-        Node endNode = new EndNode();  
+
+        WorkflowProcessImpl process = new WorkflowProcessImpl();
+
+        Node endNode = new EndNode();
         endNode.setId( 1 );
-        endNode.setName( "end node" );        
-                            
+        endNode.setName( "end node" );
+
         mockNode.setId( 2 );
         new ConnectionImpl(mockNode, Node.CONNECTION_DEFAULT_TYPE, endNode, Node.CONNECTION_DEFAULT_TYPE);
-        
+
         process.addNode( mockNode );
         process.addNode( endNode );
-                
-        RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance();   
+
+        RuleFlowProcessInstance processInstance = new RuleFlowProcessInstance();
         processInstance.setState( ProcessInstance.STATE_ACTIVE );
         processInstance.setProcess( process );
         processInstance.setKnowledgeRuntime( (InternalKnowledgeRuntime) ksession );
-        
+
         MockNodeInstance mockNodeInstance = ( MockNodeInstance ) processInstance.getNodeInstance( mockNode );
-        
+
         mockNodeInstance.triggerCompleted();
-        assertEquals( ProcessInstance.STATE_COMPLETED, processInstance.getState() );                               
+        assertEquals( ProcessInstance.STATE_COMPLETED, processInstance.getState() );
     }
 }

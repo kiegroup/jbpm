@@ -46,61 +46,61 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler implements Cacheable {
-    
+
     public static final String WSDL_IMPORT_TYPE = "http://schemas.xmlsoap.org/wsdl/";
-    
+
     private static Logger logger = LoggerFactory.getLogger(WebServiceWorkItemHandler.class);
-    
+
     private ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
     private DynamicClientFactory dcf = null;
     private KieSession ksession;
     private int asyncTimeout = 10;
     private ClassLoader classLoader;
 
-	enum WSMode {
+    enum WSMode {
         SYNC,
         ASYNC,
         ONEWAY;
     }
-    
+
     public WebServiceWorkItemHandler(KieSession ksession) {
         this.ksession = ksession;
     }
-    
+
     public WebServiceWorkItemHandler(KieSession ksession, ClassLoader classloader) {
         this.ksession = ksession;
         this.classLoader = classloader;
     }
-    
+
     public WebServiceWorkItemHandler(KieSession ksession, int timeout) {
         this.ksession = ksession;
         this.asyncTimeout = timeout;
     }
-    
+
     public void executeWorkItem(WorkItem workItem, final WorkItemManager manager) {
-    	
-    	// since JaxWsDynamicClientFactory will change the TCCL we need to restore it after creating client
+
+        // since JaxWsDynamicClientFactory will change the TCCL we need to restore it after creating client
         ClassLoader origClassloader = Thread.currentThread().getContextClassLoader();
-        
-    	Object[] parameters = null;
+
+        Object[] parameters = null;
         String interfaceRef = (String) workItem.getParameter("Interface");
         String operationRef = (String) workItem.getParameter("Operation");
         String endpointAddress = (String) workItem.getParameter("Endpoint");
         if ( workItem.getParameter("Parameter") instanceof Object[]) {
-        	parameters =  (Object[]) workItem.getParameter("Parameter");
+            parameters =  (Object[]) workItem.getParameter("Parameter");
         } else if (workItem.getParameter("Parameter") != null && workItem.getParameter("Parameter").getClass().isArray()) {
-        	int length = Array.getLength(workItem.getParameter("Parameter"));
+            int length = Array.getLength(workItem.getParameter("Parameter"));
             parameters = new Object[length];
             for(int i = 0; i < length; i++) {
-            	parameters[i] = Array.get(workItem.getParameter("Parameter"), i);
-            }            
+                parameters[i] = Array.get(workItem.getParameter("Parameter"), i);
+            }
         } else {
-        	parameters = new Object[]{ workItem.getParameter("Parameter")};
+            parameters = new Object[]{ workItem.getParameter("Parameter")};
         }
-        
+
         String modeParam = (String) workItem.getParameter("Mode");
         WSMode mode = WSMode.valueOf(modeParam == null ? "SYNC" : modeParam.toUpperCase());
-            
+
         try {
              Client client = getWSClient(workItem, interfaceRef);
              if (client == null) {
@@ -108,15 +108,15 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
              }
              //Override endpoint address if configured.
              if (endpointAddress != null && !"".equals(endpointAddress)) {
-            	 client.getRequestContext().put(Message.ENDPOINT_ADDRESS, endpointAddress) ;
+                 client.getRequestContext().put(Message.ENDPOINT_ADDRESS, endpointAddress) ;
              }
-             
+
              switch (mode) {
                 case SYNC:
                     Object[] result = client.invoke(operationRef, parameters);
-                    
-                    Map<String, Object> output = new HashMap<String, Object>();          
-   
+
+                    Map<String, Object> output = new HashMap<String, Object>();
+
                     if (result == null || result.length == 0) {
                       output.put("Result", null);
                     } else {
@@ -130,16 +130,16 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                     final long workItemId = workItem.getId();
                     final String deploymentId = nonNull(((WorkItemImpl)workItem).getDeploymentId());
                     final long processInstanceId = workItem.getProcessInstanceId();
-                    
+
                     client.invoke(callback, operationRef, parameters);
                     new Thread(new Runnable() {
-                       
+
                        public void run() {
-                           
+
                            try {
-                              
+
                                Object[] result = callback.get(asyncTimeout, TimeUnit.SECONDS);
-                               Map<String, Object> output = new HashMap<String, Object>();          
+                               Map<String, Object> output = new HashMap<String, Object>();
                                if (callback.isDone()) {
                                    if (result == null) {
                                      output.put("Result", null);
@@ -148,31 +148,31 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                                }
                            }
                            logger.debug("Received async response {} completeing work item {}", result, workItemId);
-                           
+
                            RuntimeManager manager = RuntimeManagerRegistry.get().getManager(deploymentId);
                            if (manager != null) {
                                RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-                               
+
                                engine.getKieSession().getWorkItemManager().completeWorkItem(workItemId, output);
-                               
+
                                manager.disposeRuntimeEngine(engine);
                            } else {
-                        	   // in case there is no RuntimeManager available use available ksession, 
-                        	   // as it might be used without runtime manager at all 
-                        	   ksession.getWorkItemManager().completeWorkItem(workItemId, output);
+                               // in case there is no RuntimeManager available use available ksession,
+                               // as it might be used without runtime manager at all
+                               ksession.getWorkItemManager().completeWorkItem(workItemId, output);
                            }
                        } catch (Exception e) {
-                    	   e.printStackTrace();
+                           e.printStackTrace();
                            throw new RuntimeException("Error encountered while invoking ws operation asynchronously", e);
                        }
-                       
-                       
+
+
                    }
                }).start();
                 break;
             case ONEWAY:
                 ClientCallback callbackFF = new ClientCallback();
-                
+
                 client.invoke(callbackFF, operationRef, parameters);
                 logger.debug("One way operation, not going to wait for response, completing work item {}", workItem.getId());
                 manager.completeWorkItem(workItem.getId(),  new HashMap<String, Object>());
@@ -184,30 +184,30 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
          } catch (Exception e) {
              handleException(e);
          } finally {
-     		Thread.currentThread().setContextClassLoader(origClassloader);
-     	}
+            Thread.currentThread().setContextClassLoader(origClassloader);
+        }
     }
-    
+
     @SuppressWarnings("unchecked")
     protected synchronized Client getWSClient(WorkItem workItem, String interfaceRef) {
         if (clients.containsKey(interfaceRef)) {
             return clients.get(interfaceRef);
         }
-        
+
         String importLocation = (String) workItem.getParameter("Url");
         String importNamespace = (String) workItem.getParameter("Namespace");
-        if (importLocation != null && importLocation.trim().length() > 0 
-        		&& importNamespace != null && importNamespace.trim().length() > 0) {
-        	Client client = getDynamicClientFactory().createClient(importLocation, new QName(importNamespace, interfaceRef), getInternalClassLoader(), null);
+        if (importLocation != null && importLocation.trim().length() > 0
+                && importNamespace != null && importNamespace.trim().length() > 0) {
+            Client client = getDynamicClientFactory().createClient(importLocation, new QName(importNamespace, interfaceRef), getInternalClassLoader(), null);
             clients.put(interfaceRef, client);
             return client;
         }
-        
-        
+
+
         long processInstanceId = ((WorkItemImpl) workItem).getProcessInstanceId();
         WorkflowProcessImpl process = ((WorkflowProcessImpl) ksession.getProcessInstance(processInstanceId).getProcess());
         List<Bpmn2Import> typedImports = (List<Bpmn2Import>)process.getMetaData("Bpmn2Imports");
-        
+
         if (typedImports != null ){
             Client client = null;
             for (Bpmn2Import importObj : typedImports) {
@@ -217,7 +217,7 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
                         clients.put(interfaceRef, client);
                         return client;
                     } catch (Exception e) {
-                    	logger.error("Error when creating WS Client", e);
+                        logger.error("Error when creating WS Client", e);
                         continue;
                     }
                 }
@@ -225,47 +225,47 @@ public class WebServiceWorkItemHandler extends AbstractLogOrThrowWorkItemHandler
         }
         return null;
     }
-    
+
     protected synchronized DynamicClientFactory getDynamicClientFactory() {
-    	if (this.dcf == null) {
-    		this.dcf = JaxWsDynamicClientFactory.newInstance();
-    	}
-    	return this.dcf;
+        if (this.dcf == null) {
+            this.dcf = JaxWsDynamicClientFactory.newInstance();
+        }
+        return this.dcf;
     }
 
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         // Do nothing, cannot be aborted
     }
-    
-    private ClassLoader getInternalClassLoader() {
-		if (this.classLoader != null) {
-			return this.classLoader;
-		}
-		
-		return Thread.currentThread().getContextClassLoader();
-	}
-    
-    public ClassLoader getClassLoader() {
-		return classLoader;
-	}
 
-	public void setClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
-	}
-	
-	protected String nonNull(String value) {
-		if (value == null) {
-			return "";
-		}
-		return value;
-	}
-	
-	@Override
-	public void close() {
-		if (clients != null) {
-			for (Client client : clients.values()) {
-				client.destroy();
-			}
-		}
-	}
+    private ClassLoader getInternalClassLoader() {
+        if (this.classLoader != null) {
+            return this.classLoader;
+        }
+
+        return Thread.currentThread().getContextClassLoader();
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public void setClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    protected String nonNull(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value;
+    }
+
+    @Override
+    public void close() {
+        if (clients != null) {
+            for (Client client : clients.values()) {
+                client.destroy();
+            }
+        }
+    }
 }

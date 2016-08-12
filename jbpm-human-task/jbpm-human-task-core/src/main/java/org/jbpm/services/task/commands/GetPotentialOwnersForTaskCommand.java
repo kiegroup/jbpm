@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -30,27 +30,27 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetPotentialOwnersForTaskCommand extends TaskCommand<Map<Long, List<OrganizationalEntity>>> {
 
-	private static final long serialVersionUID = 6296898155907765061L;
+    private static final long serialVersionUID = 6296898155907765061L;
 
     @XmlElement(name="task-id")
-	private List<Long> taskIds;
-	
-	public GetPotentialOwnersForTaskCommand() {
-	}
-	
-	public GetPotentialOwnersForTaskCommand(List<Long> taskIds) {
-		this.taskIds = taskIds;
+    private List<Long> taskIds;
+
+    public GetPotentialOwnersForTaskCommand() {
     }
-	
+
+    public GetPotentialOwnersForTaskCommand(List<Long> taskIds) {
+        this.taskIds = taskIds;
+    }
+
     public List<Long> getTaskIds() {
-		return taskIds;
-	}
+        return taskIds;
+    }
 
-	public void setTaskIds(List<Long> taskIds) {
-		this.taskIds = taskIds;
-	}
+    public void setTaskIds(List<Long> taskIds) {
+        this.taskIds = taskIds;
+    }
 
-	public Map<Long, List<OrganizationalEntity>> execute(Context cntxt) {
+    public Map<Long, List<OrganizationalEntity>> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
 
         return context.getTaskQueryService().getPotentialOwnersForTaskIds(taskIds);

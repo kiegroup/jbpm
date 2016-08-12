@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -71,22 +71,22 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
 
     private PoolingDataSource pds;
     private UserGroupCallback userGroupCallback;
-    private RuntimeManager manager; 
-    
+    private RuntimeManager manager;
+
     private static final String ARTIFACT_ID = "kjar-module";
     private static final String GROUP_ID = "org.jbpm.test";
     private static final String VERSION = "1.0.0-SNAPSHOT";
-    
+
     @Before
     public void setup() {
-    	TestUtil.cleanupSingletonSessionId();
-    	KieServices ks = KieServices.Factory.get();
+        TestUtil.cleanupSingletonSessionId();
+        KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
         processes.add("BPMN2-ScriptTask.bpmn2");
         processes.add("BPMN2-UserTask.bpmn2");
         processes.add("BPMN2-CustomTask.bpmn2");
-        
+
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
@@ -95,11 +95,11 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
             fs.write(getPom(releaseId).getBytes());
             fs.close();
         } catch (Exception e) {
-            
+
         }
         MavenRepository repository = getMavenRepository();
         repository.installArtifact(releaseId, kJar1, pom);
-        
+
         Properties properties= new Properties();
         properties.setProperty("mary", "HR");
         properties.setProperty("john", "HR");
@@ -107,260 +107,260 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
 
         pds = TestUtil.setupPoolingDataSource();
     }
-    
+
     @After
     public void teardown() {
-    	if (manager != null) {
-    		manager.close();    		
-    	}
+        if (manager != null) {
+            manager.close();
+        }
         pds.close();
     }
-    
+
     @Test
     public void testCustomTaskFromKjar() {
-    	KieServices ks = KieServices.Factory.get();
-          
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
+        KieServices ks = KieServices.Factory.get();
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("customtask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
 
     @Test
     public void testScriptTaskFromKjar() {
-    	KieServices ks = KieServices.Factory.get();
-          
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
+        KieServices ks = KieServices.Factory.get();
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("ScriptTask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
     @Test
     public void testScriptTaskFromKjarUsingNamedKbaseKsession() {
-    	KieServices ks = KieServices.Factory.get();
-          
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION), "defaultKieBase", "defaultKieSession")
+        KieServices ks = KieServices.Factory.get();
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION), "defaultKieBase", "defaultKieSession")
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("ScriptTask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
     @Test
     public void testUserTaskFromKjar() {
-    	KieServices ks = KieServices.Factory.get();
-          
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
+        KieServices ks = KieServices.Factory.get();
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("UserTask", params);
-        
+
         List<TaskSummary> tasks = engine.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+
         long taskId = tasks.get(0).getId();
-        
+
         engine.getTaskService().start(taskId, "john");
         engine.getTaskService().complete(taskId, "john", null);
-        
+
         processInstance = engine.getKieSession().getProcessInstance(processInstance.getId());
         assertNull(processInstance);
-        
+
         manager.disposeRuntimeEngine(engine);
-        
+
     }
-    
+
     @Test
     public void testScriptTaskFromKjarByName() {
-    	
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(GROUP_ID, ARTIFACT_ID, VERSION)
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(GROUP_ID, ARTIFACT_ID, VERSION)
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("ScriptTask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
     @Test
     public void testScriptTaskFromKjarByNameNamedKbaseKsession() {
-    	
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(GROUP_ID, ARTIFACT_ID, VERSION, "defaultKieBase", "defaultKieSession")
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(GROUP_ID, ARTIFACT_ID, VERSION, "defaultKieBase", "defaultKieSession")
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("ScriptTask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
     @Test
     public void testScriptTaskFromClasspathContainer() {
 
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newClasspathKmoduleDefaultBuilder()
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newClasspathKmoduleDefaultBuilder()
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("ScriptTask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
     @Test
     public void testScriptTaskFromClasspathContainerNamedKbaseKsession() {
 
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newClasspathKmoduleDefaultBuilder("defaultKieBase", "defaultKieSession")
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newClasspathKmoduleDefaultBuilder("defaultKieBase", "defaultKieSession")
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("ScriptTask", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
     }
-    
+
     @Test
     public void testUserTaskFromKjarPPI() {
-    	KieServices ks = KieServices.Factory.get();
-          
-    	RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
-    			.newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
+        KieServices ks = KieServices.Factory.get();
+
+        RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
+                .newDefaultBuilder(ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION))
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("UserTask", params);
-        
+
         manager.disposeRuntimeEngine(engine);
-        engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));        
-        
+        engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
+
         List<TaskSummary> tasks = engine.getTaskService().getTasksAssignedAsPotentialOwner("john", "en-UK");
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+
         long taskId = tasks.get(0).getId();
-        
+
         manager.disposeRuntimeEngine(engine);
         engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
-        
+
         engine.getTaskService().start(taskId, "john");
-        
+
         manager.disposeRuntimeEngine(engine);
         engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
-        
+
         engine.getTaskService().complete(taskId, "john", null);
-        
+
         manager.disposeRuntimeEngine(engine);
         try {
-	        engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
-	        
-	        processInstance = engine.getKieSession().getProcessInstance(processInstance.getId());
-	        assertNull(processInstance);
-	        fail("Should fail as process instance is already completed");
+            engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstance.getId()));
+
+            processInstance = engine.getKieSession().getProcessInstance(processInstance.getId());
+            assertNull(processInstance);
+            fail("Should fail as process instance is already completed");
         } catch (Exception e) {
-        	
+
         }
         manager.disposeRuntimeEngine(engine);
-        
+
     }
-    
+
     @Test
     public void testXStreamUnmarshalCustomObject() {
         KieServices ks = KieServices.Factory.get();
@@ -369,7 +369,7 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
         File pom = new File("src/test/resources/kjar/pom.xml");
         MavenRepository repository = getMavenRepository();
         repository.installArtifact(releaseId, kjar, pom);
-        
+
         RuntimeEnvironment environment = RuntimeEnvironmentBuilder.Factory.get()
                 .newDefaultBuilder(releaseId)
                 .registerableItemsFactory(new DefaultRegisterableItemsFactory() {
@@ -378,46 +378,46 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
                     public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
                         Map<String, WorkItemHandler> handlers = super.getWorkItemHandlers(runtime);
                         handlers.put("Rest", new WorkItemHandler() {
-                            
+
                             @Override
                             public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
                                 Map<String, Object> results = new HashMap<String, Object>();
                                 results.put("Result", "<pv207.finepayment.Client><exists>true</exists><name>Pavel</name></pv207.finepayment.Client>");
-                                
+
                                 manager.completeWorkItem(workItem.getId(), results);
                             }
-                            
+
                             @Override
-                            public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {                                
+                            public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
                             }
                         });
-                        
+
                         return handlers;
                     }
-                    
+
                 })
                 .userGroupCallback(userGroupCallback)
                 .get();
-        
+
         manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         assertNotNull(manager);
-        
+
         RuntimeEngine engine = manager.getRuntimeEngine(EmptyContext.get());
         assertNotNull(engine);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
-        
+
         ProcessInstance processInstance = engine.getKieSession().startProcess("RESTTask.RestProcess", params);
-        
+
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-        
+
         Object processClient = ((WorkflowProcessInstance)processInstance).getVariable("processClient");
         assertNotNull(processClient);
         assertEquals("pv207.finepayment.Client", processClient.getClass().getName());
         assertEquals("Pavel", valueOf(processClient, "name"));
         assertEquals("true", valueOf(processClient, "exists"));
     }
-    
+
     // helper methods
     protected String getPom(ReleaseId releaseId, ReleaseId... dependencies) {
         String pom =
@@ -444,14 +444,14 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
         pom += "</project>";
         return pom;
     }
-   
+
    protected InternalKieModule createKieJar(KieServices ks, ReleaseId releaseId, List<String> resources ) {
-     
-        
+
+
         KieFileSystem kfs = createKieFileSystemWithKProject(ks);
         kfs.writePomXML( getPom(releaseId) );
 
-        
+
         for (String resource : resources) {
             kfs.write("src/main/resources/KBase-test/" + resource, ResourceFactory.newClassPathResource(resource));
         }
@@ -464,11 +464,11 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
             throw new RuntimeException(
                     "There are errors builing the package, please check your knowledge assets!");
         }
-        
+
         return ( InternalKieModule ) kieBuilder.getKieModule();
     }
 
-    
+
 
     protected KieFileSystem createKieFileSystemWithKProject(KieServices ks) {
         KieModuleModel kproj = ks.newKieModuleModel();
@@ -477,7 +477,7 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
                 .setEqualsBehavior( EqualityBehaviorOption.EQUALITY )
                 .setEventProcessingMode( EventProcessingOption.STREAM );
 
-    
+
         kieBaseModel1.newKieSessionModel("defaultKieSession").setDefault(true)
                 .setType(KieSessionModel.KieSessionType.STATEFUL)
                 .setClockType( ClockTypeOption.get("realtime") )
@@ -486,7 +486,7 @@ public class KjarRuntimeEnvironmentTest extends AbstractBaseTest {
         kfs.writeKModuleXML(kproj.toXML());
         return kfs;
     }
-    
+
     protected Object valueOf(Object object, String fieldName) {
         try {
             Field field = object.getClass().getDeclaredField(fieldName);

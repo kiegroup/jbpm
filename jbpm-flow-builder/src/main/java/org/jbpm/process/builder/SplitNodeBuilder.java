@@ -88,7 +88,7 @@ public class SplitNodeBuilder implements ProcessNodeBuilder {
                 returnValueDescr.setResource(processDescr.getResource());
 
                 ProcessDialect dialect = ProcessDialectRegistry.getDialect( constraint.getDialect() );
-            	dialect.getReturnValueEvaluatorBuilder().build( context, returnValueConstraint, returnValueDescr, (NodeImpl) node );
+                dialect.getReturnValueEvaluatorBuilder().build( context, returnValueConstraint, returnValueDescr, (NodeImpl) node );
             }
         }
     }

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,10 +34,10 @@ public class EventBasedNodeBuilder extends ExtendedNodeBuilder {
         super.build(process, processDescr, context, node);
         Map<Timer, DroolsAction> timers = ((StateBasedNode) node).getTimers();
         if (timers != null) {
-	        for (DroolsAction action: timers.values()) {
-	        	buildAction(action, context, (NodeImpl) node );
-	        }
+            for (DroolsAction action: timers.values()) {
+                buildAction(action, context, (NodeImpl) node );
+            }
         }
     }
-    
+
 }

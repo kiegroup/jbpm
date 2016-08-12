@@ -35,9 +35,9 @@ public class RuleSetNodeFactory extends NodeFactory {
     protected Node createNode() {
         return new RuleSetNode();
     }
-    
+
     protected RuleSetNode getRuleSetNode() {
-    	return (RuleSetNode) getNode();
+        return (RuleSetNode) getNode();
     }
 
     public RuleSetNodeFactory name(String name) {
@@ -49,13 +49,13 @@ public class RuleSetNodeFactory extends NodeFactory {
         getRuleSetNode().setRuleFlowGroup(ruleFlowGroup);
         return this;
     }
-    
+
     public RuleSetNodeFactory timer(String delay, String period, String dialect, String action) {
-    	Timer timer = new Timer();
-    	timer.setDelay(delay);
-    	timer.setPeriod(period);
-    	getRuleSetNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
-    	return this;
+        Timer timer = new Timer();
+        timer.setDelay(delay);
+        timer.setPeriod(period);
+        getRuleSetNode().addTimer(timer, new DroolsConsequenceAction(dialect, action));
+        return this;
     }
 
 }

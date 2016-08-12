@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -47,56 +47,56 @@ import bitronix.tm.resource.jdbc.PoolingDataSource;
 
 public abstract class TimerBaseTest extends AbstractBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(TimerBaseTest.class);
-	
-	private static PoolingDataSource pds;
-    
+
+    private static PoolingDataSource pds;
+
     protected static final String DATASOURCE_PROPERTIES = "/datasource.properties";
-    
+
     protected static final String MAX_POOL_SIZE = "maxPoolSize";
     protected static final String ALLOW_LOCAL_TXS = "allowLocalTransactions";
-    
+
     protected static final String DATASOURCE_CLASS_NAME = "className";
     protected static final String DRIVER_CLASS_NAME = "driverClassName";
     protected static final String USER = "user";
     protected static final String PASSWORD = "password";
     protected static final String JDBC_URL = "url";
-    
+
     public static PoolingDataSource setupPoolingDataSource() {
         Properties dsProps = getDatasourceProperties();
         PoolingDataSource pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
         try {
-        	pds.init();
+            pds.init();
         } catch (Exception e) {
-        	logger.warn("DBPOOL_MGR:Looks like there is an issue with creating db pool because of " + e.getMessage() + " cleaing up...");
-        	Set<String> resources = ResourceRegistrar.getResourcesUniqueNames();
-        	for (String resource : resources) {
-        		XAResourceProducer producer = ResourceRegistrar.get(resource);
-        		producer.close();
-        		ResourceRegistrar.unregister(producer);
-        		logger.info("DBPOOL_MGR:Removed resource " + resource);
-        	}
-        	logger.info("DBPOOL_MGR: attempting to create db pool again...");
-        	pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
-        	pds.init();        	
-        	logger.info("DBPOOL_MGR:Pool created after cleanup of leftover resources");
+            logger.warn("DBPOOL_MGR:Looks like there is an issue with creating db pool because of " + e.getMessage() + " cleaing up...");
+            Set<String> resources = ResourceRegistrar.getResourcesUniqueNames();
+            for (String resource : resources) {
+                XAResourceProducer producer = ResourceRegistrar.get(resource);
+                producer.close();
+                ResourceRegistrar.unregister(producer);
+                logger.info("DBPOOL_MGR:Removed resource " + resource);
+            }
+            logger.info("DBPOOL_MGR: attempting to create db pool again...");
+            pds = PersistenceUtil.setupPoolingDataSource(dsProps, "jdbc/jbpm-ds", false);
+            pds.init();
+            logger.info("DBPOOL_MGR:Pool created after cleanup of leftover resources");
         }
-        
+
         return pds;
     }
-    
-    
+
+
     /**
      * This reads in the (maven filtered) datasource properties from the test
      * resource directory.
-     * 
+     *
      * @return Properties containing the datasource properties.
      */
-    private static Properties getDatasourceProperties() { 
+    private static Properties getDatasourceProperties() {
         boolean propertiesNotFound = false;
-        
+
         // Central place to set additional H2 properties
         System.setProperty("h2.lobInDatabase", "true");
-        
+
         InputStream propsInputStream = TimerBaseTest.class.getResourceAsStream(DATASOURCE_PROPERTIES);
         Properties props = new Properties();
         if (propsInputStream != null) {
@@ -115,8 +115,8 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
         if ("${maven.jdbc.password}".equals(password) || propertiesNotFound) {
            logger.warn( "Unable to load datasource properties [" + DATASOURCE_PROPERTIES + "]" );
         }
-        
-        // If maven filtering somehow doesn't work the way it should.. 
+
+        // If maven filtering somehow doesn't work the way it should..
         setDefaultProperties(props);
 
         return props;
@@ -125,22 +125,22 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
     /**
      * Return the default database/datasource properties - These properties use
      * an in-memory H2 database
-     * 
+     *
      * This is used when the developer is somehow running the tests but
      * bypassing the maven filtering that's been turned on in the pom.
-     * 
+     *
      * @return Properties containing the default properties
      */
     private static void setDefaultProperties(Properties props) {
-        String[] keyArr = { 
+        String[] keyArr = {
                 "serverName", "portNumber", "databaseName", JDBC_URL,
                 USER, PASSWORD,
                 DRIVER_CLASS_NAME, DATASOURCE_CLASS_NAME,
                 MAX_POOL_SIZE, ALLOW_LOCAL_TXS };
-        String[] defaultPropArr = { 
+        String[] defaultPropArr = {
                 "", "", "", "jdbc:h2:mem:jbpm-db;MVCC=true",
-                "sa", "", 
-                "org.h2.Driver", "bitronix.tm.resource.jdbc.lrc.LrcXADataSource", 
+                "sa", "",
+                "org.h2.Driver", "bitronix.tm.resource.jdbc.lrc.LrcXADataSource",
                 "5", "true" };
         Assert.assertTrue("Unequal number of keys for default properties", keyArr.length == defaultPropArr.length);
         for (int i = 0; i < keyArr.length; ++i) {
@@ -148,15 +148,15 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
                 props.put(keyArr[i], defaultPropArr[i]);
             }
         }
-    }   
-    
+    }
+
     @BeforeClass
     public static void setUpOnce() {
         if (pds == null) {
             pds = setupPoolingDataSource();
         }
     }
-    
+
     @AfterClass
     public static void tearDownOnce() {
         if (pds != null) {
@@ -164,7 +164,7 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
             pds = null;
         }
     }
-    
+
 
     protected void testCreateQuartzSchema() {
         Scanner scanner = new Scanner(this.getClass().getResourceAsStream("/quartz_tables_h2.sql")).useDelimiter(";");
@@ -178,23 +178,23 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
             stmt.close();
             connection.close();
         } catch (Exception e) {
-            
+
         }
     }
-    
+
     protected class TestRegisterableItemsFactory extends DefaultRegisterableItemsFactory {
         private ProcessEventListener[] plistener;
         private AgendaEventListener[] alistener;
         private TaskLifeCycleEventListener[] tlistener;
-        
+
         public TestRegisterableItemsFactory(ProcessEventListener... listener) {
             this.plistener = listener;
         }
-        
+
         public TestRegisterableItemsFactory(AgendaEventListener... listener) {
             this.alistener = listener;
         }
-        
+
         public TestRegisterableItemsFactory(TaskLifeCycleEventListener... tlistener) {
             this.tlistener = tlistener;
         }
@@ -202,23 +202,23 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
         @Override
         public List<ProcessEventListener> getProcessEventListeners(
                 RuntimeEngine runtime) {
-            
+
             List<ProcessEventListener> listeners = super.getProcessEventListeners(runtime);
             if (plistener != null) {
                 listeners.addAll(Arrays.asList(plistener));
             }
-            
+
             return listeners;
         }
         @Override
         public List<AgendaEventListener> getAgendaEventListeners(
                 RuntimeEngine runtime) {
-            
+
             List<AgendaEventListener> listeners = super.getAgendaEventListeners(runtime);
-            if (alistener != null) { 
+            if (alistener != null) {
                 listeners.addAll(Arrays.asList(alistener));
             }
-            
+
             return listeners;
         }
 
@@ -230,7 +230,7 @@ public abstract class TimerBaseTest extends AbstractBaseTest {
                 listeners.addAll(Arrays.asList(tlistener));
             }
             return listeners;
-        } 
-        
+        }
+
     }
 }

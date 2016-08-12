@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -29,21 +29,21 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class ValueHandler extends BaseAbstractHandler implements Handler {
-	
+
     public ValueHandler() {
         if ( (this.validParents == null) && (this.validPeers == null) ) {
             this.validParents = new HashSet<Class<?>>();
             this.validParents.add( ValueObject.class );
 
-            this.validPeers = new HashSet<Class<?>>();         
-            this.validPeers.add( null );            
+            this.validPeers = new HashSet<Class<?>>();
+            this.validPeers.add( null );
 
             this.allowNesting = false;
         }
     }
-    
 
-    
+
+
     public Object start(final String uri,
                         final String localName,
                         final Attributes attrs,
@@ -51,8 +51,8 @@ public class ValueHandler extends BaseAbstractHandler implements Handler {
         parser.startElementBuilder( localName,
                                     attrs );
         return null;
-    }    
-    
+    }
+
     public Object end(final String uri,
                       final String localName,
                       final ExtensibleXmlParser parser) throws SAXException {
@@ -69,7 +69,7 @@ public class ValueHandler extends BaseAbstractHandler implements Handler {
         valueObject.setValue(value);
         return null;
     }
-    
+
     private Object restoreValue(String text, DataType dataType, ExtensibleXmlParser parser) throws SAXException {
         if (text == null || "".equals(text)) {
             return null;

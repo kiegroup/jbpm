@@ -18,7 +18,7 @@ package org.jbpm.kie.services.api;
 
 public interface FormProviderService {
 
-	String getFormDisplayTask(long taskId);
-    
-	String getFormDisplayProcess(String deploymentId, String processId);
+    String getFormDisplayTask(long taskId);
+
+    String getFormDisplayProcess(String deploymentId, String processId);
 }

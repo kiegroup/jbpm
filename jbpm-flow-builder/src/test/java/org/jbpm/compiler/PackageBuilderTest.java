@@ -200,10 +200,10 @@ public class PackageBuilderTest extends AbstractBaseTest {
                                   long id) {
             return null;
         }
-        
-    	public Map<String, Object> getMetaData() {
-    		return null;
-    	}
+
+        public Map<String, Object> getMetaData() {
+            return null;
+        }
 
         public Object getMetaData(String name) {
             return null;

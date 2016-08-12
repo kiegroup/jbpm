@@ -1,12 +1,12 @@
 /*
  * Copyright 2006 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,32 +55,32 @@ public class JavaActionBuilder extends AbstractJavaProcessBuilder
             return;
         }
 
-        buildAction(context, 
-                    action, 
-                    actionDescr, 
-                    contextResolver, 
-                    className, 
+        buildAction(context,
+                    action,
+                    actionDescr,
+                    contextResolver,
+                    className,
                     analysis);
     }
-   
-    protected String getClassName(PackageBuildContext context) { 
-       return "action" + context.getNextId(); 
+
+    protected String getClassName(PackageBuildContext context) {
+       return "action" + context.getNextId();
     }
-    
+
     protected AnalysisResult getAnalysis(final PackageBuildContext context,
                                        final ActionDescr actionDescr) {
         JavaDialect dialect = (JavaDialect) context.getDialect( "java" );
-        
+
         Map<String, Class<?>> variables = new HashMap<String,Class<?>>();
         BoundIdentifiers boundIdentifiers = new BoundIdentifiers(variables, context.getKnowledgeBuilder().getGlobals());
         AnalysisResult analysis = dialect.analyzeBlock( context,
                                                         actionDescr,
                                                         actionDescr.getText(),
                                                         boundIdentifiers);
-        
+
         return analysis;
     }
-    
+
     protected void buildAction(final PackageBuildContext context,
             final DroolsAction action,
             final ActionDescr actionDescr,
@@ -104,10 +104,10 @@ public class JavaActionBuilder extends AbstractJavaProcessBuilder
                           className,
                           map,
                           action,
-                          actionDescr ); 
+                          actionDescr );
         collectTypes("JavaDialect", analysis, (ProcessBuildContext)context);
     }
-    
+
 
 
 }

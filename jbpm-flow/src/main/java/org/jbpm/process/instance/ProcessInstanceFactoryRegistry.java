@@ -24,7 +24,7 @@ import org.jbpm.ruleflow.core.RuleFlowProcess;
 import org.jbpm.ruleflow.instance.RuleFlowProcessInstanceFactory;
 
 public class ProcessInstanceFactoryRegistry {
-    
+
     public static final ProcessInstanceFactoryRegistry INSTANCE =
         new ProcessInstanceFactoryRegistry();
 

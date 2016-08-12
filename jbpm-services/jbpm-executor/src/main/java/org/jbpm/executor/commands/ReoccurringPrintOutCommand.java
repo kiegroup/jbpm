@@ -26,12 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple command to log the contextual data and return empty results as reoccurring job. 
+ * Simple command to log the contextual data and return empty results as reoccurring job.
  * Just for demo purpose.
- * 
+ *
  */
 public class ReoccurringPrintOutCommand implements Command, Reoccurring {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ReoccurringPrintOutCommand.class);
 
     public ExecutionResults execute(CommandContext ctx) {
@@ -40,10 +40,10 @@ public class ReoccurringPrintOutCommand implements Command, Reoccurring {
         return executionResults;
     }
 
-	@Override
-	public Date getScheduleTime() {
-		long currentTime = System.currentTimeMillis();
-		return new Date(currentTime + 1000);
-	}
-    
+    @Override
+    public Date getScheduleTime() {
+        long currentTime = System.currentTimeMillis();
+        return new Date(currentTime + 1000);
+    }
+
 }

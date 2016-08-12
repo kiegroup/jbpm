@@ -29,53 +29,53 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class ClientRuntimeDataServiceEJBTest extends RuntimeDataServiceImplTest {
-	
-	private static final String application = "sample-war-ejb-app";
-	
-	@Before
-    public void prepare() {
-		super.prepare(); 
-		userTaskService.execute(GROUP_ID +":" + ARTIFACT_ID +":" + VERSION, new CleanUpCommand());
-		 
-    }
-	@Override
-	protected void close() {
-		// do nothing
-		
-	}
 
-	@Override
-	protected void configureServices() {
-		correctUser = "anonymous";
-		try {
-			ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
-			DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
-			ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
-			RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
-			DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
-			UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
-			
-			setBpmn2Service(definitionService);
-			setProcessService(processService);
-			setRuntimeDataService(runtimeDataService);
-			setUserTaskService(userTaskService);
-			setDeploymentService(new DeploymentServiceWrapper(deploymentService));
-			
-			
-		} catch (Exception e) {
-			throw new RuntimeException("Unable to configure services", e);
-		}
-	}
-	
-	@Ignore("not supported for remote ejb")
-	@Test
+    private static final String application = "sample-war-ejb-app";
+
+    @Before
+    public void prepare() {
+        super.prepare();
+        userTaskService.execute(GROUP_ID +":" + ARTIFACT_ID +":" + VERSION, new CleanUpCommand());
+
+    }
+    @Override
+    protected void close() {
+        // do nothing
+
+    }
+
+    @Override
+    protected void configureServices() {
+        correctUser = "anonymous";
+        try {
+            ClientServiceFactory factory = ServiceFactoryProvider.getProvider("JBoss");
+            DeploymentServiceEJBRemote deploymentService = factory.getService(application, DeploymentServiceEJBRemote.class);
+            ProcessServiceEJBRemote processService = factory.getService(application, ProcessServiceEJBRemote.class);
+            RuntimeDataServiceEJBRemote runtimeDataService = factory.getService(application, RuntimeDataServiceEJBRemote.class);
+            DefinitionServiceEJBRemote definitionService = factory.getService(application, DefinitionServiceEJBRemote.class);
+            UserTaskServiceEJBRemote userTaskService = factory.getService(application, UserTaskServiceEJBRemote.class);
+
+            setBpmn2Service(definitionService);
+            setProcessService(processService);
+            setRuntimeDataService(runtimeDataService);
+            setUserTaskService(userTaskService);
+            setDeploymentService(new DeploymentServiceWrapper(deploymentService));
+
+
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to configure services", e);
+        }
+    }
+
+    @Ignore("not supported for remote ejb")
+    @Test
     public void testGetTasksByVariableAndValueWithTaskQueryBuilder() {
-	    
-	}
-	
-	@Ignore("not supported for remote ejb")
-	@Test
+
+    }
+
+    @Ignore("not supported for remote ejb")
+    @Test
     public void testGetTasksByVariableWithTaskQueryBuilder() {
-	    
-	}
+
+    }
 }

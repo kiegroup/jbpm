@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,61 +40,61 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 @XmlRootElement(name="get-completed-tasks-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MigrateProcessInstanceCommand implements GenericCommand<Void>, ProcessInstanceIdCommand  {
-	
+
     private static final long serialVersionUID = 6L;
 
     @XmlElement
     @XmlSchemaType(name="long")
-	private Long processInstanceId;
-	
+    private Long processInstanceId;
+
     @XmlElement
     @XmlSchemaType(name="string")
     private String processId;
-   
+
     @XmlElement
     private Map<String, Long> nodeMapping;
 
     public MigrateProcessInstanceCommand(Long processInstanceId, String processId) {
-    	this.processInstanceId = processInstanceId;
-    	this.processId = processId;
+        this.processInstanceId = processInstanceId;
+        this.processId = processId;
     }
-    
+
     public MigrateProcessInstanceCommand(Long processInstanceId, String processId, Map<String, Long> nodeMapping) {
-    	this.processInstanceId = processInstanceId;
-    	this.processId = processId;
-    	this.nodeMapping = nodeMapping;
+        this.processInstanceId = processInstanceId;
+        this.processId = processId;
+        this.nodeMapping = nodeMapping;
     }
-   
+
     @Override
     public Long getProcessInstanceId() {
-		return processInstanceId;
-	}
+        return processInstanceId;
+    }
 
     @Override
-	public void setProcessInstanceId(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
 
-	public String getProcessId() {
-		return processId;
-	}
+    public String getProcessId() {
+        return processId;
+    }
 
-	public void setProcessId(String processId) {
-		this.processId = processId;
-	}
+    public void setProcessId(String processId) {
+        this.processId = processId;
+    }
 
-	public Map<String, Long> getNodeMapping() {
-		return nodeMapping;
-	}
+    public Map<String, Long> getNodeMapping() {
+        return nodeMapping;
+    }
 
-	public void setNodeMapping(Map<String, Long> nodeMapping) {
-		this.nodeMapping = nodeMapping;
-	}
+    public void setNodeMapping(Map<String, Long> nodeMapping) {
+        this.nodeMapping = nodeMapping;
+    }
 
-	public Void execute(Context context) {
+    public Void execute(Context context) {
         KieSession ksession = ((KnowledgeCommandContext) context).getKieSession();
         WorkflowProcessInstanceImpl processInstance = (WorkflowProcessInstanceImpl)
-    		ksession.getProcessInstance(processInstanceId);
+            ksession.getProcessInstance(processInstanceId);
         if (processInstance == null) {
             throw new IllegalArgumentException("Could not find process instance " + processInstanceId);
         }
@@ -110,37 +110,37 @@ public class MigrateProcessInstanceCommand implements GenericCommand<Void>, Proc
             return null;
         }
         synchronized (processInstance) {
-        	org.kie.api.definition.process.Process oldProcess = processInstance.getProcess();
-	        processInstance.disconnect();
-	        processInstance.setProcess(oldProcess);
-	        if (nodeMapping == null) {
-	    		nodeMapping = new HashMap<String, Long>();
-	    	}
-	        updateNodeInstances(processInstance, nodeMapping);
-	        processInstance.setKnowledgeRuntime((InternalKnowledgeRuntime) ksession);
-	        processInstance.setProcess(process);
-	        processInstance.reconnect();
-		}
+            org.kie.api.definition.process.Process oldProcess = processInstance.getProcess();
+            processInstance.disconnect();
+            processInstance.setProcess(oldProcess);
+            if (nodeMapping == null) {
+                nodeMapping = new HashMap<String, Long>();
+            }
+            updateNodeInstances(processInstance, nodeMapping);
+            processInstance.setKnowledgeRuntime((InternalKnowledgeRuntime) ksession);
+            processInstance.setProcess(process);
+            processInstance.reconnect();
+        }
         return null;
     }
 
     private void updateNodeInstances(NodeInstanceContainer nodeInstanceContainer, Map<String, Long> nodeMapping) {
         for (NodeInstance nodeInstance: nodeInstanceContainer.getNodeInstances()) {
             String oldNodeId = ((NodeImpl)
-        		((org.jbpm.workflow.instance.NodeInstance) nodeInstance).getNode()).getUniqueId();
+                ((org.jbpm.workflow.instance.NodeInstance) nodeInstance).getNode()).getUniqueId();
             Long newNodeId = nodeMapping.get(oldNodeId);
             if (newNodeId == null) {
                 newNodeId = nodeInstance.getNodeId();
             }
             ((NodeInstanceImpl) nodeInstance).setNodeId(newNodeId);
             if (nodeInstance instanceof NodeInstanceContainer) {
-            	updateNodeInstances((NodeInstanceContainer) nodeInstance, nodeMapping);
+                updateNodeInstances((NodeInstanceContainer) nodeInstance, nodeMapping);
             }
         }
     }
-    
+
     public String toString() {
-    	return "migrateProcessInstance(" + processInstanceId +", \"" + processId + "\");";
+        return "migrateProcessInstance(" + processInstanceId +", \"" + processId + "\");";
     }
-    
+
 }

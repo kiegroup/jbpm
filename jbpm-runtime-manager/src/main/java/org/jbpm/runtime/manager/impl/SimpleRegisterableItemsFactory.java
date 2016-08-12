@@ -44,7 +44,7 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
  * <ul>
  *  <li>default - no argument constructor</li>
  *  <li>single argument constructor of type <code>KieSession</code></li>
- * </ul> 
+ * </ul>
  * To populate this factory with class definitions, use helper methods:
  * <ul>
  *  <li>addWorkItemHandler</li>
@@ -61,25 +61,25 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
     private List<Class<? extends RuleRuntimeEventListener>> workingMemoryListeners = new CopyOnWriteArrayList<Class<? extends RuleRuntimeEventListener>>();
     private List<Class<? extends TaskLifeCycleEventListener>> taskListeners = new CopyOnWriteArrayList<Class<? extends TaskLifeCycleEventListener>>();
     private Map<String, Object> globals = new ConcurrentHashMap<String, Object>();
-    
-    protected InternalRuntimeManager runtimeManager; 
-    
+
+    protected InternalRuntimeManager runtimeManager;
+
     @Override
     public InternalRuntimeManager getRuntimeManager() {
-		return runtimeManager;
-	}
+        return runtimeManager;
+    }
 
     @Override
-	public void setRuntimeManager(InternalRuntimeManager runtimeManager) {
-		this.runtimeManager = runtimeManager;
-	}
+    public void setRuntimeManager(InternalRuntimeManager runtimeManager) {
+        this.runtimeManager = runtimeManager;
+    }
 
-	@Override
+    @Override
     public Map<String, WorkItemHandler> getWorkItemHandlers(RuntimeEngine runtime) {
         Map<String, WorkItemHandler> handlers = new HashMap<String, WorkItemHandler>();
         for (Entry<String, Class<? extends WorkItemHandler>> entry : workItemHandlersClasses.entrySet()) {
             WorkItemHandler handler = createInstance(entry.getValue(), runtime);
-            
+
             if (handler != null) {
                 handlers.put(entry.getKey(), handler);
             }
@@ -122,28 +122,28 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
         }
         return listeners;
     }
-    
-	@Override
-	public List<TaskLifeCycleEventListener> getTaskListeners() {
-		List<TaskLifeCycleEventListener> listeners = new ArrayList<TaskLifeCycleEventListener>();
+
+    @Override
+    public List<TaskLifeCycleEventListener> getTaskListeners() {
+        List<TaskLifeCycleEventListener> listeners = new ArrayList<TaskLifeCycleEventListener>();
         for (Class<? extends TaskLifeCycleEventListener> clazz : taskListeners) {
-        	TaskLifeCycleEventListener tListener = createInstance(clazz, null);
+            TaskLifeCycleEventListener tListener = createInstance(clazz, null);
             if (tListener != null) {
                 listeners.add(tListener);
             }
         }
         return listeners;
-	}
-    
-	@Override
-	public Map<String, Object> getGlobals(RuntimeEngine runtime) {
-		return globals;
-	}
-    
+    }
+
+    @Override
+    public Map<String, Object> getGlobals(RuntimeEngine runtime) {
+        return globals;
+    }
+
     public void addWorkItemHandler(String name, Class<? extends WorkItemHandler> clazz) {
         this.workItemHandlersClasses.put(name, clazz);
     }
-    
+
     public void addProcessListener(Class<? extends ProcessEventListener> clazz) {
         this.processListeners.add(clazz);
     }
@@ -151,45 +151,45 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
     public void addAgendaListener(Class<? extends AgendaEventListener> clazz) {
         this.agendListeners.add(clazz);
     }
-    
+
     public void addWorkingMemoryListener(Class<? extends RuleRuntimeEventListener> clazz) {
         this.workingMemoryListeners.add(clazz);
     }
-    
+
     public void addGlobal(String name, Object global) {
         this.globals.put(name, global);
     }
-    
+
     public void addTaskListener(Class<? extends TaskLifeCycleEventListener> clazz) {
         this.taskListeners.add(clazz);
     }
-    
-    
+
+
     protected <T> T createInstance(Class<T> clazz, RuntimeEngine engine) {
         T instance = null;
         if (engine != null) {
-	        try {
-	            Constructor<T> constructor = clazz.getConstructor(KieSession.class);
-	            
-	            instance = constructor.newInstance(engine.getKieSession());
-	        } catch (Exception e) {
-	
-	        }
-	        try {
-	            Constructor<T> constructor = clazz.getConstructor(TaskService.class);
-	            
-	            instance = constructor.newInstance(engine.getTaskService());
-	        } catch (Exception e) {
-	
-	        }
-	        
-	        try {
-	            Constructor<T> constructor = clazz.getConstructor(RuntimeEngine.class);
-	            
-	            instance = constructor.newInstance(engine);
-	        } catch (Exception e) {
-	
-	        }
+            try {
+                Constructor<T> constructor = clazz.getConstructor(KieSession.class);
+
+                instance = constructor.newInstance(engine.getKieSession());
+            } catch (Exception e) {
+
+            }
+            try {
+                Constructor<T> constructor = clazz.getConstructor(TaskService.class);
+
+                instance = constructor.newInstance(engine.getTaskService());
+            } catch (Exception e) {
+
+            }
+
+            try {
+                Constructor<T> constructor = clazz.getConstructor(RuntimeEngine.class);
+
+                instance = constructor.newInstance(engine);
+            } catch (Exception e) {
+
+            }
         }
         if (instance == null) {
             try {
@@ -197,9 +197,9 @@ public class SimpleRegisterableItemsFactory implements InternalRegisterableItems
 
             } catch (Exception e) {
 
-            }                        
+            }
         }
-        
+
         return instance;
     }
 

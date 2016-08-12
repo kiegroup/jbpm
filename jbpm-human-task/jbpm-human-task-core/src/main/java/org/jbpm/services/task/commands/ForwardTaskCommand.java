@@ -22,34 +22,34 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.kie.internal.command.Context;
 
 /**
- Operation.Forward 
-        : [ new OperationCommand().{ 
+ Operation.Forward
+        : [ new OperationCommand().{
                 status = [ Status.Ready ],
                 allowed = [ Allowed.PotentialOwner, Allowed.BusinessAdministrator  ],
-                userIsExplicitPotentialOwner = true,                
-                addTargetUserToPotentialOwners = true,     
-                removeUserFromPotentialOwners = true,   
-                setNewOwnerToNull = true,         
+                userIsExplicitPotentialOwner = true,
+                addTargetUserToPotentialOwners = true,
+                removeUserFromPotentialOwners = true,
+                setNewOwnerToNull = true,
                 newStatus = Status.Ready
             },
-            new OperationCommand().{ 
+            new OperationCommand().{
                 status = [ Status.Reserved, Status.InProgress ],
                 allowed = [ Allowed.Owner, Allowed.BusinessAdministrator ],
                 userIsExplicitPotentialOwner = true,
-                addTargetUserToPotentialOwners = true,     
-                removeUserFromPotentialOwners = true, 
-                setNewOwnerToNull = true,                             
+                addTargetUserToPotentialOwners = true,
+                removeUserFromPotentialOwners = true,
+                setNewOwnerToNull = true,
                 newStatus = Status.Ready
-            }],          
+            }],
  */
 @XmlRootElement(name="forward-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ForwardTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = -3291367442760747824L;
 
-	public ForwardTaskCommand() {
-	}
+    private static final long serialVersionUID = -3291367442760747824L;
+
+    public ForwardTaskCommand() {
+    }
 
     public ForwardTaskCommand(long taskId, String userId, String targetEntityId) {
         this.taskId = taskId;
@@ -63,8 +63,8 @@ public class ForwardTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(targetEntityId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().forward(taskId, userId, targetEntityId);
-    	return null;
-       
+        context.getTaskInstanceService().forward(taskId, userId, targetEntityId);
+        return null;
+
     }
 }

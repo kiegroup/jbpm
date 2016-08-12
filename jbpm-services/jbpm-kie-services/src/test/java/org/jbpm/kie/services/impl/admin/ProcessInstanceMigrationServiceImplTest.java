@@ -58,12 +58,12 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
     protected static final String MIGRATION_GROUP_ID = "org.jbpm.test";
     protected static final String MIGRATION_VERSION_V1 = "1.0.0";
     protected static final String MIGRATION_VERSION_V2 = "2.0.0";
-    
+
     private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-    
+
     private KModuleDeploymentUnit deploymentUnitV1;
     private KModuleDeploymentUnit deploymentUnitV2;
-    
+
     protected ProcessInstanceMigrationService migrationService;
 
     @Before
@@ -71,7 +71,7 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
         configureServices();
         logger.debug("Preparing kjar");
         KieServices ks = KieServices.Factory.get();
-        
+
         // version 1 of kjar
         ReleaseId releaseId = ks.newReleaseId(MIGRATION_GROUP_ID, MIGRATION_ARTIFACT_ID, MIGRATION_VERSION_V1);
         List<String> processes = new ArrayList<String>();
@@ -108,14 +108,14 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
         }
         repository = getMavenRepository();
         repository.installArtifact(releaseId2, kJar2, pom2);
-        
+
         migrationService = new ProcessInstanceMigrationServiceImpl();
-        
+
         // now let's deploy to runtime both kjars
         deploymentUnitV1 = new KModuleDeploymentUnit(MIGRATION_GROUP_ID, MIGRATION_ARTIFACT_ID, MIGRATION_VERSION_V1);
         deploymentService.deploy(deploymentUnitV1);
         units.add(deploymentUnitV1);
-        
+
         deploymentUnitV2 = new KModuleDeploymentUnit(MIGRATION_GROUP_ID, MIGRATION_ARTIFACT_ID, MIGRATION_VERSION_V2);
         deploymentService.deploy(deploymentUnitV2);
         units.add(deploymentUnitV2);
@@ -136,133 +136,133 @@ public class ProcessInstanceMigrationServiceImplTest extends AbstractKieServices
         }
         close();
     }
-    
-    
+
+
     public void setMigrationService(ProcessInstanceMigrationService migrationService) {
         this.migrationService = migrationService;
     }
 
     private static final String ADDTASKAFTERACTIVE_ID_V1 = "process-migration-testv1.AddTaskAfterActive";
     private static final String ADDTASKAFTERACTIVE_ID_V2 = "process-migration-testv2.AddTaskAfterActive";
-    
+
     @Test
     public void testMigrateSingleProcessInstance() {
-        
+
         long processInstanceId = processService.startProcess(deploymentUnitV1.getIdentifier(), ADDTASKAFTERACTIVE_ID_V1);
         assertNotNull(processInstanceId);
-        
+
         MigrationReport report = migrationService.migrate(deploymentUnitV1.getIdentifier(), processInstanceId, deploymentUnitV2.getIdentifier(), ADDTASKAFTERACTIVE_ID_V2);
         assertNotNull(report);
         assertTrue(report.isSuccessful());
         assertMigratedProcessInstance(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, ProcessInstance.STATE_ACTIVE);
-        
+
         assertMigratedTaskAndComplete(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, "Active Task");
-  
+
         assertMigratedTaskAndComplete(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, "Added Task");
-        
+
         assertMigratedProcessInstance(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, ProcessInstance.STATE_COMPLETED);
     }
-    
+
     @Test
     public void testMigrateMultipleProcessInstances() {
-        
+
         List<Long> ids = new ArrayList<Long>();
-        
+
         for (int i = 0; i < 5; i++) {
             long processInstanceId = processService.startProcess(deploymentUnitV1.getIdentifier(), ADDTASKAFTERACTIVE_ID_V1);
             assertNotNull(processInstanceId);
             ids.add(processInstanceId);
         }
-        
+
         List<MigrationReport> reports = migrationService.migrate(deploymentUnitV1.getIdentifier(), ids, deploymentUnitV2.getIdentifier(), ADDTASKAFTERACTIVE_ID_V2);
         assertNotNull(reports);
-        
+
         Iterator<MigrationReport> reportsIt = reports.iterator();
         for (Long processInstanceId : ids) {
             MigrationReport report = reportsIt.next();
             assertTrue(report.isSuccessful());
             assertMigratedProcessInstance(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, ProcessInstance.STATE_ACTIVE);
-            
+
             assertMigratedTaskAndComplete(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, "Active Task");
-      
+
             assertMigratedTaskAndComplete(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, "Added Task");
-            
+
             assertMigratedProcessInstance(ADDTASKAFTERACTIVE_ID_V2, processInstanceId, ProcessInstance.STATE_COMPLETED);
         }
     }
-    
+
     private static final String REMOVEACTIVETASK_ID_V1 = "process-migration-testv1.RemoveActiveTask";
     private static final String REMOVEACTIVETASK_ID_V2 = "process-migration-testv2.RemoveActiveTask";
-    
+
     @Test
     public void testMigrateSingleProcessInstanceWithNodeMapping() {
-        
+
         String activeNodeId = "_ECEDD1CE-7380-418C-B7A6-AF8ECB90B820";
         String nextNodeId = "_9EF3CAE0-D978-4E96-9C00-8A80082EB68E";
-        
+
         Map<String, String> nodeMapping = new HashMap<String, String>();
         nodeMapping.put(activeNodeId, nextNodeId);
-        
+
         long processInstanceId = processService.startProcess(deploymentUnitV1.getIdentifier(), REMOVEACTIVETASK_ID_V1);
         assertNotNull(processInstanceId);
-        
+
         MigrationReport report = migrationService.migrate(deploymentUnitV1.getIdentifier(), processInstanceId, deploymentUnitV2.getIdentifier(), REMOVEACTIVETASK_ID_V2, nodeMapping);
         assertNotNull(report);
         assertTrue(report.isSuccessful());
         assertMigratedProcessInstance(REMOVEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_ACTIVE);
-        
+
         assertMigratedTaskAndComplete(REMOVEACTIVETASK_ID_V2, processInstanceId, "Mapped Task");
-        
+
         assertMigratedProcessInstance(REMOVEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_COMPLETED);
     }
-    
+
     @Test
     public void testMigrateMultipleProcessInstancesWithNodeMapping() {
-        
+
         List<Long> ids = new ArrayList<Long>();
-        
+
         for (int i = 0; i < 5; i++) {
             long processInstanceId = processService.startProcess(deploymentUnitV1.getIdentifier(), REMOVEACTIVETASK_ID_V1);
             assertNotNull(processInstanceId);
             ids.add(processInstanceId);
         }
-        
+
         String activeNodeId = "_ECEDD1CE-7380-418C-B7A6-AF8ECB90B820";
         String nextNodeId = "_9EF3CAE0-D978-4E96-9C00-8A80082EB68E";
-        
+
         Map<String, String> nodeMapping = new HashMap<String, String>();
         nodeMapping.put(activeNodeId, nextNodeId);
-        
+
         List<MigrationReport> reports = migrationService.migrate(deploymentUnitV1.getIdentifier(), ids, deploymentUnitV2.getIdentifier(), REMOVEACTIVETASK_ID_V2, nodeMapping);
         assertNotNull(reports);
-        
+
         Iterator<MigrationReport> reportsIt = reports.iterator();
         for (Long processInstanceId : ids) {
             MigrationReport report = reportsIt.next();
             assertTrue(report.isSuccessful());
             assertMigratedProcessInstance(REMOVEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_ACTIVE);
-            
+
             assertMigratedTaskAndComplete(REMOVEACTIVETASK_ID_V2, processInstanceId, "Mapped Task");
-      
+
             assertMigratedProcessInstance(REMOVEACTIVETASK_ID_V2, processInstanceId, ProcessInstance.STATE_COMPLETED);
         }
     }
-    
+
     /*
      * Helper methods
      */
-    
+
     protected void assertMigratedTaskAndComplete(String processId, Long processInstanceId, String taskName) {
         List<TaskSummary> tasks = runtimeDataService.getTasksByStatusByProcessInstanceId(processInstanceId, Arrays.asList(Status.Reserved), new QueryFilter());
         assertNotNull(tasks);
         assertEquals(1, tasks.size());
-        
+
         TaskSummary task = tasks.get(0);
         assertNotNull(task);
         assertEquals(processId, task.getProcessId());
         assertEquals(deploymentUnitV2.getIdentifier(), task.getDeploymentId());
         assertEquals(taskName, task.getName());
-        
+
         userTaskService.completeAutoProgress(task.getId(), "john", null);
     }
 

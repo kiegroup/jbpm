@@ -42,16 +42,16 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 
 public class HumanTaskCaseTest extends JbpmTestCase {
-    
+
     private KieSession kieSession;
     private RuntimeEngine runtimeEngine;
     private CaseMgmtService caseMgmtService;
     private TaskService taskService;
     private ProcessInstance casePi;
-    
+
     @Before
     public void setup() {
-        
+
         addTaskEventListener(new DefaultTaskEventListener() {
             @Override
             public void afterTaskCompletedEvent(TaskEvent event) {
@@ -59,14 +59,14 @@ public class HumanTaskCaseTest extends JbpmTestCase {
                 if (task.getName().equals("Change age and return message")) {
                     Content output = taskService.getContentById(task.getTaskData().getOutputContentId());
                     Map<String, Object> results = (Map<String, Object>) ContentMarshallerHelper.unmarshall(output.getContent(), TaskContentRegistry.get().getMarshallerContext(task).getEnvironment());
-                    
+
                     for (Entry<String, Object> e : results.entrySet()) {
                         caseMgmtService.setCaseData(casePi.getId(), e.getKey(), e.getValue());
                     }
                 }
             }
         });
-        
+
         kieSession = createKSession(EMPTY_CASE);
         runtimeEngine = getRuntimeEngine();
         caseMgmtService = new CaseMgmtUtil(runtimeEngine);
@@ -75,7 +75,7 @@ public class HumanTaskCaseTest extends JbpmTestCase {
 
     @Test(timeout = 30000)
     public void testCaseData() {
-        
+
         casePi = caseMgmtService.startNewCase("caseDataHT");
         long pid = casePi.getId();
 
@@ -98,12 +98,12 @@ public class HumanTaskCaseTest extends JbpmTestCase {
 
         Task[] activeTasks = caseMgmtService.getActiveTasks(pid);
         Assertions.assertThat(activeTasks).hasSize(1);
-        
+
         params = taskService.getTaskContent(task.getId());
         Person p = (Person) params.get("person");
         p.setAge(35);
         Assertions.assertThat(p).isEqualTo(john);
-        
+
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("person", p);
         result.put("message", "age changed to 35");
@@ -123,14 +123,14 @@ public class HumanTaskCaseTest extends JbpmTestCase {
         Assertions.assertThat(caseData).containsEntry("person", p);
 
     }
-    
+
     @Test(timeout = 30000)
     public void testAbort() {
         ProcessInstance pi = caseMgmtService.startNewCase("caseAbort");
         long pid = pi.getId();
-        
+
         Assertions.assertThat(pi.getState()).isEqualTo(ProcessInstance.STATE_ACTIVE);
-        
+
         kieSession.abortProcessInstance(pid);
         ProcessInstanceLog pil = getLogService().findProcessInstance(pid);
         Assertions.assertThat(pil.getStatus()).isEqualTo(ProcessInstance.STATE_ABORTED);

@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -74,7 +74,7 @@ public class ProcessInstanceInfo implements Transformable {
     private Date                              lastReadDate;
     private Date                              lastModificationDate;
     private int                               state;
-    
+
     @Lob
     @Column(length=2147483647)
     byte[]                                    processInstanceByteArray;
@@ -83,10 +83,10 @@ public class ProcessInstanceInfo implements Transformable {
     @CollectionTable(name="EventTypes", joinColumns=@JoinColumn(name="InstanceId"))
     @Column(name="element")
     private Set<String>                       eventTypes         = new HashSet<String>();
-    
+
     @Transient
     ProcessInstance                           processInstance;
-    
+
     @Transient
     Environment                               env;
 
@@ -114,12 +114,12 @@ public class ProcessInstanceInfo implements Transformable {
      * If we mapped the field using 'name="id"', the queries would thus fail.
      * </p>
      * So instead of that, we just add the getters and use 'name="processInstanceId"'.
-     * @return The processInstanceId field value. 
+     * @return The processInstanceId field value.
      */
-    public Long getProcessInstanceId() { 
+    public Long getProcessInstanceId() {
         return processInstanceId;
     }
-    
+
     public void setProcessInstanceId(Long processInstanceId) {
         this.processInstanceId = processInstanceId;
     }
@@ -127,7 +127,7 @@ public class ProcessInstanceInfo implements Transformable {
     public Long getId() {
         return processInstanceId;
     }
-    
+
     public void setId(Long processInstanceId) {
         this.processInstanceId = processInstanceId;
     }
@@ -149,12 +149,12 @@ public class ProcessInstanceInfo implements Transformable {
     }
 
     public void updateLastReadDate() {
-    	Date updateTo = new Date();
-    	if (lastReadDate == null || lastReadDate.compareTo(updateTo) < 0) {
-    		lastReadDate = updateTo;
-    	} else {
-    		lastReadDate = new Date(lastReadDate.getTime() + 1);
-    	}
+        Date updateTo = new Date();
+        if (lastReadDate == null || lastReadDate.compareTo(updateTo) < 0) {
+            lastReadDate = updateTo;
+        } else {
+            lastReadDate = new Date(lastReadDate.getTime() + 1);
+        }
     }
 
     public int getState() {
@@ -163,14 +163,14 @@ public class ProcessInstanceInfo implements Transformable {
 
     public ProcessInstance getProcessInstance(InternalKnowledgeRuntime kruntime,
                                               Environment env) {
-    	return getProcessInstance(kruntime, env, false);
+        return getProcessInstance(kruntime, env, false);
     }
-    
+
     public ProcessInstance getProcessInstance(InternalKnowledgeRuntime kruntime,
                                               Environment env,
                                               boolean readOnly) {
         this.env = env;
-        if ( processInstance == null ) {        	
+        if ( processInstance == null ) {
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream( processInstanceByteArray );
                 MarshallerReaderContext context = new MarshallerReaderContext( bais,
@@ -181,7 +181,7 @@ public class ProcessInstanceInfo implements Transformable {
                                                                                this.env
                                                                               );
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
-            	context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
+                context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
                 processInstance = marshaller.readProcessInstance(context);
                 ((WorkflowProcessInstanceImpl) processInstance).setPersisted(false);
                 if (readOnly) {
@@ -196,7 +196,7 @@ public class ProcessInstanceInfo implements Transformable {
         }
         return processInstance;
     }
-   
+
     private ProcessInstanceMarshaller getMarshallerFromContext(MarshallerReaderContext context) throws IOException {
         ObjectInputStream stream = context.stream;
         String processInstanceType = stream.readUTF();
@@ -212,9 +212,9 @@ public class ProcessInstanceInfo implements Transformable {
     }
 
     public void transform() {
-//    	if (processInstance == null) {
-//    		return;
-//    	}
+//      if (processInstance == null) {
+//          return;
+//      }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         boolean variablesChanged = false;
         try {
@@ -225,26 +225,26 @@ public class ProcessInstanceInfo implements Transformable {
                                                                          null,
                                                                          this.env );
             context.setProcessInstanceId(processInstance.getId());
-            context.setState(processInstance.getState() == ProcessInstance.STATE_ACTIVE ? 
+            context.setState(processInstance.getState() == ProcessInstance.STATE_ACTIVE ?
                     ProcessMarshallerWriteContext.STATE_ACTIVE:ProcessMarshallerWriteContext.STATE_COMPLETED);
-            
+
             String processType = ((ProcessInstanceImpl) processInstance).getProcess().getType();
             saveProcessInstanceType( context,
                                      processInstance,
                                      processType );
             ProcessInstanceMarshaller marshaller = ProcessMarshallerRegistry.INSTANCE.getMarshaller( processType );
-            
+
             Object result = marshaller.writeProcessInstance( context,
                                                              processInstance);
             if( marshaller instanceof ProtobufRuleFlowProcessInstanceMarshaller && result != null ) {
                 JBPMMessages.ProcessInstance _instance = (JBPMMessages.ProcessInstance)result;
-                PersisterHelper.writeToStreamWithHeader( context, 
+                PersisterHelper.writeToStreamWithHeader( context,
                                                          _instance );
             }
             context.close();
         } catch ( IOException e ) {
             throw new IllegalArgumentException( "IOException while storing process instance "
-        		+ processInstance.getId() + ": " + e.getMessage(), e );
+                + processInstance.getId() + ": " + e.getMessage(), e );
         }
         byte[] newByteArray = baos.toByteArray();
         if ( variablesChanged || !Arrays.equals( newByteArray,
@@ -258,8 +258,8 @@ public class ProcessInstanceInfo implements Transformable {
             }
         }
         if (!processInstance.getProcessId().equals(this.processId)) {
-    		this.processId = processInstance.getProcessId();
-    	}
+            this.processId = processInstance.getProcessId();
+        }
         ((WorkflowProcessInstanceImpl) processInstance).setPersisted(true);
     }
 
@@ -307,7 +307,7 @@ public class ProcessInstanceInfo implements Transformable {
         if ( this.env != other.env && (this.env == null || !this.env.equals( other.env )) ) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -331,24 +331,24 @@ public class ProcessInstanceInfo implements Transformable {
     public int getVersion() {
         return version;
     }
-    
+
     public Set<String> getEventTypes() {
         return eventTypes;
     }
 
-    public byte [] getProcessInstanceByteArray() { 
+    public byte [] getProcessInstanceByteArray() {
         return processInstanceByteArray;
     }
-    
+
     public void clearProcessInstance(){
         processInstance = null;
     }
-    
-    public Environment getEnv() { 
+
+    public Environment getEnv() {
         return env;
     }
-    
-    public void setEnv(Environment env) { 
+
+    public void setEnv(Environment env) {
         this.env = env;
     }
 }

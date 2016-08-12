@@ -22,26 +22,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Simple command to log the contextual data after given (10 sec by default) delay and return empty results. 
+ * Simple command to log the contextual data after given (10 sec by default) delay and return empty results.
  * Just for demo purpose.
- * 
+ *
  */
 public class DelayedPrintOutCommand extends PrintOutCommand {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DelayedPrintOutCommand.class);
 
     public ExecutionResults execute(CommandContext ctx) {
-    	Long delay = (Long)ctx.getData("delay");
-    	if (delay == null) {
-    		delay = 10000L;
-    	}
+        Long delay = (Long)ctx.getData("delay");
+        if (delay == null) {
+            delay = 10000L;
+        }
         logger.info("Delaying execution of command for {}", delay);
         try {
-			Thread.sleep(delay);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return super.execute(ctx);
     }
-    
+
 }

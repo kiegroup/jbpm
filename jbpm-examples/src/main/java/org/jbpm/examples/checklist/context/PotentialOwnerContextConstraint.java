@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -20,24 +20,24 @@ import org.jbpm.examples.checklist.ChecklistItem;
 
 public class PotentialOwnerContextConstraint implements ChecklistContextConstraint {
 
-	private String userId;
-	
-	public PotentialOwnerContextConstraint(String userId) {
-		this.userId = userId;
-	}
-	
-	public String getUserId() {
-		return userId;
-	}
-	
-	public boolean acceptsTask(ChecklistItem item) {
-		String[] ss = item.getActors().split(",");
-		for (String s: ss) {
-			if (s.equals(userId)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    private String userId;
+
+    public PotentialOwnerContextConstraint(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public boolean acceptsTask(ChecklistItem item) {
+        String[] ss = item.getActors().split(",");
+        for (String s: ss) {
+            if (s.equals(userId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

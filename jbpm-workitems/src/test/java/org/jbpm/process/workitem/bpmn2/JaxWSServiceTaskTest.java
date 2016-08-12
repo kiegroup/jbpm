@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -57,9 +57,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class JaxWSServiceTaskTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JaxWSServiceTaskTest.class);
-    
+
     private Endpoint endpoint;
     private Endpoint endpoint2;
     private SimpleService service;
@@ -83,13 +83,13 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "sync");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("WebServiceTask", params);
         String variable = (String) processInstance.getVariable("s");
         assertEquals("Hello john", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test(timeout=10000)
     public void testAsyncServiceInvocation() throws Exception {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Service Task", 1);
@@ -101,7 +101,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "async");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("WebServiceTask", params);
         logger.info("Service invoked async...waiting to get reponse back");
         countDownListener.waitTillCompleted();
@@ -109,7 +109,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         assertEquals("Hello john", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testOneWayServiceInvocation() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -119,7 +119,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "oneway");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("WebServiceTask", params);
         logger.info("Execution finished");
         String variable = (String) processInstance.getVariable("s");
@@ -127,7 +127,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
 
     }
-    
+
     @Test
     public void testServiceInvocationWithErrorHandled() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -137,14 +137,14 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "sync");
-        
-        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("WebServiceTaskError", params);        
+
+        WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("WebServiceTaskError", params);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
         Object error = processInstance.getVariable("exception");
         assertNotNull(error);
         assertTrue(error instanceof WorkItemHandlerRuntimeException);
     }
-    
+
     @Test(timeout=10000)
     public void testServiceInvocationProcessWith2WSImports() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -154,13 +154,13 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "sync");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("org.jboss.qa.jbpm.CallWS", params);
         String variable = (String) processInstance.getVariable("s");
         assertEquals("Hello john", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test(timeout=10000)
     public void testServiceInvocationProcessWith2WSImportsWSHandler() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -170,13 +170,13 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "sync");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("org.jboss.qa.jbpm.CallWS", params);
         String variable = (String) processInstance.getVariable("s");
         assertEquals("Hello john", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testServiceInvocationWithMultipleParams() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -186,13 +186,13 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", new String[]{"john", "doe"});
         params.put("mode", "sync");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("multiparamws", params);
         String variable = (String) processInstance.getVariable("s2");
         assertEquals("Hello doe, john", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testServiceInvocationWithMultipleIntParams() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -202,13 +202,13 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", new int[]{2, 3});
         params.put("mode", "sync");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("multiparamws-int", params);
         String variable = (String) processInstance.getVariable("s2");
         assertEquals("Hello 2, 3", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
     }
-    
+
     @Test
     public void testOneWayServiceInvocationProcessWSHandler() throws Exception {
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
@@ -218,7 +218,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
         params.put("mode", "oneway");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("org.jboss.qa.jbpm.CallWS", params);
         logger.info("Execution finished");
         String variable = (String) processInstance.getVariable("s");
@@ -236,7 +236,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         this.endpoint.stop();
         this.endpoint2.stop();
     }
-    
+
     private static KnowledgeBase readKnowledgeBase() throws Exception {
         ProcessBuilderFactory.setProcessBuilderFactoryService(new ProcessBuilderFactoryServiceImpl());
         ProcessMarshallerFactory.setProcessMarshallerFactoryService(new ProcessMarshallerFactoryServiceImpl());
@@ -250,7 +250,7 @@ public class JaxWSServiceTaskTest extends AbstractBaseTest {
         kbuilder.add(ResourceFactory.newClassPathResource("BPMN2-MultipleIntParamsWebService.bpmn"), ResourceType.BPMN2);
         return kbuilder.newKnowledgeBase();
     }
-    
+
     private static StatefulKnowledgeSession createSession(KnowledgeBase kbase) {
         Properties properties = new Properties();
         properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");

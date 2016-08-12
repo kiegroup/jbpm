@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,25 +36,25 @@ import org.kie.internal.task.api.model.TaskEvent;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetAuditEventsByProcessInstanceIdCommand extends TaskCommand<List<TaskEvent>> implements ProcessInstanceIdCommand {
 
-	private static final long serialVersionUID = -7929370526623674312L;
+    private static final long serialVersionUID = -7929370526623674312L;
 
-	@XmlElement
-	private QueryFilter filter;
+    @XmlElement
+    private QueryFilter filter;
 
-	@XmlElement
-	@XmlSchemaType(name="long")
-	private Long processInstanceId;
-        
-	public GetAuditEventsByProcessInstanceIdCommand() {
-	    this.filter = new QueryFilter(0,0);
-	}
-	
-	public GetAuditEventsByProcessInstanceIdCommand(long processInstanceId, QueryFilter filter) {
-	    this.processInstanceId = processInstanceId;
-	    this.filter = filter;
-	}
-       
-	public QueryFilter getFilter() {
+    @XmlElement
+    @XmlSchemaType(name="long")
+    private Long processInstanceId;
+
+    public GetAuditEventsByProcessInstanceIdCommand() {
+        this.filter = new QueryFilter(0,0);
+    }
+
+    public GetAuditEventsByProcessInstanceIdCommand(long processInstanceId, QueryFilter filter) {
+        this.processInstanceId = processInstanceId;
+        this.filter = filter;
+    }
+
+    public QueryFilter getFilter() {
         return filter;
     }
 
@@ -73,20 +73,20 @@ public class GetAuditEventsByProcessInstanceIdCommand extends TaskCommand<List<T
     }
 
     @Override
-	public List<TaskEvent> execute(Context context) {
-		TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
-		// @formatter:off
-		return persistenceContext.queryWithParametersInTransaction(
-		        "getAllTasksEventsByProcessInstanceId", 
-		        persistenceContext.addParametersToMap(
-		                "processInstanceId", 
-		                processInstanceId, 
-		                "firstResult", 
-		                filter.getOffset(), 
-		                "maxResults", 
-		                filter.getCount()),
-		        ClassUtil.<List<TaskEvent>>castClass(List.class));
-		// @formatter:on
-	}
+    public List<TaskEvent> execute(Context context) {
+        TaskPersistenceContext persistenceContext = ((TaskContext) context).getPersistenceContext();
+        // @formatter:off
+        return persistenceContext.queryWithParametersInTransaction(
+                "getAllTasksEventsByProcessInstanceId",
+                persistenceContext.addParametersToMap(
+                        "processInstanceId",
+                        processInstanceId,
+                        "firstResult",
+                        filter.getOffset(),
+                        "maxResults",
+                        filter.getCount()),
+                ClassUtil.<List<TaskEvent>>castClass(List.class));
+        // @formatter:on
+    }
 
 }

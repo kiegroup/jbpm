@@ -41,7 +41,7 @@
       <property name="hibernate.max_fetch_depth" value="3" />
       <property name="hibernate.hbm2ddl.auto" value="create-drop" />
       <property name="hibernate.show_sql" value="false" />
-	  <!--
+    <!--
       <property name="hibernate.connection.driver_class" value="${maven.jdbc.driver.class}" />
       <property name="hibernate.connection.url" value="${maven.jdbc.url}" />
       <property name="hibernate.connection.username" value="${maven.jdbc.username}" />

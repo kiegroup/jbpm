@@ -1,6 +1,6 @@
 /*
  * Copyright 2012 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -41,7 +41,7 @@ public class NodeInstanceDesc implements org.jbpm.services.api.model.NodeInstanc
 
 
     public NodeInstanceDesc(String id, String nodeId, String name, String nodeType,
-                            String deploymentId, long processInstanceId, Date date, 
+                            String deploymentId, long processInstanceId, Date date,
                             String connection, int type, Long workItemId) {
         this.id = Long.parseLong(id);
         this.name = name;

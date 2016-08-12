@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -41,7 +41,7 @@ public class WebSphereUserGroupAdapter implements UserGroupAdapter {
     }
 
     @SuppressWarnings("rawtypes")
-	@Override
+    @Override
     public List<String> getGroupsForUser(String userId) {
         List<String> roles = new ArrayList<String>();
         if (registry == null || userId == null || userId.isEmpty()) {

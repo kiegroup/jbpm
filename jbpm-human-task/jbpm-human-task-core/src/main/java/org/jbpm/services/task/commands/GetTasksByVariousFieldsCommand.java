@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -38,102 +38,102 @@ import org.kie.internal.command.Context;
 
 /**
  * This command will be deleted as of jBPM 7.x.
- * @see {@link TaskService#taskQuery()} 
+ * @see {@link TaskService#taskQuery()}
  */
 @XmlRootElement(name="get-tasks-by-various-fields-command")
 @XmlAccessorType(XmlAccessType.NONE)
 @Deprecated
 public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand<List<TaskSummary>> {
 
-	private static final long serialVersionUID = -4894264083829084547L;
+    private static final long serialVersionUID = -4894264083829084547L;
 
-	@XmlElement
+    @XmlElement
     private List<Long> workItemIds;
-    
+
     @XmlElement
     private List<Long> taskIds;
-    
+
     @XmlElement
     private List<Long> processInstanceIds;
-    
+
     @XmlElement
     private List<String> businessAdmins;
-    
+
     @XmlElement
     private List<String> potentialOwners;
-    
+
     @XmlElement
     private List<String> taskOwners;
-    
+
     @XmlElement
     private List<Status> statuses;
-    
+
     @XmlElement
     @XmlSchemaType(name="boolean")
     private Boolean union;
-    
+
     @XmlElement
     private List<String> languages;
-    
+
     @XmlElement
     private Integer maxResults;
-    
-    
-	public GetTasksByVariousFieldsCommand() {
-	    // default for JAXB
-	}
 
-	public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
-	        List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
-	        boolean union) { 
-	    this(workItemIds, taskIds, procInstIds, busAdmins, potOwners, taskOwners, statuses, null, union);
-	}
-	
-	public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
-	        List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
-	        List<String> language, boolean union) { 
-	    this(workItemIds, taskIds, procInstIds, busAdmins, potOwners, taskOwners, statuses, language, union, null);
+
+    public GetTasksByVariousFieldsCommand() {
+        // default for JAXB
     }
 
-	public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
-	        List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses, 
-	        List<String> language, boolean union, Integer maxResults) { 
-		this.workItemIds = workItemIds;
-		this.taskIds = taskIds;
-		this.processInstanceIds = procInstIds;
-		this.businessAdmins = busAdmins;
-		this.potentialOwners = potOwners;
-		this.taskOwners = taskOwners;
-		this.statuses = statuses;
-		this.languages = language;
-		this.union = union;
-		this.maxResults = maxResults;
-	}
-	
-	public GetTasksByVariousFieldsCommand(Map<String, List<?>> params, boolean union) { 
-	    this(params, union, null);
-	}
-    
-	@SuppressWarnings("unchecked")
-	public GetTasksByVariousFieldsCommand(Map<String, List<?>> params, boolean union, Integer maxResults) { 
-	    this.union = union;
-	    this.maxResults = maxResults;
+    public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
+            List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses,
+            boolean union) {
+        this(workItemIds, taskIds, procInstIds, busAdmins, potOwners, taskOwners, statuses, null, union);
+    }
 
-	    if( params == null ) { 
-	        params = new HashMap<String, List<?>>();
-	    } else { 
-	        this.workItemIds = (List<Long>) params.get(WORK_ITEM_ID_LIST);
-	        this.taskIds = (List<Long>) params.get(TASK_ID_LIST);
-	        this.processInstanceIds = (List<Long>) params.get(PROCESS_INSTANCE_ID_LIST);
-	        this.businessAdmins = (List<String>) params.get(BUSINESS_ADMIN_ID_LIST);
-	        this.potentialOwners = (List<String>) params.get(POTENTIAL_OWNER_ID_LIST);
-	        this.taskOwners = (List<String>) params.get(ACTUAL_OWNER_ID_LIST);
-	        this.statuses = (List<Status>) params.get(TASK_STATUS_LIST);
-	    }
-	}
+    public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
+            List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses,
+            List<String> language, boolean union) {
+        this(workItemIds, taskIds, procInstIds, busAdmins, potOwners, taskOwners, statuses, language, union, null);
+    }
 
-    
-	public List<Long> getWorkItemIds() {
+    public GetTasksByVariousFieldsCommand(List<Long> workItemIds, List<Long> taskIds, List<Long> procInstIds,
+            List<String> busAdmins, List<String> potOwners, List<String> taskOwners, List<Status> statuses,
+            List<String> language, boolean union, Integer maxResults) {
+        this.workItemIds = workItemIds;
+        this.taskIds = taskIds;
+        this.processInstanceIds = procInstIds;
+        this.businessAdmins = busAdmins;
+        this.potentialOwners = potOwners;
+        this.taskOwners = taskOwners;
+        this.statuses = statuses;
+        this.languages = language;
+        this.union = union;
+        this.maxResults = maxResults;
+    }
+
+    public GetTasksByVariousFieldsCommand(Map<String, List<?>> params, boolean union) {
+        this(params, union, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public GetTasksByVariousFieldsCommand(Map<String, List<?>> params, boolean union, Integer maxResults) {
+        this.union = union;
+        this.maxResults = maxResults;
+
+        if( params == null ) {
+            params = new HashMap<String, List<?>>();
+        } else {
+            this.workItemIds = (List<Long>) params.get(WORK_ITEM_ID_LIST);
+            this.taskIds = (List<Long>) params.get(TASK_ID_LIST);
+            this.processInstanceIds = (List<Long>) params.get(PROCESS_INSTANCE_ID_LIST);
+            this.businessAdmins = (List<String>) params.get(BUSINESS_ADMIN_ID_LIST);
+            this.potentialOwners = (List<String>) params.get(POTENTIAL_OWNER_ID_LIST);
+            this.taskOwners = (List<String>) params.get(ACTUAL_OWNER_ID_LIST);
+            this.statuses = (List<Status>) params.get(TASK_STATUS_LIST);
+        }
+    }
+
+
+    public List<Long> getWorkItemIds() {
         return workItemIds;
     }
 
@@ -215,12 +215,12 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
 
     public List<TaskSummary> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         potentialOwners = populateOrganizationalEntityWithGroupInfo(potentialOwners, context);
-    	businessAdmins = populateOrganizationalEntityWithGroupInfo(businessAdmins, context);
-    	List<String> stakeHolders = new ArrayList<String>();
-    	stakeHolders = populateOrganizationalEntityWithGroupInfo(stakeHolders, context);
-    	
+        businessAdmins = populateOrganizationalEntityWithGroupInfo(businessAdmins, context);
+        List<String> stakeHolders = new ArrayList<String>();
+        stakeHolders = populateOrganizationalEntityWithGroupInfo(stakeHolders, context);
+
         Map<String, List<?>> params = new HashMap<String, List<?>>();
         params.put(WORK_ITEM_ID_LIST, workItemIds);
         params.put(TASK_ID_LIST, taskIds);
@@ -234,8 +234,8 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
             Integer [] maxResultsArr = { maxResults };
             params.put(MAX_RESULTS, Arrays.asList(maxResultsArr));
         }
-    
-        if( userId == null || userId.isEmpty() ) { 
+
+        if( userId == null || userId.isEmpty() ) {
            throw new IllegalStateException("A user id is required for this operation: " + GetTasksByVariousFieldsCommand.class.getSimpleName() );
         }
         return context.getTaskQueryService().getTasksByVariousFields(userId, params, union);
@@ -244,23 +244,23 @@ public class GetTasksByVariousFieldsCommand extends UserGroupCallbackTaskCommand
     /**
      * Populates given list with group information taken from UserGroupCallback implementation
      * to allow proper query for tasks based on user assignments.
-     * @param entities - "raw" list of organizational entities 
+     * @param entities - "raw" list of organizational entities
      * @return if list is not null and not empty returns list of org entities populated with group info, otherwise same as argument
      */
     protected List<String> populateOrganizationalEntityWithGroupInfo(List<String> entities, TaskContext context) {
-    	if (entities != null && entities.size() > 0) {
-    		Set<String> groupIds = new HashSet<String>();
-    		for (String userId : entities) {
-    			List<String> tmp = doUserGroupCallbackOperation(userId, null, context);
-    			if (tmp != null) {
-    				groupIds.addAll(tmp);
-    			}
-    		}
-    		groupIds.addAll(entities);
-    		return new ArrayList<String>(groupIds);
-    	}
-    	
-    	return entities;
+        if (entities != null && entities.size() > 0) {
+            Set<String> groupIds = new HashSet<String>();
+            for (String userId : entities) {
+                List<String> tmp = doUserGroupCallbackOperation(userId, null, context);
+                if (tmp != null) {
+                    groupIds.addAll(tmp);
+                }
+            }
+            groupIds.addAll(entities);
+            return new ArrayList<String>(groupIds);
+        }
+
+        return entities;
     }
 
 }

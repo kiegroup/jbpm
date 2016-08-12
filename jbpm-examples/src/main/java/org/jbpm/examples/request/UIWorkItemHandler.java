@@ -45,30 +45,30 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 
 /**
- * 
+ *
  * @author <a href="mailto:kris_verlaenen@hotmail.com">Kris Verlaenen</a>
  */
 public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
 
     private static final long serialVersionUID = 510l;
-    
+
     private Map<WorkItem, WorkItemManager> workItems = new HashMap<WorkItem, WorkItemManager>();
     private JList workItemsList;
     private JButton selectButton;
-    
+
     public UIWorkItemHandler() {
         setSize(new Dimension(400, 300));
         setTitle("Human Tasks");
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         initializeComponent();
     }
-    
+
     private void initializeComponent() {
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         getRootPane().setLayout(new BorderLayout());
         getRootPane().add(panel, BorderLayout.CENTER);
-        
+
         workItemsList = new JList();
         workItemsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         workItemsList.addMouseListener(new MouseAdapter() {
@@ -90,7 +90,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
         c.fill = GridBagConstraints.BOTH;
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(workItemsList, c);
-        
+
         selectButton = new JButton("Select");
         selectButton.setEnabled(false);
         selectButton.addActionListener(new ActionListener() {
@@ -105,7 +105,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(selectButton, c);
     }
-    
+
     private void select() {
         WorkItem workItem = getSelectedWorkItem();
         if (workItem != null) {
@@ -113,7 +113,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
             dialog.setVisible(true);
         }
     }
-    
+
     public WorkItem getSelectedWorkItem() {
         int index = workItemsList.getSelectedIndex();
         if (index != -1) {
@@ -124,7 +124,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
         }
         return null;
     }
-    
+
     private void reloadWorkItemsList() {
         List<WorkItemWrapper> result = new ArrayList<WorkItemWrapper>();
         for (Iterator<WorkItem> iterator = workItems.keySet().iterator(); iterator.hasNext(); ) {
@@ -133,7 +133,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
         }
         workItemsList.setListData(result.toArray());
     }
-    
+
     public void complete(WorkItem workItem, Map<String, Object> results) {
         WorkItemManager manager = workItems.get(workItem);
         if (manager != null) {
@@ -143,7 +143,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
         }
         selectButton.setEnabled(getSelectedWorkItem() != null);
     }
-    
+
     public void abort(WorkItem workItem) {
         WorkItemManager manager = workItems.get(workItem);
         if (manager != null) {
@@ -153,7 +153,7 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
         }
         selectButton.setEnabled(getSelectedWorkItem() != null);
     }
-    
+
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
         workItems.remove(workItem);
         reloadWorkItemsList();
@@ -165,20 +165,20 @@ public class UIWorkItemHandler extends JFrame implements WorkItemHandler {
     }
 
     private class WorkItemWrapper {
-        
+
         private WorkItem workItem;
-        
+
         public WorkItemWrapper(WorkItem workItem) {
             this.workItem = workItem;
         }
-        
+
         public WorkItem getWorkItem() {
             return workItem;
         }
-        
+
         public String toString() {
             return workItem.getName() + " [" + workItem.getId() + "]: " + workItem.getParameter("TaskName");
         }
     }
-    
+
 }

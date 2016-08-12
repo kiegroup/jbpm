@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,9 +23,9 @@ import java.io.Serializable;
  */
 public class MyVariableSerializable implements Serializable {
 
-	private static final long serialVersionUID = 510l;
-	
-	private String text = "";
+    private static final long serialVersionUID = 510l;
+
+    private String text = "";
 
     public MyVariableSerializable(String string) {
         this.text = string;

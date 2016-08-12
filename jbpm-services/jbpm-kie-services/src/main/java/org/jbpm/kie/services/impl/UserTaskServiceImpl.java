@@ -59,113 +59,113 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
-	
-	private static final Logger logger = LoggerFactory.getLogger(UserTaskServiceImpl.class);
-	
-	private DeploymentService deploymentService;
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(UserTaskServiceImpl.class);
+
+    private DeploymentService deploymentService;
+
     private RuntimeDataService dataService;
-    
+
     private InternalTaskService nonProcessScopedTaskService;
 
-        
-	public void setDeploymentService(DeploymentService deploymentService) {
-		this.deploymentService = deploymentService;
-	}
 
-	public void setDataService(RuntimeDataService dataService) {
-		this.dataService = dataService;
-	}
-	
-	public void setNonProcessScopedTaskService(InternalTaskService nonProcessScopedTaskService) {
-		this.nonProcessScopedTaskService = nonProcessScopedTaskService;
-	}
-	
-	protected InternalTaskService getInternalTaskService() {
-		return this.nonProcessScopedTaskService;
-	}
+    public void setDeploymentService(DeploymentService deploymentService) {
+        this.deploymentService = deploymentService;
+    }
 
-	
-	// helper methods
-	protected RuntimeManager getRuntimeManager(UserTaskInstanceDesc task) {		
-		if (task != null && task.getDeploymentId() != null) {			
-			return deploymentService.getRuntimeManager(task.getDeploymentId());
-		}
-		InternalTaskService internalTaskService = getInternalTaskService();
-		if (internalTaskService != null) {
-			return new FalbackRuntimeManager(internalTaskService);
-		}
-		
-		return null;
-	}
-	
-	protected RuntimeManager getRuntimeManager(String deploymentId, Command<?> command) {		
-		if (deploymentId == null && command instanceof TaskCommand<?>) {
-			Long taskId = ((TaskCommand<?>) command).getTaskId();
-			if (taskId != null) {
-				UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-				deploymentId = task.getDeploymentId();
-			}
-		}
-		
-		RuntimeManager manager = deploymentService.getRuntimeManager(deploymentId);
-		if (manager == null) {
-			InternalTaskService internalTaskService = getInternalTaskService();
-			if (internalTaskService != null) {
-				manager = new FalbackRuntimeManager(internalTaskService);
-			} else {
-				logger.warn("Cannot find runtime manager for deployment {}", deploymentId);
-				return null;
-			}
-		}
-		
-		return manager;
-	}
+    public void setDataService(RuntimeDataService dataService) {
+        this.dataService = dataService;
+    }
 
-	@Override
-	public void activate(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
+    public void setNonProcessScopedTaskService(InternalTaskService nonProcessScopedTaskService) {
+        this.nonProcessScopedTaskService = nonProcessScopedTaskService;
+    }
 
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.activate(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
+    protected InternalTaskService getInternalTaskService() {
+        return this.nonProcessScopedTaskService;
+    }
 
-	@Override
-	public void claim(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
 
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.claim(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
+    // helper methods
+    protected RuntimeManager getRuntimeManager(UserTaskInstanceDesc task) {
+        if (task != null && task.getDeploymentId() != null) {
+            return deploymentService.getRuntimeManager(task.getDeploymentId());
+        }
+        InternalTaskService internalTaskService = getInternalTaskService();
+        if (internalTaskService != null) {
+            return new FalbackRuntimeManager(internalTaskService);
+        }
 
-	}
+        return null;
+    }
+
+    protected RuntimeManager getRuntimeManager(String deploymentId, Command<?> command) {
+        if (deploymentId == null && command instanceof TaskCommand<?>) {
+            Long taskId = ((TaskCommand<?>) command).getTaskId();
+            if (taskId != null) {
+                UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+                deploymentId = task.getDeploymentId();
+            }
+        }
+
+        RuntimeManager manager = deploymentService.getRuntimeManager(deploymentId);
+        if (manager == null) {
+            InternalTaskService internalTaskService = getInternalTaskService();
+            if (internalTaskService != null) {
+                manager = new FalbackRuntimeManager(internalTaskService);
+            } else {
+                logger.warn("Cannot find runtime manager for deployment {}", deploymentId);
+                return null;
+            }
+        }
+
+        return manager;
+    }
+
+    @Override
+    public void activate(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.activate(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void claim(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.claim(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+
+    }
 
     @Override
     public void complete(Long taskId, String userId, Map<String, Object> params) {
@@ -226,832 +226,832 @@ public class UserTaskServiceImpl implements UserTaskService, VariablesAware {
 
     }
 
-	@Override
-	public void delegate(Long taskId, String userId, String targetUserId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.delegate(taskId, userId, targetUserId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void exit(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.exit(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void fail(Long taskId, String userId, Map<String, Object> faultData) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		if (manager instanceof InternalRuntimeManager) {
-			faultData = process(faultData, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.fail(taskId, userId, faultData);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void forward(Long taskId, String userId, String targetEntityId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.forward(taskId, userId, targetEntityId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void release(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.release(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void resume(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.resume(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void skip(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.skip(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void start(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.start(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void stop(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.stop(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void suspend(Long taskId, String userId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.suspend(taskId, userId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void nominate(Long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			taskService.nominate(taskId, userId, potentialOwners);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void setPriority(Long taskId, int priority) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).setPriority(taskId, priority);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void setExpirationDate(Long taskId, Date date) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).setExpirationDate(taskId, date);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void setSkipable(Long taskId, boolean skipable) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).setSkipable(taskId, skipable);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-	
-	@Override
-	public void setName(Long taskId, String name) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			InternalI18NText text = (InternalI18NText)TaskModelProvider.getFactory().newI18NText();
-			text.setLanguage("en-UK");
-			text.setText(name);
-			
-			List<I18NText> names = new ArrayList<I18NText>();
-			names.add(text);
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).setTaskNames(taskId, names);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-		
-	}
-
-	@Override
-	public void setDescription(Long taskId, String description) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			InternalI18NText text = (InternalI18NText)TaskModelProvider.getFactory().newI18NText();
-			text.setLanguage("en-UK");
-			text.setText(description);
-			
-			List<I18NText> names = new ArrayList<I18NText>();
-			names.add(text);
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).setDescriptions(taskId, names);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public Long saveContent(Long taskId, Map<String, Object> values) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		if (manager instanceof InternalRuntimeManager) {
-			values = process(values, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return ((InternalTaskService)taskService).addContent(taskId, (Map<String, Object>)values);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-	
-	@Override
-	public void deleteContent(Long taskId, Long contentId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).deleteContent(taskId, contentId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Map<String, Object> getTaskOutputContentByTaskId(Long taskId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			Task taskInstanceById = taskService.getTaskById(taskId);
-	        long documentContentId = taskInstanceById.getTaskData().getOutputContentId();
-	        if (documentContentId > 0) {
-	            Content contentById = taskService.getContentById(documentContentId);
-	            if (contentById == null) {
-	                return new HashMap<String, Object>();
-	            }
-	            
-	            ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
-	            Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), ctx.getEnvironment(), ctx.getClassloader());
-	            return (Map<String, Object>) unmarshall;
-	        }
-	        return new HashMap<String, Object>();
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public Map<String, Object> getTaskInputContentByTaskId(Long taskId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			Task taskInstanceById = taskService.getTaskById(taskId);
-	        long documentContentId = taskInstanceById.getTaskData().getDocumentContentId();
-	        if (documentContentId > 0) {
-	            Content contentById = taskService.getContentById(documentContentId);
-	            if (contentById == null) {
-	                return new HashMap<String, Object>();
-	            }
-	            
-	            ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
-	            Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), ctx.getEnvironment(), ctx.getClassloader());
-	            return (Map<String, Object>) unmarshall;
-	        }
-	        return new HashMap<String, Object>();
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public Long addComment(Long taskId, String text, String addedBy, Date addedOn) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			InternalComment comment = (InternalComment)TaskModelProvider.getFactory().newComment();
-	        comment.setText(text);
-	        comment.setAddedAt(addedOn);
-	        comment.setAddedBy(TaskModelProvider.getFactory().newUser(addedBy));
-			return ((InternalTaskService)taskService).addComment(taskId, comment);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void deleteComment(Long taskId, Long commentId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).deleteComment(taskId, commentId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public List<Comment> getCommentsByTaskId(Long taskId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return Collections.emptyList();
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return ((InternalTaskService)taskService).getAllCommentsByTaskId(taskId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public Comment getCommentById(Long taskId, Long commentId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return ((InternalTaskService)taskService).getCommentById(commentId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public Long addAttachment(Long taskId, String userId, String name, Object attachment) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		if (manager instanceof InternalRuntimeManager) {
-			attachment = process(attachment, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			InternalAttachment att = (InternalAttachment) TaskModelProvider.getFactory().newAttachment();
-			att.setName(name);
-			att.setAccessType(AccessType.Inline);
-			att.setAttachedAt(new Date());
-			att.setAttachedBy(TaskModelProvider.getFactory().newUser(userId));
-			att.setContentType(attachment.getClass().getName());
-	        
-			
-			return ((InternalTaskService)taskService).execute(new AddAttachmentCommand(taskId, att, attachment));
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public void deleteAttachment(Long taskId, Long attachmentId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			((InternalTaskService)taskService).deleteAttachment(taskId, attachmentId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public Attachment getAttachmentById(Long taskId, Long attachmentId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return ((InternalTaskService)taskService).getAttachmentById(attachmentId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-	
-
-	@Override
-	public Object getAttachmentContentById(Long taskId, Long attachmentId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			// perform actual operation			
-			TaskService taskService = engine.getTaskService();
-			Attachment attachment = ((InternalTaskService)taskService).getAttachmentById(attachmentId);
-			
-	        long documentContentId = attachment.getAttachmentContentId();
-	        if (documentContentId > 0) {
-	            Content contentById = taskService.getContentById(documentContentId);
-	            if (contentById == null) {
-	                return null;
-	            }
-	            
-	            ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
-	            Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), ctx.getEnvironment(), ctx.getClassloader());
-	            return unmarshall;
-	        }
-	        return null;
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-
-	@Override
-	public List<Attachment> getAttachmentsByTaskId(Long taskId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			throw new TaskNotFoundException("Task with id " + taskId + " was not found");
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return Collections.emptyList();
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return ((InternalTaskService)taskService).getAllAttachmentsByTaskId(taskId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public <T> T execute(String deploymentId, Command<T> command) {
-		Long processInstanceId = CommonUtils.getProcessInstanceId(command);
-		
-		RuntimeManager manager = getRuntimeManager(deploymentId, command);
-		
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return taskService.execute(command);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-	
-
-	@Override
-	public <T> T execute(String deploymentId, Context<?> context, Command<T> command) {
-		RuntimeManager manager = getRuntimeManager(deploymentId, command);
-		RuntimeEngine engine = manager.getRuntimeEngine(context);
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return taskService.execute(command);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public Task getTask(Long taskId) {
-		UserTaskInstanceDesc task = dataService.getTaskById(taskId);
-		if (task == null) {
-			return null;
-		}
-
-		RuntimeManager manager = getRuntimeManager(task);
-		if (manager == null) {
-			logger.warn("Cannot find runtime manager for task {}", taskId);
-			return null;
-		}
-		RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
-		try {
-			TaskService taskService = engine.getTaskService();
-			// perform actual operation
-			return ((InternalTaskService)taskService).getTaskById(taskId);
-		} finally {
-			disposeRuntimeEngine(manager, engine);
-		}
-	}
-
-	@Override
-	public <T> T process(T variables, ClassLoader cl) {
-		// do nothing here as there is no need to process variables
-		return variables;
-	}
-	
-	protected void disposeRuntimeEngine(RuntimeManager manager, RuntimeEngine engine) {
-		manager.disposeRuntimeEngine(engine);
-	}
-	
-	private class FalbackRuntimeManager implements RuntimeManager {
-		
-		private InternalTaskService taskService;
-		
-		public FalbackRuntimeManager(InternalTaskService taskService) {
-			this.taskService = taskService;
-		}
-
-		@Override
-		public RuntimeEngine getRuntimeEngine(Context<?> context) {
-			return new RuntimeEngine() {
-				
-				@Override
-				public TaskService getTaskService() {
-					return taskService;
-				}
-				
-				@Override
-				public KieSession getKieSession() {
-					throw new UnsupportedOperationException("Not supported in this impl");
-				}
-				
-				@Override
-				public AuditService getAuditService() {
-					throw new UnsupportedOperationException("Not supported in this impl");
-				}
-			};
-		}
-
-		@Override
-		public String getIdentifier() {
-			return "fallback task service manager";
-		}
-
-		@Override
-		public void disposeRuntimeEngine(RuntimeEngine runtime) {
-			// do nothing
-			
-		}
-
-		@Override
-		public void close() {
-			// do nothing
-		}
+    @Override
+    public void delegate(Long taskId, String userId, String targetUserId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.delegate(taskId, userId, targetUserId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void exit(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.exit(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void fail(Long taskId, String userId, Map<String, Object> faultData) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        if (manager instanceof InternalRuntimeManager) {
+            faultData = process(faultData, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.fail(taskId, userId, faultData);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void forward(Long taskId, String userId, String targetEntityId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.forward(taskId, userId, targetEntityId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void release(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.release(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void resume(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.resume(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void skip(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.skip(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void start(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.start(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void stop(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.stop(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void suspend(Long taskId, String userId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.suspend(taskId, userId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void nominate(Long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            taskService.nominate(taskId, userId, potentialOwners);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void setPriority(Long taskId, int priority) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).setPriority(taskId, priority);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void setExpirationDate(Long taskId, Date date) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).setExpirationDate(taskId, date);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void setSkipable(Long taskId, boolean skipable) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).setSkipable(taskId, skipable);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void setName(Long taskId, String name) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            InternalI18NText text = (InternalI18NText)TaskModelProvider.getFactory().newI18NText();
+            text.setLanguage("en-UK");
+            text.setText(name);
+
+            List<I18NText> names = new ArrayList<I18NText>();
+            names.add(text);
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).setTaskNames(taskId, names);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+
+    }
+
+    @Override
+    public void setDescription(Long taskId, String description) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            InternalI18NText text = (InternalI18NText)TaskModelProvider.getFactory().newI18NText();
+            text.setLanguage("en-UK");
+            text.setText(description);
+
+            List<I18NText> names = new ArrayList<I18NText>();
+            names.add(text);
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).setDescriptions(taskId, names);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public Long saveContent(Long taskId, Map<String, Object> values) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        if (manager instanceof InternalRuntimeManager) {
+            values = process(values, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return ((InternalTaskService)taskService).addContent(taskId, (Map<String, Object>)values);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void deleteContent(Long taskId, Long contentId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).deleteContent(taskId, contentId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, Object> getTaskOutputContentByTaskId(Long taskId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            Task taskInstanceById = taskService.getTaskById(taskId);
+            long documentContentId = taskInstanceById.getTaskData().getOutputContentId();
+            if (documentContentId > 0) {
+                Content contentById = taskService.getContentById(documentContentId);
+                if (contentById == null) {
+                    return new HashMap<String, Object>();
+                }
+
+                ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
+                Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), ctx.getEnvironment(), ctx.getClassloader());
+                return (Map<String, Object>) unmarshall;
+            }
+            return new HashMap<String, Object>();
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, Object> getTaskInputContentByTaskId(Long taskId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            Task taskInstanceById = taskService.getTaskById(taskId);
+            long documentContentId = taskInstanceById.getTaskData().getDocumentContentId();
+            if (documentContentId > 0) {
+                Content contentById = taskService.getContentById(documentContentId);
+                if (contentById == null) {
+                    return new HashMap<String, Object>();
+                }
+
+                ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
+                Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), ctx.getEnvironment(), ctx.getClassloader());
+                return (Map<String, Object>) unmarshall;
+            }
+            return new HashMap<String, Object>();
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public Long addComment(Long taskId, String text, String addedBy, Date addedOn) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            InternalComment comment = (InternalComment)TaskModelProvider.getFactory().newComment();
+            comment.setText(text);
+            comment.setAddedAt(addedOn);
+            comment.setAddedBy(TaskModelProvider.getFactory().newUser(addedBy));
+            return ((InternalTaskService)taskService).addComment(taskId, comment);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void deleteComment(Long taskId, Long commentId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).deleteComment(taskId, commentId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public List<Comment> getCommentsByTaskId(Long taskId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return Collections.emptyList();
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return ((InternalTaskService)taskService).getAllCommentsByTaskId(taskId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public Comment getCommentById(Long taskId, Long commentId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return ((InternalTaskService)taskService).getCommentById(commentId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public Long addAttachment(Long taskId, String userId, String name, Object attachment) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        if (manager instanceof InternalRuntimeManager) {
+            attachment = process(attachment, ((InternalRuntimeManager) manager).getEnvironment().getClassLoader());
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            InternalAttachment att = (InternalAttachment) TaskModelProvider.getFactory().newAttachment();
+            att.setName(name);
+            att.setAccessType(AccessType.Inline);
+            att.setAttachedAt(new Date());
+            att.setAttachedBy(TaskModelProvider.getFactory().newUser(userId));
+            att.setContentType(attachment.getClass().getName());
+
+
+            return ((InternalTaskService)taskService).execute(new AddAttachmentCommand(taskId, att, attachment));
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public void deleteAttachment(Long taskId, Long attachmentId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            ((InternalTaskService)taskService).deleteAttachment(taskId, attachmentId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public Attachment getAttachmentById(Long taskId, Long attachmentId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return ((InternalTaskService)taskService).getAttachmentById(attachmentId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+
+    @Override
+    public Object getAttachmentContentById(Long taskId, Long attachmentId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            // perform actual operation
+            TaskService taskService = engine.getTaskService();
+            Attachment attachment = ((InternalTaskService)taskService).getAttachmentById(attachmentId);
+
+            long documentContentId = attachment.getAttachmentContentId();
+            if (documentContentId > 0) {
+                Content contentById = taskService.getContentById(documentContentId);
+                if (contentById == null) {
+                    return null;
+                }
+
+                ContentMarshallerContext ctx = TaskContentRegistry.get().getMarshallerContext(task.getDeploymentId());
+                Object unmarshall = ContentMarshallerHelper.unmarshall(contentById.getContent(), ctx.getEnvironment(), ctx.getClassloader());
+                return unmarshall;
+            }
+            return null;
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+
+    @Override
+    public List<Attachment> getAttachmentsByTaskId(Long taskId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            throw new TaskNotFoundException("Task with id " + taskId + " was not found");
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return Collections.emptyList();
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return ((InternalTaskService)taskService).getAllAttachmentsByTaskId(taskId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public <T> T execute(String deploymentId, Command<T> command) {
+        Long processInstanceId = CommonUtils.getProcessInstanceId(command);
+
+        RuntimeManager manager = getRuntimeManager(deploymentId, command);
+
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return taskService.execute(command);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+
+    @Override
+    public <T> T execute(String deploymentId, Context<?> context, Command<T> command) {
+        RuntimeManager manager = getRuntimeManager(deploymentId, command);
+        RuntimeEngine engine = manager.getRuntimeEngine(context);
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return taskService.execute(command);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public Task getTask(Long taskId) {
+        UserTaskInstanceDesc task = dataService.getTaskById(taskId);
+        if (task == null) {
+            return null;
+        }
+
+        RuntimeManager manager = getRuntimeManager(task);
+        if (manager == null) {
+            logger.warn("Cannot find runtime manager for task {}", taskId);
+            return null;
+        }
+        RuntimeEngine engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(task.getProcessInstanceId()));
+        try {
+            TaskService taskService = engine.getTaskService();
+            // perform actual operation
+            return ((InternalTaskService)taskService).getTaskById(taskId);
+        } finally {
+            disposeRuntimeEngine(manager, engine);
+        }
+    }
+
+    @Override
+    public <T> T process(T variables, ClassLoader cl) {
+        // do nothing here as there is no need to process variables
+        return variables;
+    }
+
+    protected void disposeRuntimeEngine(RuntimeManager manager, RuntimeEngine engine) {
+        manager.disposeRuntimeEngine(engine);
+    }
+
+    private class FalbackRuntimeManager implements RuntimeManager {
+
+        private InternalTaskService taskService;
+
+        public FalbackRuntimeManager(InternalTaskService taskService) {
+            this.taskService = taskService;
+        }
+
+        @Override
+        public RuntimeEngine getRuntimeEngine(Context<?> context) {
+            return new RuntimeEngine() {
+
+                @Override
+                public TaskService getTaskService() {
+                    return taskService;
+                }
+
+                @Override
+                public KieSession getKieSession() {
+                    throw new UnsupportedOperationException("Not supported in this impl");
+                }
+
+                @Override
+                public AuditService getAuditService() {
+                    throw new UnsupportedOperationException("Not supported in this impl");
+                }
+            };
+        }
+
+        @Override
+        public String getIdentifier() {
+            return "fallback task service manager";
+        }
+
+        @Override
+        public void disposeRuntimeEngine(RuntimeEngine runtime) {
+            // do nothing
+
+        }
+
+        @Override
+        public void close() {
+            // do nothing
+        }
 
         @Override
         public void signalEvent(String type, Object event) {
             // do nothing
-            
+
         }
-		
-	}
+
+    }
 
 }

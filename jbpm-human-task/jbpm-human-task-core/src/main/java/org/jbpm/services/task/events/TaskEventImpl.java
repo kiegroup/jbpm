@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,31 +23,31 @@ import org.kie.internal.task.api.TaskEvent;
 
 public class TaskEventImpl extends EventObject implements TaskEvent {
 
-	private static final long serialVersionUID = -3579310906511209132L;
+    private static final long serialVersionUID = -3579310906511209132L;
 
-	private Task task;
-	private transient TaskContext taskContext;
-	
-	public TaskEventImpl(Task task, TaskContext context) {
-		super(task);
-		this.task = task;
-		this.taskContext = context;
-	}
+    private Task task;
+    private transient TaskContext taskContext;
 
-	public Task getTask() {
-		return task;
-	}
+    public TaskEventImpl(Task task, TaskContext context) {
+        super(task);
+        this.task = task;
+        this.taskContext = context;
+    }
 
-	public void setTask(Task task) {
-		this.task = task;
-	}
+    public Task getTask() {
+        return task;
+    }
 
-	public TaskContext getTaskContext() {
-		return taskContext;
-	}
+    public void setTask(Task task) {
+        this.task = task;
+    }
 
-	public void setTaskContext(TaskContext context) {
-		this.taskContext = context;
-	}
-	
+    public TaskContext getTaskContext() {
+        return taskContext;
+    }
+
+    public void setTaskContext(TaskContext context) {
+        this.taskContext = context;
+    }
+
 }

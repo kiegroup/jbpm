@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Recipients {
-	
+
     private List<Recipient> list = new ArrayList<Recipient>();
 
     public void setRecipients(List<Recipient> recipients) {
-    	for (Recipient recipient: recipients) {
-    		addRecipient(recipient);
-    	}
+        for (Recipient recipient: recipients) {
+            addRecipient(recipient);
+        }
     }
 
     public boolean addRecipient(Recipient recipient) {

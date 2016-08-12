@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -25,13 +25,13 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetPendingTasksByUserCommand extends TaskCommand<Integer> {
 
-	private static final long serialVersionUID = -836520791223188840L;
+    private static final long serialVersionUID = -836520791223188840L;
 
-	public GetPendingTasksByUserCommand() {
-	}
-	
-	public GetPendingTasksByUserCommand(String userId) {
-		this.userId = userId;
+    public GetPendingTasksByUserCommand() {
+    }
+
+    public GetPendingTasksByUserCommand(String userId) {
+        this.userId = userId;
     }
 
     public Integer execute(Context cntxt) {

@@ -38,20 +38,20 @@ public class FindSubProcessInstancesCommand extends AuditCommand<List<ProcessIns
     @XmlAttribute(required=true, name="process-instance-id")
     @XmlSchemaType(name="long")
     private Long processInstanceId;
-    
-    public FindSubProcessInstancesCommand() { 
+
+    public FindSubProcessInstancesCommand() {
         // no-arg for JAXB
     }
-    
+
     public FindSubProcessInstancesCommand(long processInstanceId) {
         this.processInstanceId = processInstanceId;
-	}
-	
+    }
+
     public List<ProcessInstanceLog> execute(Context cntxt) {
         setLogEnvironment(cntxt);
         return this.auditLogService.findSubProcessInstances(processInstanceId);
     }
-   
+
     @Override
     public Long getProcessInstanceId() {
         return processInstanceId;

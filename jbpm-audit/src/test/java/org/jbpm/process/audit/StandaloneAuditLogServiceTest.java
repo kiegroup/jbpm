@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -43,22 +43,22 @@ public class StandaloneAuditLogServiceTest extends AbstractAuditLogServiceTest {
 
     private static final Logger logger = LoggerFactory.getLogger(StandaloneAuditLogServiceTest.class);
     private HashMap<String, Object> context;
-   
+
     private AuditLogService auditLogService;
     private KieSession ksession;
-    
+
     @Before
     public void setUp() throws Exception {
         // persistence
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
-        
+
         // create a new session
         Environment env = createEnvironment(context);
         KieBase kbase = createKnowledgeBase();
         ksession = createKieSession(kbase, env);
         new JPAWorkingMemoryDbLogger(ksession);
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", new SystemOutWorkItemHandler());
-       
+
         // log service
         auditLogService = new JPAAuditLogService(env);
     }
@@ -67,38 +67,38 @@ public class StandaloneAuditLogServiceTest extends AbstractAuditLogServiceTest {
     public void tearDown() throws Exception {
         cleanUp(context);
     }
-    
-    private <T> T setAuditLogServiceAndExecute(AuditCommand<T> cmd) { 
-       cmd.setAuditLogService(auditLogService); 
+
+    private <T> T setAuditLogServiceAndExecute(AuditCommand<T> cmd) {
+       cmd.setAuditLogService(auditLogService);
        return cmd.execute(null);
     }
 
     // TESTS ----------------------------------------------------------------------------------------------------------------------
-    
+
     @Test
-    public void setAuditLogServiceForCommandTest() { 
+    public void setAuditLogServiceForCommandTest() {
         String PROCESS_ID = "com.sample.ruleflow";
         // record the initial count to compare to later
         List<ProcessInstanceLog> processInstances = setAuditLogServiceAndExecute(new FindProcessInstancesCommand(PROCESS_ID));
         int initialProcessInstanceSize = processInstances.size();
-        
+
         // start process instance
         long processInstanceId = ksession.startProcess(PROCESS_ID).getId();
-        
+
         logger.debug("Checking process instances for process '{}'", PROCESS_ID);
         processInstances = setAuditLogServiceAndExecute(new FindProcessInstancesCommand(PROCESS_ID));
         assertEquals(initialProcessInstanceSize + 1, processInstances.size());
         ProcessInstanceLog processInstance = processInstances.get(initialProcessInstanceSize);
-        
+
         logger.debug( "{} -> {} - {}",processInstance.toString(), processInstance.getStart(), processInstance.getEnd());
-        
+
         assertNotNull(processInstance.getStart());
         assertNotNull("ProcessInstanceLog does not contain end date.", processInstance.getEnd());
         assertEquals(processInstanceId, processInstance.getProcessInstanceId().longValue());
         assertEquals(PROCESS_ID, processInstance.getProcessId());
         List<NodeInstanceLog> nodeInstances = setAuditLogServiceAndExecute(new FindNodeInstancesCommand(processInstanceId));
-        assertEquals(6, nodeInstances.size()); 
-        
+        assertEquals(6, nodeInstances.size());
+
         setAuditLogServiceAndExecute(new ClearHistoryLogsCommand());
         nodeInstances = setAuditLogServiceAndExecute(new FindNodeInstancesCommand(processInstanceId));
         assertEquals(0, nodeInstances.size());

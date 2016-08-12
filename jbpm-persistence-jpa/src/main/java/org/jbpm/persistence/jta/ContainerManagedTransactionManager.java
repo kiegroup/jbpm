@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
  * Dedicated implementation of <code>TransactionManager</code> that should be used when:
  * <ul>
  *  <li>jBPM engine is embedded in Container Managed Transaction (CMT) environment like EJB container</li>
- *  <li>container that does not allow accessing UserTransaction (when running in CMT mode) 
+ *  <li>container that does not allow accessing UserTransaction (when running in CMT mode)
  *  - e.g. WebSphere Appliation Server</li>
  * </ul>
- * Instance of this transaction manager must be set on Environment together with 
+ * Instance of this transaction manager must be set on Environment together with
  * Persistence context manager instance to take effect.
  * <code>
  *      Environment env = EnvironmentFactory.newEnvironment();
@@ -49,11 +49,11 @@ public class ContainerManagedTransactionManager implements TransactionManager {
 
     private static Logger logger = LoggerFactory.getLogger(ContainerManagedTransactionManager.class);
     protected TransactionSynchronizationRegistry txSyncRegistry;
-    
+
     public ContainerManagedTransactionManager() {
         this.txSyncRegistry = (TransactionSynchronizationRegistry) findTransactionSynchronizationRegistry();
     }
-  
+
     public boolean begin() {
         // do nothing
         return false;
@@ -70,7 +70,7 @@ public class ContainerManagedTransactionManager implements TransactionManager {
     }
 
     public void registerTransactionSynchronization(TransactionSynchronization arg0) {
-        
+
         if (txSyncRegistry != null) {
             TransactionSynchronizationRegistryHelper.registerTransactionSynchronization( txSyncRegistry, arg0 );
         }
@@ -110,14 +110,14 @@ public class ContainerManagedTransactionManager implements TransactionManager {
         return null;
     }
 
-	@Override
-	public void putResource(Object key, Object resource) {
-		TransactionSynchronizationRegistryHelper.putResource(this.txSyncRegistry, key, resource);
-	}
+    @Override
+    public void putResource(Object key, Object resource) {
+        TransactionSynchronizationRegistryHelper.putResource(this.txSyncRegistry, key, resource);
+    }
 
-	@Override
-	public Object getResource(Object key) {
-		return TransactionSynchronizationRegistryHelper.getResource(this.txSyncRegistry, key);
-	}
+    @Override
+    public Object getResource(Object key) {
+        return TransactionSynchronizationRegistryHelper.getResource(this.txSyncRegistry, key);
+    }
 
 }

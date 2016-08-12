@@ -38,23 +38,23 @@ public class ExtendedNodeBuilder
                       Node node) {
         ExtendedNodeImpl extendedNode = ( ExtendedNodeImpl ) node;
         for (String type: extendedNode.getActionTypes()) {
-        	List<DroolsAction> actions = extendedNode.getActions(type);
-        	if (actions != null) {
-	        	for (DroolsAction droolsAction: actions) {
-	                buildAction(droolsAction, context, (NodeImpl) node);
-	        	}
-        	}
+            List<DroolsAction> actions = extendedNode.getActions(type);
+            if (actions != null) {
+                for (DroolsAction droolsAction: actions) {
+                    buildAction(droolsAction, context, (NodeImpl) node);
+                }
+            }
         }
     }
 
     protected void buildAction(DroolsAction droolsAction, ProcessBuildContext context, NodeImpl node) {
-    	DroolsConsequenceAction action = (DroolsConsequenceAction) droolsAction;
+        DroolsConsequenceAction action = (DroolsConsequenceAction) droolsAction;
         ActionDescr actionDescr = new ActionDescr();
         actionDescr.setText( action.getConsequence() );
         actionDescr.setResource(context.getProcessDescr().getResource());
 
         ProcessDialect dialect = ProcessDialectRegistry.getDialect( action.getDialect() );
-    	dialect.getActionBuilder().build( context, action, actionDescr, node);
+        dialect.getActionBuilder().build( context, action, actionDescr, node);
     }
 
 }

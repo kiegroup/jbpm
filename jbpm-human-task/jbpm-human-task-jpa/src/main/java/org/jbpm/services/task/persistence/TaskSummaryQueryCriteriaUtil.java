@@ -501,8 +501,8 @@ public class TaskSummaryQueryCriteriaUtil extends AbstractTaskQueryCriteriaUtil 
         }
         return predicate;
     }
-    
-    
+
+
 
     @SuppressWarnings("unchecked")
     private static <T> Predicate createTaskUserRolesLimitPredicate(QueryCriteria criteria, CriteriaQuery<T> criteriaQuery, CriteriaBuilder builder) {
@@ -633,7 +633,7 @@ public class TaskSummaryQueryCriteriaUtil extends AbstractTaskQueryCriteriaUtil 
         }
         return (Expression<?>) orderBySelection;
     }
-    
+
     public static <Q,T> Predicate taskSpecificCreatePredicateFromSingleCriteria(
             CriteriaQuery<Q> query, CriteriaBuilder builder,
             QueryCriteria criteria, QueryWhere queryWhere) {

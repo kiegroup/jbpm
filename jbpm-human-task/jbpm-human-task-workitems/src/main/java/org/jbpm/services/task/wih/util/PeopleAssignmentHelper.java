@@ -33,97 +33,97 @@ import org.kie.internal.task.api.model.InternalTaskData;
 
 
 /**
- * A class responsible for assigning the various ownerships (actors, groups, business 
- * administrators, and task stakeholders) from a <code>WorkItem</code> to a <code>Task</code>. 
+ * A class responsible for assigning the various ownerships (actors, groups, business
+ * administrators, and task stakeholders) from a <code>WorkItem</code> to a <code>Task</code>.
  * This class consolidates common code for reuse across multiple <code>WorkItemHandler</code>s.
  */
 public class PeopleAssignmentHelper {
 
-	public static final String ACTOR_ID = "ActorId";
-	public static final String GROUP_ID = "GroupId";
-	public static final String BUSINESSADMINISTRATOR_ID = "BusinessAdministratorId";
+    public static final String ACTOR_ID = "ActorId";
+    public static final String GROUP_ID = "GroupId";
+    public static final String BUSINESSADMINISTRATOR_ID = "BusinessAdministratorId";
     public static final String BUSINESSADMINISTRATOR_GROUP_ID = "BusinessAdministratorGroupId";
-	public static final String TASKSTAKEHOLDER_ID = "TaskStakeholderId";
+    public static final String TASKSTAKEHOLDER_ID = "TaskStakeholderId";
     public static final String EXCLUDED_OWNER_ID = "ExcludedOwnerId";
     public static final String RECIPIENT_ID = "RecipientId";
-    
+
     private String separator;
-    
+
     public PeopleAssignmentHelper() {
         this.separator = System.getProperty("org.jbpm.ht.user.separator", ",");
     }
-	
+
     public PeopleAssignmentHelper(String separator) {
         this.separator = separator;
     }
-    
-	public void handlePeopleAssignments(WorkItem workItem, InternalTask task, InternalTaskData taskData) {
-		
-		InternalPeopleAssignments peopleAssignments = getNullSafePeopleAssignments(task);
-        
-		assignActors(workItem, peopleAssignments, taskData);
-		assignGroups(workItem, peopleAssignments);		
-		assignBusinessAdministrators(workItem, peopleAssignments);
-		assignTaskStakeholders(workItem, peopleAssignments);
+
+    public void handlePeopleAssignments(WorkItem workItem, InternalTask task, InternalTaskData taskData) {
+
+        InternalPeopleAssignments peopleAssignments = getNullSafePeopleAssignments(task);
+
+        assignActors(workItem, peopleAssignments, taskData);
+        assignGroups(workItem, peopleAssignments);
+        assignBusinessAdministrators(workItem, peopleAssignments);
+        assignTaskStakeholders(workItem, peopleAssignments);
         assignExcludedOwners(workItem, peopleAssignments);
         assignRecipients(workItem, peopleAssignments);
-		
-		task.setPeopleAssignments(peopleAssignments);
-        
-	}
-	
-	protected void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments, InternalTaskData taskData) {
-		
-        String actorIds = (String) workItem.getParameter(ACTOR_ID);        
+
+        task.setPeopleAssignments(peopleAssignments);
+
+    }
+
+    protected void assignActors(WorkItem workItem, PeopleAssignments peopleAssignments, InternalTaskData taskData) {
+
+        String actorIds = (String) workItem.getParameter(ACTOR_ID);
         List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
-        
+
         processPeopleAssignments(actorIds, potentialOwners, true);
 
         // Set the first user as creator ID??? hmmm might be wrong
         if (potentialOwners.size() > 0 && taskData.getCreatedBy() == null) {
-        	
-        	OrganizationalEntity firstPotentialOwner = potentialOwners.get(0);
-        	taskData.setCreatedBy((User) firstPotentialOwner);
+
+            OrganizationalEntity firstPotentialOwner = potentialOwners.get(0);
+            taskData.setCreatedBy((User) firstPotentialOwner);
 
         }
-        
-	}
-	
-	protected void assignGroups(WorkItem workItem, PeopleAssignments peopleAssignments) {
-	
+
+    }
+
+    protected void assignGroups(WorkItem workItem, PeopleAssignments peopleAssignments) {
+
         String groupIds = (String) workItem.getParameter(GROUP_ID);
         List<OrganizationalEntity> potentialOwners = peopleAssignments.getPotentialOwners();
-        
-        processPeopleAssignments(groupIds, potentialOwners, false);
-        
-	}
 
-	protected void assignBusinessAdministrators(WorkItem workItem, PeopleAssignments peopleAssignments) {
+        processPeopleAssignments(groupIds, potentialOwners, false);
+
+    }
+
+    protected void assignBusinessAdministrators(WorkItem workItem, PeopleAssignments peopleAssignments) {
         String businessAdminGroupIds = (String) workItem.getParameter(BUSINESSADMINISTRATOR_GROUP_ID);
-		String businessAdministratorIds = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
-		
+        String businessAdministratorIds = (String) workItem.getParameter(BUSINESSADMINISTRATOR_ID);
+
         List<OrganizationalEntity> businessAdministrators = peopleAssignments.getBusinessAdministrators();
         if (!hasAdminAssigned(businessAdministrators)) {
             User administrator = TaskModelProvider.getFactory().newUser();
-        	((InternalOrganizationalEntity) administrator).setId("Administrator");        
+            ((InternalOrganizationalEntity) administrator).setId("Administrator");
             businessAdministrators.add(administrator);
             Group adminGroup = TaskModelProvider.getFactory().newGroup();
-        	((InternalOrganizationalEntity) adminGroup).setId("Administrators");        
+            ((InternalOrganizationalEntity) adminGroup).setId("Administrators");
             businessAdministrators.add(adminGroup);
         }
-        
+
         processPeopleAssignments(businessAdministratorIds, businessAdministrators, true);
         processPeopleAssignments(businessAdminGroupIds, businessAdministrators, false);
-	}
-	
-	protected void assignTaskStakeholders(WorkItem workItem, InternalPeopleAssignments peopleAssignments) {
-		
-		String taskStakehodlerIds = (String) workItem.getParameter(TASKSTAKEHOLDER_ID);
-		List<OrganizationalEntity> taskStakeholders = peopleAssignments.getTaskStakeholders();
+    }
 
-		processPeopleAssignments(taskStakehodlerIds, taskStakeholders, true);
-		
-	}
+    protected void assignTaskStakeholders(WorkItem workItem, InternalPeopleAssignments peopleAssignments) {
+
+        String taskStakehodlerIds = (String) workItem.getParameter(TASKSTAKEHOLDER_ID);
+        List<OrganizationalEntity> taskStakeholders = peopleAssignments.getTaskStakeholders();
+
+        processPeopleAssignments(taskStakehodlerIds, taskStakeholders, true);
+
+    }
 
     protected void assignExcludedOwners(WorkItem workItem, InternalPeopleAssignments peopleAssignments) {
 
@@ -143,7 +143,7 @@ public class PeopleAssignmentHelper {
 
     }
 
-	protected void processPeopleAssignments(String peopleAssignmentIds, List<OrganizationalEntity> organizationalEntities, boolean user) {
+    protected void processPeopleAssignments(String peopleAssignmentIds, List<OrganizationalEntity> organizationalEntities, boolean user) {
 
         if (peopleAssignmentIds != null && peopleAssignmentIds.trim().length() > 0) {
 
@@ -160,46 +160,46 @@ public class PeopleAssignmentHelper {
                 if (!exists) {
                     OrganizationalEntity organizationalEntity = null;
                     if (user) {
-                    	organizationalEntity = TaskModelProvider.getFactory().newUser();
-                    	((InternalOrganizationalEntity) organizationalEntity).setId(id);
-                        
+                        organizationalEntity = TaskModelProvider.getFactory().newUser();
+                        ((InternalOrganizationalEntity) organizationalEntity).setId(id);
+
                     } else {
-                    	organizationalEntity = TaskModelProvider.getFactory().newGroup();
-                    	((InternalOrganizationalEntity) organizationalEntity).setId(id);
+                        organizationalEntity = TaskModelProvider.getFactory().newGroup();
+                        ((InternalOrganizationalEntity) organizationalEntity).setId(id);
                     }
                     organizationalEntities.add(organizationalEntity);
 
                 }
             }
         }
-	}
-	
-	protected InternalPeopleAssignments getNullSafePeopleAssignments(Task task) {
-		
-		InternalPeopleAssignments peopleAssignments = (InternalPeopleAssignments) task.getPeopleAssignments();
-        
+    }
+
+    protected InternalPeopleAssignments getNullSafePeopleAssignments(Task task) {
+
+        InternalPeopleAssignments peopleAssignments = (InternalPeopleAssignments) task.getPeopleAssignments();
+
         if (peopleAssignments == null) {
-        	
-        	peopleAssignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
-        	peopleAssignments.setPotentialOwners(new ArrayList<OrganizationalEntity>());
-        	peopleAssignments.setBusinessAdministrators(new ArrayList<OrganizationalEntity>());
-        	peopleAssignments.setExcludedOwners(new ArrayList<OrganizationalEntity>());
-        	peopleAssignments.setRecipients(new ArrayList<OrganizationalEntity>());
-        	peopleAssignments.setTaskStakeholders(new ArrayList<OrganizationalEntity>());
+
+            peopleAssignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
+            peopleAssignments.setPotentialOwners(new ArrayList<OrganizationalEntity>());
+            peopleAssignments.setBusinessAdministrators(new ArrayList<OrganizationalEntity>());
+            peopleAssignments.setExcludedOwners(new ArrayList<OrganizationalEntity>());
+            peopleAssignments.setRecipients(new ArrayList<OrganizationalEntity>());
+            peopleAssignments.setTaskStakeholders(new ArrayList<OrganizationalEntity>());
 
         }
-        
-		return peopleAssignments;
-		
-	}
-	
-	protected boolean hasAdminAssigned(Collection<OrganizationalEntity> businessAdmins) {
-	    for (OrganizationalEntity entity : businessAdmins) {
-	        if ("Administrator".equals(entity.getId()) || "Administrators".equals(entity.getId())) {
-	            return true;
-	        }
-	    }
-	    return false;
-	}
-	
+
+        return peopleAssignments;
+
+    }
+
+    protected boolean hasAdminAssigned(Collection<OrganizationalEntity> businessAdmins) {
+        for (OrganizationalEntity entity : businessAdmins) {
+            if ("Administrator".equals(entity.getId()) || "Administrators".equals(entity.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

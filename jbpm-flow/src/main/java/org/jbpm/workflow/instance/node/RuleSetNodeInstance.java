@@ -47,13 +47,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Runtime counterpart of a ruleset node.
- * 
+ *
  */
 public class RuleSetNodeInstance extends StateBasedNodeInstance implements EventListener {
 
     private static final long serialVersionUID = 510l;
     private static final Logger logger = LoggerFactory.getLogger(RuleSetNodeInstance.class);
-    
+
     private Map<String, FactHandle> factHandles = new HashMap<String, FactHandle>();
     private String ruleFlowGroup;
 
@@ -62,106 +62,106 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
     }
 
     public void internalTrigger(final NodeInstance from, String type) {
-    	super.internalTrigger(from, type);
-    	// if node instance was cancelled, abort
-		if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
-			return;
-		}
-    	if ( !org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals( type ) ) {
+        super.internalTrigger(from, type);
+        // if node instance was cancelled, abort
+        if (getNodeInstanceContainer().getNodeInstance(getId()) == null) {
+            return;
+        }
+        if ( !org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals( type ) ) {
             throw new IllegalArgumentException( "A RuleSetNode only accepts default incoming connections!" );
         }
-    	// first set rule flow group
-    	setRuleFlowGroup(resolveRuleFlowGroup(getRuleSetNode().getRuleFlowGroup()));
-    	
-    	//proceed
-    	KnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
-    	Map<String, Object> inputs = evaluateParameters(getRuleSetNode());
-    	for (Entry<String, Object> entry : inputs.entrySet()) {
-    	    String inputKey = getRuleFlowGroup() + "_" +getProcessInstance().getId() +"_"+entry.getKey();
-    	    
-    	    factHandles.put(inputKey, kruntime.insert(entry.getValue()));
-    	}
-    	
+        // first set rule flow group
+        setRuleFlowGroup(resolveRuleFlowGroup(getRuleSetNode().getRuleFlowGroup()));
+
+        //proceed
+        KnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+        Map<String, Object> inputs = evaluateParameters(getRuleSetNode());
+        for (Entry<String, Object> entry : inputs.entrySet()) {
+            String inputKey = getRuleFlowGroup() + "_" +getProcessInstance().getId() +"_"+entry.getKey();
+
+            factHandles.put(inputKey, kruntime.insert(entry.getValue()));
+        }
+
         addRuleSetListener();
         ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
-        	.activateRuleFlowGroup( getRuleFlowGroup(), getProcessInstance().getId(), getUniqueId() );
+            .activateRuleFlowGroup( getRuleFlowGroup(), getProcessInstance().getId(), getUniqueId() );
     }
 
     public void addEventListeners() {
         super.addEventListeners();
         addRuleSetListener();
     }
-    
+
     private String getRuleSetEventType() {
-    	InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
-    	if (kruntime instanceof StatefulKnowledgeSession) {
-    		return "RuleFlowGroup_" + getRuleFlowGroup() + "_" + ((StatefulKnowledgeSession) kruntime).getIdentifier();
-    	} else {
-    		return "RuleFlowGroup_" + getRuleFlowGroup();
-    	}
+        InternalKnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+        if (kruntime instanceof StatefulKnowledgeSession) {
+            return "RuleFlowGroup_" + getRuleFlowGroup() + "_" + ((StatefulKnowledgeSession) kruntime).getIdentifier();
+        } else {
+            return "RuleFlowGroup_" + getRuleFlowGroup();
+        }
     }
-    
+
     private void addRuleSetListener() {
-    	getProcessInstance().addEventListener(getRuleSetEventType(), this, true);
+        getProcessInstance().addEventListener(getRuleSetEventType(), this, true);
     }
 
     public void removeEventListeners() {
         super.removeEventListeners();
-    	getProcessInstance().removeEventListener(getRuleSetEventType(), this, true);
+        getProcessInstance().removeEventListener(getRuleSetEventType(), this, true);
     }
 
     public void cancel() {
         super.cancel();
         ((InternalAgenda) getProcessInstance().getKnowledgeRuntime().getAgenda())
-        	.deactivateRuleFlowGroup( getRuleFlowGroup() );
+            .deactivateRuleFlowGroup( getRuleFlowGroup() );
     }
 
-	public void signalEvent(String type, Object event) {
-		if (getRuleSetEventType().equals(type)) {
+    public void signalEvent(String type, Object event) {
+        if (getRuleSetEventType().equals(type)) {
             removeEventListeners();
             retractFacts();
             triggerCompleted();
-		}
+        }
     }
-	
-	public void retractFacts() {
-	    Map<String, Object> objects = new HashMap<String, Object>();
-	    KnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
-	    
-	    for (Entry<String, FactHandle> entry : factHandles.entrySet()) {
-	        
+
+    public void retractFacts() {
+        Map<String, Object> objects = new HashMap<String, Object>();
+        KnowledgeRuntime kruntime = getProcessInstance().getKnowledgeRuntime();
+
+        for (Entry<String, FactHandle> entry : factHandles.entrySet()) {
+
             Object object = ((StatefulKnowledgeSession)kruntime).getObject(entry.getValue());
             String key = entry.getKey();
             key = key.replaceAll(getRuleFlowGroup()+"_", "");
             key = key.replaceAll(getProcessInstance().getId()+"_", "");
             objects.put(key , object);
-            
+
             kruntime.delete(entry.getValue());
-	        
-	    }
-	    
-	    RuleSetNode ruleSetNode = getRuleSetNode();
+
+        }
+
+        RuleSetNode ruleSetNode = getRuleSetNode();
         if (ruleSetNode != null) {
             for (Iterator<DataAssociation> iterator = ruleSetNode.getOutAssociations().iterator(); iterator.hasNext(); ) {
                 DataAssociation association = iterator.next();
                 if (association.getTransformation() != null) {
-                	Transformation transformation = association.getTransformation();
-                	DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
-                	if (transformer != null) {
-                		Object parameterValue = transformer.transform(transformation.getCompiledExpression(), objects);
-                		VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+                    Transformation transformation = association.getTransformation();
+                    DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
+                    if (transformer != null) {
+                        Object parameterValue = transformer.transform(transformation.getCompiledExpression(), objects);
+                        VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
                         resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
                         if (variableScopeInstance != null && parameterValue != null) {
-                              
+
                             variableScopeInstance.setVariable(association.getTarget(), parameterValue);
                         } else {
                             logger.warn("Could not find variable scope for variable {}", association.getTarget());
                             logger.warn("Continuing without setting variable.");
                         }
-                		if (parameterValue != null) {
-                			variableScopeInstance.setVariable(association.getTarget(), parameterValue);
+                        if (parameterValue != null) {
+                            variableScopeInstance.setVariable(association.getTarget(), parameterValue);
                         }
-                	}
+                    }
                 } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
                     VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
                     resolveContextInstance(VariableScope.VARIABLE_SCOPE, association.getTarget());
@@ -185,26 +185,26 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                         logger.warn("Could not find variable scope for variable {}", association.getTarget());
                     }
 
-                }               
+                }
             }
         }
         factHandles.clear();
-	}
-	
-	protected Map<String, Object> evaluateParameters(RuleSetNode ruleSetNode) {
-	    Map<String, Object> replacements = new HashMap<String, Object>();
-	    
+    }
+
+    protected Map<String, Object> evaluateParameters(RuleSetNode ruleSetNode) {
+        Map<String, Object> replacements = new HashMap<String, Object>();
+
         for (Iterator<DataAssociation> iterator = ruleSetNode.getInAssociations().iterator(); iterator.hasNext(); ) {
             DataAssociation association = iterator.next();
             if (association.getTransformation() != null) {
-            	Transformation transformation = association.getTransformation();
-            	DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
-            	if (transformer != null) {
-            		Object parameterValue = transformer.transform(transformation.getCompiledExpression(), getSourceParameters(association));
-            		if (parameterValue != null) {
-            			replacements.put(association.getTarget(), parameterValue);
+                Transformation transformation = association.getTransformation();
+                DataTransformer transformer = DataTransformerRegistry.get().find(transformation.getLanguage());
+                if (transformer != null) {
+                    Object parameterValue = transformer.transform(transformation.getCompiledExpression(), getSourceParameters(association));
+                    if (parameterValue != null) {
+                        replacements.put(association.getTarget(), parameterValue);
                     }
-            	}
+                }
             } else if (association.getAssignments() == null || association.getAssignments().isEmpty()) {
                 Object parameterValue = null;
                 VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
@@ -221,37 +221,37 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                     }
                 }
                 if (parameterValue != null) {
-                	replacements.put(association.getTarget(), parameterValue);
+                    replacements.put(association.getTarget(), parameterValue);
                 }
             }
         }
-        
+
         for (Map.Entry<String, Object> entry: ruleSetNode.getParameters().entrySet()) {
             if (entry.getValue() instanceof String) {
-                
+
                 Object value = resolveVariable(entry.getValue());
                 if (value != null) {
                     replacements.put(entry.getKey(), value);
                 }
-                
+
             }
         }
-        
+
         return replacements;
-	}
-	
-	private Object resolveVariable(Object s) {
-        
-	    if (s instanceof String) {
+    }
+
+    private Object resolveVariable(Object s) {
+
+        if (s instanceof String) {
             Matcher matcher = PARAMETER_MATCHER.matcher((String) s);
             while (matcher.find()) {
                 String paramName = matcher.group(1);
-               
+
                 VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
                     resolveContextInstance(VariableScope.VARIABLE_SCOPE, paramName);
                 if (variableScopeInstance != null) {
                     Object variableValue = variableScopeInstance.getVariable(paramName);
-                    if (variableValue != null) { 
+                    if (variableValue != null) {
                         return variableValue;
                     }
                 } else {
@@ -265,38 +265,38 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
                     }
                 }
             }
-	    } 
-        
+        }
+
         return s;
-        
+
     }
-	
+
     protected Map<String, Object> getSourceParameters(DataAssociation association) {
-    	Map<String, Object> parameters = new HashMap<String, Object>();
-    	for (String sourceParam : association.getSources()) {
-	    	Object parameterValue = null;
-	        VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
-	        resolveContextInstance(VariableScope.VARIABLE_SCOPE, sourceParam);
-	        if (variableScopeInstance != null) {
-	            parameterValue = variableScopeInstance.getVariable(sourceParam);
-	        } else {
-	            try {
-	                parameterValue = MVELSafeHelper.getEvaluator().eval(sourceParam, new NodeInstanceResolverFactory(this));
-	            } catch (Throwable t) {
-	                logger.warn("Could not find variable scope for variable {}", sourceParam);
-	            }
-	        }
-	        if (parameterValue != null) {
-	        	parameters.put(association.getTarget(), parameterValue);
-	        }
-    	}
-    	
-    	return parameters;
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        for (String sourceParam : association.getSources()) {
+            Object parameterValue = null;
+            VariableScopeInstance variableScopeInstance = (VariableScopeInstance)
+            resolveContextInstance(VariableScope.VARIABLE_SCOPE, sourceParam);
+            if (variableScopeInstance != null) {
+                parameterValue = variableScopeInstance.getVariable(sourceParam);
+            } else {
+                try {
+                    parameterValue = MVELSafeHelper.getEvaluator().eval(sourceParam, new NodeInstanceResolverFactory(this));
+                } catch (Throwable t) {
+                    logger.warn("Could not find variable scope for variable {}", sourceParam);
+                }
+            }
+            if (parameterValue != null) {
+                parameters.put(association.getTarget(), parameterValue);
+            }
+        }
+
+        return parameters;
     }
-	
-	private String resolveRuleFlowGroup(String origin) {
-	    return (String) resolveVariable(origin);
-	}
+
+    private String resolveRuleFlowGroup(String origin) {
+        return (String) resolveVariable(origin);
+    }
 
     public Map<String, FactHandle> getFactHandles() {
         return factHandles;
@@ -314,7 +314,7 @@ public class RuleSetNodeInstance extends StateBasedNodeInstance implements Event
     }
 
     public void setRuleFlowGroup(String ruleFlowGroup) {
-        
+
         this.ruleFlowGroup = ruleFlowGroup;
     }
 

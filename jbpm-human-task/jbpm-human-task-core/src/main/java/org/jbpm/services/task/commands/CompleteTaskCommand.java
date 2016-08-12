@@ -41,12 +41,12 @@ import org.kie.internal.task.api.model.InternalTaskData;
 @XmlAccessorType(XmlAccessType.NONE)
 public class CompleteTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = 412409697422083299L;
-	
-	@XmlJavaTypeAdapter(JaxbMapAdapter.class)
+    private static final long serialVersionUID = 412409697422083299L;
+
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
     @XmlElement
     protected Map<String, Object> data;
-    
+
     public CompleteTaskCommand() {
     }
 
@@ -57,28 +57,28 @@ public class CompleteTaskCommand extends UserGroupCallbackTaskCommand<Void> {
     }
 
     public Map<String, Object> getData() {
-		return data;
-	}
+        return data;
+    }
 
-	public void setData(Map<String, Object> data) {
-		this.data = data;
-	}
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
 
-	public Void execute(Context cntxt) {
+    public Void execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-        
-        Task task = context.getTaskQueryService().getTaskInstanceById(taskId);        
+
+        Task task = context.getTaskQueryService().getTaskInstanceById(taskId);
         context.getTaskRuleService().executeRules(task, userId, data, TaskRuleService.COMPLETE_TASK_SCOPE);
-        
+
         ((InternalTaskData)task.getTaskData()).setTaskOutputVariables(data);
-        
+
         TaskInstanceService instanceService = context.getTaskInstanceService();
         instanceService.complete(taskId, userId, data);
-    	return null;
-        
+        return null;
+
     }
-	
+
 }

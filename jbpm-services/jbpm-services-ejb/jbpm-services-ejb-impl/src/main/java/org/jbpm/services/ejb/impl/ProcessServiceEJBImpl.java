@@ -33,32 +33,32 @@ import org.kie.api.runtime.manager.RuntimeManager;
 @Stateless
 public class ProcessServiceEJBImpl extends ProcessServiceImpl implements ProcessService, ProcessServiceEJBLocal, ProcessServiceEJBRemote {
 
-	@EJB(beanInterface=DeploymentServiceEJBLocal.class)
-	@Override
-	public void setDeploymentService(DeploymentService deploymentService) {
-		super.setDeploymentService(deploymentService);
-	}
+    @EJB(beanInterface=DeploymentServiceEJBLocal.class)
+    @Override
+    public void setDeploymentService(DeploymentService deploymentService) {
+        super.setDeploymentService(deploymentService);
+    }
 
-	@EJB(beanInterface=RuntimeDataServiceEJBLocal.class)
-	@Override
-	public void setDataService(RuntimeDataService dataService) {
-		super.setDataService(dataService);
-	}
+    @EJB(beanInterface=RuntimeDataServiceEJBLocal.class)
+    @Override
+    public void setDataService(RuntimeDataService dataService) {
+        super.setDataService(dataService);
+    }
 
-	@Override
-	public <T> T process(T variables, ClassLoader cl) {
-		T result = RemoteObjectProcessor.processRemoteObjects(variables, cl);
-		if (result == null) {
-			result = super.process(variables, cl);
-		}
-		
-		return result;
-	}
+    @Override
+    public <T> T process(T variables, ClassLoader cl) {
+        T result = RemoteObjectProcessor.processRemoteObjects(variables, cl);
+        if (result == null) {
+            result = super.process(variables, cl);
+        }
 
-	@Override
-	protected void disposeRuntimeEngine(RuntimeManager manager, RuntimeEngine engine) {
-		// do nothing since this is CMT bean tx sync will dispose runtime engine
-	}
+        return result;
+    }
 
-	
+    @Override
+    protected void disposeRuntimeEngine(RuntimeManager manager, RuntimeEngine engine) {
+        // do nothing since this is CMT bean tx sync will dispose runtime engine
+    }
+
+
 }

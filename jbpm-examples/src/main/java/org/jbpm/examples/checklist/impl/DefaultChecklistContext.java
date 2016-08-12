@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -18,24 +18,24 @@ package org.jbpm.examples.checklist.impl;
 import org.jbpm.examples.checklist.ChecklistContext;
 
 public class DefaultChecklistContext implements ChecklistContext {
-	
-	private String name;
-	private long processInstanceId;
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public long getProcessInstanceId() {
-		return processInstanceId;
-	}
-	
-	public void setProcessInstanceId(long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+
+    private String name;
+    private long processInstanceId;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public long getProcessInstanceId() {
+        return processInstanceId;
+    }
+
+    public void setProcessInstanceId(long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
 
 }

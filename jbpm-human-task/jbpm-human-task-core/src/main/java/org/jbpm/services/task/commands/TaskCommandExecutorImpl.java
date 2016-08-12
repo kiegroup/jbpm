@@ -26,53 +26,53 @@ import org.kie.internal.command.Context;
 
 
 public class TaskCommandExecutorImpl implements CommandService {
-	
-	private Environment environment;
-	private TaskEventSupport taskEventSupport;
-	private CommandService commandService = new SelfExecutionCommandService(this);
-	
-	public TaskCommandExecutorImpl(Environment environment, TaskEventSupport taskEventSupport) {
-		this.environment = environment;
-		this.taskEventSupport = taskEventSupport;
-	}
-    
-	public <T> T execute(Command<T> command) {
-    	return this.commandService.execute(command);
+
+    private Environment environment;
+    private TaskEventSupport taskEventSupport;
+    private CommandService commandService = new SelfExecutionCommandService(this);
+
+    public TaskCommandExecutorImpl(Environment environment, TaskEventSupport taskEventSupport) {
+        this.environment = environment;
+        this.taskEventSupport = taskEventSupport;
     }
-	
-	public void addInterceptor(Interceptor interceptor) {
+
+    public <T> T execute(Command<T> command) {
+        return this.commandService.execute(command);
+    }
+
+    public void addInterceptor(Interceptor interceptor) {
         interceptor.setNext( this.commandService );
         this.commandService = interceptor;
     }
 
-	@Override
-	public Context getContext() {
-		if (this.commandService instanceof SelfExecutionCommandService) {
-			return new TaskContext();
-		}
-		return new TaskContext(commandService.getContext(), environment, taskEventSupport);
-	}
-	
-	private class SelfExecutionCommandService implements CommandService {
-		private TaskCommandExecutorImpl owner;
-		
-		SelfExecutionCommandService(TaskCommandExecutorImpl owner) {
-			this.owner = owner;
-		}
-		@Override
-		public <T> T execute(Command<T> command) {
-			if (command instanceof TaskCommand) {
-	    		return (T)((GenericCommand<T>) command).execute(getContext());
-	    	} else {
-	    		throw new IllegalArgumentException("Task service can only execute task commands");
-	    	}
-		}
+    @Override
+    public Context getContext() {
+        if (this.commandService instanceof SelfExecutionCommandService) {
+            return new TaskContext();
+        }
+        return new TaskContext(commandService.getContext(), environment, taskEventSupport);
+    }
 
-		@Override
-		public Context getContext() {
-			return owner.getContext();
-		}
-		
-	}
-    
+    private class SelfExecutionCommandService implements CommandService {
+        private TaskCommandExecutorImpl owner;
+
+        SelfExecutionCommandService(TaskCommandExecutorImpl owner) {
+            this.owner = owner;
+        }
+        @Override
+        public <T> T execute(Command<T> command) {
+            if (command instanceof TaskCommand) {
+                return (T)((GenericCommand<T>) command).execute(getContext());
+            } else {
+                throw new IllegalArgumentException("Task service can only execute task commands");
+            }
+        }
+
+        @Override
+        public Context getContext() {
+            return owner.getContext();
+        }
+
+    }
+
 }

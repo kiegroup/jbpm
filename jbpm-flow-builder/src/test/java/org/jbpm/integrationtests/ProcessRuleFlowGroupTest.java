@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 public class ProcessRuleFlowGroupTest extends AbstractBaseTest {
-    
+
     @Test
     public void testRuleSetProcessContext() throws Exception {
         Reader source = new StringReader(
@@ -70,7 +70,7 @@ public class ProcessRuleFlowGroupTest extends AbstractBaseTest {
         builder.addPackageFromDrl(source2);
 
         StatefulKnowledgeSession workingMemory = createKieSession(builder.getPackage());
-        
+
         Person person = new Person();
         person.setAge(30);
         workingMemory.insert(person);

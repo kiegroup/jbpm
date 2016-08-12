@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -74,7 +74,7 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
         transactionManager.setTransactionTimeout(3600); // longer timeout
                                                         // for a debugger
     }
-    
+
     @Test
     public void testProcessInstanceMigration() throws Exception {
         ProcessInstance p = ksession.startProcess("com.sample.bpmn.migration");
@@ -98,51 +98,51 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
         assertDefinitionChanged(pid, "com.sample.bpmn.migration2", false);
     }
 
-    
+
 
     @Test
     public void testProcessInstanceMigrationWithGatewaysAndSameUniqueId() throws Exception {
-            
+
         PersistenceWorkItemHandler handler = new PersistenceWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("x", 5);
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("com.sample.BPMN2ProcessVersion3", params);
         long pid = processInstance.getId();
-        
+
         assertEquals(1, processInstance.getNodeInstances().size());
-        
+
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("UserTask", "StartTask");
-    
-        
+
+
         // upgrade to version to of the process
         ExplicitUpgradeCommand c = new ExplicitUpgradeCommand(pid, mapping, "com.sample.BPMN2ProcessVersion4");
         ksession.execute(c);
-    
+
         assertEquals("com.sample.BPMN2ProcessVersion4", ksession.getProcessInstance(pid).getProcessId());
-        
+
         assertEquals(1, processInstance.getNodeInstances().size());
-        
+
         NodeInstance current = processInstance.getNodeInstances().iterator().next();
-                
+
         handler.completeWorkItem(((WorkItemNodeInstance)current).getWorkItem(), ksession.getWorkItemManager());
-        
+
         handler.completeWorkItem(handler.getWorkItem("FirstPath"), ksession.getWorkItemManager());
         handler.completeWorkItem(handler.getWorkItem("SecondPath"), ksession.getWorkItemManager());
-        
-        
+
+
         List<? extends VariableInstanceLog> vars = engine.getAuditService().findVariableInstances(pid, "x");
         assertNotNull(vars);
         assertEquals(2, vars.size());
         assertEquals("10", vars.get(1).getValue());
-        
+
         assertDefinitionChanged(pid, "com.sample.BPMN2ProcessVersion4", true);
-        
+
     }
-    
+
     @Test
     public void testProcessInstanceMigrationExplicit() throws Exception {
         ProcessInstance p = ksession.startProcess("com.sample.bpmn.migration");
@@ -151,7 +151,7 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
         assertEquals("com.sample.bpmn.migration", ksession.getProcessInstance(pid).getProcessId());
 
         List<TaskSummary> list = assertTaskAssignedTo("john");
-        
+
         assertEquals(ProcessInstance.STATE_ACTIVE, p.getState());
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("Task 1", "Task 2");
@@ -159,38 +159,38 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
         // upgrade to version to of the process
         ExplicitUpgradeCommand c = new ExplicitUpgradeCommand(pid, mapping, "com.sample.bpmn.migration2");
         ksession.execute(c);
-        
+
         completeTask(list.get(0));
 
         assertDefinitionChanged(pid, "com.sample.bpmn.migration2", true);
     }
-    
+
     @Test
     public void testProcessInstanceMigrationExplicitSubprocesses() throws Exception {
-        
+
         PersistenceWorkItemHandler handler = new PersistenceWorkItemHandler();
         ksession.getWorkItemManager().registerWorkItemHandler("Human Task", handler);
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("com.sample.bpmn.migration3");
         long pid = processInstance.getId();
 
         assertEquals("com.sample.bpmn.migration3", ksession.getProcessInstance(pid).getProcessId());
-        
+
         assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("ForJohn", "ForMary");
 
         ExplicitUpgradeCommand c = new ExplicitUpgradeCommand(pid, mapping, "com.sample.bpmn.migration4");
         ksession.execute(c);
-        
+
         assertEquals("com.sample.bpmn.migration4", ksession.getProcessInstance(pid).getProcessId());
-        
+
         handler.completeWorkItem(handler.getWorkItem("ForJohn"), ksession.getWorkItemManager());
         handler.completeWorkItem(handler.getWorkItem("ForBill"), ksession.getWorkItemManager());
-        
+
         assertDefinitionChanged(pid, "com.sample.bpmn.migration4", true);
     }
-    
+
     @Test
     public void testProcessInstanceMigrationImplicitSubprocess() throws Exception {
         ProcessInstance p = ksession.startProcess("com.sample.bpmn.migration.subprocess1");
@@ -212,7 +212,7 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
 
         assertDefinitionChanged(pid, "com.sample.bpmn.migration.subprocess2", false);
     }
-    
+
     @Test
     public void testProcessInstanceMigrationExplicitBack() throws Exception {
         ProcessInstance p = ksession.startProcess("com.sample.bpmn.migration.subprocess1");
@@ -225,44 +225,44 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
 
         Map<String, String> mapping = new HashMap<String, String>();
         mapping.put("ForJohn2", "ForJohn1");
-        
+
         ExplicitUpgradeCommand c = new ExplicitUpgradeCommand(pid, mapping, "com.sample.bpmn.migration.subprocess2");
         ksession.execute(c);
 
         list = assertTaskAssignedTo("john");
         completeTask(list.get(0));
-        
+
         list = assertTaskAssignedTo("mary");
 
         assertDefinitionChanged(pid, "com.sample.bpmn.migration.subprocess2", false);
     }
-    
-    
+
+
     private class PersistenceWorkItemHandler implements WorkItemHandler {
-    
+
         private List<WorkItem> workItems = new ArrayList<WorkItem>();
-        
-        
+
+
         public WorkItem getWorkItem(String nodeName) {
             for(WorkItem item : workItems) {
                 if(((String) item.getParameter("NodeName")).compareTo(nodeName) == 0) {
                     return item;
                 }
             }
-            
+
             return null;
         }
-        
+
         public void completeWorkItem(WorkItem workItem, WorkItemManager manager) {
             manager.completeWorkItem(workItem.getId(), null);
             workItems.remove(workItem);
         }
-        
+
         @Override
         public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
             workItems.add(workItem);
         }
-        
+
         @Override
         public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
             workItems.remove(workItem);
@@ -297,7 +297,7 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
 
     private static class ExplicitUpgradeCommand implements GenericCommand<Object> {
         private static final long serialVersionUID = 8673518721648293556L;
-        
+
         private long pid;
         private Map<String, String> mapping;
         private String toProcessId;
@@ -321,19 +321,19 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
 
         }
     }
-    
+
     private List<TaskSummary> assertTaskAssignedTo(String user) {
         List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner(user, "en-UK");
         assertNotNull(list);
         assertEquals(1, list.size());
         return list;
     }
-    
+
     private void completeTask(TaskSummary task) {
         taskService.start(task.getId(), "john");
         taskService.complete(task.getId(), "john", null);
     }
-    
+
     @SuppressWarnings("unchecked")
     private void assertDefinitionChanged(long pid, String sPid, boolean complete) throws InterruptedException {
         if(!complete) {
@@ -347,7 +347,7 @@ public class ProcessInstanceMigrationTest extends JbpmTestCase {
         List<ProcessInstanceInfo> found = query.getResultList();
 
         int count = (complete) ? 0 : 1;
-        
+
         assertNotNull(found);
         assertEquals(count, found.size());
 

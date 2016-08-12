@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,46 +31,46 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetTaskOwnedByExpDateBeforeDateCommand extends UserGroupCallbackTaskCommand<List<TaskSummary>> {
 
-	private static final long serialVersionUID = 5077599352603072633L;
-	
+    private static final long serialVersionUID = 5077599352603072633L;
+
     @XmlElement
-	private List<Status> statuses;
-    
+    private List<Status> statuses;
+
     @XmlElement
     private Date expirationDate;
-	
-	public GetTaskOwnedByExpDateBeforeDateCommand() {
-	}
-	
-	public GetTaskOwnedByExpDateBeforeDateCommand(String userId, List<Status> status, Date expirationDate) {
-		this.userId = userId;
-		this.statuses = status;
-		this.expirationDate = expirationDate;
+
+    public GetTaskOwnedByExpDateBeforeDateCommand() {
     }
-	
-	public List<Status> getStatuses() {
-		return statuses;
-	}
-	
-	public void setStatuses(List<Status> status) {
-		this.statuses = status;
-	}
+
+    public GetTaskOwnedByExpDateBeforeDateCommand(String userId, List<Status> status, Date expirationDate) {
+        this.userId = userId;
+        this.statuses = status;
+        this.expirationDate = expirationDate;
+    }
+
+    public List<Status> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<Status> status) {
+        this.statuses = status;
+    }
 
     public Date getExpirationDate() {
-		return expirationDate;
-	}
+        return expirationDate;
+    }
 
-	public void setExpirationDate(Date expirationDate) {
-		this.expirationDate = expirationDate;
-	}
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
+    }
 
 
-	public List<TaskSummary> execute(Context cntxt) {
+    public List<TaskSummary> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         doCallbackUserOperation(userId, context);
-        
-    	return context.getTaskQueryService().getTasksOwnedByExpirationDateBeforeSpecifiedDate(userId, statuses, expirationDate);
-    
+
+        return context.getTaskQueryService().getTasksOwnedByExpirationDateBeforeSpecifiedDate(userId, statuses, expirationDate);
+
     }
 
 }

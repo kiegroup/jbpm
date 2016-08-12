@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,20 +27,20 @@ import org.kie.api.executor.ExecutorStoreService;
 @Stateless
 public class JPAExecutorStoreServiceEJBImpl extends JPAExecutorStoreService implements ExecutorStoreService {
 
-	public JPAExecutorStoreServiceEJBImpl() {
-		super(true);
-	}
+    public JPAExecutorStoreServiceEJBImpl() {
+        super(true);
+    }
 
-	@EJB(beanInterface=TransactionalCommandServiceExecutorEJBImpl.class)
-	@Override
-	public void setCommandService(CommandService commandService) {
-		super.setCommandService(commandService);
-	}
+    @EJB(beanInterface=TransactionalCommandServiceExecutorEJBImpl.class)
+    @Override
+    public void setCommandService(CommandService commandService) {
+        super.setCommandService(commandService);
+    }
 
-	@PersistenceUnit(unitName="org.jbpm.domain")
-	@Override
-	public void setEmf(EntityManagerFactory emf) {
-		super.setEmf(emf);
-	}
+    @PersistenceUnit(unitName="org.jbpm.domain")
+    @Override
+    public void setEmf(EntityManagerFactory emf) {
+        super.setEmf(emf);
+    }
 
 }

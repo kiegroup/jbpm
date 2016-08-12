@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,9 +48,9 @@ public class AddContentFromUserCommand extends UserGroupCallbackTaskCommand<Long
     public AddContentFromUserCommand() {
         // default JAXB constructor
     }
-    
+
     public AddContentFromUserCommand(long taskId, String userId) {
-       setTaskId(taskId); 
+       setTaskId(taskId);
        setUserId(userId);
     }
 
@@ -63,7 +63,7 @@ public class AddContentFromUserCommand extends UserGroupCallbackTaskCommand<Long
     }
 
     public Map<String, Object> getOutputContentMap() {
-        if( this.outputContentMap == null ) { 
+        if( this.outputContentMap == null ) {
             this.outputContentMap = new HashMap<String, Object>();
         }
         return outputContentMap;
@@ -79,7 +79,7 @@ public class AddContentFromUserCommand extends UserGroupCallbackTaskCommand<Long
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
 
-        if( outputContentMap != null ) { 
+        if( outputContentMap != null ) {
             return context.getTaskInstanceService().addOutputContentFromUser(taskId, userId, outputContentMap);
         } else if( documentContentBytes != null ) {
             // TODO!

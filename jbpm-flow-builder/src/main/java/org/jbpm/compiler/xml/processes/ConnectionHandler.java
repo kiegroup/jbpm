@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,66 +31,66 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 public class ConnectionHandler extends BaseAbstractHandler implements Handler {
-	public ConnectionHandler() {
-		if ((this.validParents == null) && (this.validPeers == null)) {
-			this.validParents = new HashSet();
-			this.validParents.add(NodeContainer.class);
+    public ConnectionHandler() {
+        if ((this.validParents == null) && (this.validPeers == null)) {
+            this.validParents = new HashSet();
+            this.validParents.add(NodeContainer.class);
 
-			this.validPeers = new HashSet();
-			this.validPeers.add(null);
-			this.validPeers.add(Connection.class);
+            this.validPeers = new HashSet();
+            this.validPeers.add(null);
+            this.validPeers.add(Connection.class);
 
-			this.allowNesting = false;
-		}
-	}
+            this.allowNesting = false;
+        }
+    }
 
-	public Object start(final String uri,
+    public Object start(final String uri,
             final String localName,
             final Attributes attrs,
             final ExtensibleXmlParser parser) throws SAXException {
-		parser.startElementBuilder( localName, attrs );
-		String fromId = attrs.getValue( "from" );
-		emptyAttributeCheck( localName, "from", fromId, parser );
-		String toId = attrs.getValue( "to" );
-		emptyAttributeCheck( localName, "to", toId, parser );
-		String bendpoints = attrs.getValue( "bendpoints" );
+        parser.startElementBuilder( localName, attrs );
+        String fromId = attrs.getValue( "from" );
+        emptyAttributeCheck( localName, "from", fromId, parser );
+        String toId = attrs.getValue( "to" );
+        emptyAttributeCheck( localName, "to", toId, parser );
+        String bendpoints = attrs.getValue( "bendpoints" );
 
-		String fromType = attrs.getValue( "fromType" );
-		if (fromType == null || fromType.trim().length() == 0) {
-			fromType = NodeImpl.CONNECTION_DEFAULT_TYPE;
-		}
-		String toType = attrs.getValue( "toType" );
-		if (toType == null || toType.trim().length() == 0) {
-			toType = NodeImpl.CONNECTION_DEFAULT_TYPE;
-		}
+        String fromType = attrs.getValue( "fromType" );
+        if (fromType == null || fromType.trim().length() == 0) {
+            fromType = NodeImpl.CONNECTION_DEFAULT_TYPE;
+        }
+        String toType = attrs.getValue( "toType" );
+        if (toType == null || toType.trim().length() == 0) {
+            toType = NodeImpl.CONNECTION_DEFAULT_TYPE;
+        }
 
-		NodeContainer nodeContainer = (NodeContainer) parser.getParent();
-		Node fromNode = nodeContainer.getNode( new Long(fromId) );
-		Node toNode = nodeContainer.getNode( new Long(toId) );
+        NodeContainer nodeContainer = (NodeContainer) parser.getParent();
+        Node fromNode = nodeContainer.getNode( new Long(fromId) );
+        Node toNode = nodeContainer.getNode( new Long(toId) );
 
-		if ( fromNode == null ) {
-			throw new SAXParseException( "Node '" + fromId + "'cannot be found",
+        if ( fromNode == null ) {
+            throw new SAXParseException( "Node '" + fromId + "'cannot be found",
                                  parser.getLocator() );
-		}
-		if ( toNode == null ) {
-			throw new SAXParseException( "Node '" + toId + "' cannot be found",
+        }
+        if ( toNode == null ) {
+            throw new SAXParseException( "Node '" + toId + "' cannot be found",
                              parser.getLocator() );
-		}
+        }
 
-		ConnectionImpl connection = new ConnectionImpl(fromNode, fromType,toNode, toType);
-		connection.setMetaData("bendpoints", bendpoints);
+        ConnectionImpl connection = new ConnectionImpl(fromNode, fromType,toNode, toType);
+        connection.setMetaData("bendpoints", bendpoints);
 
-		return connection;
-	}
+        return connection;
+    }
 
-	public Object end(final String uri, final String localName,
-			final ExtensibleXmlParser parser) throws SAXException {
-		final Element element = parser.endElementBuilder();
-		return parser.getCurrent();
-	}
+    public Object end(final String uri, final String localName,
+            final ExtensibleXmlParser parser) throws SAXException {
+        final Element element = parser.endElementBuilder();
+        return parser.getCurrent();
+    }
 
-	public Class generateNodeFor() {
-		return Connection.class;
-	}
+    public Class generateNodeFor() {
+        return Connection.class;
+    }
 
 }

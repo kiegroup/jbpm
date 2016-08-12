@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,13 +40,13 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
     private static final String[] KNOWN_UT_JNDI_KEYS = new String[] {"UserTransaction", "java:jboss/UserTransaction", System.getProperty("jbpm.ut.jndi.lookup")};
 
     protected EntityManagerFactory emf;
-   
+
     private static final Object USER_MANAGED_TRANSACTION = new Object();
-    
-    public StandaloneJtaStrategy(EntityManagerFactory emf) { 
+
+    public StandaloneJtaStrategy(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    
+
     @Override
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
@@ -56,26 +56,26 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
     public Object joinTransaction(EntityManager em) {
         boolean newTx = false;
         UserTransaction ut = findUserTransaction();
-        if( ut == null ) { 
+        if( ut == null ) {
             throw new IllegalStateException("Unable to find JTA transaction." );
         }
         try {
-            if( ut.getStatus() == Status.STATUS_NO_TRANSACTION ) { 
+            if( ut.getStatus() == Status.STATUS_NO_TRANSACTION ) {
                 ut.begin();
                 newTx = true;
                 // since new transaction was started em must join it
-            } 
+            }
         } catch(Exception ex) {
             throw new IllegalStateException("Unable to find or open a transaction: " + ex.getMessage(), ex);
         }
 
-        try { 
+        try {
             em.joinTransaction();
-        } catch( Exception e) { 
+        } catch( Exception e) {
             throw new IllegalStateException("Unable to join EntityManager to transaction: " + e.getMessage(), e);
         }
 
-        if( newTx ) { 
+        if( newTx ) {
             return ut;
         }
         return USER_MANAGED_TRANSACTION;
@@ -83,9 +83,9 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
 
     protected static UserTransaction findUserTransaction() {
         InitialContext context = null;
-        try { 
+        try {
             context = new InitialContext();
-        } catch( Exception e ) { 
+        } catch( Exception e ) {
            throw new IllegalStateException("Unable to initialized " + InitialContext.class.getName() + " instance.", e);
         }
         try {
@@ -98,7 +98,7 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
                         return ut;
                     } catch (NamingException e) {
                         logger.debug("User Transaction not found in JNDI under {}", utLookup);
-                        
+
                     }
                 }
             }
@@ -110,28 +110,28 @@ public class StandaloneJtaStrategy implements PersistenceStrategy {
     @Override
     public void leaveTransaction(EntityManager em, Object transaction) {
         commitTransaction(transaction);
-        
+
         em.clear();
         em.close();
     }
 
     protected void commitTransaction(Object transaction) {
-        if( transaction == USER_MANAGED_TRANSACTION ) { 
+        if( transaction == USER_MANAGED_TRANSACTION ) {
             return;
         }
         UserTransaction ut = null;
-        if( ! (transaction instanceof UserTransaction) ) { 
+        if( ! (transaction instanceof UserTransaction) ) {
            throw new IllegalStateException("This persistence strategy only deals with UserTransaction instances!" );
-        } else if( transaction != null ){ 
+        } else if( transaction != null ){
            ut = (UserTransaction) transaction;
         }
-        
-        try { 
-            if( ut != null ) { 
+
+        try {
+            if( ut != null ) {
                 // There's a tx running, close it.
                 ut.commit();
             }
-        } catch(Exception e) { 
+        } catch(Exception e) {
             logger.error("Unable to commit transaction: ", e);
         }
     }

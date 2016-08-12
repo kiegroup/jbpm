@@ -20,13 +20,13 @@ import java.io.Serializable;
 
 public class ProcessEvent implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     private long processInstanceId;
     private String processId;
     private String processName;
     private String version;
     private int state;
-    
+
     public ProcessEvent(org.kie.api.event.process.ProcessEvent event) {
         this.processId = event.getProcessInstance().getProcessId();
         this.version = event.getProcessInstance().getProcess().getVersion();

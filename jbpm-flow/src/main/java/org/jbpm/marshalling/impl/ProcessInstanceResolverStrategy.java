@@ -35,9 +35,9 @@ import org.kie.api.runtime.process.ProcessInstance;
 
 /**
  * When using this strategy, knowledge session de/marshalling process will make sure that
- * the processInstance is <i>not</i> serialized as a part of the the session/network. 
+ * the processInstance is <i>not</i> serialized as a part of the the session/network.
  * </p>
- * Instead, this strategy, which may only be used for {@link ProcessInstance} objects, 
+ * Instead, this strategy, which may only be used for {@link ProcessInstance} objects,
  * saves the process instance in the {@link ProcessInstanceManager}, and later retrieves
  * it from there.
  * </p>
@@ -45,8 +45,8 @@ import org.kie.api.runtime.process.ProcessInstance;
  * RuleFlowProcessInstance with correct id and state completed, yet no internal details.
  * </p>
  * If you're doing tricky things with serialization and persistence, please make sure
- * to remember that the {@link ProcessInstanceManager} cache of process instances is emptied 
- * at the end of every transaction (commit). 
+ * to remember that the {@link ProcessInstanceManager} cache of process instances is emptied
+ * at the end of every transaction (commit).
  */
 public class ProcessInstanceResolverStrategy
         implements
@@ -76,12 +76,12 @@ public class ProcessInstanceResolverStrategy
         ProcessInstanceManager pim = retrieveProcessInstanceManager( is );
         ProcessInstance processInstance = pim.getProcessInstance( processInstanceId );
         if (processInstance == null) {
-        	RuleFlowProcessInstance result = new RuleFlowProcessInstance();
-        	result.setId( processInstanceId );
-        	result.internalSetState(ProcessInstance.STATE_COMPLETED);
-        	return result;
+            RuleFlowProcessInstance result = new RuleFlowProcessInstance();
+            result.setId( processInstanceId );
+            result.internalSetState(ProcessInstance.STATE_COMPLETED);
+            return result;
         } else {
-        	connectProcessInstanceToRuntimeAndProcess( processInstance, is );
+            connectProcessInstanceToRuntimeAndProcess( processInstance, is );
             return processInstance;
         }
     }
@@ -91,7 +91,7 @@ public class ProcessInstanceResolverStrategy
      * The stream object will secretly also either be a {@link MarshallerReaderContext} or a
      * {@link MarshallerWriteContext}.
      * @param streamContext The marshaller stream/context.
-     * @return A {@link ProcessInstanceManager} object. 
+     * @return A {@link ProcessInstanceManager} object.
      */
     public static ProcessInstanceManager retrieveProcessInstanceManager(Object streamContext) {
         ProcessInstanceManager pim = null;
@@ -127,13 +127,13 @@ public class ProcessInstanceResolverStrategy
         }
         // Attach the process if not present
         if ( processInstance.getProcess() == null ) {
-        	String processId = processInstance.getProcessId();
-        	if (processId != null) {
-        		Process process = kruntime.getKieBase().getProcess( processId );
-        		if (process != null) {
-        			processInstanceImpl.setProcess( process );
-        		}
-        	}
+            String processId = processInstance.getProcessId();
+            if (processId != null) {
+                Process process = kruntime.getKieBase().getProcess( processId );
+                if (process != null) {
+                    processInstanceImpl.setProcess( process );
+                }
+            }
         }
     }
 
@@ -143,9 +143,9 @@ public class ProcessInstanceResolverStrategy
      * {@link MarshallerWriteContext}.
      * </p>
      * The knowledge runtime object is useful in order to reconnect the process instance to the
-     * process and the knowledge runtime object. 
+     * process and the knowledge runtime object.
      * @param streamContext The marshaller stream/context.
-     * @return A {@link InternalKnowledgeRuntime} object. 
+     * @return A {@link InternalKnowledgeRuntime} object.
      */
     public static InternalKnowledgeRuntime retrieveKnowledgeRuntime(Object streamContext) {
         InternalKnowledgeRuntime kruntime = null;
@@ -182,13 +182,13 @@ public class ProcessInstanceResolverStrategy
         // load it as read only to avoid any updates to the data base
         ProcessInstance processInstance = pim.getProcessInstance( processInstanceId, true );
         if (processInstance == null) {
-        	RuleFlowProcessInstance result = new RuleFlowProcessInstance();
-        	result.setId( processInstanceId );
-        	result.internalSetState(ProcessInstance.STATE_COMPLETED);
-        	return result;
+            RuleFlowProcessInstance result = new RuleFlowProcessInstance();
+            result.setId( processInstanceId );
+            result.internalSetState(ProcessInstance.STATE_COMPLETED);
+            return result;
         } else {
-        	connectProcessInstanceToRuntimeAndProcess( processInstance, is );
-        	return processInstance;
+            connectProcessInstanceToRuntimeAndProcess( processInstance, is );
+            return processInstance;
         }
     }
 

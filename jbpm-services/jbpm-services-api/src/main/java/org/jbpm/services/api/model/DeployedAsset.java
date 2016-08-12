@@ -25,7 +25,7 @@ public interface DeployedAsset {
     public String getVersion();
 
     public String getKnowledgeType();
-    
+
     public String getOriginalPath();
-    
+
 }

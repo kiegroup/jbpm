@@ -36,9 +36,9 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 
 @RunWith(Parameterized.class)
 public class LoggingTaskHandlerWrapperTest extends JbpmBpmn2TestCase {
-    
+
     private StatefulKnowledgeSession ksession;
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true} };
@@ -66,7 +66,7 @@ public class LoggingTaskHandlerWrapperTest extends JbpmBpmn2TestCase {
     public void testLimitExceptionInfoList() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ExceptionThrowingServiceProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        
+
         LoggingTaskHandlerDecorator loggingTaskHandlerWrapper = new LoggingTaskHandlerDecorator(ServiceTaskHandler.class, 2);
         loggingTaskHandlerWrapper.setPrintStackTrace(false);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", loggingTaskHandlerWrapper);
@@ -77,15 +77,15 @@ public class LoggingTaskHandlerWrapperTest extends JbpmBpmn2TestCase {
         ksession.startProcess("ServiceProcess", params);
         ksession.startProcess("ServiceProcess", params);
 
-        int size = loggingTaskHandlerWrapper.getWorkItemExceptionInfoList().size(); 
+        int size = loggingTaskHandlerWrapper.getWorkItemExceptionInfoList().size();
         assertTrue( "WorkItemExceptionInfoList is too large: " + size, size == 2 );
     }
-    
+
     @Test
     public void testFormatLoggingError() throws Exception {
         KieBase kbase = createKnowledgeBase("BPMN2-ExceptionThrowingServiceProcess.bpmn2");
         ksession = createKnowledgeSession(kbase);
-        
+
         LoggingTaskHandlerDecorator loggingTaskHandlerWrapper = new LoggingTaskHandlerDecorator(ServiceTaskHandler.class, 2);
         loggingTaskHandlerWrapper.setLoggedMessageFormat("{0} - {1} - {2} - {3}");
         List<InputParameter> inputParameters = new ArrayList<LoggingTaskHandlerDecorator.InputParameter>();
@@ -93,9 +93,9 @@ public class LoggingTaskHandlerWrapperTest extends JbpmBpmn2TestCase {
         inputParameters.add(InputParameter.WORK_ITEM_ID);
         inputParameters.add(InputParameter.WORK_ITEM_NAME);
         inputParameters.add(InputParameter.PROCESS_INSTANCE_ID);
-        
+
         loggingTaskHandlerWrapper.setLoggedMessageInput(inputParameters);
-        
+
         loggingTaskHandlerWrapper.setPrintStackTrace(false);
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", loggingTaskHandlerWrapper);
 

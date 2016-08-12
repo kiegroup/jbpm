@@ -42,9 +42,9 @@ import org.kie.internal.runtime.manager.cdi.qualifier.Singleton;
  *  <li><code>RuntimeEnvironment</code></li>
  *  <li><code>RuntimeManagerFactory</code></li>
  * </ul>
- * 
+ *
  * Injections are controlled with qualifiers so same should be used at injection points that should receive them
- * 
+ *
  * @see Singleton
  * @see PerRequest
  * @see PerProcessInstance
@@ -58,29 +58,29 @@ public class RuntimeManagerProducer {
     private Instance<RuntimeEnvironment> environmentInstance;
     @Inject
     private RuntimeManagerFactory runtimeManagerFactory;
-    
+
     @Produces
     @Singleton
     public RuntimeManager newSingletonRuntimeManager() {
-        
+
         RuntimeEnvironment environment = environmentInstance.select(new AnnotationLiteral<Singleton>(){}).get();
-        
+
         return runtimeManagerFactory.newSingletonRuntimeManager(environment);
     }
-    
+
     @Produces
     @PerRequest
     public RuntimeManager newPerRequestRuntimeManager() {
         RuntimeEnvironment environment = environmentInstance.select(new AnnotationLiteral<PerRequest>(){}).get();
-        
+
         return runtimeManagerFactory.newPerRequestRuntimeManager(environment);
     }
-    
+
     @Produces
     @PerProcessInstance
     public RuntimeManager newPerProcessInstanceRuntimeManager() {
         RuntimeEnvironment environment = environmentInstance.select(new AnnotationLiteral<PerProcessInstance>(){}).get();
-        
+
         return runtimeManagerFactory.newPerProcessInstanceRuntimeManager(environment);
     }
 }

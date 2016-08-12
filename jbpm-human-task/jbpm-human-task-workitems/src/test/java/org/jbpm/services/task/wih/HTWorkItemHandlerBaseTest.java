@@ -54,14 +54,14 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
     private static final int DEFAULT_WAIT_TIME = 5000;
     private static final int MANAGER_COMPLETION_WAIT_TIME = DEFAULT_WAIT_TIME;
     private static final int MANAGER_ABORT_WAIT_TIME = DEFAULT_WAIT_TIME;
-    
+
     private WorkItemHandler handler;
     protected TestStatefulKnowledgeSession ksession;
 
-    protected TaskService taskService; 
-    
-    
- 
+    protected TaskService taskService;
+
+
+
     @Test
     public void testTask() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -75,7 +75,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -90,11 +90,11 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         taskService.complete(task.getId(), "Darth Vader", null);
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
-        
+
         String actualOwner = (String) manager.getResults().get("ActorId");
         assertNotNull(actualOwner);
         assertEquals("Darth Vader", actualOwner);
-        
+
     }
     @Test
     public void testTaskMultipleActors() throws Exception {
@@ -109,7 +109,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -123,14 +123,14 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         taskService.start(task.getId(), "Darth Vader");
 
         taskService.complete(task.getId(), "Darth Vader", null);
-        
+
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
-    
+
     @Test
     public void testTaskGroupActors() throws Exception {
 
-    	TestWorkItemManager manager = new TestWorkItemManager();
+        TestWorkItemManager manager = new TestWorkItemManager();
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setName("Human Task");
@@ -159,18 +159,18 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertNotNull("Should get permissed denied exception", denied);
 
         //Check if the parent task is InProgress
-        
-        
+
+
         Task task = taskService.getTaskById(taskSummary.getId());
         assertEquals(Status.Ready, task.getTaskData().getStatus());
     }
-    
-    
+
+
     @Test
     public void testTaskSingleAndGroupActors() throws Exception {
-//    	Properties userGroups = new Properties();
+//      Properties userGroups = new Properties();
 //        userGroups.setProperty("Darth Vader", "Crusaders");
-//        
+//
 //        UserGroupCallbackManager.getInstance().setCallback(new DefaultUserGroupCallbackImpl(userGroups));
         TestWorkItemManager manager = new TestWorkItemManager();
         ksession.setWorkItemManager(manager);
@@ -182,7 +182,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("GroupId", "Crusaders");
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
-  
+
 
         workItem = new WorkItemImpl();
         workItem.setName("Human Task Two");
@@ -191,7 +191,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("Priority", "10");
         workItem.setParameter("ActorId", "Darth Vader");
         getHandler().executeWorkItem(workItem, manager);
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(2, tasks.size());
     }
@@ -208,8 +208,8 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
 
-        
-        
+
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -220,9 +220,9 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals("Darth Vader", task.getActualOwner().getId());
 
         taskService.start(task.getId(), "Darth Vader");
-        
+
         taskService.fail(task.getId(), "Darth Vader", null);
-        
+
         assertTrue(manager.waitTillAborted(MANAGER_ABORT_WAIT_TIME));
     }
     @Test
@@ -238,8 +238,8 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
 
-        
-        
+
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -250,10 +250,10 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals("Darth Vader", task.getActualOwner().getId());
 
         taskService.skip(task.getId(), "Darth Vader");
-        
+
         assertTrue(manager.waitTillAborted(MANAGER_ABORT_WAIT_TIME));
     }
-    
+
     @Test
     public void testTaskExit() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -266,17 +266,17 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("ActorId", "Darth Vader");
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
-        
+
         Task task = taskService.getTaskByWorkItemId(workItem.getId());
 
         taskService.exit(task.getId(), "Administrator");
-        
+
         task = taskService.getTaskByWorkItemId(workItem.getId());
         assertEquals("TaskName", task.getNames().get(0).getText());
         assertEquals(10, task.getPriority());
         assertEquals("Comment", task.getDescriptions().get(0).getText());
         assertEquals(Status.Exited, task.getTaskData().getStatus());
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(0, tasks.size());
     }
@@ -292,16 +292,16 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("ActorId", "Darth Vader");
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
-        
+
         Task task = taskService.getTaskByWorkItemId(workItem.getId());
 
         try {
             taskService.exit(task.getId(), "Darth Vader");
             fail("Should not allow to exit task for non administrators");
         } catch (PermissionDeniedException e) {
-            
+
         }
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary taskSummary = tasks.get(0);
@@ -324,7 +324,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
 
-        
+
 
         getHandler().abortWorkItem(workItem, manager);
 
@@ -345,7 +345,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
 
@@ -377,7 +377,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals("Comment", taskSummary.getDescription());
         assertEquals(Status.Reserved, taskSummary.getStatus());
         assertEquals("Darth Vader", taskSummary.getActualOwner().getId());
-        
+
         Task task = taskService.getTaskById(taskSummary.getId());
         assertEquals(AccessType.Inline, ((InternalTaskData) task.getTaskData()).getDocumentAccessType());
         assertEquals(task.getTaskData().getProcessSessionId(), TestStatefulKnowledgeSession.testSessionId.intValue());
@@ -385,18 +385,18 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertTrue(contentId != -1);
 
         Object data = ContentMarshallerHelper.unmarshall(
-                                                            taskService.getContentById(contentId).getContent(), 
+                                                            taskService.getContentById(contentId).getContent(),
                                                             ksession.getEnvironment());
         assertEquals("This is the content", data);
 
         taskService.start(task.getId(), "Darth Vader");
-       
+
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("Result", "This is the result");
-//        ContentData result = ContentMarshallerHelper.marshal(, 
+//        ContentData result = ContentMarshallerHelper.marshal(,
 //                                                                ksession.getEnvironment());
         taskService.complete(task.getId(), "Darth Vader", results);
-        
+
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
         results = manager.getResults();
         assertNotNull(results);
@@ -422,10 +422,10 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         getHandler().executeWorkItem(workItem, manager);
 
-       
 
-       
-        
+
+
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary taskSummary = tasks.get(0);
@@ -437,19 +437,19 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
 
 
 
-        
-        
+
+
         Task task = taskService.getTaskById(taskSummary.getId());
         assertEquals(AccessType.Inline, ((InternalTaskData) task.getTaskData()).getDocumentAccessType());
         long contentId = task.getTaskData().getDocumentContentId();
         assertTrue(contentId != -1);
-        
-        
+
+
 
         Map<String, Object> data = (Map<String, Object>) ContentMarshallerHelper.unmarshall(
-                                                            taskService.getContentById(contentId).getContent(),  
+                                                            taskService.getContentById(contentId).getContent(),
                                                             ksession.getEnvironment());
-      
+
         //Checking that the input parameters are being copied automatically if the Content Element doesn't exist
         assertEquals("MyObjectValue", ((MyObject) data.get("MyObject")).getValue());
         assertEquals("10", data.get("Priority"));
@@ -461,7 +461,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         Map<String, Object> results = new HashMap<String, Object>();
         results.put("Result", "This is the result");
 
-                
+
         taskService.complete(task.getId(), "Darth Vader", results);
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
@@ -470,16 +470,16 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals("Darth Vader", results.get("ActorId"));
         assertEquals("This is the result", results.get("Result"));
     }
-    
-    
+
+
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testTaskCreateFailedWithLog() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
         ((AbstractHTWorkItemHandler)handler).setAction(OnErrorAction.LOG);
         TaskLifeCycleEventListener listener = new AddedTaskListener(true);
         ((EventService<TaskLifeCycleEventListener>) taskService).registerTaskEventListener(listener);
-        
+
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setName("Human Task");
@@ -488,19 +488,19 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("Priority", "10");
         workItem.setParameter("ActorId", "DoesNotExist");
         workItem.setProcessInstanceId(10);
-        
-        
+
+
         handler.executeWorkItem(workItem, manager);
         assertFalse(manager.isAborted());
         ((EventService<TaskLifeCycleEventListener>) taskService).removeTaskEventListener(listener);
     }
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testTaskCreateFailedWithAbort() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
         TaskLifeCycleEventListener listener = new AddedTaskListener(true);
         ((EventService<TaskLifeCycleEventListener>) taskService).registerTaskEventListener(listener);
-        
+
         ((AbstractHTWorkItemHandler)handler).setAction(OnErrorAction.ABORT);
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
@@ -510,19 +510,19 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("Priority", "10");
         workItem.setParameter("ActorId", "DoesNotExist");
         workItem.setProcessInstanceId(10);
-        
-        
+
+
         handler.executeWorkItem(workItem, manager);
         assertTrue(manager.isAborted());
         ((EventService<TaskLifeCycleEventListener>) taskService).removeTaskEventListener(listener);
     }
     @SuppressWarnings("unchecked")
-	@Test
+    @Test
     public void testTaskCreateFailedWithRethrow() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
         TaskLifeCycleEventListener listener = new AddedTaskListener(true);
         ((EventService<TaskLifeCycleEventListener>) taskService).registerTaskEventListener(listener);
-        
+
         ((AbstractHTWorkItemHandler)handler).setAction(OnErrorAction.RETHROW);
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
@@ -532,18 +532,18 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("Priority", "10");
         workItem.setParameter("ActorId", "DoesNotExist");
         workItem.setProcessInstanceId(10);
-        
+
         try {
             handler.executeWorkItem(workItem, manager);
             fail("Should fail due to OnErroAction set to rethrow");
         } catch (Exception e) {
             // do nothing
-            
+
         }
         ((EventService<TaskLifeCycleEventListener>) taskService).removeTaskEventListener(listener);
     }
 
-    
+
     @Test
     public void testTaskWithCreatedBy() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -558,7 +558,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -575,7 +575,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
-    
+
     @Test
     public void testTaskWithoutCreatedBy() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -589,7 +589,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -606,7 +606,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
-    
+
     @Test
     public void testTaskWitAutoClaimTaskWithActorAndGroup() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -622,7 +622,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -638,7 +638,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
-    
+
     @Test
     public void testTaskWithAutoClaimTaskWithGroupOnly() throws Exception {
         TestWorkItemManager manager = new TestWorkItemManager();
@@ -653,7 +653,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -681,11 +681,11 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("Priority", "10");
         workItem.setParameter("ActorId", "Darth Vader");
         workItem.setParameter("DueDate", "2013-11-25T10:35:00Z");
-        
+
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
 
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -695,7 +695,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals(Status.Reserved, task.getStatus());
         assertEquals("Darth Vader", task.getActualOwner().getId());
         assertEquals(10, task.getProcessInstanceId().intValue());
-        
+
         assertEquals(DateTimeUtils.parseDateTime("2013-11-25T10:35:00Z"), task.getExpirationTime().getTime());
 
         taskService.start(task.getId(), "Darth Vader");
@@ -714,11 +714,11 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         workItem.setParameter("Priority", "10");
         workItem.setParameter("ActorId", "Darth Vader");
         workItem.setParameter("DueDate", "P2d"); // Period 2 days
-        
+
         workItem.setProcessInstanceId(10);
         handler.executeWorkItem(workItem, manager);
         long currentTime = new Date().getTime();
-        
+
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("Darth Vader", "en-UK");
         assertEquals(1, tasks.size());
         TaskSummary task = tasks.get(0);
@@ -728,7 +728,7 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals(Status.Reserved, task.getStatus());
         assertEquals("Darth Vader", task.getActualOwner().getId());
         assertEquals(10, task.getProcessInstanceId().intValue());
-        
+
         assertTrue(currentTime + DateTimeUtils.parseDuration("2d") > task.getExpirationTime().getTime());
 
         taskService.start(task.getId(), "Darth Vader");
@@ -736,11 +736,11 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
     }
-    
+
     @Test
     public void testTaskCompleteGroupActors() throws Exception {
 
-    	TestWorkItemManager manager = new TestWorkItemManager();
+        TestWorkItemManager manager = new TestWorkItemManager();
         ksession.setWorkItemManager(manager);
         WorkItemImpl workItem = new WorkItemImpl();
         workItem.setName("Human Task");
@@ -760,17 +760,17 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         assertEquals(Status.Ready, taskSummary.getStatus());
 
         taskService.claim(taskSummary.getId(), "Luke Cage");
- 
+
         taskService.start(taskSummary.getId(), "Luke Cage");
         taskService.complete(taskSummary.getId(), "Luke Cage", null);
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
-        
+
         String actualOwner = (String) manager.getResults().get("ActorId");
         assertNotNull(actualOwner);
         assertEquals("Luke Cage", actualOwner);
     }
-    
+
     @Test
     public void testTaskWithVariables() throws Exception {
         final TestWorkItemManager manager = new TestWorkItemManager();
@@ -798,11 +798,11 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         taskService.complete(task.getId(), "Darth Vader", null);
 
         assertTrue(manager.waitTillCompleted(MANAGER_COMPLETION_WAIT_TIME));
-        
+
         final String actualOwner = (String) manager.getResults().get("ActorId");
         assertNotNull(actualOwner);
         assertEquals("Darth Vader", actualOwner);
-        
+
     }
 
     @Test(timeout = 10000)
@@ -918,17 +918,17 @@ public abstract class HTWorkItemHandlerBaseTest extends AbstractBaseTest {
         public void registerWorkItemHandler(String workItemName, WorkItemHandler handler) {
         }
     }
-    
-    
+
+
     public static class AddedTaskListener extends DefaultTaskEventListener {
         public AddedTaskListener() {
-            
+
         }
-        
+
         public AddedTaskListener(boolean throwException) {
             this.throwException = throwException;
         }
-        
+
         private boolean throwException = false;
 
         public boolean isThrowException() {

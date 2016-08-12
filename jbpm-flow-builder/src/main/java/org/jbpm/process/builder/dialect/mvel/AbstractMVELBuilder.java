@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -81,22 +81,22 @@ public class AbstractMVELBuilder {
         }
         return result.toString();
     }
-   
+
 
     protected MVELAnalysisResult getAnalysis(final PackageBuildContext context,
-                                         final BaseDescr descr, 
+                                         final BaseDescr descr,
                                          MVELDialect dialect,
                                          final String text,
-                                         Map<String,Class<?>> variables) { 
-       
+                                         Map<String,Class<?>> variables) {
+
         boolean typeSafe = context.isTypesafe();
-        
+
         // we can't know all the types ahead of time with processes, but we don't need return types, so it's ok
-        context.setTypesafe( false ); 
-        
+        context.setTypesafe( false );
+
         MVELAnalysisResult analysis = null;
-        try { 
-            BoundIdentifiers boundIdentifiers 
+        try {
+            BoundIdentifiers boundIdentifiers
                 = new BoundIdentifiers(variables, context.getKnowledgeBuilder().getGlobals());
             analysis = ( MVELAnalysisResult ) dialect.analyzeBlock( context,
                                                                     text,
@@ -104,25 +104,25 @@ public class AbstractMVELBuilder {
                                                                     null,
                                                                     "context",
                                                                     org.kie.api.runtime.process.ProcessContext.class );
-        } finally { 
+        } finally {
             context.setTypesafe( typeSafe );
         }
-        
+
         return analysis;
     }
-    
+
     protected void collectTypes(String key, AnalysisResult analysis, ProcessBuildContext context) {
         if (context.getProcess() != null) {
             Set<String> referencedTypes = new HashSet<String>();
-            
+
             MVELAnalysisResult mvelAnalysis = (MVELAnalysisResult) analysis;
-            
-            for( Class<?> varClass : mvelAnalysis.getMvelVariables().values() ) { 
+
+            for( Class<?> varClass : mvelAnalysis.getMvelVariables().values() ) {
                 referencedTypes.add(varClass.getCanonicalName());
             }
-            
+
             context.getProcess().getMetaData().put(key + "ReferencedTypes", referencedTypes);
         }
-        
+
     }
 }

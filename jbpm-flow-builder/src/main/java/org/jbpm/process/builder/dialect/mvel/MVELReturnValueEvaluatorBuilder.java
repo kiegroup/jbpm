@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class MVELReturnValueEvaluatorBuilder extends AbstractMVELBuilder 
+public class MVELReturnValueEvaluatorBuilder extends AbstractMVELBuilder
     implements
     ReturnValueEvaluatorBuilder {
 
@@ -59,15 +59,15 @@ public class MVELReturnValueEvaluatorBuilder extends AbstractMVELBuilder
                 return;
             }
 
-            buildReturnValueEvaluator(context, 
-                                      constraintNode, 
-                                      descr, 
-                                      contextResolver, 
-                                      dialect, 
-                                      analysis, 
-                                      text, 
+            buildReturnValueEvaluator(context,
+                                      constraintNode,
+                                      descr,
+                                      contextResolver,
+                                      dialect,
+                                      analysis,
+                                      text,
                                       variables);
-          
+
         } catch ( final Exception e ) {
             context.getErrors().add( new DescrBuildError( context.getParentDescr(),
                                                           descr,
@@ -79,18 +79,18 @@ public class MVELReturnValueEvaluatorBuilder extends AbstractMVELBuilder
     public void buildReturnValueEvaluator(final PackageBuildContext context,
             final ReturnValueConstraintEvaluator constraintNode,
             final ReturnValueDescr descr,
-            final ContextResolver contextResolver, 
+            final ContextResolver contextResolver,
             final MVELDialect dialect,
-            final MVELAnalysisResult analysis, 
-            final String text, 
+            final MVELAnalysisResult analysis,
+            final String text,
             Map<String, Class<?>> variables) throws Exception {
-        
+
         Set<String> variableNames = analysis.getNotBoundedIdentifiers();
         if (contextResolver != null) {
             for (String variableName: variableNames) {
                 if (  analysis.getMvelVariables().keySet().contains( variableName ) ||  variableName.equals( "kcontext" ) || variableName.equals( "context" ) ) {
                     continue;
-                }                    
+                }
                 VariableScope variableScope = (VariableScope) contextResolver.resolveContext(VariableScope.VARIABLE_SCOPE, variableName);
                 if (variableScope == null) {
                     context.getErrors().add(
@@ -98,13 +98,13 @@ public class MVELReturnValueEvaluatorBuilder extends AbstractMVELBuilder
                             context.getParentDescr(),
                             descr,
                             null,
-                            "Could not find variable '" + variableName + "' for action '" + descr.getText() + "'" ) );                    
+                            "Could not find variable '" + variableName + "' for action '" + descr.getText() + "'" ) );
                 } else {
                     variables.put(variableName,
                                   context.getDialect().getTypeResolver().resolveType(variableScope.findVariable(variableName).getType().getStringType()));
                 }
             }
-        }              
+        }
 
         MVELCompilationUnit unit = dialect.getMVELCompilationUnit( text,
                                                                    analysis,
@@ -123,13 +123,13 @@ public class MVELReturnValueEvaluatorBuilder extends AbstractMVELBuilder
         // expr.setVariableNames(variableNames);
 
         constraintNode.setEvaluator( expr );
-        
+
         MVELDialectRuntimeData data = (MVELDialectRuntimeData) context.getPkg().getDialectRuntimeRegistry().getDialectData( dialect.getId() );
         data.addCompileable( constraintNode,
                               expr );
-        
+
         expr.compile( data );
-        
+
         collectTypes("MVELReturnValue", analysis, (ProcessBuildContext) context);
     }
 }

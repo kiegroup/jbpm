@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -37,10 +37,10 @@ import org.kie.internal.task.api.model.Deadlines;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JaxbDeadlines implements Deadlines {
 
-    public JaxbDeadlines() { 
-       // no-arg constructor for JAXB 
+    public JaxbDeadlines() {
+       // no-arg constructor for JAXB
     }
-    
+
     @Override
     public List<Deadline> getStartDeadlines() {
         return Collections.emptyList();

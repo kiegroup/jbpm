@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -59,11 +59,11 @@ public class HumanTaskReassignmentTest extends JbpmTestCase {
         ksession = engine.getKieSession();
         taskService = engine.getTaskService();
     }
-    
+
     @After
     public void cleanup() {
-    	runtimeManager.disposeRuntimeEngine(engine);
-    	runtimeManager.close();
+        runtimeManager.disposeRuntimeEngine(engine);
+        runtimeManager.close();
     }
 
     private void testTimeout(boolean businessHour) throws InterruptedException {
@@ -74,7 +74,7 @@ public class HumanTaskReassignmentTest extends JbpmTestCase {
         Thread.sleep(2000);
         potOwner = getTaskPotentialOwner(taskId);
         assertEquals(businessHour ? MARY : JOHN, potOwner);
-        
+
         ksession.abortProcessInstance(pid);
     }
 

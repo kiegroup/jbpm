@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -40,10 +40,10 @@ import org.kie.internal.runtime.manager.audit.query.RequestInfoQueryBuilder;
 public class RequestInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<RequestInfoQueryBuilder>  implements RequestInfoQueryBuilder {
 
     private final ExecutorJPAAuditService jpaAuditService;
-    
-     public RequestInfoQueryBuilderImpl(ExecutorJPAAuditService jpaAuditService) { 
+
+     public RequestInfoQueryBuilderImpl(ExecutorJPAAuditService jpaAuditService) {
         this.jpaAuditService = jpaAuditService;
-     }		
+     }
 
     @Override
     public RequestInfoQueryBuilder commandName( String... commandName ) {
@@ -125,9 +125,9 @@ public class RequestInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<Reques
         return this;
     }
 
-    private String convertOrderByToListId(RequestInfoQueryBuilder.OrderBy field) { 
+    private String convertOrderByToListId(RequestInfoQueryBuilder.OrderBy field) {
         String listId;
-        switch( field ) { 
+        switch( field ) {
         case deploymentId:
             listId = QueryParameterIdentifiers.DEPLOYMENT_ID_LIST;
             break;
@@ -148,14 +148,14 @@ public class RequestInfoQueryBuilderImpl extends AbstractQueryBuilderImpl<Reques
             break;
         default:
             throw new IllegalArgumentException("Unknown 'order-by' field: " + field.toString() );
-        } 
+        }
         return listId;
     }
 
     @Override
     public ParametrizedQuery<RequestInfo> build() {
         return new ParametrizedQuery<RequestInfo>() {
-            private QueryWhere queryData = new QueryWhere(getQueryWhere()); 
+            private QueryWhere queryData = new QueryWhere(getQueryWhere());
             @Override
             public List<RequestInfo> getResultList() {
                 return jpaAuditService.queryLogs(queryData, org.jbpm.executor.entities.RequestInfo.class, RequestInfo.class);

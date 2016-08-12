@@ -28,20 +28,20 @@ import org.jbpm.shared.services.impl.TransactionalCommandService;
 public class ExecutorDatabaseProducer {
 
     private EntityManagerFactory emf;
-	
+
     @PersistenceUnit(unitName = "org.jbpm.executor")
     @ApplicationScoped
     @Produces
     public EntityManagerFactory getEntityManagerFactory() {
-    	if (this.emf == null) {
-    		// this needs to be here for non EE containers
-    		this.emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
-    	}
-    	return this.emf;
+        if (this.emf == null) {
+            // this needs to be here for non EE containers
+            this.emf = Persistence.createEntityManagerFactory("org.jbpm.executor");
+        }
+        return this.emf;
     }
 
     @Produces
     public TransactionalCommandService produceCommandService(EntityManagerFactory emf) {
-    	return new TransactionalCommandService(emf);
+        return new TransactionalCommandService(emf);
     }
 }

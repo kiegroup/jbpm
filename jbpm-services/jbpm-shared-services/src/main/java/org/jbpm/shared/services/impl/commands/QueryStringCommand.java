@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -23,31 +23,31 @@ import org.kie.internal.command.Context;
 
 public class QueryStringCommand<T> implements GenericCommand<T> {
 
-	private static final long serialVersionUID = -4014807273522465028L;
+    private static final long serialVersionUID = -4014807273522465028L;
 
-	private Class<T> resultType;
-	private String queryName;
-	private Map<String, Object> params;
-	
-	public QueryStringCommand(String queryName) {
-		this.resultType = (Class<T>) Object.class.getClass();
-		this.queryName = queryName;
-	}
-	
-	public QueryStringCommand(String queryName, Map<String, Object> params) {
-		this.resultType = (Class<T>) Object.class.getClass();
-		this.queryName = queryName;
-		this.params = params;
-	}
-	
-	@Override
-	public T execute(Context context) {
-		JpaPersistenceContext ctx = (JpaPersistenceContext) context;
-		if (params == null) {
-			return ctx.queryStringInTransaction(queryName, resultType);
-		} else {
-			return ctx.queryStringWithParametersInTransaction(queryName, params, resultType);
-		}
-	}
+    private Class<T> resultType;
+    private String queryName;
+    private Map<String, Object> params;
+
+    public QueryStringCommand(String queryName) {
+        this.resultType = (Class<T>) Object.class.getClass();
+        this.queryName = queryName;
+    }
+
+    public QueryStringCommand(String queryName, Map<String, Object> params) {
+        this.resultType = (Class<T>) Object.class.getClass();
+        this.queryName = queryName;
+        this.params = params;
+    }
+
+    @Override
+    public T execute(Context context) {
+        JpaPersistenceContext ctx = (JpaPersistenceContext) context;
+        if (params == null) {
+            return ctx.queryStringInTransaction(queryName, resultType);
+        } else {
+            return ctx.queryStringWithParametersInTransaction(queryName, params, resultType);
+        }
+    }
 
 }

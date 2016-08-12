@@ -127,21 +127,21 @@ public class AsyncThreadContinuationTest extends JbpmTestCase {
     @Test(timeout = 10000)
     public void testRepeatIntermediateTimerAfterException() {
         CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("MySignal", 1, true);
-        
+
         KieSession ksession = createKSession(BPMN_IT);
         ksession.addEventListener(countDownListener);
         ProcessInstance pi = ksession.startProcess(PROCESS_IT);
         long pid = pi.getId();
-        
+
         countDownListener.waitTillCompleted();
-        
+
         pi = ksession.getProcessInstance(pid);
         Assertions.assertThat(pi).isNotNull();
-        
+
         ksession.abortProcessInstance(pid);
         pi = ksession.getProcessInstance(pid);
         Assertions.assertThat(pi).isNull();
-        
+
         ProcessInstanceLog log = getLogService().findProcessInstance(pid);
         Assertions.assertThat(log.getStatus()).isEqualTo(ProcessInstance.STATE_ABORTED);
     }

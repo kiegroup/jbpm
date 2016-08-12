@@ -20,8 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 public interface ProcessInstanceDesc {
-	
-	String getProcessId();
+
+    String getProcessId();
 
     Long getId();
 
@@ -36,12 +36,12 @@ public interface ProcessInstanceDesc {
     String getProcessVersion();
 
     String getInitiator();
-    
+
     String getProcessInstanceDescription();
-    
+
     String getCorrelationKey();
 
     Long getParentId();
-    
+
     List<UserTaskInstanceDesc> getActiveTasks();
 }

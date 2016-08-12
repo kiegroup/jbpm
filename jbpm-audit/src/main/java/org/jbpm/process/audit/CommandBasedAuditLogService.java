@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -46,11 +46,11 @@ import org.kie.internal.runtime.manager.audit.query.VariableInstanceLogQueryBuil
 public class CommandBasedAuditLogService implements AuditLogService {
 
     private CommandExecutor executor;
-    
-    public CommandBasedAuditLogService(CommandExecutor executor) { 
-       this.executor = executor; 
+
+    public CommandBasedAuditLogService(CommandExecutor executor) {
+       this.executor = executor;
     }
-    
+
     @Override
     public List<ProcessInstanceLog> findProcessInstances() {
         return executor.execute(new FindProcessInstancesCommand());
@@ -125,32 +125,32 @@ public class CommandBasedAuditLogService implements AuditLogService {
     public ProcessInstanceLogQueryBuilder processInstanceLogQuery() {
         return new ProcInstLogQueryBuilderImpl(executor);
     }
-    
-	@Override
-	public ProcessInstanceLogDeleteBuilder processInstanceLogDelete() {
-		return new ProcessInstanceLogDeleteBuilderImpl(executor);
-	}
-	
-	@Override
-	public NodeInstanceLogDeleteBuilder nodeInstanceLogDelete() {
-		return new NodeInstanceLogDeleteBuilderImpl(executor);
-	}
-	
-	@Override
-	public VariableInstanceLogDeleteBuilder variableInstanceLogDelete() {
-		return new VarInstanceLogDeleteBuilderImpl(executor);
-	}
+
+    @Override
+    public ProcessInstanceLogDeleteBuilder processInstanceLogDelete() {
+        return new ProcessInstanceLogDeleteBuilderImpl(executor);
+    }
+
+    @Override
+    public NodeInstanceLogDeleteBuilder nodeInstanceLogDelete() {
+        return new NodeInstanceLogDeleteBuilderImpl(executor);
+    }
+
+    @Override
+    public VariableInstanceLogDeleteBuilder variableInstanceLogDelete() {
+        return new VarInstanceLogDeleteBuilderImpl(executor);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T, R> List<R> queryLogs( QueryWhere queryWhere, Class<T> queryClass, Class<R> resultClass ) {
-        if( queryClass.equals(NodeInstanceLog.class) ) { 
+        if( queryClass.equals(NodeInstanceLog.class) ) {
             return (List<R>) executor.execute(new AuditNodeInstanceLogQueryCommand(queryWhere));
-        } else if( queryClass.equals(ProcessInstanceLog.class) ) { 
+        } else if( queryClass.equals(ProcessInstanceLog.class) ) {
             return (List<R>) executor.execute(new AuditProcessInstanceLogQueryCommand(queryWhere));
-        } else if( queryClass.equals(VariableInstanceLog.class) ) { 
+        } else if( queryClass.equals(VariableInstanceLog.class) ) {
             return (List<R>) executor.execute(new AuditVariableInstanceLogQueryCommand(queryWhere));
-        } else { 
+        } else {
             String type = queryClass == null ? "null" : queryClass.getName();
             throw new IllegalArgumentException("Unknown type for query:" + type );
         }
@@ -163,7 +163,7 @@ public class CommandBasedAuditLogService implements AuditLogService {
 
     @Override
     public void dispose() {
-       // no-op 
+       // no-op
     }
 
 }

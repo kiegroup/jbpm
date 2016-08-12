@@ -22,35 +22,35 @@ import org.junit.Test;
 
 
 public class InMemorySimpleExecutorTest extends BasicExecutorBaseTest{
-    
-    
+
+
     @Before
     public void setUp() {
 
         executorService = ExecutorServiceFactory.newExecutorService();
-        
+
         executorService.init();
         super.setUp();
     }
-    
+
     @After
     public void tearDown() {
         super.tearDown();
         executorService.destroy();
     }
-   
+
     @Override
     @Test
     @Ignore("It's only for JPA based as it removes data from db")
     public void cleanupLogExecutionTest() throws InterruptedException {
-    	
+
     }
-    
+
     @Override
     @Test
     @Ignore("It's only for JPA based as it removes data from db")
     public void reoccurringExecutionTest() throws InterruptedException {
-    	
+
     }
 
     @Override
@@ -69,7 +69,7 @@ public class InMemorySimpleExecutorTest extends BasicExecutorBaseTest{
 
     @Test
     @Ignore("It's only for JPA based as it in memory does not care about delays")
-    public void testCustomIncrementingRequestRetrySpecialValues() throws InterruptedException {        
+    public void testCustomIncrementingRequestRetrySpecialValues() throws InterruptedException {
         super.testCustomIncrementingRequestRetrySpecialValues();
     }
 
@@ -84,5 +84,5 @@ public class InMemorySimpleExecutorTest extends BasicExecutorBaseTest{
     public void testPrioritizedJobsExecutionInvalidProrities() throws InterruptedException {
         super.testPrioritizedJobsExecutionInvalidProrities();
     }
-    
+
 }

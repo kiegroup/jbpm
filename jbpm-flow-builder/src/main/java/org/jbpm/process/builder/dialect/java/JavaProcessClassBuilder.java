@@ -1,12 +1,12 @@
 /*
  * Copyright 2006 Red Hat, Inc. and/or its affiliates.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -47,7 +47,7 @@ public class JavaProcessClassBuilder
         if ( context.getMethods().isEmpty() ) {
             return null;
         }
-        
+
         final String lineSeparator = System.getProperty( "line.separator" );
 
         final StringBuilder buffer = new StringBuilder();
@@ -68,13 +68,13 @@ public class JavaProcessClassBuilder
         }
 
         final ProcessDescr processDescr = context.getProcessDescr();
-        
+
         buffer.append( "public class " + StringUtils.ucFirst( processDescr.getClassName() ) + " {" + lineSeparator );
         buffer.append( "    private static final long serialVersionUID = 510l;" + lineSeparator );
 
         // @TODO record line numbers for each Action method
         for ( int i = 0, size = context.getMethods().size(); i < size; i++ ) {
-            buffer.append( context.getMethods().get( i ) + lineSeparator );           
+            buffer.append( context.getMethods().get( i ) + lineSeparator );
         }
 
         final String[] lines = buffer.toString().split( lineSeparator );

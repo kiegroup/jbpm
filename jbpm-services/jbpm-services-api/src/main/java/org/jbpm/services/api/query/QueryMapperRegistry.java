@@ -35,16 +35,16 @@ import org.slf4j.LoggerFactory;
  * as fully qualified class names that implement <code>org.jbpm.services.api.query.QueryResultMapper</code>
  */
 public class QueryMapperRegistry {
-    
+
     public static final Logger logger = LoggerFactory.getLogger(QueryMapperRegistry.class);
     private static QueryMapperRegistry INSTANCE = new QueryMapperRegistry();
-    
+
     private ConcurrentMap<String, QueryResultMapper<?>> knownMappers = new ConcurrentHashMap<String, QueryResultMapper<?>>();
-    
+
     protected QueryMapperRegistry() {
         discoverAndAddMappers(this.getClass().getClassLoader());
     }
-    
+
     /**
      * Returns instance of the registry that is already populated with known mappers.
      * @return
@@ -52,11 +52,11 @@ public class QueryMapperRegistry {
     public static QueryMapperRegistry get() {
         return INSTANCE;
     }
-    
+
     /**
      * Returns mapper for given name if found
      * @param name unique name that mapper is bound to
-     * @param columnMapping provides column mapping (name to type) that can be 
+     * @param columnMapping provides column mapping (name to type) that can be
      * shipped to mapper for improved transformation - can be null (accepted types: string, long, integer, date, double)
      * @return instance of the <code>QueryResultMapper</code> if found
      * @throws IllegalArgumentException in case there is no mapper found with given name
@@ -71,7 +71,7 @@ public class QueryMapperRegistry {
             return knownMappers.get(name).forColumnMapping(columnMapping);
         }
     }
-    
+
     /**
      * Discovers and adds all <code>QueryResultMappers</code> to the known set
      * @param cl class laoder used to discover mappers
@@ -90,10 +90,10 @@ public class QueryMapperRegistry {
                 logger.debug("Mapper {} already existing in the registry", mapper.getName());
             }
         }
-        
+
         return added;
     }
-    
+
     public void addMapper(QueryResultMapper<?> mapper) {
         QueryResultMapper<?> existed = knownMappers.putIfAbsent(mapper.getName(), mapper);
         if (existed == null) {
@@ -102,7 +102,7 @@ public class QueryMapperRegistry {
             logger.debug("Mapper {} already existing in the registry", mapper.getName());
         }
     }
-    
+
     public void removeMapper(String mapperName) {
         QueryResultMapper<?> existed = knownMappers.remove(mapperName);
         if (existed != null) {

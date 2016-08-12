@@ -40,7 +40,7 @@ public class RSSWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
         try {
-          
+
             List<String> urls   = new ArrayList<String>();
             String urlsList = (String) workItem.getParameter("URL");
 
@@ -60,9 +60,9 @@ public class RSSWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
             manager.completeWorkItem(workItem.getId(), null);
         } catch (Exception ex) {
             handleException(ex);
-        } 
+        }
 
-         
+
     }
     public List<SyndFeed> getFeeds(){
         return this.feeds;

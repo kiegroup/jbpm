@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 import javax.inject.Qualifier;
 
 /**
- * Defines that a annotated element is of type Task, used with 
+ * Defines that a annotated element is of type Task, used with
  * <code>EventListenerProducer</code>
  */
 @Qualifier

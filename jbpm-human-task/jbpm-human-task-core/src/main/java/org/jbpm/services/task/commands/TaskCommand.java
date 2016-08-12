@@ -30,19 +30,19 @@ import org.drools.core.command.impl.GenericCommand;
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class TaskCommand<T> implements GenericCommand<T> {
 
-	private static final long serialVersionUID = -8814813191723981179L;
-	
-	@XmlElement(name="task-id")
+    private static final long serialVersionUID = -8814813191723981179L;
+
+    @XmlElement(name="task-id")
     @XmlSchemaType(name="long")
     protected Long taskId;
-    
+
     @XmlElement(name="user-id")
     @XmlSchemaType(name="string")
     protected String userId;
-    
+
     @XmlElement(name="group-id")
     protected List<String> groupIds;
-    
+
     @XmlElement(name="target-entity-id")
     @XmlSchemaType(name="string")
     protected String targetEntityId;

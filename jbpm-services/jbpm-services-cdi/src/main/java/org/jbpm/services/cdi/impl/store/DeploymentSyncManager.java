@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,41 +33,41 @@ import org.kie.internal.runtime.cdi.BootOnLoad;
 @BootOnLoad
 @ApplicationScoped
 public class DeploymentSyncManager {
-	
-	@Inject
-	private DeploymentService deploymentService;
-	
-	@Inject
-	private TransactionalCommandService commandService;
-	
-	private DeploymentSyncInvoker invoker;
-	private DeploymentSynchronizer synchronizer;
 
-	@PostConstruct
-	public void configureAndStart() {
-		
-    	try {
-    		InitialContext.doLookup("java:module/DeploymentSynchronizerCDInvoker");
-    	} catch (Exception e) {
-    		
-    		DeploymentStore store = new DeploymentStore();
-    		store.setCommandService(commandService);
-    		
-    		synchronizer = new DeploymentSynchronizer();
-    		synchronizer.setDeploymentService(deploymentService);
-    		synchronizer.setDeploymentStore(store);
-            
+    @Inject
+    private DeploymentService deploymentService;
+
+    @Inject
+    private TransactionalCommandService commandService;
+
+    private DeploymentSyncInvoker invoker;
+    private DeploymentSynchronizer synchronizer;
+
+    @PostConstruct
+    public void configureAndStart() {
+
+        try {
+            InitialContext.doLookup("java:module/DeploymentSynchronizerCDInvoker");
+        } catch (Exception e) {
+
+            DeploymentStore store = new DeploymentStore();
+            store.setCommandService(commandService);
+
+            synchronizer = new DeploymentSynchronizer();
+            synchronizer.setDeploymentService(deploymentService);
+            synchronizer.setDeploymentStore(store);
+
             invoker = new DeploymentSyncInvoker(synchronizer);
             invoker.start();
-    	}
-	}
-	
-	@PreDestroy
-	public void cleanup() {
-		if (invoker != null) {
-			invoker.stop();
-		}
-	}
-	
+        }
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        if (invoker != null) {
+            invoker.stop();
+        }
+    }
+
 
 }

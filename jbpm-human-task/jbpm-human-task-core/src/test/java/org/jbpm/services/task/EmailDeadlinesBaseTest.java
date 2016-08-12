@@ -63,7 +63,7 @@ import org.subethamail.wiser.WiserMessage;
 
 public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
     private static final Logger logger = LoggerFactory.getLogger(EmailDeadlinesBaseTest.class);
-    
+
     private Wiser wiser;
 
     public void setup() {
@@ -75,20 +75,20 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         wiser.setPort(Integer.parseInt(props.getProperty("mail.smtp.port", "2345")));
         wiser.start();
         try {
-        	Thread.sleep(1000);
+            Thread.sleep(1000);
         } catch (Throwable t) {
-        	// Do nothing
+            // Do nothing
         }
     }
-    
-    
+
+
     public void tearDown(){
         if (wiser != null) {
             wiser.stop();
             try {
-            	Thread.sleep(1000);
+                Thread.sleep(1000);
             } catch (Throwable t) {
-            	// Do nothing
+                // Do nothing
             }
         }
         super.tearDown();
@@ -98,37 +98,37 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         return this.wiser;
     }
 
-    @Test(timeout=10000)    
-    public void testDelayedEmailNotificationOnDeadline() throws Exception {  
+    @Test(timeout=10000)
+    public void testDelayedEmailNotificationOnDeadline() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         Task task = (Task) TaskFactory.evalTask(reader, vars);
-        
+
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
-        
+
         Map<String, String> params = fillMarshalSubjectAndBodyParams();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
         content.setContent(marshalledObject.getContent());
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-        
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         checkContentSubjectAndBody(unmarshallObject);
 
         // emails should not be set yet
         assertEquals(0, getWiser().getMessages().size());
-        
+
         countDownListener.waitTillCompleted();
-        
+
         for (WiserMessage msg : getWiser().getMessages()) {
             logger.info(msg.getEnvelopeReceiver());
         }
@@ -157,35 +157,35 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertTrue(list.contains("tony@domain.com"));
         assertTrue(list.contains("darth@domain.com"));
     }
-    
-    @Test(timeout=10000)     
+
+    @Test(timeout=10000)
     public void testDelayedEmailNotificationOnDeadlineContentSingleObject() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotificationContentSingleObject));
         Task task = (Task) TaskFactory.evalTask(reader, vars);
-     
+
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, "'singleobject'", null);
         content.setContent(marshalledObject.getContent());
-       
+
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-      
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         assertEquals("'singleobject'", unmarshallObject.toString());
 
         // emails should not be set yet
         assertEquals(0, getWiser().getMessages().size());
-        
+
         countDownListener.waitTillCompleted();
 
         // 1 email with two recipients should now exist
@@ -213,17 +213,17 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertTrue(list.contains("darth@domain.com"));
     }
 
-    @Test(timeout=10000)     
+    @Test(timeout=10000)
     public void testDelayedEmailNotificationOnDeadlineTaskCompleted() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         InternalTask task = (InternalTask) TaskFactory.evalTask(reader, vars);
-        
+
         ((InternalTaskData) task.getTaskData()).setSkipable(true);
         InternalPeopleAssignments assignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         List<OrganizationalEntity> ba = new ArrayList<OrganizationalEntity>();
@@ -231,30 +231,30 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         ((InternalOrganizationalEntity) user).setId("Administrator");
         ba.add(user);
         assignments.setBusinessAdministrators(ba);
-        
+
         List<OrganizationalEntity> po = new ArrayList<OrganizationalEntity>();
         User user2 = TaskModelProvider.getFactory().newUser();
-        ((InternalOrganizationalEntity) user2).setId("Administrator");        
+        ((InternalOrganizationalEntity) user2).setId("Administrator");
         po.add(user2);
         assignments.setPotentialOwners(po);
-        
+
         task.setPeopleAssignments(assignments);
-        
+
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
-        
+
         Map<String, String> params = fillMarshalSubjectAndBodyParams();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
         content.setContent(marshalledObject.getContent());
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-        
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         checkContentSubjectAndBody(unmarshallObject);
-        
+
         taskService.start(taskId, "Administrator");
         taskService.complete(taskId, "Administrator", null);
         // emails should not be set yet
@@ -266,20 +266,20 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         task = (InternalTask) taskService.getTaskById(taskId);
         assertEquals(Status.Completed, task.getTaskData().getStatus());
         assertEquals(0, task.getDeadlines().getStartDeadlines().size());
-        assertEquals(0, task.getDeadlines().getEndDeadlines().size());       
+        assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
 
-    @Test(timeout=10000)     
+    @Test(timeout=10000)
     public void testDelayedEmailNotificationOnDeadlineTaskFailed() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         InternalTask task = (InternalTask) TaskFactory.evalTask(reader, vars);
-        
+
         ((InternalTaskData) task.getTaskData()).setSkipable(true);
         InternalPeopleAssignments assignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         List<OrganizationalEntity> ba = new ArrayList<OrganizationalEntity>();
@@ -287,36 +287,36 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         ((InternalOrganizationalEntity) user).setId("Administrator");
         ba.add(user);
         assignments.setBusinessAdministrators(ba);
-        
+
         List<OrganizationalEntity> po = new ArrayList<OrganizationalEntity>();
         User user2 = TaskModelProvider.getFactory().newUser();
-        ((InternalOrganizationalEntity) user2).setId("Administrator");        
+        ((InternalOrganizationalEntity) user2).setId("Administrator");
         po.add(user2);
         assignments.setPotentialOwners(po);
-        
+
         task.setPeopleAssignments(assignments);
-        
-        
+
+
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
-        
+
         Map<String, String> params = fillMarshalSubjectAndBodyParams();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
         content.setContent(marshalledObject.getContent());
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-        
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         checkContentSubjectAndBody(unmarshallObject);
-        
+
         taskService.start(taskId, "Administrator");
         taskService.fail(taskId, "Administrator", null);
         // emails should not be set yet
         assertEquals(0, getWiser().getMessages().size());
-        
+
         countDownListener.waitTillCompleted();
 
         // no email should ne sent as task was completed before deadline was triggered
@@ -327,17 +327,17 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
 
-    @Test(timeout=10000)     
+    @Test(timeout=10000)
     public void testDelayedEmailNotificationOnDeadlineTaskSkipped() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         InternalTask task = (InternalTask) TaskFactory.evalTask(reader, vars);
-        
+
         ((InternalTaskData) task.getTaskData()).setSkipable(true);
         InternalPeopleAssignments assignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         List<OrganizationalEntity> ba = new ArrayList<OrganizationalEntity>();
@@ -345,33 +345,33 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         ((InternalOrganizationalEntity) user).setId("Administrator");
         ba.add(user);
         assignments.setBusinessAdministrators(ba);
-        
+
         List<OrganizationalEntity> po = new ArrayList<OrganizationalEntity>();
         User user2 = TaskModelProvider.getFactory().newUser();
-        ((InternalOrganizationalEntity) user2).setId("Administrator");        
+        ((InternalOrganizationalEntity) user2).setId("Administrator");
         po.add(user2);
         assignments.setPotentialOwners(po);
-        
+
         task.setPeopleAssignments(assignments);
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
-        
+
         Map<String, String> params = fillMarshalSubjectAndBodyParams();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
         content.setContent(marshalledObject.getContent());
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-        
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         checkContentSubjectAndBody(unmarshallObject);
-        
+
         taskService.skip(taskId, "Administrator");
         // emails should not be set yet
         assertEquals(0, getWiser().getMessages().size());
-        
+
         countDownListener.waitTillCompleted();
 
         // no email should ne sent as task was completed before deadline was triggered
@@ -382,17 +382,17 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
 
-    @Test(timeout=10000)         
+    @Test(timeout=10000)
     public void testDelayedEmailNotificationOnDeadlineTaskExited() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         InternalTask task = (InternalTask) TaskFactory.evalTask(reader, vars);
-        
+
         ((InternalTaskData) task.getTaskData()).setSkipable(true);
         InternalPeopleAssignments assignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         List<OrganizationalEntity> ba = new ArrayList<OrganizationalEntity>();
@@ -400,33 +400,33 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         ((InternalOrganizationalEntity) user).setId("Administrator");
         ba.add(user);
         assignments.setBusinessAdministrators(ba);
-        
+
         List<OrganizationalEntity> po = new ArrayList<OrganizationalEntity>();
         User user2 = TaskModelProvider.getFactory().newUser();
-        ((InternalOrganizationalEntity) user2).setId("Administrator");        
+        ((InternalOrganizationalEntity) user2).setId("Administrator");
         po.add(user2);
         assignments.setPotentialOwners(po);
-        
+
         task.setPeopleAssignments(assignments);
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
 
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
-        
+
         Map<String, String> params = fillMarshalSubjectAndBodyParams();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
         content.setContent(marshalledObject.getContent());
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-        
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         checkContentSubjectAndBody(unmarshallObject);
-        
+
         taskService.exit(taskId, "Administrator");
         // emails should not be set yet
         assertEquals(0, getWiser().getMessages().size());
-        
+
         countDownListener.waitTillCompleted();
 
         // no email should ne sent as task was completed before deadline was triggered
@@ -437,11 +437,11 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertEquals(0, task.getDeadlines().getEndDeadlines().size());
     }
 
-    @Test(timeout=10000)     
+    @Test(timeout=10000)
     public void testDelayedReassignmentOnDeadline() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(1, true, false);
         addCountDownListner(countDownListener);
-        
+
 
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
@@ -462,7 +462,7 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
 
         // should have re-assigned by now
         countDownListener.waitTillCompleted();
-        
+
         task = taskService.getTaskById(taskId);
         assertEquals(Status.Ready, task.getTaskData().getStatus());
         potentialOwners = (List<OrganizationalEntity>) task.getPeopleAssignments().getPotentialOwners();
@@ -475,17 +475,17 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         assertTrue(ids.contains("Jabba Hutt"));
     }
 
-    @Test(timeout=10000)     
+    @Test(timeout=10000)
     public void testDelayedEmailNotificationStartDeadlineStatusDoesNotMatch() throws Exception {
         CountDownTaskEventListener countDownListener = new CountDownTaskEventListener(2, false, true);
         addCountDownListner(countDownListener);
-        
+
         Map<String, Object> vars = new HashMap<String, Object>();
         vars.put("now", new Date());
 
         Reader reader = new InputStreamReader(getClass().getResourceAsStream(MvelFilePath.DeadlineWithNotification));
         InternalTask task = (InternalTask) TaskFactory.evalTask(reader, vars);
-          
+
         ((InternalTaskData) task.getTaskData()).setSkipable(true);
         InternalPeopleAssignments assignments = (InternalPeopleAssignments) TaskModelProvider.getFactory().newPeopleAssignments();
         List<OrganizationalEntity> ba = new ArrayList<OrganizationalEntity>();
@@ -493,36 +493,36 @@ public abstract class EmailDeadlinesBaseTest extends HumanTaskServicesBaseTest {
         ((InternalOrganizationalEntity) user).setId("Administrator");
         ba.add(user);
         assignments.setBusinessAdministrators(ba);
-          
+
         List<OrganizationalEntity> po = new ArrayList<OrganizationalEntity>();
         User user2 = TaskModelProvider.getFactory().newUser();
-        ((InternalOrganizationalEntity) user2).setId("Administrator");        
+        ((InternalOrganizationalEntity) user2).setId("Administrator");
         po.add(user2);
         assignments.setPotentialOwners(po);
-        
+
         task.setPeopleAssignments(assignments);
-        
+
         taskService.addTask(task, new HashMap<String, Object>());
         long taskId = task.getId();
         InternalContent content = (InternalContent) TaskModelProvider.getFactory().newContent();
-        
+
         Map<String, String> params = fillMarshalSubjectAndBodyParams();
         ContentData marshalledObject = ContentMarshallerHelper.marshal(task, params, null);
         content.setContent(marshalledObject.getContent());
         taskService.addContent(taskId, content);
         long contentId = content.getId();
-        
+
         content = (InternalContent) taskService.getContentById(contentId);
         Object unmarshallObject = ContentMarshallerHelper.unmarshall(content.getContent(), null);
         checkContentSubjectAndBody(unmarshallObject);
-        
+
         taskService.start(taskId, "Administrator");
-        
+
         // emails should not be set yet
         assertEquals(0, getWiser().getMessages().size());
         // since we don't want the notification to be invoked we need to rely on timeout
         countDownListener.waitTillCompleted(3000);
-        
+
         // no email should ne sent as task was completed before deadline was triggered
         assertEquals(0, getWiser().getMessages().size());
         task = (InternalTask) taskService.getTaskById(taskId);

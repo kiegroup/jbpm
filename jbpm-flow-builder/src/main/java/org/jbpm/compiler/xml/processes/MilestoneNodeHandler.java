@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -29,7 +29,7 @@ public class MilestoneNodeHandler extends AbstractNodeHandler {
     }
 
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return MilestoneNode.class;
     }
 
@@ -39,31 +39,31 @@ public class MilestoneNodeHandler extends AbstractNodeHandler {
         super.handleNode(node, element, uri, localName, parser);
         MilestoneNode milestoneNode = (MilestoneNode) node;
         for (String eventType: milestoneNode.getActionTypes()) {
-        	handleAction(milestoneNode, element, eventType);
+            handleAction(milestoneNode, element, eventType);
         }
     }
-    
+
     public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		MilestoneNode milestoneNode = (MilestoneNode) node;
-		writeNode("milestone", milestoneNode, xmlDump, includeMeta);
+        MilestoneNode milestoneNode = (MilestoneNode) node;
+        writeNode("milestone", milestoneNode, xmlDump, includeMeta);
         String constraint = milestoneNode.getConstraint();
         if (constraint != null || milestoneNode.getTimers() != null || milestoneNode.containsActions()) {
             xmlDump.append(">\n");
             if (includeMeta) {
-            	writeMetaData(milestoneNode, xmlDump);
+                writeMetaData(milestoneNode, xmlDump);
             }
             if (constraint != null) {
-            	xmlDump.append("      <constraint type=\"rule\" dialect=\"mvel\" >"
-            			+ XmlDumper.replaceIllegalChars(constraint.trim()) + "</constraint>" + EOL);
+                xmlDump.append("      <constraint type=\"rule\" dialect=\"mvel\" >"
+                        + XmlDumper.replaceIllegalChars(constraint.trim()) + "</constraint>" + EOL);
             }
             for (String eventType: milestoneNode.getActionTypes()) {
-            	writeActions(eventType, milestoneNode.getActions(eventType), xmlDump);
+                writeActions(eventType, milestoneNode.getActions(eventType), xmlDump);
             }
             writeTimers(milestoneNode.getTimers(), xmlDump);
             endNode("milestone", xmlDump);
         } else {
             endNode(xmlDump);
         }
-	}
+    }
 
 }

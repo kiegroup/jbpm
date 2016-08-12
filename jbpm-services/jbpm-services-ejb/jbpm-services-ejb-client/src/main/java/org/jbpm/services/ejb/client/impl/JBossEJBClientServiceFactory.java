@@ -39,39 +39,39 @@ import org.jbpm.services.ejb.client.ClientServiceFactory;
  *
  */
 public class JBossEJBClientServiceFactory implements ClientServiceFactory {
-	
-	private static final String NAME = "JBoss";
-	
-	private Map<Class<?>, String> beansMappedNames = new HashMap<Class<?>, String>();
-	
-	public JBossEJBClientServiceFactory() {
-		beansMappedNames.put(ProcessServiceEJBRemote.class, "ProcessServiceEJBImpl!org.jbpm.services.ejb.api.ProcessServiceEJBRemote");
-		beansMappedNames.put(DeploymentServiceEJBRemote.class, "DeploymentServiceEJBImpl!org.jbpm.services.ejb.api.DeploymentServiceEJBRemote");
-		beansMappedNames.put(DefinitionServiceEJBRemote.class, "DefinitionServiceEJBImpl!org.jbpm.services.ejb.api.DefinitionServiceEJBRemote");
-		beansMappedNames.put(RuntimeDataServiceEJBRemote.class, "RuntimeDataServiceEJBImpl!org.jbpm.services.ejb.api.RuntimeDataServiceEJBRemote");
-		beansMappedNames.put(UserTaskServiceEJBRemote.class, "UserTaskServiceEJBImpl!org.jbpm.services.ejb.api.UserTaskServiceEJBRemote");
-		beansMappedNames.put(QueryServiceEJBRemote.class, "QueryServiceEJBImpl!org.jbpm.services.ejb.api.query.QueryServiceEJBRemote");
-		beansMappedNames.put(ProcessInstanceMigrationServiceEJBRemote.class, "ProcessInstanceMigrationServiceEJBImpl!org.jbpm.services.ejb.api.admin.ProcessInstanceMigrationServiceEJBRemote");
-	}
 
-	@SuppressWarnings("unchecked")
-	public <T> T getService(String application, Class<T> serviceInterface) throws NamingException {
-		
-		final Hashtable<String, String> jndiProperties = new Hashtable<String, String>();
+    private static final String NAME = "JBoss";
+
+    private Map<Class<?>, String> beansMappedNames = new HashMap<Class<?>, String>();
+
+    public JBossEJBClientServiceFactory() {
+        beansMappedNames.put(ProcessServiceEJBRemote.class, "ProcessServiceEJBImpl!org.jbpm.services.ejb.api.ProcessServiceEJBRemote");
+        beansMappedNames.put(DeploymentServiceEJBRemote.class, "DeploymentServiceEJBImpl!org.jbpm.services.ejb.api.DeploymentServiceEJBRemote");
+        beansMappedNames.put(DefinitionServiceEJBRemote.class, "DefinitionServiceEJBImpl!org.jbpm.services.ejb.api.DefinitionServiceEJBRemote");
+        beansMappedNames.put(RuntimeDataServiceEJBRemote.class, "RuntimeDataServiceEJBImpl!org.jbpm.services.ejb.api.RuntimeDataServiceEJBRemote");
+        beansMappedNames.put(UserTaskServiceEJBRemote.class, "UserTaskServiceEJBImpl!org.jbpm.services.ejb.api.UserTaskServiceEJBRemote");
+        beansMappedNames.put(QueryServiceEJBRemote.class, "QueryServiceEJBImpl!org.jbpm.services.ejb.api.query.QueryServiceEJBRemote");
+        beansMappedNames.put(ProcessInstanceMigrationServiceEJBRemote.class, "ProcessInstanceMigrationServiceEJBImpl!org.jbpm.services.ejb.api.admin.ProcessInstanceMigrationServiceEJBRemote");
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getService(String application, Class<T> serviceInterface) throws NamingException {
+
+        final Hashtable<String, String> jndiProperties = new Hashtable<String, String>();
         jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
         final Context context = new InitialContext(jndiProperties);
         String mappedName = beansMappedNames.get(serviceInterface);
         if (mappedName == null) {
-        	throw new IllegalArgumentException("Unknown service interface " + serviceInterface.getName());
+            throw new IllegalArgumentException("Unknown service interface " + serviceInterface.getName());
         }
         String jndi = "ejb:/" + application + "/" + mappedName;
-        
-		T bean = (T) context.lookup(jndi);
-		return bean;
-	}
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+        T bean = (T) context.lookup(jndi);
+        return bean;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
+    }
 }

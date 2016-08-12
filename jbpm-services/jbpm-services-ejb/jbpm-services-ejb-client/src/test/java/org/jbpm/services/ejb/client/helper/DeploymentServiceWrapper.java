@@ -27,47 +27,47 @@ import org.kie.api.runtime.manager.RuntimeManager;
 
 public class DeploymentServiceWrapper implements DeploymentService {
 
-	private DeploymentServiceEJBRemote remote;
-	
-	public DeploymentServiceWrapper(DeploymentServiceEJBRemote remote) {
-		this.remote = remote;
-	}
-	@Override
-	public void deploy(DeploymentUnit unit) {
-		
-		KModuleDeploymentUnit kmoduleUnit = (KModuleDeploymentUnit) unit;
-		remote.deploy(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion(),
-				kmoduleUnit.getKbaseName(), kmoduleUnit.getKsessionName(), kmoduleUnit.getStrategy().toString());
-	}
+    private DeploymentServiceEJBRemote remote;
 
-	@Override
-	public void undeploy(DeploymentUnit unit) {
-		remote.undeploy(unit.getIdentifier());
-	}
+    public DeploymentServiceWrapper(DeploymentServiceEJBRemote remote) {
+        this.remote = remote;
+    }
+    @Override
+    public void deploy(DeploymentUnit unit) {
 
-	@Override
-	public RuntimeManager getRuntimeManager(String deploymentUnitId) {
-		throw new UnsupportedOperationException("Not supported");
-	}
+        KModuleDeploymentUnit kmoduleUnit = (KModuleDeploymentUnit) unit;
+        remote.deploy(kmoduleUnit.getGroupId(), kmoduleUnit.getArtifactId(), kmoduleUnit.getVersion(),
+                kmoduleUnit.getKbaseName(), kmoduleUnit.getKsessionName(), kmoduleUnit.getStrategy().toString());
+    }
 
-	@Override
-	public DeployedUnit getDeployedUnit(String deploymentUnitId) {
-		throw new UnsupportedOperationException("Not supported");
-	}
+    @Override
+    public void undeploy(DeploymentUnit unit) {
+        remote.undeploy(unit.getIdentifier());
+    }
 
-	@Override
-	public Collection<DeployedUnit> getDeployedUnits() {
-		throw new UnsupportedOperationException("Not supported");
-	}
-	@Override
-	public void activate(String deploymentId) {
-		remote.activate(deploymentId);
-		
-	}
-	@Override
-	public void deactivate(String deploymentId) {
-		remote.deactivate(deploymentId);
-	}
+    @Override
+    public RuntimeManager getRuntimeManager(String deploymentUnitId) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public DeployedUnit getDeployedUnit(String deploymentUnitId) {
+        throw new UnsupportedOperationException("Not supported");
+    }
+
+    @Override
+    public Collection<DeployedUnit> getDeployedUnits() {
+        throw new UnsupportedOperationException("Not supported");
+    }
+    @Override
+    public void activate(String deploymentId) {
+        remote.activate(deploymentId);
+
+    }
+    @Override
+    public void deactivate(String deploymentId) {
+        remote.deactivate(deploymentId);
+    }
 
     @Override
     public boolean isDeployed(String deploymentUnitId) {

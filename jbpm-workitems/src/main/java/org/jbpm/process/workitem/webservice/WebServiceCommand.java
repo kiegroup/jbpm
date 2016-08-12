@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Web Service executor command that executes web service call using Apache CXF. 
+ * Web Service executor command that executes web service call using Apache CXF.
  * It expects following parameters to be able to operate:
  * <ul>
  *  <li>Interface - valid interface/service name of the web service (port type name from wsdl)</li>
@@ -44,97 +44,97 @@ import org.slf4j.LoggerFactory;
  *  <li>Namespace - name space of the web service</li>
  *  <li>Endpoint - overrides the endpoint address defined in the referenced WSDL.</li>
  * </ul>
- * 
+ *
  * Web service call is synchronous but since it's executor command it will be invoked as asynchronous task any way.
  */
 public class WebServiceCommand implements Command, Cacheable {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(WebServiceCommand.class);
     private volatile static ConcurrentHashMap<String, Client> clients = new ConcurrentHashMap<String, Client>();
     private DynamicClientFactory dcf = null;
 
     @Override
     public ExecutionResults execute(CommandContext ctx) throws Exception {
-    	// since JaxWsDynamicClientFactory will change the TCCL we need to restore it after creating client
+        // since JaxWsDynamicClientFactory will change the TCCL we need to restore it after creating client
         ClassLoader origClassloader = Thread.currentThread().getContextClassLoader();
         try {
-	    	Object[] parameters = null;
-	        WorkItem workItem = (WorkItem) ctx.getData("workItem");
-	        
-	        String interfaceRef = (String) workItem.getParameter("Interface");
-	        String operationRef = (String) workItem.getParameter("Operation");
-	        String endpointAddress = (String) workItem.getParameter("Endpoint");
-	        if ( workItem.getParameter("Parameter") instanceof Object[]) {
-	        	parameters =  (Object[]) workItem.getParameter("Parameter");
-	        } else if (workItem.getParameter("Parameter") != null && workItem.getParameter("Parameter").getClass().isArray()) {
-	        	int length = Array.getLength(workItem.getParameter("Parameter"));
-	            parameters = new Object[length];
-	            for(int i = 0; i < length; i++) {
-	            	parameters[i] = Array.get(workItem.getParameter("Parameter"), i);
-	            }            
-	        } else {
-	        	parameters = new Object[]{ workItem.getParameter("Parameter")};
-	        }
-	        
-	        Client client = getWSClient(workItem, interfaceRef, ctx);
-	        
-	        //Override endpoint address if configured.
-	        if (endpointAddress != null && !"".equals(endpointAddress)) {
-	       	 client.getRequestContext().put(Message.ENDPOINT_ADDRESS, endpointAddress) ;
-	        }
-	        
-	        Object[] result = client.invoke(operationRef, parameters);
-	        
-	        ExecutionResults results = new ExecutionResults();       
-	
-	        if (result == null || result.length == 0) {
-	            results.setData("Result", null);
-	        } else {
-	            results.setData("Result", result[0]);
-	        }
-	        logger.debug("Received sync response {}", result);
-	        
-	        
-	        return results;
+            Object[] parameters = null;
+            WorkItem workItem = (WorkItem) ctx.getData("workItem");
+
+            String interfaceRef = (String) workItem.getParameter("Interface");
+            String operationRef = (String) workItem.getParameter("Operation");
+            String endpointAddress = (String) workItem.getParameter("Endpoint");
+            if ( workItem.getParameter("Parameter") instanceof Object[]) {
+                parameters =  (Object[]) workItem.getParameter("Parameter");
+            } else if (workItem.getParameter("Parameter") != null && workItem.getParameter("Parameter").getClass().isArray()) {
+                int length = Array.getLength(workItem.getParameter("Parameter"));
+                parameters = new Object[length];
+                for(int i = 0; i < length; i++) {
+                    parameters[i] = Array.get(workItem.getParameter("Parameter"), i);
+                }
+            } else {
+                parameters = new Object[]{ workItem.getParameter("Parameter")};
+            }
+
+            Client client = getWSClient(workItem, interfaceRef, ctx);
+
+            //Override endpoint address if configured.
+            if (endpointAddress != null && !"".equals(endpointAddress)) {
+             client.getRequestContext().put(Message.ENDPOINT_ADDRESS, endpointAddress) ;
+            }
+
+            Object[] result = client.invoke(operationRef, parameters);
+
+            ExecutionResults results = new ExecutionResults();
+
+            if (result == null || result.length == 0) {
+                results.setData("Result", null);
+            } else {
+                results.setData("Result", result[0]);
+            }
+            logger.debug("Received sync response {}", result);
+
+
+            return results;
         }finally {
-    		Thread.currentThread().setContextClassLoader(origClassloader);
-    	}
+            Thread.currentThread().setContextClassLoader(origClassloader);
+        }
     }
-    
-    
+
+
     protected synchronized Client getWSClient(WorkItem workItem, String interfaceRef, CommandContext ctx) {
         if (clients.containsKey(interfaceRef)) {
             return clients.get(interfaceRef);
         }
-        
+
         String importLocation = (String) workItem.getParameter("Url");
         String importNamespace = (String) workItem.getParameter("Namespace");
-        if (importLocation != null && importLocation.trim().length() > 0 
+        if (importLocation != null && importLocation.trim().length() > 0
                 && importNamespace != null && importNamespace.trim().length() > 0) {
-        	
+
             Client client = getDynamicClientFactory(ctx).createClient(importLocation, new QName(importNamespace, interfaceRef), Thread.currentThread().getContextClassLoader(), null);
             clients.put(interfaceRef, client);
             return client;
-        	
+
         }
 
         return null;
     }
-    
+
     protected synchronized DynamicClientFactory getDynamicClientFactory(CommandContext ctx) {
-    	if (this.dcf == null) {
-    		this.dcf = JaxWsDynamicClientFactory.newInstance();
-    	}
-    	return this.dcf;
+        if (this.dcf == null) {
+            this.dcf = JaxWsDynamicClientFactory.newInstance();
+        }
+        return this.dcf;
     }
-    
-	@Override
-	public void close() {
-		if (clients != null) {
-			for (Client client : clients.values()) {
-				client.destroy();
-			}
-		}
-	}
+
+    @Override
+    public void close() {
+        if (clients != null) {
+            for (Client client : clients.values()) {
+                client.destroy();
+            }
+        }
+    }
 
 }

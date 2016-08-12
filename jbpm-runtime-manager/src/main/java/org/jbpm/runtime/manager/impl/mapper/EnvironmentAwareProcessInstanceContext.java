@@ -21,13 +21,13 @@ import org.kie.internal.runtime.manager.context.ProcessInstanceIdContext;
 
 public class EnvironmentAwareProcessInstanceContext extends ProcessInstanceIdContext {
 
-	private Environment environment;
-	public EnvironmentAwareProcessInstanceContext(Environment environment, Long processInstanceId) {
-		super(processInstanceId);
-		this.environment = environment;
-	}
-	
-	public Environment getEnvironment() {
-		return this.environment;
-	}
+    private Environment environment;
+    public EnvironmentAwareProcessInstanceContext(Environment environment, Long processInstanceId) {
+        super(processInstanceId);
+        this.environment = environment;
+    }
+
+    public Environment getEnvironment() {
+        return this.environment;
+    }
 }

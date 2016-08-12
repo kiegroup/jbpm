@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -27,46 +27,46 @@ import org.kie.internal.task.query.TaskEventDeleteBuilder;
 
 public class TaskEventDeleteBuilderImpl extends AbstractAuditDeleteBuilderImpl<TaskEventDeleteBuilder> implements TaskEventDeleteBuilder {
 
-    private static String TASK_EVENT_IMPL_DELETE = 
+    private static String TASK_EVENT_IMPL_DELETE =
             "DELETE\n"
             + "FROM TaskEventImpl l\n";
-    
+
     public TaskEventDeleteBuilderImpl(CommandExecutor cmdExecutor ) {
         super(cmdExecutor);
         intersect();
     }
-  
-    public TaskEventDeleteBuilderImpl(JPAAuditLogService jpaAuditService) { 
+
+    public TaskEventDeleteBuilderImpl(JPAAuditLogService jpaAuditService) {
        super(jpaAuditService);
        intersect();
     }
 
-	@Override
-	public TaskEventDeleteBuilder date(Date... date) {
-		if (checkIfNull(date)) {
-			return this;
-		}
-		addObjectParameter(TASK_EVENT_DATE_ID_LIST, "created on date", ensureDateNotTimestamp(date));
-		return this;
-	}
-
-	@Override
-	public TaskEventDeleteBuilder dateRangeStart(Date rangeStart) {
-		if (checkIfNull(rangeStart)) {
-			return this;
-		}
-		addRangeParameter(TASK_EVENT_DATE_ID_LIST, "created on date range end", ensureDateNotTimestamp(rangeStart)[0], true);
-		return this;
-	}
-
-	@Override
-	public TaskEventDeleteBuilder dateRangeEnd(Date rangeStart) {
-		if (checkIfNull(rangeStart)) {
-			return this;
-		}
-		addRangeParameter(TASK_EVENT_DATE_ID_LIST, "created on date range end", ensureDateNotTimestamp(rangeStart)[0], false);
+    @Override
+    public TaskEventDeleteBuilder date(Date... date) {
+        if (checkIfNull(date)) {
+            return this;
+        }
+        addObjectParameter(TASK_EVENT_DATE_ID_LIST, "created on date", ensureDateNotTimestamp(date));
         return this;
-	}
+    }
+
+    @Override
+    public TaskEventDeleteBuilder dateRangeStart(Date rangeStart) {
+        if (checkIfNull(rangeStart)) {
+            return this;
+        }
+        addRangeParameter(TASK_EVENT_DATE_ID_LIST, "created on date range end", ensureDateNotTimestamp(rangeStart)[0], true);
+        return this;
+    }
+
+    @Override
+    public TaskEventDeleteBuilder dateRangeEnd(Date rangeStart) {
+        if (checkIfNull(rangeStart)) {
+            return this;
+        }
+        addRangeParameter(TASK_EVENT_DATE_ID_LIST, "created on date range end", ensureDateNotTimestamp(rangeStart)[0], false);
+        return this;
+    }
 
     @Override
     protected Class getQueryType() {

@@ -19,16 +19,16 @@ package org.jbpm.services.ejb.client;
 import java.util.ServiceLoader;
 
 public class ServiceFactoryProvider {
-	
-	private static ServiceLoader<ClientServiceFactory> serviceLoader = ServiceLoader.load(ClientServiceFactory.class);
 
-	public static ClientServiceFactory getProvider(String name) {
-		for (ClientServiceFactory factory : serviceLoader) {
-			if (factory.getName().equals(name)) {
-				return factory;
-			}
-		}
-		
-		throw new IllegalArgumentException("No client factory found for name" + name);
-	}
+    private static ServiceLoader<ClientServiceFactory> serviceLoader = ServiceLoader.load(ClientServiceFactory.class);
+
+    public static ClientServiceFactory getProvider(String name) {
+        for (ClientServiceFactory factory : serviceLoader) {
+            if (factory.getName().equals(name)) {
+                return factory;
+            }
+        }
+
+        throw new IllegalArgumentException("No client factory found for name" + name);
+    }
 }

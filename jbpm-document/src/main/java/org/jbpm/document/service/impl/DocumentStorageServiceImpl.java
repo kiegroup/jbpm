@@ -76,7 +76,7 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
 
     @Override
     public Document saveDocument(Document document, byte[] content) {
-        
+
         if (StringUtils.isEmpty(document.getIdentifier())) {
             document.setIdentifier(generateUniquePath());
         }
@@ -182,12 +182,12 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
     @Override
     public List<Document> listDocuments(Integer page, Integer pageSize) {
         List<Document> listOfDocs = new ArrayList<Document>();
-        
+
         int startIndex = page * pageSize;
         int endIndex = startIndex + pageSize;
-        
+
         File[] documents = storageFile.listFiles();
-        
+
         // make sure the endIndex is not bigger then amount of files
         if (documents.length < endIndex) {
             endIndex = documents.length;

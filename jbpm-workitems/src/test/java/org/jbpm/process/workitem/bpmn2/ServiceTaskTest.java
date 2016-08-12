@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,42 +39,42 @@ import org.kie.internal.KnowledgeBaseFactory;
 public class ServiceTaskTest extends AbstractBaseTest {
 
     @Test
-	public void testServiceTaskWithClassInKjar() throws Exception {
-        
+    public void testServiceTaskWithClassInKjar() throws Exception {
+
         String javaSrc ="package org.jbpm.workitems; " +
                         " public class HelloService { " +
                         "     public String hello(String name) { " +
                         "         return \"Hello \" + name + \"!\"; " +
                         "     } " +
                         " }";
-        
+
         KnowledgeBaseFactory.setKnowledgeBaseServiceFactory(new KnowledgeBaseFactoryServiceImpl());
         KieServices ks = KieServices.Factory.get();
         KieFileSystem kfs = ks.newKieFileSystem();
         kfs.writeKModuleXML(ks.newKieModuleModel().toXML())
         .write("src/main/resources/BPMN2-ServiceProcess.bpmn2", IOUtils.toString(this.getClass().getResourceAsStream("/BPMN2-ServiceProcess.bpmn2")))
         .write("src/main/java/org/jbpm/workitems/HelloService.java", javaSrc);
-        
+
         ks.newKieBuilder( kfs ).buildAll();
         KieContainer kcontainer = ks.newKieContainer(ks.getRepository().getDefaultReleaseId());
-        
+
         KieSession ksession = createSession(kcontainer.getKieBase());
         ksession.getWorkItemManager().registerWorkItemHandler("Service Task", new ServiceTaskHandler(ksession, kcontainer.getClassLoader()));
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("s", "john");
-        
+
         WorkflowProcessInstance processInstance = (WorkflowProcessInstance) ksession.startProcess("ServiceProcess", params);
         String variable = (String) processInstance.getVariable("s");
         assertEquals("Hello john!", variable);
         assertEquals(ProcessInstance.STATE_COMPLETED, processInstance.getState());
-	}
+    }
 
-	
-	private static KieSession createSession(KieBase kbase) {
-		Properties properties = new Properties();
-		properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
-		properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
-		KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
-		return kbase.newKieSession(config, EnvironmentFactory.newEnvironment());
-	}
+
+    private static KieSession createSession(KieBase kbase) {
+        Properties properties = new Properties();
+        properties.put("drools.processInstanceManagerFactory", "org.jbpm.process.instance.impl.DefaultProcessInstanceManagerFactory");
+        properties.put("drools.processSignalManagerFactory", "org.jbpm.process.instance.event.DefaultSignalManagerFactory");
+        KieSessionConfiguration config = KnowledgeBaseFactory.newKnowledgeSessionConfiguration(properties);
+        return kbase.newKieSession(config, EnvironmentFactory.newEnvironment());
+    }
 }

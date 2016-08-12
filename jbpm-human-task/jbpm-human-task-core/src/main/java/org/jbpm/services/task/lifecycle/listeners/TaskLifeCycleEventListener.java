@@ -24,20 +24,20 @@ import org.kie.api.task.TaskEvent;
  *
  */
 public interface TaskLifeCycleEventListener extends org.kie.api.task.TaskLifeCycleEventListener {
-    
-	public void beforeTaskUpdatedEvent(TaskEvent event);
-    
-    public void afterTaskUpdatedEvent(TaskEvent event); 
-    
+
+    public void beforeTaskUpdatedEvent(TaskEvent event);
+
+    public void afterTaskUpdatedEvent(TaskEvent event);
+
     public void beforeTaskReassignedEvent(TaskEvent event);
-    
-    public void afterTaskReassignedEvent(TaskEvent event); 
-    
+
+    public void afterTaskReassignedEvent(TaskEvent event);
+
     public void beforeTaskNotificationEvent(TaskEvent event);
-    
-    public void afterTaskNotificationEvent(TaskEvent event); 
-    
+
+    public void afterTaskNotificationEvent(TaskEvent event);
+
     public void afterTaskInputVariableChangedEvent(TaskEvent event, Map<String, Object> variables);
-    
-    public void afterTaskOutputVariableChangedEvent(TaskEvent event, Map<String, Object> variables); 
+
+    public void afterTaskOutputVariableChangedEvent(TaskEvent event, Map<String, Object> variables);
 }

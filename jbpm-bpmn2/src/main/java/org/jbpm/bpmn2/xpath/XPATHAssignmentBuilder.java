@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -22,9 +22,9 @@ import org.jbpm.workflow.core.node.Assignment;
 
 public class XPATHAssignmentBuilder implements AssignmentBuilder {
 
-	public void build(PackageBuildContext context, Assignment assignment, String sourceExpr, String targetExpr,
-					  ContextResolver contextResolver, boolean isInput) {
-		assignment.setMetaData("Action", new XPATHAssignmentAction(assignment, sourceExpr, targetExpr, isInput));
-	}
+    public void build(PackageBuildContext context, Assignment assignment, String sourceExpr, String targetExpr,
+                      ContextResolver contextResolver, boolean isInput) {
+        assignment.setMetaData("Action", new XPATHAssignmentAction(assignment, sourceExpr, targetExpr, isInput));
+    }
 
 }

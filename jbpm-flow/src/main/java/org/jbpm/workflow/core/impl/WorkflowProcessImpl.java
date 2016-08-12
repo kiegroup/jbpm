@@ -23,24 +23,24 @@ import org.jbpm.workflow.core.WorkflowProcess;
 
 /**
  * Default implementation of a RuleFlow process.
- * 
+ *
  */
 public class WorkflowProcessImpl extends ProcessImpl implements WorkflowProcess, org.jbpm.workflow.core.NodeContainer {
 
     private static final long serialVersionUID = 510l;
-    
+
     private boolean autoComplete = false;
     private boolean dynamic = false;
     private org.jbpm.workflow.core.NodeContainer nodeContainer;
-    
+
     public WorkflowProcessImpl() {
         nodeContainer = (org.jbpm.workflow.core.NodeContainer) createNodeContainer();
     }
-    
+
     protected NodeContainer createNodeContainer() {
         return new NodeContainerImpl();
     }
-    
+
     public Node[] getNodes() {
         return nodeContainer.getNodes();
     }
@@ -48,17 +48,17 @@ public class WorkflowProcessImpl extends ProcessImpl implements WorkflowProcess,
     public Node getNode(final long id) {
         return nodeContainer.getNode(id);
     }
-    
+
     public Node internalGetNode(long id) {
-    	try {
-    		return getNode(id);
-    	} catch (IllegalArgumentException e) {
-    		if (dynamic) {
-    			return null;
-    		} else {
-    			throw e;
-    		}
-    	}
+        try {
+            return getNode(id);
+        } catch (IllegalArgumentException e) {
+            if (dynamic) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
     }
 
     public void removeNode(final Node node) {
@@ -70,21 +70,21 @@ public class WorkflowProcessImpl extends ProcessImpl implements WorkflowProcess,
         nodeContainer.addNode(node);
         ((org.jbpm.workflow.core.Node) node).setNodeContainer(this);
     }
-    
+
     public boolean isAutoComplete() {
         return autoComplete;
     }
-    
+
     public void setAutoComplete(boolean autoComplete) {
         this.autoComplete = autoComplete;
     }
 
-	public boolean isDynamic() {
-		return dynamic;
-	}
+    public boolean isDynamic() {
+        return dynamic;
+    }
 
-	public void setDynamic(boolean dynamic) {
-		this.dynamic = dynamic;
-	}
+    public void setDynamic(boolean dynamic) {
+        this.dynamic = dynamic;
+    }
 
 }

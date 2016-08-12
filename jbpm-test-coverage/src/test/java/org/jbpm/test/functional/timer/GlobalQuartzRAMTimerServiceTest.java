@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -32,20 +32,20 @@ import org.kie.api.runtime.manager.RuntimeManagerFactory;
 
 @RunWith(Parameterized.class)
 public class GlobalQuartzRAMTimerServiceTest extends GlobalTimerServiceBaseTest {
-    
+
     private int managerType;
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
-        Object[][] data = new Object[][] { { 1 }, { 2 }, { 3 }  };        
+        Object[][] data = new Object[][] { { 1 }, { 2 }, { 3 }  };
         return Arrays.asList(data);
     };
-    
+
     public GlobalQuartzRAMTimerServiceTest(int managerType) {
         this.managerType = managerType;
-        
+
     }
-    
+
     @Before
     public void setUp() {
         tearDownOnce();
@@ -56,39 +56,39 @@ public class GlobalQuartzRAMTimerServiceTest extends GlobalTimerServiceBaseTest 
         globalScheduler = new QuartzSchedulerService();
         ((QuartzSchedulerService)globalScheduler).forceShutdown();
     }
-    
+
     @After
     public void tearDown(){
         try {
             globalScheduler.shutdown();
         } catch (Exception e) {
-            
-        }   
+
+        }
         cleanup();
         tearDownOnce();
     }
 
     @Override
     protected RuntimeManager getManager(RuntimeEnvironment environment, boolean waitOnStart) {
-    	RuntimeManager manager = null;
-    	if (managerType ==1) {
-    		manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
+        RuntimeManager manager = null;
+        if (managerType ==1) {
+            manager = RuntimeManagerFactory.Factory.get().newSingletonRuntimeManager(environment);
         } else if (managerType == 2) {
-        	manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
+            manager = RuntimeManagerFactory.Factory.get().newPerRequestRuntimeManager(environment);
         } else if (managerType == 3) {
-        	manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
+            manager = RuntimeManagerFactory.Factory.get().newPerProcessInstanceRuntimeManager(environment);
         } else {
             throw new IllegalArgumentException("Invalid runtime maanger type");
         }
-    	if (waitOnStart) {
-	        // wait for the 2 seconds (default startup delay for quartz)
-	    	try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				// do nothing
-			}
-    	}
-    	return manager;
+        if (waitOnStart) {
+            // wait for the 2 seconds (default startup delay for quartz)
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                // do nothing
+            }
+        }
+        return manager;
     }
 
 }

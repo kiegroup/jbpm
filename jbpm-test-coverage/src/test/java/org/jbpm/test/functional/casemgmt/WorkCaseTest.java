@@ -124,7 +124,7 @@ public class WorkCaseTest extends JbpmTestCase {
 
         taskService.start(task.getId(), responsible);
         taskService.complete(task.getId(), responsible, null);
-        
+
         String secondConsultant = "admin";
         wcs.addConsultant(caseId, secondConsultant);
 

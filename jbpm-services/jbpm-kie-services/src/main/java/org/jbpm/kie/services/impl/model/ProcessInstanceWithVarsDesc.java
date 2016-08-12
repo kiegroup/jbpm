@@ -40,18 +40,18 @@ public class ProcessInstanceWithVarsDesc extends ProcessInstanceDesc implements 
     }
 
     public ProcessInstanceWithVarsDesc(long id, String processId, String processName, String processVersion, int state, String deploymentId, Date dataTimeStamp, String initiator, String correlationKey) {
-        super(id, processId, processName, processVersion, state, deploymentId, dataTimeStamp, initiator, correlationKey);     
+        super(id, processId, processName, processVersion, state, deploymentId, dataTimeStamp, initiator, correlationKey);
     }
 
     @Override
     public Map<String, Object> getVariables() {
         return variables;
     }
-    
+
     public void setVariables(Map<String, Object> variables) {
         this.variables = variables;
     }
-    
+
     public void addVariable(String variable, Object variableValue) {
         if (this.variables == null) {
             this.variables = new HashMap<String, Object>();

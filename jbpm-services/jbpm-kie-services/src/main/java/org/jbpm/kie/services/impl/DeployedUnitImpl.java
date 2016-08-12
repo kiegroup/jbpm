@@ -30,15 +30,15 @@ import org.jbpm.services.api.model.DeploymentUnit;
 import org.kie.api.runtime.manager.RuntimeManager;
 
 public class DeployedUnitImpl implements DeployedUnit {
-    
+
     private DeploymentUnit unit;
     private RuntimeManager manager;
-    
+
     private boolean active = true;
-    
+
     private Map<String, DeployedAsset> assets = new HashMap<String, DeployedAsset>();
     private Set<Class<?>> classes = new CopyOnWriteArraySet<Class<?>>();
-    
+
     public DeployedUnitImpl(DeploymentUnit unit) {
         this.unit = unit;
     }
@@ -57,15 +57,15 @@ public class DeployedUnitImpl implements DeployedUnit {
     public RuntimeManager getRuntimeManager() {
         return this.manager;
     }
-    
+
     public void addAssetLocation(String assetId, ProcessAssetDesc processAsset) {
         this.assets.put(assetId, processAsset);
     }
-    
+
     public void addClass(Class<?> kModuleClass) {
         this.classes.add(kModuleClass);
     }
-    
+
     public void setRuntimeManager(RuntimeManager manager) {
         if (this.manager != null) {
             throw new IllegalStateException("RuntimeManager already exists");
@@ -83,12 +83,12 @@ public class DeployedUnitImpl implements DeployedUnit {
         return Collections.unmodifiableCollection(classes);
     }
 
-	public boolean isActive() {
-		return active;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	public void setActive(boolean active) {
-		this.active = active;
-	}
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
 }

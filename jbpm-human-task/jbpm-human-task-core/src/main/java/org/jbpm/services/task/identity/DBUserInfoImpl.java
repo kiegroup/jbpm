@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,271 +36,271 @@ import org.slf4j.LoggerFactory;
 
 public class DBUserInfoImpl extends AbstractUserGroupInfo implements UserInfo {
 
-    private static final Logger logger = LoggerFactory.getLogger(DBUserInfoImpl.class);    
+    private static final Logger logger = LoggerFactory.getLogger(DBUserInfoImpl.class);
     protected static final String DEFAULT_PROPERTIES_NAME = "classpath:/jbpm.user.info.properties";
-    
+
     public static final String DS_JNDI_NAME = "db.ds.jndi.name";
     public static final String NAME_QUERY = "db.name.query";
     public static final String EMAIL_QUERY = "db.email.query";
     public static final String LANG_QUERY = "db.lang.query";
     public static final String HAS_EMAIL_QUERY = "db.has.email.query";
     public static final String MEMBERS_QUERY = "db.group.mem.query";
-    
+
     private Properties config;
-    private DataSource ds; 
-    
+    private DataSource ds;
+
     //no no-arg constructor to prevent cdi from auto deploy
     public DBUserInfoImpl(boolean activate) {
-        String propertiesLocation = System.getProperty("jbpm.user.info.properties");        
+        String propertiesLocation = System.getProperty("jbpm.user.info.properties");
         config = readProperties(propertiesLocation, DEFAULT_PROPERTIES_NAME);
         init();
 
     }
-    
+
     public DBUserInfoImpl(Properties config) {
-        this.config = config;        
+        this.config = config;
         init();
 
     }
-    
-	protected Connection getConnection() throws SQLException {
 
-		return ds.getConnection();
-	}
-	
-	private void init() {
-		if (this.config == null || !this.config.containsKey(DS_JNDI_NAME) || 
-				!this.config.containsKey(NAME_QUERY) || !this.config.containsKey(EMAIL_QUERY) 
-				|| !this.config.containsKey(MEMBERS_QUERY) || !this.config.containsKey(LANG_QUERY)) {
-			throw new IllegalArgumentException("All properties must be given ("+ DS_JNDI_NAME + ","
-					+ NAME_QUERY +"," + EMAIL_QUERY +"," + LANG_QUERY + "," + EMAIL_QUERY +"," +MEMBERS_QUERY +")");
-		}
-		String jndiName = this.config.getProperty(DS_JNDI_NAME, "java:/DefaultDS");
-		try {
-			InitialContext ctx = new InitialContext();
-			
-			ds = (DataSource) ctx.lookup(jndiName);
+    protected Connection getConnection() throws SQLException {
 
-		} catch (Exception e) {
-			throw new IllegalStateException("Can get data source for DB usergroup callback, JNDI name: " + jndiName, e);
-		}
-	}
-    
-	@Override
-	public String getDisplayName(OrganizationalEntity entity) {
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		String displayName = null;
-		try {
-			conn = ds.getConnection();
+        return ds.getConnection();
+    }
 
-			ps = conn.prepareStatement(this.config.getProperty(NAME_QUERY));
+    private void init() {
+        if (this.config == null || !this.config.containsKey(DS_JNDI_NAME) ||
+                !this.config.containsKey(NAME_QUERY) || !this.config.containsKey(EMAIL_QUERY)
+                || !this.config.containsKey(MEMBERS_QUERY) || !this.config.containsKey(LANG_QUERY)) {
+            throw new IllegalArgumentException("All properties must be given ("+ DS_JNDI_NAME + ","
+                    + NAME_QUERY +"," + EMAIL_QUERY +"," + LANG_QUERY + "," + EMAIL_QUERY +"," +MEMBERS_QUERY +")");
+        }
+        String jndiName = this.config.getProperty(DS_JNDI_NAME, "java:/DefaultDS");
+        try {
+            InitialContext ctx = new InitialContext();
 
-			ps.setString(1, entity.getId());
-			rs = ps.executeQuery();
-			if (rs.next()) {
-				displayName = rs.getString(1);
-			}
-		} catch (Exception e) {
-			logger.error("Error when checking roles in db, parameter: " + entity.getId(), e);
-		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (ps != null) {
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception ex) {
-				}
-			}
-		}
-		return displayName;
-	}
+            ds = (DataSource) ctx.lookup(jndiName);
 
-	@Override
-	public Iterator<OrganizationalEntity> getMembersForGroup(Group group) {
-		List<OrganizationalEntity> roles = new ArrayList<OrganizationalEntity>();
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
+        } catch (Exception e) {
+            throw new IllegalStateException("Can get data source for DB usergroup callback, JNDI name: " + jndiName, e);
+        }
+    }
 
-		try {
-			conn = ds.getConnection();
+    @Override
+    public String getDisplayName(OrganizationalEntity entity) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String displayName = null;
+        try {
+            conn = ds.getConnection();
 
-			ps = conn.prepareStatement(this.config.getProperty(MEMBERS_QUERY));
-			try {
-				ps.setString(1, group.getId());
-			} catch (ArrayIndexOutOfBoundsException ignore) {
+            ps = conn.prepareStatement(this.config.getProperty(NAME_QUERY));
 
-			}
-			rs = ps.executeQuery();
-			while (rs.next()) {
-				roles.add(TaskModelProvider.getFactory().newUser(rs.getString(1)));
-			}
-		} catch (Exception e) {
-			logger.error("Error when fetching members of a group from db, groups id: ", group.getId(), e);
-		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (ps != null) {
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception ex) {
-				}
-			}
-		}
-		return roles.iterator();
-	}
+            ps.setString(1, entity.getId());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                displayName = rs.getString(1);
+            }
+        } catch (Exception e) {
+            logger.error("Error when checking roles in db, parameter: " + entity.getId(), e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (Exception ex) {
+                }
+            }
+        }
+        return displayName;
+    }
 
-	@Override
-	public boolean hasEmail(Group group) {
-		boolean result = false;
-		if (config.containsKey(HAS_EMAIL_QUERY)) {
-			Connection conn = null;
-			PreparedStatement ps = null;
-			ResultSet rs = null;
-			
-			try {
-				conn = ds.getConnection();
+    @Override
+    public Iterator<OrganizationalEntity> getMembersForGroup(Group group) {
+        List<OrganizationalEntity> roles = new ArrayList<OrganizationalEntity>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
-				ps = conn.prepareStatement(this.config.getProperty(HAS_EMAIL_QUERY));
+        try {
+            conn = ds.getConnection();
 
-				ps.setString(1, group.getId());
-				rs = ps.executeQuery();
-				if (rs.next()) {
-					result = true;
-				}
-			} catch (Exception e) {
-				logger.error("Error when checking roles in db, parameter: " + group.getId(), e);
-			} finally {
-				if (rs != null) {
-					try {
-						rs.close();
-					} catch (SQLException e) {
-					}
-				}
-				if (ps != null) {
-					try {
-						ps.close();
-					} catch (SQLException e) {
-					}
-				}
-				if (conn != null) {
-					try {
-						conn.close();
-					} catch (Exception ex) {
-					}
-				}
-			}
-		} else {
-			String email = getEmailForEntity(group);
-			if (email != null) {
-				return true;
-			}
-		}
-		return result;
-	}
+            ps = conn.prepareStatement(this.config.getProperty(MEMBERS_QUERY));
+            try {
+                ps.setString(1, group.getId());
+            } catch (ArrayIndexOutOfBoundsException ignore) {
 
-	@Override
-	public String getEmailForEntity(OrganizationalEntity entity) {
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		String emailAddress = null;
-		try {
-			conn = ds.getConnection();
+            }
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                roles.add(TaskModelProvider.getFactory().newUser(rs.getString(1)));
+            }
+        } catch (Exception e) {
+            logger.error("Error when fetching members of a group from db, groups id: ", group.getId(), e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (Exception ex) {
+                }
+            }
+        }
+        return roles.iterator();
+    }
 
-			ps = conn.prepareStatement(this.config.getProperty(EMAIL_QUERY));
+    @Override
+    public boolean hasEmail(Group group) {
+        boolean result = false;
+        if (config.containsKey(HAS_EMAIL_QUERY)) {
+            Connection conn = null;
+            PreparedStatement ps = null;
+            ResultSet rs = null;
 
-			ps.setString(1, entity.getId());
-			rs = ps.executeQuery();
-			if (rs.next()) {
-				emailAddress = rs.getString(1);
-			}
-		} catch (Exception e) {
-			logger.error("Error when fetching email address from db for entity {}", entity.getId(), e);
-		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (ps != null) {
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception ex) {
-				}
-			}
-		}
-		return emailAddress;
-	}
+            try {
+                conn = ds.getConnection();
 
-	@Override
-	public String getLanguageForEntity(OrganizationalEntity entity) {
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		String language = null;
-		try {
-			conn = ds.getConnection();
+                ps = conn.prepareStatement(this.config.getProperty(HAS_EMAIL_QUERY));
 
-			ps = conn.prepareStatement(this.config.getProperty(LANG_QUERY));
+                ps.setString(1, group.getId());
+                rs = ps.executeQuery();
+                if (rs.next()) {
+                    result = true;
+                }
+            } catch (Exception e) {
+                logger.error("Error when checking roles in db, parameter: " + group.getId(), e);
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException e) {
+                    }
+                }
+                if (ps != null) {
+                    try {
+                        ps.close();
+                    } catch (SQLException e) {
+                    }
+                }
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        } else {
+            String email = getEmailForEntity(group);
+            if (email != null) {
+                return true;
+            }
+        }
+        return result;
+    }
 
-			ps.setString(1, entity.getId());
-			rs = ps.executeQuery();
-			if (rs.next()) {
-				language = rs.getString(1);
-			}
-		} catch (Exception e) {
-			logger.error("Error when fetching language for entity {} ", entity.getId(), e);
-		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (ps != null) {
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			}
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception ex) {
-				}
-			}
-		}
-		return language;
-	}
+    @Override
+    public String getEmailForEntity(OrganizationalEntity entity) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String emailAddress = null;
+        try {
+            conn = ds.getConnection();
+
+            ps = conn.prepareStatement(this.config.getProperty(EMAIL_QUERY));
+
+            ps.setString(1, entity.getId());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                emailAddress = rs.getString(1);
+            }
+        } catch (Exception e) {
+            logger.error("Error when fetching email address from db for entity {}", entity.getId(), e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (Exception ex) {
+                }
+            }
+        }
+        return emailAddress;
+    }
+
+    @Override
+    public String getLanguageForEntity(OrganizationalEntity entity) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String language = null;
+        try {
+            conn = ds.getConnection();
+
+            ps = conn.prepareStatement(this.config.getProperty(LANG_QUERY));
+
+            ps.setString(1, entity.getId());
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                language = rs.getString(1);
+            }
+        } catch (Exception e) {
+            logger.error("Error when fetching language for entity {} ", entity.getId(), e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (Exception ex) {
+                }
+            }
+        }
+        return language;
+    }
 
 }

@@ -20,7 +20,7 @@ import org.kie.api.runtime.process.ProcessContext;
 import org.drools.core.process.instance.WorkItem;
 
 public interface AssignmentAction {
-    
+
     void execute(WorkItem workItem, ProcessContext context) throws Exception;
-    
+
 }

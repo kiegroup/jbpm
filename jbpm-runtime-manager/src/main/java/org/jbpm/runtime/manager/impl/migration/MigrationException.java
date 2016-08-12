@@ -18,7 +18,7 @@ package org.jbpm.runtime.manager.impl.migration;
 
 /**
  * Global migration exception thrown directly upon first failure - fail fast approach.
- * Next to regular information (message and cause) it provides up to date migration 
+ * Next to regular information (message and cause) it provides up to date migration
  * report providing all information about the migration process.
  */
 public class MigrationException extends RuntimeException {
@@ -26,7 +26,7 @@ public class MigrationException extends RuntimeException {
     private static final long serialVersionUID = 5712543628038416507L;
 
     private MigrationReport report;
-    
+
     public MigrationException(String message, Throwable cause, MigrationReport report) {
         super(message, cause);
         this.report = report;
@@ -36,7 +36,7 @@ public class MigrationException extends RuntimeException {
         super(message);
         this.report = report;
     }
-    
+
     public MigrationReport getReport() {
         return this.report;
     }

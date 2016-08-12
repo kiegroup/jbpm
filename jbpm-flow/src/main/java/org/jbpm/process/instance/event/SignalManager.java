@@ -20,13 +20,13 @@ import org.kie.api.runtime.process.EventListener;
 
 
 public interface SignalManager {
-	
-	void signalEvent(String type, Object event);
-	
-	void signalEvent(long processInstanceId, String type, Object event);
-	
-	void addEventListener(String type, EventListener eventListener);
-	
-	void removeEventListener(String type, EventListener eventListener);
+
+    void signalEvent(String type, Object event);
+
+    void signalEvent(long processInstanceId, String type, Object event);
+
+    void addEventListener(String type, EventListener eventListener);
+
+    void removeEventListener(String type, EventListener eventListener);
 
 }

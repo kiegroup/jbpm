@@ -41,11 +41,11 @@ import org.kie.internal.runtime.cdi.BootOnLoad;
 @BootOnLoad
 @ApplicationScoped
 public class QueryServiceCDIImpl extends QueryServiceImpl {
-    
+
     @Inject
     private Instance<DataSetDefRegistry> dataSetDefRegistryInstance;
     @Inject
-    private Instance<DataSetManager> dataSetManagerInstance;    
+    private Instance<DataSetManager> dataSetManagerInstance;
     @Inject
     private Instance<DataSetProviderRegistry> providerRegistryInstance;
 
@@ -81,12 +81,12 @@ public class QueryServiceCDIImpl extends QueryServiceImpl {
         }
         super.init();
     }
-    
+
     @Override
     public void onDeploy(@Observes@Deploy DeploymentEvent event) {
         super.onDeploy(event);
     }
-    
+
     @Override
     public void onUnDeploy(@Observes@Undeploy DeploymentEvent event) {
         super.onUnDeploy(event);

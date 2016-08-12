@@ -26,10 +26,10 @@ public class AsynchronousJobEventImpl implements AsynchronousJobEvent {
     private boolean failed;
     private Throwable exception;
 
-    
+
     public AsynchronousJobEventImpl(RequestInfo job, Throwable exception) {
         super();
-        this.job = job;        
+        this.job = job;
         this.exception = exception;
         if (exception != null) {
             this.failed = true;

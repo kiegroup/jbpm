@@ -40,13 +40,13 @@ import bitronix.tm.TransactionManagerServices;
  *
  */
 public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
-   
+
     public abstract EntityManagerFactory getEmf();
-    
+
     @Test
     public void noActionStrategy() throws Exception {
 
-  
+
          // One potential owner, should go straight to state Reserved
         String parentTaskstr = "(with (new Task()) { priority = 55, taskData = (with( new TaskData()) { } ), ";
         parentTaskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy')  ],businessAdministrators = [ new User('Administrator') ], }),";
@@ -62,9 +62,9 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
 
         Task parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(parentTask1.getTaskData().getStatus(), Status.Reserved);
-        
+
         taskService.start(taskParentId, "salaboy");
-        
+
         String child1Taskstr = "(with (new Task()) { priority = 55,  taskData = (with( new TaskData()) { parentId= "+taskParentId+" } ), ";
         child1Taskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Darth Vader')  ],businessAdministrators = [ new User('Administrator') ], }),";
         child1Taskstr += "names = [ new I18NText( 'en-UK', 'This is my task Child 1 name')] })";
@@ -75,40 +75,40 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
         long child1TaskId = child1Task.getId();
 
         //Test if the task is succesfully created
-        
+
         assertEquals(1, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         Task childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(taskParentId, childTask1.getTaskData().getParentId());
-        
+
         taskService.start(child1TaskId, "Darth Vader");
-        
+
         taskService.complete(child1TaskId, "Darth Vader", null);
-        
+
         childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(Status.Completed, childTask1.getTaskData().getStatus());
-        
+
         parentTask1 = taskService.getTaskById(taskParentId);
-        
-        
+
+
         assertEquals(Status.InProgress, parentTask1.getTaskData().getStatus() );
-        
+
         assertEquals(0, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         taskService.complete(taskParentId, "salaboy", null);
-        
+
         parentTask1 = taskService.getTaskById(taskParentId);
-        
+
         assertEquals(Status.Completed, parentTask1.getTaskData().getStatus() );
-        
+
     }
-    
+
     @Test
     public void onSubtaskCompletionAutoCompleteParentStrategy() throws Exception {
 
-  
+
          // One potential owner, should go straight to state Reserved
         String parentTaskstr = "(with (new Task()) { subTaskStrategy = SubTasksStrategy.EndParentOnAllSubTasksEnd,  priority = 55, taskData = (with( new TaskData()) { } ), ";
         parentTaskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy')  ],businessAdministrators = [ new User('Administrator') ], }),";
@@ -124,9 +124,9 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
 
         Task parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(parentTask1.getTaskData().getStatus(), Status.Reserved);
-        
+
         taskService.start(taskParentId, "salaboy");
-        
+
         String child1Taskstr = "(with (new Task()) { priority = 55,  taskData = (with( new TaskData()) { parentId= "+taskParentId+" } ), ";
         child1Taskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Darth Vader')  ],businessAdministrators = [ new User('Administrator') ], }),";
         child1Taskstr += "names = [ new I18NText( 'en-UK', 'This is my task Child 1 name')] })";
@@ -137,44 +137,44 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
         long child1TaskId = child1Task.getId();
 
         //Test if the task is succesfully created
-        
+
         assertEquals(1, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         Task childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(taskParentId, childTask1.getTaskData().getParentId());
-        
+
         taskService.start(child1TaskId, "Darth Vader");
-        
+
         taskService.complete(child1TaskId, "Darth Vader", null);
-        
+
         childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(Status.Completed, childTask1.getTaskData().getStatus());
-        
+
         parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(0, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         assertEquals(Status.Completed, parentTask1.getTaskData().getStatus() );
-        
-        
+
+
     }
-    
-    
+
+
     /**
      * Loop and create 500 tasks.  The reason to do so, is Java cache's Long objects for small numbers
      * (http://stackoverflow.com/questions/3130311/weird-integer-boxing-in-java), so the ProcessSubTaskCommand was passing
      * the test, even when failing once there were a sufficient number of tasks in the system.
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void onSubtaskCompletionAutoCompleteParentStrategyWithLotsOfTasks() throws Exception {
 
         String tableName = TaskImpl.class.getAnnotation(Table.class).name();
-                
+
         TransactionManagerServices.getTransactionManager().begin();
-        try { 
+        try {
             EntityManager em = getEmf().createEntityManager();
             Query query = em.createNativeQuery(
                     "select SEQUENCE_NAME from INFORMATION_SCHEMA.COLUMNS "
@@ -183,14 +183,14 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
             String seqName = (String) query.getSingleResult();
             query = em.createNativeQuery("alter sequence " + seqName + " increment by 1000");
             query.executeUpdate();
-            
+
             TransactionManagerServices.getTransactionManager().commit();
-        } catch( Throwable t ) { 
-        	TransactionManagerServices.getTransactionManager().rollback();
+        } catch( Throwable t ) {
+            TransactionManagerServices.getTransactionManager().rollback();
             // underlying database is NOT h2, skip test
             Assume.assumeFalse(true);
         }
-    	
+
          // One potential owner, should go straight to state Reserved
         String parentTaskstr = "(with (new Task()) { subTaskStrategy = SubTasksStrategy.EndParentOnAllSubTasksEnd,  priority = 55, taskData = (with( new TaskData()) { } ), ";
         parentTaskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('salaboy')  ],businessAdministrators = [ new User('Administrator') ], }),";
@@ -206,9 +206,9 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
 
         Task parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(parentTask1.getTaskData().getStatus(), Status.Reserved);
-        
+
         taskService.start(taskParentId, "salaboy");
-        
+
         String child1Taskstr = "(with (new Task()) { priority = 55,  taskData = (with( new TaskData()) { parentId= "+taskParentId+" } ), ";
         child1Taskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Darth Vader')  ],businessAdministrators = [ new User('Administrator') ], }),";
         child1Taskstr += "names = [ new I18NText( 'en-UK', 'This is my task Child 1 name')] })";
@@ -219,24 +219,24 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
         long child1TaskId = child1Task.getId();
 
         //Test if the task is succesfully created
-        
+
         assertEquals(1, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         Task childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(taskParentId, childTask1.getTaskData().getParentId());
-        
+
         taskService.start(child1TaskId, "Darth Vader");
-        
+
         taskService.complete(child1TaskId, "Darth Vader", null);
-        
+
         childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(Status.Completed, childTask1.getTaskData().getStatus());
-        
+
         parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(0, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         assertEquals(Status.Completed, parentTask1.getTaskData().getStatus() );
     }
 
@@ -244,8 +244,8 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
     @Test
     public void onParentAbortCompleteAllSubTasksStrategy() throws Exception {
 
-  
-         // One potential owner, should go straight to state Reserved 
+
+         // One potential owner, should go straight to state Reserved
         // Notice skippable in task data
         String parentTaskstr = "(with (new Task()) { subTaskStrategy = SubTasksStrategy.SkipAllSubTasksOnParentSkip ,  priority = 55, "
                                 + "taskData = (with( new TaskData()) { skipable = true } ), ";
@@ -262,9 +262,9 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
 
         Task parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(parentTask1.getTaskData().getStatus(), Status.Reserved);
-        
+
         taskService.start(taskParentId, "salaboy");
-        
+
         String child1Taskstr = "(with (new Task()) { priority = 55,  taskData = (with( new TaskData()) { skipable = true, parentId= "+taskParentId+" } ), ";
         child1Taskstr += "peopleAssignments = (with ( new PeopleAssignments() ) { potentialOwners = [new User('Darth Vader')  ],businessAdministrators = [ new User('Administrator') ], }),";
         child1Taskstr += "names = [ new I18NText( 'en-UK', 'This is my task Child 1 name')] })";
@@ -275,30 +275,30 @@ public abstract class SubTasksBaseTest extends HumanTaskServicesBaseTest{
         long child1TaskId = child1Task.getId();
 
         //Test if the task is succesfully created
-        
+
         assertEquals(1, taskService.getPendingSubTasksByParent(taskParentId));
-        
+
         Task childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(taskParentId, childTask1.getTaskData().getParentId());
-        
+
         taskService.start(child1TaskId, "Darth Vader");
-        
-        
-        
+
+
+
         taskService.skip(taskParentId, "salaboy");
-        
+
         parentTask1 = taskService.getTaskById(taskParentId);
         assertEquals(0, taskService.getPendingSubTasksByParent(taskParentId));
-        
-        
-        
+
+
+
         assertEquals(Status.Obsolete, parentTask1.getTaskData().getStatus() );
-        
+
         childTask1 = taskService.getTaskById(child1TaskId);
-        
+
         assertEquals(Status.Obsolete, childTask1.getTaskData().getStatus());
-        
+
     }
 
 }

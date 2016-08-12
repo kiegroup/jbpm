@@ -19,8 +19,8 @@ package org.jbpm.services.api.model;
 import java.util.Date;
 
 public interface NodeInstanceDesc {
-	
-	Long getId();
+
+    Long getId();
 
     String getName();
 
@@ -35,8 +35,8 @@ public interface NodeInstanceDesc {
     String getNodeId();
 
     boolean isCompleted();
-    
+
     String getConnection();
-    
+
     Long getWorkItemId();
 }

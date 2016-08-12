@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -59,30 +59,30 @@ import org.slf4j.LoggerFactory;
 @XmlAccessorType(XmlAccessType.NONE)
 public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
 
-	private static final long serialVersionUID = 2675686383800457244L;
-    private static final Logger logger = LoggerFactory.getLogger(UserGroupCallbackTaskCommand.class);  
+    private static final long serialVersionUID = 2675686383800457244L;
+    private static final Logger logger = LoggerFactory.getLogger(UserGroupCallbackTaskCommand.class);
 
     private Map<String, Boolean> userGroupsMap = new HashMap<String, Boolean>();
-    private static Set<String> restrictedGroups = new HashSet<String>(); 
-    
+    private static Set<String> restrictedGroups = new HashSet<String>();
+
     public UserGroupCallbackTaskCommand() {
-    	
+
     }
 
     static {
-    	try {
+        try {
             InputStream in = UserGroupCallbackTaskCommand.class.getResourceAsStream("/restricted-groups.properties");
             if (in != null) {
                 Properties props = new Properties();
                 props.load(in);
-                
+
                 restrictedGroups.addAll(props.stringPropertyNames());
             }
         } catch (Exception e) {
             logger.warn("Error when loading restricted groups for human task service {}", e.getMessage());
         }
-	}
-	    
+    }
+
     protected List<String> doUserGroupCallbackOperation(String userId, List<String> groupIds, TaskContext context) {
 
 
@@ -101,12 +101,12 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
         return false;
 
     }
-    
+
     protected User doCallbackAndReturnUserOperation(String userId, TaskContext context) {
 
         if (userId != null && context.getUserGroupCallback().existsUser(userId)) {
             return addUserFromCallbackOperation(userId, context);
-            
+
         }
         return null;
 
@@ -123,26 +123,26 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
     }
 
     protected User addUserFromCallbackOperation(String userId, TaskContext context) {
-    	User user = context.getPersistenceContext().findUser(userId);
+        User user = context.getPersistenceContext().findUser(userId);
         boolean userExists = user != null;
         if (!StringUtils.isEmpty(userId) && !userExists) {
             user = TaskModelProvider.getFactory().newUser();
             ((InternalOrganizationalEntity) user).setId(userId);
-            
+
             persistIfNotExists(user, context);
-        } 
-        
+        }
+
         return user;
     }
-    
+
     protected void persistIfNotExists(final OrganizationalEntity entity, TaskContext context) {
-    	TaskPersistenceContext tpc = context.getPersistenceContext();
-    	OrganizationalEntity orgEntity = tpc.findOrgEntity(entity.getId());
-    	if( orgEntity == null
-    	    || (orgEntity instanceof Group && entity instanceof User)  
-    	    || (orgEntity instanceof User && entity instanceof Group) ) { 
-    	    tpc.persistOrgEntity(entity);
-    	}
+        TaskPersistenceContext tpc = context.getPersistenceContext();
+        OrganizationalEntity orgEntity = tpc.findOrgEntity(entity.getId());
+        if( orgEntity == null
+            || (orgEntity instanceof Group && entity instanceof User)
+            || (orgEntity instanceof User && entity instanceof Group) ) {
+            tpc.persistOrgEntity(entity);
+        }
     }
 
     protected List<String> doCallbackGroupsOperation(String userId, List<String> groupIds, TaskContext context) {
@@ -177,19 +177,19 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
                 }
             }
         }
-        
+
         return groupIds;
 
     }
 
     protected void addGroupFromCallbackOperation(String groupId, TaskContext context) {
-    	Group group = context.getPersistenceContext().findGroup(groupId);
-    	boolean groupExists = group != null;
+        Group group = context.getPersistenceContext().findGroup(groupId);
+        boolean groupExists = group != null;
         if (!StringUtils.isEmpty(groupId) && !groupExists) {
-        	group = TaskModelProvider.getFactory().newGroup();
+            group = TaskModelProvider.getFactory().newGroup();
             ((InternalOrganizationalEntity) group).setId(groupId);
             persistIfNotExists(group, context);
-        }    
+        }
     }
 
     protected void doCallbackOperationForTaskData(InternalTaskData data, TaskContext context) {
@@ -420,7 +420,7 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
                     }
                 }
             }
-            
+
             if(deadlines.getEndDeadlines() != null) {
                 List<? extends Deadline> endDeadlines = deadlines.getEndDeadlines();
                 for(Deadline endDeadline : endDeadlines) {
@@ -476,7 +476,7 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
             }
         }
     }
-     
+
      protected void doCallbackOperationForComment(Comment comment, TaskContext context) {
          if (comment != null) {
              if (comment.getAddedBy() != null) {
@@ -487,7 +487,7 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
              }
          }
      }
-     
+
      protected void doCallbackOperationForAttachment(Attachment attachment, TaskContext context) {
          if (attachment != null) {
              if (attachment.getAttachedBy() != null) {
@@ -498,21 +498,21 @@ public class UserGroupCallbackTaskCommand<T> extends TaskCommand<T> {
              }
          }
      }
-    
-     
+
+
      protected List<String> filterGroups(List<String> groups) {
          if (groups != null) {
              groups.removeAll(restrictedGroups);
          } else{
              groups = new ArrayList<String>();
          }
-         
+
          return groups;
      }
 
-	@Override
-	public T execute(Context context) {
-	    throw new UnsupportedOperationException("The " + this.getClass().getSimpleName() + " is not a standalone command that can be executed.");
-	}
+    @Override
+    public T execute(Context context) {
+        throw new UnsupportedOperationException("The " + this.getClass().getSimpleName() + " is not a standalone command that can be executed.");
+    }
 
 }

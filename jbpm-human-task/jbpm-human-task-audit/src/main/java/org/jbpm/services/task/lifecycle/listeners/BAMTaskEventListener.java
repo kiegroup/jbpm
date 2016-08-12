@@ -69,15 +69,15 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     private static final Logger logger = LoggerFactory.getLogger(BAMTaskEventListener.class);
 
     public BAMTaskEventListener(boolean flag) {
-    	super(null);
+        super(null);
     }
-    
+
     public BAMTaskEventListener(EntityManagerFactory emf) {
-    	super(emf);
+        super(emf);
     }
 
     public void afterTaskStartedEvent(TaskEvent event) {
-    	updateTask(event, new BAMTaskWorker() {
+        updateTask(event, new BAMTaskWorker() {
             @Override
             public BAMTaskSummaryImpl createTask(BAMTaskSummaryImpl bamTask, Task task) {
                 bamTask.setStartDate(new Date());
@@ -93,16 +93,16 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     }
 
     public void afterTaskActivatedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskClaimedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskCompletedEvent(TaskEvent event) {
 
-    	updateTask(event, new BAMTaskWorker() {
+        updateTask(event, new BAMTaskWorker() {
             @Override
             public BAMTaskSummaryImpl createTask(BAMTaskSummaryImpl bamTask, Task task) {
                 return bamTask;
@@ -154,37 +154,37 @@ public class BAMTaskEventListener extends PersistableEventListener  {
     }
 
     public void afterTaskReleasedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskDelegatedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskForwaredEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskNomiatedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskResumedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     public void afterTaskSuspendedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
-    
+
     @Override
     public void afterTaskForwardedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
-    
+
     @Override
     public void afterTaskNominatedEvent(TaskEvent event) {
-    	updateTask(event);
+        updateTask(event);
     }
 
     /**
@@ -233,62 +233,62 @@ public class BAMTaskEventListener extends PersistableEventListener  {
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
-	        if (ti == null) {
-	            logger.error("The task instance does not exist.");
-	            return result;
-	        }
-	
-	        Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
-	
-	        String actualOwner = "";
-	        if (ti.getTaskData().getActualOwner() != null) {
-	            actualOwner = ti.getTaskData().getActualOwner().getId();
-	        }
-	
-	        result = new BAMTaskSummaryImpl(ti.getId(), ti.getName(), status.toString(), new Date(), actualOwner, ti.getTaskData().getProcessInstanceId());
-	        if (worker != null) worker.createTask(result, ti);
-	        persistenceContext.persist(result);
-	    
-	
-	        return result;
+            if (ti == null) {
+                logger.error("The task instance does not exist.");
+                return result;
+            }
+
+            Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
+
+            String actualOwner = "";
+            if (ti.getTaskData().getActualOwner() != null) {
+                actualOwner = ti.getTaskData().getActualOwner().getId();
+            }
+
+            result = new BAMTaskSummaryImpl(ti.getId(), ti.getName(), status.toString(), new Date(), actualOwner, ti.getTaskData().getProcessInstanceId());
+            if (worker != null) worker.createTask(result, ti);
+            persistenceContext.persist(result);
+
+
+            return result;
         } finally {
-        	cleanup(persistenceContext);
+            cleanup(persistenceContext);
         }
     }
-    
+
     protected BAMTaskSummaryImpl updateTask(TaskEvent event, Status newStatus, BAMTaskWorker worker) {
         BAMTaskSummaryImpl result = null;
         Task ti = event.getTask();
         TaskPersistenceContext persistenceContext = getPersistenceContext(((TaskContext)event.getTaskContext()).getPersistenceContext());
         try {
 
-	        if (ti == null) {
-	            logger.error("The task instance does not exist.");
-	            return result;
-	        }
-	
-	        Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
-	
-	        result = persistenceContext.queryStringWithParametersInTransaction("select bts from BAMTaskSummaryImpl bts where bts.taskId=:taskId", true,
-	        												persistenceContext.addParametersToMap("taskId", ti.getId()), 
-	        												BAMTaskSummaryImpl.class);
-	        
-	        if (result == null) {
-	        	logger.warn("Unable find bam task entry for task id {} '{}', skipping bam task update", ti.getId(), ti.getName());
-	        	return null;
-	        }
-	        	
-	        result.setStatus(status.toString());
-	        if (ti.getTaskData().getActualOwner() != null) {
-	            result.setUserId(ti.getTaskData().getActualOwner().getId());
-	        }
-	        if (worker != null) worker.updateTask(result, ti);
-	        persistenceContext.merge(result);
+            if (ti == null) {
+                logger.error("The task instance does not exist.");
+                return result;
+            }
 
-      
-	        return result;
+            Status status = newStatus != null ? newStatus : ti.getTaskData().getStatus();
+
+            result = persistenceContext.queryStringWithParametersInTransaction("select bts from BAMTaskSummaryImpl bts where bts.taskId=:taskId", true,
+                                                            persistenceContext.addParametersToMap("taskId", ti.getId()),
+                                                            BAMTaskSummaryImpl.class);
+
+            if (result == null) {
+                logger.warn("Unable find bam task entry for task id {} '{}', skipping bam task update", ti.getId(), ti.getName());
+                return null;
+            }
+
+            result.setStatus(status.toString());
+            if (ti.getTaskData().getActualOwner() != null) {
+                result.setUserId(ti.getTaskData().getActualOwner().getId());
+            }
+            if (worker != null) worker.updateTask(result, ti);
+            persistenceContext.merge(result);
+
+
+            return result;
         } finally {
-        	cleanup(persistenceContext);
+            cleanup(persistenceContext);
         }
     }
 
@@ -300,98 +300,98 @@ public class BAMTaskEventListener extends PersistableEventListener  {
         BAMTaskSummaryImpl updateTask(BAMTaskSummaryImpl bamTask, Task task);
     }
 
-	@Override
-	public void beforeTaskActivatedEvent(TaskEvent event) {
+    @Override
+    public void beforeTaskActivatedEvent(TaskEvent event) {
 
-		
-	}
 
-	@Override
-	public void beforeTaskClaimedEvent(TaskEvent event) {
-		
-		
-	}
+    }
 
-	@Override
-	public void beforeTaskSkippedEvent(TaskEvent event) {	
-	}
+    @Override
+    public void beforeTaskClaimedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskStartedEvent(TaskEvent event) {
-	}
 
-	@Override
-	public void beforeTaskStoppedEvent(TaskEvent event) {
-	}
+    }
 
-	@Override
-	public void beforeTaskCompletedEvent(TaskEvent event) {
-	}
+    @Override
+    public void beforeTaskSkippedEvent(TaskEvent event) {
+    }
 
-	@Override
-	public void beforeTaskFailedEvent(TaskEvent event) {
-	}
+    @Override
+    public void beforeTaskStartedEvent(TaskEvent event) {
+    }
 
-	@Override
-	public void beforeTaskAddedEvent(TaskEvent event) {
-	}
+    @Override
+    public void beforeTaskStoppedEvent(TaskEvent event) {
+    }
 
-	@Override
-	public void beforeTaskExitedEvent(TaskEvent event) {
-	}
+    @Override
+    public void beforeTaskCompletedEvent(TaskEvent event) {
+    }
 
-	@Override
-	public void beforeTaskReleasedEvent(TaskEvent event) {
-	}
+    @Override
+    public void beforeTaskFailedEvent(TaskEvent event) {
+    }
 
-	@Override
-	public void beforeTaskResumedEvent(TaskEvent event) {
+    @Override
+    public void beforeTaskAddedEvent(TaskEvent event) {
+    }
 
-	}
+    @Override
+    public void beforeTaskExitedEvent(TaskEvent event) {
+    }
 
-	@Override
-	public void beforeTaskSuspendedEvent(TaskEvent event) {
+    @Override
+    public void beforeTaskReleasedEvent(TaskEvent event) {
+    }
 
-	}
+    @Override
+    public void beforeTaskResumedEvent(TaskEvent event) {
 
-	@Override
-	public void beforeTaskForwardedEvent(TaskEvent event) {
-	}
+    }
 
-	@Override
-	public void beforeTaskDelegatedEvent(TaskEvent event) {
-	}
-	
-	@Override
-	public void beforeTaskNominatedEvent(TaskEvent event) {
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if ( this == obj ) 
-			return true;
-        if ( obj == null ) 
-        	return false;
-        if ( (obj instanceof BAMTaskEventListener) ) 
-        	return true;
-        
+    @Override
+    public void beforeTaskSuspendedEvent(TaskEvent event) {
+
+    }
+
+    @Override
+    public void beforeTaskForwardedEvent(TaskEvent event) {
+    }
+
+    @Override
+    public void beforeTaskDelegatedEvent(TaskEvent event) {
+    }
+
+    @Override
+    public void beforeTaskNominatedEvent(TaskEvent event) {
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if ( this == obj )
+            return true;
+        if ( obj == null )
+            return false;
+        if ( (obj instanceof BAMTaskEventListener) )
+            return true;
+
         return false;
-	}
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
         int result = 1;
         result = prime * result + this.getClass().getName().hashCode();
-        
-        return result;
-	}
-	
-	private class BAMSummaryComparator implements Comparator<BAMTaskSummaryImpl> {
 
-		@Override
-		public int compare(BAMTaskSummaryImpl o1, BAMTaskSummaryImpl o2) {	
-			return (o1.getTaskId()<o2.getTaskId() ? -1 : (o1.getTaskId()==o2.getTaskId() ? 0 : 1));
-		}
-	}
+        return result;
+    }
+
+    private class BAMSummaryComparator implements Comparator<BAMTaskSummaryImpl> {
+
+        @Override
+        public int compare(BAMTaskSummaryImpl o1, BAMTaskSummaryImpl o2) {
+            return (o1.getTaskId()<o2.getTaskId() ? -1 : (o1.getTaskId()==o2.getTaskId() ? 0 : 1));
+        }
+    }
 }

@@ -30,11 +30,11 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ActivateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	private static final long serialVersionUID = -2218880638839442379L;
+    private static final long serialVersionUID = -2218880638839442379L;
 
-	public ActivateTaskCommand() {
-	}
-	
+    public ActivateTaskCommand() {
+    }
+
     public ActivateTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
         this.userId = userId;
@@ -45,12 +45,12 @@ public class ActivateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-        
+
         context.getTaskInstanceService().activate(taskId, userId);
         return null;
     }
-    
+
     public String toString() {
-    	return "taskService.activate(" + taskId + ", " + userId + ");";
+        return "taskService.activate(" + taskId + ", " + userId + ");";
     }
 }

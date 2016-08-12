@@ -25,125 +25,125 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 public class QueryManager {
-	
-	public static final String ORDER_BY_KEY = "orderby";
-	public static final String ASCENDING_KEY = "asc";
-	public static final String DESCENDING_KEY = "desc";
-	public static final String FILTER = "filter";
-	
-	private Map<String, String> queries = new ConcurrentHashMap<String, String>();
-	
-	private static QueryManager instance;
-	
-	public static QueryManager get() {
-		if (instance == null) {
-			instance = new QueryManager();
-		}
-		
-		return instance;
-	}
-	
-	protected QueryManager() {
-		
-	}
 
-	public void addNamedQueries(String ormFile) {
-		try {
-			parse(ormFile);
-		} catch (XMLStreamException e) {
-			throw new RuntimeException("Unable to read orm file due to " + e.getMessage(), e);
-		}
-	}
-	
-	public String getQuery(String name, Map<String, Object> params) {
-		StringBuffer query = null;
-		if (!queries.containsKey(name)) {
-			return null;
-		}
-		String operand = " and ";
-		
-		StringBuffer buf = new StringBuffer(queries.get(name));
-		if (buf.indexOf("where") == -1) {
-			operand = " where ";
-		}
-		if (params != null && params.containsKey(FILTER)) {
-			
+    public static final String ORDER_BY_KEY = "orderby";
+    public static final String ASCENDING_KEY = "asc";
+    public static final String DESCENDING_KEY = "desc";
+    public static final String FILTER = "filter";
+
+    private Map<String, String> queries = new ConcurrentHashMap<String, String>();
+
+    private static QueryManager instance;
+
+    public static QueryManager get() {
+        if (instance == null) {
+            instance = new QueryManager();
+        }
+
+        return instance;
+    }
+
+    protected QueryManager() {
+
+    }
+
+    public void addNamedQueries(String ormFile) {
+        try {
+            parse(ormFile);
+        } catch (XMLStreamException e) {
+            throw new RuntimeException("Unable to read orm file due to " + e.getMessage(), e);
+        }
+    }
+
+    public String getQuery(String name, Map<String, Object> params) {
+        StringBuffer query = null;
+        if (!queries.containsKey(name)) {
+            return null;
+        }
+        String operand = " and ";
+
+        StringBuffer buf = new StringBuffer(queries.get(name));
+        if (buf.indexOf("where") == -1) {
+            operand = " where ";
+        }
+        if (params != null && params.containsKey(FILTER)) {
+
             buf.append(operand + params.get(FILTER));
             query = buf;
         }
-		
-		if (params != null && params.containsKey(ORDER_BY_KEY)) {
-			 
-			buf.append(" \n ORDER BY " + adaptOrderBy((String)params.get("orderby")));
-			if (params.containsKey(ASCENDING_KEY)) {
-				buf.append(" ASC");
-			} else if (params.containsKey(DESCENDING_KEY)) {
-				buf.append(" DESC");
-			}
-			query = buf;
-		}
-		
-		 return (query == null ? null : query.toString() );
-	}
-	
-	protected void parse(String ormFile) throws XMLStreamException {
-		String name = null;
-		StringBuffer tagContent = new StringBuffer();
-		XMLInputFactory factory = XMLInputFactory.newInstance();
-		XMLStreamReader reader = factory.createXMLStreamReader(
-				Thread.currentThread().getContextClassLoader().getResourceAsStream(ormFile));
 
-		while (reader.hasNext()) {
-			int event = reader.next();
+        if (params != null && params.containsKey(ORDER_BY_KEY)) {
 
-			switch (event) {
-			case XMLStreamConstants.START_ELEMENT:
-				if ("named-query".equals(reader.getLocalName())) {
+            buf.append(" \n ORDER BY " + adaptOrderBy((String)params.get("orderby")));
+            if (params.containsKey(ASCENDING_KEY)) {
+                buf.append(" ASC");
+            } else if (params.containsKey(DESCENDING_KEY)) {
+                buf.append(" DESC");
+            }
+            query = buf;
+        }
 
-					name = reader.getAttributeValue(0);
-				}
-				break;
+         return (query == null ? null : query.toString() );
+    }
 
-			case XMLStreamConstants.CHARACTERS:
-				if (name != null) {
-					tagContent.append(reader.getText());
-				}
-				break;
+    protected void parse(String ormFile) throws XMLStreamException {
+        String name = null;
+        StringBuffer tagContent = new StringBuffer();
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        XMLStreamReader reader = factory.createXMLStreamReader(
+                Thread.currentThread().getContextClassLoader().getResourceAsStream(ormFile));
 
-			case XMLStreamConstants.END_ELEMENT:
-				if ("named-query".equals(reader.getLocalName())) {
-					String origQuery = tagContent.toString();
-					String alteredQuery = origQuery;
-					int orderByIndex = origQuery.toLowerCase().indexOf("order by");
-					if (orderByIndex != -1) {
-						// remove order by clause as it will be provided on request
-						alteredQuery = origQuery.substring(0, orderByIndex);
-					}
-					queries.put(name, alteredQuery);
-					name = null;
-					tagContent = new StringBuffer();
-				}
-				break;
-			}
-		}
-	}
-	
-	private String adaptOrderBy(String orderBy) {
-		if (orderBy != null) {
-			if (orderBy.equals("ProcessInstanceId")) {
-				return "log.processInstanceId";
-			} else if (orderBy.equals("ProcessName")) {
-				return "log.processName";
-			} else if (orderBy.equals("Initiator")) {
-				return "log.identity";
-			} else if (orderBy.equals("ProcessVersion")) {
-				return "log.processVersion";
-			} else if (orderBy.equals("Status")) {
-				return "log.status";
-			} else if (orderBy.equals("StartDate")) {
-				return "log.start";
-			} 
-		}
-		return orderBy;
-	}
+        while (reader.hasNext()) {
+            int event = reader.next();
+
+            switch (event) {
+            case XMLStreamConstants.START_ELEMENT:
+                if ("named-query".equals(reader.getLocalName())) {
+
+                    name = reader.getAttributeValue(0);
+                }
+                break;
+
+            case XMLStreamConstants.CHARACTERS:
+                if (name != null) {
+                    tagContent.append(reader.getText());
+                }
+                break;
+
+            case XMLStreamConstants.END_ELEMENT:
+                if ("named-query".equals(reader.getLocalName())) {
+                    String origQuery = tagContent.toString();
+                    String alteredQuery = origQuery;
+                    int orderByIndex = origQuery.toLowerCase().indexOf("order by");
+                    if (orderByIndex != -1) {
+                        // remove order by clause as it will be provided on request
+                        alteredQuery = origQuery.substring(0, orderByIndex);
+                    }
+                    queries.put(name, alteredQuery);
+                    name = null;
+                    tagContent = new StringBuffer();
+                }
+                break;
+            }
+        }
+    }
+
+    private String adaptOrderBy(String orderBy) {
+        if (orderBy != null) {
+            if (orderBy.equals("ProcessInstanceId")) {
+                return "log.processInstanceId";
+            } else if (orderBy.equals("ProcessName")) {
+                return "log.processName";
+            } else if (orderBy.equals("Initiator")) {
+                return "log.identity";
+            } else if (orderBy.equals("ProcessVersion")) {
+                return "log.processVersion";
+            } else if (orderBy.equals("Status")) {
+                return "log.status";
+            } else if (orderBy.equals("StartDate")) {
+                return "log.start";
+            }
+        }
+        return orderBy;
+    }
 }

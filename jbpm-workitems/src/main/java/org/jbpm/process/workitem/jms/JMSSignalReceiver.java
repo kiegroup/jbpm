@@ -43,25 +43,25 @@ import org.slf4j.LoggerFactory;
 
 
 public class JMSSignalReceiver implements MessageListener {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(JMSSignalReceiver.class);
-    
+
     private static final ServiceLoader<RuntimeManagerIdFilter> runtimeManagerIdFilters = ServiceLoader.load(RuntimeManagerIdFilter.class);
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void onMessage(Message message) {
         if (message instanceof BytesMessage) {
-            
+
             String deploymentId;
             Long processInstanceId;
             String signal;
             Long workItemId;
-            
+
             Object data;
-            
+
             BytesMessage bytesMessage = (BytesMessage) message;
-            
+
             RuntimeManager runtimeManager = null;
             RuntimeEngine engine = null;
             try {
@@ -72,15 +72,15 @@ public class JMSSignalReceiver implements MessageListener {
                 signal = (String) bytesMessage.getObjectProperty("KIE_Signal");
                 processInstanceId = (Long) bytesMessage.getObjectProperty("KIE_SignalProcessInstanceId");
                 workItemId = (Long) bytesMessage.getObjectProperty("KIE_SignalWorkItemId");
-                
+
                 logger.debug("Deployment id '{}', signal '{}', processInstanceId '{}', workItemId '{}'", deploymentId, signal, processInstanceId, workItemId);
-                                
+
                 Collection<String> availableRuntimeManagers = matchDeployments(deploymentId, RuntimeManagerRegistry.get().getRegisteredIdentifiers());
-                
+
                 for (String matchedDeploymentId : availableRuntimeManagers) {
                     try {
                         runtimeManager = RuntimeManagerRegistry.get().getManager(matchedDeploymentId);
-                        
+
                         if (runtimeManager == null) {
                             throw new IllegalStateException("There is no runtime manager for deployment " + matchedDeploymentId);
                         }
@@ -88,7 +88,7 @@ public class JMSSignalReceiver implements MessageListener {
                         data = readData(bytesMessage, ((InternalRuntimeManager)runtimeManager).getEnvironment().getClassLoader());
                         logger.debug("Data read successfully with output {}", data);
                         engine = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-                        
+
                         // perform operation either signal or complete work item
                         if (workItemId != null) {
                             Map<String, Object> results = new HashMap<String, Object>();
@@ -105,7 +105,7 @@ public class JMSSignalReceiver implements MessageListener {
                         } else if (signal != null) {
                             if (processInstanceId != null) {
                                 logger.debug("About to signal process instance with id {} and event data {} with signal {}", processInstanceId, data, signal);
-                                engine.getKieSession().signalEvent(signal, data, processInstanceId);    
+                                engine.getKieSession().signalEvent(signal, data, processInstanceId);
                             } else {
                                 logger.debug("About to broadcast signal {} and event data {}", signal, data);
                                 runtimeManager.signalEvent(signal, data);
@@ -121,27 +121,27 @@ public class JMSSignalReceiver implements MessageListener {
                             runtimeManager.disposeRuntimeEngine(engine);
                         }
                     }
-                }               
+                }
             } catch (Exception e) {
                 logger.error("Unexpected exception while processing signal JMS message: {}", e.getMessage(), e);
             }
         }
     }
-    
+
     protected Object readData(BytesMessage message, ClassLoader cl) throws JMSException, Exception {
         Object data = null;
         if (message.getBodyLength() > 0) {
             byte[] reqData = new byte[(int) message.getBodyLength()];
-            
+
             message.readBytes(reqData);
             if (reqData != null) {
                 ObjectInputStream in = null;
                 try {
                     in = new ClassLoaderObjectInputStream(cl, new ByteArrayInputStream(reqData));
                     data = in.readObject();
-                } catch (IOException e) {                        
+                } catch (IOException e) {
                     logger.warn("Exception while serializing context data", e);
-                    
+
                 } finally {
                     if (in != null) {
                         in.close();
@@ -159,14 +159,14 @@ public class JMSSignalReceiver implements MessageListener {
         Collection<String> matched = new ArrayList<String>();
         for (RuntimeManagerIdFilter filter : runtimeManagerIdFilters) {
             matched = filter.filter(deploymentId, availableDeployments);
-            
+
             if (matched != null && !matched.isEmpty()) {
                 return matched;
             }
         }
-        
+
         // nothing matched return given deployment id
         return Collections.singletonList(deploymentId);
     }
-    
+
 }

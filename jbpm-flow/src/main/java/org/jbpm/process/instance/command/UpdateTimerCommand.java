@@ -112,15 +112,15 @@ public class UpdateTimerCommand implements GenericCommand<Void>, ProcessInstance
                 }
             } else if (nodeInstance instanceof StateBasedNodeInstance) {
                 StateBasedNodeInstance sbni = (StateBasedNodeInstance) nodeInstance;
-                
+
                 if (sbni.getNodeName().equals(timerName)) {
                     List<Long> timerList = sbni.getTimerInstances();
                     if (timerList != null && timerList.size() == 1) {
                         TimerInstance timer = tm.getTimerMap().get(timerList.get(0));
-    
+
                         tm.cancelTimer(timer.getTimerId());
                         TimerInstance newTimer = new TimerInstance();
-    
+
                         if (delay != 0) {
                             long diff = System.currentTimeMillis() - timer.getActivated().getTime();
                             newTimer.setDelay(delay * 1000 - diff);
@@ -129,12 +129,12 @@ public class UpdateTimerCommand implements GenericCommand<Void>, ProcessInstance
                         newTimer.setRepeatLimit(repeatLimit);
                         newTimer.setTimerId(timer.getTimerId());
                         tm.registerTimer(newTimer, wfp);
-                        
+
                         timerList.clear();
                         timerList.add(newTimer.getId());
-    
+
                         sbni.internalSetTimerInstances(timerList);
-                    
+
                     }
                     break;
                 }

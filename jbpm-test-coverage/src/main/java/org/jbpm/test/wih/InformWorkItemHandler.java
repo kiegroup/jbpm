@@ -24,27 +24,27 @@ import org.kie.api.runtime.process.WorkItemHandler;
 import org.kie.api.runtime.process.WorkItemManager;
 
 public class InformWorkItemHandler implements WorkItemHandler {
-    
+
     private CaseMgmtService caseMgmtService;
     private String lastMessage;
     private String lastMessageToWhom;
-    
+
     public InformWorkItemHandler() {
-        
+
     }
-    
+
     public void setCaseMgmtService(CaseMgmtService caseMgmtService) {
         this.caseMgmtService = caseMgmtService;
     }
-    
+
     public CaseMgmtService getCaseMgmtService() {
         return caseMgmtService;
     }
-    
+
     public String getLastMessage() {
         return lastMessage;
     }
-    
+
     public String getLastMessageToWhom() {
         return lastMessageToWhom;
     }
@@ -56,7 +56,7 @@ public class InformWorkItemHandler implements WorkItemHandler {
         String[] usersToBeInformed = caseRoleInstanceNames.get("informed");
         lastMessage = (String) caseMgmtService.getCaseData(caseId).get("informAbout");
         lastMessageToWhom = "";
-        
+
         for (String userId : usersToBeInformed) {
             System.out.println(userId + " <= " + lastMessage);
             lastMessageToWhom = userId + ",";
@@ -66,7 +66,7 @@ public class InformWorkItemHandler implements WorkItemHandler {
 
     @Override
     public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-        
+
     }
 
 }

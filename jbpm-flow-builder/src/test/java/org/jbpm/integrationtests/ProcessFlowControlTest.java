@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -43,9 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ProcessFlowControlTest extends AbstractBaseTest {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ProcessFlowControlTest.class);
-  
+
     protected KieBase getRuleBase(final KieBaseConfiguration config) throws Exception {
         return KnowledgeBaseFactory.newKnowledgeBase( config );
     }
@@ -138,7 +138,7 @@ public class ProcessFlowControlTest extends AbstractBaseTest {
         builder.addRuleFlow( new InputStreamReader( getClass().getResourceAsStream( "ruleflow.rfm" ) ) );
 
         StatefulKnowledgeSession workingMemory = createKieSession(true, builder.getPackage());
-        
+
         final List<String> list = new ArrayList<String>();
         workingMemory.setGlobal( "list",
                                  list );
@@ -171,9 +171,9 @@ public class ProcessFlowControlTest extends AbstractBaseTest {
 
         builder.addPackageFromDrl( new InputStreamReader( getClass().getResourceAsStream( "ruleflow.drl" ) ) );
         builder.addRuleFlow( new InputStreamReader( getClass().getResourceAsStream( "ruleflow40.rfm" ) ) );
-        
+
         StatefulKnowledgeSession workingMemory = createKieSession(true, builder.getPackage());
-        
+
         final List<String> list = new ArrayList<String>();
         workingMemory.setGlobal( "list",
                                  list );
@@ -205,16 +205,16 @@ public class ProcessFlowControlTest extends AbstractBaseTest {
     public void testRuleFlowClear() throws Exception {
         builder.addPackageFromDrl( new InputStreamReader( getClass().getResourceAsStream( "test_ruleflowClear.drl" ) ) );
         builder.addRuleFlow( new InputStreamReader( getClass().getResourceAsStream( "test_ruleflowClear.rfm" ) ) );
-        
+
         StatefulKnowledgeSession workingMemory = createKieSession(true, builder.getPackage());
-        
+
         final List<String> list = new ArrayList<String>();
         workingMemory.setGlobal( "list",
                                  list );
 
         final List<Match> activations = new ArrayList<Match>();
         AgendaEventListener listener = new DefaultAgendaEventListener() {
-            public void matchCancelled(MatchCancelledEvent event) { 
+            public void matchCancelled(MatchCancelledEvent event) {
                 activations.add( event.getMatch() );
             }
         };
@@ -350,7 +350,7 @@ public class ProcessFlowControlTest extends AbstractBaseTest {
         builder.addRuleFlow( new InputStreamReader( getClass().getResourceAsStream( "test_ActionDialects.rfm" ) ) );
 
         final StatefulKnowledgeSession session = createKieSession(true, builder.getPackage());
-        
+
         List<String> list = new ArrayList<String>();
         session.setGlobal( "list",
                            list );

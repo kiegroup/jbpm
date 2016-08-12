@@ -39,34 +39,34 @@ import org.kie.internal.task.api.model.InternalComment;
 @Table(name = "task_comment")
 @SequenceGenerator(name="commentIdSeq", sequenceName="COMMENT_ID_SEQ", allocationSize=1)
 public class CommentImpl implements InternalComment  {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="commentIdSeq")
     private Long id = 0L;
 
     @Lob @Column(length=65535)
     private String text;
-    
+
     @ManyToOne()
     private UserImpl addedBy;
-    
-    private Date addedAt;    
-    
+
+    private Date addedAt;
+
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
-        if( text == null ) { 
+        if( text == null ) {
             text = "";
         }
         out.writeUTF( text );
         // There are no guarantees that addedBy is not null = potential bug
-        addedBy.writeExternal( out );    
+        addedBy.writeExternal( out );
         long addedAtTime = 0;
-        if( addedAt != null ) { 
+        if( addedAt != null ) {
             addedAtTime = addedAt.getTime();
         }
         out.writeLong( addedAtTime );
-    }    
-    
+    }
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
@@ -75,7 +75,7 @@ public class CommentImpl implements InternalComment  {
         addedBy.readExternal( in );
         addedAt = new Date( in.readLong() );
     }
-    
+
     public Long getId() {
         return id;
     }
@@ -134,7 +134,7 @@ public class CommentImpl implements InternalComment  {
             if ( other.text != null ) return false;
         } else if ( !text.equals( other.text ) ) return false;
         return true;
-    }    
-    
-    
+    }
+
+
 }

@@ -35,20 +35,20 @@ import org.kie.internal.task.api.model.InternalComment;
 @XmlAccessorType(XmlAccessType.NONE)
 public class AddCommentCommand extends UserGroupCallbackTaskCommand<Long> {
 
-	private static final long serialVersionUID = -1295175858745522756L;
-	
-	@XmlElement
+    private static final long serialVersionUID = -1295175858745522756L;
+
+    @XmlElement
     private JaxbComment jaxbComment;
 
-	@XmlTransient
-	private Comment comment;
-    
+    @XmlTransient
+    private Comment comment;
+
     public AddCommentCommand() {
     }
 
     public AddCommentCommand(Long taskId, Comment comment) {
-    	this.taskId = taskId;
-    	setComment(comment);
+        this.taskId = taskId;
+        setComment(comment);
     }
 
     public AddCommentCommand(Long taskId, String userId, String text) {
@@ -56,46 +56,46 @@ public class AddCommentCommand extends UserGroupCallbackTaskCommand<Long> {
         JaxbComment jaxbComment = new JaxbComment(userId, new Date(), text);
         setComment(jaxbComment);
     }
-    
+
     public Comment getComment() {
-		return comment;
-	}
+        return comment;
+    }
 
-	public void setComment(Comment comment) {
-		this.comment = comment;
-		if (comment instanceof JaxbComment) {
-        	this.jaxbComment = (JaxbComment) comment;
+    public void setComment(Comment comment) {
+        this.comment = comment;
+        if (comment instanceof JaxbComment) {
+            this.jaxbComment = (JaxbComment) comment;
         } else {
-        	this.jaxbComment = new JaxbComment(comment);
+            this.jaxbComment = new JaxbComment(comment);
         }
-	}
-    
-    public JaxbComment getJaxbComment() {
-		return jaxbComment;
-	}
+    }
 
-	public void setJaxbComment(JaxbComment jaxbComment) {
-		this.jaxbComment = jaxbComment;
-	}
+    public JaxbComment getJaxbComment() {
+        return jaxbComment;
+    }
+
+    public void setJaxbComment(JaxbComment jaxbComment) {
+        this.jaxbComment = jaxbComment;
+    }
 
     public Long execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
-        
+
         Comment cmdComent = comment;
         if (cmdComent == null) {
-        	cmdComent = jaxbComment;
+            cmdComent = jaxbComment;
         }
-       
+
         InternalComment commentImpl = (InternalComment) TaskModelProvider.getFactory().newComment();
         commentImpl.setAddedAt(cmdComent.getAddedAt());
         User cmdAddedBy = cmdComent.getAddedBy();
         User addedBy = TaskModelProvider.getFactory().newUser(cmdAddedBy.getId());
         commentImpl.setAddedBy(addedBy);
         commentImpl.setText(cmdComent.getText());
-        
+
         doCallbackOperationForComment(commentImpl, context);
-        
+
         return context.getTaskCommentService().addComment(taskId, commentImpl);
-    	 
+
     }
 }

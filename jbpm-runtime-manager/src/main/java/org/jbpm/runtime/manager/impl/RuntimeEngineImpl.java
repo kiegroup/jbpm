@@ -37,37 +37,37 @@ import org.kie.internal.runtime.manager.InternalRuntimeManager;
  */
 public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
 
-	private RuntimeEngineInitlializer initializer;
-	private Context<?> context;
+    private RuntimeEngineInitlializer initializer;
+    private Context<?> context;
 
     private KieSession ksession;
     private TaskService taskService;
     private AuditService auditService;
-    
+
     private RuntimeManager manager;
-    
+
     private boolean disposed = false;
     private boolean afterCompletion = false;
-    
+
     private List<DisposeListener> listeners = new CopyOnWriteArrayList<DisposeListener>();
-    
+
     public RuntimeEngineImpl(KieSession ksession, TaskService taskService) {
         this.ksession = ksession;
         this.taskService = taskService;
     }
-    
+
     public RuntimeEngineImpl(Context<?> context, RuntimeEngineInitlializer initializer) {
-    	this.context = context;
+        this.context = context;
         this.initializer = initializer;
     }
-    
+
     @Override
     public KieSession getKieSession() {
         if (this.disposed) {
             throw new IllegalStateException("This runtime is already diposed");
         }
         if (ksession == null && initializer != null) {
-        	ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
+            ksession = initializer.initKieSession(context, (InternalRuntimeManager) manager, this);
         }
         return this.ksession;
     }
@@ -78,34 +78,34 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
             throw new IllegalStateException("This runtime is already diposed");
         }
         if (taskService == null) {
-        	if (initializer != null) {
-        		taskService = initializer.initTaskService(context, (InternalRuntimeManager) manager, this);
-        	}
-        	if (taskService == null) {
-        		throw new UnsupportedOperationException("TaskService was not configured");
-        	}
+            if (initializer != null) {
+                taskService = initializer.initTaskService(context, (InternalRuntimeManager) manager, this);
+            }
+            if (taskService == null) {
+                throw new UnsupportedOperationException("TaskService was not configured");
+            }
         }
         return this.taskService;
     }
 
     @Override
     public void dispose() {
-        if (!this.disposed) {         
+        if (!this.disposed) {
             // first call listeners and then dispose itself
             for (DisposeListener listener : listeners) {
                 listener.onDispose(this);
             }
             if (ksession != null) {
-	            try {
-	                ksession.dispose();
-	            } catch(IllegalStateException e){
-	                // do nothing most likely ksession was already disposed
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            }
+                try {
+                    ksession.dispose();
+                } catch(IllegalStateException e){
+                    // do nothing most likely ksession was already disposed
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             if (auditService != null) {
-            	auditService.dispose();
+                auditService.dispose();
             }
             this.disposed = true;
         }
@@ -131,39 +131,39 @@ public class RuntimeEngineImpl implements RuntimeEngine, Disposable {
         return disposed;
     }
 
-	@Override
-	public AuditService getAuditService() {	
-		if (auditService == null) {
-			boolean usePersistence = ((InternalRuntimeManager)manager).getEnvironment().usePersistence();
-			if (usePersistence) {
-				auditService = new JPAAuditLogService(getKieSession().getEnvironment());
-			} else {
-				throw new UnsupportedOperationException("AuditService was not configured, supported only with persistence");
-			}
-		}
-		return auditService;
-	}
-	
-	public KieSession internalGetKieSession() {
-		return ksession;
-	}
+    @Override
+    public AuditService getAuditService() {
+        if (auditService == null) {
+            boolean usePersistence = ((InternalRuntimeManager)manager).getEnvironment().usePersistence();
+            if (usePersistence) {
+                auditService = new JPAAuditLogService(getKieSession().getEnvironment());
+            } else {
+                throw new UnsupportedOperationException("AuditService was not configured, supported only with persistence");
+            }
+        }
+        return auditService;
+    }
 
-	public void internalSetKieSession(KieSession ksession) {
-		this.ksession = ksession;
-	}
+    public KieSession internalGetKieSession() {
+        return ksession;
+    }
 
-	public boolean isAfterCompletion() {
-		return afterCompletion;
-	}
+    public void internalSetKieSession(KieSession ksession) {
+        this.ksession = ksession;
+    }
 
-	public void setAfterCompletion(boolean completing) {
-		this.afterCompletion = completing;
-	}
-		   
+    public boolean isAfterCompletion() {
+        return afterCompletion;
+    }
+
+    public void setAfterCompletion(boolean completing) {
+        this.afterCompletion = completing;
+    }
+
     public Context<?> getContext() {
         return context;
     }
-    
+
     public void setContext(Context<?> context) {
         this.context = context;
     }

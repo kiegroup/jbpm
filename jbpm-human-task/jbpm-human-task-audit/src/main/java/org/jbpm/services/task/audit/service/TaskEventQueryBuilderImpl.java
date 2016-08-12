@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -36,85 +36,85 @@ import org.kie.internal.task.query.TaskEventQueryBuilder;
 
 public class TaskEventQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<TaskEventQueryBuilder, TaskEvent>  implements TaskEventQueryBuilder {
 
-    public TaskEventQueryBuilderImpl(CommandExecutor cmdService) { 
+    public TaskEventQueryBuilderImpl(CommandExecutor cmdService) {
         super(cmdService);
      }
-     
-     public TaskEventQueryBuilderImpl(JPAAuditLogService jpaAuditService) { 
-        super(jpaAuditService);
-     }		
 
-	@Override
+     public TaskEventQueryBuilderImpl(JPAAuditLogService jpaAuditService) {
+        super(jpaAuditService);
+     }
+
+    @Override
     public TaskEventQueryBuilder message(String... name) {
-    	addObjectParameter(MESSAGE_LIST, "message", name);
+        addObjectParameter(MESSAGE_LIST, "message", name);
         return this;
     }
 
     @Override
-	public TaskEventQueryBuilder taskId(long... taskId) {
-		addLongParameter(TASK_ID_LIST, "task id", taskId);
+    public TaskEventQueryBuilder taskId(long... taskId) {
+        addLongParameter(TASK_ID_LIST, "task id", taskId);
         return this;
-	}
+    }
 
-	@Override
+    @Override
     public TaskEventQueryBuilder taskIdRange( Long taskIdMin, Long taskIdMax ) {
-	    addRangeParameters(TASK_ID_LIST, "task id range", taskIdMin, taskIdMax);
+        addRangeParameters(TASK_ID_LIST, "task id range", taskIdMin, taskIdMax);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder id( long... id ) {
-		addLongParameter(ID_LIST, "task id", id);
+        addLongParameter(ID_LIST, "task id", id);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder logTime( Date... logTime ) {
-		addObjectParameter(DATE_LIST, "log time", logTime);
+        addObjectParameter(DATE_LIST, "log time", logTime);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder logTimeRange( Date logTimeMin, Date logTimeMax ) {
-	    addRangeParameters(DATE_LIST, "log time range", logTimeMin, logTimeMax);
+        addRangeParameters(DATE_LIST, "log time range", logTimeMin, logTimeMax);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder userId( String... userId ) {
-		addObjectParameter(USER_ID_LIST, "user id", userId);
+        addObjectParameter(USER_ID_LIST, "user id", userId);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder workItemId(long... workItemId) {
-    	addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);
+        addLongParameter(WORK_ITEM_ID_LIST, "work item id", workItemId);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder type( TaskEventType... taskEventType ) {
-		addObjectParameter(TYPE_LIST, "task event type", taskEventType);
+        addObjectParameter(TYPE_LIST, "task event type", taskEventType);
         return this;
     }
 
-	@Override
+    @Override
     public TaskEventQueryBuilder ascending( org.kie.internal.task.query.TaskEventQueryBuilder.OrderBy field ) {
-		String listId = convertOrderByToListId(field);
-		this.queryWhere.setAscending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setAscending(listId);
         return this;
     }
 
     @Override
     public TaskEventQueryBuilder descending( org.kie.internal.task.query.TaskEventQueryBuilder.OrderBy field ) {
-		String listId = convertOrderByToListId(field);
-		this.queryWhere.setDescending(listId);
+        String listId = convertOrderByToListId(field);
+        this.queryWhere.setDescending(listId);
         return this;
     }
-    
-    private String convertOrderByToListId(org.kie.internal.task.query.TaskEventQueryBuilder.OrderBy field) { 
+
+    private String convertOrderByToListId(org.kie.internal.task.query.TaskEventQueryBuilder.OrderBy field) {
         String listId;
-        switch( field ) { 
+        switch( field ) {
         case taskId:
             listId = QueryParameterIdentifiers.TASK_ID_LIST;
             break;
@@ -125,7 +125,7 @@ public class TaskEventQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<Tas
             break;
         default:
             throw new IllegalArgumentException("Unknown 'order-by' field: " + field.toString() );
-        } 
+        }
         return listId;
     }
 

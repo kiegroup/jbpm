@@ -132,16 +132,16 @@ public class WorkCaseService {
         }
         return users[n];
     }
-    
+
     private void updateTaskName(long caseId, Task t, String name) {
         kieSession.execute(new SetNodeNameCommand(caseId, t.getName(), name));
-        
+
         List<I18NText> updatedNames = new ArrayList<I18NText>();
         I18NText updatedName = TaskModelProvider.getFactory().newI18NText();
         ((InternalI18NText) updatedName).setLanguage(t.getNames().get(0).getLanguage());
         ((InternalI18NText) updatedName).setText(name);
         updatedNames.add(updatedName);
-        
+
         taskService.execute(new SetTaskPropertyCommand(t.getId(), null, SetTaskPropertyCommand.TASK_NAMES_PROPERTY, updatedNames));
     }
 

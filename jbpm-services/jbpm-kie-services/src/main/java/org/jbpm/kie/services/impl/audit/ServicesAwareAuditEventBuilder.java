@@ -31,8 +31,8 @@ import org.kie.internal.identity.IdentityProvider;
 
 public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl {
 
-    private IdentityProvider identityProvider;    
-    
+    private IdentityProvider identityProvider;
+
     private String deploymentUnitId;
 
     public IdentityProvider getIdentityProvider() {
@@ -42,10 +42,10 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     public void setIdentityProvider(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
-    
+
     @Override
     public AuditEvent buildEvent(ProcessStartedEvent pse) {
-        
+
         ProcessInstanceLog log = (ProcessInstanceLog) super.buildEvent(pse);
         log.setIdentity(identityProvider.getName());
         log.setExternalId(deploymentUnitId);
@@ -54,31 +54,31 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
 
     @Override
     public AuditEvent buildEvent(ProcessCompletedEvent pce, Object log) {
-        ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log); 
+        ProcessInstanceLog instanceLog = (ProcessInstanceLog) super.buildEvent(pce, log);
         instanceLog.setExternalId(deploymentUnitId);
         return instanceLog;
-        
+
     }
 
     @Override
     public AuditEvent buildEvent(ProcessNodeTriggeredEvent pnte) {
-        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog)super.buildEvent(pnte); 
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog)super.buildEvent(pnte);
         nodeInstanceLog.setExternalId(deploymentUnitId);
         return nodeInstanceLog;
-        
-        
+
+
     }
 
     @Override
     public AuditEvent buildEvent(ProcessNodeLeftEvent pnle, Object log) {
-        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnle, log); 
+        NodeInstanceLog nodeInstanceLog = (NodeInstanceLog) super.buildEvent(pnle, log);
         nodeInstanceLog.setExternalId(deploymentUnitId);
         return nodeInstanceLog;
     }
 
     @Override
     public AuditEvent buildEvent(ProcessVariableChangedEvent pvce) {
-        VariableInstanceLog variableLog = (VariableInstanceLog)super.buildEvent(pvce); 
+        VariableInstanceLog variableLog = (VariableInstanceLog)super.buildEvent(pvce);
         variableLog.setExternalId(deploymentUnitId);
         return variableLog;
     }
@@ -90,5 +90,5 @@ public class ServicesAwareAuditEventBuilder extends DefaultAuditEventBuilderImpl
     public void setDeploymentUnitId(String deploymentUnitId) {
         this.deploymentUnitId = deploymentUnitId;
     }
-    
+
 }

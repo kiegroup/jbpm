@@ -26,32 +26,32 @@ import org.slf4j.LoggerFactory;
 public class FileTransformer {
 
     private static final Logger logger = LoggerFactory.getLogger(FileTransformer.class);
-    
-	// All transform methods must be static and must contain the @Transformer annotation
-	@Transformer
-	public static String fileToString(File file) {
-		try {
-			String fileString = "";
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String line = "";
-			while ((line = reader.readLine()) != null) {
-				fileString += line;
-			}
-			return fileString;
-		} catch (Exception e) {
-			logger.error("Failed to read file {}", file.getName());
-		}
-		return null;
-	}
 
-	@Transformer
-	public static BufferedReader fileToBufferedReader(File file) {
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader(file));
-			return reader;
-		} catch (Exception e) {
-		    logger.error("Failed to read file {}", file.getName());
-		}
-		return null;
-	}
+    // All transform methods must be static and must contain the @Transformer annotation
+    @Transformer
+    public static String fileToString(File file) {
+        try {
+            String fileString = "";
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                fileString += line;
+            }
+            return fileString;
+        } catch (Exception e) {
+            logger.error("Failed to read file {}", file.getName());
+        }
+        return null;
+    }
+
+    @Transformer
+    public static BufferedReader fileToBufferedReader(File file) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            return reader;
+        } catch (Exception e) {
+            logger.error("Failed to read file {}", file.getName());
+        }
+        return null;
+    }
 }

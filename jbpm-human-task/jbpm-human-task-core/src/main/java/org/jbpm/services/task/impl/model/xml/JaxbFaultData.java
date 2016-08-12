@@ -22,31 +22,31 @@ import org.kie.internal.task.api.model.FaultData;
 public class JaxbFaultData implements FaultData {
 
     @XmlElement
-    private AccessType accessType; 
+    private AccessType accessType;
 
     @XmlElement
     @XmlSchemaType(name="string")
     private String type;
-   
+
     @XmlElement
     @XmlSchemaType(name="base64Binary")
     private byte[] content = null;
-    
+
     @XmlElement(name="fault-name")
     @XmlSchemaType(name="string")
     private String faultName;
-   
-    public JaxbFaultData() { 
+
+    public JaxbFaultData() {
         // JAXB constructor
     }
-    
-    public JaxbFaultData(FaultData faultData) { 
+
+    public JaxbFaultData(FaultData faultData) {
         this.accessType = faultData.getAccessType();
         this.content = faultData.getContent();
         this.faultName = faultData.getFaultName();
         this.type = faultData.getType();
     }
-    
+
     @Override
     public AccessType getAccessType() {
         return accessType;

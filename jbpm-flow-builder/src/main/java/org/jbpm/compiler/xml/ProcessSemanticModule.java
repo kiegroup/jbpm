@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -56,9 +56,9 @@ import org.jbpm.compiler.xml.processes.WorkHandler;
 import org.jbpm.compiler.xml.processes.WorkItemNodeHandler;
 
 public class ProcessSemanticModule extends DefaultSemanticModule implements SemanticModule {
-	
-	public static final String URI = "http://drools.org/drools-5.0/process";
-	
+
+    public static final String URI = "http://drools.org/drools-5.0/process";
+
     public ProcessSemanticModule() {
         super ( URI );
 
@@ -97,44 +97,44 @@ public class ProcessSemanticModule extends DefaultSemanticModule implements Sema
         addHandler( "functionImport",
                            new FunctionImportHandler() );
         addHandler( "global",
-                           new GlobalHandler() );        
+                           new GlobalHandler() );
         addHandler( "variable",
-                           new VariableHandler() );        
+                           new VariableHandler() );
         addHandler( "swimlane",
-                           new SwimlaneHandler() );        
+                           new SwimlaneHandler() );
         addHandler( "type",
-                           new TypeHandler() );        
+                           new TypeHandler() );
         addHandler( "value",
-                           new ValueHandler() );        
+                           new ValueHandler() );
         addHandler( "work",
-                           new WorkHandler() );        
+                           new WorkHandler() );
         addHandler( "parameter",
-                           new ParameterHandler() );        
+                           new ParameterHandler() );
         addHandler( "mapping",
-                           new MappingHandler() );        
+                           new MappingHandler() );
         addHandler( "constraint",
-                           new ConstraintHandler() );        
+                           new ConstraintHandler() );
         addHandler( "in-port",
-                           new InPortHandler() );        
+                           new InPortHandler() );
         addHandler( "out-port",
-                           new OutPortHandler() );        
+                           new OutPortHandler() );
         addHandler( "eventNode",
-                		   new EventNodeHandler() );        
+                           new EventNodeHandler() );
         addHandler( "eventFilter",
-                		   new EventFilterHandler() );        
+                           new EventFilterHandler() );
         addHandler( "fault",
-     		   			   new FaultNodeHandler() );        
+                           new FaultNodeHandler() );
         addHandler( "exceptionHandler",
-	   			   		   new ExceptionHandlerHandler() );        
+                           new ExceptionHandlerHandler() );
         addHandler( "timer",
-                		   new TimerHandler() );
+                           new TimerHandler() );
         addHandler( "trigger",
-     		               new TriggerHandler() );
+                           new TriggerHandler() );
         addHandler( "state",
-     		               new StateNodeHandler() );        
+                           new StateNodeHandler() );
         addHandler( "dynamic",
- 		                   new DynamicNodeHandler() );        
+                           new DynamicNodeHandler() );
         addHandler( "metaData",
-                           new MetaDataHandler() );        
+                           new MetaDataHandler() );
     }
 }

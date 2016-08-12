@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -33,52 +33,52 @@ import org.kie.internal.command.ProcessInstanceIdCommand;
 public class GetCompletedTasksCommand extends TaskCommand<List<TaskSummary>> implements ProcessInstanceIdCommand {
 
     /** Generated serial version UID */
-	private static final long serialVersionUID = 5077599352603072633L;
+    private static final long serialVersionUID = 5077599352603072633L;
 
-	@XmlElement
-	private Date date;
-	
-	@XmlElement(name="process-instance-id")
-	@XmlSchemaType(name="long")
-	private Long processInstanceId;
+    @XmlElement
+    private Date date;
 
-	public GetCompletedTasksCommand() {
-	}
-	
-	public GetCompletedTasksCommand(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}	
-	
-	public GetCompletedTasksCommand(Date date) {
-		this.date = date;
-	}
-	
+    @XmlElement(name="process-instance-id")
+    @XmlSchemaType(name="long")
+    private Long processInstanceId;
+
+    public GetCompletedTasksCommand() {
+    }
+
+    public GetCompletedTasksCommand(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public GetCompletedTasksCommand(Date date) {
+        this.date = date;
+    }
+
     public Date getDate() {
-		return date;
-	}
+        return date;
+    }
 
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-    @Override
-	public Long getProcessInstanceId() {
-		return processInstanceId;
-	}
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     @Override
-	public void setProcessInstanceId(Long processInstanceId) {
-		this.processInstanceId = processInstanceId;
-	}
+    public Long getProcessInstanceId() {
+        return processInstanceId;
+    }
 
-	public List<TaskSummary> execute(Context cntxt) {
+    @Override
+    public void setProcessInstanceId(Long processInstanceId) {
+        this.processInstanceId = processInstanceId;
+    }
+
+    public List<TaskSummary> execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         if (date != null) {
-        	return context.getTaskAdminService().getCompletedTasks(date);
+            return context.getTaskAdminService().getCompletedTasks(date);
         } else if (processInstanceId != null) {
-        	return context.getTaskAdminService().getCompletedTasksByProcessId(processInstanceId);
+            return context.getTaskAdminService().getCompletedTasksByProcessId(processInstanceId);
         } else {
-        	return context.getTaskAdminService().getCompletedTasks();
+            return context.getTaskAdminService().getCompletedTasks();
         }
 
     }

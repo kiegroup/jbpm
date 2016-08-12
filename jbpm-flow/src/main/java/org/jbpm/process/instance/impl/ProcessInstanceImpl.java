@@ -42,15 +42,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of a process instance.
- * 
+ *
  */
 public abstract class ProcessInstanceImpl implements ProcessInstance, Serializable {
-	
-	protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
-	private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceImpl.class);
-	private static final long serialVersionUID = 510l;
-	
-	private long id;
+
+    protected static final Pattern PARAMETER_MATCHER = Pattern.compile("#\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
+    private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceImpl.class);
+    private static final long serialVersionUID = 510l;
+
+    private long id;
     private String processId;
     private transient Process process;
     private String processXml;
@@ -75,67 +75,67 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         this.processId = process.getId();
         this.process = ( Process ) process;
     }
-    
+
     public void updateProcess(final Process process) {
-    	setProcess(process);
-    	XmlProcessDumper dumper = XmlProcessDumperFactory.newXmlProcessDumperFactory();
-    	this.processXml = dumper.dumpProcess(process);
+        setProcess(process);
+        XmlProcessDumper dumper = XmlProcessDumperFactory.newXmlProcessDumperFactory();
+        this.processXml = dumper.dumpProcess(process);
     }
-    
+
     public String getProcessXml() {
-    	return processXml;
+        return processXml;
     }
-    
+
     public void setProcessXml(String processXml) {
-    	if (processXml != null && processXml.trim().length() > 0) {
-    		this.processXml = processXml;
-    	}
+        if (processXml != null && processXml.trim().length() > 0) {
+            this.processXml = processXml;
+        }
     }
 
     public Process getProcess() {
         if (this.process == null) {
-        	if (processXml == null) {
-        		if (kruntime == null) {
+            if (processXml == null) {
+                if (kruntime == null) {
                     throw new IllegalStateException("Process instance " + id + "[" + processId + "] is disconnected.");
-        		}
-        		this.process = kruntime.getKieBase().getProcess(processId);
-        	} else {
-    	    	XmlProcessDumper dumper = XmlProcessDumperFactory.newXmlProcessDumperFactory();
-        		this.process = dumper.readProcess(processXml);
-        	}
+                }
+                this.process = kruntime.getKieBase().getProcess(processId);
+            } else {
+                XmlProcessDumper dumper = XmlProcessDumperFactory.newXmlProcessDumperFactory();
+                this.process = dumper.readProcess(processXml);
+            }
         }
         return this.process;
     }
-    
+
     public void setProcessId(String processId) {
-    	this.processId = processId;
+        this.processId = processId;
     }
-    
+
     public String getProcessId() {
         return processId;
     }
-    
+
     public String getProcessName() {
-    	return getProcess().getName();
+        return getProcess().getName();
     }
 
     public void setState(final int state) {
         internalSetState(state);
     }
-    
+
     public void setState(final int state, String outcome) {
         this.outcome = outcome;
         internalSetState(state);
     }
-    
+
     public void internalSetState(final int state) {
-    	this.state = state;
+        this.state = state;
     }
 
     public int getState() {
         return this.state;
     }
-    
+
     public void setKnowledgeRuntime(final InternalKnowledgeRuntime kruntime) {
         if ( this.kruntime != null ) {
             throw new IllegalArgumentException( "Runtime can only be set once." );
@@ -146,22 +146,22 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public InternalKnowledgeRuntime getKnowledgeRuntime() {
         return this.kruntime;
     }
-    
-	public Agenda getAgenda() {
-		if (getKnowledgeRuntime() == null) {
-			return null;
-		}
-		return getKnowledgeRuntime().getAgenda();
-	}
+
+    public Agenda getAgenda() {
+        if (getKnowledgeRuntime() == null) {
+            return null;
+        }
+        return getKnowledgeRuntime().getAgenda();
+    }
 
     public ContextContainer getContextContainer() {
         return ( ContextContainer ) getProcess();
     }
-    
+
     public void setContextInstance(String contextId, ContextInstance contextInstance) {
         this.contextInstances.put(contextId, contextInstance);
     }
-    
+
     public ContextInstance getContextInstance(String contextId) {
         ContextInstance contextInstance = this.contextInstances.get(contextId);
         if (contextInstance != null) {
@@ -174,11 +174,11 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         }
         return null;
     }
-    
+
     public List<ContextInstance> getContextInstances(String contextId) {
         return this.subContextInstances.get(contextId);
     }
-    
+
     public void addContextInstance(String contextId, ContextInstance contextInstance) {
         List<ContextInstance> list = this.subContextInstances.get(contextId);
         if (list == null) {
@@ -218,40 +218,40 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         }
         return contextInstance;
     }
-    
+
     public void signalEvent(String type, Object event) {
     }
 
     public void start() {
-    	start(null);
+        start(null);
     }
-    
+
     public void start(String trigger) {
-    	synchronized (this) {
+        synchronized (this) {
             if ( getState() != ProcessInstanceImpl.STATE_PENDING ) {
                 throw new IllegalArgumentException( "A process instance can only be started once" );
             }
             setState( ProcessInstanceImpl.STATE_ACTIVE );
             internalStart(trigger);
-		}
+        }
     }
-    
+
     protected abstract void internalStart(String trigger);
-    
+
     public void disconnect() {
         ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalRemoveProcessInstance(this);
         process = null;
         kruntime = null;
     }
-    
+
     public void reconnect() {
-    	((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalAddProcessInstance(this);
+        ((InternalProcessRuntime) kruntime.getProcessRuntime()).getProcessInstanceManager().internalAddProcessInstance(this);
     }
 
     public String[] getEventTypes() {
-    	return null;
+        return null;
     }
-    
+
     public String toString() {
         final StringBuilder b = new StringBuilder( "ProcessInstance " );
         b.append( getId() );
@@ -263,9 +263,9 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
         return b.toString();
     }
 
-	public Map<String, Object> getMetaData() {
-		return this.metaData;
-	}
+    public Map<String, Object> getMetaData() {
+        return this.metaData;
+    }
 
     public void setMetaData(String name, Object data) {
         this.metaData.put(name, data);
@@ -286,42 +286,42 @@ public abstract class ProcessInstanceImpl implements ProcessInstance, Serializab
     public void setParentProcessInstanceId(long parentProcessInstanceId) {
         this.parentProcessInstanceId = parentProcessInstanceId;
     }
-    
+
     public String getDescription() {
-		if (description == null) {
-			description = process.getName();			
-			if (process != null) {
-				Object metaData = process.getMetaData().get("customDescription");
-				if (metaData instanceof String) {
-					String customDescription = (String) metaData;
-					Map<String, String> replacements = new HashMap<String, String>();
-					Matcher matcher = PARAMETER_MATCHER.matcher(customDescription);
-					while (matcher.find()) {
-						String paramName = matcher.group(1);
-						if (replacements.get(paramName) == null) {
-							try {
-								String value = (String) MVELSafeHelper.getEvaluator()
-										.eval(paramName,new ProcessInstanceResolverFactory(((WorkflowProcessInstance) this)));
-								replacements.put(paramName, value);
-							} catch (Throwable t) {
-								logger.error("Could not resolve customDescription, parameter " + paramName, t);
-								logger.error("Continuing without setting description.");
-							}
-						}
-					}
-					for (Map.Entry<String, String> replacement : replacements.entrySet()) {
-						customDescription = customDescription.replace("#{" + replacement.getKey() + "}", replacement.getValue());
-					}
-					
-					description = customDescription;
-				}
-			}
-		}
-    	
-    	return description;
+        if (description == null) {
+            description = process.getName();
+            if (process != null) {
+                Object metaData = process.getMetaData().get("customDescription");
+                if (metaData instanceof String) {
+                    String customDescription = (String) metaData;
+                    Map<String, String> replacements = new HashMap<String, String>();
+                    Matcher matcher = PARAMETER_MATCHER.matcher(customDescription);
+                    while (matcher.find()) {
+                        String paramName = matcher.group(1);
+                        if (replacements.get(paramName) == null) {
+                            try {
+                                String value = (String) MVELSafeHelper.getEvaluator()
+                                        .eval(paramName,new ProcessInstanceResolverFactory(((WorkflowProcessInstance) this)));
+                                replacements.put(paramName, value);
+                            } catch (Throwable t) {
+                                logger.error("Could not resolve customDescription, parameter " + paramName, t);
+                                logger.error("Continuing without setting description.");
+                            }
+                        }
+                    }
+                    for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+                        customDescription = customDescription.replace("#{" + replacement.getKey() + "}", replacement.getValue());
+                    }
+
+                    description = customDescription;
+                }
+            }
+        }
+
+        return description;
     }
-    
+
     public void setDescription(String description) {
-    	this.description = description;
+        this.description = description;
     }
 }

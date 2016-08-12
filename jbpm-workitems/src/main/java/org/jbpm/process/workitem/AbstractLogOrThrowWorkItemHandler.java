@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -34,31 +34,31 @@ public abstract class AbstractLogOrThrowWorkItemHandler implements WorkItemHandl
         this.logThrownException = logException;
     }
 
-    protected void handleException(Throwable cause) { 
+    protected void handleException(Throwable cause) {
         handleException(cause, new HashMap<String, Object>());
     }
-    
-    protected void handleException(Throwable cause, Map<String, Object> handlerInfoMap) { 
+
+    protected void handleException(Throwable cause, Map<String, Object> handlerInfoMap) {
         String service = (String) handlerInfoMap.get("Interface");
         String operation = (String) handlerInfoMap.get("Operation");
-        
+
         if (this.logThrownException) {
             String message;
-            if( service != null ) { 
+            if( service != null ) {
                 message = this.getClass().getSimpleName() + " failed when calling " + service + "." + operation;
-            } else { 
+            } else {
                 message = this.getClass().getSimpleName() + " failed while trying to complete the task.";
             }
             logger.error(message, cause);
-            
+
         } else {
             WorkItemHandlerRuntimeException wihRe = new WorkItemHandlerRuntimeException(cause);
-            for( String key : handlerInfoMap.keySet() ) { 
+            for( String key : handlerInfoMap.keySet() ) {
                 wihRe.setInformation(key, handlerInfoMap.get(key) );
             }
             wihRe.setInformation(WorkItemHandlerRuntimeException.WORKITEMHANDLERTYPE, this.getClass().getSimpleName());
             throw wihRe;
         }
     }
-    
+
 }

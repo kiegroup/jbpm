@@ -23,14 +23,14 @@ import org.kie.api.runtime.manager.RuntimeManager;
 public interface DeployedUnit {
 
     DeploymentUnit getDeploymentUnit();
-    
+
     String getDeployedAssetLocation(String assetId);
-    
-    Collection<DeployedAsset> getDeployedAssets(); 
-    
-    Collection<Class<?>> getDeployedClasses(); 
-    
+
+    Collection<DeployedAsset> getDeployedAssets();
+
+    Collection<Class<?>> getDeployedClasses();
+
     RuntimeManager getRuntimeManager();
-    
+
     boolean isActive();
 }

@@ -24,7 +24,7 @@ import org.jbpm.workflow.core.Constraint;
 
 /**
  * Default implementation of a constraint.
- * 
+ *
  */
 public class ConstraintImpl implements Constraint, Serializable {
 
@@ -84,19 +84,19 @@ public class ConstraintImpl implements Constraint, Serializable {
     }
 
     public boolean isDefault() {
-		return isDefault;
-	}
+        return isDefault;
+    }
 
-	public void setDefault(boolean isDefault) {
-		this.isDefault = isDefault;
-	}
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 
-	public void setMetaData(String name, Object value) {
+    public void setMetaData(String name, Object value) {
         this.metaData.put(name, value);
     }
-    
+
     public Object getMetaData(String name) {
         return this.metaData.get(name);
     }
-    
+
 }

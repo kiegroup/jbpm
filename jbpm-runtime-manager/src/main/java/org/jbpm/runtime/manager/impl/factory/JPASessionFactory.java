@@ -31,11 +31,11 @@ import org.kie.internal.runtime.manager.SessionFactory;
 public class JPASessionFactory implements SessionFactory {
 
     private RuntimeEnvironment environment;
-    
+
     public JPASessionFactory(RuntimeEnvironment environment) {
         this.environment = environment;
     }
-    
+
     @Override
     public KieSession newKieSession() {
 
@@ -58,16 +58,16 @@ public class JPASessionFactory implements SessionFactory {
 
     @Override
     public void close() {
-        
+
     }
-    
+
     protected void addInterceptors(KieSession ksession) {
-        
+
         SingleSessionCommandService sscs = (SingleSessionCommandService)
                 ((CommandBasedStatefulKnowledgeSession) ksession).getCommandService();
         sscs.addInterceptor(new OptimisticLockRetryInterceptor());
         // even though it's added always TransactionLockInterceptor is by default disabled so won't do anything
         sscs.addInterceptor(new TransactionLockInterceptor(ksession.getEnvironment()));
     }
-    
+
 }

@@ -38,7 +38,7 @@ public class LocalHTWorkItemHandler extends AbstractHTWorkItemHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalHTWorkItemHandler.class);
     private RuntimeManager runtimeManager;
-    
+
     public RuntimeManager getRuntimeManager() {
         return runtimeManager;
     }
@@ -46,27 +46,27 @@ public class LocalHTWorkItemHandler extends AbstractHTWorkItemHandler {
     public void setRuntimeManager(RuntimeManager runtimeManager) {
         this.runtimeManager = runtimeManager;
     }
-   
+
     public LocalHTWorkItemHandler() {
     }
-   
+
     @Override
     public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-        
+
         RuntimeEngine runtime = runtimeManager.getRuntimeEngine(ProcessInstanceIdContext.get(workItem.getProcessInstanceId()));
         KieSession ksessionById = runtime.getKieSession();
-        
+
         Task task = createTaskBasedOnWorkItemParams(ksessionById, workItem);
 //        ContentData content = createTaskContentBasedOnWorkItemParams(ksessionById, workItem);
         Map<String, Object> content = createTaskDataBasedOnWorkItemParams(ksessionById, workItem);
         try {
             long taskId = ((InternalTaskService) runtime.getTaskService()).addTask(task, content);
             if (isAutoClaim(workItem, task)) {
-            	try {
-            		runtime.getTaskService().claim(taskId, (String) workItem.getParameter("SwimlaneActorId"));
-            	} catch (PermissionDeniedException e) {
-            		logger.warn("User {} is not allowed to auto claim task due to permission violation", workItem.getParameter("SwimlaneActorId"));
-            	}
+                try {
+                    runtime.getTaskService().claim(taskId, (String) workItem.getParameter("SwimlaneActorId"));
+                } catch (PermissionDeniedException e) {
+                    logger.warn("User {} is not allowed to auto claim task due to permission violation", workItem.getParameter("SwimlaneActorId"));
+                }
             }
         } catch (Exception e) {
             if (action.equals(OnErrorAction.ABORT)) {
@@ -82,16 +82,16 @@ public class LocalHTWorkItemHandler extends AbstractHTWorkItemHandler {
                 logMsg.append(new Date()).append(": Error when creating task on task server for work item id ").append(workItem.getId());
                 logMsg.append(". Error reported by task server: ").append(e.getMessage());
                 logger.error(logMsg.toString(), e);
-                // rethrow to cancel processing if the exception is not recoverable                
+                // rethrow to cancel processing if the exception is not recoverable
                 if (!(e instanceof TaskException) || ((e instanceof TaskException) && !((TaskException) e).isRecoverable())) {
-                	if (e instanceof RuntimeException) {
+                    if (e instanceof RuntimeException) {
                         throw (RuntimeException) e;
                     } else {
                         throw new RuntimeException(e);
                     }
                 }
             }
-        } 
+        }
     }
 
     @Override
@@ -105,7 +105,7 @@ public class LocalHTWorkItemHandler extends AbstractHTWorkItemHandler {
                 logger.info(e.getMessage());
             }
         }
-        
+
     }
-    
+
 }

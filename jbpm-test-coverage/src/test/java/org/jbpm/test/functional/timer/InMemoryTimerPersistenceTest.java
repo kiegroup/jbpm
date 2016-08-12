@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -39,67 +39,67 @@ public class InMemoryTimerPersistenceTest extends JbpmTestCase {
     private static final Logger logger = LoggerFactory.getLogger(InMemoryTimerPersistenceTest.class);
 
     // Test processses
-    
+
     private final static String PROCESS_FILE_NAME = "org/jbpm/test/functional/timer/boundaryTimerProcess.bpmn";
     private final static String PROCESS_NAME = "BoundaryTimerEventProcess";
     private final static String WORK_ITEM_HANLDER_TASK = "Human Task";
-    
+
     private final static String TIMER_FIRED_PROP = "timerFired";
     private final static String TIMER_FIRED_TIME_PROP = "afterTimerTime";
 
-    public InMemoryTimerPersistenceTest() { 
+    public InMemoryTimerPersistenceTest() {
         super(true, false);
     }
-    
+
     @Before
-    public void setup() { 
+    public void setup() {
         System.clearProperty(TIMER_FIRED_PROP);
         System.clearProperty(TIMER_FIRED_TIME_PROP);
     }
-    
+
     @Test
     public void boundaryEventTimerAndCompleteHumanTaskWithoutPersistence() throws InterruptedException {
         createRuntimeManager(PROCESS_FILE_NAME);
         RuntimeEngine runtimeEngine = getRuntimeEngine();
         KieSession ksession = runtimeEngine.getKieSession();
-       
+
         // Do stuff
         HumanTaskMockHandler humanTaskMockHandler = new HumanTaskMockHandler();
         ProcessInstance process = registerHTHandlerAndStartProcess(ksession, humanTaskMockHandler);
-        
+
         sleepAndVerifyTimerRuns(process.getState());
         completeWork(ksession, humanTaskMockHandler);
-   
+
         // The process reaches the end node
         int processState = process.getState();
         assertEquals("Expected process state to be " + processStateName[ProcessInstance.STATE_COMPLETED],
                 ProcessInstance.STATE_COMPLETED, processState);
     }
-    
 
-    private ProcessInstance registerHTHandlerAndStartProcess(KieSession ksession, HumanTaskMockHandler humanTaskMockHandler) { 
+
+    private ProcessInstance registerHTHandlerAndStartProcess(KieSession ksession, HumanTaskMockHandler humanTaskMockHandler) {
         // Register Human Task Handler
         ksession.getWorkItemManager().registerWorkItemHandler(WORK_ITEM_HANLDER_TASK, humanTaskMockHandler);
-    
-        // Start the process 
+
+        // Start the process
         ProcessInstance process = ksession.startProcess(PROCESS_NAME);
         long processId = process.getId();
         assertTrue("process id not saved", processId > 0);
-        
+
         // The process is in the Human Task waiting for its completion
         int processState = process.getState();
         assertEquals("Expected process state to be " + processStateName[ProcessInstance.STATE_ACTIVE] + " not "
                 + processStateName[processState], ProcessInstance.STATE_ACTIVE, processState);
-        
+
         return process;
-    
+
     }
 
     private void completeWork(KieSession ksession, HumanTaskMockHandler humanTaskMockHandler) {
         assertTrue("The work item task handler does not have a work item!", humanTaskMockHandler.workItem != null);
         long workItemId = humanTaskMockHandler.workItem.getId();
         assertTrue("work item id not saved", workItemId > 0);
-        
+
         // The Human Task is completed
         Map<String, Object> results = new HashMap<String, Object>();
         try {
@@ -111,7 +111,7 @@ public class InMemoryTimerPersistenceTest extends JbpmTestCase {
         }
     }
 
-    private void sleepAndVerifyTimerRuns(int processState) throws InterruptedException { 
+    private void sleepAndVerifyTimerRuns(int processState) throws InterruptedException {
         // wait 3 seconds to see if the boss is notified
         if (processState == ProcessInstance.STATE_ACTIVE) {
             int sleep = 2000;
@@ -119,7 +119,7 @@ public class InMemoryTimerPersistenceTest extends JbpmTestCase {
             Thread.sleep(sleep);
             logger.debug("Awake!");
         }
-        
+
         long afterSleepTime = System.currentTimeMillis();
         assertTrue("The timer has not fired!", timerHasFired());
         assertTrue("The timer did not fire on time!", afterSleepTime > timerFiredTime() );
@@ -127,29 +127,29 @@ public class InMemoryTimerPersistenceTest extends JbpmTestCase {
         assertTrue("The timer only fired " + timerFiredCount + " times.", timerFiredCount >= 1 );
     }
 
-    
-    private boolean timerHasFired() { 
+
+    private boolean timerHasFired() {
         String hasFired = System.getProperty(TIMER_FIRED_PROP);
-        if( hasFired != null ) { 
+        if( hasFired != null ) {
             return true;
         }
         return false;
     }
 
 
-    private int timerFiredCount() { 
+    private int timerFiredCount() {
         String timerFiredCount = System.getProperty(TIMER_FIRED_PROP);
-        if( timerFiredCount == null ) { 
-           return 0; 
+        if( timerFiredCount == null ) {
+           return 0;
         }
         return Integer.parseInt(timerFiredCount);
     }
 
 
-    private long timerFiredTime() { 
+    private long timerFiredTime() {
         String timerFiredCount = System.getProperty(TIMER_FIRED_TIME_PROP);
-        if( timerFiredCount == null ) { 
-           return 0; 
+        if( timerFiredCount == null ) {
+           return 0;
         }
         return Long.parseLong(timerFiredCount);
     }

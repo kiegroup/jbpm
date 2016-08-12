@@ -22,7 +22,7 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.User;
 
 public class CommandsUtil {
-	
+
     public static boolean isAllowed(final User user, final List<String> groupIds, final List<? extends OrganizationalEntity> entities) {
         // for now just do a contains, I'll figure out group membership later.
         for (OrganizationalEntity entity : entities) {

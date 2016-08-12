@@ -37,23 +37,23 @@ public class FindActiveProcessInstancesCommand extends AuditCommand<List<Process
     @XmlAttribute(required=false)
     @XmlSchemaType(name="string")
     private String processId = null;
-    
-    public FindActiveProcessInstancesCommand() { 
+
+    public FindActiveProcessInstancesCommand() {
         // no-arg for JAXB
     }
-    
+
     public FindActiveProcessInstancesCommand(String processId) {
         this.processId = processId;
-        if( processId == null || processId.isEmpty() ) { 
+        if( processId == null || processId.isEmpty() ) {
             throw new IllegalArgumentException("The processId field must not be null or empty." );
         }
-	}
-	
+    }
+
     public List<ProcessInstanceLog> execute(Context cntxt) {
         setLogEnvironment(cntxt);
-        if( processId != null && ! processId.trim().isEmpty() ) { 
+        if( processId != null && ! processId.trim().isEmpty() ) {
             return this.auditLogService.findActiveProcessInstances(processId);
-        } else { 
+        } else {
             return this.auditLogService.findActiveProcessInstances();
         }
     }
@@ -65,7 +65,7 @@ public class FindActiveProcessInstancesCommand extends AuditCommand<List<Process
     public void setProcessId(String processId) {
         this.processId = processId;
     }
-    
+
     public String toString() {
         return AuditLogService.class.getSimpleName() + ".findActiveProcessInstances("+ processId + ")";
     }

@@ -41,30 +41,30 @@ import org.kie.internal.executor.api.ExecutorService;
  *
  */
 public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
-	
+
     private TimeUnit timeunit = TimeUnit.valueOf(System.getProperty("org.kie.executor.timeunit", "SECONDS"));
     private long maxRunningTime = Long.parseLong(System.getProperty("org.kie.executor.running.max", "600"));
-    
+
     private Executor executor;
     private boolean executorStarted = false;
-     
+
     private ExecutorQueryService queryService;
-    
+
     private ExecutorAdminService adminService;
-    
+
     private ExecutorEventSupport eventSupport = new ExecutorEventSupport();
-    
+
     public ExecutorServiceImpl(){
-    	
+
     }
 
     public ExecutorServiceImpl(Executor executor) {
     }
-    
+
     public ExecutorEventSupport getEventSupport() {
         return this.eventSupport;
     }
-    
+
     public void setEventSupport(ExecutorEventSupport eventSupport) {
         this.eventSupport = eventSupport;
     }
@@ -92,7 +92,7 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     public void setAdminService(ExecutorAdminService adminService) {
         this.adminService = adminService;
     }
-    
+
     public List<RequestInfo> getFutureQueuedRequests() {
         return ((org.kie.internal.executor.api.ExecutorQueryService)queryService).getFutureQueuedRequests();
     }
@@ -122,9 +122,9 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     }
 
     public List<RequestInfo> getRequestsByStatus(List<STATUS> statuses) {
-    	return ((org.kie.internal.executor.api.ExecutorQueryService)queryService).getRequestsByStatus(statuses);
+        return ((org.kie.internal.executor.api.ExecutorQueryService)queryService).getRequestsByStatus(statuses);
     }
-    
+
     public int clearAllRequests() {
         return adminService.clearAllRequests();
     }
@@ -141,32 +141,32 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
         executor.cancelRequest(requestId);
     }
 
-    
+
     public void init() {
-    	if (!executorStarted) {
-    		if (maxRunningTime > -1) {
-    			requeue(maxRunningTime);
-    		}
-    		try {
-		        executor.init();
-		        this.executorStarted = true;
-    		} catch (ExecutorNotStartedException e) {
-    			this.executorStarted = false;
-    		}
-    	}
+        if (!executorStarted) {
+            if (maxRunningTime > -1) {
+                requeue(maxRunningTime);
+            }
+            try {
+                executor.init();
+                this.executorStarted = true;
+            } catch (ExecutorNotStartedException e) {
+                this.executorStarted = false;
+            }
+        }
     }
-    
-    
-    public void destroy() {  
-    	if (executorStarted) {
-    		ExecutorServiceFactory.resetExecutorService(this);
-	    	this.executorStarted = false;
-	        executor.destroy();	        
-    	}
+
+
+    public void destroy() {
+        if (executorStarted) {
+            ExecutorServiceFactory.resetExecutorService(this);
+            this.executorStarted = false;
+            executor.destroy();
+        }
     }
-    
+
     public boolean isActive() {
-    	return executorStarted;
+        return executorStarted;
     }
 
     public int getInterval() {
@@ -192,14 +192,14 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     public void setThreadPoolSize(int nroOfThreads) {
         executor.setThreadPoolSize(nroOfThreads);
     }
-    
-	public TimeUnit getTimeunit() {
-		return executor.getTimeunit();
-	}
 
-	public void setTimeunit(TimeUnit timeunit) {
-		executor.setTimeunit(timeunit);
-	}
+    public TimeUnit getTimeunit() {
+        return executor.getTimeunit();
+    }
+
+    public void setTimeunit(TimeUnit timeunit) {
+        executor.setTimeunit(timeunit);
+    }
 
     public List<RequestInfo> getPendingRequests() {
         return ((org.kie.internal.executor.api.ExecutorQueryService)queryService).getPendingRequests();
@@ -218,43 +218,43 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     }
 
     public RequestInfo getRequestById(Long requestId) {
-    	return queryService.getRequestById(requestId);
+        return queryService.getRequestById(requestId);
     }
 
     public List<ErrorInfo> getErrorsByRequestId(Long requestId) {
-    	return queryService.getErrorsByRequestId(requestId);
+        return queryService.getErrorsByRequestId(requestId);
     }
 
     @Override
     public List<RequestInfo> getRequestsByBusinessKey(String businessKey, QueryContext queryContext) {
         return queryService.getRequestByBusinessKey(businessKey, queryContext);
     }
-    
+
     @Override
     public List<RequestInfo> getRequestsByCommand(String command, QueryContext queryContext) {
         return queryService.getRequestByCommand(command, queryContext);
     }
 
-	@Override
-	public void requeue(Long olderThan) {		
+    @Override
+    public void requeue(Long olderThan) {
         if (adminService instanceof RequeueAware) {
-        	if (olderThan == null) {
-        		olderThan = maxRunningTime;
-        	}
-        	((RequeueAware) adminService).requeue(timeunit.convert(olderThan, TimeUnit.MILLISECONDS));
+            if (olderThan == null) {
+                olderThan = maxRunningTime;
+            }
+            ((RequeueAware) adminService).requeue(timeunit.convert(olderThan, TimeUnit.MILLISECONDS));
         }
-	}
+    }
 
-	@Override
-	public void requeueById(Long requestId) {
-		if (adminService instanceof RequeueAware) {
-        	((RequeueAware) adminService).requeueById(requestId);
+    @Override
+    public void requeueById(Long requestId) {
+        if (adminService instanceof RequeueAware) {
+            ((RequeueAware) adminService).requeueById(requestId);
         }
-	}
+    }
 
     @Override
     public List<RequestInfo> getQueuedRequests(QueryContext queryContext) {
-        
+
         return queryService.getQueuedRequests(queryContext);
     }
 
@@ -272,13 +272,13 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
 
     @Override
     public List<RequestInfo> getCancelledRequests(QueryContext queryContext) {
-        
+
         return queryService.getCancelledRequests(queryContext);
     }
 
     @Override
     public List<ErrorInfo> getAllErrors(QueryContext queryContext) {
-        
+
         return queryService.getAllErrors(queryContext);
     }
 
@@ -310,11 +310,11 @@ public class ExecutorServiceImpl implements ExecutorService, RequeueAware {
     public void addAsyncJobListener(AsynchronousJobListener listener) {
         this.eventSupport.addEventListener(listener);
     }
-    
+
     public void removeAsyncJobListener(AsynchronousJobListener listener) {
         this.eventSupport.removeEventListener(listener);
     }
-    
+
     public List<AsynchronousJobListener> getAsyncJobListeners() {
         return this.eventSupport.getEventListeners();
     }

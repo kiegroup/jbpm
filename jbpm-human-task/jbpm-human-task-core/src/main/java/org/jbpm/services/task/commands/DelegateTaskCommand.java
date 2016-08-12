@@ -22,18 +22,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.kie.internal.command.Context;
 
 /**
-*Operation.Delegate 
-        : [ new OperationCommand().{ 
+*Operation.Delegate
+        : [ new OperationCommand().{
                 status = [ Status.Ready ],
                 allowed = [ Allowed.PotentialOwner, Allowed.BusinessAdministrator  ],
-                addTargetUserToPotentialOwners = true,            
+                addTargetUserToPotentialOwners = true,
                 newStatus = Status.Ready,
                 exec = Operation.Claim
             },
-            new OperationCommand().{ 
+            new OperationCommand().{
                 status = [ Status.Reserved, Status.InProgress ],
                 allowed = [ Allowed.Owner, Allowed.BusinessAdministrator ],
-                addTargetUserToPotentialOwners = true,                         
+                addTargetUserToPotentialOwners = true,
                 newStatus = Status.Ready,
                 exec = Operation.Claim
             } ],
@@ -42,14 +42,14 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DelegateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5656199063761548979L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 5656199063761548979L;
 
-	public DelegateTaskCommand() {
-	}
-	
+    public DelegateTaskCommand() {
+    }
+
     public DelegateTaskCommand(long taskId, String userId, String targetEntityId) {
         this.taskId = taskId;
         this.userId = userId;
@@ -62,8 +62,8 @@ public class DelegateTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(targetEntityId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().delegate(taskId, userId, targetEntityId);
-    	return null;
-           
+        context.getTaskInstanceService().delegate(taskId, userId, targetEntityId);
+        return null;
+
     }
 }

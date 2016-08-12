@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -55,7 +55,7 @@ import bitronix.tm.TransactionManagerServices;
 public class SerializedTimerRollbackTest extends JbpmTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(SerializedTimerRollbackTest.class);
-    
+
     public SerializedTimerRollbackTest() {
         super(true, true);
     }
@@ -86,7 +86,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
             KieSession ksession = runtimeEngine.getKieSession();
             TaskService taskService = runtimeEngine.getTaskService();
             logger.debug("Created knowledge session");
-            
+
             TransactionManager tm = TransactionManagerServices.getTransactionManager();
 
             List<Long> committedProcessInstanceIds = new ArrayList<Long>();
@@ -140,7 +140,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
     @Test
     public void testSerizliableTestsWithEngineRollback() {
         try {
-    
+
             createRuntimeManager("org/jbpm/test/functional/timer/HumanTaskWithBoundaryTimer.bpmn");
             RuntimeEngine runtimeEngine = getRuntimeEngine();
             KieSession ksession = runtimeEngine.getKieSession();
@@ -161,7 +161,7 @@ public class SerializedTimerRollbackTest extends JbpmTestCase {
                 } else {
                     try {
                         Map<String, Object> params = new HashMap<String, Object>();
-                        // set test variable to null so engine will rollback 
+                        // set test variable to null so engine will rollback
                         params.put("test", null);
                         logger.debug("Creating process instance: {}", i);
                         ksession.startProcess("PROCESS_1", params);

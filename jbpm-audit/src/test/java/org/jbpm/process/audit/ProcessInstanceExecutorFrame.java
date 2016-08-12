@@ -35,7 +35,7 @@ import org.kie.internal.runtime.StatefulKnowledgeSession;
 public class ProcessInstanceExecutorFrame extends JFrame {
 
     private static final long serialVersionUID = 510l;
-    
+
     private StatefulKnowledgeSession workingMemory;
     private JTextField processIdTextField;
     private JButton startButton;
@@ -73,10 +73,10 @@ public class ProcessInstanceExecutorFrame extends JFrame {
         c.insets = new Insets(5, 5, 5, 5);
         panel.add(startButton, c);
     }
-    
+
     private void start() {
         workingMemory.startProcess(processIdTextField.getText());
         workingMemory.fireAllRules();
     }
-    
+
 }

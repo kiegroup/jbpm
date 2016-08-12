@@ -29,37 +29,37 @@ import org.kie.api.runtime.process.WorkItemManager;
 
 public class ArchiveWorkItemHandler extends AbstractLogOrThrowWorkItemHandler {
 
-	public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
-		String archive = (String) workItem.getParameter("Archive");
-		List<File> files = (List<File>) workItem.getParameter("Files");
-		
-		try {
-	        OutputStream outputStream = new FileOutputStream( new File( archive) );	        
-	        ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("tar", outputStream);
-	        
-			if (files != null) {
-				for (File file: files) {
-			        final TarArchiveEntry entry = new TarArchiveEntry("testdata/test1.xml");
-			        entry.setModTime(0);
-			        entry.setSize(file.length());
-			        entry.setUserId(0);
-			        entry.setGroupId(0);
-			        entry.setMode(0100000);
-			        os.putArchiveEntry(entry);
-			        IOUtils.copy(new FileInputStream(file), os);
-				}
-			}
-	        os.closeArchiveEntry();
-	        os.close();
-			manager.completeWorkItem(workItem.getId(), null);
-		} catch (Throwable cause) {
-			handleException(cause);
-			manager.abortWorkItem(workItem.getId());
-		}
-	}
+    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+        String archive = (String) workItem.getParameter("Archive");
+        List<File> files = (List<File>) workItem.getParameter("Files");
 
-	public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
-		// Do nothing, this work item cannot be aborted
-	}
+        try {
+            OutputStream outputStream = new FileOutputStream( new File( archive) );
+            ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream("tar", outputStream);
+
+            if (files != null) {
+                for (File file: files) {
+                    final TarArchiveEntry entry = new TarArchiveEntry("testdata/test1.xml");
+                    entry.setModTime(0);
+                    entry.setSize(file.length());
+                    entry.setUserId(0);
+                    entry.setGroupId(0);
+                    entry.setMode(0100000);
+                    os.putArchiveEntry(entry);
+                    IOUtils.copy(new FileInputStream(file), os);
+                }
+            }
+            os.closeArchiveEntry();
+            os.close();
+            manager.completeWorkItem(workItem.getId(), null);
+        } catch (Throwable cause) {
+            handleException(cause);
+            manager.abortWorkItem(workItem.getId());
+        }
+    }
+
+    public void abortWorkItem(WorkItem workItem, WorkItemManager manager) {
+        // Do nothing, this work item cannot be aborted
+    }
 
 }

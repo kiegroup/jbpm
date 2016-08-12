@@ -59,10 +59,10 @@ public class EscalationImpl implements org.kie.internal.task.api.model.Escalatio
     @OneToMany(cascade = CascadeType.ALL, targetEntity=ReassignmentImpl.class)
     @JoinColumn(name = "Escalation_Reassignments_Id", nullable = true)
     private List<Reassignment>      reassignments = Collections.emptyList();
-    
+
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong(  id );
-        
+
         if ( name != null ) {
             out.writeBoolean( true );
             out.writeUTF( name );
@@ -71,9 +71,9 @@ public class EscalationImpl implements org.kie.internal.task.api.model.Escalatio
         }
         CollectionUtils.writeBooleanExpressionList( constraints, out );
         CollectionUtils.writeNotificationList( notifications, out );
-        CollectionUtils.writeReassignmentList( reassignments, out );        
+        CollectionUtils.writeReassignmentList( reassignments, out );
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
        id = in.readLong();
@@ -83,7 +83,7 @@ public class EscalationImpl implements org.kie.internal.task.api.model.Escalatio
        constraints = CollectionUtils.readBooleanExpressionList( in );
        notifications = CollectionUtils.readNotificationList( in );
        reassignments = CollectionUtils.readReassignmentList( in );
-        
+
     }
 
     public long getId() {

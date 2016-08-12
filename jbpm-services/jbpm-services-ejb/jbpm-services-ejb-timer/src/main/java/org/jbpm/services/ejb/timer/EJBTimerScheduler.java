@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -41,98 +41,98 @@ import org.slf4j.LoggerFactory;
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
 public class EJBTimerScheduler {
-	
-	private static final Logger logger = LoggerFactory.getLogger(EJBTimerScheduler.class);
 
-	private static final Integer OVERDUE_WAIT_TIME = Integer.parseInt(System.getProperty("org.jbpm.overdue.timer.wait", "10000"));
-	
-	@Resource
-	private javax.ejb.TimerService timerService;
-	
-	@SuppressWarnings("unchecked")
-	@Timeout
-	public void executeTimerJob(Timer timer) {
-		
-		EjbTimerJob timerJob = (EjbTimerJob) timer.getInfo();
-		logger.debug("About to execute timer for job {}", timerJob);
-		TimerJobInstance timerJobInstance = timerJob.getTimerJobInstance();
-		String timerServiceId = ((EjbGlobalJobHandle)timerJobInstance.getJobHandle()).getDeploymentId();
-		
-		// handle overdue timers as ejb timer service might start before all deployments are ready		
-		long time = 0;
+    private static final Logger logger = LoggerFactory.getLogger(EJBTimerScheduler.class);
+
+    private static final Integer OVERDUE_WAIT_TIME = Integer.parseInt(System.getProperty("org.jbpm.overdue.timer.wait", "10000"));
+
+    @Resource
+    private javax.ejb.TimerService timerService;
+
+    @SuppressWarnings("unchecked")
+    @Timeout
+    public void executeTimerJob(Timer timer) {
+
+        EjbTimerJob timerJob = (EjbTimerJob) timer.getInfo();
+        logger.debug("About to execute timer for job {}", timerJob);
+        TimerJobInstance timerJobInstance = timerJob.getTimerJobInstance();
+        String timerServiceId = ((EjbGlobalJobHandle)timerJobInstance.getJobHandle()).getDeploymentId();
+
+        // handle overdue timers as ejb timer service might start before all deployments are ready
+        long time = 0;
         while (TimerServiceRegistry.getInstance().get(timerServiceId) == null) {
-        	logger.debug("waiting for timer service to be available, elapsed time {} ms", time);
+            logger.debug("waiting for timer service to be available, elapsed time {} ms", time);
             try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             time += 500;
-            
+
             if (time > OVERDUE_WAIT_TIME) {
-            	logger.debug("No timer service found after waiting {} ms", time);
-            	break;
+                logger.debug("No timer service found after waiting {} ms", time);
+                break;
             }
         }
-		try {
-			((Callable<Void>) timerJobInstance).call();
-		} catch (Exception e) {
-			logger.warn("Execution of time failed due to {}", e.getMessage(), e);
-		}
-	}
-	
-	public void internalSchedule(TimerJobInstance timerJobInstance) {
-		TimerConfig config = new TimerConfig(new EjbTimerJob(timerJobInstance), true);
-		Date expirationTime = timerJobInstance.getTrigger().nextFireTime();
-		
-		if (expirationTime != null) {
-			timerService.createSingleActionTimer(expirationTime, config);
-			logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
-		} else {
-			logger.info("Timer that was to be scheduled has already expired");
-		}
-	}
-	
-	public boolean removeJob(JobHandle jobHandle) {
-		EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
-		
-		for (Timer timer : timerService.getTimers()) {
-			Serializable info = timer.getInfo();
-			if (info instanceof EjbTimerJob) {
-				EjbTimerJob job = (EjbTimerJob) info;
-				
-				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-				if (handle.getUuid().equals(ejbHandle.getUuid())) {
-					logger.debug("Job handle {} does match timer and is going to be canceled", jobHandle);
-					try {
-					    timer.cancel();
-					} catch (Throwable e) {
-					    logger.debug("Timer cancel error due to {}", e.getMessage());
-					    return false;
-					}
-					return true;
-				}
-			}
-		}
-		logger.debug("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
-		return false;
-	}
-	
-	public TimerJobInstance getTimerByName(String jobName) {
-		for (Timer timer : timerService.getTimers()) {
-			Serializable info = timer.getInfo();
-			if (info instanceof EjbTimerJob) {
-				EjbTimerJob job = (EjbTimerJob) info;
-				
-				EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
-				if (handle.getUuid().equals(jobName)) {
-					logger.debug("Job  {} does match timer and is going to be returned", jobName);
-					return handle.getTimerJobInstance();
-				}
-			}
-		}	
-		
-		return null;
-	}
-	
+        try {
+            ((Callable<Void>) timerJobInstance).call();
+        } catch (Exception e) {
+            logger.warn("Execution of time failed due to {}", e.getMessage(), e);
+        }
+    }
+
+    public void internalSchedule(TimerJobInstance timerJobInstance) {
+        TimerConfig config = new TimerConfig(new EjbTimerJob(timerJobInstance), true);
+        Date expirationTime = timerJobInstance.getTrigger().nextFireTime();
+
+        if (expirationTime != null) {
+            timerService.createSingleActionTimer(expirationTime, config);
+            logger.debug("Timer scheduled {} on {} scheduler service", timerJobInstance);
+        } else {
+            logger.info("Timer that was to be scheduled has already expired");
+        }
+    }
+
+    public boolean removeJob(JobHandle jobHandle) {
+        EjbGlobalJobHandle ejbHandle = (EjbGlobalJobHandle) jobHandle;
+
+        for (Timer timer : timerService.getTimers()) {
+            Serializable info = timer.getInfo();
+            if (info instanceof EjbTimerJob) {
+                EjbTimerJob job = (EjbTimerJob) info;
+
+                EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
+                if (handle.getUuid().equals(ejbHandle.getUuid())) {
+                    logger.debug("Job handle {} does match timer and is going to be canceled", jobHandle);
+                    try {
+                        timer.cancel();
+                    } catch (Throwable e) {
+                        logger.debug("Timer cancel error due to {}", e.getMessage());
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+        logger.debug("Job handle {} does not match any timer on {} scheduler service", jobHandle, this);
+        return false;
+    }
+
+    public TimerJobInstance getTimerByName(String jobName) {
+        for (Timer timer : timerService.getTimers()) {
+            Serializable info = timer.getInfo();
+            if (info instanceof EjbTimerJob) {
+                EjbTimerJob job = (EjbTimerJob) info;
+
+                EjbGlobalJobHandle handle = (EjbGlobalJobHandle) job.getTimerJobInstance().getJobHandle();
+                if (handle.getUuid().equals(jobName)) {
+                    logger.debug("Job  {} does match timer and is going to be returned", jobName);
+                    return handle.getTimerJobInstance();
+                }
+            }
+        }
+
+        return null;
+    }
+
 }

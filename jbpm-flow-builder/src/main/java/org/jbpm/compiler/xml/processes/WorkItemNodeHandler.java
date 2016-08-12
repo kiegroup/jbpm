@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -41,7 +41,7 @@ public class WorkItemNodeHandler extends AbstractNodeHandler {
         final String waitForCompletion = element.getAttribute("waitForCompletion");
         workItemNode.setWaitForCompletion(!"false".equals(waitForCompletion));
         for (String eventType: workItemNode.getActionTypes()) {
-        	handleAction(workItemNode, element, eventType);
+            handleAction(workItemNode, element, eventType);
         }
     }
 
@@ -53,41 +53,41 @@ public class WorkItemNodeHandler extends AbstractNodeHandler {
         return WorkItemNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
-		WorkItemNode workItemNode = (WorkItemNode) node;
-		writeNode("workItem", workItemNode, xmlDump, includeMeta);
+    public void writeNode(Node node, StringBuilder xmlDump, boolean includeMeta) {
+        WorkItemNode workItemNode = (WorkItemNode) node;
+        writeNode("workItem", workItemNode, xmlDump, includeMeta);
         visitParameters(workItemNode, xmlDump);
         xmlDump.append(">" + EOL);
         if (includeMeta) {
-        	writeMetaData(workItemNode, xmlDump);
+            writeMetaData(workItemNode, xmlDump);
         }
         Work work = workItemNode.getWork();
         visitWork(work, xmlDump, includeMeta);
         visitInMappings(workItemNode.getInMappings(), xmlDump);
         visitOutMappings(workItemNode.getOutMappings(), xmlDump);
         for (String eventType: workItemNode.getActionTypes()) {
-        	writeActions(eventType, workItemNode.getActions(eventType), xmlDump);
+            writeActions(eventType, workItemNode.getActions(eventType), xmlDump);
         }
         writeTimers(workItemNode.getTimers(), xmlDump);
         endNode("workItem", xmlDump);
-	}
-	
-	protected void visitParameters(WorkItemNode workItemNode, StringBuilder xmlDump) {
-	    if (!workItemNode.isWaitForCompletion()) {
+    }
+
+    protected void visitParameters(WorkItemNode workItemNode, StringBuilder xmlDump) {
+        if (!workItemNode.isWaitForCompletion()) {
             xmlDump.append("waitForCompletion=\"false\" ");
         }
-	}
-	
-	protected void visitInMappings(Map<String, String> inMappings, StringBuilder xmlDump) {
+    }
+
+    protected void visitInMappings(Map<String, String> inMappings, StringBuilder xmlDump) {
         for (Map.Entry<String, String> inMapping: inMappings.entrySet()) {
             xmlDump.append(
                 "      <mapping type=\"in\" "
                              + "from=\"" + inMapping.getValue() + "\" "
                              + "to=\"" + inMapping.getKey() + "\" />" + EOL);
         }
-	}
-	
-	protected void visitOutMappings(Map<String, String> outMappings, StringBuilder xmlDump) {
+    }
+
+    protected void visitOutMappings(Map<String, String> outMappings, StringBuilder xmlDump) {
         for (Map.Entry<String, String> outMapping: outMappings.entrySet()) {
             xmlDump.append(
                 "      <mapping type=\"out\" "
@@ -95,29 +95,29 @@ public class WorkItemNodeHandler extends AbstractNodeHandler {
                              + "to=\"" + outMapping.getValue() + "\" />" + EOL);
         }
     }
-    
+
     protected void visitWork(Work work, StringBuilder xmlDump, boolean includeMeta) {
         if (work != null) {
             xmlDump.append("      <work name=\"" + work.getName() + "\" >" + EOL);
             List<ParameterDefinition> parameterDefinitions =
-            	new ArrayList<ParameterDefinition>(work.getParameterDefinitions());
+                new ArrayList<ParameterDefinition>(work.getParameterDefinitions());
             Collections.sort(parameterDefinitions, new Comparator<ParameterDefinition>() {
-				public int compare(ParameterDefinition o1,
-						ParameterDefinition o2) {
-					return o1.getName().compareTo(o2.getName());
-				}
-            	
+                public int compare(ParameterDefinition o1,
+                        ParameterDefinition o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+
             });
             for (ParameterDefinition paramDefinition: parameterDefinitions) {
-            	DataType dataType = paramDefinition.getType();
+                DataType dataType = paramDefinition.getType();
                 xmlDump.append("        <parameter name=\"" + paramDefinition.getName() + "\" >" + EOL + "  ");
                 XmlWorkflowProcessDumper.visitDataType(dataType, xmlDump);
                 Object value = work.getParameter(paramDefinition.getName());
                 if (value != null) {
-                	xmlDump.append("  ");
-                	XmlWorkflowProcessDumper.visitValue(value, dataType, xmlDump);
+                    xmlDump.append("  ");
+                    XmlWorkflowProcessDumper.visitValue(value, dataType, xmlDump);
                 }
-                xmlDump.append("        </parameter>" + EOL); 
+                xmlDump.append("        </parameter>" + EOL);
             }
             xmlDump.append("      </work>" + EOL);
         }

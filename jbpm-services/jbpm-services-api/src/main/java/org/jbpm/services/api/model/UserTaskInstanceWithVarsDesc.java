@@ -20,6 +20,6 @@ import java.util.Map;
 
 
 public interface UserTaskInstanceWithVarsDesc extends UserTaskInstanceDesc{
-	
+
     Map<String, Object> getVariables();
 }

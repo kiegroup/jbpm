@@ -28,16 +28,16 @@ import org.jbpm.kie.services.impl.FormManagerServiceImpl;
 @Lock(LockType.READ)
 public class FormManagerServiceEJBImpl extends FormManagerServiceImpl{
 
-	@Lock(LockType.WRITE)
-	@Override
-	public void registerForm(String deploymentId, String key, String formContent) {
-		super.registerForm(deploymentId, key, formContent);
-	}
+    @Lock(LockType.WRITE)
+    @Override
+    public void registerForm(String deploymentId, String key, String formContent) {
+        super.registerForm(deploymentId, key, formContent);
+    }
 
-	@Lock(LockType.WRITE)
-	@Override
-	public void unRegisterForms(String deploymentId) {
-		super.unRegisterForms(deploymentId);
-	}
-    
+    @Lock(LockType.WRITE)
+    @Override
+    public void unRegisterForms(String deploymentId) {
+        super.unRegisterForms(deploymentId);
+    }
+
 }

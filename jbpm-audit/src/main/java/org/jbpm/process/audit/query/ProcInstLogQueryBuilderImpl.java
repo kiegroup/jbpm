@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -42,10 +42,10 @@ public class ProcInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<P
         super(cmdExecutor);
     }
 
-    public ProcInstLogQueryBuilderImpl(JPAAuditLogService jpaAuditService) { 
+    public ProcInstLogQueryBuilderImpl(JPAAuditLogService jpaAuditService) {
        super(jpaAuditService);
     }
-       
+
     @Override
     public ProcessInstanceLogQueryBuilder status( int... status ) {
         addIntParameter(PROCESS_INSTANCE_STATUS_LIST, "status", status);
@@ -59,17 +59,17 @@ public class ProcInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<P
     }
 
     @Override
-    public ProcessInstanceLogQueryBuilder durationMin( long durationMin ) { 
+    public ProcessInstanceLogQueryBuilder durationMin( long durationMin ) {
         addRangeParameter(DURATION_LIST, "duration min", durationMin, true);
         return this;
     }
 
     @Override
-    public ProcessInstanceLogQueryBuilder durationMax( long durationMax ) { 
+    public ProcessInstanceLogQueryBuilder durationMax( long durationMax ) {
         addRangeParameter(DURATION_LIST, "duration max", durationMax, false);
         return this;
     }
-    
+
     @Override
     public ProcessInstanceLogQueryBuilder identity( String... identity ) {
         addObjectParameter(IDENTITY_LIST, "identity", identity);
@@ -129,18 +129,18 @@ public class ProcInstLogQueryBuilderImpl extends AbstractAuditQueryBuilderImpl<P
         addObjectParameter(OUTCOME_LIST, "outcome", outcome);
         return this;
     }
-    
-	@Override
-	public ProcessInstanceLogQueryBuilder correlationKey(CorrelationKey... correlationKeys) {
-		String[] correlationKeysExternal = new String[correlationKeys.length];
-		
-		for (int i = 0; i < correlationKeys.length; i++) {
-			correlationKeysExternal[i] = correlationKeys[i].toExternalForm();
-		}
-		
-		addObjectParameter(CORRELATION_KEY_LIST, "correlation key", correlationKeysExternal);
-		return this;
-	}
+
+    @Override
+    public ProcessInstanceLogQueryBuilder correlationKey(CorrelationKey... correlationKeys) {
+        String[] correlationKeysExternal = new String[correlationKeys.length];
+
+        for (int i = 0; i < correlationKeys.length; i++) {
+            correlationKeysExternal[i] = correlationKeys[i].toExternalForm();
+        }
+
+        addObjectParameter(CORRELATION_KEY_LIST, "correlation key", correlationKeysExternal);
+        return this;
+    }
 
     @Override
     protected Class<ProcessInstanceLog> getResultType() {

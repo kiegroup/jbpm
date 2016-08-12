@@ -41,20 +41,20 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
 
     private static final long serialVersionUID = 510l;
     private static final Logger logger = LoggerFactory.getLogger(TimerNodeInstance.class);
-    
+
     private long timerId;
     private TimerInstance timerInstance;
-    
+
     public TimerNode getTimerNode() {
         return (TimerNode) getNode();
     }
-    
+
     public long getTimerId() {
-    	return timerId;
+        return timerId;
     }
-    
+
     public void internalSetTimerId(long timerId) {
-    	this.timerId = timerId;
+        this.timerId = timerId;
     }
 
     public void internalTrigger(NodeInstance from, String type) {
@@ -65,35 +65,35 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
         InternalKnowledgeRuntime kruntime =  getProcessInstance().getKnowledgeRuntime();
         timerInstance = createTimerInstance(kruntime);
         if (getTimerInstances() == null) {
-        	addTimerListener();
+            addTimerListener();
         }
         ((InternalProcessRuntime)kruntime.getProcessRuntime())
-        	.getTimerManager().registerTimer(timerInstance, (ProcessInstance) getProcessInstance());
+            .getTimerManager().registerTimer(timerInstance, (ProcessInstance) getProcessInstance());
         timerId = timerInstance.getId();
     }
-    
+
     protected TimerInstance createTimerInstance(InternalKnowledgeRuntime kruntime) {
-    	Timer timer = getTimerNode().getTimer(); 
-    	TimerInstance timerInstance = new TimerInstance();
-    	
-    	if (kruntime != null && kruntime.getEnvironment().get("jbpm.business.calendar") != null){
-        	BusinessCalendar businessCalendar = (BusinessCalendar) kruntime.getEnvironment().get("jbpm.business.calendar");
-        	
-        	String delay = resolveVariable(timer.getDelay());
-        	
-        	timerInstance.setDelay(businessCalendar.calculateBusinessTimeAsDuration(delay));
-        	
-        	if (timer.getPeriod() == null) {
+        Timer timer = getTimerNode().getTimer();
+        TimerInstance timerInstance = new TimerInstance();
+
+        if (kruntime != null && kruntime.getEnvironment().get("jbpm.business.calendar") != null){
+            BusinessCalendar businessCalendar = (BusinessCalendar) kruntime.getEnvironment().get("jbpm.business.calendar");
+
+            String delay = resolveVariable(timer.getDelay());
+
+            timerInstance.setDelay(businessCalendar.calculateBusinessTimeAsDuration(delay));
+
+            if (timer.getPeriod() == null) {
                 timerInstance.setPeriod(0);
             } else {
                 String period = resolveVariable(timer.getPeriod());
                 timerInstance.setPeriod(businessCalendar.calculateBusinessTimeAsDuration(period));
             }
-    	} else {
-    	    configureTimerInstance(timer, timerInstance);
-    	}
-    	timerInstance.setTimerId(timer.getId());
-    	return timerInstance;
+        } else {
+            configureTimerInstance(timer, timerInstance);
+        }
+        timerInstance.setTimerId(timer.getId());
+        return timerInstance;
     }
 
     private String resolveVariable(String s) {
@@ -106,7 +106,7 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
                     resolveContextInstance(VariableScope.VARIABLE_SCOPE, paramName);
                 if (variableScopeInstance != null) {
                     Object variableValue = variableScopeInstance.getVariable(paramName);
-                    String variableValueString = variableValue == null ? "" : variableValue.toString(); 
+                    String variableValueString = variableValue == null ? "" : variableValue.toString();
                     replacements.put(paramName, variableValueString);
                 } else {
                     try {
@@ -127,35 +127,35 @@ public class TimerNodeInstance extends StateBasedNodeInstance implements EventLi
         return s;
     }
     public void signalEvent(String type, Object event) {
-    	if ("timerTriggered".equals(type)) {
-    		TimerInstance timer = (TimerInstance) event;
+        if ("timerTriggered".equals(type)) {
+            TimerInstance timer = (TimerInstance) event;
             if (timer.getId() == timerId) {
                 triggerCompleted(timer.getPeriod() == 0);
             }
-    	}
+        }
     }
-    
+
     public String[] getEventTypes() {
-    	return new String[] { "timerTriggered" };
+        return new String[] { "timerTriggered" };
     }
-    
+
     public void triggerCompleted(boolean remove) {
         triggerCompleted(org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE, remove);
     }
-    
+
     public void cancel() {
-    	((InternalProcessRuntime) getProcessInstance().getKnowledgeRuntime()
-			.getProcessRuntime()).getTimerManager().cancelTimer(timerId);
+        ((InternalProcessRuntime) getProcessInstance().getKnowledgeRuntime()
+            .getProcessRuntime()).getTimerManager().cancelTimer(timerId);
         super.cancel();
     }
-    
+
     public void addEventListeners() {
         super.addEventListeners();
         if (getTimerInstances() == null) {
-        	addTimerListener();
+            addTimerListener();
         }
     }
-    
+
     public void removeEventListeners() {
         super.removeEventListeners();
         ((WorkflowProcessInstance) getProcessInstance()).removeEventListener("timerTriggered", this, false);

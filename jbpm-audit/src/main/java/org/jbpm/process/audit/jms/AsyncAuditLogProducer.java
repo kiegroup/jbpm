@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -48,32 +48,32 @@ import com.thoughtworks.xstream.XStream;
  *  <li>ConnectionFactory - used to create jMS objects required to send a message</li>
  *  <li>Queue - JMS destination where messages should be placed</li>
  * </ul>
- * 
+ *
  * It sends TextMessages with content of *Log classes (ProcessInstanceLog,
- * NodeInstanceLog, VaraiableInstanceLog) serialized by Xstream. 
+ * NodeInstanceLog, VaraiableInstanceLog) serialized by Xstream.
  * Such serialization allows:
  * <ul>
  *  <li>use of message selectors to filter which types of events should be processed by different consumer</li>
  *  <li>use any consumer to process messages - does not have to be default one</li>
  *  <li>use content based routing in more advanced scenarios</li>
  * </ul>
- * 
+ *
  * Default receiver is <code>AsyncAuditLogReceiver</code> class
  */
 public class AsyncAuditLogProducer extends AbstractAuditLogger {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AsyncAuditLogProducer.class);
 
-    private ConnectionFactory connectionFactory;    
+    private ConnectionFactory connectionFactory;
     private Queue queue;
     private boolean transacted = true;
-    
+
     private ProcessIndexerManager indexManager = ProcessIndexerManager.get();
 
     public AsyncAuditLogProducer() {
-        
+
     }
-    
+
     public AsyncAuditLogProducer(KieSession session, boolean transacted) {
         super(session);
         this.transacted = transacted;
@@ -95,7 +95,7 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     public void setQueue(Queue queue) {
         this.queue = queue;
     }
-    
+
     @Override
     public void beforeNodeTriggered(ProcessNodeTriggeredEvent event) {
         NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event);
@@ -106,14 +106,14 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     @Override
     public void afterNodeLeft(ProcessNodeLeftEvent event) {
         NodeInstanceLog log = (NodeInstanceLog) builder.buildEvent(event, null);
-        sendMessage(log, AFTER_NODE_LEFT_EVENT_TYPE);   
+        sendMessage(log, AFTER_NODE_LEFT_EVENT_TYPE);
     }
 
     @Override
     public void afterVariableChanged(ProcessVariableChangedEvent event) {
         List<org.kie.api.runtime.manager.audit.VariableInstanceLog> variables = indexManager.index(getBuilder(), event);
-        for (org.kie.api.runtime.manager.audit.VariableInstanceLog log : variables) {  
-            sendMessage(log, AFTER_VAR_CHANGE_EVENT_TYPE);   
+        for (org.kie.api.runtime.manager.audit.VariableInstanceLog log : variables) {
+            sendMessage(log, AFTER_VAR_CHANGE_EVENT_TYPE);
         }
     }
 
@@ -121,7 +121,7 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
     public void beforeProcessStarted(ProcessStartedEvent event) {
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(event);
         sendMessage(log, BEFORE_START_EVENT_TYPE);
-        
+
     }
 
     @Override
@@ -129,35 +129,35 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
         ProcessInstanceLog log = (ProcessInstanceLog) builder.buildEvent(event, null);
         sendMessage(log, AFTER_COMPLETE_EVENT_TYPE);
     }
-    
+
     @Override
     public void afterNodeTriggered(ProcessNodeTriggeredEvent event) {
-    	// trigger this to record some of the data (like work item id) after activity was triggered
-    	NodeInstanceLog log = (NodeInstanceLog) ((NodeInstanceImpl) event.getNodeInstance()).getMetaData().get("NodeInstanceLog");
-    	NodeInstanceLog logUpdated = (NodeInstanceLog) builder.buildEvent(event, log);
-    	if (logUpdated != null) {
-    		sendMessage(log, AFTER_NODE_ENTER_EVENT_TYPE);
-    	}
+        // trigger this to record some of the data (like work item id) after activity was triggered
+        NodeInstanceLog log = (NodeInstanceLog) ((NodeInstanceImpl) event.getNodeInstance()).getMetaData().get("NodeInstanceLog");
+        NodeInstanceLog logUpdated = (NodeInstanceLog) builder.buildEvent(event, log);
+        if (logUpdated != null) {
+            sendMessage(log, AFTER_NODE_ENTER_EVENT_TYPE);
+        }
     }
 
     @Override
     public void beforeNodeLeft(ProcessNodeLeftEvent event) {
 
-        
+
     }
     @Override
     public void beforeVariableChanged(ProcessVariableChangedEvent event) {
-        
+
     }
     @Override
     public void afterProcessStarted(ProcessStartedEvent event) {
-        
+
     }
 
     @Override
     public void beforeProcessCompleted(ProcessCompletedEvent event) {
     }
-    
+
     protected void sendMessage(Object messageContent, Integer eventType) {
         if (connectionFactory == null && queue == null) {
             throw new IllegalStateException("ConnectionFactory and Queue cannot be null");
@@ -168,12 +168,12 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
         try {
             queueConnection = connectionFactory.createConnection();
             queueSession = queueConnection.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
-           
+
             XStream xstream = new XStream();
             String eventXml = xstream.toXML(messageContent);
             TextMessage message = queueSession.createTextMessage(eventXml);
             message.setIntProperty("EventType", eventType);
-            producer = queueSession.createProducer(queue);            
+            producer = queueSession.createProducer(queue);
             producer.send(message);
         } catch (Exception e) {
             throw new RuntimeException("Error when sending JMS message with working memory event", e);
@@ -185,7 +185,7 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
                     logger.warn("Error when closing producer", e);
                 }
             }
-            
+
             if (queueSession != null) {
                 try {
                     queueSession.close();
@@ -193,7 +193,7 @@ public class AsyncAuditLogProducer extends AbstractAuditLogger {
                     logger.warn("Error when closing queue session", e);
                 }
             }
-            
+
             if (queueConnection != null) {
                 try {
                     queueConnection.close();

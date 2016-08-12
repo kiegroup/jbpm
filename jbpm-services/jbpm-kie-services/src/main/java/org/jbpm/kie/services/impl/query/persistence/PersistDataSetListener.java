@@ -33,15 +33,15 @@ import org.slf4j.LoggerFactory;
 
 
 public class PersistDataSetListener implements DataSetDefRegistryListener {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PersistDataSetListener.class);
-    
+
     private TransactionalCommandService commandService;
 
     public PersistDataSetListener() {
-        
+
     }
-    
+
     public PersistDataSetListener(TransactionalCommandService commandService) {
         this.commandService = commandService;
     }
@@ -53,17 +53,17 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
 
     @Override
     public void onDataSetDefModified(DataSetDef oldDef, DataSetDef newDef) {
-        
+
         if (commandService != null) {
             try {
                 final String uniqueQueryName = oldDef.getUUID();
                 final QueryDefinitionEntity updated = get(newDef);
-                
+
                 if (updated != null) {
                     commandService.execute(new GenericCommand<Void>() {
-        
+
                         private static final long serialVersionUID = 6476274660250555118L;
-        
+
                         @SuppressWarnings("unchecked")
                         @Override
                         public Void execute(Context context) {
@@ -71,13 +71,13 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
                             Map<String, Object> params = new HashMap<String, Object>();
                             params.put("name", uniqueQueryName);
                             List<QueryDefinitionEntity> entities = ctx.queryWithParametersInTransaction("getQueryDefinitionByName", params, List.class);
-                            
+
                             if (entities != null && !entities.isEmpty()) {
                                 for (QueryDefinitionEntity entity : entities) {
                                     entity.setExpression(updated.getExpression());
                                     entity.setSource(updated.getSource());
                                     entity.setTarget(updated.getTarget());
-                                    
+
                                     ctx.merge(entity);
                                     logger.debug("Updated data set {} to value: {}", entity.getName(), entity);
                                 }
@@ -85,7 +85,7 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
                                 ctx.persist(updated);
                                 logger.debug("Inserted data set {} as it did not exist with value: {}", updated.getName(), updated);
                             }
-                            
+
                             return null;
                         }
                     });
@@ -94,7 +94,7 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
             } catch (Exception e) {
                 logger.warn("Unable to persist data set {} in db due to {}", newDef.getUUID(), e.getMessage());
             }
-            
+
         }
     }
 
@@ -105,9 +105,9 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
                 final QueryDefinitionEntity entity = get(newDef);
                 if (entity != null) {
                     commandService.execute(new GenericCommand<Void>() {
-                        
+
                         private static final long serialVersionUID = 6476274660250555128L;
-        
+
                         @SuppressWarnings("unchecked")
                         @Override
                         public Void execute(Context context) {
@@ -115,16 +115,16 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
                             Map<String, Object> params = new HashMap<String, Object>();
                             params.put("name", entity.getName());
                             List<QueryDefinitionEntity> entities = ctx.queryWithParametersInTransaction("getQueryDefinitionByName", params, List.class);
-                            
+
                             if (entities == null || entities.isEmpty()) {
                                 ctx.persist(entity);
                                 logger.info("Data set {} saved in db storage", entity.getName());
                             }
-                            
+
                             return null;
                         }
                     });
-                    
+
                 }
             } catch (Exception e) {
                 logger.warn("Unable to persist data set {} in db due to {}", newDef.getUUID(), e.getMessage());
@@ -134,15 +134,15 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
 
     @Override
     public void onDataSetDefRemoved(DataSetDef oldDef) {
-        
+
         if (commandService != null) {
-                        
+
             final String uniqueQueryName = oldDef.getUUID();
             try {
                 commandService.execute(new GenericCommand<Void>() {
-    
+
                     private static final long serialVersionUID = 6476274660250555118L;
-    
+
                     @SuppressWarnings("unchecked")
                     @Override
                     public Void execute(Context context) {
@@ -150,13 +150,13 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
                         Map<String, Object> params = new HashMap<String, Object>();
                         params.put("name", uniqueQueryName);
                         List<QueryDefinitionEntity> entities = ctx.queryWithParametersInTransaction("getQueryDefinitionByName", params, List.class);
-                        
+
                         if (entities != null) {
                             for (QueryDefinitionEntity entity : entities) {
                                 ctx.remove(entity);
                             }
                         }
-                        
+
                         return null;
                     }
                 });
@@ -173,24 +173,24 @@ public class PersistDataSetListener implements DataSetDefRegistryListener {
         if (def instanceof SQLDataSetDef && ((SQLDataSetDef) def).getDbSQL() != null) {
             String target = "CUSTOM";
             String nameWithTarget = def.getName();
-            
+
             if (nameWithTarget.indexOf("::") != -1) {
-                
+
                 try {
                     target = nameWithTarget.split("::")[1];
                     target = Target.valueOf(target).name();
                 } catch (Exception e) {
-                    target = "CUSTOM";   
+                    target = "CUSTOM";
                 }
             }
-            
+
             entity = new QueryDefinitionEntity();
             entity.setName(def.getUUID());
             entity.setExpression(((SQLDataSetDef) def).getDbSQL());
             entity.setSource(((SQLDataSetDef) def).getDataSource());
             entity.setTarget(target);
         }
-        
+
         return entity;
     }
 }

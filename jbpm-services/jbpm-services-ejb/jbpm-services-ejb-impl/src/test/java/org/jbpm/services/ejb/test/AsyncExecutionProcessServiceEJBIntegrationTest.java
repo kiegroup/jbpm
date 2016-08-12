@@ -56,27 +56,27 @@ import org.kie.scanner.MavenRepository;
 @RunWith(Arquillian.class)
 public class AsyncExecutionProcessServiceEJBIntegrationTest extends AbstractTestSupport {
 
-	@Deployment
-	public static WebArchive createDeployment() {
-		File archive = new File("target/sample-war-ejb-app.war");
-		if (!archive.exists()) {
-			throw new IllegalStateException("There is no archive yet generated, run maven build or mvn assembly:assembly");
-		}
-		WebArchive war = ShrinkWrap.createFromZipFile(WebArchive.class, archive);
-		war.addPackage("org.jbpm.services.ejb.test"); // test cases
-		war.addClass("org.jbpm.test.util.CountDownProcessEventListener");
-		// deploy test kjar
-		deployKjar();
-		
-		return war;
-	}
-	
-	protected static void deployKjar() {
-		KieServices ks = KieServices.Factory.get();
+    @Deployment
+    public static WebArchive createDeployment() {
+        File archive = new File("target/sample-war-ejb-app.war");
+        if (!archive.exists()) {
+            throw new IllegalStateException("There is no archive yet generated, run maven build or mvn assembly:assembly");
+        }
+        WebArchive war = ShrinkWrap.createFromZipFile(WebArchive.class, archive);
+        war.addPackage("org.jbpm.services.ejb.test"); // test cases
+        war.addClass("org.jbpm.test.util.CountDownProcessEventListener");
+        // deploy test kjar
+        deployKjar();
+
+        return war;
+    }
+
+    protected static void deployKjar() {
+        KieServices ks = KieServices.Factory.get();
         ReleaseId releaseId = ks.newReleaseId(GROUP_ID, ARTIFACT_ID, VERSION);
         List<String> processes = new ArrayList<String>();
         processes.add("processes/async-execution.bpmn2");
-        
+
         InternalKieModule kJar1 = createKieJar(ks, releaseId, processes);
         File pom = new File("target/kmodule", "pom.xml");
         pom.getParentFile().mkdir();
@@ -85,18 +85,18 @@ public class AsyncExecutionProcessServiceEJBIntegrationTest extends AbstractTest
             fs.write(getPom(releaseId).getBytes());
             fs.close();
         } catch (Exception e) {
-            
+
         }
         MavenRepository repository = getMavenRepository();
         repository.installArtifact(releaseId, kJar1, pom);
-	}
-	
-	private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
-	
+    }
+
+    private List<DeploymentUnit> units = new ArrayList<DeploymentUnit>();
+
     @After
     public void cleanup() {
 
-    	cleanupSingletonSessionId();
+        cleanupSingletonSessionId();
         if (units != null && !units.isEmpty()) {
             for (DeploymentUnit unit : units) {
                 deploymentService.undeploy(unit);
@@ -107,32 +107,32 @@ public class AsyncExecutionProcessServiceEJBIntegrationTest extends AbstractTest
 
 
 
-	@EJB
-	private DeploymentServiceEJBLocal deploymentService;
-	
-	@EJB
-	private ProcessServiceEJBLocal processService;
-	
-	@EJB
-	private RuntimeDataServiceEJBLocal runtimeDataService;
-	
-    
+    @EJB
+    private DeploymentServiceEJBLocal deploymentService;
+
+    @EJB
+    private ProcessServiceEJBLocal processService;
+
+    @EJB
+    private RuntimeDataServiceEJBLocal runtimeDataService;
+
+
     @Test
     public void testStartProcessWithParms() throws Exception {
-    	assertNotNull(deploymentService);
-    	final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
-        
+        assertNotNull(deploymentService);
+        final CountDownProcessEventListener countDownListener = new CountDownProcessEventListener("Task 1", 1);
+
         KModuleDeploymentUnit deploymentUnit = new KModuleDeploymentUnit(GROUP_ID, ARTIFACT_ID, VERSION);
 
         deploymentService.deploy(deploymentUnit);
         units.add(deploymentUnit);
-        
+
         boolean isDeployed = deploymentService.isDeployed(deploymentUnit.getIdentifier());
-    	assertTrue(isDeployed);
-    	
-    	assertNotNull(processService);
-    	
-        
+        assertTrue(isDeployed);
+
+        assertNotNull(processService);
+
+
         // register count down listener
         processService.execute(deploymentUnit.getIdentifier(), new GenericCommand<Void>() {
 
@@ -145,19 +145,19 @@ public class AsyncExecutionProcessServiceEJBIntegrationTest extends AbstractTest
                 return null;
             }
         });
-    	
-    	Map<String, Object> params = new HashMap<String, Object>();
+
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("command", "org.jbpm.executor.commands.PrintOutCommand");
-    	
-    	long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "AsyncExecution", params);
-    	assertNotNull(processInstanceId);
-    	
-    	// wait for the command to be executed
-    	countDownListener.waitTillCompleted(10000);
-    	
-    	ProcessInstance pi = processService.getProcessInstance(processInstanceId);    	
-    	assertNull(pi);
+
+        long processInstanceId = processService.startProcess(deploymentUnit.getIdentifier(), "AsyncExecution", params);
+        assertNotNull(processInstanceId);
+
+        // wait for the command to be executed
+        countDownListener.waitTillCompleted(10000);
+
+        ProcessInstance pi = processService.getProcessInstance(processInstanceId);
+        assertNull(pi);
     }
-    
-    
+
+
 }

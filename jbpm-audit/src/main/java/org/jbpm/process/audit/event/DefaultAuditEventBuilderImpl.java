@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -47,7 +47,7 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         // store correlation key in its external form
         CorrelationKey correlationKey = (CorrelationKey) pi.getMetaData().get("CorrelationKey");
         if (correlationKey != null) {
-        	log.setCorrelationKey(correlationKey.toExternalForm());
+            log.setCorrelationKey(correlationKey.toExternalForm());
         }
         try {
             long parentProcessInstanceId = (Long) pi.getMetaData().get("ParentProcessInstanceId");
@@ -91,7 +91,7 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
             nodeId = Long.toString(nodeInstance.getNodeId());
         }
         NodeInstanceLog log = new NodeInstanceLog(
-                NodeInstanceLog.TYPE_ENTER, pi.getId(), pi.getProcessId(), Long.toString(nodeInstance.getId()), 
+                NodeInstanceLog.TYPE_ENTER, pi.getId(), pi.getProcessId(), Long.toString(nodeInstance.getId()),
                 nodeId, nodeInstance.getNodeName());
         if (nodeInstance instanceof WorkItemNodeInstance && ((WorkItemNodeInstance) nodeInstance).getWorkItem() != null) {
             log.setWorkItemId(((WorkItemNodeInstance) nodeInstance).getWorkItem().getId());
@@ -102,28 +102,28 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
         log.setNodeType(nodeType);
         return log;
     }
-    
+
     @Override
     public AuditEvent buildEvent(ProcessNodeTriggeredEvent pnte, Object log) {
-    	NodeInstanceImpl nodeInstance = (NodeInstanceImpl) pnte.getNodeInstance();
-    
-    	NodeInstanceLog logEvent =null;
+        NodeInstanceImpl nodeInstance = (NodeInstanceImpl) pnte.getNodeInstance();
+
+        NodeInstanceLog logEvent =null;
         if (log != null) {
             logEvent = (NodeInstanceLog) log;
-        
-	        if (nodeInstance instanceof WorkItemNodeInstance && ((WorkItemNodeInstance) nodeInstance).getWorkItem() != null) {
-	        	logEvent.setWorkItemId(((WorkItemNodeInstance) nodeInstance).getWorkItem().getId());
-	        }
-	
-	        return logEvent;
+
+            if (nodeInstance instanceof WorkItemNodeInstance && ((WorkItemNodeInstance) nodeInstance).getWorkItem() != null) {
+                logEvent.setWorkItemId(((WorkItemNodeInstance) nodeInstance).getWorkItem().getId());
+            }
+
+            return logEvent;
         }
-        
+
         return null;
     }
 
     @Override
     public AuditEvent buildEvent(ProcessNodeLeftEvent pnle, Object log) {
-        
+
         ProcessInstanceImpl pi = (ProcessInstanceImpl) pnle.getProcessInstance();
         NodeInstanceImpl nodeInstance = (NodeInstanceImpl) pnle.getNodeInstance();
         Node node = nodeInstance.getNode();
@@ -140,7 +140,7 @@ public class DefaultAuditEventBuilderImpl implements AuditEventBuilder {
             logEvent = (NodeInstanceLog) log;
         } else {
             logEvent = new NodeInstanceLog(
-                NodeInstanceLog.TYPE_EXIT, pi.getId(), pi.getProcessId(), Long.toString(nodeInstance.getId()), 
+                NodeInstanceLog.TYPE_EXIT, pi.getId(), pi.getProcessId(), Long.toString(nodeInstance.getId()),
                 nodeId, nodeInstance.getNodeName());
         }
         if (nodeInstance instanceof WorkItemNodeInstance && ((WorkItemNodeInstance) nodeInstance).getWorkItem() != null) {

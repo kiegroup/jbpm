@@ -25,15 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class EmailSessionProducer {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(EmailSessionProducer.class);
     private static final String MAIL_JNDI_KEY = System.getProperty("org.kie.mail.session", "mail/jbpmMailSession");
 
     private static Session mailSession;
-    
+
     public static Session produceSession() {
         if (mailSession == null) {
-            
+
             try {
                 mailSession = InitialContext.doLookup(MAIL_JNDI_KEY);
             } catch (NamingException e1) {
@@ -41,7 +41,7 @@ public class EmailSessionProducer {
                 Properties conf = new Properties();
                 try {
                     conf.load(EmailSessionProducer.class.getResourceAsStream("/email.properties"));
-                    
+
                     mailSession = Session.getInstance(conf);
                 } catch (Exception e) {
                     logger.debug("email.properties was not found on classpath, nor mail session available in JNDI, unable to configure deadlines");
@@ -49,7 +49,7 @@ public class EmailSessionProducer {
                 }
             }
         }
-        
+
         return mailSession;
     }
 }

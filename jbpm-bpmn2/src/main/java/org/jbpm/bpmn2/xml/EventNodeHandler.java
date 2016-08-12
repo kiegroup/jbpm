@@ -29,48 +29,48 @@ import org.kie.api.definition.process.NodeContainer;
 import org.xml.sax.Attributes;
 
 public class EventNodeHandler extends AbstractNodeHandler {
-    
+
     protected Node createNode(Attributes attrs) {
         throw new IllegalArgumentException("Reading in should be handled by intermediate catch event handler");
     }
-    
+
     @SuppressWarnings("unchecked")
-	public Class generateNodeFor() {
+    public Class generateNodeFor() {
         return EventNode.class;
     }
 
-	public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
-		EventNode eventNode = (EventNode) node;
-		String attachedTo = (String) eventNode.getMetaData("AttachedTo");
-		if (attachedTo == null) {
-    		writeNode("intermediateCatchEvent", eventNode, xmlDump, metaDataType);
-    		xmlDump.append(">" + EOL);
+    public void writeNode(Node node, StringBuilder xmlDump, int metaDataType) {
+        EventNode eventNode = (EventNode) node;
+        String attachedTo = (String) eventNode.getMetaData("AttachedTo");
+        if (attachedTo == null) {
+            writeNode("intermediateCatchEvent", eventNode, xmlDump, metaDataType);
+            xmlDump.append(">" + EOL);
             writeExtensionElements(eventNode, xmlDump);
             writeVariableName(eventNode, xmlDump);
-    		if (eventNode.getEventFilters().size() > 0) {
-    			String type = ((EventTypeFilter) eventNode.getEventFilters().get(0)).getType();
-    			if (type.startsWith("Message-")) {
-    			    type = type.substring(8);
-    			    xmlDump.append("      <messageEventDefinition messageRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\"/>" + EOL);
+            if (eventNode.getEventFilters().size() > 0) {
+                String type = ((EventTypeFilter) eventNode.getEventFilters().get(0)).getType();
+                if (type.startsWith("Message-")) {
+                    type = type.substring(8);
+                    xmlDump.append("      <messageEventDefinition messageRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\"/>" + EOL);
                 } else {
                     xmlDump.append("      <signalEventDefinition signalRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\"/>" + EOL);
                 }
-    		}
-    		endNode("intermediateCatchEvent", xmlDump);
-		} else {
-		    String type = ((EventTypeFilter) eventNode.getEventFilters().get(0)).getType();
-		    if (type.startsWith("Escalation-")) {
-    		    type = type.substring(attachedTo.length() + 12);
-    		    boolean cancelActivity = (Boolean) eventNode.getMetaData("CancelActivity");
+            }
+            endNode("intermediateCatchEvent", xmlDump);
+        } else {
+            String type = ((EventTypeFilter) eventNode.getEventFilters().get(0)).getType();
+            if (type.startsWith("Escalation-")) {
+                type = type.substring(attachedTo.length() + 12);
+                boolean cancelActivity = (Boolean) eventNode.getMetaData("CancelActivity");
                 writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
-    		    xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
-    		    if (!cancelActivity) {
-    		        xmlDump.append("cancelActivity=\"false\" ");
-    		    }
-    		    xmlDump.append(">" + EOL);
-    		    xmlDump.append("      <escalationEventDefinition escalationRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\" />" + EOL);
-    		    endNode("boundaryEvent", xmlDump);
-		    } else if (type.startsWith("Error-")) {
+                xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
+                if (!cancelActivity) {
+                    xmlDump.append("cancelActivity=\"false\" ");
+                }
+                xmlDump.append(">" + EOL);
+                xmlDump.append("      <escalationEventDefinition escalationRef=\"" + XmlBPMNProcessDumper.replaceIllegalCharsAttribute(type) + "\" />" + EOL);
+                endNode("boundaryEvent", xmlDump);
+            } else if (type.startsWith("Error-")) {
                 type = type.substring(attachedTo.length() + 7);
                 writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
                 xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
@@ -89,7 +89,7 @@ public class EventNodeHandler extends AbstractNodeHandler {
                 xmlDump.append(">" + EOL);
                 String duration = (String) eventNode.getMetaData("TimeDuration");
                 String cycle = (String) eventNode.getMetaData("TimeCycle");
-                
+
                 if (duration != null && cycle != null) {
                     xmlDump.append(
                             "      <timerEventDefinition>" + EOL +
@@ -109,7 +109,7 @@ public class EventNodeHandler extends AbstractNodeHandler {
                 }
                 endNode("boundaryEvent", xmlDump);
             }  else if (node.getMetaData().get("SignalName") != null) {
-                
+
                 boolean cancelActivity = (Boolean) eventNode.getMetaData("CancelActivity");
                 writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
                 xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
@@ -120,7 +120,7 @@ public class EventNodeHandler extends AbstractNodeHandler {
                 xmlDump.append("      <signalEventDefinition signalRef=\"" + type + "\"/>"+ EOL);
                 endNode("boundaryEvent", xmlDump);
             }  else if (node.getMetaData().get("Condition") != null) {
-                
+
                 boolean cancelActivity = (Boolean) eventNode.getMetaData("CancelActivity");
                 writeNode("boundaryEvent", eventNode, xmlDump, metaDataType);
                 xmlDump.append("attachedToRef=\"" + attachedTo + "\" ");
@@ -139,10 +139,10 @@ public class EventNodeHandler extends AbstractNodeHandler {
                 xmlDump.append(">" + EOL);
                 xmlDump.append("      <messageEventDefinition messageRef=\"" + type + "\"/>" + EOL);
                 endNode("boundaryEvent", xmlDump);
-            } else { 
+            } else {
                 throw new IllegalArgumentException("Unknown boundary event type: \"" + type + "\"");
             }
-		}
-	}
+        }
+    }
 
 }

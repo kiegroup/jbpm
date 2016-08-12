@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -63,16 +63,16 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class TaskInstanceServiceImpl implements TaskInstanceService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TaskInstanceServiceImpl.class);
-    
+
     protected static final Pattern PARAMETER_MATCHER = Pattern.compile("\\$\\{([\\S&&[^\\}]]+)\\}", Pattern.DOTALL);
-    
+
     private LifeCycleManager lifeCycleManager;
-    
+
     private org.kie.internal.task.api.TaskContext context;
-   
-    private TaskPersistenceContext persistenceContext;    
+
+    private TaskPersistenceContext persistenceContext;
     private TaskEventSupport taskEventSupport;
     private Environment environment;
 
@@ -80,13 +80,13 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public TaskInstanceServiceImpl(org.kie.internal.task.api.TaskContext context, TaskPersistenceContext persistenceContext,
-    		LifeCycleManager lifeCycleManager, TaskEventSupport taskEventSupport,
-    		Environment environment) {
-    	this.context = context;
-    	this.persistenceContext = persistenceContext;
-    	this.lifeCycleManager = lifeCycleManager;
-    	this.taskEventSupport = taskEventSupport;
-    	this.environment = environment;
+            LifeCycleManager lifeCycleManager, TaskEventSupport taskEventSupport,
+            Environment environment) {
+        this.context = context;
+        this.persistenceContext = persistenceContext;
+        this.lifeCycleManager = lifeCycleManager;
+        this.taskEventSupport = taskEventSupport;
+        this.environment = environment;
     }
 
     public void setLifeCycleManager(LifeCycleManager lifeCycleManager) {
@@ -97,51 +97,51 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         this.taskEventSupport = taskEventSupport;
     }
 
-    
+
     public void setPersistenceContext(TaskPersistenceContext persistenceContext) {
         this.persistenceContext = persistenceContext;
     }
 
-   
-    public long addTask(Task task, Map<String, Object> params) {    	
-    	taskEventSupport.fireBeforeTaskAdded(task, context);
-    	
-    	persistenceContext.persistTask(task);
-    	
-    	resolveTaskDetailsForTaskProperties(task);    	
-    	
-    	if (params != null) {
-    	    resolveTaskDetails(params, task);
-    	    
-    	    ContentData contentData = ContentMarshallerHelper.marshal(task, params, TaskContentRegistry.get().getMarshallerContext(task).getEnvironment());
-			Content content = TaskModelProvider.getFactory().newContent();
-			((InternalContent) content).setContent(contentData.getContent());
-			persistenceContext.persistContent(content);
-			((InternalTaskData) task.getTaskData()).setDocument(content.getId(), contentData);
-			
-			taskEventSupport.fireAfterTaskInputVariablesChanged(task, context, params);
-		}
 
-		
-		taskEventSupport.fireAfterTaskAdded(task, context);
-		return task.getId();
+    public long addTask(Task task, Map<String, Object> params) {
+        taskEventSupport.fireBeforeTaskAdded(task, context);
+
+        persistenceContext.persistTask(task);
+
+        resolveTaskDetailsForTaskProperties(task);
+
+        if (params != null) {
+            resolveTaskDetails(params, task);
+
+            ContentData contentData = ContentMarshallerHelper.marshal(task, params, TaskContentRegistry.get().getMarshallerContext(task).getEnvironment());
+            Content content = TaskModelProvider.getFactory().newContent();
+            ((InternalContent) content).setContent(contentData.getContent());
+            persistenceContext.persistContent(content);
+            ((InternalTaskData) task.getTaskData()).setDocument(content.getId(), contentData);
+
+            taskEventSupport.fireAfterTaskInputVariablesChanged(task, context, params);
+        }
+
+
+        taskEventSupport.fireAfterTaskAdded(task, context);
+        return task.getId();
     }
 
     public long addTask(Task task, ContentData contentData) {
-    	taskEventSupport.fireBeforeTaskAdded(task, context);  
-    	
-    	persistenceContext.persistTask(task);
-    	
-    	resolveTaskDetailsForTaskProperties(task);
-        
-    	if (contentData != null) {
+        taskEventSupport.fireBeforeTaskAdded(task, context);
+
+        persistenceContext.persistTask(task);
+
+        resolveTaskDetailsForTaskProperties(task);
+
+        if (contentData != null) {
             Content content = TaskModelProvider.getFactory().newContent();
             ((InternalContent) content).setContent(contentData.getContent());
             persistenceContext.persistContent(content);
             ((InternalTaskData) task.getTaskData()).setDocument(content.getId(), contentData);
         }
-        
-        
+
+
         taskEventSupport.fireAfterTaskAdded(task, context);
         return task.getId();
     }
@@ -155,26 +155,26 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public void claim(long taskId, String userId, List<String> groupIds) {
-    	lifeCycleManager.taskOperation(Operation.Claim, taskId, userId, null, null, groupIds);
+        lifeCycleManager.taskOperation(Operation.Claim, taskId, userId, null, null, groupIds);
     }
 
     public void claimNextAvailable(String userId) {
         List<Status> status = new ArrayList<Status>();
         status.add(Status.Ready);
-        List<TaskSummary> queryTasks = persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatus", 
+        List<TaskSummary> queryTasks = persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatus",
                 persistenceContext.addParametersToMap("userId", userId, "status", status),
                 ClassUtil.<List<TaskSummary>>castClass(List.class));;
         if (queryTasks.size() > 0) {
             lifeCycleManager.taskOperation(Operation.Claim, queryTasks.get(0).getId(), userId, null, null, toGroups(null));
         } else {
-        	logger.info("No task available to assign for user {}", userId);
+            logger.info("No task available to assign for user {}", userId);
         }
     }
 
     public void claimNextAvailable(String userId, List<String> groupIds) {
         List<Status> status = new ArrayList<Status>();
         status.add(Status.Ready);
-        List<TaskSummary> queryTasks = persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatusByGroup", 
+        List<TaskSummary> queryTasks = persistenceContext.queryWithParametersInTransaction("TasksAssignedAsPotentialOwnerByStatusByGroup",
                 persistenceContext.addParametersToMap("userId", userId, "status", status, "groupIds", groupIds),
                 ClassUtil.<List<TaskSummary>>castClass(List.class));;
         if (queryTasks.size() > 0) {
@@ -193,26 +193,26 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public void deleteFault(long taskId, String userId) {
-    	Task task = persistenceContext.findTask(taskId);
-    	
-    	long contentId = task.getTaskData().getFaultContentId();
+        Task task = persistenceContext.findTask(taskId);
+
+        long contentId = task.getTaskData().getFaultContentId();
         Content content = persistenceContext.findContent(contentId);
         FaultData data = TaskModelProvider.getFactory().newFaultData();
         persistenceContext.removeContent(content);
-        
+
         ((InternalTaskData) task.getTaskData()).setFault(0, data);
     }
 
     public void deleteOutput(long taskId, String userId) {
-    	Task task = persistenceContext.findTask(taskId);
-    	
-    	long contentId = task.getTaskData().getOutputContentId();
+        Task task = persistenceContext.findTask(taskId);
+
+        long contentId = task.getTaskData().getOutputContentId();
         Content content = persistenceContext.findContent(contentId);
         ContentData data = TaskModelProvider.getFactory().newContentData();
         persistenceContext.removeContent(content);
-        
+
         ((InternalTaskData) task.getTaskData()).setOutput(0, data);
-        
+
         taskEventSupport.fireAfterTaskOutputVariablesChanged(task, context, null);
     }
 
@@ -233,13 +233,13 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public void remove(long taskId, String userId) {
-    	Task task = persistenceContext.findTask(taskId);
-    	User user = persistenceContext.findUser(userId);
-    	if (((InternalPeopleAssignments)task.getPeopleAssignments()).getRecipients().contains(user)) {
-    		((InternalPeopleAssignments)task.getPeopleAssignments()).getRecipients().remove(user);
-		} else {
-			throw new RuntimeException("Couldn't remove user " + userId + " since it isn't a notification recipient");
-		}
+        Task task = persistenceContext.findTask(taskId);
+        User user = persistenceContext.findUser(userId);
+        if (((InternalPeopleAssignments)task.getPeopleAssignments()).getRecipients().contains(user)) {
+            ((InternalPeopleAssignments)task.getPeopleAssignments()).getRecipients().remove(user);
+        } else {
+            throw new RuntimeException("Couldn't remove user " + userId + " since it isn't a notification recipient");
+        }
     }
 
     public void resume(long taskId, String userId) {
@@ -247,49 +247,49 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     public void setFault(long taskId, String userId, FaultData fault) {
-    	Task task = persistenceContext.findTask(taskId);
-    	
-    	Content content = TaskModelProvider.getFactory().newContent();
-		((InternalContent) content).setContent(fault.getContent());
-		persistenceContext.persistContent(content);
-		((InternalTaskData) task.getTaskData()).setFault(content.getId(), fault);
+        Task task = persistenceContext.findTask(taskId);
+
+        Content content = TaskModelProvider.getFactory().newContent();
+        ((InternalContent) content).setContent(fault.getContent());
+        persistenceContext.persistContent(content);
+        ((InternalTaskData) task.getTaskData()).setFault(content.getId(), fault);
     }
 
     public void setOutput(long taskId, String userId, Object outputContentData) {
-    	Task task = persistenceContext.findTask(taskId);
-    	
-    	ContentData contentData = ContentMarshallerHelper.marshal(task, outputContentData, environment);
-		Content content = TaskModelProvider.getFactory().newContent();
-		((InternalContent) content).setContent(contentData.getContent());
-		persistenceContext.persistContent(content);
-		((InternalTaskData) task.getTaskData()).setOutput(content.getId(), contentData);
+        Task task = persistenceContext.findTask(taskId);
+
+        ContentData contentData = ContentMarshallerHelper.marshal(task, outputContentData, environment);
+        Content content = TaskModelProvider.getFactory().newContent();
+        ((InternalContent) content).setContent(contentData.getContent());
+        persistenceContext.persistContent(content);
+        ((InternalTaskData) task.getTaskData()).setOutput(content.getId(), contentData);
     }
 
     public void setPriority(long taskId, int priority) {
         Task task = persistenceContext.findTask(taskId);
-        
+
         taskEventSupport.fireBeforeTaskUpdated(task, context);
-        
+
         ((InternalTask) task).setPriority(priority);
-        
+
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
     public void setTaskNames(long taskId, List<I18NText> inputTaskNames) {
         Task task = persistenceContext.findTask(taskId);
-        
+
         taskEventSupport.fireBeforeTaskUpdated(task, context);
-       
+
         List<I18NText> taskNames = new ArrayList<I18NText>(inputTaskNames.size());
-        for( I18NText inputText : inputTaskNames ) { 
+        for( I18NText inputText : inputTaskNames ) {
             I18NText text = TaskModelProvider.getFactory().newI18NText();
-            ((InternalI18NText) text).setLanguage(inputText.getLanguage()); 
+            ((InternalI18NText) text).setLanguage(inputText.getLanguage());
             ((InternalI18NText) text).setText(inputText.getText());
             taskNames.add(text);
         }
         ((InternalTask) task).setNames(taskNames);
         ((InternalTask) task).setName(taskNames.get(0).getText());
-        
+
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
@@ -309,9 +309,9 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         lifeCycleManager.taskOperation(Operation.Suspend, taskId, userId, null, null, toGroups(null));
     }
 
-    public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {      
-        lifeCycleManager.taskOperation(Operation.Nominate, taskId, userId, null, null, toGroups(null), 
-        		potentialOwners.toArray(new OrganizationalEntity[potentialOwners.size()]));
+    public void nominate(long taskId, String userId, List<OrganizationalEntity> potentialOwners) {
+        lifeCycleManager.taskOperation(Operation.Nominate, taskId, userId, null, null, toGroups(null),
+                potentialOwners.toArray(new OrganizationalEntity[potentialOwners.size()]));
     }
 
     public void setSubTaskStrategy(long taskId, SubTasksStrategy strategy) {
@@ -321,29 +321,29 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
     public void setExpirationDate(long taskId, Date date) {
         Task task = persistenceContext.findTask(taskId);
-        
+
         taskEventSupport.fireBeforeTaskUpdated(task, context);
-        
+
         ((InternalTaskData) task.getTaskData()).setExpirationTime(date);
-        
+
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
     public void setDescriptions(long taskId, List<I18NText> inputDescriptions) {
         Task task = persistenceContext.findTask(taskId);
-        
+
         taskEventSupport.fireBeforeTaskUpdated(task, context);
-       
+
         List<I18NText> descriptions = new ArrayList<I18NText>(inputDescriptions.size());
-        for( I18NText inputText : inputDescriptions ) { 
+        for( I18NText inputText : inputDescriptions ) {
             I18NText text = TaskModelProvider.getFactory().newI18NText();
-            ((InternalI18NText) text).setLanguage(inputText.getLanguage()); 
+            ((InternalI18NText) text).setLanguage(inputText.getLanguage());
             ((InternalI18NText) text).setText(inputText.getText());
             descriptions.add(text);
         }
         ((InternalTask) task).setDescriptions(descriptions);
         ((InternalTask) task).setDescription(descriptions.get(0).getText());
-        
+
         taskEventSupport.fireAfterTaskUpdated(task, context);
     }
 
@@ -376,9 +376,9 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         Task task = persistenceContext.findTask(taskId);
         return ((InternalTask) task).getSubTaskStrategy();
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> T execute(Command<T> command) {
+    public <T> T execute(Command<T> command) {
         return (T) ((TaskCommand) command).execute( new TaskContext() );
     }
 
@@ -399,14 +399,14 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         Task task = persistenceContext.findTask(taskId);
         ((InternalTask) task).setSubject(subject);
     }
-   
+
     @Override
     public long addOutputContentFromUser( long taskId, String userId, Map<String, Object> params ) {
         // check permissions
         this.lifeCycleManager.taskOperation(Operation.Modify, taskId, userId, null, null, toGroups(null));
         return new TaskContentServiceImpl(context, this.persistenceContext, taskEventSupport).addOutputContent(taskId, params);
     }
-   
+
     @Override
     public Content getContentByIdForUser( long contentId, String userId ) {
         long taskId = persistenceContext.findTaskIdByContentId(contentId);
@@ -414,34 +414,34 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         this.lifeCycleManager.taskOperation(Operation.View, taskId, userId, null, null, toGroups(null));
         return this.persistenceContext.findContent(contentId);
     }
-    
+
     @Override
     public Map<String, Object> getContentMapForUser( Long taskId, String userId ) {
         // check permissions
         this.lifeCycleManager.taskOperation(Operation.View, taskId, userId, null, null, toGroups(null));
         Task task = this.persistenceContext.findTask(taskId);
-        if( task.getTaskData() != null && task.getTaskData().getOutputContentId() != null ) { 
+        if( task.getTaskData() != null && task.getTaskData().getOutputContentId() != null ) {
             Content content = this.persistenceContext.findContent(task.getTaskData().getOutputContentId());
             ContentMarshallerContext mContext = TaskContentRegistry.get().getMarshallerContext(task);
             Object outputContent = ContentMarshallerHelper.unmarshall(content.getContent(), mContext.getEnvironment(), mContext.getClassloader());
-            if( outputContent instanceof Map ) { 
+            if( outputContent instanceof Map ) {
                return (Map<String, Object>) outputContent;
-            } else { 
+            } else {
                 throw new IllegalStateException("Output content for task " + taskId + " is not a Map<String, Object>!");
             }
         }
         return null;
     }
-    
+
     @SuppressWarnings("unchecked")
-	protected List<String> toGroups(List<String> groups) {
-    	if (groups == null) {
-    		return (List<String>) context.get("local:groups");
-    	}
-    	
-    	return groups;
+    protected List<String> toGroups(List<String> groups) {
+        if (groups == null) {
+            return (List<String>) context.get("local:groups");
+        }
+
+        return groups;
     }
-    
+
     protected Map<String, Object> resolveTaskDetails(Map<String, Object> parameters, Task task) {
         for (Map.Entry<String, Object> entry: parameters.entrySet()) {
             if (entry.getValue() != null && entry.getValue() instanceof String) {
@@ -451,17 +451,17 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
                 while (matcher.find()) {
                     String paramName = matcher.group(1);
                     if (replacements.get(paramName) == null) {
-               
+
                         try {
                             Object variableValue = MVELSafeHelper.getEvaluator().eval(paramName, new TaskResolverFactory(task));
                             String variableValueString = variableValue == null ? "" : variableValue.toString();
                             replacements.put(paramName, variableValueString);
                         } catch (Throwable t) {
-    
+
                             logger.error("Continuing without setting parameter.");
                         }
                     }
-                    
+
                 }
                 for (Map.Entry<String, String> replacement: replacements.entrySet()) {
                     s = s.replace("${" + replacement.getKey() + "}", replacement.getValue());
@@ -471,14 +471,14 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         }
         return parameters;
     }
-    
+
     protected void resolveTaskDetailsForTaskProperties(Task task) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("name", task.getName());
         parameters.put("description", task.getDescription());
         parameters.put("subject", task.getSubject());
         parameters.put("formName", ((InternalTask)task).getFormName());
-        
+
         Map<String, Object> replacements = resolveTaskDetails(parameters, task);
         ((InternalTask)task).setName((String) replacements.get("name"));
         ((InternalTask)task).setDescription((String) replacements.get("description"));

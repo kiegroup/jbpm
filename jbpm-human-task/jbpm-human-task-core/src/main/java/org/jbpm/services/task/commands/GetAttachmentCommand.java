@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -28,28 +28,28 @@ import org.kie.internal.command.Context;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GetAttachmentCommand extends TaskCommand<Attachment> {
 
-	private static final long serialVersionUID = -4566088487597623910L;
+    private static final long serialVersionUID = -4566088487597623910L;
 
-	@XmlElement(name="attachment-id")
+    @XmlElement(name="attachment-id")
     @XmlSchemaType(name="long")
-	private Long attachmentId;
-	
-	public GetAttachmentCommand() {
-	}
-	
-	public GetAttachmentCommand(Long attachmentId) {
-		this.attachmentId = attachmentId;
+    private Long attachmentId;
+
+    public GetAttachmentCommand() {
+    }
+
+    public GetAttachmentCommand(Long attachmentId) {
+        this.attachmentId = attachmentId;
     }
 
     public Long getAttachmentId() {
-		return attachmentId;
-	}
+        return attachmentId;
+    }
 
-	public void setAttachmentId(Long attachmentId) {
-		this.attachmentId = attachmentId;
-	}
+    public void setAttachmentId(Long attachmentId) {
+        this.attachmentId = attachmentId;
+    }
 
-	public Attachment execute(Context cntxt) {
+    public Attachment execute(Context cntxt) {
         TaskContext context = (TaskContext) cntxt;
         return context.getTaskAttachmentService().getAttachmentById(attachmentId);
     }

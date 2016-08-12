@@ -35,8 +35,8 @@ public class AvailableJobsExecutorEJBImpl extends org.jbpm.executor.impl.Availab
     @Override
     public void setQueryService(ExecutorQueryService queryService) {
         super.setQueryService(queryService);
-    }    
-    
+    }
+
     @EJB(beanInterface=ClassCacheManagerEJBImpl.class)
     @Override
     public void setClassCacheManager(ClassCacheManager classCacheManager) {
@@ -45,16 +45,16 @@ public class AvailableJobsExecutorEJBImpl extends org.jbpm.executor.impl.Availab
 
     @EJB
     @Override
-	public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
-		super.setExecutorStoreService(executorStoreService);
-	}
+    public void setExecutorStoreService(ExecutorStoreService executorStoreService) {
+        super.setExecutorStoreService(executorStoreService);
+    }
 
     @Override
-    @Asynchronous    
+    @Asynchronous
     public void executeJob() {
         super.executeJob();
     }
-    
+
 
 
 }

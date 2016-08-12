@@ -71,17 +71,17 @@ import org.kie.api.definition.process.Node;
 import org.kie.api.runtime.Environment;
 
 public class NodeInstanceFactoryRegistry {
-	
+
     private static final NodeInstanceFactoryRegistry INSTANCE = new NodeInstanceFactoryRegistry();
 
     private Map<Class< ? extends Node>, NodeInstanceFactory> registry;
-    
+
     public static NodeInstanceFactoryRegistry getInstance(Environment environment) {
         // allow custom NodeInstanceFactoryRegistry to be given as part of the environment - e.g simulation
         if (environment != null && environment.get("NodeInstanceFactoryRegistry") != null) {
             return (NodeInstanceFactoryRegistry) environment.get("NodeInstanceFactoryRegistry");
         }
-        
+
         return INSTANCE;
     }
 
@@ -111,7 +111,7 @@ public class NodeInstanceFactoryRegistry {
                   new CreateNewNodeFactory( TimerNodeInstance.class ) );
         register( FaultNode.class,
                   new CreateNewNodeFactory( FaultNodeInstance.class ) );
-        register(EventSubProcessNode.class, 
+        register(EventSubProcessNode.class,
                   new CreateNewNodeFactory(EventSubProcessNodeInstance.class));
         register( CompositeNode.class,
                   new CreateNewNodeFactory( CompositeNodeInstance.class ) );
@@ -131,13 +131,13 @@ public class NodeInstanceFactoryRegistry {
                 new CreateNewNodeFactory( BoundaryEventNodeInstance.class ) );
         register( AsyncEventNode.class,
                 new CreateNewNodeFactory( AsyncEventNodeInstance.class ) );
-        
+
         register(CatchLinkNode.class, new CreateNewNodeFactory(
-				CatchLinkNodeInstance.class));
-		register(ThrowLinkNode.class, new CreateNewNodeFactory(
-				ThrowLinkNodeInstance.class));
-		
-		
+                CatchLinkNodeInstance.class));
+        register(ThrowLinkNode.class, new CreateNewNodeFactory(
+                ThrowLinkNodeInstance.class));
+
+
     }
 
     public void register(Class< ? extends Node> cls,
@@ -147,13 +147,13 @@ public class NodeInstanceFactoryRegistry {
     }
 
     public NodeInstanceFactory getProcessNodeInstanceFactory(Node node) {
-    	Class<?> clazz = node.getClass();
+        Class<?> clazz = node.getClass();
         while (clazz != null) {
-        	NodeInstanceFactory result = this.registry.get( clazz );
-        	if (result != null) {
-        		return result;
-        	}
-        	clazz = clazz.getSuperclass();
+            NodeInstanceFactory result = this.registry.get( clazz );
+            if (result != null) {
+                return result;
+            }
+            clazz = clazz.getSuperclass();
         }
         return null;
     }

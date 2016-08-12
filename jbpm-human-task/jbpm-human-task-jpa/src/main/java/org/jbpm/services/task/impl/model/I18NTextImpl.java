@@ -36,7 +36,7 @@ import org.kie.internal.task.api.model.InternalI18NText;
 @Table(name="I18NText")
 @SequenceGenerator(name="i18nTextIdSeq", sequenceName="I18NTEXT_ID_SEQ", allocationSize=1)
 public class I18NTextImpl implements InternalI18NText {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="i18nTextIdSeq")
     @Column(name = "id")
@@ -52,31 +52,31 @@ public class I18NTextImpl implements InternalI18NText {
     public I18NTextImpl() {
 
     }
-    
+
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
-        if( language == null ) { 
+        if( language == null ) {
             language = "";
         }
         out.writeUTF( language );
-        
+
         if( shortText == null ) {
             shortText = "";
         }
         out.writeUTF( shortText );
-        
-        if( text == null ) { 
+
+        if( text == null ) {
             text = "";
         }
-        out.writeUTF( text );        
+        out.writeUTF( text );
     }
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
         language = in.readUTF();
         shortText = in.readUTF();
-        text = in.readUTF();        
+        text = in.readUTF();
     }
 
     public I18NTextImpl(String language,
@@ -146,7 +146,7 @@ public class I18NTextImpl implements InternalI18NText {
         } else if ( !text.equals( other.text ) ) return false;
         return true;
     }
-    
+
     public static String getLocalText(List<I18NTextImpl> list, String prefferedLanguage, String defaultLanguage) {
         for ( I18NTextImpl text : list) {
             if ( text.getLanguage().equals( prefferedLanguage )) {
@@ -158,11 +158,11 @@ public class I18NTextImpl implements InternalI18NText {
                 if ( text.getLanguage().equals( defaultLanguage )) {
                     return text.getText();
                 }
-            }    
+            }
         }
         return "";
     }
 
 
-    
+
 }

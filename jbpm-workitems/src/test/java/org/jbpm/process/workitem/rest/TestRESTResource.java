@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,19 +31,19 @@ public class TestRESTResource {
     @GET
     @Produces("text/plain")
     public String get(@QueryParam("param")String param) {
-        
-        return "Hello from REST" + (param!=null?" " + param:""); 
+
+        return "Hello from REST" + (param!=null?" " + param:"");
     }
-    
+
     @POST
     @Path("/{name}")
     @Consumes("text/plain")
     @Produces("text/plain")
     public String post(@PathParam("name") String name) {
-        
+
         return "Created resource with name " + name;
     }
-    
+
     @POST
     @Path("/xml")
     @Consumes("application/xml")
@@ -52,7 +52,7 @@ public class TestRESTResource {
         person.setName("Post " + person.getName());
         return person;
     }
-    
+
     @PUT
     @Path("/xml")
     @Consumes("application/xml")
@@ -61,7 +61,7 @@ public class TestRESTResource {
         person.setName("Put " + person.getName());
         return person;
     }
-    
+
     @PUT
     @Path("/xml-charset")
     @Consumes("application/xml")
@@ -70,9 +70,9 @@ public class TestRESTResource {
         person.setName("Put " + person.getName());
         return person;
     }
-    
+
     @DELETE
-    @Path("/xml/{name}")    
+    @Path("/xml/{name}")
     @Produces("application/xml")
     public Person delete(@PathParam("name") String name) {
         Person person = new Person();
@@ -80,7 +80,7 @@ public class TestRESTResource {
         person.setName("deleted " + name);
         return person;
     }
-    
+
     @GET
     @Path("/xml")
     @Produces("application/xml")
@@ -89,7 +89,7 @@ public class TestRESTResource {
         person.setName("Person Xml");
         return person;
     }
-    
+
     @GET
     @Path("/json")
     @Produces("application/json")
@@ -97,7 +97,7 @@ public class TestRESTResource {
 
         return "{\"name\":\"Person Json\"}";
     }
-    
+
     @GET
     @Path("/xml-charset")
     @Produces("application/xml; charset=utf-8")
@@ -106,7 +106,7 @@ public class TestRESTResource {
         person.setName("Person Xml");
         return person;
     }
-    
+
     @GET
     @Path("/json-charset")
     @Produces("application/json; charset=utf-8")

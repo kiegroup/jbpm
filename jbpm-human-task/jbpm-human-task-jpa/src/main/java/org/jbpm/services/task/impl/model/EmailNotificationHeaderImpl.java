@@ -15,7 +15,7 @@
  */
 
 /**
- * 
+ *
  */
 package org.jbpm.services.task.impl.model;
 
@@ -36,87 +36,87 @@ import javax.persistence.Table;
 @Table(name = "email_header")
 @SequenceGenerator(name="emailNotificationHeadIdSeq", sequenceName="EMAILNOTIFHEAD_ID_SEQ", allocationSize=1)
 public class EmailNotificationHeaderImpl implements org.kie.internal.task.api.model.EmailNotificationHeader {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator="emailNotificationHeadIdSeq")
     private Long   id;
-    
-    private String language;    
-    
+
+    private String language;
+
     @Column( name = "replyToAddress" ) // just rename for consistency
     private String replyTo;
-        
+
     @Column( name = "fromAddress" ) // have to rename as schema's break otherwise
     private String from;
-    
+
     private String subject;
-    
+
     @Lob @Column(length=65535)
     private String body;
-    
+
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeLong( id );
-        
+
         if ( language != null ) {
             out.writeBoolean( true );
             out.writeUTF( language );
         } else {
             out.writeBoolean( false );
         }
-        
+
         if ( subject != null ) {
             out.writeBoolean( true );
             out.writeUTF( subject );
         } else {
             out.writeBoolean( false );
         }
-        
+
         if ( replyTo != null ) {
             out.writeBoolean( true );
             out.writeUTF( replyTo );
         } else {
             out.writeBoolean( false );
         }
-        
+
         if ( from != null ) {
             out.writeBoolean( true );
             out.writeUTF( from );
         } else {
             out.writeBoolean( false );
-        }        
-        
+        }
+
         if ( body != null ) {
             out.writeBoolean( true );
             out.writeUTF( body );
         } else {
             out.writeBoolean( false );
-        }          
+        }
     }
 
-    
+
     public void readExternal(ObjectInput in) throws IOException,
                                             ClassNotFoundException {
         id = in.readLong();
-        
+
         if ( in.readBoolean() ) {
             language = in.readUTF();
         }
-        
+
         if ( in.readBoolean() ) {
             subject = in.readUTF();
         }
-     
+
         if ( in.readBoolean() ) {
             replyTo = in.readUTF();
         }
-        
+
         if ( in.readBoolean() ) {
             from = in.readUTF();
         }
-        
+
         if ( in.readBoolean() ) {
             body = in.readUTF();
-        }        
+        }
     }
 
     public long getId() {
@@ -202,5 +202,5 @@ public class EmailNotificationHeaderImpl implements org.kie.internal.task.api.mo
         } else if ( !replyTo.equals( other.replyTo ) ) return false;
         return true;
     }
-          
+
 }

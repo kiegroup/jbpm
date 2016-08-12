@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -35,7 +35,7 @@ import bitronix.tm.TransactionManagerServices;
 /**
  * Class to reproduce bug with multiple threads using persistence and each
  * configures its own entity manager.
- * 
+ *
  * This test takes time and resources, please only run it locally
  */
 @Ignore
@@ -52,7 +52,7 @@ public class OneProcessPerThreadPersistenceTest extends OneProcessPerThreadTest 
     public void tearDown() throws Exception {
         BitronixTransactionManager txm = TransactionManagerServices.getTransactionManager();
         assertTrue("There is still a transaction running!", txm.getCurrentTransaction() == null );
-        
+
         cleanUp(context);
     }
 

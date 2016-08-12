@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -31,16 +31,16 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="execute-task-rules-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class ExecuteTaskRulesCommand extends TaskCommand<Void> {
-	
-	private static final long serialVersionUID = 1852525453931482868L;
-	
-	@XmlElement
-	@XmlJavaTypeAdapter(JaxbMapAdapter.class)
-	protected Map<String, Object> data;
-	@XmlElement
-	@XmlSchemaType(name="string")
+
+    private static final long serialVersionUID = 1852525453931482868L;
+
+    @XmlElement
+    @XmlJavaTypeAdapter(JaxbMapAdapter.class)
+    protected Map<String, Object> data;
+    @XmlElement
+    @XmlSchemaType(name="string")
     protected String scope;
-    
+
     public ExecuteTaskRulesCommand() {
     }
 
@@ -52,21 +52,21 @@ public class ExecuteTaskRulesCommand extends TaskCommand<Void> {
     }
 
     public Map<String, Object> getData() {
-		return data;
-	}
+        return data;
+    }
 
-	public void setData(Map<String, Object> data) {
-		this.data = data;
-	}
-	
-	@Override
-	public Void execute(Context ctx) {
-		
-		TaskContext context = (TaskContext) ctx;
-		Task task = context.getTaskQueryService().getTaskInstanceById(taskId);
-		
-		context.getTaskRuleService().executeRules(task, userId, data, scope);
-		return null;
-	}
+    public void setData(Map<String, Object> data) {
+        this.data = data;
+    }
+
+    @Override
+    public Void execute(Context ctx) {
+
+        TaskContext context = (TaskContext) ctx;
+        Task task = context.getTaskQueryService().getTaskInstanceById(taskId);
+
+        context.getTaskRuleService().executeRules(task, userId, data, scope);
+        return null;
+    }
 
 }

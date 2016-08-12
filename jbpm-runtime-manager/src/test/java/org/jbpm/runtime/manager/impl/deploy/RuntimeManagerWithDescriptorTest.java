@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -167,8 +167,8 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
 
         String drl = "package org.jbpm; global java.util.List service; "
-                + "	rule \"Start Hello1\"" + "	  when" + "	  then"
-                + "	    System.out.println(\"Hello\");" + "	end";
+                + " rule \"Start Hello1\"" + "    when" + "   then"
+                + "     System.out.println(\"Hello\");" + " end";
         resources.put("src/main/resources/simple.drl", drl);
 
         InternalKieModule kJar1 = createKieJar(ks, releaseId, resources);
@@ -255,8 +255,8 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         resources.put("src/main/resources/" + DeploymentDescriptor.META_INF_LOCATION, customDescriptor.toXml());
 
         String drl = "package org.jbpm; global java.util.List service; "
-                + "	rule \"Start Hello1\"" + "	  when" + "	  then"
-                + "	    System.out.println(\"Hello\");" + "	end";
+                + " rule \"Start Hello1\"" + "    when" + "   then"
+                + "     System.out.println(\"Hello\");" + " end";
         resources.put("src/main/resources/simple.drl", drl);
 
         KieServices ks = KieServices.Factory.get();
@@ -302,8 +302,8 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
 
         // configuration
         assertEquals(((SessionConfiguration) kieSession.getSessionConfiguration()).getSignalManagerFactory(),
-        		DefaultSignalManagerFactory.class.getName());
-        
+                DefaultSignalManagerFactory.class.getName());
+
         BusinessCalendar bc = (BusinessCalendar) kieSession.getEnvironment().get("jbpm.business.calendar");
         assertNotNull(bc);
         assertTrue(bc instanceof TestBusinessCalendar);
@@ -319,7 +319,7 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         assertNotNull(kieSession.getProcessInstance(processInstanceId));
         kieSession.getWorkItemManager().completeWorkItem(TestWorkItemHandler.getWorkItem().getId(), null);
         assertNull(kieSession.getProcessInstance(processInstanceId));
-        
+
         manager.disposeRuntimeEngine(engine);
         engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         kieSession = engine.getKieSession();
@@ -328,7 +328,7 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         assertArrayEquals(new String[] { "beforeProcessStarted", "afterProcessStarted", "beforeProcessCompleted",
         "afterProcessCompleted" }, processEvents.toArray());
         processEvents.clear();
-        
+
         manager.disposeRuntimeEngine(engine);
         engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         kieSession = engine.getKieSession();
@@ -337,10 +337,10 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         processInstance = kieSession.startProcess("UserTask");
         processInstanceId = processInstance.getId();
         assertNotNull(kieSession.getProcessInstance(processInstanceId));
-        
+
         manager.disposeRuntimeEngine(engine);
         engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get(processInstanceId));
-        
+
         TaskService taskService = engine.getTaskService();
         List<TaskSummary> tasks = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
         long taskId = tasks.get(0).getId();
@@ -350,24 +350,24 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
         assertArrayEquals(new String[]{ "beforeTaskAddedEvent", "afterTaskAddedEvent", "beforeTaskStartedEvent",
                         "afterTaskStartedEvent", "beforeTaskCompletedEvent", "afterTaskCompletedEvent"},
                 taskEvents.toArray());
-        
-        
+
+
         manager.disposeRuntimeEngine(engine);
         engine = manager.getRuntimeEngine(ProcessInstanceIdContext.get());
         kieSession = engine.getKieSession();
-        
+
         // marshalling strategy
         Map<String,Object> params = new HashMap<String, Object>();
         params.put("x", "marshal");
         processInstance = kieSession.startProcess("ParentProcess", params);
         processInstanceId = processInstance.getId();
-        
+
         ProcessInstance pi = kieSession.getProcessInstance(processInstanceId);
         assertNotNull(pi);
-        
+
         String varX = (String) ((WorkflowProcessInstance)pi).getVariable("x");
         assertEquals(TestMarshallingStrategy.ALWAYS_RESPOND_WITH, varX);
-        
+
         manager.disposeRuntimeEngine(engine);
     }
 
@@ -479,8 +479,8 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
 
     public static class TestMarshallingStrategy implements ObjectMarshallingStrategy {
 
-    	private static final String ALWAYS_RESPOND_WITH = "custom marshaller invoked";
-    	
+        private static final String ALWAYS_RESPOND_WITH = "custom marshaller invoked";
+
         @Override
         public boolean accept(Object o) {
             return (o instanceof String);
@@ -488,7 +488,7 @@ public class RuntimeManagerWithDescriptorTest extends AbstractDeploymentDescript
 
         @Override
         public void write(ObjectOutputStream objectOutputStream, Object o) throws IOException {
-            
+
         }
 
         @Override

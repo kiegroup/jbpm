@@ -37,16 +37,16 @@ public class TransactionalCommandServiceProducer {
     public TransactionalCommandService produceCommandService() {
         return new TransactionalCommandService( emf );
     }
-    
+
     @Produces
-	@Audit
+    @Audit
     public TransactionalCommandService produceAuditCommandService() {
-    	DeploymentDescriptorManager manager = new DeploymentDescriptorManager("org.jbpm.domain");
-    	DeploymentDescriptor descriptor = manager.getDefaultDescriptor();
-    	if (!"org.jbpm.domain".equals(descriptor.getAuditPersistenceUnit())) {
-    		return new TransactionalCommandService( EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()) );
-    	}
-    	
+        DeploymentDescriptorManager manager = new DeploymentDescriptorManager("org.jbpm.domain");
+        DeploymentDescriptor descriptor = manager.getDefaultDescriptor();
+        if (!"org.jbpm.domain".equals(descriptor.getAuditPersistenceUnit())) {
+            return new TransactionalCommandService( EntityManagerFactoryManager.get().getOrCreate(descriptor.getAuditPersistenceUnit()) );
+        }
+
         return new TransactionalCommandService( emf );
     }
 }

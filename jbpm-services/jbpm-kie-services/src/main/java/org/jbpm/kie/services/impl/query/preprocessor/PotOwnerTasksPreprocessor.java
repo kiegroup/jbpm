@@ -33,8 +33,8 @@ import org.kie.internal.identity.IdentityProvider;
 public class PotOwnerTasksPreprocessor implements DataSetPreprocessor {
 
     private IdentityProvider identityProvider;
-    
-    
+
+
     public PotOwnerTasksPreprocessor(IdentityProvider identityProvider) {
         this.identityProvider = identityProvider;
     }
@@ -46,15 +46,15 @@ public class PotOwnerTasksPreprocessor implements DataSetPreprocessor {
         if (identityProvider == null) {
             return;
         }
-        
+
         List<Comparable> orgEntities = new ArrayList<Comparable>(identityProvider.getRoles());
         orgEntities.add(identityProvider.getName());
 
         List<ColumnFilter> condList = new ArrayList<ColumnFilter>();
-        
+
         condList.add(equalsTo(COLUMN_ACTUALOWNER, identityProvider.getName()));
         condList.add(equalsTo(COLUMN_ORGANIZATIONAL_ENTITY, orgEntities));
-        
+
         if (lookup.getFirstFilterOp() != null) {
             lookup.getFirstFilterOp().addFilterColumn(OR(condList));
         } else {

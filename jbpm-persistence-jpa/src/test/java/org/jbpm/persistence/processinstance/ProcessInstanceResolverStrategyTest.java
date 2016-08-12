@@ -3,7 +3,7 @@
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -63,28 +63,28 @@ import org.slf4j.LoggerFactory;
 public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessInstanceResolverStrategyTest.class);
-    
+
     private HashMap<String, Object> context;
     private StatefulKnowledgeSession ksession;
 
     private static final String RF_FILE = "SimpleProcess.rf";
     private final static String PROCESS_ID = "org.jbpm.persistence.TestProcess";
     private final static String VAR_NAME = "persistVar";
-    
-    public ProcessInstanceResolverStrategyTest(boolean locking) { 
-       this.useLocking = locking; 
+
+    public ProcessInstanceResolverStrategyTest(boolean locking) {
+       this.useLocking = locking;
     }
-    
+
     @Parameters
     public static Collection<Object[]> persistence() {
         Object[][] data = new Object[][] { { false }, { true } };
         return Arrays.asList(data);
     };
-   
+
     @Before
-    public void before() { 
+    public void before() {
         context = setupWithPoolingDataSource(JBPM_PERSISTENCE_UNIT_NAME);
-        
+
         // load up the knowledge base
         Environment env = PersistenceUtil.createEnvironment(context);
         env.set(OBJECT_MARSHALLING_STRATEGIES, new ObjectMarshallingStrategy[] {
@@ -92,7 +92,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
                 new JPAPlaceholderResolverStrategy(env),
                 new SerializablePlaceholderResolverStrategy(ClassObjectMarshallingStrategyAcceptor.DEFAULT) }
                 );
-        if( useLocking ) { 
+        if( useLocking ) {
             env.set(USE_PESSIMISTIC_LOCKING, true);
         }
         KnowledgeBase kbase = loadKnowledgeBase();
@@ -101,18 +101,18 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         ksession = JPAKnowledgeService.newStatefulKnowledgeSession(kbase, null, env);
         Assert.assertTrue("Valid KnowledgeSession could not be created.", ksession != null && ksession.getIdentifier() > 0);
     }
-    
-    private KnowledgeBase loadKnowledgeBase() { 
+
+    private KnowledgeBase loadKnowledgeBase() {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
         kbuilder.add( new ClassPathResource( RF_FILE ), ResourceType.DRF );
         KnowledgeBase kbase = kbuilder.newKnowledgeBase();
         return kbase;
     }
-    
-    
+
+
     @After
     public void after() {
-        if( ksession != null ) { 
+        if( ksession != null ) {
             ksession.dispose();
         }
         cleanUp(context);
@@ -154,7 +154,7 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         NonSerializableClass processVar = new NonSerializableClass();
         processVar.setString("1234567890");
         params.put(VAR_NAME, processVar);
-    
+
         // Persist variable
         UserTransaction ut = (UserTransaction) new InitialContext().lookup("java:comp/UserTransaction");
         ut.begin();
@@ -165,20 +165,20 @@ public class ProcessInstanceResolverStrategyTest extends AbstractBaseTest {
         em.persist(processVar);
         em.close();
         ut.commit();
-    
+
         // Create process,
         ProcessInstance processInstance = ksession.createProcessInstance(PROCESS_ID, params);
         long processInstanceId = processInstance.getId();
         Assert.assertTrue(processInstanceId > 0);
         Assert.assertEquals(ProcessInstance.STATE_PENDING, processInstance.getState());
-        
+
         // insert process,
         ksession.insert(processInstance);
-   
+
         // and start process
         ksession.startProcessInstance(processInstanceId);
         ksession.fireAllRules();
-    
+
         // Test results
         processInstance = ksession.getProcessInstance(processInstanceId);
         Assert.assertEquals(ProcessInstance.STATE_ACTIVE, processInstance.getState());

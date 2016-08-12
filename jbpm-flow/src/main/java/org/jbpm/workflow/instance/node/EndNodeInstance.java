@@ -26,16 +26,16 @@ import org.kie.api.runtime.process.NodeInstance;
 
 /**
  * Runtime counterpart of an end node.
- * 
+ *
  */
 public class EndNodeInstance extends ExtendedNodeInstanceImpl {
 
     private static final long serialVersionUID = 510l;
 
     public EndNode getEndNode() {
-    	return (EndNode) getNode();
+        return (EndNode) getNode();
     }
-    
+
     public void internalTrigger(final NodeInstance from, String type) {
         super.internalTrigger(from, type);
         if (!org.jbpm.workflow.core.Node.CONNECTION_DEFAULT_TYPE.equals(type)) {
@@ -53,19 +53,19 @@ public class EndNodeInstance extends ExtendedNodeInstanceImpl {
         }
         ((NodeInstanceContainer) getNodeInstanceContainer()).removeNodeInstance(this);
         if (getEndNode().isTerminate()) {
-        	if (getNodeInstanceContainer() instanceof CompositeNodeInstance) {
-        	    if (getEndNode().getScope() == EndNode.PROCESS_SCOPE) {
+            if (getNodeInstanceContainer() instanceof CompositeNodeInstance) {
+                if (getEndNode().getScope() == EndNode.PROCESS_SCOPE) {
                     getProcessInstance().setState( ProcessInstance.STATE_COMPLETED );
                 } else {
-                	while (!getNodeInstanceContainer().getNodeInstances().isEmpty()) {
-                		((org.jbpm.workflow.instance.NodeInstance) getNodeInstanceContainer().getNodeInstances().iterator().next()).cancel();
-                	}
+                    while (!getNodeInstanceContainer().getNodeInstances().isEmpty()) {
+                        ((org.jbpm.workflow.instance.NodeInstance) getNodeInstanceContainer().getNodeInstances().iterator().next()).cancel();
+                    }
                     ((NodeInstanceContainer) getNodeInstanceContainer()).nodeInstanceCompleted(this, null);
                 }
-        	} else {
-        	    ((NodeInstanceContainer) getNodeInstanceContainer()).setState( ProcessInstance.STATE_COMPLETED );
-        	}
-        	
+            } else {
+                ((NodeInstanceContainer) getNodeInstanceContainer()).setState( ProcessInstance.STATE_COMPLETED );
+            }
+
         } else {
             ((NodeInstanceContainer) getNodeInstanceContainer())
                 .nodeInstanceCompleted(this, null);

@@ -32,7 +32,7 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskSummary;
 
 public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
-    
+
     private static final String EXPECTED_SUBJECT = "Bake a cake";
 
     private static final String HUMAN_TASK = "org/jbpm/test/functional/task/TaskSubjectAndDescription.bpmn2";
@@ -61,16 +61,16 @@ public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
 
         List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
         TaskSummary task = list.get(0);
-        
+
         Task t = taskService.getTaskById(task.getId());
 
         Assertions.assertThat(task.getDescription()).isEqualTo("This is description of the human task.");
         Assertions.assertThat(task.getSubject()).isNullOrEmpty();
         Assertions.assertThat(t.getSubject()).isEqualTo(EXPECTED_SUBJECT);
-        
+
         taskService.start(task.getId(), "john");
         taskService.complete(task.getId(), "john", null);
-        
+
         ProcessInstanceLog plog = getLogService().findProcessInstance(processInstance.getId());
 
         Assertions.assertThat(plog.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);
@@ -82,16 +82,16 @@ public class TaskSubjectAndDescriptionTest extends JbpmTestCase {
 
         List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("john", "en-UK");
         TaskSummary task = list.get(0);
-        
+
         Task t = taskService.getTaskById(task.getId());
 
         Assertions.assertThat(task.getDescription()).isEqualTo(EXPECTED_SUBJECT);
         Assertions.assertThat(task.getSubject()).isNullOrEmpty();
         Assertions.assertThat(t.getSubject()).isEqualTo(EXPECTED_SUBJECT);
-        
+
         taskService.start(task.getId(), "john");
         taskService.complete(task.getId(), "john", null);
-        
+
         ProcessInstanceLog plog = getLogService().findProcessInstance(processInstance.getId());
 
         Assertions.assertThat(plog.getStatus()).isEqualTo(ProcessInstance.STATE_COMPLETED);

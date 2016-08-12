@@ -31,11 +31,11 @@ import org.kie.internal.command.Context;
 @XmlRootElement(name="suspend-task-command")
 @XmlAccessorType(XmlAccessType.NONE)
 public class SuspendTaskCommand extends UserGroupCallbackTaskCommand<Void> {
-	
-	private static final long serialVersionUID = 5486559063221608125L;
 
-	public SuspendTaskCommand() {
-	}
+    private static final long serialVersionUID = 5486559063221608125L;
+
+    public SuspendTaskCommand() {
+    }
 
     public SuspendTaskCommand(long taskId, String userId) {
         this.taskId = taskId;
@@ -47,7 +47,7 @@ public class SuspendTaskCommand extends UserGroupCallbackTaskCommand<Void> {
         doCallbackUserOperation(userId, context);
         groupIds = doUserGroupCallbackOperation(userId, null, context);
         context.set("local:groups", groupIds);
-    	context.getTaskInstanceService().suspend(taskId, userId);
-    	return null;        
+        context.getTaskInstanceService().suspend(taskId, userId);
+        return null;
     }
 }

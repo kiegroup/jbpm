@@ -17,18 +17,18 @@
 package org.jbpm.process.core;
 
 /**
- * 
+ *
  */
 public interface Context {
 
     String getType();
-    
+
     long getId();
-    
+
     void setId(long id);
-    
+
     Context resolveContext(Object param);
-    
+
     ContextContainer getContextContainer();
-    
+
 }
